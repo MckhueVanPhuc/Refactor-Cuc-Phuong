@@ -1,0 +1,34 @@
+# Conceptual ERD Preview
+
+```mermaid
+erDiagram
+    ROUTE ||--o{ CHECKPOINT : contains
+    CHECKPOINT ||--o{ QR_CODE : has
+    CHECKPOINT ||--o{ CHECKPOINT_CONTENT : owns
+    CHECKPOINT ||--o{ MEDIA : owns
+
+    ROUTE ||--o{ JOURNEY_SNAPSHOT : produces
+    ROUTE o|--o| JOURNEY_SNAPSHOT : activates
+    JOURNEY_SNAPSHOT o|--o{ JOURNEY_SNAPSHOT : precedes
+
+    ADMIN_ACCOUNT o|--o{ AUDIT_RECORD : acts_in
+    ADMIN_ACCOUNT o|--o{ CHECKPOINT_CONTENT : submits
+    ADMIN_ACCOUNT o|--o{ CHECKPOINT_CONTENT : approves
+
+    ROUTE ||--o| SELECTED_ROUTE_CONTEXT : is_selected_in
+    ROUTE ||--o{ OFFLINE_PACKAGE : has
+    OFFLINE_PACKAGE ||--o{ OFFLINE_RESOURCE : contains
+    CHECKPOINT ||--o{ OFFLINE_RESOURCE : is_packaged_for
+
+    SELECTED_ROUTE_CONTEXT ||--o| PLAY_SESSION : originated_at_start
+    ROUTE ||--o{ PLAY_SESSION : is_experienced_by
+    PLAY_SESSION ||--o{ CHECKPOINT_VISIT : records
+    CHECKPOINT ||--o{ CHECKPOINT_VISIT : is_visited_in
+    PLAY_SESSION ||--o| PENDING_SYNC_ITEM : queues
+
+    PLAY_SESSION ||--o| SESSION_RECORD : yielded_at_intake
+    ROUTE ||--o{ SESSION_RECORD : reports
+
+    LANGUAGE_PREFERENCE {
+    }
+```

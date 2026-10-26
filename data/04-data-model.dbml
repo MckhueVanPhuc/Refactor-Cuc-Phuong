@@ -1,0 +1,388 @@
+Project CucPhuongQuestLogicalModel {
+  database_type: 'Logical model visualization'
+  Note: '''This DBML visualizes the Session 5 logical model.
+It is not the final physical PostgreSQL/Supabase schema.
+data/04-data-model.md is authoritative.'''
+}
+
+Enum RouteStatus {
+  NHAP
+  CHO_DUYET
+  HOAT_DONG
+  TAM_DONG
+  LUU_TRU
+}
+
+Enum Difficulty {
+  NHE
+  TRUNG_BINH
+  KHO
+}
+
+Enum CheckpointStatus {
+  NHAP
+  HOAT_DONG
+  TAM_DONG
+  LUU_TRU
+}
+
+Enum ConnectivityMode {
+  ONLINE_AVAILABLE
+  OFFLINE_REQUIRED
+}
+
+Enum QRCodeStatus {
+  HOAT_DONG
+  DA_THAY
+  THU_HOI
+}
+
+Enum LanguageCode {
+  vi
+  en
+}
+
+Enum CheckpointContentStatus {
+  NHAP
+  CHO_DUYET
+  DA_DUYET
+  PHAT_HANH
+  LUU_TRU
+}
+
+Enum MediaType {
+  IMAGE
+  AUDIO
+  VIDEO
+}
+
+Enum JourneySnapshotStatus {
+  DA_CONG_BO
+}
+
+Enum AdminRole {
+  CONTENT_STAFF
+  REVIEWER
+}
+
+Enum AdminAccountStatus {
+  INVITATION_PENDING
+  ACTIVE
+  DEACTIVATED
+}
+
+Enum AuthorizationStatus {
+  AUTHORIZED
+  REVOKED
+}
+
+Enum OfflinePackageStatus {
+  CHUA_TAI
+  DANG_TAI
+  SAN_SANG
+  CHUA_HOAN_TAT
+}
+
+Enum OfflinePackageVersionStatus {
+  CURRENT
+  OUTDATED
+}
+
+Enum PlaySessionStatus {
+  DANG_DIEN_RA
+  HOAN_TAT
+  BO_DO
+}
+
+Enum PendingSyncStatus {
+  PENDING
+  SYNCED
+  CONFLICT
+}
+
+Enum SessionTerminalStatus {
+  HOAN_TAT
+  BO_DO
+}
+
+Table Route {
+  routeId varchar [pk, not null, note: 'Stable logical identity']
+  status RouteStatus [not null]
+  "name.vi" varchar [note: 'Conditional; required and non-empty for publication']
+  "name.en" varchar [note: 'Conditional; required and non-empty for publication']
+  "description.vi" varchar [note: 'Conditional; required and non-empty for publication']
+  "description.en" varchar [note: 'Conditional; required and non-empty for publication']
+  "safetyWarning.vi" varchar [note: 'Conditional; both-or-none with English warning']
+  "safetyWarning.en" varchar [note: 'Conditional; both-or-none with Vietnamese warning']
+  distanceKm decimal [note: 'Conditional; positive and required for publication']
+  durationMin int [note: 'Conditional; positive and required for publication']
+  difficulty Difficulty [note: 'Conditional; required for publication']
+  timeTags "Array<Enum(TIME_NGAN,TIME_VUA,TIME_DAI)>" [note: 'Conditional logical array; non-empty for publication']
+  groupTags "Array<Enum(GROUP_CA_NHAN_NGUOI_LON,GROUP_GIA_DINH_CO_TRE,GROUP_CAN_DE_DANG)>" [note: 'Conditional logical array; non-empty for publication']
+  experienceTags "Array<Enum(INTEREST_THIEN_NHIEN_CHUP_ANH,INTEREST_TIM_HIEU,INTEREST_KHAM_PHA)>" [note: 'Conditional logical array; non-empty for publication']
+  activeContentVersion int [note: 'Conditional same-Route published JourneySnapshot version']
+  concurrencyRevision int [not null]
+
+  Note: 'M03-owned logical entity. Archive is lifecycle update, not delete.'
+}
+
+Table Checkpoint {
+  checkpointId varchar [pk, not null]
+  routeId varchar [not null]
+  checkpointName varchar [note: 'Conditional; required before activation/publication']
+  sequence int [note: 'Conditional; unique per Route for non-archived checkpoints']
+  connectivityMode ConnectivityMode [note: 'Conditional; required before activation']
+  fieldVerificationConfirmed boolean [note: 'Conditional; true before ONLINE_AVAILABLE']
+  status CheckpointStatus [not null]
+  concurrencyRevision int [not null]
+
+  Note: 'M03-owned stable Route member.'
+}
+
+Table QRCode {
+  qrIdentifier varchar [pk, not null, unique]
+  checkpointId varchar [not null]
+  installationLabel varchar [not null]
+  status QRCodeStatus [not null]
+  replacementReason varchar [note: 'Conditional; required for identity replacement submission']
+
+  Note: 'Reprint preserves qrIdentifier; replacement and withdrawal are lifecycle updates.'
+}
+
+Table CheckpointContent {
+  checkpointId varchar [not null]
+  languageCode LanguageCode [not null]
+  revision int [not null]
+  introductionText varchar [note: 'Conditional; required and non-empty for submission/publication']
+  status CheckpointContentStatus [not null]
+  submittedByUserId varchar [note: 'Conditional after submission']
+  approvedByUserId varchar [note: 'Conditional after approval; differs from submitter']
+  reviewReason varchar [note: 'Conditional when rejected']
+  concurrencyRevision int [not null]
+
+  indexes {
+    (checkpointId, languageCode, revision) [pk]
+  }
+
+  Note: 'One logical revision in one checkpoint/language stream.'
+}
+
+Table Media {
+  mediaId uuid [pk, not null]
+  sourceRef varchar [not null, note: 'Resource/storage reference; not identity']
+  checkpointId varchar [not null]
+  type MediaType [not null]
+  usageRightsConfirmed boolean [not null]
+  isPublished boolean [not null]
+  concurrencyRevision int [not null]
+
+  Note: 'No complete Media lifecycle enum is declared.'
+}
+
+Table JourneySnapshot {
+  routeId varchar [not null]
+  contentVersion int [not null]
+  status JourneySnapshotStatus [not null]
+  publishedAt timestamp [not null, note: 'UTC logical DateTime']
+  previousContentVersion int [note: 'Optional same-Route predecessor; zero or many successors, no inverse uniqueness (M03 section 6.4 CL-S4-001)']
+  checkpoints "Array<Object>" [not null, note: 'Embedded immutable logical values; not JSON/physical type selection']
+  "checkpoints[].checkpointId" varchar [not null]
+  "checkpoints[].sequence" int [not null]
+  "checkpoints[].checkpointName" varchar [not null]
+  "checkpoints[].connectivityMode" ConnectivityMode [not null]
+  "checkpoints[].qrIdentifiers" "Array<String>" [not null]
+  "checkpoints[].offlineResource" Object [note: 'Conditional for OFFLINE_REQUIRED']
+  "checkpoints[].offlineResource.localizedContent" Object [note: 'Conditional with offlineResource']
+  "checkpoints[].offlineResource.localizedContent.vi" Object [note: 'Conditional with offlineResource']
+  "checkpoints[].offlineResource.localizedContent.vi.introductionText" varchar [note: 'Conditional, non-empty']
+  "checkpoints[].offlineResource.localizedContent.en" Object [note: 'Conditional with offlineResource']
+  "checkpoints[].offlineResource.localizedContent.en.introductionText" varchar [note: 'Conditional, non-empty']
+  "checkpoints[].offlineResource.staticImages" "Array<String>" [note: 'Conditional logical array; may be empty']
+
+  indexes {
+    (routeId, contentVersion) [pk]
+  }
+
+  Note: 'Published full-journey historical value; immutable.'
+}
+
+Table AdminAccount {
+  userId varchar [unique, note: 'Conditional unique external/provider linkage']
+  email varchar [pk, not null, unique, note: 'Normalized MVP logical identity']
+  role AdminRole [not null]
+  status AdminAccountStatus [not null]
+  createdAt timestamp [not null, note: 'UTC logical DateTime']
+  updatedAt timestamp [not null, note: 'UTC logical DateTime']
+  concurrencyRevision int [not null]
+
+  Note: 'Provider credentials/session are external and not modeled here.'
+}
+
+Table AuditRecord {
+  auditId varchar [pk, not null]
+  actorUserId varchar [note: 'Conditional; absent for allowed server provisioning']
+  action varchar [not null]
+  entityType varchar [not null]
+  entityId varchar [not null]
+  revision int
+  beforeState Object [note: 'Optional frozen logical object; excludes credentials/tokens']
+  afterState Object [note: 'Optional frozen logical object; excludes credentials/tokens']
+  occurredAt timestamp [not null, note: 'UTC logical DateTime']
+
+  Note: 'Append-only event. Generic affected-entity references are not expanded into inferred relationships.'
+}
+
+Table LanguagePreference {
+  languageCode LanguageCode [not null]
+
+  Note: 'Singleton current preference in one local application profile; no surrogate identity and no invented relationship.'
+}
+
+Table SelectedRouteContext {
+  contractVersion int [not null, note: 'Exactly 2']
+  handoffId uuid [pk, not null, unique]
+  routeId varchar [not null]
+  authorizedAt timestamp [not null, note: 'UTC logical DateTime']
+  authorizationStatus AuthorizationStatus [not null]
+  routeJourneyManifest Object [not null, note: 'Embedded complete journey-only manifest']
+  "routeJourneyManifest.routeId" varchar [not null, note: 'Equals outer routeId']
+  "routeJourneyManifest.contentVersion" int [not null]
+  "routeJourneyManifest.checkpoints" "Array<Object>" [not null]
+  "routeJourneyManifest.checkpoints[].checkpointId" varchar [not null]
+  "routeJourneyManifest.checkpoints[].sequence" int [not null]
+  "routeJourneyManifest.checkpoints[].checkpointName" varchar [not null]
+  "routeJourneyManifest.checkpoints[].connectivityMode" ConnectivityMode [not null]
+  "routeJourneyManifest.checkpoints[].qrIdentifiers" "Array<String>" [not null]
+
+  Note: 'One current singleton context; complete manifest freezes at atomic write.'
+}
+
+Table OfflinePackage {
+  routeId varchar [not null]
+  contentVersion int [not null]
+  status OfflinePackageStatus [not null]
+  versionStatus OfflinePackageVersionStatus [note: 'Conditional when status is SAN_SANG']
+  manifest Object [not null, note: 'Embedded exact full-journey metadata copy']
+  "manifest.routeId" varchar [not null, note: 'Equals outer routeId']
+  "manifest.contentVersion" int [not null, note: 'Equals outer contentVersion']
+  "manifest.checkpoints" "Array<Object>" [not null]
+  "manifest.checkpoints[].checkpointId" varchar [not null]
+  "manifest.checkpoints[].sequence" int [not null]
+  "manifest.checkpoints[].checkpointName" varchar [not null]
+  "manifest.checkpoints[].connectivityMode" ConnectivityMode [not null]
+  "manifest.checkpoints[].qrIdentifiers" "Array<String>" [not null]
+  downloadedAt timestamp [note: 'Optional UTC logical DateTime']
+
+  indexes {
+    (routeId, contentVersion) [pk]
+  }
+
+  Note: 'resources collection is represented by canonical OfflineResource relationship.'
+}
+
+Table OfflineResource {
+  routeId varchar [not null]
+  contentVersion int [not null]
+  checkpointId varchar [not null]
+  localizedContent Object [not null]
+  "localizedContent.vi" Object [not null]
+  "localizedContent.vi.introductionText" varchar [not null]
+  "localizedContent.en" Object [not null]
+  "localizedContent.en.introductionText" varchar [not null]
+  staticImages "Array<String>" [not null, note: 'Logical array; may be empty']
+
+  indexes {
+    (routeId, contentVersion, checkpointId) [pk]
+  }
+
+  Note: 'M01 local copy removed with owning package/candidate.'
+}
+
+Table PlaySession {
+  sessionId uuid [pk, not null, unique]
+  sourceHandoffId uuid [not null, unique]
+  routeId varchar [not null]
+  contentVersion int [not null]
+  journeyCheckpoints "Array<Object>" [not null, note: 'Embedded immutable logical values']
+  "journeyCheckpoints[].checkpointId" varchar [not null]
+  "journeyCheckpoints[].sequence" int [not null]
+  "journeyCheckpoints[].checkpointName" varchar [not null]
+  "journeyCheckpoints[].connectivityMode" ConnectivityMode [not null]
+  "journeyCheckpoints[].qrIdentifiers" "Array<String>" [not null]
+  status PlaySessionStatus [not null]
+  startedAt timestamp [not null, note: 'UTC logical DateTime']
+  endedAt timestamp [note: 'Conditional for terminal status; UTC logical DateTime']
+
+  Note: 'Frozen local journey; terminal state is immutable. sourceHandoffId is creation lineage and survives replacement of the current handoff.'
+}
+
+Table CheckpointVisit {
+  sessionId uuid [not null]
+  checkpointId varchar [not null]
+  qrIdentifier varchar [not null, note: 'Observed value; not visit identity']
+  checkedInAt timestamp [not null, note: 'UTC first value; immutable']
+
+  indexes {
+    (sessionId, checkpointId) [pk]
+  }
+
+  Note: 'Associative conceptual event resolving PlaySession-to-Checkpoint many-to-many visits.'
+}
+
+Table PendingSyncItem {
+  sessionId uuid [pk, not null]
+  record Object [not null, note: 'Exact immutable SessionSyncRecord transport value']
+  "record.sessionId" uuid [not null, note: 'Equals outer sessionId']
+  "record.routeId" varchar [not null]
+  "record.contentVersion" int [not null]
+  "record.startedAt" timestamp [not null, note: 'UTC logical DateTime']
+  "record.endedAt" timestamp [not null, note: 'UTC logical DateTime']
+  "record.status" SessionTerminalStatus [not null]
+  "record.visitedCheckpoints" "Array<Object>" [not null]
+  "record.visitedCheckpoints[].checkpointId" varchar [not null]
+  "record.visitedCheckpoints[].checkpointName" varchar [not null]
+  "record.visitedCheckpoints[].sequence" int [not null]
+  "record.visitedCheckpoints[].checkedInAt" timestamp [not null, note: 'UTC logical DateTime']
+  syncStatus PendingSyncStatus [not null]
+
+  Note: 'Only syncStatus changes; embedded record stays frozen.'
+}
+
+Table SessionRecord {
+  sessionId uuid [pk, not null, unique]
+  routeId varchar [not null]
+  contentVersion int [not null]
+  startedAt timestamp [not null, note: 'UTC logical DateTime']
+  endedAt timestamp [not null, note: 'UTC logical DateTime']
+  status SessionTerminalStatus [not null]
+  visitedCheckpoints "Array<Object>" [not null, note: 'Embedded immutable historical values']
+  "visitedCheckpoints[].checkpointId" varchar [not null]
+  "visitedCheckpoints[].checkpointName" varchar [not null]
+  "visitedCheckpoints[].sequence" int [not null]
+  "visitedCheckpoints[].checkedInAt" timestamp [not null, note: 'UTC logical DateTime']
+  ingestedAt timestamp [not null, note: 'M03-owned UTC receipt time']
+
+  Note: 'Immutable accepted terminal history; SessionSyncRecord is transport only. sessionId carries intake lineage; the browser-local PlaySession need not remain.'
+}
+
+Ref: Checkpoint.routeId > Route.routeId
+Ref: QRCode.checkpointId > Checkpoint.checkpointId
+Ref: CheckpointContent.checkpointId > Checkpoint.checkpointId
+Ref: Media.checkpointId > Checkpoint.checkpointId
+Ref: JourneySnapshot.routeId > Route.routeId
+Ref: Route.(routeId, activeContentVersion) - JourneySnapshot.(routeId, contentVersion)
+Ref: AuditRecord.actorUserId > AdminAccount.userId
+Ref: CheckpointContent.submittedByUserId > AdminAccount.userId
+Ref: CheckpointContent.approvedByUserId > AdminAccount.userId
+Ref: SelectedRouteContext.routeId - Route.routeId
+Ref: OfflinePackage.routeId > Route.routeId
+Ref: OfflineResource.(routeId, contentVersion) > OfflinePackage.(routeId, contentVersion)
+Ref: OfflineResource.checkpointId > Checkpoint.checkpointId
+Ref: PlaySession.routeId > Route.routeId
+Ref: CheckpointVisit.sessionId > PlaySession.sessionId
+Ref: CheckpointVisit.checkpointId > Checkpoint.checkpointId
+Ref: PendingSyncItem.sessionId - PlaySession.sessionId
+Ref: SessionRecord.routeId > Route.routeId
+
+// REL-021: optional same-Route predecessor; zero or many successors (M03 section 6.4 CL-S4-001).
+Ref: JourneySnapshot.(routeId, previousContentVersion) > JourneySnapshot.(routeId, contentVersion)
