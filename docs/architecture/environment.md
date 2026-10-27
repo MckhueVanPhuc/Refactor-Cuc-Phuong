@@ -46,7 +46,12 @@ Browser data bị scope theo origin và device. Build/deployment record không t
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Frontend | Public client credential/configuration | Publishable key của cùng project; RLS và server-side authorization vẫn bắt buộc |
 | `APP_BACKEND_SECRET_KEY` | Edge Functions/server-side runtime only | Secret | Chỉ tồn tại trong server-side secret store; không có prefix `VITE_` |
 | `VITE_APP_VERSION` | Frontend | Public, build-generated | Nhận diện build/release; không dùng làm environment selector |
+| `QR_PUBLIC_BASE_URL` | Frontend (M02 link page and in-app scanner) and M03 printable QR images | Public, build-time configuration | Domain HTTPS cố định của Single Vercel Project; mã QR in ra là `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` (Spec M03 BR-M03-B04). Không đổi khi tem đã được dán; nếu buộc đổi domain thì link cũ phải tiếp tục chuyển hướng. Tên biến cụ thể trong build (ví dụ có prefix `VITE_`) thuộc implementation. |
 | `SUPABASE_URL` | Edge runtime | Platform configuration | URL của Supabase project đang chạy function |
+
+**Ánh xạ thuật ngữ trong spec:** "Production" trong Spec M03 BR-M03-B04/B05 là **Single Cloud Application Environment**; "non-Production" là **Local Development Workstation**. Mã QR tạo trên máy local mang dấu "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA" và không bao giờ được dán ra thực địa; nút Quét trong app chỉ nhận link có base đúng `QR_PUBLIC_BASE_URL` của môi trường đang chạy (Spec M02 BR-M02-023).
+
+**Cấp tài khoản Reviewer đầu tiên:** không có ngoại lệ theo môi trường; Single Cloud Application Environment áp dụng quy tắc chuẩn của Spec M03 BR-M03-K04.
 
 `VITE_*` được đưa vào browser bundle nên chỉ chứa public configuration. Không hard-code project URL, key, bucket name hoặc privileged credential trong business logic.
 
@@ -123,7 +128,7 @@ Environment không được override business behavior, canonical contract, repo
 - Chạy lint/typecheck, unit tests, contract validation và local persistence tests trên Local Development Workstation khi implementation tồn tại.
 - Dùng synthetic fixtures; không sao chép operational data, Auth identities hoặc secrets vào test data.
 - Test PWA/offline bằng local optimized build và secure-context/device strategy phù hợp.
-- Kiểm tra Published Route, `JourneySnapshot`, `LanguagePreference`, `SelectedRouteContext v2`, ready `OfflinePackage`, `LiveStationContent` và `SessionSyncRecord` theo canonical spec hiện hành.
+- Kiểm tra Published Route, `JourneySnapshot`, `LanguagePreference`, `SelectedRouteContext v3`, ready `OfflinePackage`, `LiveQrLookupResult`/`LiveStationContent` và `SessionSyncRecord` theo canonical spec hiện hành.
 
 ### Backend integration testing
 
