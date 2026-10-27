@@ -1,16 +1,21 @@
 ﻿<!--
 SYNC IMPACT REPORT
-Version change: 1.0.1 → 1.1.0 (V2 Documentation Refactor workspace adaptation)
-Modified sections:
-  1. Testing & Validation: Clarified that V2 repository is currently documentation-only; updated
-     validation rules to focus on cross-document consistency, DAC completion, and structural verification
-     without application runtime.
-  2. Guidance files table: Added data/08-data-acceptance-criteria.md and noted data/06-physical-schema.md
-     as the current physical boundary pending rebaseline.
-Preserved sections:
-  - All Core Principles (I through VII) are completely intact.
-  - Module Ownership Boundaries, Contract & Traceability, and Security Principles are strictly preserved.
-Follow-up TODOs: none remaining.
+Version change: 1.1.0 → 2.0.0 (MAJOR: alignment with spec rebaseline M01 v3.2, M02 v3.2, M03 v3.6)
+Modified principles:
+  II. Module Ownership Boundaries — M03 owns Revision instead of CheckpointContent;
+      the handoff contract is SelectedRouteContext v3; the live lookup contract is named
+      LiveQrLookupResult with LiveStationContent.
+  III. Minimal Diff & Traceability — recorded exception for IDs redefined in the V2 rebaseline.
+  IV. Data Integrity & Immutability — references updated to current IDs (BR-M03-G04, G08, J03).
+  V. Security & Authorization — second-person approval replaced by the mandatory publication
+      review, version restore and audit (spec-M03 BR-M03-A05); references updated (K02–K05).
+  VI. Offline Integrity & PWA Contract — visit recording follows BR-M02-005 (recorded for an
+      accepted scan before the content is shown).
+Other fixes: corrupted characters in Principle VI ("vi/en") and Governance ("tech-stack.md").
+Removed sections: none. Added sections: none.
+Downstream artifacts to review: AGENTS.md (updated together), MVP-Scope.md, function lists,
+architecture, screen list/specs, data S1–S4 and DAC (stale against the rebaselined specs).
+Follow-up TODOs: none.
 -->
 
 # Cúc Phương Quest Constitution
@@ -50,17 +55,17 @@ The product is a modular monolith with three logical modules. Each module has a 
 
 | Module | Owns at runtime | MUST NOT mutate |
 |--------|----------------|-----------------|
-| M01 | LanguagePreference, SelectedRouteContext v2, OfflinePackage/OfflineResource, RecommendationContext | M02 session/visit data; M03 source content |
+| M01 | LanguagePreference, SelectedRouteContext v3, OfflinePackage/OfflineResource, RecommendationContext | M02 session/visit data; M03 source content |
 | M02 | PlaySession, CheckpointVisit, frozen journey copy, PendingSyncItem / SessionSyncRecord | M01 shared contracts; M03 source entities |
-| M03 | Route, Checkpoint, QRCode, CheckpointContent, Media, JourneySnapshot, AdminAccount, SessionRecord, AuditRecord | Visitor device data; remote interruption of running sessions |
+| M03 | Route, Checkpoint, QRCode, Revision, Media, JourneySnapshot, AdminAccount, SessionRecord, AuditRecord | Visitor device data; remote interruption of running sessions |
 
 **Cross-module contract names are stable and versioned:**
 
 | Producer | Contract | Consumer |
 |----------|----------|----------|
 | M03 | Published Route projection, JourneySnapshot | M01 |
-| M01 | LanguagePreference, SelectedRouteContext v2, ready OfflinePackage | M02 |
-| M03 | LiveStationContent (live QR/content lookup) | M02 |
+| M01 | LanguagePreference, SelectedRouteContext v3, ready OfflinePackage | M02 |
+| M03 | LiveQrLookupResult with LiveStationContent (live QR lookup) | M02 |
 | M02 | Terminal anonymous SessionSyncRecord | M03 |
 
 **Rules:**
@@ -68,7 +73,7 @@ The product is a modular monolith with three logical modules. Each module has a 
 - Contract names (including version suffixes) MUST NOT be renamed, merged, or replaced by
   implementation convenience aliases without a spec change.
 - A module MUST NOT read another module's write-pending (staging/partial) values.
-- M01 MUST write SelectedRouteContext v2 atomically; M02 MUST NOT reconstruct the journey from M03.
+- M01 MUST write SelectedRouteContext v3 atomically; M02 MUST NOT reconstruct the journey from M03.
 - SessionSyncRecord (transport) and SessionRecord (M03 canonical entity) are distinct; they
   MUST NOT be merged.
 
@@ -84,7 +89,10 @@ Every change to a project artifact MUST be minimal, traceable, and scope-bounded
 
 - Every behavioral claim in a document MUST trace to a stable ID (FR-*, BR-*, US-*, FN-*,
   SCR-*, ENT-*, REL-*) that exists in the repository.
-- Stable IDs MUST NOT be reused for a different meaning once published.
+- Stable IDs MUST NOT be reused for a different meaning once published. Recorded exception
+  (2026-10-27, V2 rebaseline approved by the product owner): spec-M03 v3.4+ redefined FR-M03-002,
+  FR-M03-004 and FR-M03-006 and replaced BR-M03-001…020 with lettered groups (BR-M03-A01…L13).
+  These old meanings are superseded; the IDs are not reused again for any other meaning.
 - Derived artifacts (function list, architecture, screen spec, data model) MUST be updated to reflect
   a spec change; they MUST NOT lead a spec change.
 - When a derived artifact is out of scope for the current task, it MUST be marked as potentially
@@ -103,9 +111,9 @@ Several data types are immutable by design and MUST be treated as such in all la
 **Rules:**
 
 - JourneySnapshot is immutable once published (DA_CONG_BO); a new snapshot MUST be created for
-  every journey-affecting change (BR-M03-006).
+  every journey-affecting change (BR-M03-G04).
 - SessionSyncRecord / SessionRecord business fields are immutable; an identical retry is
-  idempotent; a changed retry for the same sessionId is a conflict (BR-M02-011, BR-M03-016).
+  idempotent; a changed retry for the same sessionId is a conflict (BR-M02-011, BR-M03-J03).
 - PlaySession.journeyCheckpoints is a frozen value copy of the handoff manifest; it MUST NOT be
   updated after session creation (BR-M02-003).
 - OfflinePackage staging/candidate values MUST NOT be exposed as the active package until atomic
@@ -114,7 +122,7 @@ Several data types are immutable by design and MUST be treated as such in all la
   MUST NOT be deleted.
 - Audit records are append-only and MUST NOT contain credential or token values.
 - Snapshot retention: current, previous, and snapshots replaced less than 30 days ago MUST be kept
-  (BR-M03-008). No hard-delete or automatic purge exists for canonical M03 entities in MVP
+  (BR-M03-G08). No hard-delete or automatic purge exists for canonical M03 entities in MVP
   (DEC-S6-002).
 
 **Rationale:** Immutability of historical and shared data prevents data loss and reporting inconsistency.
@@ -129,17 +137,18 @@ Authorization is server-side and must not be replicated solely in the browser.
 
 - Every M03 protected request MUST validate both the provider-authenticated identity **and** an
   active AdminAccount with a recognized role. A valid provider token alone MUST NOT grant M03
-  access (BR-M03-018).
+  access (BR-M03-K05).
 - Authorization MUST be enforced server-side (RLS, RPC role checks, Edge Function guards).
   Client-side role checks are UI convenience only.
-- The approver of a revision MUST differ from its submitter; self-approval is blocked
-  (spec-M03 §2.1, FR-M03-006).
+- M03 has no second-person approval. Any administrator may publish their own draft, but only
+  through the mandatory publication review screen; every publication MUST be audited (flagged
+  when self-published) and earlier versions MUST stay restorable (BR-M03-A05, F02, F07, F08).
 - The last active REVIEWER account MUST be protected transactionally; deactivation/demotion that
-  would leave zero active Reviewers MUST be rejected in the database transaction (BR-M03-015).
+  would leave zero active Reviewers MUST be rejected in the database transaction (BR-M03-K03).
 - Invitation and password recovery are provider-managed credential flows; neither may assign or
-  change an application role (BR-M03-020).
+  change an application role (BR-M03-K02).
 - Initial Reviewer provisioning is server-side only, one-time per environment, and unavailable from
-  the browser or public API (BR-M03-019, US-M03-05 §9).
+  the browser or public API (BR-M03-K04, US-M03-05 item 9).
 - RPC functions default to security-invoker; security-definer requires fixed search_path,
   explicit EXECUTE grants, and an in-function permission check.
 - VITE_* variables are visible in the browser bundle and MUST NOT contain secrets.
@@ -161,15 +170,15 @@ accurately.
 
 **Rules:**
 
-- App shell and bundled i/en i18n resources are cached via Workbox precache (Cache Storage).
+- App shell and bundled vi/en i18n resources are cached via Workbox precache (Cache Storage).
   Supabase API, Auth, admin responses, and signed media responses MUST NOT be runtime-cached by
   Workbox.
 - Offline package image bytes MUST be stored as local byte/blob in IndexedDB; a URL or signed URL
   MUST NOT count as a downloaded resource.
 - A package that is SAN_SANG but OUTDATED is usable; M02 MUST show the outdated warning when
   the status is known.
-- Check-in (visit recording) MUST happen before content loading; content failure MUST NOT roll back
-  a valid check-in (BR-M02-005).
+- A visit is recorded only for an accepted scan and before the content is shown; a content failure
+  MUST NOT remove a recorded visit (BR-M02-005).
 - PWA update mode is prompt; the service worker MUST NOT auto-reload when an M02 session, package
   operation, or unsaved M03 form is active.
 - Sync retries only while the app is open/resuming; no background sync after browser closure.
@@ -297,7 +306,7 @@ Validation in this phase focuses on:
 discipline. It does not override product behavior or contract definitions in
 docs/spec/spec-M01.md, spec-M02.md, or spec-M03.md. Technical implementation details not
 covered by the module specs follow the architecture documents in priority order:
-system-configuration.md, 	ech-stack.md, environment.md.
+system-configuration.md, tech-stack.md, environment.md.
 
 **Amendment procedure:**
 
@@ -335,4 +344,4 @@ system-configuration.md, 	ech-stack.md, environment.md.
 
 ---
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-10-26
+**Version**: 2.0.0 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-10-27
