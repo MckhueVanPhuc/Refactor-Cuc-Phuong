@@ -2,17 +2,29 @@
 
 ## Purpose and boundary
 
-Tài liệu này mô tả cấu hình runtime của Cúc Phương Quest trong phạm vi MVP M01–M03: các thành phần đang chạy, nơi đặt ba module, các vùng lưu trữ, luồng dữ liệu quan trọng, cách hệ thống hoạt động khi offline và các contract tích hợp.
+Tài liệu này mô tả runtime architecture đã duyệt của Cúc Phương Quest trong phạm vi MVP M01–M03: các runtime component đã chọn, nơi đặt ba module, các vùng lưu trữ, luồng dữ liệu quan trọng, cách hệ thống hoạt động khi offline và các contract tích hợp. Đây không phải bằng chứng implementation hoặc deployment đã tồn tại.
 
-Baseline nghiệp vụ và contract là toàn bộ Spec M01, M02, M03 version 2.0 hiện hành. Khi mô tả kiến trúc cũ khác với các spec này, tài liệu kiến trúc được cập nhật theo spec.
+Baseline nghiệp vụ và contract là toàn bộ Spec M01, M02, M03 version 2.0 hiện hành trên branch này. Architecture không thay đổi behavior hoặc contract trong các spec này.
 
-MVP sử dụng hai runtime environment: Preview (dùng cho phát triển, testing và nghiệm thu trên Vercel Preview và một Supabase Preview project riêng) và Production (cho bản phát hành/demo MVP trên Vercel Production và Supabase Production project riêng); máy phát triển local là development workstation chạy tooling/test và không cần Supabase project riêng. Cấu hình theo environment nằm tại [Environment Configuration](environment.md). Backend trên máy/Docker không phải điều kiện của workflow này.
+Runtime topology là **Single Cloud Application Environment**: một website/PWA trong **Single Vercel Project** và một **Single Supabase Cloud Project** làm **Shared Backend**. **M01 / M02 / M03 — Logical Modules** chạy trong cùng frontend application và không trở thành ba service/deployment. **Local Development Workstation** dùng cho development/testing nhưng không phải deployed environment. Cấu hình, migration state và giới hạn kiểm thử nằm tại [Environment Configuration](environment.md).
+
+Topology dưới đây là runtime architecture duy nhất của MVP.
 
 ## System Configuration Diagram
 
 ```mermaid
 flowchart TB
-    staticHost["Static web hosting<br/>Vercel"]
+    subgraph cloud["Single Cloud Application Environment"]
+        staticHost["Single Vercel Project<br/>one deployed website / PWA"]
+
+        subgraph backend["Single Supabase Cloud Project — Shared Backend"]
+            serviceBoundary["Data API + authenticated RPC<br/>public projections / database transactions"]
+            edge["Edge Functions<br/>terminal intake + Auth Admin boundary"]
+            auth["Supabase Auth<br/>admin identity and credential lifecycle"]
+            database["Postgres<br/>source data, snapshots, SessionRecord, reports"]
+            objectStorage["Supabase Storage<br/>published media objects"]
+        end
+    end
 
     subgraph device["Visitor/Admin device — Browser/PWA runtime"]
         subgraph webClient["Web client"]
@@ -24,14 +36,6 @@ flowchart TB
         cache["Cache Storage<br/>app shell + vi/en resources"]
         shared["IndexedDB — M01 shared data<br/>LanguagePreference<br/>SelectedRouteContext v2<br/>OfflinePackage + OfflineResource"]
         sessionStore["IndexedDB — M02 local data<br/>PlaySession<br/>CheckpointVisit<br/>PendingSyncItem with SessionSyncRecord"]
-    end
-
-    subgraph backend["Backend/data platform — Supabase"]
-        serviceBoundary["Data API + authenticated RPC<br/>public projections / database transactions"]
-        edge["Edge Functions<br/>terminal intake + Auth Admin boundary"]
-        auth["Supabase Auth<br/>admin identity and credential lifecycle"]
-        database["Postgres<br/>source data, snapshots, SessionRecord, reports"]
-        objectStorage["Object Storage<br/>published media objects"]
     end
 
     staticHost -->|"serves web client"| webClient
@@ -56,24 +60,26 @@ flowchart TB
     objectStorage -->|"online media"| m02
 ```
 
-Sơ đồ thể hiện topology runtime và hướng dữ liệu logic. Data API/RPC và Edge Functions thuộc cùng Supabase platform. Browser đọc public projections qua Data API/RLS và media qua Storage; không có proxy Edge bắt buộc cho mọi request. Physical payload/schema chi tiết nằm ngoài tài liệu này.
+Sơ đồ thể hiện đúng một Vercel deployment unit và đúng một Supabase backend project. Data API/RPC, Edge Functions, Auth, PostgreSQL và Storage đều thuộc Shared Backend đó. Browser đọc public projections qua Data API/RLS và media qua Storage; không có proxy Edge bắt buộc cho mọi request. Physical payload/schema chi tiết nằm ngoài tài liệu này.
 
 ## Runtime components and responsibilities
 
 | Runtime component | Responsibility in MVP | Module placement |
 |---|---|---|
-| Static web hosting | Phân phối một web client cho public visitor routes và protected administration routes. | Chứa artifact của M01, M02, M03; không sở hữu business data. |
+| Single Vercel Project | Phân phối một web client cho public visitor routes và protected administration routes. | Chứa artifact của M01, M02, M03; không sở hữu business data. |
 | Browser/PWA runtime | Chạy UI, QR interaction, online requests và offline behavior trên thiết bị hiện tại. | M01 và M02 là public flows; M03 là authenticated, online-only flow. |
 | Cache Storage | Giữ app shell và resource i18n `vi/en` cần để mở ứng dụng khi offline. | M01 quản lý phạm vi chuẩn bị/offline của visitor client. |
 | IndexedDB — M01 shared data | Giữ preference, handoff hiện tại, package active và candidate/staging chưa công bố. | M01 ghi; M02 chỉ đọc các contract đã công bố. |
 | IndexedDB — M02 local data | Giữ phiên, lượt ghé checkpoint và terminal sync record chưa được xác nhận. | M02 sở hữu và ghi liên tục. |
-| Backend service boundary | Data API/RLS cho reads, authenticated RPC cho commands/transactions và reports. | Phục vụ cả M01–M03; không tạo thêm business module thứ tư. |
+| Single Supabase Cloud Project / backend service boundary | Data API/RLS cho reads, authenticated RPC cho commands/transactions và reports. | Shared Backend phục vụ cả M01–M03; không tạo thêm business module thứ tư hoặc backend thứ hai. |
 | Edge Functions | Validate terminal intake và xử lý privileged Auth Admin calls trước khi gọi platform/database operations. | M02 sync và M03 account administration; không proxy public reads. |
 | Authentication provider | Xác thực admin, quản lý invitation/credential/session; không sở hữu application role/status. | Hỗ trợ M03; application role/status thuộc dữ liệu M03. |
 | Database | Giữ source data của route/checkpoint/QR/content, revision/public state, immutable `JourneySnapshot`, persisted `SessionRecord` và dữ liệu report. | M03 là owner nghiệp vụ; M01/M02 chỉ đọc hoặc gửi contract được phép. |
 | Object storage | Giữ media được M03 quản lý và backend công bố/tham chiếu. | M03 quản lý ảnh/audio/video; package offline chỉ sao chép text song ngữ và ảnh tĩnh cần thiết. |
 
 Backend MVP không có message broker, background queue, cron hoặc scheduler riêng. Snapshot được tạo trong luồng publication nguyên tử; report được query theo yêu cầu; retry terminal session do M02 thực hiện từ local queue.
+
+M03 dùng Supabase Auth của chính project chứa PostgreSQL business data. M01/M02 đọc public contracts/projections và gửi `SessionSyncRecord` được phép vào cùng project; hợp nhất hạ tầng không thay đổi producer/consumer ownership.
 
 ## Module placement and ownership
 
@@ -179,9 +185,9 @@ Các contract trên là logical contract. Runtime split Edge/RPC đã chốt ở
 | Area in this document | Source baseline |
 |---|---|
 | Module boundary, ownership and cross-module contracts | [Spec M01](../spec/spec-M01.md), [Spec M02](../spec/spec-M02.md), [Spec M03](../spec/spec-M03.md), [System Context](context-diagram.md) |
-| Offline package, handoff and browser persistence | [Spec M01](../spec/spec-M01.md) §§4–6; previous `system-configuration.md` runtime decisions |
+| Offline package, handoff and browser persistence | [Spec M01](../spec/spec-M01.md) §§4–6; [Tech Stack](tech-stack.md) §4 |
 | Session, QR/content selection and terminal sync | [Spec M02](../spec/spec-M02.md) §§4–6; [Sequence Diagrams](sequence-diagrams.md) |
-| Publication, snapshots, Auth/data/media and reports | [Spec M03](../spec/spec-M03.md) §§3–6; previous `system-configuration.md` runtime decisions |
+| Publication, snapshots, Auth/data/media and reports | [Spec M03](../spec/spec-M03.md) §§3–6; [Tech Stack](tech-stack.md) §5 |
 | MVP inclusion and exclusions | [MVP Scope](../../MVP-Scope.md) |
 
 Các BRD M01–M03 không tồn tại trong working tree tại thời điểm refactor; ba module spec version 2.0 tự khai báo là implementation source of truth và được dùng làm behavioral/contract baseline hiện hành.
