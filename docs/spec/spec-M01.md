@@ -5,14 +5,14 @@
 | Field | Value |
 |---|---|
 | Module | M01 — Route Planning & Preparation |
-| Version | 3.1 |
-| Status | MVP implementation baseline — aligned to M03 v3.5 and M02 v3.1 |
-| Supersedes | 3.0 (previous repository baseline: 2.0) |
+| Version | 3.2 |
+| Status | MVP implementation baseline — aligned to M03 v3.6 and M02 v3.2 |
+| Supersedes | 3.1 (previous repository baseline: 2.0) |
 | Last updated | 2026-10-27 |
 | Primary consumers | Visitor web app, M02 |
 | Upstream system | M03 |
 
-This specification is self-contained and is the implementation source of truth for M01. UI mockups, physical API/database schemas and deployment details may refine implementation but must not change the behavior or contracts defined here without updating this document. Where M01 consumes a contract produced by M03, the M03 specification (v3.5) is the producer baseline and this document mirrors its shape.
+This specification is self-contained and is the implementation source of truth for M01. UI mockups, physical API/database schemas and deployment details may refine implementation but must not change the behavior or contracts defined here without updating this document. Where M01 consumes a contract produced by M03, the M03 specification (v3.6) is the producer baseline and this document mirrors its shape.
 
 ## 1. Purpose & Scope
 
@@ -70,8 +70,9 @@ M01 never writes M03-owned data. M02 never writes M01-owned data.
 
 ### US-M01-01 — Choose language
 
-1. Given no language has been selected, when the visitor enters the app, then M01 requires `vi` or `en` before continuing.
+1. Given no language has been selected, when the visitor enters the app through its normal entry, then M01 requires `vi` or `en` before continuing. Entering through a public QR link (M02 BR-M02-024) never shows this step: the device language is used (Vietnamese when the device language is Vietnamese, otherwise English) until the visitor switches.
 2. Given a language is selected, when the visitor changes it offline, then bundled UI and locally available content switch language without changing package state.
+3. The VI/EN language control is available on every visitor screen, including the M02 QR link page, and every change updates `LanguagePreference` at once.
 
 ### US-M01-02 — Browse and recommend routes
 
@@ -86,6 +87,7 @@ M01 never writes M03-owned data. M02 never writes M01-owned data.
 2. Given download succeeds completely, then the package becomes `SAN_SANG + CURRENT` and keeps the essential route texts together with the time they were saved.
 3. Given an update fails, then the previously-ready package remains usable as `SAN_SANG + OUTDATED`.
 4. Given the size estimate is absent, then Download remains available.
+5. The offline decision and the ready package state say, in one line, that without network check-in works with the Scan button in the app, because the phone camera may not open the app without network.
 
 ### US-M01-04 — Start a route
 
@@ -233,12 +235,12 @@ stateDiagram-v2
 
 | ID | Trigger / input | Required behavior | Failure behavior |
 |---|---|---|---|
-| FR-M01-001 | Select/change `vi` or `en` | Persist and publish current preference; update available UI/content immediately. | Reject unsupported value. |
+| FR-M01-001 | Select/change `vi` or `en` on any visitor screen, including the M02 QR link page | Persist and publish current preference; update available UI/content immediately. The normal entry asks for a language when none is stored; the QR link entry uses the device language without asking. | Reject unsupported value. |
 | FR-M01-002 | Open/refresh catalog | Show only `HOAT_DONG` routes with a valid published snapshot, each as a card: thumbnail, localized name and short description, distance, duration, difficulty, checkpoint count and an offline-needed mark. | Keep last local view when offline; do not claim it is current. An image that cannot load shows a neutral placeholder. |
 | FR-M01-003 | Select route | Show localized name, full description, starting point and how to get there, distance, duration, difficulty, gallery (first image is the cover), highlights, the checkpoint names in order, and, when present, participation requirements, preparation, best time, route map and the safety warning (prominent). | Do not synthesize missing public fields; hide absent optional fields. When offline, show the saved essential texts (FR-M01-014) and placeholders for images. |
 | FR-M01-004 | Three valid criteria | Return all active routes matching all three tags; support zero results. | Invalid/missing input prevents matching. |
 | FR-M01-005 | Select route | The route needs an offline package when `hasOfflineRequiredCheckpoint` or `hasOfflineRouteMap` is `true`; inspect package readiness/version. | Treat unreadable package as not ready. If the downloaded snapshot disagrees with the flags, follow the snapshot. |
-| FR-M01-006 | Package missing | Offer Download, Continue without download or Back, naming the checkpoints whose content may be unavailable and showing the estimated size (labelled as an estimate) when `estimatedOfflineSizeBytes` is present or "size not available" when it is absent; Continue still obeys Start guards. | No implicit choice; an absent estimate never blocks Download. |
+| FR-M01-006 | Package missing | Offer Download, Continue without download or Back, naming the checkpoints whose content may be unavailable and showing the estimated size (labelled as an estimate) when `estimatedOfflineSizeBytes` is present or "size not available" when it is absent; Continue still obeys Start guards. State that without network check-in works with the Scan button in the app. | No implicit choice; an absent estimate never blocks Download. |
 | FR-M01-007 | Download requested online | Fetch the current immutable snapshot, the offline resources of every QR of its offline-required checkpoints, the offline route map when present, and the essential route texts. | Do not publish partial data. |
 | FR-M01-008 | Candidate download completes | Validate manifest, bilingual text of every QR resource, declared images, the offline route map (when present) and the essential texts; atomically publish as ready. | Discard candidate; keep old ready package if present. |
 | FR-M01-009 | View/Download/Delete | Show route/version/readiness and when the essential texts were saved; require confirmation for delete. | Repeated action must not create concurrent work. |
@@ -254,7 +256,7 @@ Contract presence uses these terms: **Required** means the field and a value are
 
 #### Published Route input
 
-This is the Published Route projection produced by M03; its shape is identical to M03 v3.5. It exists only for routes that have been published at least once.
+This is the Published Route projection produced by M03; its shape is identical to M03 v3.6. It exists only for routes that have been published at least once.
 
 | Field path | Logical type | Presence | Constraints |
 |---|---|---|---|
@@ -316,7 +318,7 @@ Allowed recommendation values:
 
 #### JourneySnapshot input
 
-This is the immutable snapshot produced by M03; its shape is identical to M03 v3.5. It carries journey data only, plus the route-map image when M03 marks it as needed offline. Audio and video never appear in it.
+This is the immutable snapshot produced by M03; its shape is identical to M03 v3.6. It carries journey data only, plus the route-map image when M03 marks it as needed offline. Audio and video never appear in it.
 
 | Field path | Logical type | Presence | Constraints |
 |---|---|---|---|
@@ -452,7 +454,7 @@ The handoff contains journey metadata only. Offline text/images remain in `Offli
 
 | ID | Rule |
 |---|---|
-| BR-M01-001 | Only `vi` and `en` are supported; language changes do not change package state. |
+| BR-M01-001 | Only `vi` and `en` are supported; language changes do not change package state. M01 is the only writer of `LanguagePreference`; its language control is reused on every visitor screen, including the M02 QR link page, where the device language applies until a choice is stored. |
 | BR-M01-002 | Catalog and recommendations only use routes active with a published version. |
 | BR-M01-003 | Recommendation matches all three tag groups, returns 0..N routes and never auto-relaxes criteria. |
 | BR-M01-004 | A package covers one route/version, the full manifest, one resource for every QR of every offline-required checkpoint, the offline route map when the snapshot carries one, and the essential route texts. |
@@ -527,10 +529,11 @@ These constraints are required regardless of the physical browser/database desig
 | Screen | Required behavior |
 |---|---|
 | Language selection | Select `vi/en`. |
+| Language control | VI/EN switch shown on every visitor screen, including the M02 QR link page. |
 | Route catalog | Browse active routes as cards (thumbnail, name, short description, distance, duration, difficulty, checkpoint count, offline-needed mark) and open recommendation. |
 | Route details | Show gallery, full description, starting point, participation requirements, preparation, best time, highlights, route map, prominent safety warning and the checkpoint names in order; show offline need/package state and Start. Offline: show the saved essential texts with their saved time. |
 | Recommendation | Capture three criteria and display 0..N results. |
-| Offline decision | Name the checkpoints whose content may be unavailable, show the estimated size (labelled as an estimate) or that it is not available, and offer Download, continue without download or return. |
+| Offline decision | Name the checkpoints whose content may be unavailable, show the estimated size (labelled as an estimate) or that it is not available, say that without network check-in works with the Scan button in the app, and offer Download, continue without download or return. |
 | Resource management | View package status/version, when the essential texts were saved, whether an offline route map is included, download/update and delete. |
 
 Exact layout, component design and navigation polish are separate UI design concerns.
@@ -565,11 +568,12 @@ Exact layout, component design and navigation polish are separate UI design conc
 - No forced package download.
 - No real-time closure guarantee for offline devices.
 - No cross-device local data synchronization.
+- The visitor app is used in the browser; installing it on the iPhone home screen is not promoted in the MVP, because an installed app on iOS does not receive links opened from the camera and keeps separate data.
 - Saved route texts are a point-in-time copy and may be out of date when shown offline.
 
 ### 9.3 Approved Technical Constraints
 
-- UI translations and app shell must be locally available for offline language switching.
+- UI translations and app shell must be locally available for offline language switching. Once a browser has opened the app, the cached app shell also serves the public QR link page `/q/{qrIdentifier}` without network (M02 BR-M02-025).
 - Business package data must support atomic candidate-to-active publication.
 - Declared offline images (QR images and the offline route map) require actual local bytes, not only remote URLs.
 - Source availability is proven by a successful request, not a browser online flag alone.
@@ -619,13 +623,14 @@ None of these may redefine the business contracts or state transitions above.
 
 | Contract | Producer guarantee | Consumer expectation |
 |---|---|---|
-| Published Route | M03 exposes only complete published route projections in the shape of M03 v3.5. The projection may carry `HOAT_DONG`, `TAM_DONG`, or `LUU_TRU`; only `HOAT_DONG` with a non-null `activeContentVersion` is selectable by M01. | M01 does not repair incomplete public data and hides absent optional fields. |
+| Published Route | M03 exposes only complete published route projections in the shape of M03 v3.6. The projection may carry `HOAT_DONG`, `TAM_DONG`, or `LUU_TRU`; only `HOAT_DONG` with a non-null `activeContentVersion` is selectable by M01. | M01 does not repair incomplete public data and hides absent optional fields. |
 | JourneySnapshot | M03 includes all active checkpoints, one conditional offline resource per QR of offline-required checkpoints, the optional offline route map and the optional size estimate, with consecutive version numbers per route. | M01 copies it without reconstructing the journey and tolerates a missing estimate. |
 | SelectedRouteContext v3 | M01 writes a complete atomic one-use handoff with an `expiresAt` 24 hours after `authorizedAt`. | M02 validates version 3/status/uniqueness/expiry before creating a session and rejects version 2. |
 | OfflinePackage | M01 exposes only active `SAN_SANG` data. | M02 never reads staging/partial packages and reads offline content per QR. |
 | Route essentials | M01-owned point-in-time copy of route texts. | Not a contract with M03 or M02; never presented as current when shown offline. |
+| LanguagePreference at QR link entry | M01 language control, reused on the M02 QR link page. | M02 uses the stored preference or, when none exists, the device language; M01 stays the only writer. |
 
-M03 v3.5 changes only the M03 administrative UI and changes no contract consumed by M01; the alignment changes of M01 v3.1 are listed in §12.
+M03 v3.5 and v3.6 change no contract consumed by M01. M03 v3.6 prints QR codes as public links that M02 serves; M01 supports that entry with its language control and its cached app shell (§12).
 
 ### 11.3 Completion Checklist
 
@@ -637,12 +642,24 @@ M03 v3.5 changes only the M03 administrative UI and changes no contract consumed
 - [x] Handoff version 3 and its 24-hour expiry are specified.
 - [x] FRs, entities, screens and success criteria are internally linked.
 - [x] No external requirements document is needed to implement M01.
-- [x] Published Route and JourneySnapshot inputs mirror the M03 v3.5 producer contracts.
-- [x] M02 v3.1 aligned to `SelectedRouteContext v3`, per-QR offline resources and the live QR lookup result.
+- [x] Published Route and JourneySnapshot inputs mirror the M03 v3.6 producer contracts.
+- [x] M02 v3.2 aligned to `SelectedRouteContext v3`, per-QR offline resources and the live QR lookup result.
+
+### 11.4 US → FR → BR → SC Traceability
+
+| User story | FR | BR | SC |
+|---|---|---|---|
+| US-M01-01 Choose language | FR-M01-001 | BR-M01-001 | — |
+| US-M01-02 Browse and recommend routes | FR-M01-002, 003, 004 | BR-M01-002, 003 | SC-M01-001, 002 |
+| US-M01-03 Prepare offline content | FR-M01-005 to 010 | BR-M01-004 to 007, 012, 013, 016 | SC-M01-003, 004, 007, 009, 010 |
+| US-M01-04 Start a route | FR-M01-011, 012, 013 | BR-M01-008, 009, 010, 015 | SC-M01-005, 006 |
+| US-M01-05 Route becomes unavailable | FR-M01-002, 011, 012 | BR-M01-011 | — |
+| US-M01-06 View route details | FR-M01-003, 014 | BR-M01-013, 014 | SC-M01-008 |
 
 ## 12. Change Notes
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.2 | 2026-10-27 | Aligned to M03 v3.6 and M02 v3.2 (public QR link opened from the phone camera). US-M01-01: the QR link entry never blocks on language; the device language applies until the visitor switches; the language control is on every visitor screen (FR-M01-001, BR-M01-001, new screen row). US-M01-03 item 5 and FR-M01-006: the offline decision tells visitors to use the in-app Scan button without network. §9.3: the cached app shell serves the QR link page offline. §9.2: iPhone home-screen installation not promoted. US → FR → BR → SC traceability table (§11.4). No contract shape change. |
 | 3.1 | 2026-10-27 | Aligned to M03 v3.5. Producer references updated from M03 v3.4 to v3.5 (no contract shape change). JourneySnapshot input mirrors M03 exactly: `contentVersion` starts at `1` and increases by `1`; `previousContentVersion` is absent for version `1` and otherwise `contentVersion - 1`; `sequence` is the 1-based list position; `offlineRouteMap.caption` branches are at most 200 characters (also in `OfflinePackage.offlineRouteMap.caption`). US-M01-05 no longer refers to deleted routes, because M03 never physically deletes a published route. The domain model shows that routes and checkpoints are many-to-many (a checkpoint is shared by several routes). Status refers to M02 v3.1. |
 | 3.0 | 2026-10-23 | Baseline supplied for the V2 rebaseline (supersedes repository version 2.0). |

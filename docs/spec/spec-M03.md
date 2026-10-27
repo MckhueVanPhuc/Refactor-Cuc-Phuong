@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | Module | M03 — Operations & Content Administration |
-| Version | 3.5 |
-| Status | MVP implementation baseline — aligned with M01 v3.1 and M02 v3.1 (see §11) |
-| Supersedes | 3.4 (previous repository baseline: 2.0) |
+| Version | 3.6 |
+| Status | MVP implementation baseline — aligned with M01 v3.2 and M02 v3.2 (see §11) |
+| Supersedes | 3.5 (previous repository baseline: 2.0) |
 | Last updated | 2026-10-27 |
 | Consumers | M01 route/snapshot; M02 live content/QR lookup |
 | Producer input | M02 terminal anonymous sessions |
@@ -20,7 +20,7 @@ In scope:
 
 - Route administration: bilingual information, images, participation requirements, safety warning, starting point, recommendation tags, system-derived values, and the ordered choice of published checkpoints.
 - Checkpoint (area) library: checkpoints created and published once, independently of any route, each with a bilingual name and a connectivity classification, and listed by any number of routes.
-- QR-object administration: system-generated identifiers, per-QR bilingual content, images and optional audio/video.
+- QR-object administration: system-generated identifiers, a permanent public QR link that a phone's own camera can open, printable code images, per-QR bilingual content, images and optional audio/video.
 - Draft → publication review → self-publish workflow, one pending draft per item, version history, restore and discard.
 - Emergency close, controlled reopen and archive.
 - Immutable full-journey snapshots for M01/M02 with an offline-size ceiling and an optional size estimate.
@@ -65,7 +65,7 @@ Canonical contract names in this spec are logical names. Physical table/column n
 | Actor | Role | Responsibilities |
 |---|---|---|
 | Content Staff | `CONTENT_STAFF` | Create/edit/publish drafts, discard, restore, close route/checkpoint, revoke/reprint QR, view reports and item history. |
-| Reviewer | `REVIEWER` | Everything Content Staff can do, plus reopen, archive, replace QR identity, manage admin accounts and view the system-wide audit log. |
+| Reviewer | `REVIEWER` | Everything Content Staff can do, plus reopen, archive, manage admin accounts and view the system-wide audit log. |
 | M03 system | System | Generate identifiers, validate, derive values, publish atomically, build snapshots, enforce authorization/concurrency, write audit, ingest/report sessions. |
 | M01 | Consumer | Reads the Published Route projection and published snapshots. |
 | M02 | Consumer/producer | Reads live QR lookup and sends terminal anonymous sessions. |
@@ -82,7 +82,6 @@ Canonical contract names in this spec are logical names. Physical table/column n
 | Close route/checkpoint with reason; revoke QR; reprint QR | Yes | Yes |
 | Reopen a closed route/checkpoint | No | Yes |
 | Archive route/checkpoint | No | Yes |
-| Replace QR identity | No | Yes |
 | View RPT-01/RPT-02 and per-item history | Yes | Yes |
 | View system-wide audit log | No | Yes |
 | Invite/change/deactivate/reactivate admin account | No | Yes |
@@ -117,10 +116,10 @@ Authorization is enforced server-side. There is no submitter/approver separation
 2. The author chooses the connectivity mode explicitly. For "Cần tải trước" the visit points take text and images only; for "Dùng được khi có mạng" they also take audio and video. The mode is stored on the checkpoint and the form of its visit points follows it.
 3. Each visit point has its own name, introduction, images and, where allowed, audio/video. Scanning a QR returns that visit point's content only, never content shared by the whole checkpoint.
 4. Every visit point and checkpoint shows "Sẵn sàng" or "Chưa đủ: ...". Publishing the checkpoint goes through the review screen: the checkpoint and its ready visit points become active together; visit points that are not ready stay as drafts and are listed.
-5. After publication, an administrator can publish a single new visit point, or all ready visit points of the checkpoint at once, as one publication.
+5. After publication, each new visit point is published on its own.
 6. Editing a published checkpoint or visit point can change several routes; the review screen names every affected route.
 7. An active checkpoint always has at least one active visit point.
-8. Reprinting preserves the QR identifier and content. Identity replacement is Reviewer-only and has two steps: first a replacement code is created (new identifier, inherited content, the old code keeps working); after the new code is printed and installed, the Reviewer activates it, which swaps the codes and builds new journey versions in one operation.
+8. Reprinting preserves the QR identifier and content; it is the answer to a damaged or faded code. There is no QR identity replacement in the MVP: to give a thing a new code, staff add a new visit point for it, install its code, then revoke the old one (BR-M03-E08 retired).
 9. Revoking an active QR is blocked if it is the last active QR of an active checkpoint.
 10. The printable image of a code can be downloaded at any time; while the visit point is not published the screen warns that scanning it will report an invalid code.
 11. A checkpoint can be archived only by a Reviewer, only while closed, and only when no non-archived route lists it.
@@ -128,6 +127,7 @@ Authorization is enforced server-side. There is no submitter/approver separation
 13. After each save the visit point list updates at once, the item just saved is highlighted, and the editor states which visit point is being edited and whether the draft or the published version is on screen (BR-M03-E16).
 14. Several files can be selected in one action; each file is checked and uploaded on its own, and the files uploaded successfully are kept when others fail (BR-M03-E14).
 15. Before publishing, the author can preview a visit point's draft as visitors would see it, in both languages (BR-M03-F12).
+16. Every printed code is a permanent public web link containing the QR identifier, so that anyone can scan it with the phone's own camera and open the visit point in the visitor web app, without having opened the app before (BR-M03-B04). The printable image follows fixed print settings and, for a checkpoint that needs downloading beforehand, carries a short bilingual warning (BR-M03-B05).
 
 ### US-M03-04 — Close and reopen
 
@@ -201,7 +201,7 @@ flowchart TD
     I -->|No| K{Journey of any route affected?}
     K -->|No| L[Publish revision atomically]
     K -->|Yes| M[Build snapshot candidates for every affected route]
-    M --> N{All candidates complete within 3 retries?}
+    M --> N{All candidates complete?}
     N -->|No| O[Keep current public version and report failure]
     N -->|Yes| P[Atomic switch of revisions, every affected snapshot version and public state]
     L --> Q[Consumers read new public state]
@@ -249,7 +249,7 @@ Initial provisioning, invitation and password recovery are distinct flows. Provi
 
 ```mermaid
 flowchart LR
-    A[Receive terminal SessionSyncRecord] --> B{Schema, privacy, route and version valid?}
+    A[Receive terminal SessionSyncRecord] --> B{Schema, privacy, route, version and visited checkpoints valid?}
     B -->|No| C[Validation error]
     B -->|Yes| D{sessionId exists?}
     D -->|No| E[Store immutable session and visits]
@@ -323,16 +323,6 @@ flowchart TD
 
 A checkpoint is created and published once and can then be chosen by any number of routes. Publishing a route never publishes a checkpoint (BR-M03-C17). Visit points can be added only after the checkpoint has been saved with a connectivity mode (BR-M03-E15).
 
-### 4.8 QR identity replacement flow
-
-```mermaid
-flowchart LR
-    A[Reviewer creates the replacement code] --> B[New code is Nháp with inherited content and the old code keeps working]
-    B --> C[Print and install the new code on site]
-    C --> D[Reviewer activates the replacement]
-    D --> E[One operation: new code HOAT_DONG, old code DA_THAY, new journey versions for every route that lists an active checkpoint]
-```
-
 ## 5. Functional requirements
 
 `Behavioral baseline` below states whether the behavior belongs to this complete specification. Release priority is owned exclusively by `MVP-Scope.md`.
@@ -341,7 +331,7 @@ flowchart LR
 |---|---|---|
 | FR-M03-001 | Create/update route drafts: bilingual information, images, participation requirements, safety warning, starting point, two selectable tag groups, system-derived time tag/checkpoint count/offline flags, the choice to include the route map in the offline package, and the ordered choice of published checkpoints. | Required |
 | FR-M03-002 | Create/update checkpoints independently of routes, in a shared library: system-generated identity, bilingual name, unique Vietnamese name and connectivity mode; one checkpoint may be listed by many routes. | Required |
-| FR-M03-003 | Manage multiple QR objects per checkpoint with system-generated unguessable identifiers, a downloadable printable code image, and two-step identity replacement. | Required |
+| FR-M03-003 | Manage multiple QR objects per checkpoint with system-generated unguessable identifiers, a permanent public QR link encoded in a downloadable printable code image. | Required |
 | FR-M03-004 | Manage per-QR bilingual content (object name, introduction), images and, only for checkpoints that work with network, optional audio/video with size/count limits and usage-rights confirmation. | Required |
 | FR-M03-005 | Validate at two levels (save-time and publication-time) with field-level plain-language messages and a "missing for publication" panel. | Required |
 | FR-M03-006 | Provide the mandatory publication review screen; allow any administrator to publish; enforce role permissions server-side. | Required |
@@ -349,7 +339,7 @@ flowchart LR
 | FR-M03-008 | Publish a route's first state atomically with journey version 1; publish a checkpoint with its ready visit points independently of routes. | Required |
 | FR-M03-009 | Publish new immutable snapshots for every route affected by a change, switching all of them together; sequential version numbers per route, an offline-size ceiling and an optional offline size estimate. | Required |
 | FR-M03-010 | Retain snapshot versions without M01 acknowledgement. | Required |
-| FR-M03-011 | Close, reopen and archive routes and checkpoints; closing or reopening a checkpoint applies to every route that lists it; deterministic route outcomes; atomic snapshot switches; revoke, replace and reprint QR. | Required |
+| FR-M03-011 | Close, reopen and archive routes and checkpoints; closing or reopening a checkpoint applies to every route that lists it; deterministic route outcomes; atomic snapshot switches; revoke and reprint QR. | Required |
 | FR-M03-012 | Resolve a QR (with an optional route) to a live outcome `VALID` / `TEMPORARILY_CLOSED` / `INVALID` with the scanned QR's own content, and signal source failure separately. | Required |
 | FR-M03-013 | Authenticate administrative access; manage invitation, password recovery and two fixed application roles; bootstrap and preserve an active Reviewer. | Required |
 | FR-M03-014 | Ingest immutable terminal anonymous session records idempotently, validating route and version. | Required |
@@ -475,7 +465,7 @@ Lookup input:
 
 | Field path | Logical type | Presence | Constraints |
 |---|---|---|---|
-| `qrIdentifier` | String | Required | The identifier read from the QR code; matched exactly after trimming surrounding whitespace. |
+| `qrIdentifier` | String | Required | The identifier taken by the caller from the scanned public QR link (BR-M03-B04); matched exactly after trimming surrounding whitespace. |
 | `routeId` | String | Optional | The route the caller is on. Free visitors send none. M03 does not check that this route lists the checkpoint. |
 
 | Field path | Logical type | Presence | Constraints |
@@ -532,6 +522,7 @@ Required validation:
 - Visit timestamp falls within the session interval.
 - No visitor PII/device/GPS fields.
 - `routeId` identifies a known route and `contentVersion` is a published snapshot version of it, whatever the route's current status.
+- Every `visitedCheckpoints[].checkpointId` is a checkpoint of that snapshot, with `checkpointName` equal to its `checkpointName.vi` and `sequence` equal to its `sequence`.
 - Existing `sessionId` accepts only the same normalized business payload; transport formatting and field order are ignored.
 
 #### Report outputs
@@ -567,7 +558,7 @@ RPT-02 output:
 | `items[].uniqueSessionCount` | Integer | Required | Required for every array item; number of unique synchronized sessions visiting the checkpoint; `>= 0`. |
 | `lastSuccessfulIngestionAt` | DateTime | Optional | UTC; absent when no successful ingestion has occurred. |
 
-Both reports convert UTC timestamps to `Asia/Ho_Chi_Minh` for date filtering/grouping. Unsynchronized sessions are explicitly outside the result. Reports are at checkpoint level; there is no per-QR report. A visit means a QR scan recorded by the visitor's app; it is not proof that the visitor was physically at the location, and visits recorded at checkpoints that were closed at scan time are counted like any other because the session record carries no closure flag.
+Both reports convert UTC timestamps to `Asia/Ho_Chi_Minh` for date filtering/grouping. Unsynchronized sessions are explicitly outside the result. Reports are at checkpoint level; there is no per-QR report. A visit means a QR scan recorded by the visitor's app; it is not proof that the visitor was physically at the location. M02 records a visit only when the scan was accepted (`VALID`) or could not be checked (offline or lookup failure), so a visit at a checkpoint closed at scan time can come only from a scan that could not be checked; the session record carries no closure flag.
 
 #### Administrative contracts (logical)
 
@@ -589,7 +580,7 @@ These two shapes are produced by M03 for the administrative UI.
 
 | Field path | Logical type | Presence | Constraints |
 |---|---|---|---|
-| `unitType` | Enum(`ROUTE_FIRST_PUBLICATION`, `ROUTE_INFORMATION`, `CHECKPOINT_FIRST_PUBLICATION`, `CHECKPOINT_REVISION`, `QR_OBJECT`, `QR_OBJECTS_BATCH`) | Required | Publication unit (BR-M03-F04). |
+| `unitType` | Enum(`ROUTE_FIRST_PUBLICATION`, `ROUTE_INFORMATION`, `CHECKPOINT_FIRST_PUBLICATION`, `CHECKPOINT_REVISION`, `QR_OBJECT`) | Required | Publication unit (BR-M03-F04). |
 | `blockingIssues` | Array&lt;ValidationIssue&gt; | Required | Empty when publishable. |
 | `changes` | Array&lt;Object&gt; | Required | Each item: `fieldLabel`, `before`, `after` (plain text or summary). |
 | `sensitiveChanges` | Array&lt;Object&gt; | Required | Subset of `changes` on safety warning, participation requirements and the offline route-map tick, to be highlighted. |
@@ -616,7 +607,7 @@ Rules are grouped by theme. IDs are `BR-M03-<group letter><number>`. Groups appe
 |---|---|
 | BR-M03-A01 | There are exactly two fixed application roles: `REVIEWER` (general manager) and `CONTENT_STAFF`. There is no public sign-up. A Reviewer grants access by inviting a person with one role (BR-M03-K01); "granting a Content Staff member rights" means inviting that person, or changing the role, to `CONTENT_STAFF`. There are no finer permissions, custom roles or temporary delegation. |
 | BR-M03-A02 | Both roles may: create and edit routes, checkpoints, QR objects, content, media and internal notes; publish through the review screen, including their own drafts; discard items that were never published and pending drafts; restore a previous published version; close a route or checkpoint; revoke a QR object; reprint a QR code; view RPT-01/RPT-02 and the change history of any item. |
-| BR-M03-A03 | Only `REVIEWER` may: reopen a closed route or checkpoint; archive a route or checkpoint; replace a QR identity; invite, change role, deactivate or reactivate admin accounts; view the system-wide audit log. These actions are hard to undo or have physical consequences. |
+| BR-M03-A03 | Only `REVIEWER` may: reopen a closed route or checkpoint; archive a route or checkpoint; invite, change role, deactivate or reactivate admin accounts; view the system-wide audit log. These actions are hard to undo or have physical consequences. |
 | BR-M03-A04 | Authorization is enforced server-side on every protected request. Access requires an authenticated provider identity and an `ACTIVE` `AdminAccount` with a fixed role (BR-M03-K05). |
 | BR-M03-A05 | There is no "approver must differ from submitter" rule, no review queue and no `CHO_DUYET` state. The compensating controls are the mandatory publication review (BR-M03-F02), version restore (BR-M03-F07) and the audit trail (BR-M03-F08, BR-M03-F09). |
 
@@ -624,9 +615,11 @@ Rules are grouped by theme. IDs are `BR-M03-<group letter><number>`. Groups appe
 
 | ID | Rule |
 |---|---|
-| BR-M03-B01 | `routeId`, `checkpointId` and `qrIdentifier` are generated by the system at the moment the record is created. No screen or API accepts them as input. They are immutable and never reused, even after the record is discarded, archived, replaced or revoked. `revisionId`, `mediaId` and `auditId` are likewise system-generated. |
-| BR-M03-B02 | `qrIdentifier` is random and unguessable: at least 16 URL-safe alphanumeric characters from a cryptographically secure random source, carrying no meaning (no name, order or route/checkpoint information). It is unique system-wide. The printed QR code encodes exactly this string. After creating a QR object, M03 offers a downloadable printable image of the code at any time. While the QR object is not `HOAT_DONG`, the screen shows the warning MSG-QR-PRINT-UNPUBLISHED so that nobody installs an unpublished code unknowingly. |
+| BR-M03-B01 | `routeId`, `checkpointId` and `qrIdentifier` are generated by the system at the moment the record is created. No screen or API accepts them as input. They are immutable and never reused, even after the record is discarded, archived or revoked. `revisionId`, `mediaId` and `auditId` are likewise system-generated. |
+| BR-M03-B02 | `qrIdentifier` is random and unguessable: at least 16 URL-safe alphanumeric characters from a cryptographically secure random source, carrying no meaning (no name, order or route/checkpoint information). It is unique system-wide. The printed QR code encodes the public QR link of BR-M03-B04, whose last path segment is exactly this string. After creating a QR object, M03 offers a downloadable printable image of the code at any time. While the QR object is not `HOAT_DONG`, the screen shows the warning MSG-QR-PRINT-UNPUBLISHED so that nobody installs an unpublished code unknowingly. |
 | BR-M03-B03 | Because users never type identifiers, a "duplicate identifier" error cannot reach the user. If a generated value collides, the system silently generates another. |
+| BR-M03-B04 | **Public QR link.** Every printed code encodes the HTTPS link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` and nothing else: no language, route, version or tracking parameter. A phone's own camera opens this link in the browser, and the visitor web app shows that visit point; the visitor-side behavior belongs to M02. `QR_PUBLIC_BASE_URL` is environment configuration, not a business value. The link is permanent for the life of the printed code: the `/q/{qrIdentifier}` path pattern never changes, the Production base URL is a domain owned by the project and kept for as long as codes are installed, and if that domain ever changes the old links keep redirecting to the new one. The link carries no state: whether the code is valid, closed or revoked is decided by the live lookup at scan time (BR-M03-I02). Codes generated in any non-Production environment are never installed in the field. |
+| BR-M03-B05 | **Printable image.** M03 offers the code image as SVG and as PNG of at least `QR_PRINT_PNG_MIN_PX` pixels, encoded with error-correction level `QR_PRINT_ERROR_CORRECTION` and a quiet zone of `QR_PRINT_QUIET_ZONE_MODULES` modules; the download screen states that the printed code must be at least `QR_PRINT_MIN_SIZE_CM` wide. Under the code the image shows "Mã …{6 ký tự}" (BR-M03-E16). For a visit point of an `OFFLINE_REQUIRED` checkpoint it also shows the line "Khu vực không có sóng — hãy tải dữ liệu tuyến trước khi đến / No signal here — download the route data before you come". An image generated in a non-Production environment also shows "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA". When a checkpoint's connectivity mode is published with a change, the review screen shows MSG-REPRINT-MODE-CHANGED, because the printed line depends on the mode; reprinting keeps the identifier (BR-M03-E07). |
 
 #### 5.2.C Route
 
@@ -696,8 +689,8 @@ System-derived and not entered: time tag, checkpoint count, offline-required fla
 | BR-M03-D03 | **Unique name.** No two non-archived checkpoints have the same Vietnamese name (compared ignoring case and surrounding spaces), so that the selection list is unambiguous. A duplicate blocks saving with MSG-CHECKPOINT-NAME-TAKEN. |
 | BR-M03-D04 | **Ready checkpoint.** A checkpoint is ready for publication when: (1) it has a Vietnamese and an English name; (2) it has a connectivity mode (with the confirmation for `ONLINE_AVAILABLE`); (3) it has at least one ready visit point (BR-M03-E05); (4) for `OFFLINE_REQUIRED`, at publication M03 verifies that every image of its ready visit points is stored, readable and will be included in snapshots. The check runs on stored data, not on what is typed on screen. Readiness concerns content only; being closed is a separate state. |
 | BR-M03-D05 | **Publishing a checkpoint (first publication)** goes through the review screen (BR-M03-F02). The checkpoint and every ready visit point become `HOAT_DONG` together; visit points that are not ready stay `NHAP` as drafts and are listed on the review screen with what each is missing. It never creates a journey version because no route lists the checkpoint yet. From the moment it is published, scanning its QR codes works in live lookup, but the checkpoint is part of no journey until a route lists it. |
-| BR-M03-D06 | **Later publications.** After first publication each publication applies to one item: the checkpoint's information (name, mode), one visit point, or all ready `NHAP` visit points of the checkpoint at once (BR-M03-E13, BR-M03-F04). Each item has at most one pending draft shared by all administrators; history, restore and discard follow BR-M03-F06, F07 and F10. |
-| BR-M03-D07 | Visit points, their content, media, readiness, reprint, revoke and identity replacement follow group E. An active checkpoint always keeps at least one active visit point (BR-M03-E11). |
+| BR-M03-D06 | **Later publications.** After first publication each publication applies to one item: the checkpoint's information (name, mode), or one visit point (BR-M03-E13, BR-M03-F04). Each item has at most one pending draft shared by all administrators; history, restore and discard follow BR-M03-F06, F07 and F10. |
+| BR-M03-D07 | Visit points, their content, media, readiness, reprint and revoke follow group E. An active checkpoint always keeps at least one active visit point (BR-M03-E11). |
 | BR-M03-D08 | Closing, reopening and archiving a checkpoint: closing follows BR-M03-H01, H02 and H04; reopening follows BR-M03-H06; archiving follows BR-M03-D10. |
 | BR-M03-D09 | Discarding a checkpoint that was never published: either role, reason required; the checkpoint becomes `LUU_TRU` and its `NHAP` visit points become `THU_HOI`. |
 | BR-M03-D10 | **Archiving a checkpoint:** Reviewer only; the checkpoint must be `TAM_DONG`; and no non-archived route lists it (neither in its published list nor in a pending draft list). Otherwise the action is blocked with MSG-CHECKPOINT-IN-USE naming the routes. It is terminal and cannot be undone; its visit points become `THU_HOI`. Because a closed checkpoint has already left every journey, archiving creates no journey version. |
@@ -709,12 +702,12 @@ System-derived and not entered: time tag, checkpoint count, offline-required fla
 | ID | Rule |
 |---|---|
 | BR-M03-X01 | **Journey composition.** A route's journey is the route's listed checkpoints that are active, in list order, each with its published content (its `PHAT_HANH` revision and its active visit points). |
-| BR-M03-X02 | **One change, all routes together.** A published change to a checkpoint (publication of its information or of visit points, closing, reopening, revoking, identity replacement) that alters the journey of one or more routes builds a replacement snapshot for each affected route (every `HOAT_DONG` or `TAM_DONG` route whose published list contains the checkpoint) and switches all of them, together with the change itself, in one atomic operation: all succeed or none does. Routes in `NHAP` or `LUU_TRU` are not affected, and a route whose snapshot would not change gets no new version. |
+| BR-M03-X02 | **One change, all routes together.** A published change to a checkpoint (publication of its information or of visit points, closing, reopening, revoking) that alters the journey of one or more routes builds a replacement snapshot for each affected route (every `HOAT_DONG` or `TAM_DONG` route whose published list contains the checkpoint) and switches all of them, together with the change itself, in one atomic operation: all succeed or none does. Routes in `NHAP` or `LUU_TRU` are not affected, and a route whose snapshot would not change gets no new version. |
 | BR-M03-X03 | **Affected routes are always visible.** Every review screen and closing/reopening dialog for a checkpoint or visit point names the affected routes and the consequence for each (for example "gói tải trước của du khách cần cập nhật", "tuyến sẽ tự đóng tạm"). If the resulting offline package of any affected route would exceed the ceiling, that route is named and the publication or reopening is blocked; closing and revoking are never blocked by the ceiling (BR-M03-G10). |
 | BR-M03-X04 | Live lookup depends on the QR object, its checkpoint and, optionally, the route supplied by the caller (BR-M03-I01 to I06). |
 | BR-M03-X05 | A checkpoint listed by two routes is counted separately in each route's reports; reports stay at checkpoint level (BR-M03-J05 to J07). |
 | BR-M03-X06 | Every operation on a checkpoint writes an audit line that names the affected routes (BR-M03-F08). |
-| BR-M03-X07 | Permissions are unchanged: both roles create, edit, publish and close checkpoints and routes; only Reviewers reopen, archive, replace QR identity and manage accounts (BR-M03-A02, A03). |
+| BR-M03-X07 | Permissions are unchanged: both roles create, edit, publish and close checkpoints and routes; only Reviewers reopen, archive and manage accounts (BR-M03-A02, A03). |
 
 #### 5.2.E QR objects and their content
 
@@ -724,18 +717,18 @@ System-derived and not entered: time tag, checkpoint count, offline-required fla
 | BR-M03-E02 | A QR object has: an object name (vi/en), an introduction (vi/en), images (at most 5), audio/video (optional, at most 3 files in total, only when its checkpoint is `ONLINE_AVAILABLE`), and an internal installation note (optional, never shown to visitors). The QR form shows only the inputs its checkpoint mode allows. |
 | BR-M03-E03 | The introduction of each language is 30 to 2000 characters, measured after trimming leading and trailing whitespace. The object name is at most 100 characters. |
 | BR-M03-E04 | **Media.** Each image is at most 2 MB, each audio at most 5 MB, each video at most 30 MB. An upload over the limit is refused at once with a request to compress it. Every media file needs usage rights confirmed before the revision that uses it is published. Audio and video can be attached only to QR objects of `ONLINE_AVAILABLE` checkpoints (a file of this kind on a QR object of an `OFFLINE_REQUIRED` checkpoint is refused at save with MSG-AV-OFFLINE); they play only online and never enter an offline package. Only images of QR objects in `OFFLINE_REQUIRED` checkpoints, and the route map when it is marked as needed offline (BR-M03-C16), enter a journey snapshot. |
-| BR-M03-E05 | **Lifecycle and readiness.** A new QR object starts `NHAP`, then `HOAT_DONG`, then `DA_THAY` or `THU_HOI`. A QR object is **ready** when its object name and introduction are complete in both languages, its media are within limits, respect the checkpoint mode (BR-M03-D02) and have usage rights confirmed. A QR object becomes `HOAT_DONG` only by publication of a ready object. An active QR object has exactly one published revision. |
+| BR-M03-E05 | **Lifecycle and readiness.** A new QR object starts `NHAP`, then `HOAT_DONG`, then `THU_HOI`. A QR object is **ready** when its object name and introduction are complete in both languages, its media are within limits, respect the checkpoint mode (BR-M03-D02) and have usage rights confirmed. A QR object becomes `HOAT_DONG` only by publication of a ready object. An active QR object has exactly one published revision. |
 | BR-M03-E06 | **Editing a published QR object.** The edit creates a pending draft; the published content stays live until publication; the older version goes to history. If the checkpoint is `OFFLINE_REQUIRED` and active, publication creates a new journey version for every route that lists the checkpoint (BR-M03-X02). If it is `ONLINE_AVAILABLE`, the live lookup shows the new content at once and no journey version is created. |
 | BR-M03-E07 | **Reprint** (damaged or faded code): either role. The identifier and content are unchanged; only an audit entry is written. |
-| BR-M03-E08 | **Identity replacement in two steps (Reviewer only).** *Step 1, create the replacement:* reason required. It creates a new QR object in `NHAP` with a new identifier, `replacesQrIdentifier` pointing to the old object, and a pending draft that copies the old object's published content including media references. The old QR keeps working. A QR object has at most one pending replacement. The Reviewer then prints and installs the new code on site. The replacement's content may be edited between the steps. A pending replacement cannot be published through ordinary QR publication and is excluded from batch publication; it can be cancelled before activation (it becomes `THU_HOI`). *Step 2, activate the replacement:* one atomic operation that checks the replacement is ready, publishes its content, sets the new object `HOAT_DONG`, sets the old object `DA_THAY` with `replacedByQrIdentifier` and the reason as `statusReason`, marks any pending draft of the old object `DA_BO`, and, if the checkpoint is active, builds and activates new journey versions for every route that lists the checkpoint (BR-M03-X02). If any version cannot be built nothing changes. After activation the old printed code returns `INVALID`; the activation dialog (MSG-REPLACE-ACTIVATE-CONFIRM) reminds the Reviewer to be sure the new code is installed and to remove the old sticker. |
+| BR-M03-E08 | **[REMOVED in v3.6]** Two-step QR identity replacement. A damaged code is reprinted with the same identifier (BR-M03-E07); a thing that needs a new code gets a new visit point whose code is installed before the old one is revoked (BR-M03-E09, E13). The ID is retired and is not reused. |
 | BR-M03-E09 | **Revoke** an active QR object (the thing no longer exists): either role, reason required; the object becomes `THU_HOI` and new journey versions are built for the routes that list the checkpoint (BR-M03-X02). Blocked if it is the last active QR object of an active checkpoint. |
 | BR-M03-E10 | **Discard** a never-published QR object: either role; it becomes `THU_HOI`; reason optional. Its identifier is never reused. |
 | BR-M03-E11 | An active checkpoint always has at least one active QR object. Any operation that would violate this is blocked with an explanation (for example "Hãy thêm QR khác hoặc đóng điểm dừng trước"). |
 | BR-M03-E12 | A QR object cannot move to another checkpoint. To move a thing, create a new QR object and revoke the old one. |
-| BR-M03-E13 | A QR object added to an active checkpoint starts `NHAP` and joins the journey only when published. An administrator can publish it alone, or use "Xuất bản tất cả điểm tham quan đã sẵn sàng của điểm dừng này" to publish every ready `NHAP` QR object of the checkpoint as one unit. Each publication creates at most one new journey version per affected route, so a batch of several visit points yields one version per route. |
+| BR-M03-E13 | A QR object added to an active checkpoint starts `NHAP` and joins the journey only when it is published on its own (publication unit "QR object"); each such publication creates at most one new journey version per affected route. There is no batch publication of visit points in the MVP; only the checkpoint's first publication publishes all its ready visit points together (BR-M03-D05). |
 | BR-M03-E14 | **Uploading several files.** Wherever several files are allowed (images and audio/video of a visit point, the route gallery), one selection may contain several files, and for a visit point it may mix images, audio and video as far as the checkpoint mode allows. Each file is checked on its own (type, size) and uploaded on its own, and shows its own state: "Đang tải", "Đã tải" or "Không tải được" with the reason from the message catalog. Files beyond the remaining allowed count are refused one by one with MSG-COUNT-IMAGES or MSG-COUNT-AV; audio or video for a visit point of an `OFFLINE_REQUIRED` checkpoint is refused with MSG-AV-OFFLINE. A failed file never removes files that were uploaded successfully. After a selection of more than one file, MSG-UPLOAD-SUMMARY reports the result. A successfully uploaded file becomes part of the draft only when the draft is saved (BR-M03-F11); until then it shows MSG-UPLOADED-NOT-SAVED. Usage rights are confirmed file by file; no single tick confirms several files. |
 | BR-M03-E15 | **Adding a visit point.** "Thêm điểm tham quan" is available only after the checkpoint has been saved with a connectivity mode chosen; before that, pressing it shows MSG-MODE-REQUIRED-FIRST. It opens an empty form for a new visit point and creates nothing yet. The QR object, its `qrIdentifier` and its first draft revision are created together at the first successful "Lưu bản nháp" of that form; the save action stays disabled while the form is still empty. The form presents, in this order: object name (vi/en), introduction (vi/en), images, audio/video (only for `ONLINE_AVAILABLE`), installation note. After saving, the author stays in the form, and the printable code image is available from that first save (BR-M03-B02). |
-| BR-M03-E16 | **Identifying visit points.** In the visit point list and in the editor, each visit point shows its Vietnamese name (or "Điểm tham quan chưa đặt tên {số}" while it has none, numbered in creation order within the checkpoint), its status display name, its readiness and the last six characters of its code as "Mã …{6 ký tự}". The printable code image shows the same six characters under the code. After the first save of a new visit point, MSG-QR-CREATED appears with the action "Thêm điểm tham quan khác", and the item just saved is highlighted in the list. The editor heading names the visit point being edited ("Đang sửa: {tên}") and states which version is on screen: MSG-VERSION-DRAFT when a draft is shown, MSG-VERSION-PUBLISHED when the published version is shown. |
+| BR-M03-E16 | **Identifying visit points.** In the visit point list and in the editor, each visit point shows its Vietnamese name (or "Điểm tham quan chưa đặt tên {số}" while it has none, numbered in creation order within the checkpoint), its status display name, its readiness and the last six characters of its code as "Mã …{6 ký tự}". The printable code image shows the same six characters under the code (BR-M03-B05). After the first save of a new visit point, MSG-QR-CREATED appears with the action "Thêm điểm tham quan khác", and the item just saved is highlighted in the list. The editor heading names the visit point being edited ("Đang sửa: {tên}") and states which version is on screen: MSG-VERSION-DRAFT when a draft is shown, MSG-VERSION-PUBLISHED when the published version is shown. |
 
 #### 5.2.F Publication, concurrency and history
 
@@ -746,9 +739,9 @@ System-derived and not entered: time tag, checkpoint count, offline-required fla
 | BR-M03-F03 | Publication is atomic: either everything succeeds or the public data is unchanged. When a change affects several routes, all of them switch together with the change (BR-M03-X02). Visitors, M01 and M02 never see a half-published state. |
 | BR-M03-F04 | **Publication units.** One confirmation publishes one unit (table after this list). Checkpoints, visit points and routes are published independently of one another: a checkpoint is published before any route lists it, and publishing a route never publishes a checkpoint. |
 | BR-M03-F05 | **One operation at a time on a connected set.** Publication, closure and reopen operations are serialized on a set: an operation on a checkpoint covers that checkpoint and every route that lists it; an operation on a route covers that route and the checkpoints it lists. Two operations whose sets share a checkpoint or a route cannot run at the same time. A second operation arriving meanwhile is rejected with MSG-ROUTE-BUSY naming the busy route or checkpoint, and is not queued. |
-| BR-M03-F06 | **Concurrent editing.** Every published item has at most one pending draft, shared by all administrators. The draft is created at the first save of an edit; a second administrator opening the item sees the existing draft. Every mutable record has a `concurrencyRevision`; a write carrying an outdated value is rejected as stale and nothing is merged. The stale message names who changed the item and when and offers "Tải lại"; the text the user typed stays on screen for copying. The editor shows a warning when the draft was edited by someone else within the last 30 minutes. There is no edit lock in MVP. |
+| BR-M03-F06 | **Concurrent editing.** Every published item has at most one pending draft, shared by all administrators. The draft is created at the first save of an edit; a second administrator opening the item sees the existing draft. Every mutable record has a `concurrencyRevision`; a write carrying an outdated value is rejected as stale and nothing is merged. The stale message names who changed the item and when and offers "Tải lại"; the text the user typed stays on screen for copying. There is no edit lock in MVP. |
 | BR-M03-F07 | **Restore.** Each published item offers "Khôi phục bản đã xuất bản trước đó". It copies the chosen earlier published revision into a new pending draft, which goes through the review screen and publication as usual. It is blocked while a pending draft exists (the user must publish or discard that draft first). History is never deleted. Current rules apply at publication, so a restored revision that breaks a current limit is reported by validation. |
-| BR-M03-F08 | **Audit.** Every administrative action writes exactly one audit line holding: actor, time, object, content before and after, result (success or failure), reason where required (close, reopen, archive, revoke, identity replacement, discard of a route or checkpoint). Ordinary content edits need no reason but are logged. If the publisher is also the last editor the line is flagged "tự xuất bản"; no second line is written. The log is append-only, never edited or deleted, never contains passwords or secrets, and is displayed in plain language without internal error codes. |
+| BR-M03-F08 | **Audit.** Every administrative action writes exactly one audit line holding: actor, time, object, content before and after, result (success or failure), reason where required (close, reopen, archive, revoke, discard of a route or checkpoint). Ordinary content edits need no reason but are logged. If the publisher is also the last editor the line is flagged "tự xuất bản"; no second line is written. The log is append-only, never edited or deleted, never contains passwords or secrets, and is displayed in plain language without internal error codes. |
 | BR-M03-F09 | Every administrator can see the change history of any item. Reviewers also have a system-wide audit log for oversight. |
 | BR-M03-F10 | **Discard a pending draft** ("Bỏ thay đổi"): either role; the pending draft becomes `DA_BO`; the published version is untouched; an audit line is written. |
 | BR-M03-F11 | **Save unit.** Every editor (route, checkpoint, visit point) has one "Lưu bản nháp" action. One save writes, in one atomic operation, everything in the form: both languages of every text, the ordered media list with each file's usage-rights tick, and the item's internal note. It carries one `concurrencyRevision`; either all of it is saved or nothing is. There is no separate save per language or per section and no automatic saving in MVP. Uploading a file is a separate earlier step (BR-M03-E14): an uploaded file that is not yet saved stays on screen when a save fails or is stale. MSG-SAVED appears only after the whole save succeeded. Leaving an editor with unsaved changes shows MSG-UNSAVED-CHANGES with the choice to stay or to leave. |
@@ -760,12 +753,11 @@ BR-M03-F04 publication units:
 |---|---|---|---|
 | Checkpoint first publication | Checkpoint in `NHAP` | The checkpoint revision and every ready visit point (they become `HOAT_DONG`); visit points that are not ready stay `NHAP` and are left out. At least one visit point must be ready. | No (no route lists the checkpoint yet) |
 | Checkpoint information | Pending draft of a published checkpoint (name, connectivity mode) | The checkpoint revision. | For each route that lists it: yes if the checkpoint is active and its name or mode changed |
-| QR object | A single `NHAP` QR object, or a pending draft of a published QR object, of a published checkpoint | That QR object's revision (never a pending replacement; see BR-M03-E08). | For each route that lists the checkpoint: yes if the checkpoint is active and (the QR object joins the journey, or the checkpoint is `OFFLINE_REQUIRED`); no for an `ONLINE_AVAILABLE` checkpoint edit |
-| QR objects (batch) | Every ready `NHAP` QR object of one published checkpoint, excluding pending replacements | Their revisions; each becomes `HOAT_DONG`. | For each route that lists the checkpoint: yes if the checkpoint is active; one version per route for the whole batch |
+| QR object | A single `NHAP` QR object, or a pending draft of a published QR object, of a published checkpoint | That QR object's revision. | For each route that lists the checkpoint: yes if the checkpoint is active and (the QR object joins the journey, or the checkpoint is `OFFLINE_REQUIRED`); no for an `ONLINE_AVAILABLE` checkpoint edit |
 | Route first publication | Route in `NHAP` | The route revision (information, offline route-map choice, checkpoint list and order), journey version 1, route becomes `HOAT_DONG`. Never publishes a checkpoint. | Yes (version 1) |
 | Route information | Pending draft of an already published route (including a restored one) | The route revision: information, offline route-map choice, and the checkpoint list and its order. | Only for this route, and only if the snapshot changes (list or order change, or offline route-map change) |
 
-Operations that are not publication units: close, reopen, archive, revoke, identity replacement (two steps), reprint, discard and internal-note edits. A route in `TAM_DONG` may still be edited and published, but publication never reopens it (BR-M03-H08). Archived items are read-only.
+Operations that are not publication units: close, reopen, archive, revoke, reprint, discard and internal-note edits. A route in `TAM_DONG` may still be edited and published, but publication never reopens it (BR-M03-H08). Archived items are read-only.
 
 #### 5.2.G Journey snapshots
 
@@ -774,10 +766,10 @@ Operations that are not publication units: close, reopen, archive, revoke, ident
 | BR-M03-G01 | A journey snapshot is an immutable picture of a route's journey. M01 uses it for offline packages and M02 uses it to build the journey. Once published it is never modified. |
 | BR-M03-G02 | **Content.** The active checkpoints of the route's checkpoint list, in list order, in both connectivity modes. Each has: Vietnamese/English name, `sequence` (its 1-based position in the route's list; gaps appear where a listed checkpoint is not active), connectivity mode and the list of active QR identifiers. An `OFFLINE_REQUIRED` checkpoint also carries, for every QR object, its object name, Vietnamese/English introduction and images. An `ONLINE_AVAILABLE` checkpoint carries only the identifier list. When the route's published content marks the route map as needed offline, the snapshot also carries that map image and caption as `offlineRouteMap`. The snapshot carries the optional `estimatedOfflineSizeBytes` (BR-M03-G10). No audio or video. |
 | BR-M03-G03 | **Version numbers.** `contentVersion` is an integer: `1` at the first publication of a route, then `+1` for each new snapshot, never skipping or reusing a number. Each snapshot records the version just before it. A candidate under construction has no externally visible version number: the number is allocated inside the atomic switch, so failed or abandoned candidates consume no number. |
-| BR-M03-G04 | **A new version of route R is created when** (and only when the resulting snapshot differs from R's active one): R's checkpoint list or order changes; a checkpoint listed by R is closed or reopened; the name or connectivity mode of an active listed checkpoint changes; a visit point of an active listed checkpoint joins, is revoked or is replaced; the name, introduction or images of a visit point in an active listed `OFFLINE_REQUIRED` checkpoint change; R's offline route map is switched on or off or, while switched on, its image or caption changes (BR-M03-C16). |
+| BR-M03-G04 | **A new version of route R is created when** (and only when the resulting snapshot differs from R's active one): R's checkpoint list or order changes; a checkpoint listed by R is closed or reopened; the name or connectivity mode of an active listed checkpoint changes; a visit point of an active listed checkpoint joins or is revoked; the name, introduction or images of a visit point in an active listed `OFFLINE_REQUIRED` checkpoint change; R's offline route map is switched on or off or, while switched on, its image or caption changes (BR-M03-C16). |
 | BR-M03-G05 | **No new version when:** route information changes other than the checkpoint list, the order and the offline route map; any content of a visit point in an `ONLINE_AVAILABLE` checkpoint changes; audio/video changes; internal notes change; a QR is reprinted; a closed checkpoint is archived (it left every journey when closed); a checkpoint is published for the first time (no route lists it yet). |
 | BR-M03-G06 | The new snapshot, the route's `activeContentVersion` and the public state change together; when one change affects several routes, all of their snapshots switch together with the change (BR-M03-X02). A route's active snapshot always reflects exactly the current active checkpoints of its published list, whatever the route status. |
-| BR-M03-G07 | If building a snapshot fails, M03 retries automatically up to 3 times. If any affected route's snapshot still fails, the whole operation fails, everything public stays unchanged for all routes, the author is told clearly and the failure is audited. The time allowed for building is a performance target for later technical design, not fixed here. |
+| BR-M03-G07 | If building the snapshot of any affected route fails, the whole operation fails: everything public stays unchanged for all routes, the author is told clearly (MSG-PUBLISH-FAILED or MSG-CLOSE-FAILED) and may try again, and the failure is audited. There is no automatic retry in the MVP. The time allowed for building is a performance target for later technical design, not fixed here. |
 | BR-M03-G08 | M03 provides no hard delete for snapshots in MVP, so the requirement to keep the current snapshot, the previous one and every snapshot replaced less than 30 days ago is always met. M01 sends no acknowledgement. |
 | BR-M03-G09 | M01 reads only published snapshots; a candidate under construction is never exposed. |
 | BR-M03-G10 | **Offline size estimate and ceiling.** Estimated size = the sum of the file sizes of the distinct images referenced by QR objects of `OFFLINE_REQUIRED` checkpoints in the snapshot, plus the offline route-map image when present, plus the UTF-8 byte size of the offline texts (object names and introductions). Audio, video and media that are not downloaded for offline use are never counted, and texts that M01 stores for itself (such as route safety texts) are outside the estimate. It is an estimate, not the final size on the device. M03 computes it for every candidate snapshot because the ceiling check needs it, stores it as `estimatedOfflineSizeBytes` and publishes it as an optional contract field: consumers must tolerate its absence, and its absence never blocks a download. The review screen shows it. If an operation would create a snapshot above 50 MB for any route it affects, it is blocked and the message names that route and its heaviest images. The ceiling is not applied to closing a checkpoint or revoking a QR object, which can only reduce the size, so emergency closure is never blocked by it. 50 MB is provisional and must be validated on real devices. |
@@ -801,8 +793,8 @@ Operations that are not publication units: close, reopen, archive, revoke, ident
 
 | ID | Rule |
 |---|---|
-| BR-M03-I01 | **Request.** `qrIdentifier` (required, matched exactly after trimming surrounding whitespace) and `routeId` (optional: the route the caller is on; free visitors send none). The lookup uses current published public data, not snapshots. It answers for QR objects of both connectivity modes, whether or not the object is part of an offline package. M03 does not check that the supplied route lists the checkpoint. |
-| BR-M03-I02 | **Outcome evaluation, in this order.** (1) QR not found, or QR status not `HOAT_DONG` (`NHAP`, `DA_THAY`, `THU_HOI`) → `INVALID`. (2) Checkpoint `NHAP` or `LUU_TRU` → `INVALID`. (3) Route supplied and unknown or `NHAP` → `INVALID`. (4) Route supplied and `TAM_DONG` or `LUU_TRU` → `TEMPORARILY_CLOSED` with scope `ROUTE` (also when the checkpoint is still active); an archived route was closed before it was archived (BR-M03-H09), so a visitor still on it gets the same safety notice instead of an invalid-code message. (5) Checkpoint `TAM_DONG` → `TEMPORARILY_CLOSED` with scope `CHECKPOINT`. (6) Otherwise `VALID`. A failure to check is signalled separately and is never reported as `INVALID`. |
+| BR-M03-I01 | **Request.** `qrIdentifier` (required, matched exactly after trimming surrounding whitespace) and `routeId` (optional: the route the caller is on; free visitors send none). The lookup uses current published public data, not snapshots. It answers for QR objects of both connectivity modes, whether or not the object is part of an offline package, and whether the caller scanned with the in-app scanner or opened the public QR link from a phone camera; the caller takes `qrIdentifier` from the link (BR-M03-B04). M03 does not check that the supplied route lists the checkpoint. |
+| BR-M03-I02 | **Outcome evaluation, in this order.** (1) QR not found, or QR status not `HOAT_DONG` (`NHAP`, `THU_HOI`) → `INVALID`. (2) Checkpoint `NHAP` or `LUU_TRU` → `INVALID`. (3) Route supplied and unknown or `NHAP` → `INVALID`. (4) Route supplied and `TAM_DONG` or `LUU_TRU` → `TEMPORARILY_CLOSED` with scope `ROUTE` (also when the checkpoint is still active); an archived route was closed before it was archived (BR-M03-H09), so a visitor still on it gets the same safety notice instead of an invalid-code message. (5) Checkpoint `TAM_DONG` → `TEMPORARILY_CLOSED` with scope `CHECKPOINT`. (6) Otherwise `VALID`. A failure to check is signalled separately and is never reported as `INVALID`. |
 | BR-M03-I03 | `VALID` returns the checkpoint name (vi/en), the connectivity mode, and the object name, introduction (vi/en), images, and audio/video (the latter only for `ONLINE_AVAILABLE` checkpoints) of the scanned visit point only. It carries no route data. |
 | BR-M03-I04 | Only published content is returned; drafts never leak. `TEMPORARILY_CLOSED` returns no visit content, so that M02 can show safety guidance. The lookup writes no visitor data. |
 | BR-M03-I05 | An offline package older than the active version cannot learn of later closures; when online, M01 starts trips from the latest snapshot, so closed checkpoints are not in new journeys. While online, M02 may ask M03 for any QR object, including objects missing from an older package and objects of `OFFLINE_REQUIRED` checkpoints, so that a closure warning takes priority over cached content. Missing offline content is not an invalid QR. The limit for offline devices is accepted; Park Management covers it on site. |
@@ -814,12 +806,12 @@ Operations that are not publication units: close, reopen, archive, revoke, ident
 | ID | Rule |
 |---|---|
 | BR-M03-J01 | Only terminal session records (`HOAN_TAT` or `BO_DO`) are accepted, anonymous: no name, account, device identifier or GPS. |
-| BR-M03-J02 | Validation on receipt: `endedAt >= startedAt`; checkpoints unique in the session; each visit time within the session interval; `routeId` and `contentVersion` identify a published snapshot of a known route. |
+| BR-M03-J02 | Validation on receipt: `endedAt >= startedAt`; checkpoints unique in the session; each visit time within the session interval; `routeId` and `contentVersion` identify a published snapshot of a known route; every visited checkpoint belongs to that snapshot, with `checkpointName` equal to the snapshot's `checkpointName.vi` and `sequence` equal to the snapshot's `sequence`. A record that fails any check is rejected as invalid and nothing is stored. |
 | BR-M03-J03 | The first record for a `sessionId` is stored immutably. An identical retry succeeds without duplication. The same `sessionId` with different business content is rejected as a conflict and the first record is kept. Comparison uses normalized business content, ignoring field order and formatting. `sessionId` is unique across the whole system, not just within a route. |
 | BR-M03-J04 | Sessions of routes in any status (`TAM_DONG`, `LUU_TRU` included) and of any published journey version are accepted. |
 | BR-M03-J05 | Reports filter and group by `endedAt` in `Asia/Ho_Chi_Minh`, default last 30 days, `fromDate` and `toDate` supplied together. Only synchronized sessions count and the last successful ingestion time is shown. Both roles can view; no charts, export or real-time. |
 | BR-M03-J06 | RPT-01: total sessions, count and rate of `HOAN_TAT`, count and rate of `BO_DO`; rates are `0` when there are no sessions. |
-| BR-M03-J07 | RPT-02: per `(routeId, checkpointId)` the number of unique sessions that visited it. Grouping uses the checkpoint identity; the displayed name and `sequence` come from the session record with the latest `endedAt` in the period. Reports are at checkpoint level, not per QR. A visit is a QR scan recorded by the visitor's app, not proof of physical presence, and visits at checkpoints that were closed at scan time are counted like any other. |
+| BR-M03-J07 | RPT-02: per `(routeId, checkpointId)` the number of unique sessions that visited it. Grouping uses the checkpoint identity; the displayed name and `sequence` come from the session record with the latest `endedAt` in the period. Reports are at checkpoint level, not per QR. A visit is a QR scan recorded by the visitor's app, not proof of physical presence. M02 records a visit only when the scan was accepted (`VALID`) or could not be checked (offline or lookup failure). |
 | BR-M03-J08 | **Report notes.** The report page shows its notes as plain one-line text, never as a banner or in a warning colour: under the title MSG-REPORT-UPDATED with `lastSuccessfulIngestionAt` in `Asia/Ho_Chi_Minh`, or MSG-REPORT-NO-DATA-YET when it is absent; directly below it MSG-REPORT-SCOPE; under the RPT-02 table MSG-REPORT-VISIT-MEANING. When the selected filters give no session, the table area shows MSG-REPORT-EMPTY. Only a failure to load the report uses a warning style, with MSG-GENERIC. |
 
 #### 5.2.K Administrative accounts
@@ -847,7 +839,7 @@ Operations that are not publication units: close, reopen, archive, revoke, ident
 | BR-M03-L09 | **Audience.** Every administrative screen is written for park staff, not for machines: everyday Vietnamese, short sentences, the vocabulary of §5.4, no technical vocabulary. |
 | BR-M03-L10 | **No raw data.** The UI never shows JSON or other raw data, field names, code names of states, HTTP status codes, stack traces, internal identifiers, internal URLs, or words such as null/undefined. The only exception is the last six characters of a QR code, shown so that staff can match a printed code with its visit point (BR-M03-E16). Technical details go to server logs only. An unexpected failure shows MSG-GENERIC and loses nothing the user typed. |
 | BR-M03-L11 | **Display names.** Every state, role, mode and result shown to staff uses the display names of §5.4; the code names appear nowhere on screen, in history or in the audit views. |
-| BR-M03-L12 | **Helper text policy.** A hint appears under a field only for the fixed list of §5.5, one short line each. No hint explains how the system works, repeats the field label, or becomes a paragraph or a long tooltip. Confirmation dialogs exist only for closing, reopening, archiving, revoking, replacing a QR, publishing and leaving an editor with unsaved changes, and contain one sentence of consequence plus two buttons. |
+| BR-M03-L12 | **Helper text policy.** A hint appears under a field only for the fixed list of §5.5, one short line each. No hint explains how the system works, repeats the field label, or becomes a paragraph or a long tooltip. Confirmation dialogs exist only for closing, reopening, archiving, revoking, publishing and leaving an editor with unsaved changes, and contain one sentence of consequence plus two buttons. |
 | BR-M03-L13 | **Message catalog.** Every blocking condition, warning and notification uses an entry of §5.6 with its fixed wording. The UI selects the entry by `messageKey` and fills the placeholders in braces with plain values (names as shown in the UI, numbers with units, times as hh:mm, dates as dd/mm/yyyy). A missing entry falls back to MSG-GENERIC, never to raw text. |
 
 ### 5.3 Provisional limits
@@ -872,9 +864,12 @@ All values are provisional configuration constants that must be validated on the
 | `QR_MAX_IMAGES` / `QR_MAX_AV_FILES` | 5 / 3 | Images / audio-video files per QR object |
 | `IMAGE_MAX_MB` / `AUDIO_MAX_MB` / `VIDEO_MAX_MB` | 2 / 5 / 30 | Per file |
 | `OFFLINE_PACKAGE_MAX_MB` | 50 | Estimated offline size per route journey |
-| `SNAPSHOT_BUILD_MAX_RETRIES` | 3 | Automatic retries when building a snapshot |
-| `STALE_EDIT_NOTICE_WINDOW_MINUTES` | 30 | Window for the "edited recently by someone else" warning |
 | `QR_CODE_DISPLAY_SUFFIX_CHARS` | 6 | Characters of a QR code shown to staff (BR-M03-E16) |
+| `QR_PUBLIC_BASE_URL` | Environment configuration | HTTPS base of the public QR link (BR-M03-B04); the Production value is permanent |
+| `QR_PRINT_ERROR_CORRECTION` | Q | Error-correction level of the printable code (BR-M03-B05) |
+| `QR_PRINT_PNG_MIN_PX` | 1024 | Minimum PNG width of the printable code |
+| `QR_PRINT_QUIET_ZONE_MODULES` | 4 | Blank margin around the printable code |
+| `QR_PRINT_MIN_SIZE_CM` | 3 | Minimum printed width stated on the download screen |
 | Supported file types | JPEG, PNG, WebP; MP3, M4A; MP4 | Images; audio; video |
 
 ### 5.4 Display names and UI vocabulary
@@ -889,7 +884,6 @@ The administrative UI shows only the display names below. Code names never appea
 | Route / checkpoint status | `LUU_TRU` | Đã lưu trữ |
 | QR status | `NHAP` | Nháp |
 | QR status | `HOAT_DONG` | Đang hoạt động |
-| QR status | `DA_THAY` | Đã thay thế |
 | QR status | `THU_HOI` | Đã thu hồi |
 | Readiness (derived, not stored) | ready / not ready | Sẵn sàng / Chưa đủ: {điều còn thiếu} |
 | Revision status | `NHAP` | Bản nháp |
@@ -915,7 +909,6 @@ The administrative UI shows only the display names below. Code names never appea
 | Publication unit | `CHECKPOINT_FIRST_PUBLICATION` | Xuất bản điểm dừng lần đầu |
 | Publication unit | `CHECKPOINT_REVISION` | Thông tin điểm dừng |
 | Publication unit | `QR_OBJECT` | Điểm tham quan (một mã QR) |
-| Publication unit | `QR_OBJECTS_BATCH` | Các điểm tham quan đã sẵn sàng của điểm dừng |
 
 UI vocabulary:
 
@@ -928,7 +921,6 @@ UI vocabulary:
 | Publish | Xuất bản |
 | Close / reopen / archive | Đóng tạm / Mở lại / Lưu trữ |
 | Revoke a QR | Thu hồi mã QR |
-| Replace a QR | Thay mã QR (tạo mã thay thế, rồi kích hoạt) |
 | Discard a never-published item | Hủy |
 | Discard pending changes | Bỏ thay đổi |
 | Restore | Khôi phục bản đã xuất bản trước đó |
@@ -991,7 +983,6 @@ Fixed Vietnamese wording; `{...}` marks a placeholder filled with a plain value.
 | MSG-OFFLINE-TOO-BIG | Offline size over the ceiling for a route | Gói tải trước của tuyến "{tên tuyến}" sẽ nặng khoảng {số} MB, vượt mức {tối đa} MB. Ảnh nặng nhất: {danh sách}. Hãy nén hoặc bớt ảnh. |
 | MSG-IMAGE-NOT-READABLE | Stored image cannot be read | Chưa đọc được ảnh "{tên tệp}" đã tải lên. Hãy tải lại ảnh này. |
 | MSG-STALE | Stale save | {Tên người} vừa sửa mục này lúc {giờ}. Bấm Tải lại để xem bản mới nhất. Nội dung bạn đang gõ vẫn được giữ trên màn hình để bạn sao chép. |
-| MSG-RECENT-EDIT | Draft edited recently by someone else | {Tên người} vừa sửa bản nháp này lúc {giờ}. |
 | MSG-ROUTE-BUSY | Another operation running on the same route or checkpoint | Đang có thao tác khác chạy trên {tên tuyến hoặc điểm dừng}. Hãy thử lại sau ít phút. |
 | MSG-AFFECTED-ROUTES | Review screen impact note | Thay đổi này ảnh hưởng {số} tuyến: {danh sách}. Gói tải trước của du khách ở các tuyến đó cần cập nhật. |
 | MSG-PUBLISH-FAILED | Publication did not complete | Chưa xuất bản được. Những gì du khách đang thấy vẫn như cũ. Hãy thử lại sau ít phút. |
@@ -1002,7 +993,7 @@ Fixed Vietnamese wording; `{...}` marks a placeholder filled with a plain value.
 | MSG-CLOSE-ROUTE-AUTO | Closing dialog when routes would run out of active checkpoints | Các tuyến sau sẽ tự đóng tạm vì hết điểm dừng hoạt động: {danh sách}. |
 | MSG-CLOSE-FAILED | Closing did not complete | Chưa đóng được điểm dừng, mọi thứ vẫn như cũ. Hãy thử lại. Nếu khẩn cấp, bạn có thể bấm "Đóng tạm các tuyến liên quan". |
 | MSG-REOPEN-BLOCKED | Reopen checks failed | Chưa mở lại được. Cần xử lý trước: {danh sách}. |
-| MSG-REPLACE-ACTIVATE-CONFIRM | Activating a replacement code | Mã QR cũ sẽ không dùng được ngay khi bạn xác nhận. Hãy chắc chắn mã mới đã được in và dán, rồi gỡ mã cũ. |
+| MSG-REPRINT-MODE-CHANGED | Review screen when a checkpoint's connectivity mode changes | Loại kết nối của điểm dừng "{tên}" sẽ đổi. Sau khi xuất bản, hãy in lại mã QR của các điểm tham quan để dòng hướng dẫn trên tem đúng với thực tế. |
 | MSG-QR-PRINT-UNPUBLISHED | Downloading the image of an unpublished QR | Điểm tham quan này chưa xuất bản. Nếu dán mã ra thực địa, người quét sẽ thấy mã không hợp lệ. |
 | MSG-LAST-REVIEWER | Removing the last active manager | Không thể khóa hoặc hạ quyền người quản lý cuối cùng. |
 | MSG-NO-PERMISSION | Action not allowed for the role | Bạn chưa có quyền làm việc này. Hãy nhờ quản lý. |
@@ -1074,13 +1065,11 @@ The time tag, checkpoint count, offline-required flag and checkpoint name list a
 | Checkpoint | `closureReason` / `closedAt` / `closedByUserId` | String / DateTime / String | Conditional | Required while `TAM_DONG`; internal. |
 | Checkpoint | `createdByUserId` / `createdAt` / `updatedAt` | String / DateTime | Required | UTC. |
 | Checkpoint | `concurrencyRevision` | Integer | Required | Used for stale-write rejection. |
-| QRCode | `qrIdentifier` | String | Required | System-generated per BR-M03-B02 at the first save of the visit point form (BR-M03-E15); globally unique; stable; never reused. |
+| QRCode | `qrIdentifier` | String | Required | System-generated per BR-M03-B02 at the first save of the visit point form (BR-M03-E15); globally unique; stable; never reused. The public QR link (BR-M03-B04) is derived from it and is not stored as a separate field. |
 | QRCode | `checkpointId` | String | Required | Belongs to exactly one Checkpoint; never changes. |
 | QRCode | `installationLabel` | String | Optional | Internal placement note, `NOTE_MAX_CHARS`; not visitor content; saved with the visit point form (BR-M03-F11). |
-| QRCode | `status` | Enum(`NHAP`, `HOAT_DONG`, `DA_THAY`, `THU_HOI`) | Required | `DA_THAY` and `THU_HOI` are terminal. |
-| QRCode | `statusReason` | String | Conditional | Required for `DA_THAY` and for `THU_HOI` by revoke or identity replacement; optional for a discarded draft. Replaces the old `replacementReason`. |
-| QRCode | `replacedByQrIdentifier` | String | Conditional | Required when `status = DA_THAY`. |
-| QRCode | `replacesQrIdentifier` | String | Optional | Set on the replacement QR from the moment it is created (BR-M03-E08) and kept after activation. |
+| QRCode | `status` | Enum(`NHAP`, `HOAT_DONG`, `THU_HOI`) | Required | `THU_HOI` is terminal. |
+| QRCode | `statusReason` | String | Conditional | Required for `THU_HOI` by revoke; optional for a discarded draft. Replaces the old `replacementReason`. |
 | QRCode | `createdByUserId` / `createdAt` / `updatedAt` | String / DateTime | Required | UTC. |
 | QRCode | `concurrencyRevision` | Integer | Required | Used for stale-write rejection. |
 
@@ -1115,7 +1104,7 @@ The time tag, checkpoint count, offline-required flag and checkpoint name list a
 | Revision | `content` | Object | Required | Editable public content of the subject. Immutable once `PHAT_HANH`. |
 | Revision | `basedOnRevisionNumber` | Integer | Optional | The published revision this draft was copied from; for a restore, the earlier revision restored. |
 | Revision | `createdByUserId` / `createdAt` | String / DateTime | Required | UTC. |
-| Revision | `lastEditedByUserId` / `lastEditedAt` | String / DateTime | Required | Used for the stale-edit warning and the "tự xuất bản" flag. |
+| Revision | `lastEditedByUserId` / `lastEditedAt` | String / DateTime | Required | Used for the stale message and the "tự xuất bản" flag. |
 | Revision | `publishedByUserId` / `publishedAt` | String / DateTime | Conditional | Required once published; UTC. |
 | Revision | `selfPublished` | Boolean | Conditional | Required once published; `true` when the publisher equals `lastEditedByUserId`. |
 | Revision | `concurrencyRevision` | Integer | Required | Used for stale-write rejection and review confirmation. |
@@ -1132,7 +1121,7 @@ The time tag, checkpoint count, offline-required flag and checkpoint name list a
 | Media | `createdByUserId` / `createdAt` | String / DateTime | Required | UTC. |
 | Media | `concurrencyRevision` | Integer | Required | Used for stale-write rejection. |
 
-Media is retained after it stops being referenced, so earlier revisions can be restored and an uploaded file survives a failed save (BR-M03-F11). Public output includes only media referenced by a `PHAT_HANH` revision. Because a QR object never moves to another checkpoint (BR-M03-E12), media references copied by an identity replacement (BR-M03-E08) or a restore (BR-M03-F07) always stay valid.
+Media is retained after it stops being referenced, so earlier revisions can be restored and an uploaded file survives a failed save (BR-M03-F11). Public output includes only media referenced by a `PHAT_HANH` revision. Because a QR object never moves to another checkpoint (BR-M03-E12), media references copied by a restore (BR-M03-F07) always stay valid.
 
 ### 6.4 JourneySnapshot, AdminAccount, SessionRecord and AuditRecord
 
@@ -1165,7 +1154,7 @@ Media is retained after it stops being referenced, so earlier revisions can be r
 | AuditRecord | `entityType` | String | Required | Logical affected entity type. |
 | AuditRecord | `entityId` | String | Required | Logical affected entity identity. |
 | AuditRecord | `revision` | Integer | Optional | Present when the action concerns a revisioned value. |
-| AuditRecord | `reason` | String | Conditional | Required for close, reopen, archive, revoke, identity replacement and discard of a route or checkpoint (BR-M03-F08). |
+| AuditRecord | `reason` | String | Conditional | Required for close, reopen, archive, revoke and discard of a route or checkpoint (BR-M03-F08). |
 | AuditRecord | `outcome` | Enum(`SUCCESS`, `FAILURE`) | Required | Failed operations are logged too. |
 | AuditRecord | `selfPublished` | Boolean | Conditional | Present on publication actions; `true` when publisher equals last editor. |
 | AuditRecord | `beforeState` | Object | Optional | Must not contain credential or token values. |
@@ -1178,7 +1167,7 @@ Logical persistence constraints:
 
 - `routeId`, `checkpointId`, `qrIdentifier`, `contentVersion`, `userId` and `sessionId` are stable identities; identifiers are system-generated, never reused; `qrIdentifier`, admin email and `sessionId` are unique system-wide.
 - A checkpoint belongs to no route. A route lists checkpoints in its revision content (`checkpointList`); a checkpoint appears at most once in a route's list; the position in the list is the `sequence` of that checkpoint in the route's snapshots. No two non-archived checkpoints share the same Vietnamese name.
-- QRCode belongs to exactly one checkpoint; an active checkpoint must retain at least one active QR. A QR object has at most one pending replacement, and a QR object holding audio or video belongs to an `ONLINE_AVAILABLE` checkpoint. A QRCode exists only for a checkpoint that had a saved connectivity mode when the QRCode was created.
+- QRCode belongs to exactly one checkpoint; an active checkpoint must retain at least one active QR. A QR object holding audio or video belongs to an `ONLINE_AVAILABLE` checkpoint. A QRCode exists only for a checkpoint that had a saved connectivity mode when the QRCode was created.
 - `(subjectType, subjectId, revisionNumber)` is unique; each subject has at most one `NHAP` and at most one `PHAT_HANH` revision; a `PHAT_HANH` revision is immutable.
 - A Media record may be referenced only by revisions of its owner: media of a route by revisions of that route; media of a checkpoint by revisions of the visit points of that checkpoint.
 - JourneySnapshot is unique by `(routeId, contentVersion)`; `contentVersion` is consecutive per route starting at `1`; `previousContentVersion` references the preceding route snapshot when present.
@@ -1198,12 +1187,12 @@ Lifecycle states:
 |---|---|
 | Route | `NHAP → HOAT_DONG` (first publication); `NHAP → LUU_TRU` (discard); `HOAT_DONG → TAM_DONG` (close, or automatically when its last active listed checkpoint closes); Reviewer reopen `TAM_DONG → HOAT_DONG`; Reviewer archive `TAM_DONG → LUU_TRU`. A route never reopens automatically. There is no `CHO_DUYET`. |
 | Checkpoint | `NHAP → HOAT_DONG` (its own publication, independent of routes); `NHAP → LUU_TRU` (discard); `HOAT_DONG → TAM_DONG` (close, affecting every route that lists it); Reviewer reopen `TAM_DONG → HOAT_DONG`; Reviewer archive `TAM_DONG → LUU_TRU` (only when no non-archived route lists it). |
-| QRCode | Created as `NHAP` at the first save of the visit point form; `NHAP → HOAT_DONG` (publication, or activation of a replacement); `NHAP → THU_HOI` (discard, or a cancelled replacement); `HOAT_DONG → DA_THAY` (Reviewer, when the replacement is activated); `HOAT_DONG → THU_HOI` (revoke, or automatically when its checkpoint is archived). |
-| Revision | `NHAP → PHAT_HANH` (publication; the previously published revision becomes `LUU_TRU` in the same operation); `NHAP → DA_BO` (pending draft discarded, or superseded by the activation of a QR identity replacement); `PHAT_HANH → LUU_TRU` (superseded). Restoring creates a new `NHAP` revision. |
+| QRCode | Created as `NHAP` at the first save of the visit point form; `NHAP → HOAT_DONG` (publication); `NHAP → THU_HOI` (discard); `HOAT_DONG → THU_HOI` (revoke, or automatically when its checkpoint is archived). |
+| Revision | `NHAP → PHAT_HANH` (publication; the previously published revision becomes `LUU_TRU` in the same operation); `NHAP → DA_BO` (pending draft discarded); `PHAT_HANH → LUU_TRU` (superseded). Restoring creates a new `NHAP` revision. |
 | JourneySnapshot | `DANG_TAO → DA_CONG_BO`; published state is immutable. |
 | AdminAccount | `INVITATION_PENDING → ACTIVE ↔ DEACTIVATED`; retrying invitation keeps `INVITATION_PENDING`. A provider credential recovery does not change this lifecycle. |
 
-`LUU_TRU`, `DA_THAY`, `THU_HOI` and `DA_BO` are terminal in MVP.
+`LUU_TRU`, `THU_HOI` and `DA_BO` are terminal in MVP.
 
 ## 7. Success criteria
 
@@ -1212,7 +1201,7 @@ Lifecycle states:
 | SC-M03-001 | No route becomes selectable without bilingual metadata, required images and information, valid tags, at least one active checkpoint in its list and a published snapshot. |
 | SC-M03-002 | Consumer never sees a partial new snapshot or public state. |
 | SC-M03-003 | Every journey-affecting publication creates a new version numbered consecutively and leaves the old snapshot unchanged. |
-| SC-M03-004 | QR replacement never leaves an active checkpoint without a working identifier. |
+| SC-M03-004 | Changing the code of a visit point never leaves an active checkpoint without a working identifier: the last active QR of an active checkpoint cannot be revoked. |
 | SC-M03-005 | Stale save never overwrites newer administrative data. |
 | SC-M03-006 | Closing a checkpoint deterministically updates the new journeys of every route that lists it and their outcomes; it is never blocked by the offline-size ceiling and never reports false success. |
 | SC-M03-007 | Identical session retry never duplicates a session or visit; changed retry is rejected. |
@@ -1228,14 +1217,14 @@ Lifecycle states:
 | SC-M03-017 | Live lookup distinguishes `VALID`, `TEMPORARILY_CLOSED` and `INVALID`, and never reports a source failure as `INVALID`. |
 | SC-M03-018 | [Removed in v3.4] Criterion retired with the emergency-contact directory. The ID is not reused. |
 | SC-M03-019 | A route never reopens automatically. |
-| SC-M03-020 | No operation publishes a snapshot whose estimated offline size exceeds the ceiling (provisional 50 MB). |
+| SC-M03-020 | No publication or reopening creates a snapshot whose estimated offline size exceeds the ceiling (provisional 50 MB); closing a checkpoint and revoking a QR are exempt because they can only reduce the size (BR-M03-G10). |
 | SC-M03-021 | Restoring an earlier version returns it as a pending draft that must pass review, and no history is lost. |
 | SC-M03-022 | Switching a route's offline route map on or off, or changing the marked map, creates a new journey version; a route map that is not marked never enters a snapshot. |
 | SC-M03-023 | A lookup of a QR in a closed checkpoint or route returns `TEMPORARILY_CLOSED` and no visit content. |
 | SC-M03-024 | The snapshot size estimate never counts audio or video, and its absence never blocks a download. |
 | SC-M03-025 | Audio and video are never attached to a QR object of an `OFFLINE_REQUIRED` checkpoint, and a checkpoint cannot be switched to offline while its QR objects hold audio or video. |
 | SC-M03-026 | No screen shows JSON, field names, code names of states, status codes or internal identifiers (except the last six characters of a QR code); every message comes from the catalog. |
-| SC-M03-027 | During a QR identity replacement the old code keeps working until the replacement is activated, and activation swaps the two codes atomically. |
+| SC-M03-027 | [Removed in v3.6] Criterion retired with the two-step QR identity replacement. The ID is not reused. |
 | SC-M03-028 | A checkpoint is created and published once and can be listed by several routes; its content is never duplicated per route. |
 | SC-M03-029 | One change to a shared checkpoint updates every route that lists it together, or none of them. |
 | SC-M03-030 | A route in `HOAT_DONG` always has at least one active checkpoint in its list; otherwise it is closed. |
@@ -1244,6 +1233,9 @@ Lifecycle states:
 | SC-M03-033 | One "Lưu bản nháp" saves the whole form or nothing, and a failed upload or save never removes files that were uploaded successfully. |
 | SC-M03-034 | A visit point can be added only to a saved checkpoint that has a connectivity mode, and no QR identifier is created before the first save of its form. |
 | SC-M03-035 | The report page always states when the figures were last updated, that they are not real-time and that a visit is a QR scan, as plain one-line notes from the catalog. |
+| SC-M03-036 | Every printed code opens the visitor web app at its public QR link when scanned with a phone's own camera, and the link stays valid for the life of the code. |
+| SC-M03-037 | A code image generated outside Production is always marked as a test code, and a code of an offline-required checkpoint always carries the download warning. |
+| SC-M03-038 | A session record whose visited checkpoints do not match the snapshot it names (identity, Vietnamese name or sequence) is rejected and never reaches a report. |
 
 ## 8. Screens involved
 
@@ -1254,7 +1246,7 @@ Lifecycle states:
 | Route administration | Search/filter routes; create/edit; close/reopen/archive entry points; status and pending-draft indicators. |
 | Route editor | Steps 1–3 of BR-M03-C02 (card fields with thumbnail upload, detail fields with gallery/map upload and captions, the offline route-map tick, highlights, tags with the derived time tag read-only, hints, "missing for publication" panel) and step 4: a searchable list of published checkpoints to add, a drag-and-drop ordered list for this route, a link to create a new checkpoint. One "Lưu bản nháp" for the whole editor (BR-M03-F11); gallery upload of several files at once (BR-M03-E14). |
 | Checkpoint library and editor | Searchable list of checkpoints (status, mode, number of visit points, routes using each); create/edit a checkpoint: bilingual name, connectivity mode with the field-verification tick (the mode decides which inputs its visit points offer), internal location note, list of visit points with name, status, readiness and the last six characters of each code (BR-M03-E16); "Thêm điểm tham quan" available once a mode is saved (BR-M03-E15); publish, close, reopen, archive entry points. |
-| QR-object workspace | Heading naming the visit point and whether the draft or the published version is shown; per-QR object name and bilingual introduction, image upload and (only for checkpoints that work with network) audio/video upload of several files at once with a state per file, limits and a usage-rights tick per file (BR-M03-E14); installation note; one "Lưu bản nháp" for the whole form (BR-M03-F11); "Xem trước như du khách" (BR-M03-F12); downloadable printable code image with the unpublished warning; QR lifecycle actions (reprint, revoke, replacement: create, activate, cancel; discard). |
+| QR-object workspace | Heading naming the visit point and whether the draft or the published version is shown; per-QR object name and bilingual introduction, image upload and (only for checkpoints that work with network) audio/video upload of several files at once with a state per file, limits and a usage-rights tick per file (BR-M03-E14); installation note; one "Lưu bản nháp" for the whole form (BR-M03-F11); "Xem trước như du khách" (BR-M03-F12); downloadable printable code image (SVG/PNG, print size, offline warning line, test-environment mark, BR-M03-B05) with the unpublished warning; QR lifecycle actions (reprint, revoke, discard). |
 | Publication review | Diff of running vs new version, impact notes naming every affected route, left-out items, estimated offline size per affected route, highlighted sensitive changes (including the offline route-map tick), no-safety-warning tick, visitor preview of each visit point in the unit, confirm/go back. |
 | Close/reopen dialogs | Impact text (affected routes and routes that will close automatically), mandatory reason (close) or safety-confirmation note (reopen), technical check results, and "Đóng tạm các tuyến liên quan" when closing a checkpoint fails. |
 | History and restore | Published history per item, restore as draft, discard pending draft. |
@@ -1277,6 +1269,8 @@ The login and credential screens are mandatory M03 entry/support screens even th
 - Park staff understand that a checkpoint can be shared by several routes and that changing it changes every route that lists it.
 - The same real area is represented by one checkpoint reused by routes, not duplicated.
 - `GROUP_CAN_DE_DANG` means "suitable for visitors who need an easy route"; the contradictory-tag rule (BR-M03-C12) depends on this meaning.
+- The public live lookup and the session intake are open to anyone without an account; abuse protection (for example rate limiting) is a technical guard decided in the architecture documents, and the MVP accepts that a forged but well-formed session record could reach a report.
+- A permanent Production domain is secured before the first real code is printed; visitors scan most often with the phone's own camera, and both scanning ways lead to the same live lookup.
 - The last six characters of a QR code are enough for staff to tell the codes of one checkpoint apart; codes are random (BR-M03-B02), so a clash within one checkpoint is unlikely but possible, and the name stays the primary label.
 
 ## 10. Resolved MVP decisions
@@ -1285,7 +1279,7 @@ The login and credential screens are mandatory M03 entry/support screens even th
 - Visitor content belongs to the QR object; the checkpoint is an area with no introduction text.
 - Identifiers are system-generated and unguessable; users never type them.
 - No review queue or second-person approval; mandatory publication review, version restore and audit instead.
-- Two fixed roles; Reviewer alone reopens, archives, replaces QR identity, manages accounts.
+- Two fixed roles; Reviewer alone reopens, archives and manages accounts.
 - Time tag is derived from duration; staff select only group and experience tags; contradictory combinations are blocked at save.
 - One full-journey snapshot serves both journey handoff and offline package creation; it includes both connectivity modes and only offline-required checkpoints embed per-QR offline resources.
 - A new version is created only when snapshot content changes; versions are consecutive without gaps.
@@ -1294,8 +1288,8 @@ The login and credential screens are mandatory M03 entry/support screens even th
 - `estimatedOfflineSizeBytes` is an optional contract field; its absence never blocks M01.
 - Audio and video belong only to QR objects of checkpoints that work with network; offline checkpoints take text and images only.
 - The connectivity mode is stored on the checkpoint (no default) and decides what its visit points may contain; a checkpoint can be listed by many routes.
-- QR identity replacement has two steps (create replacement, then activate) so the old code keeps working while the new one is printed and installed.
-- Checkpoints (with their visit points) are created and published on their own in a shared library; a route chooses published checkpoints and their order; several ready visit points can be published as one batch.
+- There is no QR identity replacement in the MVP: a damaged code is reprinted with the same identifier; a new code is added as a new visit point and installed before the old one is revoked.
+- Checkpoints (with their visit points) are created and published on their own in a shared library; a route chooses published checkpoints and their order.
 - The order of checkpoints belongs to each route; a closed checkpoint keeps its place in the list but is not part of the journey.
 - A checkpoint listed by a non-archived route cannot be archived, and an active route always keeps at least one active checkpoint.
 - A change to a shared checkpoint updates all affected routes together or none.
@@ -1317,6 +1311,11 @@ The login and credential screens are mandatory M03 entry/support screens even th
 - Staff can preview a visit point's draft as visitors would see it; the preview is an M03 rendering only.
 - Staff see the last six characters of a QR code to match printed codes; no other identifier is shown.
 - Report notes are plain one-line text from the message catalog.
+- A printed code encodes the permanent public link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}`, so that a phone's own camera opens the visitor web app; the live lookup contract is unchanged.
+- Printable images use fixed provisional print settings; offline-required checkpoints carry a download warning; test-environment codes are marked and never installed.
+- Free scanning works as soon as a checkpoint is published, without a route (BR-M03-D05); it creates no report data; the route-closure rule applies only when a route is supplied.
+- MVP simplifications: no QR identity replacement, no batch publication of visit points, no "edited recently" warning and no automatic snapshot retry; stale writes are still rejected and restore, audit and snapshots are kept.
+- A session record is accepted only when every visited checkpoint matches the snapshot it names.
 
 ## 11. Internal consistency and cross-module contracts
 
@@ -1329,17 +1328,36 @@ The login and credential screens are mandatory M03 entry/support screens even th
 | M01 LanguagePreference → M02 input | Unchanged; one `{ languageCode: Enum(vi, en) }` contract shape. |
 | M01 SelectedRouteContext → M02 input | Shape follows the manifest change above. M01 produces contract version 3 with a required `expiresAt` (authorization time plus 24 hours); M02 accepts only version 3 and rejects version 2 and expired handoffs with a clear message, without silent conversion. A handoff remains single-use. |
 | M01 OfflinePackage → M02 input | M02 consumes only active `SAN_SANG` data; offline content is resolved per scanned QR (`qrIdentifier`), not per checkpoint. `OfflineStationContent` is an M02 view of one `OfflineResource`, not a duplicate persisted entity. |
-| M03 `LiveQrLookupResult` / `LiveStationContent` → M02 | M02 sends `qrIdentifier` and, when on a route, that `routeId`. M03 returns `outcome` (`VALID`, `TEMPORARILY_CLOSED`, `INVALID`) with content only for `VALID` and no route identifier; source failure remains distinguishable from `INVALID`. While online M02 shows the lookup content and uses package content only when offline or the lookup fails. **M02 must adopt the request, the wrapper and the per-QR content.** M02 also uses `content.checkpointId` to record the visit of a code activated after its session started (for example after a QR identity replacement, BR-M03-E08), because its frozen journey does not contain that code. |
-| M02 SessionSyncRecord → M03 input | Unchanged shape: immutable, historical Vietnamese `checkpointName` string and `sequence`, no PII. M02 derives the string from the bilingual frozen name (`vi`). M03 additionally validates route and version. |
+| M03 `LiveQrLookupResult` / `LiveStationContent` → M02 | M02 sends `qrIdentifier` and, when on a route, that `routeId`. M03 returns `outcome` (`VALID`, `TEMPORARILY_CLOSED`, `INVALID`) with content only for `VALID` and no route identifier; source failure remains distinguishable from `INVALID`. While online M02 shows the lookup content and uses package content only when offline or the lookup fails. **M02 must adopt the request, the wrapper and the per-QR content.** Online, M02 records a visit only for a `VALID` answer, and uses `content.checkpointId` for a code added after its session started, because its frozen journey does not contain that code. |
+| M02 SessionSyncRecord → M03 input | Unchanged shape: immutable, historical Vietnamese `checkpointName` string and `sequence`, no PII. M02 derives the string from the bilingual frozen name (`vi`). M03 additionally validates route, version and each visited checkpoint against that snapshot. |
 | M03 SessionSyncRecord input → M03 SessionRecord | `SessionSyncRecord` is the transport contract. `SessionRecord` is the persisted M03 entity containing the accepted business fields plus M03-owned `ingestedAt`; the names do not denote the same entity. |
 | Closure | A checkpoint closure or reopening reaches every route that lists it, atomically with their new snapshots; routes without an active checkpoint close automatically and never reopen automatically. Existing local sessions/packages are not mutated remotely; M03 cannot guarantee a warning to offline visitors. |
 | Authentication provider ↔ M03 | Provider owns identity, password, invitation/recovery token and session; M03 owns `AdminAccount` role/status and authorizes every protected request. |
-| v3.5 administrative-UI changes | BR-M03-E14 to E16, F11, F12 and J08, the new messages and SC-M03-032 to 035 concern the M03 administrative UI only. No contract with M01 or M02 changes in v3.5. M01 v3.1 and M02 v3.1 are the aligned consumer versions. |
+| M03 printed QR link → M02 visitor entry | The printed code is the public link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` (BR-M03-B04). The live lookup contract is unchanged: the caller still sends `qrIdentifier`. **M02 must adopt** an entry page at `/q/{qrIdentifier}` for links opened from a phone camera and an in-app scanner that reads the link; **M01 must adopt** language selection that does not block this entry and an app shell that can serve this page offline. Adopted in M01 v3.2 and M02 v3.2. |
+| v3.5 administrative-UI changes | BR-M03-E14 to E16, F11, F12 and J08, the new messages and SC-M03-032 to 035 concern the M03 administrative UI only. No contract with M01 or M02 changes in v3.5. M01 v3.2 and M02 v3.2 are the aligned consumer versions. |
+
+### 11.1 Traceability (US → FR → BR → SC)
+
+| User story | FR | BR | SC |
+|---|---|---|---|
+| US-M03-01 Create and publish a route | FR-M03-001, 005, 006, 008 | C01–C17, T01–T09, F01–F04, G01–G03 | SC-M03-001, 002, 015, 022, 030 |
+| US-M03-02 Revise published data | FR-M03-007, 009 | F02–F07, F10, X01–X03, G04–G07 | SC-M03-003, 005, 020, 021, 024, 029 |
+| US-M03-03 Checkpoints and visit points | FR-M03-002, 003, 004 | B01–B05, D01–D12, E01–E16 (E08 retired), F11, F12 | SC-M03-004, 012, 013, 025, 028, 031–034, 036, 037 |
+| US-M03-04 Close and reopen | FR-M03-011, 012 | H01–H09, I01–I06 | SC-M03-006, 017, 019, 023 |
+| US-M03-05 Administrative access | FR-M03-013 | A01–A04, K01–K05 | SC-M03-008 to 011 |
+| US-M03-06 Ingest sessions and report | FR-M03-014, 015, 016 | J01–J08 | SC-M03-007, 035, 038 |
+| US-M03-07 (removed) | FR-M03-017 (removed) | C13 (removed) | SC-M03-018 (removed) |
+| US-M03-08 History, restore and audit | FR-M03-007, 018 | A05, F07–F10 | SC-M03-014, 021 |
+| US-M03-09 Clear validation feedback | FR-M03-005, 019 | L01–L13 | SC-M03-016, 026 |
+| No user story | FR-M03-010 | G08 | — |
+
+BR identifiers in this table omit the `BR-M03-` prefix.
 
 ## 12. Change notes
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.6 | 2026-10-27 | Public QR access from a phone's own camera (clarification CL-01 to CL-05, DEC-07, DEC-08). The printed code now encodes the permanent HTTPS link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` instead of the bare identifier (BR-M03-B02, new BR-M03-B04). Printable image settings, offline warning line, test-environment mark and reprint reminder on a mode change (new BR-M03-B05, §5.3 constants, MSG-REPRINT-MODE-CHANGED). Lookup input wording and BR-M03-I01 state that the caller takes the identifier from the link. New US-M03-03 item 16, SC-M03-036/037; FR-M03-003, §8, §9, §10 and §11 updated. DEC-01 to DEC-06 confirmed unchanged. Business-logic review (BL-01 to BL-11) for the MVP: report wording states that M02 records a visit only for an accepted or unchecked scan (BL-01, BL-04; BR-M03-J07, §5.1, §11); session records are checked against their snapshot (BL-05; BR-M03-J02, §5.1, §4.4, SC-M03-038); simplifications (BL-09): two-step QR identity replacement removed (BR-M03-E08 and SC-M03-027 retired, status `DA_THAY`, `replacesQrIdentifier`, `replacedByQrIdentifier`, flow §4.8 and MSG-REPLACE-ACTIVATE-CONFIRM removed), batch publication of visit points removed (`QR_OBJECTS_BATCH`), "edited recently" warning removed (MSG-RECENT-EDIT, `STALE_EDIT_NOTICE_WINDOW_MINUTES`), automatic snapshot retry removed (`SNAPSHOT_BUILD_MAX_RETRIES`, BR-M03-G07). BL-02, 03, 06, 07, 08, 10 and 11 accepted as MVP trade-offs without change. The live lookup contract shape is unchanged; M01 v3.2 and M02 v3.2 adopt the public QR link and the single visit rule (§11). Analysis fixes: SC-M03-020 states the closing/revoking exemption; assumption on open public endpoints (§9); US → FR → BR → SC traceability table (§11.1). |
 | 3.5 | 2026-10-27 | Resolves review issues M03-ISSUE-01 to 06. (01) QR media references the Media owned by the checkpoint (§6.2.2, §6.3). (02) Multi-file upload, per-file state and per-file usage rights (BR-M03-E14). (03) Visit points are added only to a checkpoint saved with a connectivity mode; the QR is created at the first save of its form (BR-M03-E15). (04) Visit point identification with the last six code characters, creation feedback and visitor preview (BR-M03-E16, F12; exception in L10). (05) One atomic save unit per editor, no autosave, unsaved-changes dialog (BR-M03-F11; L12). (06) Report notes as plain one-line catalog messages (BR-M03-J08). Also: environment-specific provisioning exception moved out of BR-M03-K04 to the environment documentation; provider product name removed from §8; status aligned with M01/M02; wording fixes in §1 and FR-M03-003. New messages in §5.6; SC-M03-032 to 035. No cross-module contract change. Live lookup answers `TEMPORARILY_CLOSED` (scope `ROUTE`) instead of `INVALID` when the supplied route is archived (BR-M03-I02, §4.6). Status and §11 refer to the aligned consumers M01 v3.1 and M02 v3.1; §11 records that M02 uses `content.checkpointId` for codes activated after a session started. |
 | 3.4 | 2026-10-20 | Baseline supplied for the V2 rebaseline (supersedes repository version 2.0). |
 
@@ -1354,10 +1372,11 @@ The login and credential screens are mandatory M03 entry/support screens even th
 - [x] Full snapshot schema, version numbering, triggers and the offline-size ceiling are complete.
 - [x] Close/reopen/archive and live-lookup outcomes are deterministic.
 - [x] Offline route map and optional size estimate are specified.
-- [x] Audio/video restriction, two-step QR replacement, batch QR publication and the plain-language UI rules (display names, hints, message catalog) are specified.
+- [x] Audio/video restriction and the plain-language UI rules (display names, hints, message catalog) are specified.
 - [x] Multi-file upload, visit point creation order, identification, visitor preview, save unit and report notes are specified.
+- [x] Public QR link, its permanence and the printable image settings are specified.
 - [x] QR/content/account/session lifecycles, initial Reviewer provisioning, invitation and password recovery are defined.
 - [x] Reporting date, timezone, deduplication and history fields are defined.
 - [x] Failure/conflict/validation paths and plain-language messages are specified.
-- [x] M01 v3.1 and M02 v3.1 aligned to the contracts in §11.
+- [x] M01 v3.2 and M02 v3.2 aligned to the contracts in §11.
 - [x] No external requirements document is needed to implement M03.
