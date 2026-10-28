@@ -50,11 +50,11 @@ Spec M01, M02 và M03 là behavioral/contract baseline (nguồn sự thật duy 
 - [02 — Direct CRUD Matrix](../data/02-crud-matrix.md)
 - [03 — ERD Source](../data/03-erd.mmd), [ERD Preview](../data/03-erd-preview.md) & [ERD Review](../data/03-erd-review.md)
 - [04 — Logical Data Model](../data/04-data-model.md) & [DBML](../data/04-data-model.dbml)
-- [08 — Data Acceptance Criteria (DAC) Skeleton](../data/08-data-acceptance-criteria.md) (*Khởi tạo mới cho V2; chờ hoàn tất S4*)
-- [05 — Data Review Gate](../data/05-review.md) (*Baseline V1; chưa đánh giá lại cho V2*)
-- [06 — Physical Schema Baseline](../data/06-physical-schema.md) (*Giới hạn cuối cùng của đợt chuyển giao tài liệu; chưa đánh giá lại cho V2*)
+- [08 — Data Acceptance Criteria (DAC)](../data/08-data-acceptance-criteria.md) (*V2 — hoàn tất, 118 tiêu chí*)
+- [05 — Data Review Gate](../data/05-review.md) (*V2 — PASS, 2026-10-28*)
+- [06 — Physical Schema](../data/06-physical-schema.md) (*V2 — thiết kế vật lý, giới hạn cuối cùng của đợt chuyển giao tài liệu; chưa implement*)
 
 > **Lưu ý về phạm vi:**  
 > - data/06-physical-schema.md là ranh giới kết thúc của bộ tài liệu chuyển giao V2.
-> - Các kết luận PASS hoặc trạng thái approved cũ trong data/05-review.md và data/06-physical-schema.md chỉ đại diện cho baseline V1 và **chưa được đánh giá lại cho V2**.
+> - data/05-review.md (review gate) và data/06-physical-schema.md (thiết kế vật lý) đã được làm lại cho V2 (2026-10-28). Physical Schema là thiết kế tài liệu, chưa có SQL, migration hay triển khai.
 > - Các tài liệu downstream cũ như Field Mapping (data/schema/field-mapping.md), Seed Data (data/seed/**), Storage Validation (data/07-storage-validation.md) và implementation packages không thuộc active documentation set của V2.

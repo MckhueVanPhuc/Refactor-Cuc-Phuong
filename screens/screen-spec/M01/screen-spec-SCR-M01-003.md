@@ -6,129 +6,152 @@
 | Screen name | Chi tiết tuyến & Chuẩn bị |
 | Module | `M01` |
 | Actor | Visitor |
-| Priority | Must; offline capability Should* |
-| Mockup | `screens/M01/mockups/SCR-M01-003-detail.png` |
-| Status | Draft |
+| Priority | Must; chuẩn bị offline Should* |
+| Mockup | Chưa có |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) |
 
-*Offline capability Should theo MVP Scope §3.4, nhưng phải nâng lên Must nếu increment phát hành có checkpoint OFFLINE_REQUIRED.
+Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md) (Published Route và JourneySnapshot theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; \* gói offline là Should nhưng phải nâng lên Must nếu increment có điểm dừng `OFFLINE_REQUIRED` hoặc sơ đồ tuyến cần dùng offline. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
 
-Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; bố cục/visual direction tham khảo [DESIGN.md](../../../DESIGN.md). Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
-
-Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu.
+Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
 ## 1. Purpose
 
-**Shown when:** Visitor chọn tuyến từ SCR-M01-001 (danh mục) hoặc SCR-M01-002 (gợi ý), HOẶC mở lại từ SCR-M01-004 (package đã tải) để Start offline.
+**Shown when:** Visitor chọn một tuyến từ SCR-M01-001, SCR-M01-002 hoặc SCR-M01-004 (để Start từ package đã tải).
 
-**The user leaves when:** Quay lại danh mục, mở quản lý offline, hoặc Start thành công và chuyển sang SCR-M02-001.
+**The user leaves when:** Start thành công và M01 mở SCR-M02-001; quay về danh mục/gợi ý; mở quản lý tài nguyên offline (SCR-M01-004); hoặc chọn "Quay lại" ở quyết định offline.
 
 ## 2. Mockup
 
-Mockup: `screens/M01/mockups/SCR-M01-003-detail.png`. Đây là target asset tham khảo; cần kiểm tra asset và design sign-off, không dùng ảnh mockup để suy ngược business rule.
+Chưa có mockup cho màn này. Không suy ngược business rule từ bất kỳ ảnh mockup nào về sau.
 
 ## 3. Element inventory
 
 | # | Element ID | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|---|
-| 1 | E-SCR-M01-003-01 | Language selector | Header control | `vi` / `en`; đọc từ LanguagePreference | Yes | Chỉ chấp nhận `vi` hoặc `en` |
-| 2 | E-SCR-M01-003-02 | Route name | Header text | Published Route `name.vi/en` từ source hoặc local view riêng; package manifest không chứa tên tuyến | Conditional | Khi thiếu metadata, hiển thị routeId; không synthesize tên |
-| 3 | E-SCR-M01-003-03 | Route image | Image | Asset minh họa tùy chọn đã được duyệt; Published Route không có field ảnh tuyến | No | Không dùng ảnh sai ngữ cảnh hoặc tự thêm field vào contract |
-| 4 | E-SCR-M01-003-04 | Route description | Text | Published Route `description.vi/en` nếu có metadata source/local view | Conditional | Không tạo description giả khi chỉ còn package manifest |
-| 5 | E-SCR-M01-003-05 | Safety warning | Banner/text | `safetyWarning.vi/en` nếu có; hiển thị nếu present | No | Both-or-none với tiếng còn lại |
-| 6 | E-SCR-M01-003-06 | Route metadata | Text | Published Route distanceKm, durationMin, difficulty, tags nếu có; không nằm trong package/handoff | Conditional | Không suy đoán giá trị thiếu; phân biệt local view cũ với current source |
-| 7 | E-SCR-M01-003-07 | Checkpoint count | Text | Tổng số checkpoint và số checkpoint offline-required | Yes | None |
-| 8 | E-SCR-M01-003-08 | Offline status panel | Panel | Readiness/freshness của active package và tiến trình candidate riêng | Yes | Candidate đang tải/lỗi không đổi active package SAN_SANG thành DANG_TAI/CHUA_HOAN_TAT |
-| 9 | E-SCR-M01-003-09 | Outdated warning | Banner | "Gói dữ liệu đã cũ" khi package SAN_SANG + OUTDATED | No | Chỉ khi OUTDATED |
-| 10 | E-SCR-M01-003-10 | Action: Tải xuống / Thử lại | Button | Tải hoặc retry khi chưa có ready package; retry candidate update nếu cần | Conditional | Cần source hiện hành truy cập được; không chạy thêm operation cùng route |
-| 11 | E-SCR-M01-003-11 | Action: Tiếp tục không tải | Button | Lựa chọn rõ ràng sau cảnh báo khi tuyến có OFFLINE_REQUIRED nhưng thiếu ready package | Conditional | Chỉ tiếp tục online khi current route/snapshot hợp lệ; không chỉ xét CHUA_TAI |
-| 12 | E-SCR-M01-003-13 | Action: Quản lý offline | Button | Mở SCR-M01-004 để xem chi tiết package | Yes | None |
-| 13 | E-SCR-M01-003-14 | Action: Quay lại | Button | Trở về SCR-M01-001 | Yes | None |
-| 14 | E-SCR-M01-003-15 | Action: Start | Button | Validate nguồn hoặc ready package, rồi tạo SelectedRouteContext v2 | Yes | Nếu có OFFLINE_REQUIRED nhưng thiếu ready package, yêu cầu explicit preparation choice trước; block khi known route unavailable hoặc không có manifest; serialize Start |
-| 15 | E-SCR-M01-003-16 | Loading spinner | Indicator | Hiển thị khi đang tải package hoặc validate source | Conditional | Not applicable khi không có network activity |
-| 17 | E-SCR-M01-003-17 | Source unavailable banner | Banner | "Không thể kết nối nguồn dữ liệu" khi online nhưng source fails | Conditional | Hiển thị khi source unavailable |
-| 18 | E-SCR-M01-003-18 | Route unavailable banner | Banner | "Tuyến này không còn khả dụng" khi route revoked/closed | Conditional | Hiển thị khi route không còn active |
-| 19 | E-SCR-M01-003-19 | Download progress panel | Panel | Tiến trình candidate tách khỏi active package; % chỉ khi đo được | Conditional | Không fabricate tiến độ khi tổng lượng tải chưa biết |
-| 20 | E-SCR-M01-003-20 | Preparation decision panel | Panel/control | Cảnh báo nội dung offline có thể thiếu; Download / Continue without download / Back | Conditional | Không implicit choice; tiếp tục vẫn phải qua Start guards |
-| 21 | E-SCR-M01-003-21 | Action: Làm mới / Thử lại source | Button | Đọc lại route/snapshot và kiểm tra freshness | Conditional | Request lỗi không được coi là route đã đóng |
+| 1 | E-SCR-M01-003-01 | Language control VI/EN | Toggle (control dùng chung) | `LanguagePreference` | Yes | Đổi offline vẫn đổi UI và nội dung có sẵn, không đổi trạng thái package (US-M01-01 mục 2) |
+| 2 | E-SCR-M01-003-02 | Route name | Header text | `name.vi`/`.en` (offline: `routeEssentials.name`) | Yes | Không tự sinh giá trị thiếu |
+| 3 | E-SCR-M01-003-03 | Gallery | Image carousel | `gallery[]` (tối đa 8, ảnh đầu là ảnh bìa) kèm `caption` nếu có | Yes | Chỉ online; ảnh không có local hiện placeholder trung tính; gallery rỗng thì dùng thông tin sẵn có, không tự dựng ảnh |
+| 4 | E-SCR-M01-003-04 | Route facts | Text | `distanceKm` (km), `durationMin` (phút), `difficulty` | Yes | Hiển thị đúng giá trị nguồn |
+| 5 | E-SCR-M01-003-05 | Full description | Text | `description.vi`/`.en` | Yes | Không tự sinh giá trị thiếu |
+| 6 | E-SCR-M01-003-06 | Starting point | Text | `startingPoint.vi`/`.en` (offline: `routeEssentials.startingPoint`) | Yes | Như trên |
+| 7 | E-SCR-M01-003-07 | Highlights | List | `highlights[]` (tối đa 5 mục) | Conditional | Ẩn khi rỗng |
+| 8 | E-SCR-M01-003-08 | Participation requirements | Text | `participationRequirements` (offline: `routeEssentials.participationRequirements`) | Conditional | Both-or-none vi/en; ẩn khi vắng, không placeholder (US-M01-06 mục 2) |
+| 9 | E-SCR-M01-003-09 | Preparation | Text | `preparation` | Conditional | Ẩn khi vắng; không lưu trong essentials nên offline không hiện từ bản lưu |
+| 10 | E-SCR-M01-003-10 | Best time | Text | `bestTime` | Conditional | Như trên |
+| 11 | E-SCR-M01-003-11 | Route map | Image + caption | `routeMap` (online); offline từ `OfflinePackage.offlineRouteMap` khi có | Conditional | Ảnh tĩnh, không phải điều hướng; offline chỉ có khi snapshot mang `offlineRouteMap` (BR-M01-013) |
+| 12 | E-SCR-M01-003-12 | Safety warning | Callout nổi bật | `safetyWarning` (offline: `routeEssentials.safetyWarning`) | Conditional | Hiển thị nổi bật khi có; ẩn khi vắng |
+| 13 | E-SCR-M01-003-13 | Checkpoint names list | Ordered list | `checkpointSummaries[].checkpointName` theo `sequence`; khi offline lấy từ `manifest` của package `SAN_SANG` | Yes | Đúng thứ tự thăm; không hiển thị `sequence` thô có khoảng trống như số thứ tự gián đoạn [xem OQ-SCR-M01-003-003] |
+| 14 | E-SCR-M01-003-14 | Saved-copy notice | Text | "Thông tin được lưu lúc [thời điểm], có thể không phải bản mới nhất" với `routeEssentials.capturedAt` | Conditional | Hiện khi nội dung lấy từ bản lưu (offline); không khẳng định là mới nhất (BR-M01-014) |
+| 15 | E-SCR-M01-003-15 | Offline-needed indicator | Badge | `hasOfflineRequiredCheckpoint` hoặc `hasOfflineRouteMap` | Conditional | Snapshot tải về thắng cờ nếu lệch (FR-M01-005) |
+| 16 | E-SCR-M01-003-16 | Package state | Badge | `OfflinePackage.status` + `versionStatus`: chưa tải, đang tải, sẵn sàng (hiện hành/cũ), chưa hoàn tất | Conditional | Package không đọc được → coi là chưa sẵn sàng; `SAN_SANG + OUTDATED` dùng được kèm cảnh báo khi biết |
+| 17 | E-SCR-M01-003-17 | Offline decision panel | Panel/dialog | Khi tuyến cần package mà chưa có package sẵn sàng: tên các điểm dừng `OFFLINE_REQUIRED` có thể thiếu nội dung, dung lượng ước tính, một dòng hướng dẫn quét bằng nút trong ứng dụng | Conditional | Dung lượng gắn nhãn là ước tính khi có `estimatedOfflineSizeBytes`, "chưa có thông tin dung lượng" khi vắng; vắng không chặn Download (BR-M01-016) |
+| 18 | E-SCR-M01-003-18 | Action: Tải | Button | Bắt đầu tải package | Conditional | Một thao tác package mỗi tuyến tại một thời điểm; cần nguồn online |
+| 19 | E-SCR-M01-003-19 | Action: Tiếp tục không tải | Button | Cho phép Start online không có package | Conditional | Chỉ khi online; vẫn theo guard Start (BR-M01-007) |
+| 20 | E-SCR-M01-003-20 | Action: Quay lại | Button | Thoát quyết định offline, về màn trước | Conditional | Không chọn ngầm lựa chọn nào |
+| 21 | E-SCR-M01-003-21 | Download progress | Panel | Tiến độ tải; không có nút hủy | Conditional | MVP không có Cancel download (§4.4) |
+| 22 | E-SCR-M01-003-22 | Scan hint line | Text | Một dòng: không có mạng thì check-in bằng nút Quét trong ứng dụng vì camera điện thoại có thể không mở được ứng dụng khi không có mạng | Conditional | Hiện ở quyết định offline và khi package sẵn sàng (US-M01-03 mục 5) |
+| 23 | E-SCR-M01-003-23 | Action: Start | Button | Tạo `SelectedRouteContext v3` rồi mở M02 | Yes | Online: nguồn xác nhận route và snapshot hợp lệ; offline: cần package `SAN_SANG`, nếu không bị chặn (US-M01-04) |
+| 24 | E-SCR-M01-003-24 | Start blocked message | Text | Lý do Start bị chặn: không có nguồn lẫn package sẵn sàng, tuyến không khả dụng/revoked | Conditional | Không thay context cũ khi thất bại (FR-M01-012) |
+| 25 | E-SCR-M01-003-25 | Route unavailable state | Panel | Tuyến không còn `HOAT_DONG` sau làm mới nguồn | Conditional | Chặn Start mới; context hiện tại đánh dấu `REVOKED` (BR-M01-011) |
+| 26 | E-SCR-M01-003-26 | Action: Tài nguyên offline | Link | Mở SCR-M01-004 | Yes | None |
+
+**Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Nhãn độ khó, thời gian và tag dùng bảng nhãn i18n ở SCR-M01-002.
+
+| Tình huống | Tiếng Việt | English |
+|---|---|---|
+| Nút Start | Bắt đầu | Start |
+| Tiêu đề quyết định offline | Tuyến này nên tải trước | Download this route first |
+| Điểm dừng có thể thiếu nội dung | Một số điểm dừng có thể không có nội dung nếu bạn không tải trước: {danh sách}. | Some stops may have no content unless you download first: {list}. |
+| Dung lượng có ước tính | Dung lượng ước tính: khoảng {số} MB. | Estimated size: about {n} MB. |
+| Dung lượng vắng | Chưa có thông tin dung lượng. | Size not available. |
+| Dòng hướng dẫn quét (Spec M01 US-M01-03) | Khi không có mạng, hãy quét mã bằng nút Quét trong ứng dụng, vì camera điện thoại có thể không mở được ứng dụng nếu không có mạng. | Without a network, scan codes with the Scan button in the app, because the phone camera may not be able to open the app. |
+| Ba lựa chọn | Tải về · Tiếp tục không tải · Quay lại | Download · Continue without download · Go back |
+| Bản lưu (Spec M01 US-M01-06) | Thông tin được lưu lúc {thời điểm}, có thể không phải bản mới nhất | Saved on {time}; this may not be the latest information. |
+| Package cũ nhưng dùng được | Gói tải trước này đã cũ nhưng vẫn dùng được. | This download is out of date but still usable. |
+| Tải chưa hoàn tất | Tải chưa hoàn tất. Hãy thử tải lại. | The download is not complete. Please try again. |
+| Start bị chặn (offline, chưa có package) | Chưa bắt đầu được vì không có mạng và tuyến này chưa được tải trước. | Cannot start: you are offline and this route has not been downloaded. |
+| Start lỗi | Chưa bắt đầu được. Hãy thử lại. | Could not start. Please try again. |
+| Tuyến không còn nhận chuyến mới | Tuyến này hiện không nhận chuyến mới. | This route is not available for new trips right now. |
+| Lỗi nguồn, đang dùng bản lưu | Chưa tải được thông tin mới. Đang hiển thị thông tin đã lưu. | Could not load the latest information. Showing saved information. |
 
 ## 4. States
 
 | State | What the user sees | Trigger |
 |---|---|---|
-| Default | Route metadata đầy đủ, offline status panel, action buttons | Route loaded, package state known |
-| Loading | Spinner tại metadata hoặc package section | Đang validate source hoặc load route |
-| Route unavailable | Banner "Tuyến không còn khả dụng"; Start disabled | Route closed/archived/revoked discovered |
-| Source unavailable | Banner kết nối; có thể Start bằng ready package nếu có; block nếu không có manifest dùng được | Source fails, kể cả browser báo online |
-| Package CHUA_TAI | Panel "Chưa tải", các action tải/tiếp tục/Start | No package exists |
-| Package DANG_TAI, no old ready package | Báo đang tải; online Start vẫn có thể sau quyết định không tải và validate source; offline Start blocked | First candidate in progress |
-| Package SAN_SANG + CURRENT | Panel sẵn sàng; Start vẫn áp dụng current-source/route guards | Ready active package |
-| Package SAN_SANG + OUTDATED | Cảnh báo cũ; vẫn dùng được khi source unavailable; online Start dùng current snapshot | Ready package, newer version known |
-| Updating with old ready package | Active package vẫn SAN_SANG + OUTDATED; tiến trình candidate riêng, không khóa Start chỉ vì update | New candidate being prepared |
-| Update failed with old ready package | Giữ SAN_SANG + OUTDATED; báo lỗi candidate và cho retry | Candidate failed, old ready package intact |
-| Package CHUA_HOAN_TAT, no old ready package | Báo tải thất bại; retry hoặc explicit Continue online; offline Start blocked | Candidate failed without old ready package |
-| Package-only detail | routeId, version, checkpoint counts từ manifest; ghi rõ thiếu metadata tuyến nếu local view mất | Offline mở package nhưng không có Published Route metadata |
-| Confirmation dialog | Panel xác nhận "Tiếp tục không tải?" với cảnh báo | Visitor chọn "Tiếp tục không tải" |
-| Start failure | Banner lỗi; context cũ được giữ nguyên | Start validation fails |
+| Loading | Spinner/skeleton | Đang đọc nguồn |
+| Online detail | Đầy đủ thông tin, gallery, dấu cần tải trước | Đọc nguồn thành công |
+| Offline with ready package | Chữ cốt lõi đã lưu kèm thời điểm lưu; ảnh không lưu hiện placeholder | Mất mạng, package `SAN_SANG` |
+| No package needed | Start online sẵn sàng, không có quyết định offline | Không có `OFFLINE_REQUIRED` và không có sơ đồ offline |
+| Package missing | Panel quyết định offline: Tải / Tiếp tục không tải / Quay lại | Tuyến cần package, chưa có package sẵn sàng |
+| Downloading | Tiến độ tải, thao tác khác trên tuyến bị khóa | Package `DANG_TAI` |
+| Ready (current) | Trạng thái sẵn sàng, Start dùng được | `SAN_SANG + CURRENT` |
+| Ready (outdated) | Cảnh báo cũ nhưng vẫn dùng được | `SAN_SANG + OUTDATED` |
+| Incomplete | Thông báo tải chưa hoàn tất, cho thử lại | `CHUA_HOAN_TAT` |
+| Start blocked | Giải thích lý do | Offline không có package, hoặc không xác nhận được nguồn |
+| Route unavailable | Tuyến không còn lựa chọn mới | Làm mới nguồn báo `TAM_DONG`/`LUU_TRU` |
+| Source error | Giữ nội dung đang có, không khẳng định mới nhất | Request nguồn lỗi dù trình duyệt báo online |
 
 ## 5. Interactions and navigation
 
 | # | Element | User action | System response | Destination screen / result |
 |---|---|---|---|---|
-| 1 | Language selector | Tap / change | Cập nhật LanguagePreference, chuyển ngôn ngữ UI và content | Stays; label update |
-| 2 | Tải xuống | Tap | Bắt đầu candidate; giữ old ready package đọc được; validate trước atomic publish | Update offline status panel |
-| 3 | Tiếp tục không tải | Tap | Hiện confirmation dialog với warning | Show confirmation panel |
-| 4 | Confirm continue | Tap confirm | Chuyển state; cho phép online Start | State update |
-| 5 | Quản lý offline | Tap | Mở SCR-M01-004 | `SCR-M01-004` |
-| 6 | Quay lại | Tap | Trở về danh mục | `SCR-M01-001` |
-| 7 | Start | Tap | Nếu cần preparation decision thì hiện Download/Continue/Back trước; sau guard, validate current source hoặc dùng ready manifest khi source unavailable; atomic write context trước mở M02 | Preparation panel / `SCR-M02-001` / lỗi không thay context cũ |
-| 8 | Retry download | Tap | Thử lại download package | Retry DANG_TAI |
-| 9 | Làm mới / Thử lại source | Tap; pull-to-refresh nếu được chọn | Re-validate route source và package freshness | Reload state |
-| 10 | Hủy confirmation / Back | Tap | Không implicit Continue; đóng panel hoặc quay về danh mục | Stays / `SCR-M01-001` |
+| 1 | Màn hình | Mở khi online | Đọc Published Route; làm mới chữ cốt lõi khi đọc thành công; nếu có package thì kiểm tra phiên bản mới và chuẩn bị candidate riêng | State update |
+| 2 | Language control | Đổi VI/EN | Cập nhật preference; đổi nội dung có sẵn | State update |
+| 3 | Start | Tap, tuyến không cần package | Online: kiểm tra nguồn rồi ghi context v3 nguyên tử, `expiresAt` = `authorizedAt` + 24 giờ | `SCR-M02-001` |
+| 4 | Start | Tap, tuyến cần package nhưng chưa có | Hiện quyết định offline | Panel quyết định |
+| 5 | Tải | Tap | Tải snapshot, tài nguyên từng QR của điểm dừng `OFFLINE_REQUIRED`, sơ đồ offline và chữ cốt lõi; chỉ công bố khi hợp lệ trọn vẹn | State: Downloading → Ready/Incomplete |
+| 6 | Tiếp tục không tải | Tap (online) | Tiếp tục theo guard Start online | Start online |
+| 7 | Start | Tap, offline có package `SAN_SANG` | Ghi context v3 từ manifest của package | `SCR-M02-001` |
+| 8 | Start | Tap, offline không có package | Chặn Start, giải thích | Start blocked |
+| 9 | Quay lại | Tap | Thoát quyết định, về màn trước | Previous screen |
+| 10 | Tài nguyên offline | Tap | Mở quản lý package | `SCR-M01-004` |
 
 ## 6. Screen-level rules
 
 | Rule ID | Rule | Related requirement |
 |---|---|---|
-| SR-SCR-M01-003-001 | Online Start: validate current route và snapshot từ M03; tạo handoff từ current snapshot | FR-M01-011, BR-M01-008 |
-| SR-SCR-M01-003-002 | Offline Start: yêu cầu package SAN_SANG; tạo handoff từ package manifest | FR-M01-011, BR-M01-008 |
-| SR-SCR-M01-003-003 | Source unavailable + no SAN_SANG: Start bị block; browser online không thay cho source response | FR-M01-011; spec-M01 §5.4 |
-| SR-SCR-M01-003-004 | Mỗi Start tạo handoffId mới; Start lại thay thế context trước nguyên tử | BR-M01-009 |
-| SR-SCR-M01-003-005 | Thất bại Start KHÔNG thay đổi context cũ | FR-M01-012 |
-| SR-SCR-M01-003-006 | Visitor có thể tiếp tục không tải khi online sau khi thấy warning rõ ràng | BR-M01-007 |
-| SR-SCR-M01-003-007 | Lazy update: khi mở packaged route và source truy cập được, kiểm tra version và chuẩn bị candidate mới; giữ old ready package nếu đang tải hoặc thất bại | FR-M01-010, BR-M01-006 |
-| SR-SCR-M01-003-008 | Successful source refresh phát hiện closed/archived/deleted: unavailable và revoke current context của tuyến; không cần biết đã consumed, không ngắt session đã tạo | BR-M01-011; spec-M01 US-M01-05 |
-| SR-SCR-M01-003-009 | Download validation: manifest, bilingual text, declared images phải hợp lệ trước khi publish SAN_SANG | FR-M01-008 |
+| SR-SCR-M01-003-001 | Trường tùy chọn vắng thì ẩn, không placeholder văn bản; không tự sinh trường công khai thiếu | US-M01-06, FR-M01-003 |
+| SR-SCR-M01-003-002 | Offline chỉ hiển thị chữ cốt lõi đã lưu (tên, điểm xuất phát, yêu cầu tham gia, cảnh báo an toàn) kèm thời điểm lưu và không khẳng định là mới nhất | FR-M01-014, BR-M01-014, SC-M01-008 |
+| SR-SCR-M01-003-003 | Ảnh bìa và gallery chỉ dùng online; sơ đồ tuyến offline chỉ khi snapshot mang `offlineRouteMap`; audio/video không bao giờ lưu offline | BR-M01-013 |
+| SR-SCR-M01-003-004 | Tuyến cần package khi `hasOfflineRequiredCheckpoint` hoặc `hasOfflineRouteMap` là `true`; snapshot tải về là nguồn quyết định khi lệch | BR-M01-012, FR-M01-005 |
+| SR-SCR-M01-003-005 | Quyết định offline gồm đúng ba lựa chọn Tải / Tiếp tục không tải / Quay lại, nêu tên điểm dừng bị ảnh hưởng, dung lượng ước tính (hoặc chưa có thông tin) và dòng hướng dẫn quét; không chọn ngầm | FR-M01-006, US-M01-03 |
+| SR-SCR-M01-003-006 | Dung lượng ước tính vắng hoặc sai không bao giờ chặn Tải | BR-M01-016, SC-M01-009 |
+| SR-SCR-M01-003-007 | Package chỉ được công bố sẵn sàng khi hoàn chỉnh; cập nhật lỗi giữ package cũ ở `SAN_SANG + OUTDATED` | BR-M01-005, BR-M01-006, SC-M01-003, SC-M01-004 |
+| SR-SCR-M01-003-008 | Start online dùng nguồn hiện hành; Start offline cần package `SAN_SANG`; mỗi Start thành công tạo `handoffId` mới và thay context cũ nguyên tử; thất bại không thay context cũ | BR-M01-008, BR-M01-009, FR-M01-011, FR-M01-012 |
+| SR-SCR-M01-003-009 | `expiresAt` đúng bằng `authorizedAt` + 24 giờ; M01 không gia hạn và không đổi `authorizationStatus` khi thời gian trôi qua | BR-M01-015 |
+| SR-SCR-M01-003-010 | Tuyến phát hiện đã đóng/lưu trữ bị chặn Start mới và context hiện tại thành `REVOKED`; phiên M02 đã tạo không bị M01 xóa hay dừng | BR-M01-011, US-M01-05 |
+| SR-SCR-M01-003-011 | Chỉ một thao tác package mỗi tuyến tại một thời điểm | Spec M01 §4.4, FR-M01-009 |
+| SR-SCR-M01-003-012 | Tuyến không cần package có thể Start online mà không cần package | SC-M01-010 |
 
 ## 7. Linked requirements
 
 | FR ID | How the screen supports it |
 |---|---|
-| FR-M01-001 | Control M01 cập nhật LanguagePreference độc lập với package/session |
-| FR-M01-003 | Hiển thị route metadata theo ngôn ngữ đã chọn |
-| FR-M01-005 | Đếm offline-required checkpoints và kiểm tra package readiness |
-| FR-M01-006 | Cảnh báo và ba lựa chọn chuẩn bị (Download / Continue / Back) |
-| FR-M01-007 | Download full manifest và offline resource subset |
-| FR-M01-008 | Validate đầy đủ và atomic publish |
-| FR-M01-009 | View/download; delete và confirmation tại SCR-M01-004 |
-| FR-M01-010 | Lazy update giữ active package cũ |
-| FR-M01-011 | Online Start xác nhận source; offline Start cần SAN_SANG |
-| FR-M01-012 | Context v2 mới, atomic; refresh phát hiện closure/revoke |
-| FR-M01-013 | Shared data chỉ expose complete context và active ready package; không expose candidate/staging |
+| FR-M01-001 | Control ngôn ngữ dùng chung |
+| FR-M01-003 | Thông tin chi tiết theo ngôn ngữ, ẩn trường vắng |
+| FR-M01-005 | Cờ cần package, kiểm tra package |
+| FR-M01-006 | Quyết định offline |
+| FR-M01-007 | Tải manifest, tài nguyên từng QR, sơ đồ offline, chữ cốt lõi |
+| FR-M01-008 | Kiểm tra đầy đủ và công bố nguyên tử |
+| FR-M01-010 | Cập nhật lười, giữ package cũ, làm mới chữ cốt lõi |
+| FR-M01-011 | Start online/offline |
+| FR-M01-012 | Ghi `SelectedRouteContext v3` |
+| FR-M01-013 | Công bố context/package cho M02 |
+| FR-M01-014 | Chữ cốt lõi kèm thời điểm lưu |
 
 ## 8. Responsive and accessibility notes
 
 - Định hướng mobile-first: ưu tiên nội dung/action chính, wrap text/tags và stack panels theo chiều rộng thực tế; tránh chiều rộng cố định gây tràn ngang. 360px, 768px và 1280px là kích thước tham khảo để review, không phải hard breakpoint hoặc điều kiện bật/tắt tính năng.
-- Review text dài vi/en, loading/empty/error, phóng to chữ, focus và thao tác một tay trên điện thoại. Bố cục cuối cùng cần prototype/usability review trước sign-off.
-- Mục tiêu review accessibility: keyboard access, visible focus, semantic labels, error liên kết với field, status không chỉ biểu đạt bằng màu và reduced motion. Tham khảo WCAG 2.1 AA, touch target khoảng 44×44px và contrast 4.5:1 cho normal text; đây là định hướng cần kiểm chứng trên frontend, không phải tuyên bố đã đạt chuẩn.
+- Review text dài vi/en (mô tả đến 2000 ký tự), zoom, keyboard/focus và error states; cảnh báo an toàn phải nổi bật nhưng không chỉ bằng màu. Bố cục cuối cùng còn chờ UX review.
+- Mục tiêu review accessibility: keyboard access, visible focus, semantic labels, ảnh có văn bản thay thế (caption), tiến độ tải được thông báo cho công nghệ hỗ trợ và reduced motion. Tham khảo WCAG 2.1 AA, touch target khoảng 44×44px và contrast 4.5:1 cho normal text; đây là định hướng cần kiểm chứng trên frontend, không phải tuyên bố đã đạt chuẩn.
 
 ## 9. Open questions
 
 | ID | Question | Blocking | Status | Resolution |
 |---|---|---|---|---|
-| OQ-SCR-M01-003-001 | Chi tiết confirmation dialog (tiếp tục không tải) — modal, inline panel, hay bottom sheet? | No | Proposed | Đề xuất inline panel, bottom sheet hoặc modal chứa explicit Continue/Cancel; Download/Continue/Back phải đủ trong preparation flow (FR-M01-006). |
-| OQ-SCR-M01-003-002 | Cơ chế lazy update: check khi nào (mỗi lần mở route hay chỉ khi online)? | No | Confirmed | Khi packaged route được mở/selected và source access thành công: check version, chuẩn bị newer candidate riêng; không chỉ dựa browser online (spec-M01 §4.4, FR-M01-010). |
-| OQ-SCR-M01-003-003 | UI cho outdated warning có cần action không (auto-update hay manual)? | No | Proposed | Cảnh báo OUTDATED phải rõ; vị trí/action retry còn là UX proposal. Lazy update vẫn chuẩn bị newer candidate và giữ old ready package; không cấm update hoặc bắt user manual-only (FR-M01-010, BR-M01-006). |
-| OQ-SCR-M01-003-004 | Kích thước trang tối thiểu | No | Proposed | Mobile-first, co giãn theo content; xem §8, chưa chốt minimum/breakpoints. |
+| OQ-SCR-M01-003-002 | Khi offline, màn chi tiết có hiện danh sách tên điểm dừng từ manifest của package không | No | Resolved | Có. Khi offline, danh sách tên điểm dừng lấy từ `manifest` của package `SAN_SANG` (cùng phiên bản với package) và đi kèm thông báo bản lưu; không khẳng định là mới nhất. |
+| OQ-SCR-M01-003-003 | Số thứ tự hiển thị của điểm dừng khi `sequence` có khoảng trống | No | Resolved | Số thứ tự hiển thị đếm liên tục 1, 2, 3… theo thứ tự `sequence`, giống M02 (BR-M02-006); không hiện `sequence` gốc. |
+| OQ-SCR-M01-003-004 | Cách trình bày quyết định offline (dialog hay panel trong trang) | No | Resolved | Dialog trên màn chi tiết, mở khi bấm "Bắt đầu" với tuyến cần tải trước mà chưa có package sẵn sàng; ba nút theo bảng copy. |
 
 ## Completion checklist
 

@@ -56,9 +56,9 @@ Xem [MVP Scope](MVP-Scope.md) để biết phạm vi cam kết Must/Should/Could
 - [S2 — CRUD Matrix](data/02-crud-matrix.md): Ma trận CRUD trực tiếp theo function.
 - [S3 — ERD Source](data/03-erd.mmd), [ERD Preview](data/03-erd-preview.md), [ERD Review](data/03-erd-review.md): Quan hệ thực thể.
 - [S4 — Logical Data Model](data/04-data-model.md) & [DBML Visualization](data/04-data-model.dbml): Mô hình dữ liệu logic chuẩn.
-- [Data Acceptance Criteria (DAC)](data/08-data-acceptance-criteria.md): Tiêu chí chấp nhận dữ liệu toàn dự án (*Skeleton — Chờ rebaseline*).
-- [Data Review Gate](data/05-review.md): Đánh giá review gate (*Baseline tham khảo V1*).
-- [Physical Schema Baseline](data/06-physical-schema.md): Giới hạn cuối cùng của tài liệu chuyển giao (*Baseline tham khảo V1; chưa đánh giá lại cho V2*).
+- [Data Acceptance Criteria (DAC)](data/08-data-acceptance-criteria.md): Tiêu chí chấp nhận dữ liệu toàn dự án (*V2 — hoàn tất, 118 tiêu chí*).
+- [Data Review Gate](data/05-review.md): Đánh giá review gate (*V2 — PASS, 2026-10-28*).
+- [Physical Schema](data/06-physical-schema.md): Thiết kế vật lý V2, giới hạn cuối cùng của tài liệu chuyển giao (*V2 — thiết kế, chưa implement*).
 
 ---
 

@@ -293,12 +293,12 @@ This is the Published Route projection produced by M03; its shape is identical t
 | `highlights` | Array&lt;Object&gt; | Required | May be empty; at most 5 items. |
 | `highlights[].vi` | String | Required | Required for every array item; non-empty; at most 80 characters. |
 | `highlights[].en` | String | Required | Required for every array item; non-empty; at most 80 characters. |
-| `distanceKm` | Decimal | Required | Greater than `0`. |
-| `durationMin` | Integer | Required | Greater than `0`; expected duration. |
+| `distanceKm` | Decimal | Required | Greater than `0` and at most 100, with at most one decimal place. |
+| `durationMin` | Integer | Required | Greater than `0` and at most 1440; expected duration. |
 | `difficulty` | Enum(`NHE`, `TRUNG_BINH`, `KHO`) | Required | — |
 | `timeTags` | Array&lt;Enum(`TIME_NGAN`, `TIME_VUA`, `TIME_DAI`)&gt; | Required | Exactly one value, derived by M03 from `durationMin`. |
-| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Required | At least one allowed value. |
-| `experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Required | At least one allowed value. |
+| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Required | At least one allowed value; values are distinct. |
+| `experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Required | At least one allowed value; values are distinct. |
 | `checkpointCount` | Integer | Required | Number of active checkpoints in the active snapshot; `>= 0`. |
 | `hasOfflineRequiredCheckpoint` | Boolean | Required | `true` when the active snapshot contains at least one `OFFLINE_REQUIRED` checkpoint. |
 | `hasOfflineRouteMap` | Boolean | Required | `true` when the active snapshot contains an `offlineRouteMap`. |
@@ -658,6 +658,7 @@ M03 v3.5, v3.6 and v3.7 change no contract consumed by M01. M03 v3.6 prints QR c
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.2 (clarification 2) | 2026-10-28 | §5.3 Published Route input: the range of `distanceKm` (at most 100, one decimal place) and `durationMin` (at most 1440) and distinct tag values mirror M03 v3.7 (clarification 3). The M01 consumer behavior and the contract shape are unchanged. |
 | 3.2 (clarification) | 2026-10-28 | §6.1, §6.2, §11.1: OfflineRouteMap and RouteEssentials are stated as values embedded in `OfflinePackage`, not entities; the ER no longer draws them (matches §6.4; Entity Dictionary HC-005). Clarification only; no behavior or contract change. |
 | 3.2 (editorial) | 2026-10-28 | References updated to M03 v3.7 and M02 v3.3. M03 v3.7 adds the spoken language of audio/video in the M03 → M02 live content contract; Published Route and JourneySnapshot are unchanged and audio/video never enters a snapshot, so M01 behavior and contracts do not change. |
 | 3.2 | 2026-10-27 | Aligned to M03 v3.6 and M02 v3.2 (public QR link opened from the phone camera). US-M01-01: the QR link entry never blocks on language; the device language applies until the visitor switches; the language control is on every visitor screen (FR-M01-001, BR-M01-001, new screen row). US-M01-03 item 5 and FR-M01-006: the offline decision tells visitors to use the in-app Scan button without network. §9.3: the cached app shell serves the QR link page offline. §9.2: iPhone home-screen installation not promoted. US → FR → BR → SC traceability table (§11.4). No contract shape change. |

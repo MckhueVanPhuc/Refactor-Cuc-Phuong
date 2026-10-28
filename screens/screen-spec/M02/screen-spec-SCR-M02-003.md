@@ -5,104 +5,103 @@
 | Screen ID | `SCR-M02-003` |
 | Screen name | Kết thúc phiên |
 | Module | `M02` |
-| Actor | Visitor có session |
-| Priority | Must; sync status Should |
-| Mockup | `screens/M02/mockups/SCR-M02-003-finish.png` |
-| Status | Draft |
+| Actor | Visitor có phiên |
+| Priority | Must; trạng thái đồng bộ Should |
+| Mockup | Chưa có |
+| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) |
 
-Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; bố cục/visual direction tham khảo [DESIGN.md](../../../DESIGN.md). Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
+Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (`SessionSyncRecord` nhận bởi [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
 
-Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu.
+Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
 ## 1. Purpose
 
-**Shown when:** Final checkpoint (highest sequence) đã visited và visitor chọn Finish từ SCR-M02-001.
+**Shown when:** Ngay khi lượt ghé của điểm cuối (điểm dừng có `sequence` lớn nhất của journey) được ghi lần đầu trong phiên, hiện câu hỏi kết thúc chuyến; hoặc khi visitor chọn Finish từ SCR-M02-001 sau đó.
 
-**The user leaves when:** Xác nhận hoàn tất (chuyển trạng thái HOAN_TAT) rồi quay về SCR-M01-001; HOẶC quay lại SCR-M02-001 để tiếp tục.
+**The user leaves when:** Chọn [Kết thúc] (phiên thành `HOAN_TAT`, về SCR-M01-001) hoặc [Đi tiếp] (về SCR-M02-001 với phiên còn chạy).
 
 ## 2. Mockup
 
-Mockup: `screens/M02/mockups/SCR-M02-003-finish.png`. Đây là target asset tham khảo; cần kiểm tra asset và design sign-off, không dùng ảnh mockup để suy ngược business rule.
+Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ngược business rule.
 
 ## 3. Element inventory
 
 | # | Element ID | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|---|
-| 1 | E-SCR-M02-003-01 | Screen title | Header text | "Hoàn tất phiên" / "Complete Session" theo ngôn ngữ | Yes | Non-empty |
-| 2 | E-SCR-M02-003-02 | Language indicator | Header control | `vi` / `en`; đọc từ LanguagePreference | Yes | Hiển thị ngôn ngữ hiện tại |
-| 3 | E-SCR-M02-003-03 | Session summary | Panel | routeId, tổng checkpoint và visits từ frozen session; tên tuyến nếu có metadata hiển thị riêng | Yes | Không thêm routeName vào SessionSyncRecord/handoff; thiếu tên thì dùng routeId |
-| 4 | E-SCR-M02-003-04 | Checkpoint list | List | Tất cả checkpoints đã ghé với thời điểm | Yes | Hiển thị N visited |
-| 5 | E-SCR-M02-003-05 | Completion badge | Badge | "HOAN_TAT" badge | Conditional | Chỉ sau khi terminal state và immutable sync data được lưu thành công |
-| 6 | E-SCR-M02-003-06 | Sync status | Badge | Trạng thái sync: PENDING / SYNCED / CONFLICT | Conditional | Hiển thị sync status |
-| 7 | E-SCR-M02-003-07 | Confirmation text | Text | "Bạn có chắc muốn kết thúc phiên này?" / "Are you sure you want to complete this session?" | Yes | None |
-| 8 | E-SCR-M02-003-08 | Action: Xác nhận | Button | Kết thúc phiên; chuyển session → HOAN_TAT | Conditional | Chỉ khi DANG_DIEN_RA và highest-sequence đã visited; disabled khi đang lưu, không confirm lại terminal session |
-| 9 | E-SCR-M02-003-09 | Action: Quay lại | Button | Quay về SCR-M02-001 để tiếp tục trước khi confirmed | Conditional | Không mở lại terminal session thành DANG_DIEN_RA |
-| 10 | E-SCR-M02-003-10 | Action: Về danh mục | Button | Quay về SCR-M01-001 sau khi confirmed | Conditional | Hiển thị sau khi confirmed |
-| 11 | E-SCR-M02-003-11 | Sync error banner | Banner | PENDING: chưa gửi được, sẽ retry; CONFLICT: payload xung đột, đã dừng retry | Conditional | Phân biệt network/server failure với terminal conflict |
-| 12 | E-SCR-M02-003-12 | Sync pending | Text | Chờ đồng bộ hoặc đang gửi; network activity là transient UI state | Conditional | Canonical syncStatus vẫn PENDING; không thêm enum SYNCING |
-| 13 | E-SCR-M02-003-13 | Sync success | Badge | "Đã đồng bộ" khi SYNCED | Conditional | Hiển thị khi SYNCED |
-| 14 | E-SCR-M02-003-14 | Skipped checkpoints note | Text | "Một số checkpoint chưa ghé" nếu visited < total | Conditional | Hiển thị khi visited < total |
-| 15 | E-SCR-M02-003-15 | Action: Thử đồng bộ lại | Button | Đề nghị gửi lại đúng immutable pending record | Conditional | Chỉ PENDING; không sửa payload/sessionId, không retry CONFLICT |
-| 16 | E-SCR-M02-003-16 | Completion failure | Banner | Không lưu được terminal session/sync data; chưa báo hoàn tất | Conditional | Giữ phiên đang chạy nếu terminal operation thất bại |
+| 1 | E-SCR-M02-003-01 | End-of-trip prompt | Dialog | VI: "Bạn đã đến điểm cuối. Kết thúc chuyến đi?" (EN: "You have reached the last point. End the trip?") | Conditional | Hiện đúng một lần khi lượt ghé điểm cuối được ghi lần đầu; không hiện lại cho lần quét sau (BR-M02-021) |
+| 2 | E-SCR-M02-003-02 | Action: Kết thúc | Button | VI: "Kết thúc" (EN: "End") | Yes | Tác dụng giống xác nhận Finish: phiên thành `HOAN_TAT` (BR-M02-007) |
+| 3 | E-SCR-M02-003-03 | Action: Đi tiếp | Button | VI: "Đi tiếp" (EN: "Continue") | Yes | Không đổi gì; Finish vẫn khả dụng đến khi phiên kết thúc |
+| 4 | E-SCR-M02-003-04 | Finish confirmation | Dialog | Xác nhận kết thúc khi dùng Finish | Conditional | Finish chỉ khả dụng khi đã quét điểm có `sequence` lớn nhất |
+| 5 | E-SCR-M02-003-05 | Visit summary | List | Các điểm đã quét: tên theo ngôn ngữ, thứ tự, `checkedInAt` | Yes | Từ `PlaySession` và `CheckpointVisit` local; nhãn "Đã quét QR", không phải "đã đến" (SC-M02-013) |
+| 6 | E-SCR-M02-003-06 | Completion result | Text | Phiên đã hoàn tất kèm danh sách điểm đã quét | Conditional | Hiện sau [Kết thúc]; không yêu cầu quét 100% điểm (FR-M02-016) |
+| 7 | E-SCR-M02-003-07 | Sync status | Text/badge | Trạng thái đồng bộ: chờ đồng bộ, đã đồng bộ, conflict/bị từ chối | Conditional | Theo `PendingSyncItem.syncStatus` (`PENDING`/`SYNCED`/`CONFLICT`); không có trang hàng đợi sync |
+| 8 | E-SCR-M02-003-08 | Sync error message | Banner | Lỗi khi M03 báo conflict hoặc từ chối record | Conditional | Dừng retry tự động; không sửa payload bất biến (BR-M02-011) |
+| 9 | E-SCR-M02-003-09 | Action: Về danh mục | Button | Mở SCR-M01-001 | Conditional | Sau khi phiên kết thúc |
+
+**Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Câu hỏi kết thúc chuyến và hai nút Kết thúc / Đi tiếp đã cố định trong Spec M02 §5.1 và dùng nguyên văn.
+
+| Tình huống | Tiếng Việt | English |
+|---|---|---|
+| Tiêu đề kết quả | Chuyến đi đã kết thúc. | Your trip has ended. |
+| Tiêu đề danh sách | Các điểm đã quét | Points scanned |
+| Đồng bộ: chờ | Chờ gửi về hệ thống | Waiting to be sent |
+| Đồng bộ: xong | Đã gửi về hệ thống | Sent |
+| Đồng bộ: conflict/bị từ chối | Chuyến đi này không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này. | This trip could not be sent to the system. It is still saved on this device. |
+| Nút về danh sách | Về danh sách tuyến | Back to routes |
 
 ## 4. States
 
 | State | What the user sees | Trigger |
 |---|---|---|
-| Default | Confirmation text, checkpoint list (visited), action buttons | Final checkpoint visited, Finish tapped |
-| Confirmation pending | Buttons Xác nhận và Quay lại visible | Before user confirms |
-| Confirming | Báo đang lưu; ngăn double-submit | Terminal operation in progress |
-| Completion failure | Báo lỗi local persistence; có thể xác nhận lại hoặc quay về phiên vẫn chạy | Terminal operation fails |
-| Finish unavailable | Giải thích chưa thể Finish; không tạo terminal record | Session không DANG_DIEN_RA hoặc final checkpoint chưa visited |
-| Confirmed (pending sync) | "HOAN_TAT" badge, checkpoint list, sync status PENDING | User confirmed; sync queued |
-| Confirmed (syncing) | "Đang đồng bộ..." indicator | Sync in progress |
-| Confirmed (synced) | "HOAN_TAT" badge, "Đã đồng bộ" badge | Sync acknowledged |
-| Confirmed (conflict) | HOAN_TAT giữ nguyên; báo xung đột, không có retry/resolve làm đổi dữ liệu | Same ID, different payload |
-| Confirmed (final) | "HOAN_TAT" badge, button Về danh mục | Session completed and synced (or will retry) |
+| Confirmation | Câu hỏi kết thúc chuyến với [Kết thúc] và [Đi tiếp] | Lượt ghé điểm cuối ghi lần đầu, hoặc chọn Finish |
+| Continue | Quay lại phiên, Finish vẫn khả dụng | Chọn [Đi tiếp] |
+| Completed – pending sync | Danh sách điểm đã quét; chờ đồng bộ | `HOAN_TAT`, record trong hàng đợi |
+| Completed – synced | Như trên, đã đồng bộ | M03 xác nhận thành công (kể cả retry giống hệt) |
+| Conflict / rejected | Thông báo lỗi đồng bộ, dừng thử lại tự động | M03 trả conflict hoặc từ chối record không hợp lệ |
+| Offline | Kết thúc vẫn thực hiện được; record chờ đồng bộ | Không có mạng |
 
 ## 5. Interactions and navigation
 
 | # | Element | User action | System response | Destination screen / result |
 |---|---|---|---|---|
-| 1 | Xác nhận | Tap | Kiểm tra Finish guard; lưu HOAN_TAT và immutable SessionSyncRecord trước khi báo hoàn tất | Confirmed hoặc completion failure |
-| 2 | Quay lại | Tap | Quay về SCR-M02-001 để tiếp tục phiên | `SCR-M02-001` |
-| 3 | Về danh mục | Tap | Quay về danh mục tuyến | `SCR-M01-001` |
-| 4 | Thử đồng bộ lại | Tap | Gửi lại cùng business payload nếu PENDING; background retry vẫn tiếp tục đến ACK/conflict | Retry pending item |
+| 1 | Lượt ghé điểm cuối | Ghi lần đầu | Hiện câu hỏi kết thúc chuyến một lần | Confirmation |
+| 2 | Kết thúc | Tap | Phiên `HOAN_TAT`; đóng băng `SessionSyncRecord` và xếp hàng đồng bộ | Completion result |
+| 3 | Đi tiếp | Tap | Giữ phiên chạy; không đổi gì | `SCR-M02-001` |
+| 4 | Finish (từ phiên) | Tap | Hiện xác nhận; xác nhận như [Kết thúc] | Confirmation |
+| 5 | Về danh mục | Tap | Rời màn hình kết quả | `SCR-M01-001` |
 
 ## 6. Screen-level rules
 
 | Rule ID | Rule | Related requirement |
 |---|---|---|
-| SR-SCR-M02-003-001 | Finish chỉ xuất hiện sau khi checkpoint với highest sequence đã visited | FR-M02-015 |
-| SR-SCR-M02-003-002 | Hoàn tất khi xác nhận; không yêu cầu 100% checkpoint coverage | FR-M02-016, BR-M02-007 |
-| SR-SCR-M02-003-003 | Sau xác nhận, session → HOAN_TAT; hiển thị HOAN_TAT badge và checkpoints đã ghé | FR-M02-016 |
-| SR-SCR-M02-003-004 | Chỉ `HOAN_TAT` hoặc `BO_DO` sessions được sync | FR-M02-018, BR-M02-010 |
-| SR-SCR-M02-003-005 | Sync retry: identical payload = success (idempotent); changed payload = conflict | FR-M02-018, BR-M02-011 |
-| SR-SCR-M02-003-006 | Sync failure = PENDING; automatic retry cho đến khi acknowledged/conflict | FR-M02-018 |
-| SR-SCR-M02-003-007 | Finish không bị blocked bởi network; sync có thể PENDING | BR-M02-010 |
+| SR-SCR-M02-003-001 | Câu hỏi kết thúc chuyến hiện đúng một lần khi lượt ghé điểm cuối ghi lần đầu | FR-M02-023, BR-M02-021, SC-M02-015 |
+| SR-SCR-M02-003-002 | `HOAN_TAT` yêu cầu đã thăm điểm cuối và visitor xác nhận (hoặc tự đóng sau 24 giờ); không yêu cầu quét đủ 100% | FR-M02-016, BR-M02-007 |
+| SR-SCR-M02-003-003 | Không có nút "Dừng chuyến đi"; phiên chỉ thành `BO_DO` khi nhận handoff mới hoặc tự đóng sau 24 giờ | US-M02-05, Screen list M02 §2 |
+| SR-SCR-M02-003-004 | Kết thúc không bị chặn bởi mạng; record đồng bộ bất biến được xếp hàng | FR-M02-018, BR-M02-010 |
+| SR-SCR-M02-003-005 | Đồng bộ lại cùng `sessionId` với dữ liệu giống hệt là thành công, khác dữ liệu là conflict; record bị M03 từ chối dừng retry và hiện lỗi | BR-M02-011, SC-M02-006 |
+| SR-SCR-M02-003-006 | Record đồng bộ không chứa tên, tài khoản, định danh thiết bị, GPS hay PII khác | SC-M02-007 |
+| SR-SCR-M02-003-007 | Retry chỉ khi ứng dụng đang mở hoặc quay lại; không đồng bộ nền sau khi đóng trình duyệt | Constitution VI |
 
 ## 7. Linked requirements
 
 | FR ID | How the screen supports it |
 |---|---|
-| FR-M02-015 | Finish enabled sau highest-sequence visit |
+| FR-M02-015 | Finish sau điểm có `sequence` lớn nhất |
 | FR-M02-016 | Hoàn tất khi xác nhận |
-| FR-M02-018 | Frozen sync queue; retry success/conflict |
-| FR-M02-017 | Session replacement context (nếu handoff mới đến) |
+| FR-M02-018 | Hàng đợi đồng bộ bất biến, retry/conflict/rejected |
+| FR-M02-023 | Câu hỏi kết thúc chuyến khi quét điểm cuối lần đầu |
 
 ## 8. Responsive and accessibility notes
 
 - Định hướng mobile-first: ưu tiên nội dung/action chính, wrap text/tags và stack panels theo chiều rộng thực tế; tránh chiều rộng cố định gây tràn ngang. 360px, 768px và 1280px là kích thước tham khảo để review, không phải hard breakpoint hoặc điều kiện bật/tắt tính năng.
-- Review text dài vi/en, loading/empty/error, phóng to chữ, focus và thao tác một tay trên điện thoại. Bố cục cuối cùng cần prototype/usability review trước sign-off.
-- Mục tiêu review accessibility: keyboard access, visible focus, semantic labels, error liên kết với field, status không chỉ biểu đạt bằng màu và reduced motion. Tham khảo WCAG 2.1 AA, touch target khoảng 44×44px và contrast 4.5:1 cho normal text; đây là định hướng cần kiểm chứng trên frontend, không phải tuyên bố đã đạt chuẩn.
+- Review text dài vi/en, zoom, keyboard/focus và error states; không ẩn action nghiệp vụ chỉ vì viewport nhỏ. Bố cục cuối cùng còn chờ UX review.
+- Mục tiêu review accessibility: keyboard access, visible focus, semantic labels, focus được quản lý trong dialog, trạng thái đồng bộ không chỉ biểu đạt bằng màu và reduced motion. Tham khảo WCAG 2.1 AA, touch target khoảng 44×44px và contrast 4.5:1 cho normal text; đây là định hướng cần kiểm chứng trên frontend, không phải tuyên bố đã đạt chuẩn.
 
 ## 9. Open questions
 
 | ID | Question | Blocking | Status | Resolution |
 |---|---|---|---|---|
-| OQ-SCR-M02-003-001 | Sync retry strategy cụ thể (interval, max attempts)? | No | Open | Giữ immutable SessionSyncRecord PENDING và retry đến acknowledged/CONFLICT (FR-M02-018, spec-M02 §6.4); CONFLICT dừng retry. [NEEDS CLARIFICATION: scheduling/backoff cụ thể chưa có quyết định nguồn.] Không giới hạn ba lần rồi ngừng automatic retry. |
-| OQ-SCR-M02-003-002 | Conflict state: user có cần thông báo đặc biệt không? | No | Confirmed | CONFLICT được thông báo riêng, dừng retry, không cho user sửa payload/sessionId hoặc retry như PENDING; terminal session giữ nguyên (BR-M02-010, BR-M02-011, spec-M02 §6.4). Presentation còn có thể review. |
-| OQ-SCR-M02-003-003 | Kích thước trang tối thiểu | No | Proposed | Mobile-first, co giãn theo content; xem §8, chưa chốt minimum/breakpoints. |
+| OQ-SCR-M02-003-002 | Sau khi hoàn tất, phiên đã `HOAN_TAT` mà người dùng rời màn hình thì trạng thái đồng bộ xem lại ở đâu | No | Resolved | Khi rời màn kết quả, lỗi conflict/bị từ chối hiện một dòng ở SCR-M02-001 (E-SCR-M02-001-22) cho tới khi có chuyến mới; trạng thái chờ gửi và đã gửi không cần hiện lại. |
 
 ## Completion checklist
 

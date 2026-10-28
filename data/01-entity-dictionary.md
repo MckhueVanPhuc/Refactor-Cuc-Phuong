@@ -298,7 +298,7 @@ The specs own behavior and logical contracts. This dictionary reconciles those s
 - Lifecycle: `NHAP → PHAT_HANH` (publication; the previously published revision becomes `LUU_TRU` in the same operation); `NHAP → DA_BO` (pending draft discarded); `PHAT_HANH → LUU_TRU` (superseded). Restoring creates a new `NHAP` revision. `LUU_TRU` and `DA_BO` are terminal; `PHAT_HANH` content is immutable.
 - Main attributes supported by source: `revisionId`, `subjectType`, `subjectId`, `revisionNumber`, `status`, `content` (shape by subject type: M03 §6.1.1, §6.2.1, §6.2.2), optional `basedOnRevisionNumber`, `createdByUserId`/`createdAt`, `lastEditedByUserId`/`lastEditedAt`, conditional `publishedByUserId`/`publishedAt`, conditional `selfPublished`, `concurrencyRevision`.
 - Relationships evidenced by source: belongs to exactly one subject — a Route, a Checkpoint or a QRCode — identified by `subjectType` and `subjectId`; its content may reference Media of the same owner and, for a route, published Checkpoints through `checkpointList`; authored and published by AdminAccount users.
-- Used by functions: FN-M03-001/002/003/004/005/011.
+- Used by functions: FN-M03-001/002/003/004/005/010 (route name for RPT-02)/011.
 - Business rules: BR-M03-A05, D06, D11, E05, E06, E13, F01–F07, F10, F11.
 - Cross-module representations: Published Route fields, snapshot names and offline content, and LiveStationContent are projections of `PHAT_HANH` revisions; current published content is a projection, not a separate entity.
 - Source references: [M03 §1.1, §5.2.F, §6.1.1, §6.2.1, §6.2.2, §6.3 and §6.4](../docs/spec/spec-M03.md).
@@ -314,12 +314,13 @@ The specs own behavior and logical contracts. This dictionary reconciles those s
 
 | Conflict ID | Concept A | Concept B | Conflict type | Evidence | Resolution | Status |
 |---|---|---|---|---|---|---|
-| HC-001 | AdminAccount normalized email | Provider `userId` | Identity evolution | M03 §6.4 makes email unique, userId conditional and stable when present; invitation creates account before provider linkage. | Keep one AdminAccount. Normalized email is its MVP logical identity from invitation through active account; `userId` is unique external/provider linkage when present. Do not create ProviderIdentity. Review this identity rule if email change is supported later. | RESOLVED |
+| HC-001 | AdminAccount normalized email | Provider `userId` | Identity evolution | M03 §6.4 makes email unique and userId conditional, stable and unique when present (v3.7 clarification 3); invitation creates account before provider linkage. | Keep one AdminAccount. Normalized email is its MVP logical identity from invitation through active account; `userId` is unique external/provider linkage when present. Do not create ProviderIdentity. Review this identity rule if email change is supported later. | RESOLVED |
 | HC-002 | Media `sourceRef` | Media entity identity | Missing stable identity | M03 §6.3 now declares `mediaId: UUID` and distinguishes `sourceRef` as a resource/storage reference. | Use `mediaId: UUID` as stable logical identity; `sourceRef` is not identity. | RESOLVED |
 | HC-003 | AdministrativeRevision | Route/Checkpoint/QRCode mutation state | Entity versus embedded state | V1 kept it implied. Spec M03 v3.7 §6.3 now declares Revision with identity, lifecycle and fields. | Superseded: Revision is canonical (ENT-DATA-017). | SUPERSEDED (V2) |
 | HC-004 | `CheckpointContent` | Language-specific content revision/current published content | Naming/entity-versus-projection ambiguity | V1 kept CheckpointContent canonical. Spec M03 v3.7 removes it; content belongs to QR objects and every content version is a Revision. | Superseded: ENT-DATA-004 retired; current published content is a projection of the `PHAT_HANH` Revision. | SUPERSEDED (V2) |
 | HC-005 | OfflineRouteMap / RouteEssentials | OfflinePackage | Entity versus embedded value | M01 §6.2 lists both under "Entity Definitions" and the M01 §6.1 ER draws them, but §6.2 says "embedded in `OfflinePackage`" and §6.4 allows at most one route map and exactly one essentials value per package, with no identity of their own. | Classified as embedded values of OfflinePackage (Human Gate 1 V2). M01 v3.2 (clarification, 2026-10-28) aligns §6.1 ER, §6.2 and §11.1 with this classification. | RESOLVED |
 | HC-006 | `AuditRecord.revision` | Revision `revisionNumber` / `revisionId` | Missing reference semantics | M03 §6.4 defined `AuditRecord.revision` as an Integer "present when the action concerns a revisioned value" without naming the referenced value. | M03 v3.7 (clarification) §6.4: it is the `revisionNumber` of the Revision concerned, whose subject is given by `entityType`/`entityId`; `(subjectType, subjectId, revisionNumber)` is unique. | RESOLVED |
+| HC-007 | RecommendationContext | Canonical entity | Entity versus transient context | M01 §6.2 lists RecommendationContext (one value from each tag group, owner M01) beside the entities, but M01 §6.4 declares no persistence constraint, identity or lifecycle for it, and M01 BR-M01-003 treats it as the three criteria of one recommendation run. | Classified as a transient context, not a canonical entity (Human decision, 2026-10-28); it keeps its exclusion in §7. | RESOLVED |
 
 Previously audited names are not remaining conflicts:
 
@@ -335,7 +336,7 @@ Previously audited names are not remaining conflicts:
 | Concept | Classification | Reason not treated as a canonical entity |
 |---|---|---|
 | Published Route | READ MODEL / VIEW | Public projection of Route and its published Revision, including derived values; same canonical source identity. |
-| RecommendationContext | TRANSIENT CONTEXT | Three selected criteria used for deterministic filtering; no persistence requirement or stable identity. |
+| RecommendationContext | TRANSIENT CONTEXT | Three selected criteria used for deterministic filtering; no persistence requirement or stable identity (HC-007). |
 | `routeJourneyManifest` | VALUE OBJECT / EMBEDDED VALUE | JourneySnapshot metadata copy embedded in SelectedRouteContext. |
 | `OfflinePackage.manifest` | VALUE OBJECT / EMBEDDED VALUE | JourneySnapshot metadata copy embedded in OfflinePackage. |
 | JourneySnapshot `offlineResources[]` item | VALUE OBJECT / EMBEDDED VALUE | Per-QR M03 source value embedded conditionally in a snapshot; copied into M01 OfflineResource. |
@@ -388,11 +389,11 @@ This is FN-level evidence coverage only, not a CRUD matrix.
 | FN-M03-003 | QRCode, Checkpoint, Revision, JourneySnapshot, AuditRecord | Covered |
 | FN-M03-004 | Revision, Media, QRCode, JourneySnapshot | Covered |
 | FN-M03-005 | Revision, Route, Checkpoint, QRCode, Media, JourneySnapshot, AuditRecord | Covered |
-| FN-M03-006 | JourneySnapshot, Route, Checkpoint, QRCode, Revision, Media | Covered |
+| FN-M03-006 | JourneySnapshot, Route, Checkpoint, QRCode, Revision, Media, AuditRecord | Covered |
 | FN-M03-007 | Route, Checkpoint, JourneySnapshot, AuditRecord | Covered |
 | FN-M03-008 | AdminAccount, AuditRecord | Covered |
 | FN-M03-009 | QRCode, Checkpoint, Route, Revision, Media; LiveQrLookupResult view | Covered |
-| FN-M03-010 | SessionRecord, JourneySnapshot (validation); SessionSyncRecord transport; RPT-01/RPT-02 views | Covered |
+| FN-M03-010 | SessionRecord, JourneySnapshot (validation); Route, Revision (route name shown in RPT-02); SessionSyncRecord transport; RPT-01/RPT-02 views | Covered |
 | FN-M03-011 | Revision, AuditRecord, AdminAccount (actor) | Covered |
 
 - Entity-orphaned functions: none.
@@ -410,5 +411,6 @@ This is FN-level evidence coverage only, not a CRUD matrix.
 - [x] Non-entity exclusions accepted
 - [x] Ready for S2 CRUD Matrix
 - [x] HC-006 `AuditRecord.revision` semantics clarified in M03 (v3.7 clarification, 2026-10-28)
+- [x] HC-007 RecommendationContext classified as a transient context; `userId` uniqueness stated in M03 §6.4 (v3.7 clarification 3, 2026-10-28)
 
 **S1 STATUS: PASS — HUMAN GATE 1 (V2) ACCEPTED — READY FOR S2 CRUD MATRIX**

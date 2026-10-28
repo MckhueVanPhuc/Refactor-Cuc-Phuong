@@ -22,6 +22,7 @@ erDiagram
     ROUTE ||--o{ OFFLINE_PACKAGE : has
     OFFLINE_PACKAGE ||--o{ OFFLINE_RESOURCE : contains
     QR_CODE ||--o{ OFFLINE_RESOURCE : is_packaged_for
+    CHECKPOINT ||--o{ OFFLINE_RESOURCE : holds
 
     SELECTED_ROUTE_CONTEXT ||--o| PLAY_SESSION : originated_at_start
     ROUTE ||--o{ PLAY_SESSION : is_experienced_by

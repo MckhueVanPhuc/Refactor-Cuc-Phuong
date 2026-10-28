@@ -1,6 +1,6 @@
 # Main Sequence Diagrams — Cúc Phương Quest
 
-Tài liệu này tập hợp nguyên văn các block `sequenceDiagram` trong ba module spec. Khi sequence trong spec thay đổi, bản sao tương ứng tại đây phải được cập nhật; file này không định nghĩa hành vi mới. Đồng bộ ngày 2026-10-27 với Spec M01 v3.2, M02 v3.2, M03 v3.6.
+Tài liệu này tập hợp nguyên văn các block `sequenceDiagram` trong ba module spec. Khi sequence trong spec thay đổi, bản sao tương ứng tại đây phải được cập nhật; file này không định nghĩa hành vi mới. Đồng bộ ngày 2026-10-27 với Spec M01 v3.2, M02 v3.3, M03 v3.7.
 
 ## Danh mục
 
@@ -34,7 +34,7 @@ sequenceDiagram
 
 ## SD-02 — M02 QR Check-in
 
-Nguồn: [spec-M02.md](../spec/spec-M02.md) v3.2, §4.2.
+Nguồn: [spec-M02.md](../spec/spec-M02.md) v3.3, §4.2.
 
 ```mermaid
 sequenceDiagram
@@ -63,7 +63,7 @@ sequenceDiagram
 
 ## SD-03 — M02 Terminal Session Sync
 
-Nguồn: [spec-M02.md](../spec/spec-M02.md) v3.2, §4.3.
+Nguồn: [spec-M02.md](../spec/spec-M02.md) v3.3, §4.3.
 
 ```mermaid
 sequenceDiagram
@@ -87,7 +87,7 @@ sequenceDiagram
 
 ## SD-04 — M03 First Route Publication
 
-Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.6, §4.2.
+Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.7, §4.2.
 
 ```mermaid
 sequenceDiagram

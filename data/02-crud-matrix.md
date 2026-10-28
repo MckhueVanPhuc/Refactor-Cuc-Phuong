@@ -14,7 +14,9 @@
 
 The S1 pre-check passed without discrepancy: the authoritative dictionary status is `S1 STATUS: PASS — HUMAN GATE 1 (V2) ACCEPTED — READY FOR S2 CRUD MATRIX`, Table A contains 16 canonical entities (ENT-DATA-001–003 and 005–017; ENT-DATA-004 `CheckpointContent` is retired), and the function lists contain 7 M01, 8 M02 and 11 M03 FN-level functions (26 total). No entity has been added in S2.
 
-V2 rebaseline (2026-10-28): the `CheckpointContent` column is removed with ENT-DATA-004 and a `Revision` column is appended; content reads move to Revision; FN-M03-011 is added and takes over the audit append of the removed SF-M03-008-13; `ANOM-S2-001` is resolved because SF-M03-011-05 now reads the audit log.
+Review-gate correction (2026-10-28): `AuditRecord` C is added to FN-M03-003 (SF-M03-003-04) and FN-M03-006 (SF-M03-006-12), whose sub-functions name the audit effect; C operations change from 29 to 31.
+
+V2 rebaseline (2026-10-28): the `CheckpointContent` column is removed with ENT-DATA-004 and a `Revision` column is appended; content reads move to Revision; FN-M03-011 is added and takes over the audit append of the removed SF-M03-008-13; `ANOM-S2-001` is resolved because SF-M03-011-05 now reads the audit log. M03 v3.7 clarification 4 (2026-10-28): FN-M03-010 gains a direct read of Revision (route name for RPT-02), so R = 98.
 
 ## 2. CRUD Legend
 
@@ -57,14 +59,14 @@ Cells combine symbols when one FN-level function supports multiple operations. A
 | FN-M02-008 | Free Visitor Experience |  | R | R | R |  |  |  |  |  |  |  |  |  |  |  | R |
 | FN-M03-001 | Route Administration | C/R/U | R |  | C/R/U |  |  |  |  |  |  |  |  |  |  |  | C/R/U |
 | FN-M03-002 | Checkpoint Administration | R | C/R/U | R/U | R |  |  |  |  |  |  |  |  |  |  |  | C/R/U |
-| FN-M03-003 | QR Administration |  | R | C/R/U |  | C |  |  |  |  |  |  |  |  |  |  | R |
+| FN-M03-003 | QR Administration |  | R | C/R/U |  | C |  | C |  |  |  |  |  |  |  |  | R |
 | FN-M03-004 | Bilingual Content & Media |  | R | R/U | C/R/U |  |  |  |  |  |  |  |  |  |  |  | C/R/U |
 | FN-M03-005 | Publication Review & Self-Publish | R/U | R/U | R/U | R/U | C/R |  | C |  |  |  |  |  |  |  |  | C/R/U |
-| FN-M03-006 | Journey Snapshot | R/U | R | R | R | C/R |  |  |  |  |  |  |  |  |  |  | R |
+| FN-M03-006 | Journey Snapshot | R/U | R | R | R | C/R |  | C |  |  |  |  |  |  |  |  | R |
 | FN-M03-007 | Emergency Operations | R/U | R/U | R | R | C/R |  | C |  |  |  |  |  |  |  |  | R |
 | FN-M03-008 | Authentication, Accounts, Authorization & Concurrency |  |  |  |  |  | C/R/U |  |  |  |  |  |  |  |  |  |  |
 | FN-M03-009 | Live QR & Content Service | R | R | R | R |  |  |  |  |  |  |  |  |  |  |  | R |
-| FN-M03-010 | Session Intake & Reporting | R |  |  |  | R |  |  |  |  |  |  |  |  |  | C/R |  |
+| FN-M03-010 | Session Intake & Reporting | R |  |  |  | R |  |  |  |  |  |  |  |  |  | C/R | R |
 | FN-M03-011 | History, Restore & Audit Log |  |  |  |  |  |  | C/R |  |  |  |  |  |  |  |  | C/R/U |
 
 ## 5. CRUD Evidence
@@ -225,6 +227,7 @@ No JourneySnapshot is created here: first publication creates no journey version
 | Checkpoint | R | Reads the saved mode and the last-active-QR guard before adding or revoking a visit point. | SF-M03-003-07, SF-M03-003-09, SF-M03-003-14; FR-M03-003 |
 | Revision | R | Shows whether a visit point is unpublished before offering the printable image. | SF-M03-003-11; FR-M03-003 |
 | JourneySnapshot | C | Publishing a changed QR set creates a new immutable snapshot. | SF-M03-003-08; FR-M03-009 |
+| AuditRecord | C | A reprint changes no state but is recorded as an audit line ("Audit only"). | SF-M03-003-04; FR-M03-003 |
 
 ### FN-M03-004 — Bilingual Content & Media
 
@@ -257,6 +260,7 @@ No JourneySnapshot is created here: first publication creates no journey version
 | Revision | R | Reads published bilingual content for per-QR offline resources and the offline route map. | SF-M03-006-04, SF-M03-006-10; FR-M03-009 |
 | Media | R | Reads published static images included in offline resources and size estimates. | SF-M03-006-04, SF-M03-006-10–11; FR-M03-009 |
 | JourneySnapshot | C/R | Reads the preceding version and creates a complete, consecutive, linked immutable version; retention does not imply deletion. | SF-M03-006-05–09, SF-M03-006-12; FR-M03-009, FR-M03-010 |
+| AuditRecord | C | A build failure fails the whole operation and the failure is audited. | SF-M03-006-12; FR-M03-009 |
 
 ### FN-M03-007 — Emergency Operations
 
@@ -276,7 +280,7 @@ No JourneySnapshot is created here: first publication creates no journey version
 |---|---|---|---|
 | AdminAccount | C/R/U | Reads account/role/status for every protected request, creates invitation/bootstrap accounts and updates linkage, role or activation status. | SF-M03-008-02, SF-M03-008-05–10; FR-M03-006, FR-M03-013 |
 
-Concurrency validation (SF-M03-008-11–12) compares the revision carried by the entity being written; it creates no record of its own. The audit append formerly under SF-M03-008-13 belongs to FN-M03-011.
+Concurrency validation (SF-M03-008-11–12) compares the revision carried by the entity being written; it creates no record of its own. The audit append formerly under SF-M03-008-13 belongs to FN-M03-011. Sign-out (part of SF-M03-008-01) ends the provider session and touches no canonical entity.
 
 ### FN-M03-009 — Live QR & Content Service
 
@@ -295,6 +299,7 @@ Concurrency validation (SF-M03-008-11–12) compares the revision carried by the
 | SessionRecord | C/R | Reads by `sessionId` for idempotency/conflict checks, creates the first immutable accepted record and reads synchronized records for both reports. | SF-M03-010-01–11, SF-M03-010-14; FR-M03-014–016 |
 | Route | R | The route of a received session must be known; any route status is accepted. | SF-M03-010-13; FR-M03-014 |
 | JourneySnapshot | R | The version must be published, and each visited checkpoint must be in the snapshot of `(routeId, contentVersion)`. | SF-M03-010-12–13; FR-M03-014 |
+| Revision | R | Reads the Vietnamese name of the route's published (`PHAT_HANH`) revision to label each RPT-02 item; display only, not stored. | SF-M03-010-09; FR-M03-016 |
 
 ### FN-M03-011 — History, Restore & Audit Log
 
@@ -313,7 +318,7 @@ Concurrency validation (SF-M03-008-11–12) compares the revision carried by the
 | Media | M03 | FN-M03-001/004 | FN-M03-001/004/005 | — | FN-M01-002; FN-M02-005/008 | PASS |
 | JourneySnapshot | M03 | FN-M03-003/005/006/007 | — | — | FN-M01-002/004/005/006 | PASS |
 | AdminAccount | M03 | FN-M03-008 | FN-M03-008 | — | — | PASS |
-| AuditRecord | M03 | FN-M03-005/007/011 | — | — | — | PASS |
+| AuditRecord | M03 | FN-M03-003/005/006/007/011 | — | — | — | PASS |
 | LanguagePreference | M01 | FN-M01-001 | FN-M01-001 | — | FN-M02-003/004/005 | PASS |
 | SelectedRouteContext | M01 | FN-M01-006 | FN-M01-002/006 | — | FN-M02-001 | PASS |
 | OfflinePackage | M01 | FN-M01-005 | FN-M01-005 | FN-M01-005 | FN-M02-005 | PASS |
@@ -368,8 +373,8 @@ Special-case results:
 | Total canonical entities | 16 |
 | Functions with CRUD coverage | 26 / 26 |
 | Entities with CRUD coverage | 16 / 16 |
-| C operations | 29 |
-| R operations | 97 |
+| C operations | 31 |
+| R operations | 98 |
 | U operations | 27 |
 | D operations | 2 |
 | Total detected anomalies | 1 (resolved) |

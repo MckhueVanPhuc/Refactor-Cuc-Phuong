@@ -1,6 +1,6 @@
 # Screen Inventory — Cúc Phương Quest
 
-Cập nhật 2026-10-27 theo Spec M01 v3.2, M02 v3.2, M03 v3.6 và function lists hiện hành. Đây là danh mục màn hình và coverage để làm screen specification; chưa phải mockup hoặc implementation.
+Cập nhật 2026-10-28 theo Spec M01 v3.2, M02 v3.3, M03 v3.7 và function lists hiện hành. Đây là danh mục màn hình và coverage; screen specification chi tiết (Draft) đã được viết lại theo cùng baseline; chưa có mockup hoặc implementation.
 
 | Danh mục | Screens | Coverage | Nội dung |
 |---|---:|---|---|
@@ -18,7 +18,7 @@ Tổng inventory: 18 module screens. Coverage 58/58 FR đang dùng gồm cả em
 - Priority kế thừa function trong MVP Scope; screen Must có thể chứa action Should. Không vì dùng chung screen mà nâng tất cả capability lên Must.
 - M01–M02 không có tài khoản du khách. M03 bắt buộc authenticated role và online.
 - Spec mới là baseline hành vi; layout/gộp màn và supporting UX là quyết định thiết kế ghi tại inventory này. Nội dung ngoài spec không được đưa vào FR coverage.
-- Screen specification chi tiết nằm trong [screen-spec](../screen-spec/). Các file hiện có được viết theo baseline cũ (v2) và **đang lỗi thời** so với spec v3; SCR-M02-004, SCR-M03-008 và SCR-M03-009 chưa có file. Mục §7 của từng screen list ghi trạng thái từng file; việc cập nhật làm ở bước sau.
+- Screen specification chi tiết nằm trong [screen-spec](../screen-spec/), mỗi screen một file `screen-spec-SCR-Mxx-nnn.md`, trạng thái Draft (chưa có mockup, chưa sign-off UX). Mục §7 của từng screen list ghi file tương ứng. Mọi câu hỏi trong mục Open questions của từng file đã được chốt (Resolved); chữ thông báo M03 nằm trong danh mục Spec M03 §5.6, chữ của M01/M02 nằm trong bảng copy i18n của từng file.
 
 ## Luồng xuyên module
 

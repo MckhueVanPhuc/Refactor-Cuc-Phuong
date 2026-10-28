@@ -151,6 +151,7 @@ Authorization is enforced server-side. There is no submitter/approver separation
 8. Attempts to deactivate or demote the last active Reviewer are blocked transactionally.
 9. The first Reviewer for each environment is created by a server-side provisioning procedure controlled by the environment operator. It is allowed only when the environment has no administrative account, creates exactly one `INVITATION_PENDING` `REVIEWER` account linked to a provider invitation, is idempotent for the same normalized email, and is unavailable from the browser or public API. It becomes active only after the provider identity completes and matches the pending account.
 10. After first access, the initial Reviewer invites at least one backup Reviewer. Ordinary password recovery does not rerun initial provisioning.
+11. An administrator can sign out at any time from any M03 screen after sign-in. Signing out ends the provider session and returns to the M03 login screen; from then on every protected request needs a new sign-in (BR-M03-K06). Leaving an editor with unsaved changes by signing out shows MSG-UNSAVED-CHANGES first (BR-M03-F11).
 
 ### US-M03-06 — Ingest sessions and report
 
@@ -341,7 +342,7 @@ A checkpoint is created and published once and can then be chosen by any number 
 | FR-M03-010 | Retain snapshot versions without M01 acknowledgement. | Required |
 | FR-M03-011 | Close, reopen and archive routes and checkpoints; closing or reopening a checkpoint applies to every route that lists it; deterministic route outcomes; atomic snapshot switches; revoke and reprint QR. | Required |
 | FR-M03-012 | Resolve a QR (with an optional route) to a live outcome `VALID` / `TEMPORARILY_CLOSED` / `INVALID` with the scanned QR's own content, and signal source failure separately. | Required |
-| FR-M03-013 | Authenticate administrative access; manage invitation, password recovery and two fixed application roles; bootstrap and preserve an active Reviewer. | Required |
+| FR-M03-013 | Authenticate administrative access; manage invitation, password recovery and two fixed application roles; sign out; bootstrap and preserve an active Reviewer. | Required |
 | FR-M03-014 | Ingest immutable terminal anonymous session records idempotently, validating route and version. | Required |
 | FR-M03-015 | Provide RPT-01 sessions by route/status/date. | Required |
 | FR-M03-016 | Provide RPT-02 unique checkpoint visits by route/date. | Required |
@@ -392,12 +393,12 @@ This is the exact payload consumed by M01 as **Published Route input**. It exist
 | `highlights` | Array&lt;Object&gt; | Required | May be empty; at most 5 items. |
 | `highlights[].vi` | String | Required | Required for every array item; non-empty; at most 80 characters. |
 | `highlights[].en` | String | Required | Required for every array item; non-empty; at most 80 characters. |
-| `distanceKm` | Decimal | Required | Greater than `0`. |
-| `durationMin` | Integer | Required | Greater than `0`; expected duration. |
+| `distanceKm` | Decimal | Required | Greater than `0` and at most 100, with at most one decimal place. |
+| `durationMin` | Integer | Required | Greater than `0` and at most 1440; expected duration. |
 | `difficulty` | Enum(`NHE`, `TRUNG_BINH`, `KHO`) | Required | — |
 | `timeTags` | Array&lt;Enum(`TIME_NGAN`, `TIME_VUA`, `TIME_DAI`)&gt; | Required | Exactly one value, derived by M03 from `durationMin` (BR-M03-C11); never entered by staff. |
-| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Required | At least one allowed value. |
-| `experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Required | At least one allowed value. |
+| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Required | At least one allowed value; values are distinct. |
+| `experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Required | At least one allowed value; values are distinct. |
 | `checkpointCount` | Integer | Required | Number of active checkpoints in the active snapshot; `>= 0`. |
 | `hasOfflineRequiredCheckpoint` | Boolean | Required | `true` when the active snapshot contains at least one `OFFLINE_REQUIRED` checkpoint. |
 | `hasOfflineRouteMap` | Boolean | Required | `true` when the active snapshot contains an `offlineRouteMap` (BR-M03-C16). |
@@ -533,7 +534,7 @@ Both reports use this input contract:
 | Field path | Logical type | Presence | Constraints |
 |---|---|---|---|
 | `routeId` | String | Optional | When present, filters to one stable route identity. |
-| `fromDate` | Date | Optional | Supplied together with `toDate`; `fromDate <= toDate`. If the pair is absent, use the most recent 30 days. |
+| `fromDate` | Date | Optional | Supplied together with `toDate`; `fromDate <= toDate`; the inclusive span `fromDate`…`toDate` is at most `REPORT_MAX_SPAN_DAYS` days (§5.3). If the pair is absent, use the most recent 30 days; 30 days is the default, not a maximum. |
 | `toDate` | Date | Optional | Supplied together with `fromDate`; inclusive reporting date boundary. |
 
 RPT-01 output:
@@ -553,6 +554,7 @@ RPT-02 output:
 |---|---|---|---|
 | `items` | Array&lt;Object&gt; | Required | May be empty. One item per `(routeId, checkpointId)`. |
 | `items[].routeId` | String | Required | Required for every array item; stable grouping route identity. |
+| `items[].routeName` | String | Required | Required for every array item; display name for staff: the Vietnamese name (`name.vi`) of the route's `PHAT_HANH` revision at query time. Grouping uses `routeId`, not this name. Not stored in `SessionRecord`; if the route is renamed, earlier periods show the current name. |
 | `items[].checkpointId` | String | Required | Required for every array item; stable checkpoint grouping key. |
 | `items[].checkpointName` | String | Required | Required for every array item; label from the record with latest `endedAt` in the selected period. |
 | `items[].sequence` | Integer | Required | Required for every array item; sequence from the same latest-ended record. |
@@ -637,7 +639,7 @@ Rules are grouped by theme. IDs are `BR-M03-<group letter><number>`. Groups appe
 | BR-M03-C09 | **No-warning confirmation.** If `safetyWarning` is empty, the review screen shows the checkbox "Tôi xác nhận tuyến không có cảnh báo an toàn cần nêu" and publication is blocked until it is ticked. The tick is stored in the revision content as `noSafetyWarningConfirmed`, is copied into later drafts, and is reset to `false` whenever a safety warning is entered, so removing a warning later requires the tick again. The checkbox is shown only when the field is empty and the stored confirmation is `false`. |
 | BR-M03-C10 | The review screen highlights every change to the safety warning, the participation requirements and the offline route-map tick, because there is no second reviewer. |
 | BR-M03-C11 | **Derived values.** The time tag is computed from `durationMin`: up to and including 90 minutes `TIME_NGAN`; above 90 up to and including 180 `TIME_VUA`; above 180 `TIME_DAI`. It is a classification for recommendation, not a claim about any visitor's actual time, and `durationMin` is the duration expected per Park Management guidance. Staff cannot select it. The checkpoint count, the offline-required flag, the offline-route-map flag and the checkpoint name list are computed from the active journey snapshot (draft or never-activated checkpoints are not counted) and change exactly when the snapshot version changes. |
-| BR-M03-C12 | **Tags.** At least one group tag and at least one experience tag are required; both groups allow several values. No new tag groups in MVP. Tags must reflect the real character of the route, not be used to appear in more recommendation results — this is a UI guideline that the system cannot verify. The system blocks a contradictory combination **when saving a draft**: `difficulty = KHO` cannot be combined with `GROUP_GIA_DINH_CO_TRE` or `GROUP_CAN_DE_DANG`. Message example: "Tuyến độ khó Khó không thể gắn nhãn Gia đình có trẻ nhỏ. Hãy đổi độ khó hoặc bỏ nhãn." |
+| BR-M03-C12 | **Tags.** At least one group tag and at least one experience tag are required; both groups allow several values. No new tag groups in MVP. Each group holds a set of distinct values (a value cannot be selected twice), so a group has at most as many values as its enum has. Tags must reflect the real character of the route, not be used to appear in more recommendation results — this is a UI guideline that the system cannot verify. The system blocks a contradictory combination **when saving a draft**: `difficulty = KHO` cannot be combined with `GROUP_GIA_DINH_CO_TRE` or `GROUP_CAN_DE_DANG`. Message example: "Tuyến độ khó Khó không thể gắn nhãn Gia đình có trẻ nhỏ. Hãy đổi độ khó hoặc bỏ nhãn." |
 | BR-M03-C13 | **[REMOVED in v3.4]** Emergency-contact directory and the route's emergency-contact field. The directory, the contact selection on routes and every rule that depended on them were removed. The ID is retired and is not reused. |
 | BR-M03-C14 | **Route images.** The thumbnail is required; the detail gallery holds 0 to 8 images, the first being the cover, each with an optional caption; the route map holds 0 or 1 image with an optional caption. Every image is at most 2 MB and must have usage rights confirmed before the revision that uses it is published. Uploading gallery images follows BR-M03-E14. |
 | BR-M03-C15 | Route information changes (any field of BR-M03-C02) do not create a new journey version, with one exception: changes to the offline route map (BR-M03-C16). They are effective after publication. These texts have no version number of their own, so a copy that M01 stores for offline use is a point-in-time copy made at download time and M03 cannot update it. M01 can select only routes that are `HOAT_DONG` with a valid active journey version. |
@@ -679,7 +681,7 @@ System-derived and not entered: time tag, checkpoint count, offline-required fla
 | BR-M03-T06 | After first publication, any change of the list, the order or the route information goes through the review screen (BR-M03-F02). A change of the list, the order or the offline route map creates a new journey version for this route only (BR-M03-G04). |
 | BR-M03-T07 | Closing, reopening and archiving a route follow BR-M03-H01, H03, H07, H08 and H09. Archiving a route does not affect its checkpoints, which stay in the library and in other routes. |
 | BR-M03-T08 | The checkpoint count, the offline-required flag, the offline-route-map flag and the checkpoint name list shown for a route are computed from the route's active journey snapshot (BR-M03-C11). |
-| BR-M03-T09 | A checkpoint appears at most once in a route's list; a second attempt is blocked at save with MSG-CHECKPOINT-DUPLICATE. Removing a checkpoint from a draft list is always allowed (the last-active-checkpoint rule applies at publication, BR-M03-T05). |
+| BR-M03-T09 | A checkpoint appears at most once in a route's list; a second attempt is blocked at save with MSG-CHECKPOINT-DUPLICATE. A list holds at most `ROUTE_CHECKPOINTS_MAX_ITEMS` items, closed checkpoints included; adding one more is blocked at save with MSG-LIMIT-CHECKPOINTS. Removing a checkpoint from a draft list is always allowed (the last-active-checkpoint rule applies at publication, BR-M03-T05). |
 
 #### 5.2.D Checkpoint library
 
@@ -687,7 +689,7 @@ System-derived and not entered: time tag, checkpoint count, offline-required fla
 |---|---|
 | BR-M03-D01 | **Definition.** A checkpoint is a real-world area that contains one or more visit points (QR objects). It is created, filled and published in the checkpoint function, independently of any route, and any number of routes may list it. It has a Vietnamese/English name (at most 100 characters each), a connectivity mode and an internal location note (optional, at most 300 characters, never shown to visitors). It has no order (the order belongs to each route's list) and no introduction text of its own; visitor content lives in the visit points. Its identifier is system-generated (BR-M03-B01). |
 | BR-M03-D02 | **Connectivity.** The mode is stored on the checkpoint, has no default and must be chosen explicitly. It decides what the visit points of that checkpoint may contain: `OFFLINE_REQUIRED` — text and images only; `ONLINE_AVAILABLE` — text, images, audio and video. `OFFLINE_REQUIRED` needs no confirmation. `ONLINE_AVAILABLE` may be chosen only after the author ticks "đã khảo sát thực địa, có sóng ổn định"; M03 records who confirmed and when. Changing the mode away from `ONLINE_AVAILABLE` clears the confirmation, so it must be ticked again later. Changing from `ONLINE_AVAILABLE` to `OFFLINE_REQUIRED` is blocked at save while any visit point of the checkpoint (published or pending draft) holds audio or video; the message (MSG-MODE-HAS-AV) names the files to remove. The other direction is always allowed. GPS metadata is never used for check-in or navigation. Visit points can be added only once a mode has been saved (BR-M03-E15). |
-| BR-M03-D03 | **Unique name.** No two non-archived checkpoints have the same Vietnamese name (compared ignoring case and surrounding spaces), so that the selection list is unambiguous. A duplicate blocks saving with MSG-CHECKPOINT-NAME-TAKEN. |
+| BR-M03-D03 | **Unique name.** No two non-archived checkpoints have the same Vietnamese name (compared ignoring case and surrounding spaces), so that the selection list is unambiguous. The comparison covers both the pending draft name and the published name of every other non-archived checkpoint. A duplicate blocks saving with MSG-CHECKPOINT-NAME-TAKEN. |
 | BR-M03-D04 | **Ready checkpoint.** A checkpoint is ready for publication when: (1) it has a Vietnamese and an English name; (2) it has a connectivity mode (with the confirmation for `ONLINE_AVAILABLE`); (3) it has at least one ready visit point (BR-M03-E05); (4) for `OFFLINE_REQUIRED`, at publication M03 verifies that every image of its ready visit points is stored, readable and will be included in snapshots. The check runs on stored data, not on what is typed on screen. Readiness concerns content only; being closed is a separate state. |
 | BR-M03-D05 | **Publishing a checkpoint (first publication)** goes through the review screen (BR-M03-F02). The checkpoint and every ready visit point become `HOAT_DONG` together; visit points that are not ready stay `NHAP` as drafts and are listed on the review screen with what each is missing. It never creates a journey version because no route lists the checkpoint yet. From the moment it is published, scanning its QR codes works in live lookup, but the checkpoint is part of no journey until a route lists it. |
 | BR-M03-D06 | **Later publications.** After first publication each publication applies to one item: the checkpoint's information (name, mode), or one visit point (BR-M03-E13, BR-M03-F04). Each item has at most one pending draft shared by all administrators; history, restore and discard follow BR-M03-F06, F07 and F10. |
@@ -715,7 +717,7 @@ System-derived and not entered: time tag, checkpoint count, offline-required fla
 | ID | Rule |
 |---|---|
 | BR-M03-E01 | Each QR object represents one specific thing (tree, animal, place...) and owns its content. Scanning a QR shows the content of that QR object. Visit progress is still counted per checkpoint, so scanning several QR objects of one checkpoint yields one visit. |
-| BR-M03-E02 | A QR object has: an object name (vi/en), an introduction (vi/en), images (at most 5), audio/video (optional, at most 3 files in total, only when its checkpoint is `ONLINE_AVAILABLE`, each marked with its spoken language, BR-M03-E17), and an internal installation note (optional, never shown to visitors). The QR form shows only the inputs its checkpoint mode allows. |
+| BR-M03-E02 | A QR object has: an object name (vi/en), an introduction (vi/en), images (at most 5), audio/video (optional, at most 3 files in total, only when its checkpoint is `ONLINE_AVAILABLE`, each marked with its spoken language, BR-M03-E17), and an internal installation note (optional, never shown to visitors). The QR form shows only the inputs its checkpoint mode allows. A checkpoint holds at most `CHECKPOINT_QR_MAX_ITEMS` QR objects that are not `THU_HOI`; adding one more is blocked with MSG-LIMIT-QR. |
 | BR-M03-E03 | The introduction of each language is 30 to 2000 characters, measured after trimming leading and trailing whitespace. The object name is at most 100 characters. |
 | BR-M03-E04 | **Media.** Each image is at most 2 MB, each audio at most 5 MB, each video at most 30 MB. An upload over the limit is refused at once with a request to compress it. Every media file needs usage rights confirmed before the revision that uses it is published. Audio and video can be attached only to QR objects of `ONLINE_AVAILABLE` checkpoints (a file of this kind on a QR object of an `OFFLINE_REQUIRED` checkpoint is refused at save with MSG-AV-OFFLINE); they play only online and never enter an offline package. Only images of QR objects in `OFFLINE_REQUIRED` checkpoints, and the route map when it is marked as needed offline (BR-M03-C16), enter a journey snapshot. |
 | BR-M03-E05 | **Lifecycle and readiness.** A new QR object starts `NHAP`, then `HOAT_DONG`, then `THU_HOI`. A QR object is **ready** when its object name and introduction are complete in both languages, its media are within limits, respect the checkpoint mode (BR-M03-D02), have usage rights confirmed and, for every audio/video file, a spoken language (BR-M03-E17). A QR object becomes `HOAT_DONG` only by publication of a ready object. An active QR object has exactly one published revision. |
@@ -809,11 +811,11 @@ Operations that are not publication units: close, reopen, archive, revoke, repri
 |---|---|
 | BR-M03-J01 | Only terminal session records (`HOAN_TAT` or `BO_DO`) are accepted, anonymous: no name, account, device identifier or GPS. |
 | BR-M03-J02 | Validation on receipt: `endedAt >= startedAt`; checkpoints unique in the session; each visit time within the session interval; `routeId` and `contentVersion` identify a published snapshot of a known route; every visited checkpoint belongs to that snapshot, with `checkpointName` equal to the snapshot's `checkpointName.vi` and `sequence` equal to the snapshot's `sequence`. A record that fails any check is rejected as invalid and nothing is stored. |
-| BR-M03-J03 | The first record for a `sessionId` is stored immutably. An identical retry succeeds without duplication. The same `sessionId` with different business content is rejected as a conflict and the first record is kept. Comparison uses normalized business content, ignoring field order and formatting. `sessionId` is unique across the whole system, not just within a route. |
+| BR-M03-J03 | The first record for a `sessionId` is stored immutably. An identical retry succeeds without duplication. The same `sessionId` with different business content is rejected as a conflict and the first record is kept. Comparison uses normalized business content, ignoring field order and formatting; the visited checkpoints are compared as a set keyed by `checkpointId`, so their order does not matter. `sessionId` is unique across the whole system, not just within a route. |
 | BR-M03-J04 | Sessions of routes in any status (`TAM_DONG`, `LUU_TRU` included) and of any published journey version are accepted. |
-| BR-M03-J05 | Reports filter and group by `endedAt` in `Asia/Ho_Chi_Minh`, default last 30 days, `fromDate` and `toDate` supplied together. Only synchronized sessions count and the last successful ingestion time is shown. Both roles can view; no charts, export or real-time. |
+| BR-M03-J05 | Reports filter and group by `endedAt` in `Asia/Ho_Chi_Minh`, default last 30 calendar days ending today in `Asia/Ho_Chi_Minh` (both ends inclusive), `fromDate` and `toDate` supplied together, and a selected span of at most `REPORT_MAX_SPAN_DAYS` days (a longer span is refused with MSG-REPORT-SPAN). Only synchronized sessions count and the last successful ingestion time is shown. Both roles can view; no charts, export or real-time. |
 | BR-M03-J06 | RPT-01: total sessions, count and rate of `HOAN_TAT`, count and rate of `BO_DO`; rates are `0` when there are no sessions. |
-| BR-M03-J07 | RPT-02: per `(routeId, checkpointId)` the number of unique sessions that visited it. Grouping uses the checkpoint identity; the displayed name and `sequence` come from the session record with the latest `endedAt` in the period. Reports are at checkpoint level, not per QR. A visit is a QR scan recorded by the visitor's app, not proof of physical presence. M02 records a visit only when the scan was accepted (`VALID`) or could not be checked (offline or lookup failure). |
+| BR-M03-J07 | RPT-02: per `(routeId, checkpointId)` the number of unique sessions that visited it. Grouping uses the stable `routeId` and checkpoint identity; each item also shows the current Vietnamese route name (`routeName`) so that staff never see an identifier; the displayed name and `sequence` come from the session record with the latest `endedAt` in the period. Reports are at checkpoint level, not per QR. A visit is a QR scan recorded by the visitor's app, not proof of physical presence. M02 records a visit only when the scan was accepted (`VALID`) or could not be checked (offline or lookup failure). |
 | BR-M03-J08 | **Report notes.** The report page shows its notes as plain one-line text, never as a banner or in a warning colour: under the title MSG-REPORT-UPDATED with `lastSuccessfulIngestionAt` in `Asia/Ho_Chi_Minh`, or MSG-REPORT-NO-DATA-YET when it is absent; directly below it MSG-REPORT-SCOPE; under the RPT-02 table MSG-REPORT-VISIT-MEANING. When the selected filters give no session, the table area shows MSG-REPORT-EMPTY. Only a failure to load the report uses a warning style, with MSG-GENERIC. |
 
 #### 5.2.K Administrative accounts
@@ -825,12 +827,13 @@ Operations that are not publication units: close, reopen, archive, revoke, repri
 | BR-M03-K03 | The last active Reviewer cannot be deactivated or demoted; the check is transactional. After first access the initial Reviewer invites at least one backup Reviewer. |
 | BR-M03-K04 | Initial Reviewer provisioning is server-side, one-time for an empty environment and idempotent for the same normalized email; it creates an `INVITATION_PENDING` account, not an active session or password-recovery path. Any environment-specific exception to this rule is recorded in the environment configuration documentation, not in this specification. Such an exception is server-side only, is never exposed through the browser, a public API or a service-role grant, never applies to Production, and may not weaken provider verification, role authorization or last-active-Reviewer protection. |
 | BR-M03-K05 | Provider identity and M03 authorization are separate: access requires an authenticated identity plus an active application account with a fixed role. |
+| BR-M03-K06 | **Sign-out.** Every authenticated M03 screen offers a sign-out action. Sign-out ends the provider session of the current administrator, after which no protected request succeeds until a new sign-in, and returns to the M03 login screen. It changes no `AdminAccount` role or status and, like sign-in, writes no audit line because it is a provider session event, not an administrative change. When the screen holds unsaved changes, MSG-UNSAVED-CHANGES is shown first with the choice to stay or to leave (BR-M03-F11). |
 
 #### 5.2.L Validation and messages
 
 | ID | Rule |
 |---|---|
-| BR-M03-L01 | **Two levels.** When saving a draft, only plainly invalid values block saving: non-positive distance or duration, text longer than its limit, media over its size/count limit or of an unsupported type, a contradictory tag combination, a checkpoint listed twice in one route, a checkpoint name already used. Missing content never blocks saving. |
+| BR-M03-L01 | **Two levels.** When saving a draft, only plainly invalid values block saving: non-positive distance or duration, distance or duration above its maximum or a distance with more than one decimal place, text longer than its limit, a route list or a checkpoint's QR objects above their count limit, media over its size/count limit or of an unsupported type, a contradictory tag combination, a checkpoint listed twice in one route, a checkpoint name already used. Missing content never blocks saving. |
 | BR-M03-L02 | Every problem appears at once under the field concerned, when the user leaves the field or presses save. A problem that will block publication and is already detectable at save time must be reported at save time, not left for publication. |
 | BR-M03-L03 | A "Còn thiếu để xuất bản" panel is always visible; clicking a line jumps to the field. |
 | BR-M03-L04 | Messages are in everyday Vietnamese, name the field by its UI label and say how to fix it. Internal names (for example `safetyWarning`) and phrases like "xung đột trạng thái" are forbidden. |
@@ -846,7 +849,7 @@ Operations that are not publication units: close, reopen, archive, revoke, repri
 
 ### 5.3 Provisional limits
 
-All values are provisional configuration constants that must be validated on the real interface and real devices; they are not confirmed business rules. Characters are counted after trimming leading and trailing whitespace. All text fields are plain text, never markup or HTML; the long texts (route description, starting point, participation requirements, preparation, best time, safety warning, QR object introduction) may contain line breaks, while names, captions and highlights are single-line. File sizes use 1 MB = 1 048 576 bytes.
+All values are provisional configuration constants that must be validated on the real interface and real devices; they are not confirmed business rules. Characters are counted after trimming leading and trailing whitespace. All text fields are plain text, never markup or HTML; the long texts (route description, starting point, participation requirements, preparation, best time, safety warning, QR object introduction) may contain line breaks, while names, captions and highlights are single-line. File sizes use 1 MB = 1 048 576 bytes. The numeric, list-size and report-span limits below are authoring and query limits enforced by M03; the M01 and M02 contracts do not validate them.
 
 | Parameter | Value | Applies to |
 |---|---|---|
@@ -863,6 +866,11 @@ All values are provisional configuration constants that must be validated on the
 | `NOTE_MAX_CHARS` | 300 | Checkpoint location note, QR installation note, and every administrative reason (close, reopen safety note, archive, revoke, discard) |
 | `QR_INTRO_MIN_CHARS` / `QR_INTRO_MAX_CHARS` | 30 / 2000 | QR object introduction (each language) |
 | `ROUTE_GALLERY_MAX_IMAGES` | 8 | Detail images (thumbnail 1 and route map 0–1 are separate) |
+| `ROUTE_DISTANCE_MAX_KM` | 100 | Route distance in km; at most one decimal place |
+| `ROUTE_DURATION_MAX_MIN` | 1440 | Route expected duration in minutes: a route is a day trip and an M02 session ends automatically after 24 hours (BR-M02-022) |
+| `ROUTE_CHECKPOINTS_MAX_ITEMS` | 30 | Items in the checkpoint list of one route (closed checkpoints included) |
+| `CHECKPOINT_QR_MAX_ITEMS` | 20 | QR objects of one checkpoint that are not `THU_HOI` |
+| `REPORT_MAX_SPAN_DAYS` | 366 | Selectable span of a report period, both dates inclusive; the default of 30 days is not a maximum |
 | `QR_MAX_IMAGES` / `QR_MAX_AV_FILES` | 5 / 3 | Images / audio-video files per QR object |
 | `IMAGE_MAX_MB` / `AUDIO_MAX_MB` / `VIDEO_MAX_MB` | 2 / 5 / 30 | Per file |
 | `OFFLINE_PACKAGE_MAX_MB` | 50 | Estimated offline size per route journey |
@@ -957,6 +965,11 @@ Fixed Vietnamese wording; `{...}` marks a placeholder filled with a plain value.
 | MSG-PUBLISHED | Publication succeeded | Đã xuất bản. Du khách sẽ thấy nội dung mới. |
 | MSG-LIMIT-TEXT | Text longer than its limit | {Tên ô} dài quá {tối đa} ký tự (hiện có {số}). Hãy rút gọn. |
 | MSG-NUMBER-POSITIVE | Distance or duration not above 0 | {Tên ô} phải lớn hơn 0. |
+| MSG-NUMBER-TOO-BIG | Distance or duration above its maximum | {Tên ô} không được lớn hơn {tối đa} {đơn vị}. |
+| MSG-NUMBER-DECIMALS | Distance with more than one decimal place | {Tên ô} chỉ nhận tối đa 1 chữ số sau dấu phẩy. |
+| MSG-LIMIT-CHECKPOINTS | A route list already holds the maximum number of checkpoints | Tuyến đã đủ {tối đa} điểm dừng. Hãy bỏ bớt điểm dừng trước khi thêm. |
+| MSG-LIMIT-QR | A checkpoint already holds the maximum number of visit points | Điểm dừng "{tên}" đã đủ {tối đa} điểm tham quan. Hãy thu hồi hoặc bỏ bớt điểm tham quan trước khi thêm. |
+| MSG-REPORT-SPAN | Report period longer than the maximum | Khoảng thời gian chọn quá dài. Hãy chọn tối đa {tối đa} ngày. |
 | MSG-FILE-TOO-BIG | File over its size limit | {Loại tệp} "{tên tệp}" nặng {số} MB, tối đa {tối đa} MB. Hãy nén nhỏ hơn rồi tải lại. |
 | MSG-FILE-TYPE | Unsupported file type | Tệp "{tên tệp}" không đúng định dạng. Chỉ nhận {danh sách định dạng}. |
 | MSG-COUNT-IMAGES | Too many images (a visit point, or the route gallery) | {Tên điểm tham quan hoặc tên tuyến} đã đủ {tối đa} ảnh. Hãy xóa bớt ảnh trước khi thêm. |
@@ -1009,6 +1022,30 @@ Fixed Vietnamese wording; `{...}` marks a placeholder filled with a plain value.
 | MSG-REPORT-VISIT-MEANING | Under the RPT-02 table | Một lượt ghé là một lần quét mã QR, không chứng minh du khách đã có mặt tại chỗ. |
 | MSG-REPORT-EMPTY | No trip in the selected period | Không có chuyến đi nào trong khoảng thời gian đã chọn. |
 | MSG-GENERIC | Any unexpected failure | Có lỗi xảy ra. Nội dung bạn nhập vẫn được giữ. Hãy thử lại, nếu vẫn lỗi hãy báo quản lý. |
+| MSG-LOGIN-FAILED | Wrong email or password | Email hoặc mật khẩu chưa đúng. Hãy kiểm tra lại. |
+| MSG-LOGIN-DENIED | Signed in with the provider but no active account or role, or the account is locked | Tài khoản này chưa được phép vào hệ thống. Hãy nhờ quản lý. |
+| MSG-SESSION-EXPIRED | Signed-in session ended | Phiên làm việc đã hết hạn. Hãy đăng nhập lại. |
+| MSG-NETWORK-FAILED | No connection to the server | Chưa kết nối được. Hãy kiểm tra mạng rồi thử lại. |
+| MSG-RECOVERY-SENT | After a password-recovery request (same text whether or not the email exists) | Nếu email này có tài khoản, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu. |
+| MSG-LINK-INVALID | Invitation or recovery link wrong or expired | Liên kết này không dùng được hoặc đã hết hạn. Nếu là lời mời, hãy nhờ quản lý gửi lại; nếu là khôi phục mật khẩu, hãy yêu cầu lại. |
+| MSG-EMAIL-INVALID | Invitation email not a valid address | Email chưa đúng. Hãy kiểm tra lại. |
+| MSG-EMAIL-TAKEN | Invitation to an email that already has an account | Email {email} đã có tài khoản. Nếu tài khoản đang chờ nhận lời mời, hãy bấm Gửi lại lời mời. |
+| MSG-INVITE-SENT | Invitation sent | Đã gửi lời mời tới {email}. |
+| MSG-INVITE-RESENT | Invitation sent again to a pending account | Đã gửi lại lời mời tới {email}. |
+| MSG-INVITE-FAILED | Invitation not sent | Chưa gửi được lời mời. Hãy thử lại sau ít phút. |
+| MSG-REPORT-DATES-INVALID | Report period with only one date, or a from-date after the to-date | Hãy chọn đủ ngày bắt đầu và ngày kết thúc, ngày bắt đầu không được sau ngày kết thúc. |
+| MSG-CONFIRM-CLOSE-ROUTE | Confirmation dialog: close a route | Tuyến "{tên}" sẽ ẩn khỏi lựa chọn của du khách; các chuyến đang đi không bị dừng. |
+| MSG-CONFIRM-REOPEN-ROUTE | Confirmation dialog: reopen a route | Tuyến "{tên}" sẽ lại hiện cho du khách chọn. |
+| MSG-CONFIRM-ARCHIVE-ROUTE | Confirmation dialog: archive a route | Lưu trữ tuyến "{tên}" không thể hoàn tác; dữ liệu vẫn được giữ cho lịch sử và báo cáo. |
+| MSG-CONFIRM-DISCARD-ROUTE | Confirmation dialog: discard a never-published route | Hủy tuyến "{tên}": tuyến chưa từng xuất bản này sẽ không dùng được nữa. |
+| MSG-CONFIRM-REOPEN-CHECKPOINT | Confirmation dialog: reopen a checkpoint | Mở lại điểm dừng "{tên}" sẽ đưa điểm dừng trở lại các tuyến: {danh sách}; gói tải trước của du khách ở các tuyến đó cần cập nhật. |
+| MSG-CONFIRM-ARCHIVE-CHECKPOINT | Confirmation dialog: archive a checkpoint | Lưu trữ điểm dừng "{tên}" không thể hoàn tác; các điểm tham quan của điểm dừng này sẽ bị thu hồi. |
+| MSG-CONFIRM-DISCARD-CHECKPOINT | Confirmation dialog: discard a never-published checkpoint | Hủy điểm dừng "{tên}": điểm dừng chưa từng xuất bản và các điểm tham quan nháp của nó sẽ không dùng được nữa. |
+| MSG-CONFIRM-REVOKE-QR | Confirmation dialog: revoke a visit point | Thu hồi mã QR của "{tên}": người quét mã này sẽ thấy mã không hợp lệ; gói tải trước của du khách ở các tuyến liên quan cần cập nhật. |
+| MSG-CONFIRM-DISCARD-QR | Confirmation dialog: discard a never-published visit point | Hủy điểm tham quan "{tên}": mã QR của nó sẽ không bao giờ được dùng lại. |
+| MSG-CONFIRM-PUBLISH | Confirmation dialog: publish after the review screen | Xuất bản "{tên mục}": du khách sẽ thấy nội dung mới ngay sau khi xuất bản. |
+| MSG-PASSWORD-REJECTED | The authentication provider refuses a new password | Mật khẩu này chưa được chấp nhận. Hãy chọn mật khẩu khác dài hơn và khó đoán hơn. |
+| MSG-PASSWORD-MISMATCH | The two password entries differ | Hai lần nhập mật khẩu chưa giống nhau. Hãy nhập lại. |
 
 ## 6. Key entities
 
@@ -1042,11 +1079,11 @@ These are logical attributes only. They do not prescribe tables, columns, keys, 
 | `bestTime.vi` / `.en` | String | Optional | Both-or-none; `ROUTE_BEST_TIME_MAX_CHARS`. |
 | `safetyWarning.vi` / `.en` | String | Optional | Both-or-none; `ROUTE_SAFETY_WARNING_MAX_CHARS`. |
 | `noSafetyWarningConfirmed` | Boolean | Required | Default `false`; must be `true` for publication when `safetyWarning` is absent; reset to `false` whenever a safety warning is entered (BR-M03-C09). |
-| `distanceKm` | Decimal | Conditional | Required for publication; greater than `0`. |
-| `durationMin` | Integer | Conditional | Required for publication; greater than `0`. |
+| `distanceKm` | Decimal | Conditional | Required for publication; greater than `0`, at most `ROUTE_DISTANCE_MAX_KM`, at most one decimal place. |
+| `durationMin` | Integer | Conditional | Required for publication; greater than `0`, at most `ROUTE_DURATION_MAX_MIN`. |
 | `difficulty` | Enum(`NHE`, `TRUNG_BINH`, `KHO`) | Conditional | Required for publication. |
-| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Conditional | Required and non-empty for publication; no contradiction with `difficulty` (BR-M03-C12), checked at save. |
-| `experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Conditional | Required and non-empty for publication. |
+| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Conditional | Required and non-empty for publication; values are distinct; no contradiction with `difficulty` (BR-M03-C12), checked at save. |
+| `experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Conditional | Required and non-empty for publication; values are distinct. |
 | `thumbnailMediaId` | UUID | Conditional | Required for publication; references an `IMAGE` Media of this route. |
 | `galleryItems` | Array&lt;Object&gt; | Optional | At most `ROUTE_GALLERY_MAX_IMAGES`; ordered; the first is the cover. |
 | `galleryItems[].mediaId` | UUID | Required | Required for every array item; references an `IMAGE` Media of this route. |
@@ -1054,7 +1091,7 @@ These are logical attributes only. They do not prescribe tables, columns, keys, 
 | `routeMapMediaId` | UUID | Optional | References an `IMAGE` Media of this route. |
 | `routeMapCaption.vi` / `.en` | String | Optional | Both-or-none; allowed only with `routeMapMediaId`; `CAPTION_MAX_CHARS`. |
 | `offlineRouteMapRequired` | Boolean | Required | Default `false`; may be `true` only while `routeMapMediaId` is present (BR-M03-C16). |
-| `checkpointList` | Array&lt;Object&gt; | Conditional | Required, with at least one active checkpoint, for publication. Ordered: the order is the visiting order of this route. A checkpoint appears at most once. |
+| `checkpointList` | Array&lt;Object&gt; | Conditional | Required, with at least one active checkpoint, for publication. Ordered: the order is the visiting order of this route. A checkpoint appears at most once; at most `ROUTE_CHECKPOINTS_MAX_ITEMS` items. |
 | `checkpointList[].checkpointId` | String | Required | Required for every array item; must reference a `HOAT_DONG` checkpoint when the item is added; the checkpoint may later become `TAM_DONG` but is never `LUU_TRU` while a non-archived route lists it. |
 | `highlights` | Array&lt;Object&gt; | Optional | At most `ROUTE_HIGHLIGHTS_MAX_ITEMS`. |
 | `highlights[].vi` / `.en` | String | Required | Required for every array item; non-empty; `ROUTE_HIGHLIGHT_MAX_CHARS`. |
@@ -1136,7 +1173,7 @@ Media is retained after it stops being referenced, so earlier revisions can be r
 
 | Entity | Field path | Logical type | Presence | Constraints |
 |---|---|---|---|---|
-| AdminAccount | `userId` | String | Conditional | Present after a matching provider identity is linked; stable when present. |
+| AdminAccount | `userId` | String | Conditional | Present after a matching provider identity is linked; stable and unique system-wide when present (one provider identity is linked to at most one account). |
 | AdminAccount | `email` | String | Required | Normalized (surrounding whitespace removed, lower-cased) before storing and comparison (BR-M03-K01); at most `EMAIL_MAX_CHARS`; unique system-wide. |
 | AdminAccount | `role` | Enum(`CONTENT_STAFF`, `REVIEWER`) | Required | Fixed application role. |
 | AdminAccount | `status` | Enum(`INVITATION_PENDING`, `ACTIVE`, `DEACTIVATED`) | Required | Lifecycle below. |
@@ -1172,7 +1209,7 @@ Mutable administrative entities carry a concurrency revision. Public route/check
 
 Logical persistence constraints:
 
-- `routeId`, `checkpointId`, `qrIdentifier`, `contentVersion`, `userId` and `sessionId` are stable identities; identifiers are system-generated, never reused; `qrIdentifier`, admin email and `sessionId` are unique system-wide.
+- `routeId`, `checkpointId`, `qrIdentifier`, `contentVersion`, `userId` and `sessionId` are stable identities; identifiers are system-generated, never reused; `qrIdentifier`, admin email, `sessionId` and, when present, `userId` are unique system-wide.
 - A checkpoint belongs to no route. A route lists checkpoints in its revision content (`checkpointList`); a checkpoint appears at most once in a route's list; the position in the list is the `sequence` of that checkpoint in the route's snapshots. No two non-archived checkpoints share the same Vietnamese name.
 - QRCode belongs to exactly one checkpoint; an active checkpoint must retain at least one active QR. A QR object holding audio or video belongs to an `ONLINE_AVAILABLE` checkpoint. A QRCode exists only for a checkpoint that had a saved connectivity mode when the QRCode was created.
 - `(subjectType, subjectId, revisionNumber)` is unique; each subject has at most one `NHAP` and at most one `PHAT_HANH` revision; a `PHAT_HANH` revision is immutable.
@@ -1244,6 +1281,7 @@ Lifecycle states:
 | SC-M03-037 | A code image generated outside Production is always marked as a test code, and a code of an offline-required checkpoint always carries the download warning. |
 | SC-M03-038 | A session record whose visited checkpoints do not match the snapshot it names (identity, Vietnamese name or sequence) is rejected and never reaches a report. |
 | SC-M03-039 | Every published audio/video file carries its spoken language, and a visitor sees only the files of the chosen language plus the files without speech. |
+| SC-M03-040 | After sign-out no protected M03 request succeeds until the administrator signs in again, and signing out changes no role or status. |
 
 ## 8. Screens involved
 
@@ -1261,6 +1299,7 @@ Lifecycle states:
 | Audit log | Reviewer-only system-wide log in plain language. |
 | Operations reports | RPT-01/RPT-02 filters, totals, and the one-line notes of BR-M03-J08: last-updated time, counting scope and the meaning of a visit. |
 | User/role management | Invite, fixed role, activation/deactivation and last-Reviewer guard. |
+| Sign-out | A sign-out action in the header of every authenticated M03 screen: ends the session, returns to login and warns first about unsaved changes (BR-M03-K06). |
 
 The login and credential screens are mandatory M03 entry/support screens even though the authentication provider executes the credential lifecycle. Initial Reviewer provisioning has no browser screen.
 
@@ -1310,7 +1349,8 @@ The login and credential screens are mandatory M03 entry/support screens even th
 - No public sign-up. Initial Reviewer access is provisioned once per environment through a server-side operation; later accounts are invitation-only. Environment-specific exceptions live in the environment documentation.
 - Password recovery is self-service through the authentication provider and never changes M03 role/status.
 - Terminal sync is immutable and conflict-detecting.
-- Reports use session-carried checkpoint name/sequence, so snapshot retention need not be indefinite; reports are at checkpoint level.
+- Reports use session-carried checkpoint name/sequence, so they do not depend on snapshot retention; reports are at checkpoint level. Snapshots are nevertheless retained in the MVP, because there is no hard-delete or purge (DEC-S6-002, §6.4).
+- Authoring and query limits for numbers and counts (§5.3): a route is at most 100 km (one decimal place) and 1440 minutes, lists at most 30 checkpoints, a checkpoint holds at most 20 visit points that are not revoked, tag groups hold distinct values, and a report period spans at most 366 days. There is no separate limit on the visits of one session: it is bounded by the checkpoints of its journey.
 - Validation is two-level, reported at the field in plain Vietnamese; save-detectable publication blockers are reported at save time.
 - Media of visit points is owned by the checkpoint, not by any route.
 - Several files can be uploaded in one selection; each file succeeds or fails on its own and usage rights are confirmed file by file.
@@ -1354,7 +1394,7 @@ The login and credential screens are mandatory M03 entry/support screens even th
 | US-M03-02 Revise published data | FR-M03-007, 009 | F02–F07, F10, X01–X03, G04–G07 | SC-M03-003, 005, 020, 021, 024, 029 |
 | US-M03-03 Checkpoints and visit points | FR-M03-002, 003, 004 | B01–B05, D01–D12, E01–E17 (E08 retired), F11, F12 | SC-M03-004, 012, 013, 025, 028, 031–034, 036, 037, 039 |
 | US-M03-04 Close and reopen | FR-M03-011, 012 | H01–H09, I01–I06 | SC-M03-006, 017, 019, 023 |
-| US-M03-05 Administrative access | FR-M03-013 | A01–A04, K01–K05 | SC-M03-008 to 011 |
+| US-M03-05 Administrative access | FR-M03-013 | A01–A04, K01–K06 | SC-M03-008 to 011, 040 |
 | US-M03-06 Ingest sessions and report | FR-M03-014, 015, 016 | J01–J08 | SC-M03-007, 035, 038 |
 | US-M03-07 (removed) | FR-M03-017 (removed) | C13 (removed) | SC-M03-018 (removed) |
 | US-M03-08 History, restore and audit | FR-M03-007, 018 | A05, F07–F10 | SC-M03-014, 021 |
@@ -1367,6 +1407,8 @@ BR identifiers in this table omit the `BR-M03-` prefix.
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.7 (clarification 4) | 2026-10-28 | Message catalog (§5.6) completed for the administrative screens: sign-in, session and network (MSG-LOGIN-FAILED, MSG-LOGIN-DENIED, MSG-SESSION-EXPIRED, MSG-NETWORK-FAILED), invitation and recovery (MSG-RECOVERY-SENT, MSG-LINK-INVALID, MSG-EMAIL-INVALID, MSG-EMAIL-TAKEN, MSG-INVITE-SENT, MSG-INVITE-RESENT, MSG-INVITE-FAILED), report period (MSG-REPORT-DATES-INVALID) and the one-sentence consequence of every confirmation dialog of BR-M03-L12 (MSG-CONFIRM-*). Also: sign-out for administrators (US-M03-05 item 11, new BR-M03-K06, SC-M03-040, FR-M03-013 text, §8) and the display name of the route in RPT-02 (`items[].routeName`, BR-M03-J07), an additive display field with no change to `SessionRecord`, the M01/M02 contracts or the grouping key. Password messages MSG-PASSWORD-REJECTED and MSG-PASSWORD-MISMATCH; the reopen and revoke confirmations use the vocabulary of §5.4 ("gói tải trước của du khách cần cập nhật") instead of a journey version. |
+| 3.7 (clarification 3) | 2026-10-28 | Review-gate decisions: checkpoint-name uniqueness compares draft and published names (BR-M03-D03); default report window is 30 calendar days ending today, inclusive (BR-M03-J05); visited checkpoints compare as a set by `checkpointId` (BR-M03-J03); AdminAccount `userId` is unique system-wide when present (§6.4); new provisional limits `ROUTE_DISTANCE_MAX_KM` = 100 (one decimal place), `ROUTE_DURATION_MAX_MIN` = 1440, `ROUTE_CHECKPOINTS_MAX_ITEMS` = 30, `CHECKPOINT_QR_MAX_ITEMS` = 20 and `REPORT_MAX_SPAN_DAYS` = 366 (§5.3, §5.1, §6.1.1, BR-M03-E02, BR-M03-T09, BR-M03-J05, BR-M03-L01); tag groups hold distinct values (BR-M03-C12); new messages MSG-NUMBER-TOO-BIG, MSG-NUMBER-DECIMALS, MSG-LIMIT-CHECKPOINTS, MSG-LIMIT-QR and MSG-REPORT-SPAN (§5.6); §10 snapshot-retention wording aligned with DEC-S6-002. The Published Route range of `distanceKm`, `durationMin` and distinct tags is mirrored in M01 v3.2 (clarification); no contract shape change. |
 | 3.7 (clarification 2) | 2026-10-28 | Data acceptance decisions (DAC T1–T4, T8): administrative reasons are non-empty and at most `NOTE_MAX_CHARS` (§5.3, §6.1, §6.2, §6.4, BR-M03-F08); admin email normalization (trim, lower-case) and new `EMAIL_MAX_CHARS` = 254 (BR-M03-K01, §6.4); MIME values of the supported file types and 1 MB = 1 048 576 bytes (§5.3, §6.3); `qrIdentifier` alphabet `A–Z a–z 0–9`, case-sensitive (BR-M03-B02); plain-text policy with line breaks only in long texts (§5.3); BR-M03-F08 and `AuditRecord.reason` reworded: revoke applies to visit points (BR-M03-E09). Internal M03 validation only; no change to the M01/M02 contracts. |
 | 3.7 (clarification) | 2026-10-28 | `AuditRecord.revision` is defined as the `revisionNumber` of the Revision the action concerns, whose subject is identified by `entityType`/`entityId` (§6.4). Clarification only; no behavior or contract change. |
 | 3.7 | 2026-10-28 | Language of audio/video (option A): new BR-M03-E17; `Media.spokenLanguage` and `LiveStationContent.mediaResources[].spokenLanguage` = `vi` / `en` / `NONE`; readiness requires a spoken language for every audio/video file (BR-M03-E05); new messages MSG-AV-LANGUAGE-MISSING and MSG-AV-ONE-LANGUAGE (review warning, non-blocking); display names in §5.4; preview follows the chosen language (BR-M03-F12); SC-M03-039; §8, §10, §11 updated. Additive change to the M03 → M02 contract, adopted by M02 v3.3. The limit of 3 audio/video files per visit point is unchanged. |

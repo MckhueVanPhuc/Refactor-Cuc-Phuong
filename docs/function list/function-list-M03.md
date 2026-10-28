@@ -36,13 +36,13 @@
 |---|---|---|---|---|---|
 | SF-M03-001-01 | Create route draft with a system-generated identity. | Staff create action | `Route NHAP`, new `routeId` | No screen accepts an identifier; identity never changes | FR-M03-001 |
 | SF-M03-001-02 | Edit localized route card and detail texts. | Draft edit | Name, short description, description, starting point, optional both-or-none texts, highlights | Limits checked at save; missing content only blocks publication | FR-M03-001, 005 |
-| SF-M03-001-03 | Edit route measures and difficulty. | Draft edit | `distanceKm`, `durationMin`, `difficulty`; time tag derived from duration | Non-positive values block save; staff cannot select the time tag | FR-M03-001 |
-| SF-M03-001-04 | Assign group and experience tags. | Draft edit | At least one value per group for publication | Contradictory combination with `KHO` blocked at save | FR-M03-001, 005 |
+| SF-M03-001-03 | Edit route measures and difficulty. | Draft edit | `distanceKm`, `durationMin`, `difficulty`; time tag derived from duration | Non-positive values, a distance above 100 km or with more than one decimal place, and a duration above 1440 minutes block save; staff cannot select the time tag | FR-M03-001 |
+| SF-M03-001-04 | Assign group and experience tags. | Draft edit | At least one value per group for publication | Values within a group are distinct; contradictory combination with `KHO` blocked at save | FR-M03-001, 005 |
 | SF-M03-001-05 | Save draft. | "Lưu bản nháp" | Updated draft revision | One atomic save for the whole editor; stale write rejected | FR-M03-001, 007 |
 | SF-M03-001-06 | Archive route. | Reviewer lifecycle action | `LUU_TRU` terminal | Only while `TAM_DONG`; checkpoints untouched; history retained | FR-M03-011 |
 | SF-M03-001-07 | Manage route images. | Upload/edit | Thumbnail, gallery 0–8 with captions, route map 0–1 with caption | 2 MB per image; several files per selection; usage rights per file | FR-M03-001, 004 |
 | SF-M03-001-08 | Mark the route map as needed offline. | Tick on the route map | `offlineRouteMapRequired` | Only while a route map exists; cleared with a message when the map is removed | FR-M03-001, 009 |
-| SF-M03-001-09 | Choose published checkpoints and order them. | Step 4 of the editor | Ordered `checkpointList`; position is `sequence` | Only `HOAT_DONG` checkpoints can be added; a checkpoint appears at most once | FR-M03-001 |
+| SF-M03-001-09 | Choose published checkpoints and order them. | Step 4 of the editor | Ordered `checkpointList`; position is `sequence` | Only `HOAT_DONG` checkpoints can be added; a checkpoint appears at most once; at most 30 items, closed checkpoints included (removal is always allowed) | FR-M03-001 |
 | SF-M03-001-10 | Discard a never-published route. | Discard with reason | `NHAP → LUU_TRU` | Either role; checkpoints untouched | FR-M03-001, 011 |
 | SF-M03-001-11 | Confirm that the route has no safety warning. | Review screen with empty safety warning | `noSafetyWarningConfirmed` | Publication blocked until ticked; reset when a warning is entered | FR-M03-005 |
 
@@ -51,7 +51,7 @@
 | Sub-function ID | Behavior | Input / trigger | Output / state | Exception / guard | Source FR |
 |---|---|---|---|---|---|
 | SF-M03-002-01 | Create a checkpoint in the shared library. | Staff create action | `Checkpoint NHAP`, system-generated `checkpointId` | Belongs to no route | FR-M03-002 |
-| SF-M03-002-02 | Edit the bilingual checkpoint name. | Draft edit | Updated name revision | Vietnamese name unique among non-archived checkpoints | FR-M03-002 |
+| SF-M03-002-02 | Edit the bilingual checkpoint name. | Draft edit | Updated name revision | Vietnamese name unique among non-archived checkpoints, compared with both the draft and the published names of the others | FR-M03-002 |
 | SF-M03-002-03 | Set `OFFLINE_REQUIRED`. | Classification action | Offline classification | No confirmation needed; visit points take text and images only | FR-M03-002 |
 | SF-M03-002-04 | Set `ONLINE_AVAILABLE` after field verification. | Classification action with tick | Online classification + who/when recorded | Blocked without the tick; changing away clears it | FR-M03-002, 005 |
 | SF-M03-002-05 | Publish a checkpoint for the first time with its ready visit points. | Review screen confirmation | Checkpoint and ready visit points `HOAT_DONG` | At least one ready visit point; no journey version created | FR-M03-002, 008 |
@@ -67,7 +67,7 @@
 |---|---|---|---|---|---|
 | SF-M03-003-01 | Generate an unguessable QR identity. | First save of a new visit point form | `QRCode NHAP` with `qrIdentifier` | At least 16 random URL-safe characters; collision silently regenerated | FR-M03-003 |
 | SF-M03-003-02 | Store the installation note. | Visit point form save | Internal placement note | Not visitor content | FR-M03-003 |
-| SF-M03-003-03 | Support multiple active QR per checkpoint. | Additional visit point | Expanded active QR set | Each QR has its own content | FR-M03-003 |
+| SF-M03-003-03 | Support multiple active QR per checkpoint. | Additional visit point | Expanded active QR set | Each QR has its own content; at most 20 QR objects that are not `THU_HOI` per checkpoint | FR-M03-003 |
 | SF-M03-003-04 | Reprint QR without identity change. | Damaged/faded code | Same link and content | Audit only; no snapshot version change | FR-M03-003 |
 | SF-M03-003-07 | Revoke QR. | Either role with reason | `THU_HOI` terminal; new versions for listing routes | Blocked for the last active QR of an active checkpoint | FR-M03-003, 011 |
 | SF-M03-003-08 | Publish changed QR set. | Active QR set changes | New JourneySnapshot for every listing route | Applies to both connectivity modes | FR-M03-009 |
@@ -144,7 +144,7 @@
 
 | Sub-function ID | Behavior | Input / trigger | Output / state | Exception / guard | Source FR |
 |---|---|---|---|---|---|
-| SF-M03-008-01 | Authenticate an administrator through the provider. | Email/password submit from M03 login | Provider session with authenticated `userId`, or login error | No public sign-up; M03 never stores the password | FR-M03-013 |
+| SF-M03-008-01 | Authenticate an administrator through the provider and end the session at sign-out. | Email/password submit from M03 login; sign-out action on any authenticated M03 screen | Provider session with authenticated `userId`, or login error; at sign-out the provider session ends and M03 returns to login | No public sign-up; M03 never stores the password; sign-out changes no role/status, writes no audit line and warns first about unsaved changes | FR-M03-013 |
 | SF-M03-008-02 | Authorize fixed application role server-side. | Every protected request | Allowed/denied | Require matching `ACTIVE` `AdminAccount`; only `CONTENT_STAFF`/`REVIEWER` | FR-M03-006, 013 |
 | SF-M03-008-03 | Start self-service password recovery. | Email submitted from M03 login | Generic request-accepted response; provider may send recovery email | Do not reveal whether email/account exists; do not create/change `AdminAccount` | FR-M03-013 |
 | SF-M03-008-04 | Complete password recovery. | Valid provider recovery callback + new password | Provider credential updated; return to login | Expired/invalid callback rejected; role/status unchanged; reauthorization still required | FR-M03-013 |
@@ -178,10 +178,10 @@
 | SF-M03-010-03 | Enforce privacy allowlist. | Parsed payload | Accepted fields only | Reject visitor/device/GPS PII fields | FR-M03-014 |
 | SF-M03-010-04 | Insert first session atomically. | New `sessionId` | Immutable header + child visits + `ingestedAt` | No partial insert | FR-M03-014 |
 | SF-M03-010-05 | Acknowledge identical retry. | Existing ID + same normalized payload | Success without mutation | Formatting/order ignored | FR-M03-014 |
-| SF-M03-010-06 | Reject changed retry. | Existing ID + different business payload | Conflict | Never overwrite terminal record | FR-M03-014 |
-| SF-M03-010-07 | Filter report dates. | Report query | Valid `fromDate/toDate` in Asia/Ho_Chi_Minh | Default 30 days; from ≤ to | FR-M03-015, 016 |
+| SF-M03-010-06 | Reject changed retry. | Existing ID + different business payload | Conflict | Never overwrite terminal record; visited checkpoints compared as a set by `checkpointId` | FR-M03-014 |
+| SF-M03-010-07 | Filter report dates. | Report query | Valid `fromDate/toDate` in Asia/Ho_Chi_Minh | Default 30 calendar days ending today, both ends inclusive; both dates together; from ≤ to; span at most 366 days (MSG-REPORT-SPAN, MSG-REPORT-DATES-INVALID) | FR-M03-015, 016 |
 | SF-M03-010-08 | Produce RPT-01 totals/rates. | Valid filters | Unique total, completed/abandoned counts/rates | Empty result returns zero values | FR-M03-015 |
-| SF-M03-010-09 | Produce RPT-02 unique visits. | Valid filters | Unique sessions per route/checkpoint | Group by stable checkpoint ID; checkpoint level only | FR-M03-016 |
+| SF-M03-010-09 | Produce RPT-02 unique visits. | Valid filters | Unique sessions per route/checkpoint, with the current Vietnamese route name for display | Group by stable route and checkpoint ID; checkpoint level only | FR-M03-016 |
 | SF-M03-010-10 | Select historical display label/order. | Multiple historical labels | Latest-ended record label/sequence in range | Does not change grouping identity | FR-M03-016 |
 | SF-M03-010-11 | Show the last successful ingestion time. | Report display | "Số liệu tính đến …" or "Chưa có chuyến đi nào…" | Plain one-line text in Asia/Ho_Chi_Minh | FR-M03-015, 016 |
 | SF-M03-010-12 | Validate visited checkpoints against the snapshot. | Parsed payload | Valid/invalid | Each checkpoint in the snapshot of `(routeId, contentVersion)` with equal Vietnamese name and sequence | FR-M03-014 |

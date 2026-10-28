@@ -1,6 +1,6 @@
 # System Context Diagram — Cúc Phương Quest
 
-Sơ đồ mô tả ranh giới logic của MVP theo ba module spec (M01 v3.2, M02 v3.2, M03 v3.6). Đây không phải deployment diagram hoặc physical API/database design.
+Sơ đồ mô tả ranh giới logic của MVP theo ba module spec (M01 v3.2, M02 v3.3, M03 v3.7). Đây không phải deployment diagram hoặc physical API/database design.
 
 ```mermaid
 flowchart LR
@@ -74,5 +74,5 @@ flowchart LR
 ## Nguồn
 
 - [Specification M01](../spec/spec-M01.md) v3.2
-- [Specification M02](../spec/spec-M02.md) v3.2
-- [Specification M03](../spec/spec-M03.md) v3.6
+- [Specification M02](../spec/spec-M02.md) v3.3
+- [Specification M03](../spec/spec-M03.md) v3.7

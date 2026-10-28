@@ -5,117 +5,97 @@
 | Screen ID | `SCR-M03-007` |
 | Screen name | Nhận lời mời & Khôi phục mật khẩu |
 | Module | `M03` |
-| Actor | Người được mời; Content Staff; Reviewer |
+| Actor | Người được mời; Nhân viên nội dung; Quản lý |
 | Priority | Must |
-| Mockup | `screens/M03/mockups/SCR-M03-007-invite-recover.png` |
-| Status | Draft |
+| Mockup | Chưa có |
+| Status | Draft — đồng bộ [Spec M03 v3.7](../../../docs/spec/spec-M03.md) |
 
-Nguồn hành vi/contract: [Spec M03](../../../docs/spec/spec-M03.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; bố cục/visual direction tham khảo [DESIGN.md](../../../DESIGN.md). Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
+Nguồn hành vi/contract: [Spec M03](../../../docs/spec/spec-M03.md) (US-M03-05, BR-M03-K01, K02, K04, K05; Administrative access flow §4.3). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Màn này là bước thông tin đăng nhập do nhà cung cấp xác thực quản lý: token lời mời/khôi phục và mật khẩu thuộc nhà cung cấp, M03 không lưu.
 
-Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu.
+Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
 ## 1. Purpose
 
-**Shown when:** Link invitation từ provider gửi; HOẶC link recovery từ provider gửi; HOẶC "Quên mật khẩu" từ SCR-M03-000.
+**Shown when:** Người được mời mở link lời mời do nhà cung cấp gửi; người dùng chọn "Quên mật khẩu" từ SCR-M03-000; hoặc mở link khôi phục mật khẩu do nhà cung cấp gửi. Cả ba chế độ: nhận lời mời, yêu cầu khôi phục, hoàn tất khôi phục.
 
-**The user leaves when:** Invitation/completion thành công quay về SCR-M03-000; HOẶC hủy quay về SCR-M03-000; HOẶC link hết hạn/invalid.
+**The user leaves when:** Hoàn tất đặt mật khẩu (lời mời hoặc khôi phục) và quay về SCR-M03-000; hoặc quay về SCR-M03-000 sau khi gửi yêu cầu khôi phục.
 
 ## 2. Mockup
 
-Mockup: `screens/M03/mockups/SCR-M03-007-invite-recover.png`. Đây là target asset tham khảo; cần kiểm tra asset và design sign-off, không dùng ảnh mockup để suy ngược business rule.
+Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ngược business rule.
 
 ## 3. Element inventory
 
 | # | Element ID | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|---|
-| 1 | E-SCR-M03-007-01 | Screen title | Header text | "Hoàn tất lời mời" / "Set up your account" (invitation mode) HOẶC "Khôi phục mật khẩu" / "Reset password" (recovery mode) | Yes | Non-empty |
-| 2 | E-SCR-M03-007-02 | Mode indicator | Badge | "Lời mời" / "Khôi phục mật khẩu" | Yes | None |
-| 3 | E-SCR-M03-007-03 | Email display (invitation) | Text | Email đã được mời (readonly) | Conditional | Hiển thị khi invitation mode |
-| 4 | E-SCR-M03-007-04 | Email input (recovery request) | Input | Email address để request recovery | Conditional | Hiển thị khi "forgot password" from SCR-M03-000 |
-| 5 | E-SCR-M03-007-05 | Password input (invitation) | Input | Mật khẩu mới | Conditional | Hiển thị khi invitation callback valid |
-| 6 | E-SCR-M03-007-06 | Confirm password input (invitation) | Input | Xác nhận mật khẩu mới | Conditional | Hiển thị khi invitation callback valid |
-| 7 | E-SCR-M03-007-07 | Password input (recovery) | Input | Mật khẩu mới | Conditional | Hiển thị khi recovery callback valid |
-| 8 | E-SCR-M03-007-08 | Confirm password input (recovery) | Input | Xác nhận mật khẩu mới | Conditional | Hiển thị khi recovery callback valid |
-| 9 | E-SCR-M03-007-09 | Action: Hoàn tất lời mời | Button | Đặt credential và activate account | Conditional | Disabled khi form invalid |
-| 10 | E-SCR-M03-007-10 | Action: Gửi yêu cầu | Button | Gửi recovery request | Conditional | Hiển thị khi "forgot password" mode |
-| 11 | E-SCR-M03-007-11 | Action: Quay về đăng nhập | Button | Quay về SCR-M03-000 | Yes | None |
-| 12 | E-SCR-M03-007-12 | Processing indicator | Spinner | "Đang xử lý..." | Conditional | Hiển thị khi processing |
-| 13 | E-SCR-M03-007-13 | Request accepted | Banner | "Yêu cầu đã được chấp nhận. Kiểm tra email của bạn." (general response) | Conditional | Hiển thị khi recovery request accepted |
-| 14 | E-SCR-M03-007-15 | Invalid link | Banner | "Liên kết không hợp lệ hoặc đã hết hạn" | Conditional | Hiển thị khi token invalid/expired |
-| 15 | E-SCR-M03-007-16 | Provider error | Banner | "Lỗi từ dịch vụ, vui lòng thử lại sau" | Conditional | Hiển thị khi provider error |
-| 16 | E-SCR-M03-007-17 | Network error | Banner | "Lỗi kết nối, vui lòng thử lại" | Conditional | Hiển thị khi network error |
-| 17 | E-SCR-M03-007-18 | Identity mismatch | Banner | "Liên kết này không khớp với tài khoản của bạn" | Conditional | Hiển thị khi provider identity không khớp pending account |
-| 18 | E-SCR-M03-007-19 | Account already active | Banner | "Tài khoản đã được kích hoạt trước đó" | Conditional | Hiển thị khi account đã ACTIVE |
-| 19 | E-SCR-M03-007-20 | Deactivated account | Banner | "Tài khoản đã bị vô hiệu hóa" | Conditional | Hiển thị khi account DEACTIVATED |
-| 20 | E-SCR-M03-007-21 | Completion success | Banner | "Tài khoản đã được kích hoạt. Vui lòng đăng nhập." | Conditional | Hiển thị khi invitation completed |
-| 21 | E-SCR-M03-007-22 | Password reset success | Banner | "Mật khẩu đã được đặt lại. Vui lòng đăng nhập." | Conditional | Hiển thị khi recovery completed |
-| 22 | E-SCR-M03-007-23 | Password mismatch error | Banner | "Mật khẩu xác nhận không khớp" | Conditional | Hiển thị khi password ≠ confirmPassword |
-| 23 | E-SCR-M03-007-24 | Action: Đặt lại mật khẩu | Button | Submit password mới trực tiếp tới provider khi recovery callback hợp lệ | Conditional | Password/confirmation hợp lệ theo provider policy; không đổi AdminAccount role/status |
-| 24 | E-SCR-M03-007-25 | Action: Thử lại | Button | Retry operation phù hợp mode sau network/provider error | Conditional | Token phải còn hợp lệ; invalid/expired link cần link hợp lệ mới, không loop callback cũ |
+| 1 | E-SCR-M03-007-01 | Screen title | Header text | Tiêu đề theo chế độ: nhận lời mời / khôi phục mật khẩu | Yes | Non-empty |
+| 2 | E-SCR-M03-007-02 | Invitation password input | Input (ẩn ký tự) | Mật khẩu người được mời tự đặt, gửi thẳng cho nhà cung cấp | Conditional | Chỉ ở chế độ nhận lời mời hợp lệ; quy tắc mật khẩu do nhà cung cấp quy định; M03 không lưu |
+| 3 | E-SCR-M03-007-03 | Action: Hoàn tất lời mời | Button | Đặt thông tin đăng nhập; backend xác nhận danh tính nhà cung cấp khớp tài khoản Chờ nhận lời mời rồi kích hoạt | Conditional | Tài khoản chỉ thành Đang hoạt động khi khớp (US-M03-05 mục 4); sau đó về SCR-M03-000 |
+| 4 | E-SCR-M03-007-04 | Recovery email input | Input | Email của tài khoản cần khôi phục | Conditional | Chỉ ở chế độ yêu cầu khôi phục |
+| 5 | E-SCR-M03-007-05 | Action: Gửi yêu cầu khôi phục | Button | Gửi yêu cầu cho nhà cung cấp | Conditional | Phản hồi luôn chung, không tiết lộ email có tồn tại (BR-M03-K02) |
+| 6 | E-SCR-M03-007-06 | Generic recovery response | Text | MSG-RECOVERY-SENT: "Nếu email này có tài khoản, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu." | Conditional | Giống nhau dù email có tồn tại hay không |
+| 7 | E-SCR-M03-007-07 | New password input | Input (ẩn ký tự) | Mật khẩu mới ở chế độ hoàn tất khôi phục | Conditional | Chỉ khi callback khôi phục hợp lệ; gửi thẳng cho nhà cung cấp |
+| 8 | E-SCR-M03-007-08 | Action: Đặt mật khẩu mới | Button | Hoàn tất khôi phục | Conditional | Không tạo tài khoản, không đổi vai trò/trạng thái; tài khoản Đã khóa vẫn bị từ chối sau khi khôi phục |
+| 9 | E-SCR-M03-007-09 | Processing state | Spinner | Đang xử lý | Conditional | Hiện khi đang gửi |
+| 10 | E-SCR-M03-007-10 | Invalid / expired link | Text | MSG-LINK-INVALID: "Liên kết này không dùng được hoặc đã hết hạn. Nếu là lời mời, hãy nhờ quản lý gửi lại; nếu là khôi phục mật khẩu, hãy yêu cầu lại." | Conditional | Lời mời hết hạn hoặc không hợp lệ không tạo quyền truy cập (BR-M03-K01) |
+| 11 | E-SCR-M03-007-11 | Provider / network error | Text | MSG-NETWORK-FAILED "Chưa kết nối được. Hãy kiểm tra mạng rồi thử lại." hoặc MSG-GENERIC | Conditional | Lỗi bất ngờ dùng MSG-GENERIC; không hiện mã kỹ thuật |
+| 12 | E-SCR-M03-007-12 | Action: Về đăng nhập | Link | Mở SCR-M03-000 | Yes | None |
+| 13 | E-SCR-M03-007-13 | Confirm password input | Input (ẩn ký tự) | Nhập lại mật khẩu (chế độ nhận lời mời và hoàn tất khôi phục) | Conditional | Phải giống ô mật khẩu, nếu không thì MSG-PASSWORD-MISMATCH ("Hai lần nhập mật khẩu chưa giống nhau. Hãy nhập lại."), kiểm tra trước khi gửi cho nhà cung cấp |
+| 14 | E-SCR-M03-007-14 | Password rejected | Text | MSG-PASSWORD-REJECTED ("Mật khẩu này chưa được chấp nhận. Hãy chọn mật khẩu khác dài hơn và khó đoán hơn.") | Conditional | Khi nhà cung cấp từ chối mật khẩu; M03 không tự đặt quy tắc độ mạnh, không hiện thông báo gốc của nhà cung cấp |
 
 ## 4. States
 
 | State | What the user sees | Trigger |
 |---|---|---|
-| Default (invitation link) | Form đặt password; email readonly | Valid invitation token |
-| Default (recovery request) | Form nhập email để request recovery | "Forgot password" from SCR-M03-000 |
-| Default (recovery link) | Form đặt password mới | Valid recovery token |
-| Processing | Spinner; buttons disabled | Request in progress |
-| Request accepted | Banner "Yêu cầu đã được chấp nhận" | Recovery request submitted |
-| Invitation completed | Banner account activated sau backend match; action về đăng nhập; auto-redirect còn là đề xuất | Invitation completed |
-| Password reset completed | Banner password reset; action về đăng nhập; auto-redirect còn là đề xuất | Provider recovery completed; không thay application status |
-| Invalid link | Banner "Liên kết không hợp lệ" | Token invalid/expired |
-| Identity mismatch | Banner "Liên kết không khớp" | Provider identity không khớp pending account |
-| Account already active | Banner "Tài khoản đã kích hoạt" | Account đã ACTIVE |
-| Account deactivated | Banner "Tài khoản đã bị vô hiệu hóa" | Account DEACTIVATED |
-| Provider error | Banner lỗi provider | Provider error |
-| Network error | Banner lỗi mạng | Network failure |
+| Invitation – valid | Form đặt mật khẩu | Link lời mời hợp lệ |
+| Invitation – done | Chuyển về đăng nhập | Danh tính khớp tài khoản Chờ nhận lời mời, đã kích hoạt |
+| Recovery request | Ô nhập email | Chọn "Quên mật khẩu" từ SCR-M03-000 |
+| Recovery request accepted | Phản hồi chung | Đã gửi yêu cầu |
+| Recovery callback – valid | Form đặt mật khẩu mới | Link khôi phục hợp lệ |
+| Recovery done | Chuyển về đăng nhập | Đặt mật khẩu mới thành công |
+| Processing | Spinner | Đang gửi cho nhà cung cấp |
+| Invalid / expired link | Thông báo link không dùng được | Link sai hoặc hết hạn |
+| Provider / network error | Thông báo lỗi | Lỗi nhà cung cấp hoặc mạng |
 
 ## 5. Interactions and navigation
 
 | # | Element | User action | System response | Destination screen / result |
 |---|---|---|---|---|
-| 1 | Email input (recovery) | Type | Cập nhật email value | State update |
-| 2 | Password input | Type | Cập nhật password | State update |
-| 3 | Confirm password input | Type | Cập nhật confirm password | State update |
-| 4 | Hoàn tất lời mời | Tap | Gọi provider complete setup; validate AdminAccount match | Redirect to SCR-M03-000 |
-| 5 | Gửi yêu cầu | Tap | Gửi recovery request vào provider; hiển thị general response | Show accepted message |
-| 6 | Quay về đăng nhập | Tap | Quay về SCR-M03-000 | `SCR-M03-000` |
-| 7 | Thử lại | Tap button | Retry đúng mode nếu token/inputs vẫn hợp lệ; không bypass identity/account guard | Retry flow hoặc invalid link |
-| 8 | Đặt lại mật khẩu | Tap | Submit new password tới provider với recovery session hợp lệ; không gọi invitation activation | Reset success hoặc provider/network error |
+| 1 | Hoàn tất lời mời | Tap | Nhà cung cấp lưu thông tin đăng nhập; backend xác nhận khớp tài khoản Chờ nhận lời mời rồi kích hoạt | `SCR-M03-000` |
+| 2 | Gửi yêu cầu khôi phục | Tap | Nhà cung cấp xử lý; trả phản hồi chung | Recovery request accepted |
+| 3 | Đặt mật khẩu mới | Tap | Nhà cung cấp đổi mật khẩu; không đổi trạng thái hay vai trò | `SCR-M03-000` |
+| 4 | Về đăng nhập | Tap | Rời màn hình | `SCR-M03-000` |
 
 ## 6. Screen-level rules
 
 | Rule ID | Rule | Related requirement |
 |---|---|---|
-| SR-SCR-M03-007-001 | Invitation hợp lệ: đặt credential → provider xác nhận identity → backend activate matching INVITATION_PENDING; không tự chọn/cấp role | FR-M03-013, BR-M03-018; spec-M03 US-M03-05 |
-| SR-SCR-M03-007-002 | Provider invitation do Reviewer tại SCR-M03-006 hoặc initial server provisioning khởi tạo; recipient complete tại đây | FR-M03-013, BR-M03-019; spec-M03 US-M03-05 |
-| SR-SCR-M03-007-003 | Recovery request: nhận email → gửi general response (không tiết lộ email tồn tại) | BR-M03-020 |
-| SR-SCR-M03-007-004 | Recovery callback hợp lệ: đặt password → về SCR-M03-000 | BR-M03-020 |
-| SR-SCR-M03-007-005 | Password recovery không tạo/thay đổi role/status | BR-M03-020 |
-| SR-SCR-M03-007-006 | Invalid/expired link hiển thị thông báo; không redirect automatically | BR-M03-020 |
-| SR-SCR-M03-007-007 | Không kích hoạt lại DEACTIVATED account qua recovery | BR-M03-020 |
-| SR-SCR-M03-007-008 | Invitation completion chỉ activate account khớp identity; không tạo account mới | FR-M03-013, BR-M03-018; spec-M03 §6 |
+| SR-SCR-M03-007-001 | Mời và khôi phục mật khẩu là luồng thông tin đăng nhập do nhà cung cấp quản lý; không bao giờ gán, chọn hay đổi vai trò hoặc trạng thái ứng dụng | BR-M03-K02, SC-M03-011 |
+| SR-SCR-M03-007-002 | Lời mời hợp lệ chỉ kích hoạt tài khoản khi danh tính nhà cung cấp hoàn tất và khớp tài khoản Chờ nhận lời mời | US-M03-05 mục 4, BR-M03-K01 |
+| SR-SCR-M03-007-003 | Lời mời hết hạn hoặc không hợp lệ không tạo quyền truy cập; Quản lý có thể gửi lại cho cùng tài khoản đang chờ | BR-M03-K01, US-M03-05 mục 5 |
+| SR-SCR-M03-007-004 | Yêu cầu khôi phục trả phản hồi chung, không tiết lộ email có tồn tại | BR-M03-K02, US-M03-05 mục 6 |
+| SR-SCR-M03-007-005 | Màn hình không tạo tài khoản ứng dụng, không kích hoạt lại tài khoản đã khóa, không vượt qua kiểm tra quyền phía server | BR-M03-K02, K05, US-M03-05 mục 7 |
+| SR-SCR-M03-007-006 | Mật khẩu và token chỉ đi giữa trình duyệt và nhà cung cấp; M03 không lưu và không ghi vào nhật ký | BR-M03-F08 |
+| SR-SCR-M03-007-007 | Quản lý đầu tiên của môi trường đã được cấp phía server và chỉ ở trạng thái Chờ nhận lời mời; trở thành Đang hoạt động qua luồng lời mời của màn này, không có đường khôi phục khác | BR-M03-K04, US-M03-05 mục 9 |
 
 ## 7. Linked requirements
 
 | FR ID | How the screen supports it |
 |---|---|
-| FR-M03-013 | Authenticate; invitation, password recovery và fixed roles |
+| FR-M03-013 | Nhận lời mời, khôi phục mật khẩu tự phục vụ, không đổi vai trò/trạng thái |
+| FR-M03-019 | Tiếng Việt dễ hiểu, không dữ liệu thô |
 
 ## 8. Responsive and accessibility notes
 
-- Form login/invitation/recovery cần co giãn trên điện thoại, tablet và desktop vì entry/callback có thể mở từ email trên nhiều thiết bị. Tránh fixed-width card, giữ fields và CTA đọc/nhấn được khi bàn phím mở; breakpoint theo content.
-- Review text dài vi/en, zoom, focus, provider errors và callback states; bố cục cuối cùng còn chờ UX review.
-- Mục tiêu review accessibility: keyboard access, visible focus, semantic labels, error liên kết với field, status không chỉ biểu đạt bằng màu và reduced motion. Tham khảo WCAG 2.1 AA, touch target khoảng 44×44px và contrast 4.5:1 cho normal text; đây là định hướng cần kiểm chứng trên frontend, không phải tuyên bố đã đạt chuẩn.
+- Định hướng desktop workspace, đồng thời co giãn trên tablet và màn hẹp: stack form/detail panels, wrap action labels; bảng rộng chỉ scroll trong vùng bảng nếu cần. 768px/1024px là kích thước review tham khảo, không phải hard viewport minimum.
+- Review text dài, zoom, keyboard/focus và error states; không ẩn action nghiệp vụ chỉ vì viewport nhỏ. Bố cục cuối cùng còn chờ UX review.
+- Mục tiêu review accessibility: keyboard access, visible focus, semantic labels, lỗi liên kết với ô nhập, trạng thái không chỉ biểu đạt bằng màu và reduced motion. Tham khảo WCAG 2.1 AA, touch target khoảng 44×44px và contrast 4.5:1 cho normal text; đây là định hướng cần kiểm chứng trên frontend, không phải tuyên bố đã đạt chuẩn.
 
 ## 9. Open questions
 
 | ID | Question | Blocking | Status | Resolution |
 |---|---|---|---|---|
-| OQ-SCR-M03-007-001 | Auto-redirect delay sau completion: bao lâu? | No | Proposed | Đề xuất success banner và action về SCR-M03-000; auto-redirect/timing chưa chốt. Không chuyển trang trước người dùng đọc được kết quả. |
-| OQ-SCR-M03-007-002 | Branding/logo positioning cho invitation/recovery page | No | Proposed | Đề xuất branding đồng nhất với login; asset/quyền sử dụng và positioning cần sign-off, form phải co giãn trên điện thoại. |
-| OQ-SCR-M03-007-003 | Password strength requirements cụ thể | No | Open | Password policy do provider cấu hình/enforce; UI hiển thị policy/error được xác nhận. [NEEDS CLARIFICATION: password policy của hosted Auth từng environment chưa được xác nhận.] Không tự chốt độ dài hoặc chữ hoa/chữ số từ screen spec. |
+| OQ-SCR-M03-007-002 | Quy tắc độ mạnh mật khẩu và nhập lại mật khẩu | No | Resolved | Độ mạnh mật khẩu do nhà cung cấp quy định; form có ô nhập lại mật khẩu (E-SCR-M03-007-13, MSG-PASSWORD-MISMATCH) và hiện MSG-PASSWORD-REJECTED khi nhà cung cấp từ chối. |
 
 ## Completion checklist
 

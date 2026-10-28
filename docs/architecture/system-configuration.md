@@ -4,7 +4,7 @@
 
 Tài liệu này mô tả runtime architecture đã duyệt của Cúc Phương Quest trong phạm vi MVP M01–M03: các runtime component đã chọn, nơi đặt ba module, các vùng lưu trữ, luồng dữ liệu quan trọng, cách hệ thống hoạt động khi offline và các contract tích hợp. Đây không phải bằng chứng implementation hoặc deployment đã tồn tại.
 
-Baseline nghiệp vụ và contract là Spec M01 v3.2, M02 v3.2 và M03 v3.6 hiện hành trên branch này. Architecture không thay đổi behavior hoặc contract trong các spec này.
+Baseline nghiệp vụ và contract là Spec M01 v3.2, M02 v3.3 và M03 v3.7 hiện hành trên branch này. Architecture không thay đổi behavior hoặc contract trong các spec này.
 
 Runtime topology là **Single Cloud Application Environment**: một website/PWA trong **Single Vercel Project** và một **Single Supabase Cloud Project** làm **Shared Backend**. **M01 / M02 / M03 — Logical Modules** chạy trong cùng frontend application và không trở thành ba service/deployment. **Local Development Workstation** dùng cho development/testing nhưng không phải deployed environment. Cấu hình, migration state và giới hạn kiểm thử nằm tại [Environment Configuration](environment.md).
 
@@ -194,4 +194,4 @@ Các contract trên là logical contract. Runtime split Edge/RPC đã chốt ở
 | Publication, snapshots, Auth/data/media and reports | [Spec M03](../spec/spec-M03.md) §§3–6; [Tech Stack](tech-stack.md) §5 |
 | MVP inclusion and exclusions | [MVP Scope](../../MVP-Scope.md) |
 
-Các BRD M01–M03 không tồn tại trong working tree tại thời điểm refactor; ba module spec (M01 v3.2, M02 v3.2, M03 v3.6) tự khai báo là implementation source of truth và được dùng làm behavioral/contract baseline hiện hành.
+Các BRD M01–M03 không tồn tại trong working tree tại thời điểm refactor; ba module spec (M01 v3.2, M02 v3.3, M03 v3.7) tự khai báo là implementation source of truth và được dùng làm behavioral/contract baseline hiện hành.

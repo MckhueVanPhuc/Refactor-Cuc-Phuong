@@ -7,94 +7,113 @@
 | Module | `M01` |
 | Actor | Visitor |
 | Priority | Must |
-| Mockup | `screens/M01/mockups/SCR-M01-001-catalog.png` |
-| Status | Draft |
+| Mockup | Chưa có |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) |
 
-Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; bố cục/visual direction tham khảo [DESIGN.md](../../../DESIGN.md). Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
+Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md) (Published Route input theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
 
-Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu.
+Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
 ## 1. Purpose
 
-**Shown when:** Visitor mở ứng dụng hoặc chọn mục "Danh mục tuyến" từ navigation. Nếu chưa có LanguagePreference, yêu cầu chọn `vi` hoặc `en` trước khi tiếp tục vào catalog.
+**Shown when:** Entry mặc định của visitor khi mở ứng dụng. Nếu trình duyệt chưa có `LanguagePreference`, bước chọn ngôn ngữ `vi`/`en` chặn trước khi vào danh mục (US-M01-01 mục 1). Vào bằng link QR công khai (`/q/{qrIdentifier}`) không đi qua màn này mà mở SCR-M02-004.
 
-**The user leaves when:** Chọn một tuyến để xem chi tiết, chọn "Gợi ý tuyến", mở "Tài nguyên offline", hoặc đổi ngôn ngữ.
+**The user leaves when:** Mở chi tiết tuyến (SCR-M01-003), mở gợi ý tuyến (SCR-M01-002), mở quản lý tài nguyên offline (SCR-M01-004), hoặc đổi ngôn ngữ (ở lại màn này).
 
 ## 2. Mockup
 
-Mockup: `screens/M01/mockups/SCR-M01-001-catalog.png`. Đây là target asset tham khảo; cần kiểm tra asset và design sign-off, không dùng ảnh mockup để suy ngược business rule.
+Chưa có mockup cho màn này. Không suy ngược business rule từ bất kỳ ảnh mockup nào về sau.
 
 ## 3. Element inventory
 
 | # | Element ID | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|---|
-| 1 | E-SCR-M01-001-01 | Language selector | Header control | `vi` / `en`; đọc từ LanguagePreference; đổi được khi offline | Yes | Chỉ chấp nhận `vi` hoặc `en` |
-| 2 | E-SCR-M01-001-02 | Screen title | Header text | "Danh mục tuyến" / "Route Catalog" theo ngôn ngữ | Yes | None |
-| 3 | E-SCR-M01-001-03 | Route list | List | Published Route từ M03; chỉ tuyến `HOAT_DONG` có snapshot đã phát hành hợp lệ | Yes | Không coi cached view là xác nhận current; kiểm tra source trước online Start |
-| 4 | E-SCR-M01-001-04 | Route card | List item | Tên tuyến (name.vi/en), mô tả (description.vi/en), khoảng cách, thời lượng, độ khó, nhãn tags | Yes | Hiển thị đúng ngôn ngữ đã chọn |
-| 5 | E-SCR-M01-001-05 | Offline indicator | Badge | Suy ra từ JourneySnapshot/package manifest nếu có; Published Route không chứa connectivity của checkpoint | No | Không suy đoán khi chưa đọc được manifest |
-| 6 | E-SCR-M01-001-06 | Stale data label | Banner | "Dữ liệu cũ" khi source unavailable nhưng có local view; giải thích ngay trong nội dung banner | Conditional | Bao gồm source failure dù browser báo online |
-| 7 | E-SCR-M01-001-07 | Action: Gợi ý tuyến | Button | Chuyển đến SCR-M01-002 | Yes | None |
-| 8 | E-SCR-M01-001-08 | Action: Xem chi tiết | List item tap | Mở SCR-M01-003 cho tuyến đã chọn | Yes | Chỉ mở tuyến hợp lệ |
-| 9 | E-SCR-M01-001-09 | Action: Tài nguyên offline | Button | Mở SCR-M01-004 | Yes | None |
-| 10 | E-SCR-M01-001-10 | Action: Làm mới / Thử lại | Button | Refresh published catalog; pull-to-refresh là cách tương tác bổ sung nếu được chọn | Yes | Không xóa local view khi request lỗi |
-| 11 | E-SCR-M01-001-11 | Action: Xem nội dung QR | Button | Mở SCR-M02-001 ở free visitor mode nếu capability được phát hành | Conditional | Không tạo handoff/session/visit; FR-M02-019 |
+| 1 | E-SCR-M01-001-01 | Language selection step | Panel/dialog chặn | Chọn `vi` hoặc `en`; chỉ hiện khi chưa có `LanguagePreference` và vào bằng entry thường | Conditional | Chỉ nhận `vi`/`en`; giá trị khác bị từ chối (FR-M01-001); chưa chọn thì chưa vào danh mục |
+| 2 | E-SCR-M01-001-02 | Language control VI/EN | Toggle (control dùng chung) | `LanguagePreference.languageCode`; có trên mọi màn du khách | Yes | Đổi có hiệu lực ngay cho UI và nội dung `vi/en` có sẵn, không đổi trạng thái package (BR-M01-001) |
+| 3 | E-SCR-M01-001-03 | Screen title | Header text | Tên màn hình theo ngôn ngữ đã chọn | Yes | Non-empty |
+| 4 | E-SCR-M01-001-04 | Stale data notice | Text | Nhãn "dữ liệu cũ/chưa chắc mới nhất" khi đang hiển thị local view | Conditional | Hiện khi không đọc được nguồn; không khẳng định là mới nhất (FR-M01-002) |
+| 5 | E-SCR-M01-001-05 | Route card list | List | Published Route từ M03; chỉ gồm tuyến `status = HOAT_DONG` và `activeContentVersion` hợp lệ | Yes | Tuyến `TAM_DONG`/`LUU_TRU` hoặc thiếu `activeContentVersion` không xuất hiện (BR-M01-002) |
+| 6 | E-SCR-M01-001-06 | Card thumbnail | Image | `thumbnail.sourceRef` | Yes | Ảnh lỗi → placeholder trung tính; thẻ vẫn dùng được (US-M01-02 mục 4) |
+| 7 | E-SCR-M01-001-07 | Card name | Text | `name.vi`/`name.en` theo ngôn ngữ đã chọn | Yes | Không tự sinh giá trị thiếu |
+| 8 | E-SCR-M01-001-08 | Card short description | Text | `shortDescription.vi`/`.en` | Yes | Như trên |
+| 9 | E-SCR-M01-001-09 | Card distance | Text | `distanceKm` (km) | Yes | Hiển thị đúng giá trị nguồn (> 0, ≤ 100, tối đa 1 chữ số thập phân theo contract) |
+| 10 | E-SCR-M01-001-10 | Card duration | Text | `durationMin` (phút) | Yes | Hiển thị đúng giá trị nguồn (> 0, ≤ 1440) |
+| 11 | E-SCR-M01-001-11 | Card difficulty | Badge | `difficulty` (`NHE`/`TRUNG_BINH`/`KHO`) | Yes | Chỉ enum cho phép; nhãn i18n xem bảng nhãn ở SCR-M01-002 |
+| 12 | E-SCR-M01-001-12 | Card checkpoint count | Text | `checkpointCount` | Yes | Số nguyên ≥ 0 từ snapshot đang hoạt động |
+| 13 | E-SCR-M01-001-13 | Offline-needed mark | Badge | Hiện khi `hasOfflineRequiredCheckpoint` hoặc `hasOfflineRouteMap` là `true` | Conditional | Theo BR-M01-012; snapshot tải về mới là nguồn quyết định cuối cùng |
+| 14 | E-SCR-M01-001-14 | Action: Mở chi tiết tuyến | Tap card | Mở SCR-M01-003 với tuyến đã chọn | Yes | Chỉ với tuyến đang chọn được |
+| 15 | E-SCR-M01-001-15 | Action: Gợi ý tuyến | Button | Mở SCR-M01-002 | Yes | None |
+| 16 | E-SCR-M01-001-16 | Action: Tài nguyên offline | Button | Mở SCR-M01-004 | Yes | None |
+| 17 | E-SCR-M01-001-17 | Loading state | Spinner | Đang đọc nguồn | Conditional | Hiện khi đang tải |
+| 18 | E-SCR-M01-001-18 | Empty state | Text | Không có tuyến nào chọn được | Conditional | Hiện khi nguồn trả về nhưng không có tuyến `HOAT_DONG` hợp lệ |
+| 19 | E-SCR-M01-001-19 | Source unavailable | Text | Không đọc được nguồn và không có local view | Conditional | Request lỗi dù trình duyệt báo online vẫn coi là nguồn không khả dụng |
+
+**Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới.
+
+| Tình huống | Tiếng Việt | English |
+|---|---|---|
+| Bước chọn ngôn ngữ | Chọn ngôn ngữ (Tiếng Việt / English) | Choose your language (Tiếng Việt / English) |
+| Dấu cần tải trước | Cần tải trước | Download first |
+| Số điểm dừng / quãng đường / thời lượng | {n} điểm dừng · {km} km · {phút} phút | {n} stops · {km} km · {min} min |
+| Danh sách trống | Hiện chưa có tuyến nào để chọn. | No routes are available right now. |
+| Hiển thị dữ liệu đã lưu | Dữ liệu đã lưu, có thể chưa phải bản mới nhất. | Saved data, which may not be the latest. |
+| Không đọc được nguồn, chưa có dữ liệu | Chưa tải được danh sách tuyến. Hãy kiểm tra kết nối và thử lại. | Could not load the routes. Check your connection and try again. |
 
 ## 4. States
 
 | State | What the user sees | Trigger |
 |---|---|---|
-| Default | Danh sách tuyến HOAT_DONG đầy đủ, ngôn ngữ đã chọn | Source available, preference set |
-| Language required | Selector `vi`/`en`; chưa tiếp tục vào catalog | Chưa có LanguagePreference |
-| Empty | Thông báo "Không có tuyến nào đang hoạt động" / "No active routes" | Không có tuyến HOAT_DONG |
-| Loading | Skeleton hoặc spinner tại danh sách tuyến | Đang tải dữ liệu từ M03 |
-| Error | Thông báo lỗi kết nối; giữ local view nếu có | Source unavailable, network failure |
-| Stale | Banner "Dữ liệu cũ" trên local view; không claim dữ liệu current | Source unavailable và có cached route list |
+| Language required | Chỉ bước chọn ngôn ngữ | Chưa có `LanguagePreference`, entry thường |
+| Loading | Spinner tại vùng danh sách | Đang đọc/làm mới nguồn |
+| Has routes | Danh sách thẻ tuyến | Nguồn trả về ít nhất một tuyến chọn được |
+| Empty | Thông báo không có tuyến | Không có tuyến `HOAT_DONG` hợp lệ |
+| Stale / offline | Danh sách local cuối cùng kèm nhãn dữ liệu cũ | Mất nguồn nhưng có local view |
+| Source unavailable | Thông báo không đọc được nguồn | Mất nguồn, không có local view |
+| Image failed | Placeholder trung tính trên thẻ | Ảnh không tải được |
+| Route removed | Tuyến biến mất khỏi danh sách | Làm mới nguồn thành công báo tuyến `TAM_DONG`/`LUU_TRU` (US-M01-05) |
 
 ## 5. Interactions and navigation
 
 | # | Element | User action | System response | Destination screen / result |
 |---|---|---|---|---|
-| 1 | Language selector | Tap / change | Cập nhật LanguagePreference, chuyển ngôn ngữ UI ngay lập tức, không thay đổi package/session | Stays; label/state update |
-| 2 | Route card | Tap | Chọn tuyến, mở chi tiết với route đó | `SCR-M01-003` |
-| 3 | Gợi ý tuyến button | Tap | Chuyển đến màn gợi ý | `SCR-M01-002` |
-| 4 | Tài nguyên offline button | Tap | Chuyển đến quản lý offline | `SCR-M01-004` |
-| 5 | Làm mới / Thử lại | Tap; pull-to-refresh nếu được chọn | Refresh danh sách từ M03; giữ local view và báo lỗi nếu source unavailable | Reload list |
-| 6 | Stale data label | Read | Giải thích dữ liệu cũ ngay trong banner, không phụ thuộc tooltip | Stays |
-| 7 | Xem nội dung QR | Tap | Mở scanner free visitor khi capability được phát hành | `SCR-M02-001` (free mode) |
+| 1 | Language selection step | Chọn `vi` hoặc `en` | Lưu và công bố `LanguagePreference`; vào danh mục | State update |
+| 2 | Language control | Đổi VI/EN | Cập nhật `LanguagePreference` ngay; đổi UI và nội dung có sẵn | State update |
+| 3 | Route card | Tap | Mở chi tiết tuyến | `SCR-M01-003` |
+| 4 | Gợi ý tuyến | Tap | Mở màn gợi ý | `SCR-M01-002` |
+| 5 | Tài nguyên offline | Tap | Mở quản lý package | `SCR-M01-004` |
+| 6 | Màn hình | Mở/làm mới | Đọc Published Route; thay local view khi thành công | Reload list |
 
 ## 6. Screen-level rules
 
 | Rule ID | Rule | Related requirement |
 |---|---|---|
-| SR-SCR-M01-001-001 | Chỉ hiển thị tuyến có `status = HOAT_DONG` và `activeContentVersion` không null | FR-M01-002 |
-| SR-SCR-M01-001-002 | Khi source unavailable, giữ local view cũ và hiển thị nhãn "dữ liệu cũ"; không tự động claim dữ liệu là current | FR-M01-002 |
-| SR-SCR-M01-001-003 | Language change không thay đổi package state hoặc session state | BR-M01-001 |
-| SR-SCR-M01-001-004 | Chỉ active route mới xuất hiện trong danh sách; route đã đóng/archived không hiển thị | BR-M01-002 |
+| SR-SCR-M01-001-001 | Chỉ tuyến `HOAT_DONG` có `activeContentVersion` hợp lệ được liệt kê và chọn được | BR-M01-002, FR-M01-002 |
+| SR-SCR-M01-001-002 | Entry thường yêu cầu chọn ngôn ngữ; entry bằng link QR không bao giờ hiện bước này (dùng ngôn ngữ máy) | US-M01-01, FR-M01-001 |
+| SR-SCR-M01-001-003 | M01 là nơi duy nhất ghi `LanguagePreference`; đổi ngôn ngữ không đổi trạng thái package | BR-M01-001 |
+| SR-SCR-M01-001-004 | Khi mất nguồn chỉ hiển thị local view, có nhãn dữ liệu cũ, không khẳng định là mới nhất | FR-M01-002 |
+| SR-SCR-M01-001-005 | Trường tùy chọn vắng không thay bằng placeholder văn bản; chỉ ảnh lỗi dùng placeholder trung tính | FR-M01-002, FR-M01-003 |
+| SR-SCR-M01-001-006 | Màn hình không ghi dữ liệu M03 và không đụng session M02 | BR-M01-010 |
 
 ## 7. Linked requirements
 
 | FR ID | How the screen supports it |
 |---|---|
-| FR-M01-001 | Language selector là control gốc trong shell M01; visitor chọn/đổi `vi`/`en` |
-| FR-M01-002 | Catalog hiển thị route HOAT_DONG; source refresh loại bỏ tuyến không khả dụng |
-| FR-M01-003 | Route metadata hiển thị theo ngôn ngữ đã chọn |
-| FR-M01-012 | Khi refresh thành công phát hiện closure, revoke current context của tuyến; không cần biết M02 đã consumed hay chưa, không ngắt session đã tạo |
-| FR-M02-019 | Entry tùy chọn cho free visitor; không tạo progress/reporting data |
+| FR-M01-001 | Chọn/đổi `vi`/`en`, control dùng chung |
+| FR-M01-002 | Thẻ tuyến, làm mới nguồn, giữ local view khi offline, bỏ tuyến không khả dụng |
+| FR-M01-013 | `LanguagePreference` được công bố cho M02 |
 
 ## 8. Responsive and accessibility notes
 
 - Định hướng mobile-first: ưu tiên nội dung/action chính, wrap text/tags và stack panels theo chiều rộng thực tế; tránh chiều rộng cố định gây tràn ngang. 360px, 768px và 1280px là kích thước tham khảo để review, không phải hard breakpoint hoặc điều kiện bật/tắt tính năng.
-- Review text dài vi/en, loading/empty/error, phóng to chữ, focus và thao tác một tay trên điện thoại. Bố cục cuối cùng cần prototype/usability review trước sign-off.
-- Mục tiêu review accessibility: keyboard access, visible focus, semantic labels, error liên kết với field, status không chỉ biểu đạt bằng màu và reduced motion. Tham khảo WCAG 2.1 AA, touch target khoảng 44×44px và contrast 4.5:1 cho normal text; đây là định hướng cần kiểm chứng trên frontend, không phải tuyên bố đã đạt chuẩn.
+- Review text dài vi/en, zoom, keyboard/focus và error states; không ẩn action nghiệp vụ chỉ vì viewport nhỏ. Bố cục cuối cùng còn chờ UX review.
+- Mục tiêu review accessibility: keyboard access, visible focus, semantic labels, trạng thái không chỉ biểu đạt bằng màu, ảnh có văn bản thay thế và reduced motion. Tham khảo WCAG 2.1 AA, touch target khoảng 44×44px và contrast 4.5:1 cho normal text; đây là định hướng cần kiểm chứng trên frontend, không phải tuyên bố đã đạt chuẩn.
 
 ## 9. Open questions
 
 | ID | Question | Blocking | Status | Resolution |
 |---|---|---|---|---|
-| OQ-SCR-M01-001-001 | Cơ chế pull-to-refresh và cache invalidation cụ thể | No | Proposed | Có thể dùng cache display với background refresh và action làm mới rõ ràng. FR-M01-002 bắt buộc giữ local view khi source unavailable, ghi stale và chỉ xử lý closure sau successful refresh; cache policy cụ thể chưa chốt. |
-| OQ-SCR-M01-001-002 | Kích thước trang tối thiểu cho mobile breakpoint | No | Proposed | Mobile-first, co giãn theo content; kích thước review tham khảo tại §8, chưa chốt minimum/breakpoints. |
-| OQ-SCR-M01-001-003 | Chiến lược i18n cho static strings (không phải content tuyến) | No | Proposed | LanguagePreference vi/en là baseline (FR-M01-001). Đề xuất bundle static locale strings; fallback và cấu trúc locale cần xác nhận, không tự synthesize public content thiếu. |
+| OQ-SCR-M01-001-001 | Thứ tự hiển thị các thẻ tuyến trong danh mục | No | Resolved | Thẻ tuyến sắp theo tên tuyến A→Z theo ngôn ngữ đang chọn. Đây là thứ tự trình bày trung tính, không chấm điểm hay xếp hạng (Spec M01 §4.2). |
+| OQ-SCR-M01-001-003 | Cách trình bày bước chọn ngôn ngữ (màn riêng, dialog hay panel) | No | Resolved | Panel chặn toàn trang trước danh mục, hai nút "Tiếng Việt" và "English"; không có lựa chọn bỏ qua. |
 
 ## Completion checklist
 

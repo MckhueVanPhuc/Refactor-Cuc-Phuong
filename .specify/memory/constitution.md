@@ -1,5 +1,20 @@
 ﻿<!--
 SYNC IMPACT REPORT
+Version change: 2.0.0 → 2.0.1 (PATCH: clarification of downstream status; no principle changed)
+Modified principles: none. Added sections: none. Removed sections: none.
+Clarification: the data layer is no longer stale. S1–S4, the Data Acceptance Criteria catalog,
+  the review gate (data/05-review.md) and the Physical Schema (data/06-physical-schema.md) were
+  rebaselined to V2 on 2026-10-28 against the current specs (M01 v3.2 clarification 2,
+  M03 v3.7 clarification 3). Screen lists were synchronized with the same specs on 2026-10-28;
+  screen specifications are still pending (see below).
+Downstream artifacts to review: screen specifications under screens/screen-spec/ (stale against
+  the rebaselined specs; the M03 ones still describe a review queue); MVP-Scope.md and the
+  function lists were not re-checked in this amendment.
+Follow-up TODOs: rewrite screen specifications in a separate task.
+-->
+
+<!--
+SYNC IMPACT REPORT
 Version change: 1.1.0 → 2.0.0 (MAJOR: alignment with spec rebaseline M01 v3.2, M02 v3.2, M03 v3.6)
 Modified principles:
   II. Module Ownership Boundaries — M03 owns Revision instead of CheckpointContent;
@@ -344,4 +359,4 @@ system-configuration.md, tech-stack.md, environment.md.
 
 ---
 
-**Version**: 2.0.0 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-10-27
+**Version**: 2.0.1 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-10-28

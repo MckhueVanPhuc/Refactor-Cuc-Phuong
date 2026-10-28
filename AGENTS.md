@@ -88,8 +88,8 @@ Không đổi tên contract, bỏ suffix/version hoặc hợp nhất transport s
 | data/04-data-model.md | Authoritative S4 logical data model | Markdown này thắng DBML nếu có lệch |
 | data/04-data-model.dbml | S4 visualization | Không biến giới hạn DBML thành logical design mới |
 | data/08-data-acceptance-criteria.md | Data Acceptance Criteria catalog (DAC) | Derived validation catalog sau S4, trước Physical Schema |
-| data/05-review.md | S4 review gate & validation review | Baseline tham khảo; chưa đánh giá lại cho V2 |
-| data/06-physical-schema.md | Physical schema baseline | Giới hạn cuối của tài liệu; chưa đánh giá lại cho V2 |
+| data/05-review.md | Logical-model/DAC review gate | V2 PASS (2026-10-28); cập nhật khi S1–S4 hoặc DAC đổi |
+| data/06-physical-schema.md | Physical schema design (V2) | Giới hạn cuối của tài liệu; thiết kế, không phải implementation; cập nhật khi S4 hoặc DAC đổi |
 | M03_Documentation_Refactor_Runbook_v2.md | Quy trình refactor toàn diện | Nguồn điều phối luồng rebaseline P0–P11 |
 | .specify/ | Constitution và specification memory | Bảo tồn nguyên tắc Spec-first và governance |
 

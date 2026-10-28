@@ -5,8 +5,8 @@
 | Thuộc tính | Giá trị |
 |---|---|
 | Phạm vi | MVP cho M01–M03 |
-| Trạng thái | Implementation baseline — đồng bộ Spec M01 v3.2, M02 v3.2, M03 v3.6 |
-| Cập nhật | 2026-10-27 |
+| Trạng thái | Implementation baseline — đồng bộ Spec M01 v3.2, M02 v3.3, M03 v3.7 |
+| Cập nhật | 2026-10-28 |
 | Nguồn hành vi và contract | Ba module spec |
 
 Tài liệu này chỉ tóm tắt ranh giới MVP. Khi có khác biệt, module spec tương ứng là nguồn sự thật duy nhất.
@@ -53,7 +53,7 @@ Tài liệu này chỉ tóm tắt ranh giới MVP. Khi có khác biệt, module 
 | FN-M02-002 | Session Lifecycle & Recovery | Lưu, khôi phục và chuyển trạng thái phiên nhất quán; tối đa một phiên đang chạy trên mỗi trình duyệt. | Must |
 | FN-M02-003 | Journey Map | Hiển thị journey cố định từ manifest cùng trạng thái đã quét. | Must |
 | FN-M02-004 | QR Resolution & Check-in | Quét bằng nút trong app hoặc mở link QR từ camera; ghi một lượt ghé cho mỗi `(sessionId, checkpointId)` chỉ khi lần quét được chấp nhận; nhận diện mã thêm sau khi chuyến bắt đầu. | Must |
-| FN-M02-005 | Content Delivery | Hiển thị nội dung của đúng mã đã quét: online dùng kết quả tra QR, offline dùng gói; thông báo khu vực tạm đóng. | Must |
+| FN-M02-005 | Content Delivery | Hiển thị nội dung của đúng mã đã quét: online dùng kết quả tra QR, offline dùng gói; audio/video chỉ hiện tệp đúng ngôn ngữ đang chọn và tệp không lời; thông báo khu vực tạm đóng. | Must |
 | FN-M02-006 | Completion & Route Replacement | Hoàn tất khi đã quét điểm cuối và xác nhận (Finish hoặc câu hỏi kết thúc); tự đóng phiên bị bỏ quên sau 24 giờ; thay tuyến theo transaction bỏ phiên cũ/tạo phiên mới. | Must |
 | FN-M02-007 | Terminal Sync | Lưu và retry `SessionSyncRecord` terminal, ẩn danh, bất biến. | Should |
 | FN-M02-008 | Free Visitor Experience | Cho phép bất kỳ ai quét mã QR (kể cả bằng camera điện thoại) để xem nội dung mà không tạo tiến độ hoặc dữ liệu báo cáo. | Must |
@@ -65,13 +65,13 @@ Tài liệu này chỉ tóm tắt ranh giới MVP. Khi có khác biệt, module 
 | FN-M03-001 | Route Administration | Thông tin tuyến song ngữ, ảnh, tag (nhãn thời gian tự suy), chọn và sắp xếp các điểm dừng đã xuất bản, lifecycle tuyến. | Must |
 | FN-M03-002 | Checkpoint Administration | Thư viện điểm dừng dùng chung, độc lập với tuyến; tên tiếng Việt không trùng; loại kết nối bắt buộc chọn. | Must |
 | FN-M03-003 | QR Administration | Điểm tham quan với mã QR do hệ thống sinh; link QR công khai cố định; ảnh in; in lại và thu hồi an toàn. | Must |
-| FN-M03-004 | Bilingual Content & Media | Nội dung `vi/en` riêng của từng mã QR, ảnh và audio/video (chỉ cho điểm dừng có mạng), upload nhiều tệp, xác nhận quyền sử dụng từng tệp. | Must |
+| FN-M03-004 | Bilingual Content & Media | Nội dung `vi/en` riêng của từng mã QR, ảnh và audio/video (chỉ cho điểm dừng có mạng, mỗi tệp đánh dấu ngôn ngữ nói), upload nhiều tệp, xác nhận quyền sử dụng từng tệp. | Must |
 | FN-M03-005 | Publication Review & Self-Publish | Kiểm tra hai mức, một nút "Lưu bản nháp", màn review bắt buộc trước khi tự xuất bản, giao diện tiếng Việt dễ hiểu với danh mục thông báo cố định. | Must |
 | FN-M03-006 | Journey Snapshot | Snapshot bất biến, đánh số liên tục, cập nhật đồng thời mọi tuyến liên quan, trần dung lượng offline. | Must |
 | FN-M03-007 | Emergency Operations | Đóng/mở lại/lưu trữ tuyến và điểm dừng theo quyền, tuyến tự đóng khi hết điểm dừng hoạt động, kết quả xác định và có audit. | Must |
-| FN-M03-008 | Authentication, Accounts, Authorization & Concurrency | Login/invite/recovery, bootstrap Reviewer đầu tiên, hai role cố định, bảo vệ Reviewer cuối và từ chối stale write. | Must |
+| FN-M03-008 | Authentication, Accounts, Authorization & Concurrency | Login/logout, invite/recovery, bootstrap Reviewer đầu tiên, hai role cố định, bảo vệ Reviewer cuối và từ chối stale write. | Must |
 | FN-M03-009 | Live QR & Content Service | Tra QR công khai trả `VALID`, `TEMPORARILY_CLOSED` hoặc `INVALID` kèm nội dung của mã. | Must |
-| FN-M03-010 | Session Intake & Reporting | Nhận terminal session bất biến, kiểm tra theo snapshot và cung cấp RPT-01/RPT-02 kèm ghi chú dữ liệu. | Should |
+| FN-M03-010 | Session Intake & Reporting | Nhận terminal session bất biến, kiểm tra theo snapshot và cung cấp RPT-01/RPT-02 (kèm tên tuyến) với khoảng ngày tối đa 366 ngày và ghi chú dữ liệu. | Should |
 | FN-M03-011 | History, Restore & Audit Log | Lịch sử bản đã xuất bản, khôi phục bản cũ thành bản nháp, bỏ bản nháp, audit mọi thao tác; màn nhật ký toàn hệ thống cho Reviewer. | Must |
 
 ### 3.4 Priority của các năng lực bổ sung theo spec v3
@@ -133,8 +133,8 @@ Tài liệu này chỉ tóm tắt ranh giới MVP. Khi có khác biệt, module 
 ## 6. Tài liệu nguồn
 
 - [Specification M01](docs/spec/spec-M01.md) v3.2
-- [Specification M02](docs/spec/spec-M02.md) v3.2
-- [Specification M03](docs/spec/spec-M03.md) v3.6
+- [Specification M02](docs/spec/spec-M02.md) v3.3
+- [Specification M03](docs/spec/spec-M03.md) v3.7
 - [Function List M01](docs/function%20list/function-list-M01.md)
 - [Function List M02](docs/function%20list/function-list-M02.md)
 - [Function List M03](docs/function%20list/function-list-M03.md)

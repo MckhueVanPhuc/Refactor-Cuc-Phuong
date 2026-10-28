@@ -11,7 +11,7 @@
 | Authoritative S4 artifact | This document; [DBML](04-data-model.dbml) is visualization only |
 | Status | PASS — S4 (V2) review accepted 2026-10-28; ready for Data Acceptance Criteria ([08](08-data-acceptance-criteria.md)) |
 
-V2 rebaseline (2026-10-28): rebuilt from specs M01 v3.2, M02 v3.3, M03 v3.7 and the V2 S1–S3 artifacts. CheckpointContent (ENT-DATA-004) is retired and Revision (ENT-DATA-017) is modeled; Route, Checkpoint and QRCode keep identity, lifecycle and internal fields while their editable public content lives in Revision; the relationship catalog follows S3 V2 (24 active, 5 retired).
+V2 rebaseline (2026-10-28): rebuilt from specs M01 v3.2, M02 v3.3, M03 v3.7 and the V2 S1–S3 artifacts. CheckpointContent (ENT-DATA-004) is retired and Revision (ENT-DATA-017) is modeled; Route, Checkpoint and QRCode keep identity, lifecycle and internal fields while their editable public content lives in Revision; the relationship catalog follows S3 V2 (25 active, 5 retired; REL-030 added at the review gate).
 
 ## 2. Modeling Principles
 
@@ -131,6 +131,7 @@ Checkpoint name, connectivity mode and field verification are the Revision conte
 | Media | `0..1 : 0..*` | `Media.(ownerType = CHECKPOINT, ownerId) → checkpointId` | Owns media of its visit points. | REL-004 |
 | Revision | `0..1 : 0..*` | `Revision.(subjectType = CHECKPOINT, subjectId) → checkpointId` | Has revisions. | REL-025 |
 | CheckpointVisit | `1 : 0..*` | `CheckpointVisit.checkpointId → checkpointId` | Visit refers to a frozen journey checkpoint. | REL-017 |
+| OfflineResource | `1 : 0..*` | `OfflineResource.checkpointId → checkpointId` | Local offline copies of the QR objects held by this checkpoint. | REL-030 |
 
 #### Lifecycle / Immutability
 
@@ -290,7 +291,7 @@ Normalized `email` is the MVP logical identity from invitation through active li
 
 | Attribute | Logical Type | Presence | Constraint | Source |
 |---|---|---|---|---|
-| `userId` | String | Conditional | Present after matching provider identity is linked; unique and stable when present. | M03 §6.4; S1 HC-001 |
+| `userId` | String | Conditional | Present after matching provider identity is linked; unique and stable when present. | M03 §6.4 (v3.7 clarification 3); S1 HC-001 |
 | `email` | String | Required | Normalized; unique system-wide; MVP logical identity. | M03 §6.4; S1 HC-001 |
 | `role` | Enum(`CONTENT_STAFF`, `REVIEWER`) | Required | Fixed application role. | M03 §6.4 |
 | `status` | Enum(`INVITATION_PENDING`, `ACTIVE`, `DEACTIVATED`) | Required | Account lifecycle. | M03 §6.4 |
@@ -452,7 +453,7 @@ The composite logical identifier is `(routeId, contentVersion)`.
 | `routeEssentials.safetyWarning` | Object | Optional | Both-or-none `vi`/`en`. | M01 §5.3 |
 | `downloadedAt` | DateTime | Optional | UTC completed-download time when available. | M01 §5.3 |
 
-`resources[]` is represented by the canonical OfflineResource relationship below, not duplicated as an embedded attribute. `offlineRouteMap` and `routeEssentials` are embedded values without identity of their own (S1 HC-005).
+`resources[]` is represented by the canonical OfflineResource relationship below, not duplicated as an embedded attribute. `offlineRouteMap` and `routeEssentials` are embedded values without identity of their own (S1 HC-005). `offlineRouteMap.caption.vi` and `.en` expand the single `caption` row of M01 §5.3 (both-or-none `vi`/`en`); they add no rule.
 
 #### Relationships
 
@@ -482,7 +483,7 @@ The composite logical identifier is `(routeId, contentVersion, qrIdentifier)`; `
 | `routeId` | String | Required | Inherited owning package Route component. | S1 ENT-DATA-012; M01 §5.3/§6.4 |
 | `contentVersion` | Integer | Required | Inherited owning package version component. | S1 ENT-DATA-012; M01 §5.3/§6.4 |
 | `qrIdentifier` | String | Required | Logical lookup key; unique within the package; equals an identifier in `manifest`. | M01 §5.3, §6.4 |
-| `checkpointId` | String | Required | The `OFFLINE_REQUIRED` manifest checkpoint that holds the QR; not identity. | M01 §5.3 |
+| `checkpointId` | String | Required | The `OFFLINE_REQUIRED` manifest checkpoint that holds the QR; not identity; refers to a Checkpoint (REL-030). | M01 §5.3 |
 | `objectName` | Object | Required | `vi` and `en` both required, non-empty. | M01 §5.3 |
 | `localizedContent` | Object | Required | Contains both language branches. | M01 §5.3 |
 | `localizedContent.vi` | Object | Required | Vietnamese branch. | M01 §5.3 |
@@ -497,6 +498,7 @@ The composite logical identifier is `(routeId, contentVersion, qrIdentifier)`; `
 |---|---|---|---|---|
 | OfflinePackage | `1 : 1` from resource | `(routeId, contentVersion) → (OfflinePackage.routeId, contentVersion)` | Belongs to one package. | REL-012 |
 | QRCode | `1 : 1` from resource | `qrIdentifier → QRCode.qrIdentifier` | Local copy of one QR object. | REL-028 |
+| Checkpoint | `1 : 1` from resource | `checkpointId → Checkpoint.checkpointId` | Historical identity reference to the checkpoint that holds the QR; not ownership. | REL-030 |
 
 #### Lifecycle / Immutability
 
@@ -779,7 +781,7 @@ No outstanding decision. AuditRecord `revision` identifies a Revision by `revisi
 | REL-010 | Route | `1 : 0..1` | SelectedRouteContext | `SelectedRouteContext.routeId → Route.routeId` | Required on context | S3 REL-010; M01 §5.3 |
 | REL-011 | Route | `1 : 0..*` | OfflinePackage | `OfflinePackage.routeId → Route.routeId` | Required on package | S3 REL-011; M01 §5.3 |
 | REL-012 | OfflinePackage | `1 : 0..*` | OfflineResource | `(OfflineResource.routeId, contentVersion) → (OfflinePackage.routeId, contentVersion)` | Required on resource | S3 REL-012; M01 §5.3/§6.4 |
-| REL-013 | Checkpoint | `1 : 0..*` | OfflineResource | — | RETIRED (V2): resources are per QR; replaced by REL-028 | S3 REL-013; M01 §6.4 |
+| REL-013 | Checkpoint | `1 : 0..*` | OfflineResource | — | RETIRED (V2): resources are per QR; replaced by REL-028 and REL-030 | S3 REL-013; M01 §6.4 |
 | REL-014 | SelectedRouteContext | `1 : 0..1` at creation | PlaySession | `PlaySession.sourceHandoffId` copies `SelectedRouteContext.handoffId` | Lineage at creation; no continuing reference | S3 REL-014; M01 BR-M01-009; M02 §6.1 |
 | REL-015 | Route | `1 : 0..*` | PlaySession | `PlaySession.routeId → Route.routeId` | Required on session | S3 REL-015; M02 §6.1 |
 | REL-016 | PlaySession | `1 : 0..*` | CheckpointVisit | `CheckpointVisit.sessionId → PlaySession.sessionId` | Required on visit | S3 REL-016; M02 §6.2 |
@@ -796,6 +798,7 @@ No outstanding decision. AuditRecord `revision` identifies a Revision by `revisi
 | REL-027 | Revision | `0..* : 0..*` | Media | Media IDs in `Revision.content` (`thumbnailMediaId`, `galleryItems[].mediaId`, `routeMapMediaId`, `mediaItems[].mediaId`) → `Media.mediaId` | Optional references in revision content | S3 REL-027; M03 §6.1.1, §6.2.2, §6.4 |
 | REL-028 | QRCode | `1 : 0..*` | OfflineResource | `OfflineResource.qrIdentifier → QRCode.qrIdentifier` | Required on resource | S3 REL-028; M01 §5.3/§6.4 |
 | REL-029 | JourneySnapshot | `1 : 0..*` | SessionRecord | `(SessionRecord.routeId, contentVersion) → (JourneySnapshot.routeId, contentVersion)` | Required on record; validation reference | S3 REL-029; M03 §5.1, §6.4 |
+| REL-030 | Checkpoint | `1 : 0..*` | OfflineResource | `OfflineResource.checkpointId → Checkpoint.checkpointId` | Required on resource; historical identity reference across stores | S3 REL-030; M01 §5.3, §6.1 |
 
 REL-014 and REL-019 are historical lineage. Their identity values are source-supported, but they are not continuing parent references: M01 replaces the current handoff, and M03 retains an accepted record independently of browser-local M02 data. REL-004, REL-023 and REL-024–REL-026 use a typed polymorphic reference (`ownerType`/`ownerId`, `subjectType`/`subjectId`); REL-022 and REL-027 are references inside `Revision.content`. DBML records these nine links in notes rather than `Ref` statements.
 
@@ -804,8 +807,8 @@ REL-014 and REL-019 are historical lineage. Their identity values are source-sup
 | Check | Result | Evidence |
 |---|---|---|
 | Canonical entity inventory and ownership | 16 entities: M01 = 4, M02 = 3, M03 = 9; each has one owner. CheckpointContent is retired. | §3; specs M01/M02/M03 §6; S1 Entity Dictionary. |
-| Relationship inventory and both directions | 29 REL IDs in this catalog and [S3 review](03-erd-review.md): 24 active and 5 retired (REL-001, 003, 008, 009, 013). 24 Mermaid edges in [canonical ERD](03-erd.mmd). S3 records the inverse reading and cardinality for each link. | REL-002, 004–007, 010–012, 014–029; [ERD preview](03-erd-preview.md) contains the same Mermaid body. |
-| DBML representation | 16 entity blocks and 15 `Ref` statements; nine links (REL-004, 014, 019, 022–027) are recorded as notes. Thus 15 + 9 = 24 active links. | [DBML](04-data-model.dbml) and §12. |
+| Relationship inventory and both directions | 30 REL IDs in this catalog and [S3 review](03-erd-review.md): 25 active and 5 retired (REL-001, 003, 008, 009, 013). 25 Mermaid edges in [canonical ERD](03-erd.mmd). S3 records the inverse reading and cardinality for each link. | REL-002, 004–007, 010–012, 014–030; [ERD preview](03-erd-preview.md) contains the same Mermaid body. |
+| DBML representation | 16 entity blocks and 16 `Ref` statements; nine links (REL-004, 014, 019, 022–027) are recorded as notes. Thus 16 + 9 = 25 active links. | [DBML](04-data-model.dbml) and §12. |
 | Many-to-many links | REL-022 (Route lists Checkpoint) and REL-027 (Revision references Media) are many-to-many through ordered/embedded references in `Revision.content`; no extra canonical join entity is approved. Session/checkpoint visits are CheckpointVisit; package/QR resources are OfflineResource. LanguagePreference intentionally has no relationship. | REL-012, 016, 017, 022, 027, 028; S3 §2; M01/M02 §6; M03 §6.4. |
 
 This is a structural check, not a claim that Mermaid or DBML rendered in a parser. Physical storage mapping belongs to the [physical schema](06-physical-schema.md), which has not been re-evaluated for V2. A new relation must update the catalog, ERD, visualization and this count together.
@@ -929,13 +932,13 @@ Seed fixtures are not part of the V2 documentation set (AGENTS.md §2); no seed 
 ## 12. DBML Representation and Validation
 
 - DBML parser/render validation was not run for this revision: no local DBML parser is available, and none was installed. Syntax/render result: NOT RUN.
-- Structural inventory of this revision: 16 tables with 250 attribute paths and 15 `Ref` statements; the nine remaining active S3 links (REL-004, 014, 019, 022–027) are recorded as notes. 15 + 9 = 24 active links.
+- Structural inventory of this revision: 16 tables with 250 attribute paths and 16 `Ref` statements; the nine remaining active S3 links (REL-004, 014, 019, 022–027) are recorded as notes. 16 + 9 = 25 active links.
 - Markdown-to-DBML comparison: every attribute path of §4 appears in the DBML table of the same entity with the same logical type category and presence (`Required` maps to DBML `not null`; Optional/Conditional remain nullable in the visualization). The Revision table lists the three content shapes with `content.` paths, annotated by `subjectType`. Because each `content.` path applies to one `subjectType` only, all of them stay nullable in the visualization, including paths that are Required within their own content shape.
 - The structural inventory and attribute comparison do not constitute a syntax/render PASS.
 
 Representation differences:
 
-1. DBML maps UUID/String/Integer/Decimal/Boolean/Date/DateTime to `uuid`/`varchar`/`int`/`decimal`/`boolean`/`date`/`timestamp` only for visualization, as requested. These are not final PostgreSQL selections.
+1. DBML maps UUID/String/Integer/Decimal/Boolean/Date/DateTime to `uuid`/`varchar`/`int`/`decimal`/`boolean`/`date`/`timestamp` only for visualization, as requested. These are not final PostgreSQL selections. The Physical Schema must not inherit these labels (for example `varchar`) as its type decisions.
 2. Embedded Object and Array paths are shown with quoted logical field names and logical custom type labels such as `Object` and `Array<Object>`; they are not mapped to JSON/JSONB and do not prescribe storage layout.
 3. `OfflinePackage.resources[]` is visualized through the canonical OfflinePackage–OfflineResource relationship rather than as a duplicated embedded DBML field.
 4. DBML composite `indexes { ... [pk] }` and `[unique]` blocks visualize approved logical identifiers only; they do not prescribe physical indexes.
@@ -952,7 +955,7 @@ Representation differences:
 | All source-supported attributes represented | PASS |
 | Logical types and presence reviewed | PASS |
 | Approved logical identifiers reviewed | PASS |
-| All 24 active S3 links represented (15 references, nine notes); 5 retired links recorded | PASS |
+| All 25 active S3 links represented (16 references, nine notes); 5 retired links recorded | PASS |
 | Frozen/historical values reviewed | PASS |
 | Delete behavior reviewed | PASS |
 | Enum/lifecycle transitions reviewed | PASS |

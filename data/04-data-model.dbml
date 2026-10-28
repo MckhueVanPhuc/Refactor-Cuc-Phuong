@@ -332,7 +332,7 @@ Table OfflineResource {
   routeId varchar [not null]
   contentVersion int [not null]
   qrIdentifier varchar [not null]
-  checkpointId varchar [not null, note: 'OFFLINE_REQUIRED manifest checkpoint holding the QR; not identity']
+  checkpointId varchar [not null, note: 'OFFLINE_REQUIRED manifest checkpoint holding the QR; not identity (REL-030)']
   objectName Object [not null, note: 'vi and en required, non-empty']
   localizedContent Object [not null]
   "localizedContent.vi" Object [not null]
@@ -495,6 +495,7 @@ Ref: SelectedRouteContext.routeId - Route.routeId
 Ref: OfflinePackage.routeId > Route.routeId
 Ref: OfflineResource.(routeId, contentVersion) > OfflinePackage.(routeId, contentVersion)
 Ref: OfflineResource.qrIdentifier > QRCode.qrIdentifier
+Ref: OfflineResource.checkpointId > Checkpoint.checkpointId
 Ref: PlaySession.routeId > Route.routeId
 Ref: CheckpointVisit.sessionId > PlaySession.sessionId
 Ref: CheckpointVisit.checkpointId > Checkpoint.checkpointId

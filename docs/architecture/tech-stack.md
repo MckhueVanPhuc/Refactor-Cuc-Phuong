@@ -39,7 +39,7 @@ Các lựa chọn frontend bổ sung hiện hành (**Selected — not implemente
 | React state/hooks/context | UI state tạm thời, language/session view | M01–M03 | Dexie sở hữu persistent state theo target design; không thêm Redux/Zustand hoặc cache server thứ hai | Selected — not implemented |
 | `@supabase/supabase-js` | Auth, Data API, Storage và function calls | M01–M03 | Một SDK cho platform đã chọn | Selected — not implemented |
 | `@zxing/browser` + `@zxing/library` | Decode QR từ camera; lazy-load scanner | M02 | Không phụ thuộc duy nhất vào browser BarcodeDetector | Selected — not implemented |
-| QR code generation library | Sinh ảnh mã QR để in (SVG và PNG ≥ 1024 px, mức sửa lỗi Q, lề 4 ô) chứa link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` | M03 | Spec M03 BR-M03-B04/B05 yêu cầu ảnh in; [NEEDS CLARIFICATION: thư viện cụ thể chưa được nhóm chốt] | Selected — not implemented |
+| `qrcode` (node-qrcode) 1.5.x + `@types/qrcode` | Sinh ảnh mã QR để in chứa link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}`: SVG qua `toString({ type: 'svg' })`, PNG qua `toDataURL`/canvas với `width` ≥ 1024, `errorCorrectionLevel: 'Q'`, `margin: 4`; dòng "Mã …{6 ký tự}", dòng cảnh báo offline và dấu bản thử do M03 vẽ thêm quanh mã | M03 | Spec M03 BR-M03-B04/B05; MIT, chạy trong trình duyệt (không cần server), có sẵn SVG và PNG với mức sửa lỗi và lề cấu hình được; chỉ lazy-load ở màn điểm tham quan của M03. Phiên bản kiểm tra trên npm registry ngày 2026-10-28: 1.5.4 | Selected — not implemented |
 
 Dữ liệu domain bền vững nằm trong Dexie/Postgres; Context chỉ giữ UI state hoặc view của dữ liệu đó. Server calls dùng typed adapters với loading/error/retry rõ ràng.
 

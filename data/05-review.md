@@ -5,63 +5,75 @@
 | Field | Value |
 |---|---|
 | Session | 5 — Data Modeling |
-| Stage | S6 — Quality Go / No-Go Review |
-| Behavioral baseline | [Spec M01](../docs/spec/spec-M01.md), [Spec M02](../docs/spec/spec-M02.md), [Spec M03](../docs/spec/spec-M03.md) |
-| Reviewed artifacts | [S1 Entity Dictionary](01-entity-dictionary.md), [S2 CRUD Matrix](02-crud-matrix.md), [S3 ERD](03-erd.mmd), [S3 Review](03-erd-review.md), [S4 Logical Model](04-data-model.md), [S4 DBML](04-data-model.dbml), [S5 CSV package](seed/scenario-coverage.csv) |
-| External process guide | `1790150794938_Data Model.pdf`, pp. 23–33; guidance for review, not a source of product behavior |
-| Status | PASS — S6 complete; ready for physical schema/storage design |
+| Stage | S6 — Quality Go / No-Go Review (V2: logical-model and Data Acceptance Criteria review gate) |
+| Behavioral baseline | [Spec M01](../docs/spec/spec-M01.md) v3.2 (clarification 2), [Spec M02](../docs/spec/spec-M02.md) v3.3, [Spec M03](../docs/spec/spec-M03.md) v3.7 (clarification 4) |
+| Reviewed artifacts | [S1 Entity Dictionary](01-entity-dictionary.md), [S2 CRUD Matrix](02-crud-matrix.md), [S3 ERD](03-erd.mmd), [S3 Preview](03-erd-preview.md), [S3 Review](03-erd-review.md), [S4 Logical Model](04-data-model.md), [S4 DBML](04-data-model.dbml), [Data Acceptance Criteria](08-data-acceptance-criteria.md) |
+| Process reference | [Runbook](../M03_Documentation_Refactor_Runbook_v2.md) §7 (P9), §7.2 and §7.3; hosting and test-data policy in Runbook §1.3 |
+| Baseline history | The V1 review (based on the V1 specs, a 17-file seed package and executed storage checks) is superseded. No V1 conclusion or number is reused here; every figure below was recounted from the V2 artifacts. |
+| Status | PASS — S6 (V2) review accepted 2026-10-28; ready for physical schema design, with the NOT RUN items listed in §5 |
 
-The three module specs own behavior and logical contracts. Final logical decisions are recorded in M03 §6.4 and summarized in §4 below. Physical table/column names, storage types, indexes, migrations and policy syntax belong to the next design stage. The repository remains documentation-first.
+The three module specs own behavior and logical contracts. This review judges whether S1–S4 and the DAC are good enough to start the Physical Schema; it adds no product requirement. Physical table/column names, storage types, indexes, migrations and policy syntax belong to the next stage. The repository remains documentation-only.
 
 ## 2. Stage Evidence and Gate Record
 
 | Stage | Evidence | Review result |
 |---|---|---|
-| S0 input pre-flight | S1 §1–2 maps FUNCTIONS, FIELDS, ENTITIES, RULES, SCENARIOS and FLOWS to the three specs/function lists. Contract fields carry logical types and Required/Optional/Conditional presence; stable FN/FR IDs and stored-data rules exist. | PASS for the current three-module baseline. No consolidated spec document is assumed. |
-| S1 entity consolidation | S1 Table A contains 16 canonical entities; Table B keeps `AdministrativeRevision` implied; Table C records HC-001–HC-004. Human Gate 1 acceptance is recorded in S1 §9. | PASS. No new canonical entity was added by this repair. |
-| S2 CRUD/anomalies | S2 has 25 FN rows × 16 entity columns. Recount: C=25, R=73, U=18, D=2. Required anomaly categories are reported; `ANOM-S2-001` is accepted as intentional append-only audit behavior. Metadata and final S2 gate agree. | PASS; all anomaly dispositions are final. |
-| S3 conceptual ERD | 21 confirmed links are cataloged/drawn; REL-014 and REL-019 are explicitly time-bound lineage. REL-021 has an optional predecessor and zero or many successors. The preview Mermaid block matches `03-erd.mmd`. | PASS; both directions of every relationship are resolved. |
-| S4 logical model | All 16 canonical entities and 160 logical attribute paths remain modeled with source references. Freeze, delete, enum and integrity reviews are present. DBML contains 16 entity blocks; REL-014/REL-019 are notes instead of ongoing `Ref` links. | Logical review complete. Relational normalization and physical keys are not asserted by this mixed backend/local logical model. |
-| S5 seed package | 17 CSV files contain 95 data records, including 11 scenario rows: 5 `ORD`, 1 `BND`, 1 `EMPTY`, 4 `EXC`. `Spec refs` maps every scenario to existing FR IDs. The reproducibility/integrity script validates headers, references, selected business invariants and byte output in a temporary directory. | Fixture validation PASS. Subsequent migrations and runtime checks are recorded in [Storage Validation](07-storage-validation.md). |
-
-The guide's “≥5 ordinary rows” is applied to the seed package's ordinary scenario category. Applying it independently to every CSV would conflict with the source-declared singleton `LanguagePreference` and current `SelectedRouteContext` constraints (M01 §6.4). `Rows Runnable = YES` in the coverage CSV means the referenced fixture rows exist; it is not evidence that a database loader or end-to-end scenario was executed.
+| S0 input pre-flight | S1 §1–2 maps functions, fields, entities, rules, scenarios and flows to the specs. Function lists: M01 = 7 FN / 50 SF, M02 = 8 FN / 55 SF, M03 = 11 FN / 113 SF (26 FN, 218 SF). Every cited FR/BR/SF/FN ID resolves in the specs or function lists; only intentional historical mentions of retired IDs remain (SF-M03-008-13 in S2, BR-M03-001…020 in S4 §9.1). | PASS |
+| S1 entity consolidation | 16 canonical entities (M01 = 4, M02 = 3, M03 = 9): ENT-DATA-001–003 and 005–017; ENT-DATA-004 is retired and not reused. HC-001–HC-007 are resolved or superseded. | PASS |
+| S2 CRUD/anomalies | 26 FN rows × 16 entity columns. Recount: C = 31, R = 98, U = 27, D = 2. The matrix agrees with every evidence table (0 mismatches). The only D operations are the confirmed M01 package/resource deletions. `ANOM-S2-001` is resolved. | PASS after corrections RV-003 and RV-007 |
+| S3 conceptual ERD | 30 REL IDs: 25 active, 5 retired (REL-001, 003, 008, 009, 013). `03-erd.mmd` draws 25 edges and 16 entities; the preview Mermaid block is identical to the source. Both directions of every active relationship are catalogued; REL-014 and REL-019 are lineage, REL-029 is a validation reference. | PASS after RV-002 |
+| S4 logical model | 16 entities and 250 attribute paths. DBML has 16 tables, the same 250 paths per entity, 16 `Ref` statements and 9 links kept as notes (16 + 9 = 25 active links). Types and presence of the contract entities equal the spec tables. | PASS |
+| DAC | 118 criteria (M01 = 18, M02 = 11, M03 = 89); `SOURCE-BACKED` = 118, `TBD-HUMAN` = 0, no `TECHNICAL-ONLY` or `DEPRECATED` rows. 243 of 250 S4 paths have at least one criterion; the other 7 are explicit "no source rule beyond S4 type/presence". The 27 numeric constants named in the DAC equal the values in M03 §5.3. T1–T8 are all resolved. | PASS after RV-004–RV-006 |
 
 ## 3. S6 Quality Assessment
 
 | Criterion | Result | Evidence and limit |
 |---|---|---|
-| Completeness | PASS for logical scope | 16/16 canonical entities are represented; the M01/M02/M03 field inventory and the 16 entity CSV headers align with S4. Transport/view/report concepts remain distinct from canonical entities. Physical storage mapping is a later deliverable. |
-| Correctness | PASS | `R-ANCIENT-TREE` uses `TIME_VUA` for 180 minutes (M01 §5.3; M03 §5.1), and the seed checker enforces the declared time bands. Historical handoff and accepted-session lineage do not imply a continuing parent reference. REL-021 and MVP retention are finalized in M03 §6.4. |
-| Minimality | PASS | The S1 entity set remains 16; `SessionSyncRecord`, published content, frozen manifests and report outputs are not promoted into new entities. No physical convenience field was added. |
-| Readability | PASS at source level | S3 keeps only entity links and distinguishes lineage in the relationship catalog; S4 keeps attribute detail and explains DBML representation limits. Mermaid render was not revalidated in this review. |
-| Extensibility | PASS for MVP | Versioned snapshots/packages and immutable session copies preserve history. Stable logical identities remain unchanged; M03 data is retained without MVP hard-delete/purge. Future product scope requires a new specification change. |
-| Integration | PASS for declared contracts | M03→M01 route/snapshot, M01→M02 preference/handoff/ready package, M03→M02 live content, and M02→M03 `SessionSyncRecord` remain aligned. M03 `SessionRecord` survives independently of browser-local M02 data. |
-| Traceability | PASS for modeled scope | S4 attribute rows cite source sections; S3 links cite S1/spec; S2 cells cite FN/FR; S5 scenario rows now cite existing FR IDs. The external guide was not used to invent a product field or rule. |
+| Completeness | PASS | 16/16 canonical entities modeled with owner, identity, lifecycle and source references; 26/26 functions have CRUD coverage; no function without an entity and no entity without a function. |
+| Correctness | PASS | Enums, lifecycles, presence and the 27 DAC constants match the specs. M03 §6.4 now states that `AdminAccount.userId` is unique when present, so S1, S4, DBML and DAC-M03-070 are source-backed (RV-001). |
+| Minimality | PASS | No entity, field, relationship or rule without a source. `SessionSyncRecord`, published content, frozen manifests and report outputs are not promoted to entities. RecommendationContext is a transient context (HC-007). |
+| Readability | PASS at source level | Catalogs and tables are consistent; link check of the reviewed files found no broken relative link. Mermaid render and DBML parse: NOT RUN (§5). |
+| Extensibility | PASS for MVP | Immutable snapshots, revisions and frozen session copies preserve history; M03 retains all canonical records without hard-delete or purge (DEC-S6-002). Future scope needs a spec change. |
+| Integration | PASS | The five producer/consumer contract pairs (JourneySnapshot, Published Route, SelectedRouteContext v3, SessionSyncRecord, Live QR lookup) are identical in field names, types and presence across M01, M02 and M03. `SessionSyncRecord` (transport) and `SessionRecord` (M03 entity) stay distinct. |
+| Traceability | PASS | S4 rows cite spec sections; S3 links cite S1/spec; S2 cells cite FN/FR/SF; DAC rows cite spec sections and BR IDs; every MSG key used by the DAC exists in M03 §5.6. |
+| DAC coverage | PASS | See §2 DAC row. DAC creates no requirement: every limit is a spec constant. Boundary classes are listed per criterion in DAC §5.2; evidence is PENDING (§5). |
+| Count consistency | PASS | S1, S2, S3, S4 and DAC agree: 16 entities, 26 FN, 218 SF, 30/25/5 REL, 25 ERD edges, 250 S4 paths = 250 DBML paths, 118 DAC. |
+| Hard rules (AGENTS §5) | PASS | No invented type, key, nullability, uniqueness, cardinality or delete behavior. Archive, withdraw, revoke and discard are not D. DBML type labels are visualization only (S4 §12). |
 
 ## 4. Finalized Decisions
 
 | ID | Status | Source and impact | Final decision |
 |---|---|---|---|
-| CL-S4-001 / REL-021 | RESOLVED | M03 §6.4; S3 catalog/ERD and S4 model/DBML. | Zero or one same-Route predecessor per snapshot; zero or many successors per predecessor. No inverse uniqueness. Atomic publication and at most one active version per Route remain required. |
-| DEC-S6-002 | RESOLVED | M03 §6.4; S4 delete/integrity review. | Retain all M03 canonical records in MVP, including SessionRecord visits; no hard-delete or automatic purge. M01 package deletion and browser-local lifecycle remain unchanged. |
-| HG-S6-001 | CLOSED | S1 naming/identity decisions, S2 anomaly dispositions, S3 forward/reverse catalog, S5 fixture checks and the seven S6 quality criteria. | All logical review decisions are complete. S6 passes for schema design. This is the final artifact review result; it does not assert separate reviewer signatures or executed runtime tests. |
+| RV-001 | RESOLVED | M03 §6.4 (v3.7 clarification 3); S1 HC-001, S4 AdminAccount, DBML, DAC-M03-070. | `AdminAccount.userId` is unique system-wide when present (one provider identity per account). Derived artifacts keep "unique", now source-backed. |
+| RV-002 | RESOLVED | M01 §6.1 ER versus S3 REL-013; S3 REL-011 and REL-030; S4 and DBML. | REL-013 stays retired. REL-030 `Checkpoint 1 : 0..* OfflineResource` (via `checkpointId`) follows the M01 ER; REL-028 stays for the QR side. REL-011 stays `1 : 0..*`; the M01 `has_active` link is its active subset. |
+| RV-003 | RESOLVED | S2 FN-M03-003 (SF-M03-003-04) and FN-M03-006 (SF-M03-006-12) name an audit effect. | `AuditRecord` C added to both functions; S2 totals and ownership table corrected; S1 §8 aligned. SF-M03-004-04 is not assigned a JourneySnapshot C (it only mentions replacement versions as a guard). |
+| RV-004 | RESOLVED | DAC §3 header (count of rows outside S4) and DAC-M03-089. | Nine rows are outside S4 (DAC-M03-081–086, DAC-M01-017, DAC-M01-018, DAC-M02-011). DAC-M03-089 added; total 118. |
+| RV-005 | RESOLVED | Runbook §7.3.4 and §7.3.9; DAC §5.2. | A boundary matrix per criterion is part of the DAC. Evidence is PENDING downstream; no evidence is claimed. |
+| RV-006 | RESOLVED | S1 HC-007; M01 §6.2, §6.4. | RecommendationContext is a transient context, not a canonical entity. |
+| RV-007 | RESOLVED | M03 v3.7 clarification 4 (§5.6 message catalog, §5.1 RPT-02 `routeName`, BR-M03-J07, BR-M03-K06); S2 FN-M03-010; S1 Revision; DAC-M03-068, 085, 086. | Downstream sync after the message catalog was completed, sign-out was added and RPT-02 gained a display `routeName`. S2: FN-M03-010 gets a direct read of Revision (R = 98; C, U, D unchanged). No entity, field, relationship, S4 path, DBML path or DAC count changes (still 16 entities, 26 FN, 218 SF, 118 DAC). Sign-out is part of SF-M03-008-01 and writes no audit line; SF-M03-008-13 stays retired. Reviewed by reading and cross-checking IDs; no parser or renderer was run (NOT RUN). |
+| DEC-T5–T7 | RESOLVED | M03 §5.3, §5.1, §6.1.1, BR-M03-E02, T09, J05, L01, §10 (v3.7 clarification 3); M01 §5.3; DAC-M03-032, 034, 041, 085, 089. | Provisional limits: `ROUTE_DISTANCE_MAX_KM` 100 (one decimal place), `ROUTE_DURATION_MAX_MIN` 1440, `ROUTE_CHECKPOINTS_MAX_ITEMS` 30, `CHECKPOINT_QR_MAX_ITEMS` 20 (not `THU_HOI`), `REPORT_MAX_SPAN_DAYS` 366; tag values distinct; no separate limit on visits per session. |
+| DEC-S6-002 | RESOLVED | M03 §6.4, §10. | Retain all M03 canonical records in MVP; M03 §10 wording aligned. |
+| HG-S6-001 | CLOSED | All criteria in §3. | The logical-model and DAC review gate passes for Physical Schema design. This is an artifact review result; it does not assert reviewer signatures or executed runtime tests. |
 
-There are no outstanding logical-model decisions or clarification items. The 16 canonical entities and their spec-declared logical identities are final for this MVP baseline; no additional business attribute is needed to manufacture a natural key. Relational normalization and physical representation are deliverables of the next stage.
+There are no blocking `TBD-HUMAN` items and no `[NEEDS CLARIFICATION]` markers in the specs, S1–S4 or the DAC.
 
 ## 5. Validation Performed and Limits
 
 | Check | Result |
 |---|---|
-| `tools/generate_seed.py` with local Python 3.14 | PASS: 17 CSV, 95 records, byte-for-byte temporary reproduction and the listed fixture integrity assertions. |
-| Recount S2 CRUD, S3 relationship IDs/edges, DBML table/reference inventory, Mermaid source/preview equality and S4/CSV field names | PASS by read-only structural scripts; counts and matching are documented here and in the source artifacts. |
+| Recount of S2 CRUD, S3 REL IDs and ERD edges, DBML tables/paths/`Ref`, S4 paths, DAC rows and coverage | PASS by read-only structural scripts; the counts are stated in §2. |
+| Cross-checks: ID existence, producer/consumer contract tables, S4 types/presence against spec tables, DAC constants, MSG keys, relative links of the reviewed files | PASS. |
+| Mermaid source/preview equality and structural edge check (25 edges, 16 entities) | PASS as a structural check only. |
 | `git diff --check` | PASS. |
-| DBML parser and Mermaid renderer for this revision | NOT RUN: neither `@dbml/core` nor `mermaid` is locally available. The earlier S4 parser result applies only to its earlier revision. |
-| Database load, FK enforcement, atomicity, idempotency and browser/backend integration | Outside the S6 logical review. Subsequent migration/seed and transaction results are recorded in [Storage Validation](07-storage-validation.md); CSV assertions alone do not prove runtime guarantees. |
+| DBML parser | NOT RUN: no local `@dbml/core`; nothing was installed. |
+| Mermaid renderer | NOT RUN: no local `mermaid`/`mmdc`. |
+| Boundary-case evidence for DAC §5.2 | NOT RUN: PENDING. The V2 documentation set has no test or fixture artifacts; the cases run locally on synthetic data in a later implementation phase. |
+| Seed, storage and runtime validation | Outside the V2 documentation set. No remote action was taken; the single Supabase and single Vercel project are untouched (Runbook §1.3). |
 
 ## 6. S6 Decision and Next Design Boundary
 
-**S6 REVIEW RESULT: PASS — GO for physical schema/storage design.** Logical review and all recorded decision items are complete.
+**S6 REVIEW RESULT: PASS — GO for physical schema design.** Findings RV-001–RV-006 and the limits T5–T7 were resolved in the canonical specs first and then synchronized to S1–S4 and the DAC. No blocking item remains.
 
-The next design maps the nine M03-owned canonical entities to backend persistence and the seven M01/M02-owned canonical entities to browser-local persistence according to [system configuration](../docs/architecture/system-configuration.md). It defines relational normalization, physical names/types/keys, enforceable references versus historical IDs, migration ordering, privacy/authorization and seed loading with source traceability. Those physical artifacts precede backend implementation and are outside this S6 change set.
+The next design maps the nine M03-owned canonical entities to the single Supabase backend and the seven M01/M02-owned entities to browser-local persistence according to [system configuration](../docs/architecture/system-configuration.md). [06-physical-schema.md](06-physical-schema.md) was rebuilt from S4 and the DAC after this gate (2026-10-28). It does not inherit the DBML type labels, carries the spec limits of M03 §5.3 only as named constants, adds no seed data and applies nothing to the shared backend (Runbook §1.3). It is a design baseline, not an implemented or tested schema; its three former open items were decided and recorded in M03 (§14).
 
-The subsequent physical design is available in [06-physical-schema.md](06-physical-schema.md), with executable migrations, local persistence and the validation scope recorded separately.
+Artifacts outside this review that still carry stale content: the screens (not re-synchronized to the new limits and messages) and the constitution's Sync Impact Report. They are not changed here.

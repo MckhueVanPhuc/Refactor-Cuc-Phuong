@@ -2,9 +2,9 @@
 
 ## 1. Baseline và phạm vi
 
-- Baseline: [Spec M02 v3.2](../../docs/spec/spec-M02.md), [Function List M02](../../docs/function%20list/function-list-M02.md).
+- Baseline: [Spec M02 v3.3](../../docs/spec/spec-M02.md), [Function List M02](../../docs/function%20list/function-list-M02.md).
 - Release priority: [MVP Scope](../../MVP-Scope.md). Priority dưới đây theo function scope; không thay requirement trong spec.
-- Cập nhật: 2026-10-27. Status: screen inventory đồng bộ baseline v3.2; chưa phải screen specification/mockup hoặc route implementation.
+- Cập nhật: 2026-10-28. Status: screen inventory và screen specification (Draft) đồng bộ baseline v3.3; chưa có mockup hoặc route implementation.
 - Quy ước chung: [Screen index](README.md).
 - Giữ ID cũ để truy vết; cách gộp screen là quyết định UI decomposition, không giả định spec yêu cầu đúng số trang này.
 
@@ -115,7 +115,7 @@ Screen suffix trong bảng mang prefix `SCR-M02-`; background coverage được 
 
 | Screen ID | File | Trạng thái |
 |---|---|---|
-| SCR-M02-001 | [screen-spec-SCR-M02-001.md](../screen-spec/M02/screen-spec-SCR-M02-001.md) | Lỗi thời so với Spec M02 v3.2; cập nhật ở bước sau |
-| SCR-M02-002 | [screen-spec-SCR-M02-002.md](../screen-spec/M02/screen-spec-SCR-M02-002.md) | Lỗi thời so với Spec M02 v3.2; cập nhật ở bước sau |
-| SCR-M02-003 | [screen-spec-SCR-M02-003.md](../screen-spec/M02/screen-spec-SCR-M02-003.md) | Lỗi thời so với Spec M02 v3.2; cập nhật ở bước sau |
-| SCR-M02-004 | Chưa có | Tạo ở bước cập nhật screen spec |
+| SCR-M02-001 | [screen-spec-SCR-M02-001.md](../screen-spec/M02/screen-spec-SCR-M02-001.md) | Draft — đồng bộ Spec M02 v3.3 |
+| SCR-M02-002 | [screen-spec-SCR-M02-002.md](../screen-spec/M02/screen-spec-SCR-M02-002.md) | Draft — đồng bộ Spec M02 v3.3 |
+| SCR-M02-003 | [screen-spec-SCR-M02-003.md](../screen-spec/M02/screen-spec-SCR-M02-003.md) | Draft — đồng bộ Spec M02 v3.3 |
+| SCR-M02-004 | [screen-spec-SCR-M02-004.md](../screen-spec/M02/screen-spec-SCR-M02-004.md) | Draft — đồng bộ Spec M02 v3.3 |

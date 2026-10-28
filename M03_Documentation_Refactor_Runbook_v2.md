@@ -10,6 +10,8 @@
 | Ngày lập runbook | 19/10/2026 |
 | Phạm vi | Refactor tài liệu; không sửa application code hoặc tests |
 | Trọng tâm | Spec-M03 → M01/M02 → Scope/Function → Architecture → Screen → Data/Database (S1→S4→DAC→review→physical) → Complete & Validate Implementation Documentation → Final audit |
+| Hosting & test data (hard rule) | Đúng một Vercel Project + một Supabase Cloud Project (Shared Backend); không seed, không reset, không destructive test trên Shared Backend; dữ liệu chỉ dùng để test, synthetic và chạy local — xem §1.3 |
+| Cập nhật V2 | 2026-10-28: đồng bộ với environment.md (Single Cloud Application Environment) và AGENTS.md §2 (bộ tài liệu V2 kết thúc ở Physical Schema) |
 
 | Nguyên tắc cốt lõi: Spec canonical phải được sửa trước. Mọi artifact dẫn xuất chỉ được đồng bộ sau khi ý nghĩa của Spec-M03 và ảnh hưởng liên module đã được chốt. Không dùng downstream document để “suy ngược” requirement mới vào spec. |
 | --- |
@@ -29,7 +31,7 @@ Mục tiêu của tài liệu này là biến việc “sửa Spec-M03” thành
 | REVIEW / CONDITIONAL | Chỉ sai nếu thay đổi chạm đúng ownership/contract/field/state mà artifact mô tả. | Đọc, quyết định CHANGE hoặc NO CHANGE và ghi lý do. |
 | NO CHANGE | Ngoài phạm vi refactor này hoặc artifact lịch sử/template/code/test. | Không sửa; chỉ ghi nhận nếu phát hiện stale risk liên quan. |
 
-Điểm đặc biệt với database: không đi thẳng từ Spec-M03 sang physical schema. Luồng dữ liệu phải đi theo thứ tự S1 Entity Dictionary → S2 CRUD Matrix → S3 ERD → S4 Logical Model/DBML → hoàn tất Data Acceptance Criteria (DAC) → logical-model/DAC review gate → Physical Schema → Field Mapping → Seed/edge-case evidence → Storage Validation evidence nếu validation thực sự đã chạy. Nếu upstream chưa chốt, không “đoán” downstream.
+Điểm đặc biệt với database: không đi thẳng từ Spec-M03 sang physical schema. Luồng dữ liệu phải đi theo thứ tự S1 Entity Dictionary → S2 CRUD Matrix → S3 ERD → S4 Logical Model/DBML → hoàn tất Data Acceptance Criteria (DAC) → logical-model/DAC review gate → Physical Schema. Physical Schema là điểm kết thúc của bộ tài liệu V2 (AGENTS.md §2): Field Mapping, Seed/edge-case và Storage Validation không thuộc V2 và, nếu sau này được yêu cầu, phải theo chính sách hosting và test data ở §1.3. Nếu upstream chưa chốt, không “đoán” downstream.
 
 **Bổ sung bắt buộc trong workflow dữ liệu:** repository cần một cross-project Data Acceptance Criteria catalog tại `data/08-data-acceptance-criteria.md`. Đây là derived validation catalog, không phải nguồn requirement độc lập. Trong các pha canonical-spec phải nhận diện validation constraint và open product decision; sau S4 mới đối chiếu chúng ở field level với logical model để hoàn tất DAC. Chỉ criterion có canonical source mới được coi là accepted; khoảng trống phải ghi `TBD-HUMAN`, và quyết định blocking của changed field phải được giải quyết trong canonical spec trước review gate.
 
@@ -261,7 +263,7 @@ Runbook này áp dụng khi thay đổi behavioral/contract baseline của M03 h
 
 - Screens: screens/screen list/*.md và screens/screen-spec/M01|M02|M03/*.md khi state/field/action/role/flow thay đổi.
 
-- Data/database docs: data/01…07, **data/08-data-acceptance-criteria.md (artifact mới cần tạo)**, data/schema/field-mapping.md và seed fixture/evidence khi rules/fields/entities/contracts thay đổi.
+- Data/database docs (bộ V2): data/01…06 và **data/08-data-acceptance-criteria.md**. data/07-storage-validation.md, data/schema/field-mapping.md và data/seed/** không thuộc bộ V2 (AGENTS.md §2; chính sách ở §1.3); nếu còn tồn tại như dữ liệu lịch sử V1 thì không sửa và chỉ ghi nhận stale risk.
 
 - Implementation documentation: specs/001-m01-implementation, specs/002-m02-implementation, specs/003-m03-implementation và contracts dưới từng module, nhưng chỉ phần tài liệu.
 
@@ -281,6 +283,23 @@ Runbook này áp dụng khi thay đổi behavioral/contract baseline của M03 h
 | Prototype/visual code | design-prototypes/**; screens/html/**; capture-*.js và generated screenshots | Implementation/prototype; không thuộc refactor tài liệu lần này. |
 
 Ngoại lệ: `supabase/README.md` là tài liệu, không phải code. Chỉ REVIEW nếu thay đổi M03 làm đổi quy trình database/Auth/seed/deployment. Không vì README nằm trong `supabase/` mà mặc định loại bỏ.
+
+## 1.3 Hosting và chính sách dữ liệu test (hard rule)
+
+Chính sách này lấy từ [docs/architecture/environment.md](docs/architecture/environment.md) và [system-configuration.md](docs/architecture/system-configuration.md); mọi pha của runbook phải tuân thủ và không được làm yếu nó.
+
+| Quy tắc | Nội dung |
+| --- | --- |
+| Hosting | Đúng **một Single Vercel Project** (website/PWA) và đúng **một Single Supabase Cloud Project** (Shared Backend cho M01/M02/M03). Không tạo Supabase/Vercel project thứ hai cho staging, preview, test isolation hay seed rehearsal. Test isolation chạy **local**. |
+| Dữ liệu test | Chỉ dùng để test: synthetic, deterministic và disposable. Không sao chép operational data, Auth identity, secret hoặc dữ liệu người dùng thật vào test data hoặc repository. |
+| Nơi chạy test | Local Development Workstation hoặc runtime cô lập/ephemeral. Auth/RLS/Storage/Edge cần runtime cô lập; nếu không có thì ghi `NOT RUN`, không chuyển sang Shared Backend. |
+| Shared Backend (cloud) | **Cấm** seed, remote reset, load dữ liệu test hàng loạt và mọi destructive test (Auth/RLS/Storage/Edge/database). Chỉ cho phép smoke check **non-destructive**, có owner, không ghi đè hay xóa dữ liệu thật và không làm lệch report. |
+| Migration | Chỉ apply vào single linked project sau approval riêng; không sửa migration history đã apply; operator kiểm tra project ref trước mọi remote command. |
+| Repository V2 | Documentation-only: không chứa seed script, CSV fixture, migration, Edge Function, test hay cấu hình runtime (AGENTS.md §2). Runbook không yêu cầu tạo chúng. |
+| Boundary evidence | Boundary class trong DAC §5.2 là test case cho giai đoạn implementation sau này, chạy local trên dữ liệu synthetic. Trước khi chạy thật, trạng thái là `PENDING`/`NOT RUN`; không dùng evidence lịch sử V1 cho baseline mới. |
+| Bảo vệ hosting | Mọi lệnh có thể ghi vào cloud (deploy, `db push`, `db reset`, seed, thao tác Storage hàng loạt) phải có phê duyệt riêng của chủ dự án; mặc định đều bị cấm trong runbook này. |
+
+Nếu một yêu cầu cần dữ liệu mẫu để kiểm tra tài liệu, dùng ví dụ inline trong tài liệu hoặc fixture local tách khỏi repository; không đưa vào Shared Backend.
 
 # 2. Source of truth, precedence và stable identifiers
 
@@ -459,11 +478,11 @@ Thứ tự dưới đây là dependency order. Không “song song hóa” nhữ
 | **data/08-data-acceptance-criteria.md (NEW)** | Cross-project derived field/value acceptance catalog, hoàn tất sau S4 | Tạo trong refactor này. Reconcile canonical rules với logical fields khi field/type/presence/enum/range/length/format/array-size/uniqueness/cross-field rule đổi. Mọi criterion phải có source; thiếu source → `TBD-HUMAN`, không tự chọn số. |
 | data/05-review.md | Logical-model/DAC review gate | S1–S4 hoặc DAC baseline/counts/decisions change; review cả logical model và field-level acceptance coverage trước physical design; ghi conclusion mới, không silent patch. |
 | data/06-physical-schema.md | Physical persistence design | Approved logical model requires storage/schema mapping change. |
-| data/schema/field-mapping.md | Generated logical→physical mapping | Field mapping changes; regenerate, do not hand edit. |
-| data/seed/*.csv | Canonical fixture inputs | Field/rule/identity/enum/contract fixture needs matching source update. |
-| data/seed/edge-cases.json + edge-case-register.md | Generated evidence | BR/boundary/enum changed; regenerate, do not hand edit. |
-| data/seed/README.md | Seed package instructions/coverage | Counts, source fingerprint, generated artifact workflow change. |
-| data/07-storage-validation.md | Executed validation evidence | Only append/update after actual new validation; otherwise mark prior evidence as baseline-specific. |
+| data/schema/field-mapping.md | Generated logical→physical mapping | Ngoài bộ V2 (§1.3). Nếu tồn tại: artifact lịch sử V1, không sửa; chỉ regenerate khi implementation phase được yêu cầu. |
+| data/seed/*.csv | Fixture inputs | Ngoài bộ V2 (§1.3). Không tạo mới và không nạp vào Shared Backend; fixture test sau này là synthetic, local và disposable. |
+| data/seed/edge-cases.json + edge-case-register.md | Generated evidence | Ngoài bộ V2 (§1.3). Nếu tồn tại: lịch sử V1; generated artifact không hand-edit. |
+| data/seed/README.md | Seed package instructions/coverage | Ngoài bộ V2 (§1.3); không viết hướng dẫn seed Shared Backend. |
+| data/07-storage-validation.md | Executed validation evidence | Ngoài bộ V2 (§1.3). Chỉ ghi kết quả mới sau khi validation thực sự chạy trên runtime cô lập; evidence cũ là baseline-specific. |
 
 ## 6.5 Implementation documentation under specs/
 
@@ -590,9 +609,9 @@ Giữ producer/consumer ownership, canonical contract names và stable identifie
 | DAC — Field-level reconciliation | Approved S4 + canonical validation rules/open decisions đã nhận diện ở P1–P5 | `data/08-data-acceptance-criteria.md` | Mỗi changed field/rule có source hoặc explicit `TBD-HUMAN`? DAC có chỉ tổng hợp, không tạo requirement? |
 | Review — Logical-model/DAC gate | S1–S4 + DAC | `data/05-review.md` và gate decision | Entity/relationship/traceability/minimality/integration và DAC coverage có pass? Blocking `TBD-HUMAN` đã được sửa trong canonical spec chưa? |
 | Physical Schema | Approved S4 + DAC + review | `data/06-physical-schema.md` | Physical design có giữ logical semantics và không tự tạo business limit? |
-| Field Mapping | Approved physical schema | `data/schema/field-mapping.md` | Mapping có regenerate và trace về logical field không? |
-| Seed/edge-case evidence | Spec/S4/DAC/physical mapping | Canonical CSV + generated edge-case evidence | Fixture có matching source và boundary coverage? Generated output có regenerate thay vì hand-edit? |
-| Storage Validation evidence | New physical/seed baseline | `data/07-storage-validation.md` | Validation nào đã thực sự chạy? Phần nào vẫn `NOT RUN`? Không dùng evidence lịch sử cho baseline mới. |
+| Field Mapping | Approved physical schema | `data/schema/field-mapping.md` | **Ngoài bộ V2** (§1.3). Chỉ khi implementation phase được yêu cầu: mapping có regenerate và trace về logical field không? |
+| Seed/edge-case evidence | Spec/S4/DAC/physical mapping | **Ngoài bộ V2** (§1.3): không seed data. Test fixture sau này là synthetic, local, disposable | Fixture (nếu có) có matching source và boundary coverage? Không nạp vào Shared Backend. |
+| Storage Validation evidence | New physical baseline | `data/07-storage-validation.md` | **Ngoài bộ V2** (§1.3). Validation nào đã thực sự chạy trên runtime cô lập? Phần nào vẫn `NOT RUN`? Không dùng evidence lịch sử cho baseline mới. |
 
 ## 7.1 Hard rules cần giữ
 
@@ -618,9 +637,11 @@ Giữ producer/consumer ownership, canonical contract names và stable identifie
 
 - Generated mapping/edge-case artifacts không sửa tay.
 
+- Không seed, reset hay chạy destructive test trên Shared Backend; một Vercel Project và một Supabase Cloud Project là cố định; dữ liệu chỉ dùng để test và chạy local (§1.3).
+
 ## 7.2 Cách xử lý số đếm và logical-model/DAC review gate sau rebaseline
 
-Các con số hiện tại như 16 canonical entities, 21 relationship IDs, 17 CSV/95 records, 44 BR coverage hoặc các PASS result là property của baseline hiện tại. Nếu spec mới làm thay đổi các tập này, phải tái tính và cập nhật review/evidence; không giữ số cũ chỉ để tài liệu trông ổn định.
+Các con số như 16 canonical entities, 21 relationship IDs, 17 CSV/95 records, 44 BR coverage hoặc các PASS result là ví dụ của baseline V1 và không còn đúng cho V2 (V2 review: 16 entities, 30 REL IDs gồm 25 active, 118 DAC; không có CSV/seed). Chúng là property của baseline đang review. Nếu spec mới làm thay đổi các tập này, phải tái tính và cập nhật review/evidence; không giữ số cũ chỉ để tài liệu trông ổn định.
 
 ## 7.3 Data Acceptance Criteria — artifact mới bắt buộc cho toàn dự án
 
@@ -634,7 +655,7 @@ Tạo mới **`data/08-data-acceptance-criteria.md`** như một catalog kiểm 
 2. Human clarification/decision đã được ghi lại vào canonical spec.
 3. Layer 2 không có quyền tạo behavior: trong P9, S1–S4 biểu diễn logical structure trước; `data/08-data-acceptance-criteria.md` sau đó tổng hợp canonical acceptance rules và reconcile chúng với logical field/path.
 4. S1–S4 và DAC phải cùng pass logical-model/DAC review gate trước physical design.
-5. Physical schema, field mapping và seed evidence — downstream của review gate.
+5. Physical schema — downstream của review gate và là điểm kết thúc của bộ V2; field mapping, seed và storage evidence nằm ngoài bộ V2 (§1.3).
 6. Layer 3 Implementation Documentation — downstream của canonical và derived documentation đã ổn định.
 7. `data/07-storage-validation.md` — evidence đã thực sự chạy, không phải nơi đặt rule mới.
 
@@ -748,13 +769,13 @@ Khi phát hiện field chưa có acceptance limit, dùng đúng thứ tự sau:
 7. Sau S4, hoàn tất `data/08-data-acceptance-criteria.md` với exact source reference và reconcile rule với từng logical field/path.
 8. Nếu DAC reconciliation phát hiện requirement thiếu hoặc mâu thuẫn, quay lại canonical spec tương ứng, resolve rồi lặp lại các bước downstream bị ảnh hưởng.
 9. Chỉ cho logical model và DAC qua review gate khi không còn blocking `TBD-HUMAN` trên changed fields.
-10. Sau gate mới sync Physical Schema và regenerate Field Mapping nếu storage thực sự bị ảnh hưởng.
-11. Update seed/edge-case docs theo source mới; generated artifacts phải regenerate, không hand-edit.
-12. Không sửa `data/07-storage-validation.md` thành PASS mới nếu runtime validation chưa thực sự chạy.
+10. Sau gate mới sync Physical Schema; Field Mapping chỉ regenerate khi implementation phase được yêu cầu (§1.3).
+11. Không tạo hay cập nhật seed data cho Shared Backend. Test fixture (nếu implementation phase cần) là synthetic, local, disposable; generated artifacts phải regenerate, không hand-edit.
+12. Không sửa `data/07-storage-validation.md` thành PASS mới nếu validation chưa thực sự chạy trên runtime cô lập; không chạy validation destructive trên Shared Backend.
 
 ### 7.3.8 Boundary-case matrix bắt buộc cho mỗi criterion
 
-Khi criterion có min/max/length/range, DAC phải nói rõ boundary classes cần được cover trong seed/checklist/validation documentation sau này.
+Khi criterion có min/max/length/range, DAC phải nói rõ boundary classes (ma trận từng tiêu chí, DAC §5.2) cần được cover bởi test case local trên dữ liệu synthetic ở implementation phase sau này; không cần seed Shared Backend.
 
 | Criterion type | Boundary classes tối thiểu |
 | --- | --- |
@@ -783,7 +804,7 @@ Khi criterion có min/max/length/range, DAC phải nói rõ boundary classes c�
 - Current/frozen/historical values được phân biệt đúng.
 - Technical-only limits được gắn `TECHNICAL-ONLY`, không trình bày như business rule.
 - Boundary matrix đã có cho mọi criterion có range/length/date relationship.
-- Nếu spec đổi làm `SPEC_SHA256`/seed coverage stale, runbook phải ghi rõ cần regenerate/revalidate; không bypass fingerprint.
+- Nếu tồn tại fingerprint hoặc coverage của artifact V1 (`SPEC_SHA256`, seed) và spec đổi làm chúng stale, ghi rõ stale; không bypass fingerprint và không tạo lại seed để “làm xanh” (§1.3).
 - Data Acceptance Criteria update được liệt kê trong final change report.
 - DAC và S4 đã được review cùng nhau trước khi cho phép physical design tiếp tục.
 
@@ -801,8 +822,8 @@ Khi criterion có min/max/length/range, DAC phải nói rõ boundary classes c�
 SOURCE-BACKED | TBD-HUMAN | TECHNICAL-ONLY | N/A | DEPRECATED
 
 ## 3. Criteria catalog
-| DAC ID | Module | Entity/Contract | Field path / Rule | Type | Presence | Blank/Null | Allowed values/Format | Min | Max | Min len | Max len | Uniqueness | Cross-field/Normalization | Applies at | Source | Status | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| DAC ID | Module | Entity / Contract | Field path / Rule | Logical type | Presence | Null / absent | Blank / whitespace | Allowed values / format | Min / Max | Min length / Max length | Unit / precision | Uniqueness | Cross-field rule | Normalization | Error / reject behavior | Applies at | Source | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 ## 4. Open human decisions
 | Decision ID | Field(s) | Missing criterion | Why it matters | Affected modules/contracts | Required before | Status |
@@ -860,7 +881,7 @@ Repository có các skill dưới `.agents/skills`. H0–H2 phải resolve porta
 
 ## 8.2 Prompt gợi ý cho agent khi bắt đầu refactor
 
-| Read-only first. Do not edit code, tests, SQL migrations, Edge Functions/RPCs, runtime configuration, design-decisions, shared scripts/templates or historical evidence. 0) Run H0–H3: verify approved Change Brief, active Git baseline/worktree ownership, portable Python/skill availability, report root and ownership. 1) Before P0 and every Spec-Kit skill, set intended `SPECIFY_FEATURE_DIRECTORY`, run `check_prerequisites.py --json --paths-only`, verify `FEATURE_DIR`/`FEATURE_SPEC`/`IMPL_PLAN`/`TASKS`, and record evidence; branch name is not package selection. 2) Read AGENTS.md/constitution/canonical specs and classify C1–C6. 3) Keep Layer 1 canonical, Layer 2 derived and Layer 3 implementation authority distinct; business/product/contract clarification requires human approval and canonical update before Layer 3 integration. 4) Complete P1–P8 in order. 5) P9 stays S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema→Field Mapping→Seed evidence→Storage Validation evidence only if executed; never pass blocking `TBD-HUMAN`. 6) P10 re-inventories every file/contract in all three packages, then executes I1 clarify → I2 checklist/review → I3 plan → I4 tasks → I5 analyze sequentially per package with hooks, invocation/source version, input/output and changed-file evidence. 7) Complete `spec.md`, `research.md`, `plan.md`, `data-model.md`, actual contracts, `quickstart.md`, `tasks.md`; preserve correct content/task history and never use `NO CHANGE` to bypass gaps. 8) Supplement analyze with contract↔DAC, plan↔data-model and cross-module matrices; resolve blockers and rerun affected gates. 9) Store standardized reports under `docs/refactor-reports/<CHANGE_ID>/`, mark package READY/NOT READY/BLOCKED and do not execute tasks or claim runtime validation. 10) Preserve stable IDs/ownership/names. 11) End with P11 diff/exclusion audit and explicit handoff verdict; if end-to-end skills were not run, state `END-TO-END SKILL EXECUTION: NOT VALIDATED`. |
+| Read-only first. Do not edit code, tests, SQL migrations, Edge Functions/RPCs, runtime configuration, design-decisions, shared scripts/templates or historical evidence. 0) Run H0–H3: verify approved Change Brief, active Git baseline/worktree ownership, portable Python/skill availability, report root and ownership. 1) Before P0 and every Spec-Kit skill, set intended `SPECIFY_FEATURE_DIRECTORY`, run `check_prerequisites.py --json --paths-only`, verify `FEATURE_DIR`/`FEATURE_SPEC`/`IMPL_PLAN`/`TASKS`, and record evidence; branch name is not package selection. 2) Read AGENTS.md/constitution/canonical specs and classify C1–C6. 3) Keep Layer 1 canonical, Layer 2 derived and Layer 3 implementation authority distinct; business/product/contract clarification requires human approval and canonical update before Layer 3 integration. 4) Complete P1–P8 in order. 5) P9 stays S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema and ends there for the V2 set; no seed, remote reset or destructive test on the single Supabase/Vercel Shared Backend (§1.3); never pass blocking `TBD-HUMAN`. 6) P10 re-inventories every file/contract in all three packages, then executes I1 clarify → I2 checklist/review → I3 plan → I4 tasks → I5 analyze sequentially per package with hooks, invocation/source version, input/output and changed-file evidence. 7) Complete `spec.md`, `research.md`, `plan.md`, `data-model.md`, actual contracts, `quickstart.md`, `tasks.md`; preserve correct content/task history and never use `NO CHANGE` to bypass gaps. 8) Supplement analyze with contract↔DAC, plan↔data-model and cross-module matrices; resolve blockers and rerun affected gates. 9) Store standardized reports under `docs/refactor-reports/<CHANGE_ID>/`, mark package READY/NOT READY/BLOCKED and do not execute tasks or claim runtime validation. 10) Preserve stable IDs/ownership/names. 11) End with P11 diff/exclusion audit and explicit handoff verdict; if end-to-end skills were not run, state `END-TO-END SKILL EXECUTION: NOT VALIDATED`. |
 | --- |
 
 # 9. Validation và final audit
@@ -881,7 +902,7 @@ Validation của refactor tài liệu phải vừa kiểm tra “chất lượng
 | Logical model/DBML | Mọi field/rule/relationship trace được về S1–S3/spec; không lẫn physical choice; S4 hoàn tất trước field-level DAC reconciliation. |
 | Data Acceptance Criteria | Hoàn tất sau S4 và trước physical design; field/path coverage; source refs; enum/range/length/format/cardinality/blank/null rules; no invented values; no blocking `TBD-HUMAN` for changed fields. |
 | Logical-model/DAC review | S1–S4 và DAC cùng pass; gap/mâu thuẫn đã quay lại canonical spec và affected downstream checks đã được lặp lại. |
-| Physical/seed docs | Mapping traceability, generated artifacts regenerated, counts/fingerprints reviewed. |
+| Physical docs | Physical schema traceable to S4/DAC; không có seed hay lệnh ghi vào Shared Backend; counts reviewed. |
 | Validation evidence | Date/baseline rõ; chỉ ghi PASS cho check đã thực thi. |
 | Implementation Documentation | Cả ba package được inventory; spec/research/plan/data-model/all actual contracts/quickstart/tasks complete; I1–I5 có evidence; source/requirement/task coverage và cross-module contracts nhất quán; mỗi package có READY/NOT READY assessment; historical evidence vẫn historical. |
 
@@ -989,7 +1010,7 @@ Nếu chỉ review qua GitHub connector: dùng repository search cho cùng keywo
 | G3 — Scope/Function | MVP priority và FN/SF/FR coverage khớp baseline mới. |
 | G4 — Architecture/Screen | Derived flow/context/UI state không có behavior ngoài spec. |
 | G5 — Logical model & Data Acceptance | S1–S4 hoàn tất; DAC được reconcile sau S4, cover changed fields/contracts, không invent limit, không còn blocking `TBD-HUMAN`; cả hai cùng pass review trước physical design. |
-| G6 — Physical/Data evidence | Physical schema, field mapping và seed evidence chỉ được sync sau G5; generated artifacts được regenerate; Storage Validation chỉ ghi kết quả mới nếu đã thực thi. |
+| G6 — Physical/Data evidence | Physical schema chỉ được sync sau G5. Field mapping, seed và Storage Validation ngoài bộ V2 (§1.3): không seed/reset Shared Backend; kết quả validation chỉ được ghi nếu đã thực thi trên runtime cô lập, phần còn lại `NOT RUN`. |
 | G7 — P10 Implementation Readiness | Cả ba package pass §6.5.5; H2 target được revalidated trước write skill; required artifacts/sections complete hoặc justified `N/A`; I1–I5 có source/invocation/input/output/hook/validation evidence; contracts/data/tasks consistent; không blocker; `NO CHANGE` không che incompleteness. |
 | G8 — Evidence integrity | Không sửa lịch sử để giả PASS; validation mới có date/baseline rõ. |
 | G9 — Repo hygiene, evidence & traceability | Diff chỉ chứa in-scope docs; excluded-file check và git diff --check pass; stable IDs/links/names/source refs resolve; standardized report set complete; actual vs NOT RUN checks được phân biệt. |
@@ -1143,7 +1164,7 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 | Screen lists | screens/screen list/README.md; screen-list-M01.md; screen-list-M02.md; screen-list-M03.md |
 | Screen specs | screens/screen-spec/M01/001…004; M02/001…003; M03/000…007 |
 | Data (workflow order) | data/01-entity-dictionary.md; 02-crud-matrix.md; 03-erd.mmd; 03-erd-preview.md; 03-erd-review.md; 04-data-model.md; 04-data-model.dbml; **08-data-acceptance-criteria.md (NEW)**; 05-review.md; 06-physical-schema.md; data/schema/field-mapping.md; 07-storage-validation.md |
-| Seed | data/seed/README.md; canonical CSV fixtures; edge-case-register.md; edge-cases.json |
+| Seed (V1, ngoài bộ V2) | data/seed/README.md; CSV fixtures; edge-case-register.md; edge-cases.json — nếu còn tồn tại thì chỉ là lịch sử; không sửa, không nạp vào Shared Backend (§1.3) |
 | M01 implementation docs | specs/001-m01-implementation/{spec,research,plan,data-model,quickstart,tasks}.md; contracts/{application-flow-contract,local-persistence-contract,public-source-contract}.md |
 | M02 implementation docs | specs/002-m02-implementation/{spec,research,plan,data-model,quickstart,tasks}.md; contracts/{application-flow-contract,live-content-contract,local-persistence-contract,terminal-sync-contract}.md |
 | M03 implementation docs | specs/003-m03-implementation/{spec,research,plan,data-model,quickstart,tasks}.md; contracts/{admin-command-contract,admin-ui-flow-contract,auth-account-contract,media-storage-contract,publication-public-contract,session-reporting-contract}.md; historical backend-pass5-validation.md và backend-pass6-validation.md |
@@ -1171,7 +1192,7 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 | docs/architecture/README.md ghi M03 “cập nhật 2026-09-27” trong khi spec-M03 metadata là 2026-09-29. | Nếu chạm architecture index/version metadata, sync lại; không dùng date stale để suy ra spec version. |
 | screen-list-M03.md §7 và screen inventory README nói screen specs chưa tồn tại, nhưng repository hiện có 8 file M03 under screens/screen-spec/M03/. | Không tạo duplicate file; sửa stale metadata nếu screen-doc layer nằm trong change set. |
 | docs/README.md liên kết environment-readiness-report.md nhưng baseline directory listing của docs/ không thấy file này. | Ghi nhận dead-link risk; chỉ sửa nếu index/documentation navigation nằm trong scope. |
-| Current physical schema maps String identifier/content to PostgreSQL `text` with **no arbitrary length limit**; seed docs explicitly avoid inventing numeric ranges for version/identity/sequence. | Vì vậy max length/range còn thiếu phải được xem là product decision gap (`TBD-HUMAN`), không được copy một con số “thường dùng” vào DAC. |
+| Current physical schema maps String identifier/content to PostgreSQL `text` with **no arbitrary length limit**; seed docs (V1) explicitly avoid inventing numeric ranges for version/identity/sequence. | Vì vậy max length/range còn thiếu phải được xem là product decision gap (`TBD-HUMAN`), không được copy một con số “thường dùng” vào DAC. |
 | Historical SHA trong header có thể trùng current `main` tại thời điểm viết nhưng không phải operational truth vĩnh viễn. | H0/P0 luôn capture active target branch và starting commit; report nếu khác historical reference. |
 | Spec-Kit normal resolver có thể create/update `.specify/feature.json`; `--paths-only` không persist. | File là local selection state, phải được ignore, preserve theo ownership và không dùng thay cho explicit H2 verification. |
 
@@ -1199,13 +1220,13 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 
 ☐ 11. Screen docs không tạo requirement mới và SCR/FR mapping đúng.
 
-☐ 12. P9 đi theo S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema→Field Mapping→Seed evidence→Storage Validation evidence; không nhảy stage.
+☐ 12. P9 đi theo S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema và dừng ở đó cho bộ V2; không nhảy stage.
 
 ☐ 13. `data/08-data-acceptance-criteria.md` được hoàn tất sau S4, trước review/physical design; không invent max length/range và không còn blocking `TBD-HUMAN` trên changed fields.
 
 ☐ 14. Canonical entity vs projection/transport/frozen copy phân loại đúng.
 
-☐ 15. Generated field-mapping/edge-case artifacts không hand-edit.
+☐ 15. Generated field-mapping/edge-case artifacts (nếu có) không hand-edit; không có seed, reset hay destructive test nào trên Shared Backend (một Supabase + một Vercel).
 
 ☐ 16. Historical validation evidence không bị rewrite thành PASS mới.
 

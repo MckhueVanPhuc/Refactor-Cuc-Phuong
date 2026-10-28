@@ -7,116 +7,124 @@
 | Module | `M01` |
 | Actor | Visitor |
 | Priority | Should* |
-| Mockup | `screens/M01/mockups/SCR-M01-004-offline.png` |
-| Status | Draft |
+| Mockup | Chưa có |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) |
 
-*Offline preparation/package là Should theo MVP Scope §3.4, nhưng phải nâng lên Must nếu increment phát hành có checkpoint OFFLINE_REQUIRED.
+Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; \* gói offline là Should nhưng phải nâng lên Must nếu increment phát hành có điểm dừng `OFFLINE_REQUIRED` hoặc sơ đồ tuyến cần dùng offline. Xóa package không xóa context hoặc session M02. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
 
-Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; bố cục/visual direction tham khảo [DESIGN.md](../../../DESIGN.md). Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
-
-Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu.
+Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
 ## 1. Purpose
 
-**Shown when:** Visitor chọn "Tài nguyên offline" từ SCR-M01-001 hoặc SCR-M01-003.
+**Shown when:** Visitor mở "Tài nguyên offline" từ SCR-M01-001 hoặc SCR-M01-003.
 
-**The user leaves when:** Quay lại danh mục/chi tiết, xóa package (với confirmation), hoặc mở SCR-M01-003 để Start.
+**The user leaves when:** Mở chi tiết tuyến để Start (SCR-M01-003) hoặc quay về danh mục (SCR-M01-001).
 
 ## 2. Mockup
 
-Mockup: `screens/M01/mockups/SCR-M01-004-offline.png`. Đây là target asset tham khảo; cần kiểm tra asset và design sign-off, không dùng ảnh mockup để suy ngược business rule.
+Chưa có mockup cho màn này. Không suy ngược business rule từ bất kỳ ảnh mockup nào về sau.
 
 ## 3. Element inventory
 
 | # | Element ID | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|---|
-| 1 | E-SCR-M01-004-01 | Language selector | Header control | `vi` / `en`; đọc từ LanguagePreference | Yes | Chỉ chấp nhận `vi` hoặc `en` |
-| 2 | E-SCR-M01-004-02 | Screen title | Header text | "Quản lý tài nguyên offline" / "Offline Resources" | Yes | None |
-| 3 | E-SCR-M01-004-03 | Package list | List | Danh sách tất cả packages (routeId, contentVersion, status, versionStatus) | Yes | None |
-| 4 | E-SCR-M01-004-04 | Package card | List item | routeId, version, readiness/freshness; tên tuyến chỉ từ Published Route/local view riêng nếu có | Yes | Manifest không chứa route name; thiếu metadata thì dùng routeId |
-| 5 | E-SCR-M01-004-05 | Status badge | Badge | CHUA_TAI (xám), DANG_TAI (vàng), SAN_SANG (xanh), CHUA_HOAN_TAT (đỏ) | Yes | None |
-| 6 | E-SCR-M01-004-06 | Version info | Text | "Version X" và "CURRENT" / "OUTDATED" | Conditional | Chỉ khi SAN_SANG |
-| 7 | E-SCR-M01-004-07 | Downloaded at | Text | "Đã tải: [datetime]" nếu có | Conditional | Chỉ khi SAN_SANG có downloadedAt |
-| 8 | E-SCR-M01-004-08 | Action: Tải | Button | Bắt đầu download/update package; hiển thị khi CHUA_TAI, CHUA_HOAN_TAT, hoặc SAN_SANG + OUTDATED | Conditional | Cần current source truy cập được; không có operation cùng route đang chạy |
-| 9 | E-SCR-M01-004-09 | Action: Xóa | Button | Xóa local package; hiển thị khi có package | Conditional | Yêu cầu confirmation; không chạy song song operation khác cùng route |
-| 10 | E-SCR-M01-004-10 | Action: Xem chi tiết | List item tap | Mở SCR-M01-003 cho route đó | Yes | None |
-| 11 | E-SCR-M01-004-12 | Action: Quay lại | Button | Trở về SCR-M01-001 | Yes | None |
-| 13 | E-SCR-M01-004-13 | Download progress | Progress indicator | Tiến trình candidate riêng; % khi đo được | Conditional | Không ẩn hoặc đổi trạng thái active SAN_SANG trong lúc update |
-| 14 | E-SCR-M01-004-14 | Storage error banner | Banner | "Lỗi lưu trữ" khi storage thất bại | Conditional | Hiển thị khi có lỗi |
-| 15 | E-SCR-M01-004-15 | Update available badge | Badge | "Có bản mới" cho SAN_SANG + OUTDATED | Conditional | Chỉ khi OUTDATED |
-| 16 | E-SCR-M01-004-16 | Delete confirmation dialog | Dialog | "Bạn có chắc muốn xóa gói dữ liệu này?" kèm Cancel/Confirm | Conditional | Hiển thị trước khi xóa |
-| 17 | E-SCR-M01-004-17 | Action: Làm mới / Thử lại | Button | Đọc lại local package list; source freshness chỉ khi truy cập được | Conditional | Không xóa gói cũ khi source/storage lỗi |
+| 1 | E-SCR-M01-004-01 | Language control VI/EN | Toggle (control dùng chung) | `LanguagePreference` | Yes | Đổi không đổi trạng thái package |
+| 2 | E-SCR-M01-004-02 | Screen title | Header text | Tên màn hình theo ngôn ngữ đã chọn | Yes | Non-empty |
+| 3 | E-SCR-M01-004-03 | Package list | List | Package local theo tuyến: `routeId`, `contentVersion`, `status`, `versionStatus` | Yes | Mỗi tuyến tối đa một package `SAN_SANG` đang hoạt động; candidate/staging không hiện như package hoạt động |
+| 4 | E-SCR-M01-004-04 | Package row: route name | Text | Tên tuyến theo ngôn ngữ (từ chữ cốt lõi đã lưu hoặc nguồn) | Yes | Không khẳng định là mới nhất khi lấy từ bản lưu |
+| 5 | E-SCR-M01-004-05 | Package row: version | Text | `contentVersion` của package | Yes | Một package = một tuyến + một phiên bản |
+| 6 | E-SCR-M01-004-06 | Package row: status | Badge | `CHUA_TAI`, `DANG_TAI`, `SAN_SANG`, `CHUA_HOAN_TAT` kèm `CURRENT`/`OUTDATED` khi `SAN_SANG` | Yes | `versionStatus` chỉ khi `SAN_SANG`; hoàn chỉnh và độ mới là hai khái niệm tách biệt (BR-M01-005) |
+| 7 | E-SCR-M01-004-07 | Package row: essentials saved time | Text | `routeEssentials.capturedAt` | Conditional | Hiện khi package sẵn sàng; không khẳng định là mới nhất (BR-M01-014) |
+| 8 | E-SCR-M01-004-08 | Package row: offline route map flag | Text | Package có/không có `offlineRouteMap` | Conditional | None |
+| 9 | E-SCR-M01-004-09 | Outdated warning | Text | Cảnh báo bản cũ, vẫn dùng được | Conditional | Hiện khi `SAN_SANG + OUTDATED` và biết trạng thái (BR-M01-006) |
+| 10 | E-SCR-M01-004-10 | Action: Xem | Button | Mở chi tiết tuyến để xem/Start | Yes | None |
+| 11 | E-SCR-M01-004-11 | Action: Tải / Cập nhật | Button | Tải package hoặc chuẩn bị candidate mới | Conditional | Cần nguồn online; thao tác lặp không tạo việc song song; không có Hủy tải (MVP) |
+| 12 | E-SCR-M01-004-12 | Action: Xóa | Button | Xóa package của tuyến | Conditional | Cần xác nhận; cascade sang tài nguyên, sơ đồ offline và chữ cốt lõi của package, không xóa `SelectedRouteContext` hay dữ liệu M02 |
+| 13 | E-SCR-M01-004-13 | Delete confirmation | Dialog | Xác nhận xóa package | Conditional | Xóa chỉ sau khi xác nhận (FR-M01-009) |
+| 14 | E-SCR-M01-004-14 | Download progress | Panel | Tiến độ tải/cập nhật | Conditional | Không có nút hủy |
+| 15 | E-SCR-M01-004-15 | Update failure note | Text | Cập nhật lỗi, package cũ được giữ | Conditional | Giữ `SAN_SANG + OUTDATED`; candidate bị bỏ |
+| 16 | E-SCR-M01-004-16 | Storage failure note | Text | Lỗi lưu trữ cục bộ | Conditional | Bỏ candidate, giữ package sẵn sàng hiện có |
+| 17 | E-SCR-M01-004-17 | Scan hint line | Text | Một dòng: không có mạng thì check-in bằng nút Quét trong ứng dụng | Conditional | Hiện khi có package sẵn sàng (US-M01-03 mục 5) |
+| 18 | E-SCR-M01-004-18 | Empty state | Text | Chưa có package nào | Conditional | Hiện khi không có package local |
+
+**Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới.
+
+| Tình huống | Tiếng Việt | English |
+|---|---|---|
+| Chưa tải | Chưa tải | Not downloaded |
+| Đang tải | Đang tải | Downloading |
+| Sẵn sàng, hiện hành | Sẵn sàng – mới nhất | Ready – up to date |
+| Sẵn sàng, có bản mới | Sẵn sàng – có bản mới | Ready – newer version available |
+| Chưa hoàn tất | Chưa hoàn tất | Incomplete |
+| Thời điểm lưu chữ cốt lõi | Thông tin tuyến lưu lúc {thời điểm} | Route information saved on {time} |
+| Có sơ đồ offline | Có sơ đồ tuyến offline | Includes offline route map |
+| Cập nhật lỗi | Chưa cập nhật được. Vẫn dùng bản đã tải. | Could not update. The downloaded version is still in use. |
+| Lỗi lưu trữ | Không lưu được dữ liệu trên thiết bị. Bản đã tải trước đó không bị ảnh hưởng. | Could not save data on this device. Your earlier download is not affected. |
+| Xác nhận xóa | Xóa gói tải trước của tuyến "{tên}"? Chuyến đi đang diễn ra không bị ảnh hưởng. | Delete the download for "{name}"? A trip in progress is not affected. |
+| Nút xác nhận xóa | Xóa · Giữ lại | Delete · Keep |
+| Chưa có package | Bạn chưa tải tuyến nào. | You have not downloaded any route. |
+| Gói cũ (cảnh báo) | Gói tải trước này đã cũ nhưng vẫn dùng được. | This download is out of date but still usable. |
+| Package không đọc được | Gói tải trước không đọc được | This download cannot be read |
+| Hành động với package không đọc được | Tải lại · Xóa | Download again · Delete |
 
 ## 4. States
 
 | State | What the user sees | Trigger |
 |---|---|---|
-| Default | Danh sách packages đầy đủ | Packages loaded |
-| Empty | "Chưa có gói dữ liệu nào" khi không có package nào được tải | Không có persisted package |
-| Loading | Spinner tại package list | Đang load packages |
-| CHUA_TAI | Package card với nút "Tải"; status badge xám | Không có package cho route này |
-| DANG_TAI | Progress bar với %; nút "Tải" disabled | Download in progress |
-| SAN_SANG + CURRENT | Badge xanh "Sẵn sàng"; "CURRENT"; nút Xóa | Package complete and current |
-| SAN_SANG + OUTDATED | Badge xanh + "OUTDATED" + "Có bản mới"; nút "Tải" để update | Package ready but new version available |
-| CHUA_HOAN_TAT | Badge đỏ "Tải thất bại"; nút "Tải" để retry | Download failed without old package |
-| Updating with old ready package | SAN_SANG + OUTDATED vẫn hiển thị và dùng được; candidate progress riêng | Update in progress |
-| Update failure with old ready package | Giữ SAN_SANG + OUTDATED; báo lỗi update, có retry | Candidate failed |
-| Source unavailable | Giữ local packages; báo không kiểm tra được freshness, không claim CURRENT mới | Source request fails |
-| Delete failure | Gói còn lại giữ nguyên; báo lỗi và cho thử lại | Local delete fails |
-| Storage error | Banner "Lỗi lưu trữ" | Browser storage write fails |
-| Delete confirmation | Dialog xác nhận xóa | Visitor tap nút Xóa |
+| Empty | Chưa có package | Không có package local |
+| Not downloaded | Trạng thái chưa tải, có hành động Tải | `CHUA_TAI` (có thể không có bản ghi) |
+| Downloading | Tiến độ, hành động khác trên tuyến bị khóa | `DANG_TAI` |
+| Ready (current) | Sẵn sàng, hiện hành | `SAN_SANG + CURRENT` |
+| Ready (outdated) | Sẵn sàng kèm cảnh báo cũ, có hành động Cập nhật | `SAN_SANG + OUTDATED` |
+| Incomplete | Chưa hoàn tất, có hành động tải lại | `CHUA_HOAN_TAT` (tải lỗi, chưa có bản cũ) |
+| Update failed | Giữ bản sẵn sàng cũ, thông báo cập nhật lỗi | Candidate lỗi |
+| Storage failure | Thông báo lỗi lưu trữ, package cũ nguyên vẹn | Lỗi lưu trữ cục bộ |
+| Delete confirmation | Dialog xác nhận | Chọn Xóa |
 
 ## 5. Interactions and navigation
 
 | # | Element | User action | System response | Destination screen / result |
 |---|---|---|---|---|
-| 1 | Language selector | Tap / change | Cập nhật LanguagePreference, chuyển ngôn ngữ UI | Stays |
-| 2 | Package card | Tap | Mở chi tiết tuyến để xem hoặc Start | `SCR-M01-003` |
-| 3 | Tải | Tap | Chuẩn bị candidate riêng; chỉ publish khi hoàn chỉnh; giữ active ready package cũ | Update package card |
-| 4 | Xóa | Tap | Hiện confirmation dialog | Show confirmation |
-| 5 | Confirm delete | Tap confirm | Xóa package; giữ nguyên SelectedRouteContext; chuyển state CHUA_TAI | Update package card |
-| 6 | Cancel delete | Tap cancel | Đóng dialog | Stays |
-| 7 | Quay lại | Tap | Trở về SCR-M01-001 | `SCR-M01-001` |
-| 8 | Làm mới / Thử lại | Tap; pull-to-refresh nếu được chọn | Đọc local list; mở packaged route kích hoạt lazy version check khi source truy cập được | Reload list / `SCR-M01-003` |
+| 1 | Package row | Xem | Mở chi tiết tuyến | `SCR-M01-003` |
+| 2 | Tải / Cập nhật | Tap | Tải candidate; công bố nguyên tử khi hợp lệ; lỗi thì bỏ candidate | State: Downloading → Ready/Incomplete/Update failed |
+| 3 | Xóa | Tap | Hiện dialog xác nhận | Delete confirmation |
+| 4 | Xác nhận xóa | Tap | Xóa package và dữ liệu cục bộ đi kèm; trạng thái về chưa tải | State: `CHUA_TAI` |
+| 5 | Hủy xác nhận | Tap | Đóng dialog, không đổi gì | Previous state |
+| 6 | Language control | Đổi VI/EN | Cập nhật preference | State update |
 
 ## 6. Screen-level rules
 
 | Rule ID | Rule | Related requirement |
 |---|---|---|
-| SR-SCR-M01-004-001 | Chỉ MỘT package operation trên mỗi route tại một thời điểm; MVP không có Cancel download action | FR-M01-009; spec-M01 §4.4 |
-| SR-SCR-M01-004-002 | Xóa package giữ nguyên SelectedRouteContext và không xóa session/play data | FR-M01-009, BR-M01-010 |
-| SR-SCR-M01-004-003 | Update failure giữ bản ready cũ; candidate mới bị discard | BR-M01-006 |
-| SR-SCR-M01-004-004 | Success update chuyển active package sang candidate mới | FR-M01-010 |
-| SR-SCR-M01-004-005 | Storage failure discard candidate và giữ existing ready package | FR-M01-008 |
-| SR-SCR-M01-004-006 | Retry chuẩn bị candidate hợp lệ; không expose staging/partial resource như ready package | FR-M01-007, FR-M01-008 |
-| SR-SCR-M01-004-007 | M01 không phải trình đọc nội dung checkpoint; chỉ hiển thị status/version | FN-M01-005 |
+| SR-SCR-M01-004-001 | Hành động có sẵn là Xem, Tải và Xóa; Xóa luôn cần xác nhận | FR-M01-009 |
+| SR-SCR-M01-004-002 | Mỗi tuyến chỉ một thao tác package tại một thời điểm; MVP không có Hủy tải | Spec M01 §4.4, FR-M01-009 |
+| SR-SCR-M01-004-003 | Cập nhật lỗi giữ package sẵn sàng cũ ở `SAN_SANG + OUTDATED`; candidate lỗi bị bỏ | BR-M01-006, FR-M01-010, SC-M01-004 |
+| SR-SCR-M01-004-004 | Candidate/staging không bao giờ hiển thị như package hoạt động và không được M02 đọc | FR-M01-013, SC-M01-003 |
+| SR-SCR-M01-004-005 | Hiển thị thời điểm lưu chữ cốt lõi và có/không có sơ đồ tuyến offline của package | FR-M01-009, FR-M01-014 |
+| SR-SCR-M01-004-006 | Xóa package cascade sang tài nguyên, sơ đồ offline, chữ cốt lõi và dữ liệu candidate nhưng không xóa `SelectedRouteContext` hay dữ liệu M02 | Spec M01 §6.4 |
+| SR-SCR-M01-004-007 | Chỉ gửi request nguồn khi tải hoặc kiểm tra phiên bản; việc xem trạng thái dùng dữ liệu local | Screen list M01 |
 
 ## 7. Linked requirements
 
 | FR ID | How the screen supports it |
 |---|---|
-| FR-M01-001 | Control M01 cập nhật LanguagePreference; không đổi package state |
-| FR-M01-007 | Download full manifest và offline resource subset |
-| FR-M01-008 | Validate đầy đủ và atomic publish |
-| FR-M01-009 | View/download/delete; confirmation và serialize operation |
-| FR-M01-010 | Lazy update giữ active package cũ |
-| FR-M01-012 | Context v2 không bị ảnh hưởng bởi xóa package |
-| FR-M01-013 | Chỉ active SAN_SANG package được expose cho M02; progress candidate là UI state riêng |
+| FR-M01-007 | Tải package |
+| FR-M01-009 | Xem/tải/xóa, xác nhận xóa, tuần tự hóa thao tác |
+| FR-M01-010 | Cập nhật, giữ bản cũ khi lỗi |
+| FR-M01-014 | Hiển thị thời điểm lưu chữ cốt lõi |
 
 ## 8. Responsive and accessibility notes
 
 - Định hướng mobile-first: ưu tiên nội dung/action chính, wrap text/tags và stack panels theo chiều rộng thực tế; tránh chiều rộng cố định gây tràn ngang. 360px, 768px và 1280px là kích thước tham khảo để review, không phải hard breakpoint hoặc điều kiện bật/tắt tính năng.
-- Review text dài vi/en, loading/empty/error, phóng to chữ, focus và thao tác một tay trên điện thoại. Bố cục cuối cùng cần prototype/usability review trước sign-off.
-- Mục tiêu review accessibility: keyboard access, visible focus, semantic labels, error liên kết với field, status không chỉ biểu đạt bằng màu và reduced motion. Tham khảo WCAG 2.1 AA, touch target khoảng 44×44px và contrast 4.5:1 cho normal text; đây là định hướng cần kiểm chứng trên frontend, không phải tuyên bố đã đạt chuẩn.
+- Review text dài vi/en, zoom, keyboard/focus và error states; không ẩn action nghiệp vụ chỉ vì viewport nhỏ. Bố cục cuối cùng còn chờ UX review.
+- Mục tiêu review accessibility: keyboard access, visible focus, semantic labels, trạng thái package không chỉ biểu đạt bằng màu, focus được quản lý trong dialog xác nhận và reduced motion. Tham khảo WCAG 2.1 AA, touch target khoảng 44×44px và contrast 4.5:1 cho normal text; đây là định hướng cần kiểm chứng trên frontend, không phải tuyên bố đã đạt chuẩn.
 
 ## 9. Open questions
 
 | ID | Question | Blocking | Status | Resolution |
 |---|---|---|---|---|
-| OQ-SCR-M01-004-001 | Cơ chế storage quota và cleanup policy là gì? | No | Open | Package structured data và image bytes thuộc IndexedDB theo [tech-stack.md §4](../../../docs/architecture/tech-stack.md#4-pwa-and-offline-stack). [NEEDS CLARIFICATION: quota warning threshold và browser-local cleanup policy chưa có quyết định nguồn.] Không chốt ngưỡng 20% hoặc dùng Cache Storage để lưu package data. |
-| OQ-SCR-M01-004-002 | UI cho delete confirmation (dialog hay bottom sheet)? | No | Proposed | Đề xuất modal hoặc bottom sheet có package identity và Confirm/Cancel; explicit delete confirmation là baseline FR-M01-009. |
-| OQ-SCR-M01-004-003 | Retry strategy cho failed downloads | No | Proposed | Đề xuất nút Thử lại sau download failure; auto-retry/timing chưa chốt. Giữ old ready package, chỉ một operation mỗi route, không expose partial candidate (FR-M01-008, FR-M01-009, FR-M01-010). |
-| OQ-SCR-M01-004-004 | Kích thước trang tối thiểu | No | Proposed | Mobile-first, co giãn theo content; xem §8, chưa chốt minimum/breakpoints. |
+| OQ-SCR-M01-004-002 | Hành động trên package `CHUA_TAI` khi không có tuyến liên kết hiển thị ở đâu | No | Resolved | Hành động "Tải về" lần đầu nằm ở SCR-M01-003; màn này liệt kê các package đã có bản ghi và cho cập nhật/xóa. |
+| OQ-SCR-M01-004-003 | Tên tuyến hiển thị khi package bị hỏng hoặc không đọc được | No | Resolved | Package không đọc được được coi là chưa sẵn sàng: hiện tên tuyến từ dữ liệu tuyến nếu có, nếu không thì "Gói tải trước không đọc được" / "This download cannot be read", với hai hành động "Tải lại" và "Xóa". |
 
 ## Completion checklist
 

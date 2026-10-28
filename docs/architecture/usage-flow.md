@@ -1,6 +1,6 @@
 # Main Usage Flow — Cúc Phương Quest
 
-Tài liệu này tập hợp nguyên văn các block `flowchart` trong ba module spec. File không bổ sung nhánh hoặc hành vi ngoài spec; khi flow trong spec thay đổi, bản sao tại đây phải được cập nhật. Đồng bộ ngày 2026-10-27 với Spec M01 v3.2, M02 v3.2, M03 v3.6.
+Tài liệu này tập hợp nguyên văn các block `flowchart` trong ba module spec. File không bổ sung nhánh hoặc hành vi ngoài spec; khi flow trong spec thay đổi, bản sao tại đây phải được cập nhật. Đồng bộ ngày 2026-10-27 với Spec M01 v3.2, M02 v3.3, M03 v3.7.
 
 ## Danh mục
 
@@ -41,7 +41,7 @@ flowchart TD
 
 ## UF-02 — M02 Field Experience
 
-Nguồn: [spec-M02.md](../spec/spec-M02.md) v3.2, §4.1.
+Nguồn: [spec-M02.md](../spec/spec-M02.md) v3.3, §4.1.
 
 ```mermaid
 flowchart TD
@@ -79,7 +79,7 @@ flowchart TD
 
 ## UF-03 — M03 Draft, Review & Publication
 
-Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.6, §4.1.
+Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.7, §4.1.
 
 ```mermaid
 flowchart TD
@@ -104,7 +104,7 @@ flowchart TD
 
 ## UF-04 — M03 Session Ingest
 
-Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.6, §4.4.
+Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.7, §4.4.
 
 ```mermaid
 flowchart LR
@@ -119,7 +119,7 @@ flowchart LR
 
 ## UF-05 — M03 Administrative Access
 
-Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.6, §4.3.
+Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.7, §4.3.
 
 ```mermaid
 flowchart TD
@@ -139,7 +139,7 @@ flowchart TD
 
 ## UF-06 — M02 Public QR Link Entry
 
-Nguồn: [spec-M02.md](../spec/spec-M02.md) v3.2, §4.4.
+Nguồn: [spec-M02.md](../spec/spec-M02.md) v3.3, §4.4.
 
 ```mermaid
 flowchart TD
@@ -158,7 +158,7 @@ flowchart TD
 
 ## UF-07 — M03 Closure & Reopen
 
-Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.6, §4.5.
+Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.7, §4.5.
 
 ```mermaid
 flowchart TD
@@ -182,7 +182,7 @@ flowchart TD
 
 ## UF-08 — M03 Live QR Lookup
 
-Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.6, §4.6.
+Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.7, §4.6.
 
 ```mermaid
 flowchart TD
@@ -202,7 +202,7 @@ flowchart TD
 
 ## UF-09 — M03 Checkpoint & Route Creation
 
-Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.6, §4.7.
+Nguồn: [spec-M03.md](../spec/spec-M03.md) v3.7, §4.7.
 
 ```mermaid
 flowchart TD
