@@ -41,6 +41,7 @@ Spec M01, M02 và M03 là behavioral/contract baseline (nguồn sự thật duy 
 - [Screen List M01](../screens/screen%20list/screen-list-M01.md) | [M01 Screen Specs](../screens/screen-spec/M01/)
 - [Screen List M02](../screens/screen%20list/screen-list-M02.md) | [M02 Screen Specs](../screens/screen-spec/M02/)
 - [Screen List M03](../screens/screen%20list/screen-list-M03.md) | [M03 Screen Specs](../screens/screen-spec/M03/)
+- [Design System](design/design-system.md)
 
 ---
 

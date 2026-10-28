@@ -80,6 +80,8 @@ Không đổi tên contract, bỏ suffix/version hoặc hợp nhất transport s
 | docs/architecture/ | Context, flows, runtime, tech stack, environment | Derived từ spec và approved technical decisions; sửa minimal diff |
 | screens/screen list/ | Screen inventory và requirement coverage | Derived từ spec/function list; screen không tạo requirement |
 | screens/screen-spec/ | Chi tiết đặc tả màn hình | Bám sát spec và screen list; không tự tạo business rule |
+| docs/design/ | Design system: token, typography, component và truy cập | Derived từ spec và screen spec; chỉ định nghĩa hình thức, không tạo requirement hay behavior mới |
+| assets/ | Static assets dùng chung (hiện có assets/icons/) | Chỉ thêm file do người dùng cung cấp; không tự tạo hay vẽ asset |
 | data/01-entity-dictionary.md | S1 canonical entity vocabulary | Không thêm entity từ implementation convenience |
 | data/02-crud-matrix.md | S2 FN-level direct CRUD evidence | Không gán CRUD từ indirect/delegated effect |
 | data/03-erd.mmd | Canonical S3 Mermaid ERD source | Không đổi semantics để chữa lỗi render |
@@ -91,6 +93,7 @@ Không đổi tên contract, bỏ suffix/version hoặc hợp nhất transport s
 | data/05-review.md | Logical-model/DAC review gate | V2 PASS (2026-10-28); cập nhật khi S1–S4 hoặc DAC đổi |
 | data/06-physical-schema.md | Physical schema design (V2) | Giới hạn cuối của tài liệu; thiết kế, không phải implementation; cập nhật khi S4 hoặc DAC đổi |
 | M03_Documentation_Refactor_Runbook_v2.md | Quy trình refactor toàn diện | Nguồn điều phối luồng rebaseline P0–P11 |
+| .claude/skills/ | Skill của Claude Code (speckit-*, frontend-design) | Chỉ sao chép nguyên văn từ nguồn; không sửa nội dung skill nếu chưa được yêu cầu |
 | .specify/ | Constitution và specification memory | Bảo tồn nguyên tắc Spec-first và governance |
 
 Khi behavior/contract đổi, cập nhật spec canonical trước. Sau đó chỉ sync các derived artifact nằm trong phạm vi task; nếu artifact liên quan nằm ngoài scope, báo rõ nó có nguy cơ stale thay vì tự ý sửa.

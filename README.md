@@ -50,6 +50,7 @@ Xem [MVP Scope](MVP-Scope.md) để biết phạm vi cam kết Must/Should/Could
 - [Screen List M01](screens/screen%20list/screen-list-M01.md) | [Screen Specs M01](screens/screen-spec/M01/)
 - [Screen List M02](screens/screen%20list/screen-list-M02.md) | [Screen Specs M02](screens/screen-spec/M02/)
 - [Screen List M03](screens/screen%20list/screen-list-M03.md) | [Screen Specs M03](screens/screen-spec/M03/)
+- [Design System](docs/design/design-system.md)
 
 ### E. Dữ Liệu & Lưu Trữ (Data Modeling — S1 đến Physical Schema)
 - [S1 — Entity Dictionary](data/01-entity-dictionary.md): Từ điển 16 canonical entities.

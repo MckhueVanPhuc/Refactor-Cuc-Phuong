@@ -16,7 +16,7 @@
 | Nguyên tắc cốt lõi: Spec canonical phải được sửa trước. Mọi artifact dẫn xuất chỉ được đồng bộ sau khi ý nghĩa của Spec-M03 và ảnh hưởng liên module đã được chốt. Không dùng downstream document để “suy ngược” requirement mới vào spec. |
 | --- |
 
-Nguồn lập runbook: AGENTS.md, constitution, README/docs index, Spec M01–M03, MVP Scope, function lists, architecture, screen inventory/specs, data model/storage docs, `.specify/scripts/python/`, `.specify/templates/` và các `.agents/skills/` trong repository.
+Nguồn lập runbook: AGENTS.md, constitution, README/docs index, Spec M01–M03, MVP Scope, function lists, architecture, screen inventory/specs, data model/storage docs, `.specify/scripts/python/`, `.specify/templates/` và các `.claude/skills/` trong repository.
 
 # Tóm tắt điều hành
 
@@ -35,7 +35,7 @@ Mục tiêu của tài liệu này là biến việc “sửa Spec-M03” thành
 
 **Bổ sung bắt buộc trong workflow dữ liệu:** repository cần một cross-project Data Acceptance Criteria catalog tại `data/08-data-acceptance-criteria.md`. Đây là derived validation catalog, không phải nguồn requirement độc lập. Trong các pha canonical-spec phải nhận diện validation constraint và open product decision; sau S4 mới đối chiếu chúng ở field level với logical model để hoàn tất DAC. Chỉ criterion có canonical source mới được coi là accepted; khoảng trống phải ghi `TBD-HUMAN`, và quyết định blocking của changed field phải được giải quyết trong canonical spec trước review gate.
 
-**P10 là completion phase bắt buộc, không chỉ là impact review.** Cả ba package `specs/001-m01-implementation/`, `002-m02-implementation/` và `003-m03-implementation/` phải được inventory, kiểm tra completeness/consistency, hoàn tất toàn bộ artifact cần thiết và có implementation-readiness assessment. Module không đổi behavior vẫn phải pass full validation; `NO CHANGE` không được dùng để bỏ qua tài liệu thiếu hoặc stale. P10 chỉ hoàn tất tài liệu cho future implementation, không chạy task và không sửa code/migration/test/runtime.
+**P10 không áp dụng cho V2.** Theo AGENTS.md §2, các package `specs/00*-*` không thuộc active documentation set của V2 và repository không tạo chúng. Mọi tham chiếu P10, G7, I1–I5 và Layer 3 trong runbook chỉ giữ để tham chiếu; final report ghi P10 `NOT APPLICABLE`. Nếu sau này có yêu cầu tường minh khôi phục P10 thì theo §6.5.
 
 # Bản đồ tài liệu
 
@@ -71,7 +71,7 @@ Một command được viết trong runbook nhưng chưa chạy vẫn là `NOT R
 
 ## 0.2 H0 — Handoff Completeness
 
-Người bàn giao và người nhận cùng xác nhận bảng sau trong `docs/refactor-reports/<CHANGE_ID>/00-preflight.md`:
+Người bàn giao và người nhận cùng xác nhận bảng sau trong final change report/PR description (§10.2); V2 không tạo thư mục `docs/refactor-reports/`:
 
 | Required input | Nội dung tối thiểu | Gate |
 | --- | --- | --- |
@@ -161,11 +161,11 @@ $requiredPaths = @(
     '.specify/templates/checklist-template.md',
     '.specify/templates/plan-template.md',
     '.specify/templates/tasks-template.md',
-    '.agents/skills/speckit-clarify/SKILL.md',
-    '.agents/skills/speckit-checklist/SKILL.md',
-    '.agents/skills/speckit-plan/SKILL.md',
-    '.agents/skills/speckit-tasks/SKILL.md',
-    '.agents/skills/speckit-analyze/SKILL.md'
+    '.claude/skills/speckit-clarify/SKILL.md',
+    '.claude/skills/speckit-checklist/SKILL.md',
+    '.claude/skills/speckit-plan/SKILL.md',
+    '.claude/skills/speckit-tasks/SKILL.md',
+    '.claude/skills/speckit-analyze/SKILL.md'
 )
 $missingPaths = $requiredPaths | Where-Object { -not (Test-Path -LiteralPath $_) }
 if ($missingPaths) { throw "BLOCKED: Missing required paths: $($missingPaths -join ', ')" }
@@ -178,7 +178,7 @@ if ($LASTEXITCODE -ne 0) { throw "BLOCKED: Spec-Kit prerequisite script is not c
 | --- | --- | --- |
 | Required paths exist; script help exits 0; agent confirms it can invoke repository skills and edit only approved docs. | Missing script/template/SKILL, import/syntax error, permission denied hoặc agent không hỗ trợ skill invocation. | Dừng và báo exact path/error. Fetch đúng revision hoặc đổi compatible agent sau approval; không sửa shared script/template để né lỗi. |
 
-## 0.4 H2 — Spec-Kit Feature Package Resolution
+## 0.4 H2 — Spec-Kit Feature Package Resolution (chỉ cho P10, không áp dụng cho V2)
 
 ### 0.4.1 Resolution semantics thực tế
 
@@ -242,7 +242,7 @@ Change Brief/preflight report phải gán người hoặc vai trò cụ thể:
 | Resolve blocking clarification | Named decision owner; agent chỉ trình bày gap/options, không fabricate. |
 | Review requirement-quality checklist | Named reviewer; checkbox `[x]` là review quality, không phải code completion. |
 | Own worktree changes | Người tạo từng pre-existing/current change; overlap phải được phối hợp. |
-| Store execution evidence | `docs/refactor-reports/<CHANGE_ID>/` theo §10.1; không dùng historical validation file. |
+| Store execution evidence | Final change report/PR description theo §10.2; không dùng historical validation file và không tạo thư mục báo cáo riêng. |
 | Store completion reports | Cùng report root, final report và future implementation handoff có stable filenames. |
 | Stop workflow | Bất kỳ operator nào khi gate `BLOCKED`, wrong package, unapproved decision, unexpected write, hook/skill failure hoặc missing evidence. |
 | Accept handoff | Named reviewer xác nhận H0–H3, P0–P11 evidence, package readiness và remaining issues. |
@@ -265,11 +265,11 @@ Runbook này áp dụng khi thay đổi behavioral/contract baseline của M03 h
 
 - Data/database docs (bộ V2): data/01…06 và **data/08-data-acceptance-criteria.md**. data/07-storage-validation.md, data/schema/field-mapping.md và data/seed/** không thuộc bộ V2 (AGENTS.md §2; chính sách ở §1.3); nếu còn tồn tại như dữ liệu lịch sử V1 thì không sửa và chỉ ghi nhận stale risk.
 
-- Implementation documentation: specs/001-m01-implementation, specs/002-m02-implementation, specs/003-m03-implementation và contracts dưới từng module, nhưng chỉ phần tài liệu.
+- Implementation documentation (không áp dụng cho V2, AGENTS.md §2): specs/001-m01-implementation, specs/002-m02-implementation, specs/003-m03-implementation và contracts dưới từng module, nhưng chỉ phần tài liệu.
 
 - Entry/index/governance docs: README.md, docs/README.md, AGENTS.md, supabase/README.md chỉ khi trigger tương ứng xảy ra.
 
-- Workflow support: năm `.agents/skills/speckit-{clarify,checklist,plan,tasks,analyze}/SKILL.md` chỉ được sửa khi task explicit nhắm vào portability/execution reliability; `.gitignore` chỉ được cập nhật để bảo vệ machine-local `.specify/feature.json`. Đây không phải phạm vi mặc định của ordinary M03 refactor.
+- Workflow support: năm `.claude/skills/speckit-{clarify,checklist,plan,tasks,analyze}/SKILL.md` chỉ được sửa khi task explicit nhắm vào portability/execution reliability; `.gitignore` chỉ được cập nhật để bảo vệ machine-local `.specify/feature.json`. Đây không phải phạm vi mặc định của ordinary M03 refactor.
 
 ## 1.2 Artifact cố định: không sửa trong refactor này
 
@@ -311,7 +311,7 @@ Runbook phân biệt ba lớp tài liệu và không cho phép lớp sau overrid
 | --- | --- | --- |
 | **Layer 1 — Canonical Specifications** | `docs/spec/spec-M01.md`, `docs/spec/spec-M02.md`, `docs/spec/spec-M03.md` | Định nghĩa authoritative business behavior, requirement, rule và module contract. |
 | **Layer 2 — Derived Documentation** | MVP Scope, Function Lists, Architecture, Screen Specs, Data Model, DAC và các data artifact liên quan | Chuyển canonical requirement thành tài liệu có cấu trúc; không tạo thêm business behavior. |
-| **Layer 3 — Implementation Documentation** | `specs/001-m01-implementation/`, `specs/002-m02-implementation/`, `specs/003-m03-implementation/` | Mô tả implementation assumption, application flow, technical contract, plan, data model, quickstart và task; P10 phải làm chúng complete, internally consistent và implementation-ready theo Layer 1–2 đã duyệt, không thực thi code. |
+| **Layer 3 — Implementation Documentation** (không áp dụng cho V2) | `specs/001-m01-implementation/`, `specs/002-m02-implementation/`, `specs/003-m03-implementation/` | Mô tả implementation assumption, application flow, technical contract, plan, data model, quickstart và task; chỉ dùng nếu P10 được khôi phục bằng yêu cầu tường minh, không thực thi code. |
 
 | Thứ tự/Owner | Artifact | Quy tắc |
 | --- | --- | --- |
@@ -393,7 +393,7 @@ Thứ tự dưới đây là dependency order. Không “song song hóa” nhữ
 | P7 | Sync Architecture | Context/usage/sequence/system config; tech/environment chỉ khi trigger kỹ thuật thực sự có. |
 | P8 | Sync Screen Documentation | Inventory + screen specs cho field/action/state/role/error/coverage bị đổi; không dùng UI suy ngược rule. |
 | P9 | Sync Data/Database Documentation, including DAC after S4 | S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema→Field Mapping→Seed/edge-case evidence→Storage Validation evidence only if executed. Không infer physical choices hoặc hand-edit generated artifacts. V2: theo AGENTS.md §2, active documentation set kết thúc ở Physical Schema; Field Mapping, Seed và Storage Validation không thuộc phạm vi V2. |
-| P10 | Complete & Validate Implementation Documentation | Inventory và validate đầy đủ cả ba package specs/001\|002\|003; hoàn tất spec/research/plan/data-model/contracts/quickstart/tasks; chạy I1 clarify → I2 checklist → I3 plan → I4 tasks → I5 analyze; resolve blocking findings; xuất implementation-readiness report. Không chạy task hoặc sửa code/test/migration/runtime. |
+| P10 | Implementation Documentation — **không áp dụng cho V2** | `NOT APPLICABLE` theo AGENTS.md §2: không có package `specs/001\|002\|003`. Nội dung cũ của pha này (§6.5) chỉ để tham chiếu nếu được yêu cầu tường minh sau này. |
 | P11 | Repository-wide Final Audit | Search canonical names/IDs/old terms; diff review; validate phase references, version/date/link/coverage; classify remaining stale items. |
 
 ## 5.1 P2 — cách sửa Spec-M03 đúng thứ tự
@@ -484,9 +484,9 @@ Thứ tự dưới đây là dependency order. Không “song song hóa” nhữ
 | data/seed/README.md | Seed package instructions/coverage | Ngoài bộ V2 (§1.3); không viết hướng dẫn seed Shared Backend. |
 | data/07-storage-validation.md | Executed validation evidence | Ngoài bộ V2 (§1.3). Chỉ ghi kết quả mới sau khi validation thực sự chạy trên runtime cô lập; evidence cũ là baseline-specific. |
 
-## 6.5 Implementation documentation under specs/
+## 6.5 Implementation documentation under specs/ (không áp dụng cho V2)
 
-Đây là **Layer 3 — Implementation Documentation**, tách biệt với canonical specs (Layer 1) và derived documentation (Layer 2). Sau khi P9 ổn định, P10 bắt buộc xử lý **cả ba package** đến trạng thái complete, internally consistent và implementation-ready, đủ để future coding bắt đầu mà không cần thêm một documentation-generation phase. Existing content đúng phải được giữ; artifact không đổi có thể ghi `NO CHANGE` sau full validation, nhưng `NO CHANGE` không bao giờ thay thế completeness check hoặc che tài liệu thiếu/stale.
+**V2: không áp dụng** (AGENTS.md §2); phần còn lại của mục này chỉ để tham chiếu nếu P10 được khôi phục bằng yêu cầu tường minh. Đây là **Layer 3 — Implementation Documentation**, tách biệt với canonical specs (Layer 1) và derived documentation (Layer 2). Sau khi P9 ổn định, P10 bắt buộc xử lý **cả ba package** đến trạng thái complete, internally consistent và implementation-ready, đủ để future coding bắt đầu mà không cần thêm một documentation-generation phase. Existing content đúng phải được giữ; artifact không đổi có thể ghi `NO CHANGE` sau full validation, nhưng `NO CHANGE` không bao giờ thay thế completeness check hoặc che tài liệu thiếu/stale.
 
 ### 6.5.1 Baseline inventory đã xác minh và quy tắc re-inventory
 
@@ -846,7 +846,7 @@ Một field mới không được coi là “đã hoàn tất spec” chỉ vì 
 
 # 8. Skill & tool playbook để sửa và check
 
-Repository có các skill dưới `.agents/skills`. H0–H2 phải resolve portable Python và đúng package trước invocation. P1–P9 có thể dùng methodology khi canonical file không nằm trong active Spec-Kit package; riêng P10 phải thực thi actual skills I1–I5 trên từng package với verified `FEATURE_DIR`, pre/post hooks, changed-file review và completion evidence. Việc ghi tên skill trong report không chứng minh skill đã chạy.
+Repository có các skill dưới `.claude/skills`. H0–H2 phải resolve portable Python và đúng package trước invocation. P1–P9 có thể dùng methodology khi canonical file không nằm trong active Spec-Kit package; riêng P10 phải thực thi actual skills I1–I5 trên từng package với verified `FEATURE_DIR`, pre/post hooks, changed-file review và completion evidence. Việc ghi tên skill trong report không chứng minh skill đã chạy.
 
 | Skill / tool | Dùng khi nào | Cách dùng trong refactor M03 | Trạng thái |
 | --- | --- | --- | --- |
@@ -881,7 +881,7 @@ Repository có các skill dưới `.agents/skills`. H0–H2 phải resolve porta
 
 ## 8.2 Prompt gợi ý cho agent khi bắt đầu refactor
 
-| Read-only first. Do not edit code, tests, SQL migrations, Edge Functions/RPCs, runtime configuration, design-decisions, shared scripts/templates or historical evidence. 0) Run H0–H3: verify approved Change Brief, active Git baseline/worktree ownership, portable Python/skill availability, report root and ownership. 1) Before P0 and every Spec-Kit skill, set intended `SPECIFY_FEATURE_DIRECTORY`, run `check_prerequisites.py --json --paths-only`, verify `FEATURE_DIR`/`FEATURE_SPEC`/`IMPL_PLAN`/`TASKS`, and record evidence; branch name is not package selection. 2) Read AGENTS.md/constitution/canonical specs and classify C1–C6. 3) Keep Layer 1 canonical, Layer 2 derived and Layer 3 implementation authority distinct; business/product/contract clarification requires human approval and canonical update before Layer 3 integration. 4) Complete P1–P8 in order. 5) P9 stays S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema and ends there for the V2 set; no seed, remote reset or destructive test on the single Supabase/Vercel Shared Backend (§1.3); never pass blocking `TBD-HUMAN`. 6) P10 re-inventories every file/contract in all three packages, then executes I1 clarify → I2 checklist/review → I3 plan → I4 tasks → I5 analyze sequentially per package with hooks, invocation/source version, input/output and changed-file evidence. 7) Complete `spec.md`, `research.md`, `plan.md`, `data-model.md`, actual contracts, `quickstart.md`, `tasks.md`; preserve correct content/task history and never use `NO CHANGE` to bypass gaps. 8) Supplement analyze with contract↔DAC, plan↔data-model and cross-module matrices; resolve blockers and rerun affected gates. 9) Store standardized reports under `docs/refactor-reports/<CHANGE_ID>/`, mark package READY/NOT READY/BLOCKED and do not execute tasks or claim runtime validation. 10) Preserve stable IDs/ownership/names. 11) End with P11 diff/exclusion audit and explicit handoff verdict; if end-to-end skills were not run, state `END-TO-END SKILL EXECUTION: NOT VALIDATED`. |
+| Read-only first. Do not edit code, tests, SQL migrations, Edge Functions/RPCs, runtime configuration, design-decisions, shared scripts/templates or historical evidence. 0) Run H0–H3: verify approved Change Brief, active Git baseline/worktree ownership, portable Python/skill availability, report root and ownership. 1) Before P0 and every Spec-Kit skill, set intended `SPECIFY_FEATURE_DIRECTORY`, run `check_prerequisites.py --json --paths-only`, verify `FEATURE_DIR`/`FEATURE_SPEC`/`IMPL_PLAN`/`TASKS`, and record evidence; branch name is not package selection. 2) Read AGENTS.md/constitution/canonical specs and classify C1–C6. 3) Keep Layer 1 canonical, Layer 2 derived and Layer 3 implementation authority distinct; business/product/contract clarification requires human approval and canonical update before Layer 3 integration. 4) Complete P1–P8 in order. 5) P9 stays S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema and ends there for the V2 set; no seed, remote reset or destructive test on the single Supabase/Vercel Shared Backend (§1.3); never pass blocking `TBD-HUMAN`. 6) P10 không áp dụng cho V2 (AGENTS.md §2); không tạo package `specs/`. 7) Báo cáo cuối đặt trong final change report/PR description (§10.2), không tạo thư mục báo cáo; không execute task hoặc claim runtime validation. 8) Preserve stable IDs/ownership/names. 9) End with P11 diff/exclusion audit and explicit handoff verdict; if end-to-end skills were not run, state `END-TO-END SKILL EXECUTION: NOT VALIDATED`. |
 | --- |
 
 # 9. Validation và final audit
@@ -1011,7 +1011,7 @@ Nếu chỉ review qua GitHub connector: dùng repository search cho cùng keywo
 | G4 — Architecture/Screen | Derived flow/context/UI state không có behavior ngoài spec. |
 | G5 — Logical model & Data Acceptance | S1–S4 hoàn tất; DAC được reconcile sau S4, cover changed fields/contracts, không invent limit, không còn blocking `TBD-HUMAN`; cả hai cùng pass review trước physical design. |
 | G6 — Physical/Data evidence | Physical schema chỉ được sync sau G5. Field mapping, seed và Storage Validation ngoài bộ V2 (§1.3): không seed/reset Shared Backend; kết quả validation chỉ được ghi nếu đã thực thi trên runtime cô lập, phần còn lại `NOT RUN`. |
-| G7 — P10 Implementation Readiness | Cả ba package pass §6.5.5; H2 target được revalidated trước write skill; required artifacts/sections complete hoặc justified `N/A`; I1–I5 có source/invocation/input/output/hook/validation evidence; contracts/data/tasks consistent; không blocker; `NO CHANGE` không che incompleteness. |
+| G7 — P10 Implementation Readiness | `NOT APPLICABLE` cho V2 (AGENTS.md §2). |
 | G8 — Evidence integrity | Không sửa lịch sử để giả PASS; validation mới có date/baseline rõ. |
 | G9 — Repo hygiene, evidence & traceability | Diff chỉ chứa in-scope docs; excluded-file check và git diff --check pass; stable IDs/links/names/source refs resolve; standardized report set complete; actual vs NOT RUN checks được phân biệt. |
 
@@ -1023,16 +1023,16 @@ Nếu chỉ review qua GitHub connector: dùng repository search cho cùng keywo
 | Change brief | Có Current→New, rationale, impact dimensions, non-goals và quyết định đã được người dùng chốt. |
 | Spec baseline | Spec-M03 là nguồn sự thật mới; M01/M02 đã xử lý impact. |
 | Derived docs | MVP/Function/Architecture/Screen và data artifacts đã sync theo trigger; P9 tuân thủ S1→S2→S3→S4→DAC→review→physical→mapping→seed→validation-evidence. |
-| Implementation docs | Sau khi P9 ổn định, cả ba package specs/001–003 được inventory và complete/validate end-to-end; mọi core artifact và actual contract pass matrix; I1–I5 có evidence; package `READY`; không tạo requirement mới hoặc execute task. |
+| Implementation docs | `NOT APPLICABLE` cho V2 (AGENTS.md §2): không tạo `specs/001–003`. |
 | Exclusions | Không chạm design-decisions, templates, historical source, code/tests/prototypes. |
 | Data Acceptance | DAC được hoàn tất sau S4; cover field/rule đã đổi; source refs resolve; không có invented max/range; blocking `TBD-HUMAN` đã được human quyết định và ghi vào spec trước review/physical design. |
 | Data gates | Không nhảy stage; generated artifacts không hand-edit; review/evidence không giả mạo. |
-| Evidence/reporting | `docs/refactor-reports/<CHANGE_ID>/` chứa đủ preflight, inventories, traceability, contract/data gates, per-skill evidence, readiness, final report và future handoff. |
+| Evidence/reporting | Final change report/PR description theo §10.2 chứa preflight, traceability, contract/data gates, kết quả check đã chạy/`NOT RUN` và unresolved items; không tạo thư mục `docs/refactor-reports/`. |
 | Final audit | Search/diff/excluded-file/validation report kèm unresolved items; check chưa chạy ghi `NOT RUN`. Nếu chưa test actual I1–I5 end-to-end, ghi `END-TO-END SKILL EXECUTION: NOT VALIDATED`. |
 
 ## 10.1 Stable report và evidence structure
 
-Dùng một report root versionable, tách khỏi canonical specs, implementation packages và historical runtime evidence:
+V2 không tạo thư mục này; cấu trúc dưới đây chỉ là danh mục nội dung cần có trong final change report/PR description (§10.2), tách khỏi canonical specs và historical runtime evidence:
 
 ```text
 docs/refactor-reports/<CHANGE_ID>/
@@ -1053,7 +1053,7 @@ Directory này chỉ chứa documentation workflow evidence, giúp reviewer tái
 | Evidence class | Nơi lưu | Quy tắc |
 | --- | --- | --- |
 | Historical validation evidence | Existing dated validation files, như M03 backend pass và `data/07-storage-validation.md`. | Immutable historical context; không rewrite thành PASS cho baseline mới. |
-| Documentation review evidence | `docs/refactor-reports/<CHANGE_ID>/`. | Ghi inventory, traceability, skill execution, review findings, commands và readiness; không tuyên bố runtime behavior đã pass. |
+| Documentation review evidence | Final change report/PR description (§10.2). | Ghi inventory, traceability, skill execution, review findings, commands và readiness; không tuyên bố runtime behavior đã pass. |
 | Future runtime/test validation | Future implementation/test phase và approved validation artifact. | `NOT RUN` trong documentation-only workflow trừ khi validator thực sự được phép và đã chạy. |
 
 Mỗi row trong `06-spec-kit-execution-evidence.md` phải có:
@@ -1162,15 +1162,13 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 | Layer 2 — MVP & Function | MVP-Scope.md; docs/function list/function-list-M01.md; function-list-M02.md; function-list-M03.md |
 | Architecture | docs/architecture/README.md; context-diagram.md; usage-flow.md; sequence-diagrams.md; system-configuration.md; tech-stack.md; environment.md |
 | Screen lists | screens/screen list/README.md; screen-list-M01.md; screen-list-M02.md; screen-list-M03.md |
-| Screen specs | screens/screen-spec/M01/001…004; M02/001…003; M03/000…007 |
+| Screen specs | screens/screen-spec/M01/001…004; M02/001…004; M03/000…009 |
 | Data (workflow order) | data/01-entity-dictionary.md; 02-crud-matrix.md; 03-erd.mmd; 03-erd-preview.md; 03-erd-review.md; 04-data-model.md; 04-data-model.dbml; **08-data-acceptance-criteria.md (NEW)**; 05-review.md; 06-physical-schema.md; data/schema/field-mapping.md; 07-storage-validation.md |
 | Seed (V1, ngoài bộ V2) | data/seed/README.md; CSV fixtures; edge-case-register.md; edge-cases.json — nếu còn tồn tại thì chỉ là lịch sử; không sửa, không nạp vào Shared Backend (§1.3) |
-| M01 implementation docs | specs/001-m01-implementation/{spec,research,plan,data-model,quickstart,tasks}.md; contracts/{application-flow-contract,local-persistence-contract,public-source-contract}.md |
-| M02 implementation docs | specs/002-m02-implementation/{spec,research,plan,data-model,quickstart,tasks}.md; contracts/{application-flow-contract,live-content-contract,local-persistence-contract,terminal-sync-contract}.md |
-| M03 implementation docs | specs/003-m03-implementation/{spec,research,plan,data-model,quickstart,tasks}.md; contracts/{admin-command-contract,admin-ui-flow-contract,auth-account-contract,media-storage-contract,publication-public-contract,session-reporting-contract}.md; historical backend-pass5-validation.md và backend-pass6-validation.md |
-| Mandatory P10 skills | .agents/skills/speckit-clarify/SKILL.md; speckit-checklist/SKILL.md; speckit-plan/SKILL.md; speckit-tasks/SKILL.md; speckit-analyze/SKILL.md |
-| Operational handoff | `.gitignore` for machine-local `.specify/feature.json`; `docs/refactor-reports/<CHANGE_ID>/` created only during an approved actual run. |
-| Index/governance | README.md; docs/README.md; AGENTS.md; .specify/memory/constitution.md; supabase/README.md (conditional) |
+| M01/M02/M03 implementation docs (P10) | Không áp dụng cho V2 (AGENTS.md §2); không tồn tại `specs/` |
+| Spec-Kit skills (methodology cho P1; P10 không áp dụng) | .claude/skills/speckit-clarify/SKILL.md; speckit-checklist/SKILL.md; speckit-plan/SKILL.md; speckit-tasks/SKILL.md; speckit-analyze/SKILL.md |
+| Operational handoff | `.gitignore` for machine-local `.specify/feature.json`. |
+| Index/governance | README.md; docs/README.md; AGENTS.md; CLAUDE.md; .specify/memory/constitution.md; docs/design/design-system.md; assets/icons/; .claude/skills/; supabase/README.md (conditional) |
 
 # Phụ lục B — Explicit do-not-touch list
 
@@ -1232,21 +1230,15 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 
 ☐ 17. README/index/version/date/link summary được sync nếu baseline metadata đổi.
 
-☐ 18. P10 đã re-inventory mọi artifact/contract của cả M01/M02/M03 trên active ref; delta với baseline được ghi nhận.
+☐ 18–24. P10 không áp dụng cho V2 (AGENTS.md §2): ghi `NOT APPLICABLE`, không tạo `specs/001–003`.
 
-☐ 19. Completeness matrix cover từng required file/section; mọi item complete hoặc justified `N/A`; `NO CHANGE` không bypass gap/stale content.
 
-☐ 20. I1–I5 đã chạy đúng package/order với skill source/version, actual invocation, inputs/outputs, hooks, warnings, blockers và validation; unavailable/incompatible skill không giả PASS.
 
-☐ 21. Mọi I1 business/product/cross-module clarification có human approval và canonical source trước khi sync Layer 3; technical-only clarification không đổi behavior.
 
-☐ 22. Spec↔plan↔data-model↔contracts↔DAC↔tasks và M01↔M02↔M03 compatibility pass; blocking findings đã resolve và checks đã rerun.
 
-☐ 23. Cả ba package có implementation-readiness assessment `READY`; non-blocking assumptions có owner/follow-up; task history không false-complete.
 
-☐ 24. P10 không execute task hoặc sửa application code, tests, SQL migrations, Edge/RPC, runtime configuration hay historical evidence.
 
-☐ 25. Stable report set tại `docs/refactor-reports/<CHANGE_ID>/` đầy đủ; documentation review, historical evidence và future runtime validation được phân biệt.
+☐ 25. Final change report/PR description (§10.2) phân biệt documentation review, historical evidence và future runtime validation; không có thư mục báo cáo riêng.
 
 ☐ 26. Repo search không còn term/field/status/version/phase reference cũ trong in-scope docs.
 
