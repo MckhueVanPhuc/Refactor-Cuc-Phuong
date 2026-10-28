@@ -4,7 +4,7 @@
 
 Tài liệu này là nguồn canonical cho các lựa chọn công nghệ của MVP Cúc Phương Quest. Runtime topology, component ownership và data flow nằm tại [System Configuration / Runtime Architecture](system-configuration.md); cấu hình theo từng environment nằm tại [Environment Configuration](environment.md).
 
-Repository hiện là documentation-only: không có application source, `package.json`, lockfile, SQL migration, Edge Function, test suite, Supabase/Vercel runtime configuration hoặc deployment evidence. [Physical Schema](../../data/06-physical-schema.md) là documentation baseline, không phải implemented schema.
+Repository đã mở phạm vi code theo AGENTS.md §2, nhưng hiện chưa có application source, `package.json`, lockfile, SQL migration, Edge Function, test suite, Supabase/Vercel runtime configuration hoặc deployment evidence. Mọi lựa chọn trong tài liệu này là `Selected — not implemented` cho đến khi có artifact tương ứng. [Physical Schema](../../data/06-physical-schema.md) là documentation baseline, không phải implemented schema.
 
 Status trong tài liệu này dùng nhất quán: **Selected — not implemented** cho technology/approach đã được chốt nhưng chưa có implementation artifact; **Present — documentation/tooling only** cho artifact quản trị thực sự có trong repository; **Not verified** cho trạng thái máy hoặc cloud cần evidence bên ngoài; **Excluded** cho lựa chọn ngoài MVP. Không suy ra hosted service đã tồn tại chỉ vì technology đã được chọn.
 

@@ -12,11 +12,11 @@ File này áp dụng cho toàn bộ repository Refactor-Cuc-Phuong. Mọi agent 
 
 ## 2. Trạng thái repository
 
-Đây là repository **documentation-only / spec-first** phục vụ rebaseline và refactor tài liệu Cúc Phương Quest V2 (bắt đầu từ việc rebaseline Spec-M03).
+Đây là repository **spec-first** phục vụ rebaseline và refactor tài liệu Cúc Phương Quest V2. Bộ tài liệu V2 đã hoàn tất; từ 2026-10-28 repo mở phạm vi code theo quyết định của người dùng (xem bullet "Phạm vi code" bên dưới).
 
 - **Phạm vi tài liệu hiện có:** Từ Layer 1 (Canonical Specifications) đến Layer 4 (Data Modeling & Physical Schema). Điểm kết thúc của bộ tài liệu hiện tại là [Physical Schema](data/06-physical-schema.md).
-- **Không chứa implementation:** Repository này hoàn toàn KHÔNG chứa application source code, SQL migrations, Edge Functions, tests, seed generation scripts, hoặc runtime environments (Supabase/Vercel).
-- **Không chứa downstream artifacts:** Các tài liệu downstream từ V1 như Field Mapping (data/schema/field-mapping.md), Seed Data (data/seed/**), Storage Validation (data/07-storage-validation.md), và các P10 implementation packages (specs/00*-*) KHÔNG nằm trong active documentation set của V2.
+- **Phạm vi code (đã mở theo quyết định của người dùng):** application source trong `src/`, implementation packages trong `specs/` (Spec-Kit), và cấu hình Vite cùng Supabase local (`supabase/config.toml`, `supabase/seed.sql` chỉ dùng cho local) được phép, theo change brief và plan đã duyệt. Vẫn **chưa** thuộc phạm vi nếu chưa có change brief riêng: SQL migrations, Edge Functions/RPC, tests dùng dữ liệu thật, cấu hình hoặc secret của cloud project, và deploy. Không dùng dữ liệu thật hay seed vào Shared Backend trên cloud.
+- **Không chứa downstream artifacts:** Các tài liệu downstream từ V1 như Field Mapping (data/schema/field-mapping.md), Seed Data (data/seed/**), Storage Validation (data/07-storage-validation.md), và các implementation packages cũ (specs/00*-*) không nằm trong bộ tài liệu V2. Package `specs/` mới chỉ được tạo theo change brief code.
 - **HTML mockup:** chỉ là mockup tĩnh theo screen spec, đặt trong `screens/html/`; không chứa logic nghiệp vụ, gọi API hay dữ liệu thật.
 - Ba module logic là:
   - **M01 — Route Planning & Preparation:** Ngôn ngữ, khám phá/chọn tuyến, recommendation, offline package và handoff.
@@ -83,6 +83,9 @@ Không đổi tên contract, bỏ suffix/version hoặc hợp nhất transport s
 | screens/screen-spec/ | Chi tiết đặc tả màn hình | Bám sát spec và screen list; không tự tạo business rule |
 | screens/html/ | HTML mockup tĩnh, mỗi screen một file `mockup-SCR-Mxx-nnn.html` | Derived từ screen spec và docs/design/design-system.md; chỉ trực quan hóa, không tạo requirement hay behavior; không giả lập API/dữ liệu thật |
 | docs/design/ | Design system: token, typography, component và truy cập | Derived từ spec và screen spec; chỉ định nghĩa hình thức, không tạo requirement hay behavior mới |
+| src/ | Application code (React + TypeScript) | Theo plan đã duyệt và CLAUDE.md; màu, font, khoảng cách lấy từ token; không sửa spec để khớp code |
+| specs/ | Implementation packages (Spec-Kit) | Derived từ spec canonical; không tạo requirement mới; chỉ tạo khi có change brief code |
+| supabase/config.toml, supabase/seed.sql | Cấu hình và dữ liệu synthetic cho Supabase local | Chỉ local; không `link`/`db push` lên cloud nếu chưa phê duyệt |
 | assets/ | Static assets dùng chung (hiện có assets/icons/) | Chỉ thêm file do người dùng cung cấp; không tự tạo hay vẽ asset |
 | data/01-entity-dictionary.md | S1 canonical entity vocabulary | Không thêm entity từ implementation convenience |
 | data/02-crud-matrix.md | S2 FN-level direct CRUD evidence | Không gán CRUD từ indirect/delegated effect |

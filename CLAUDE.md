@@ -5,9 +5,9 @@ AGENTS.md là quy tắc chính của repo. Nếu một yêu cầu xung đột v�
 
 ## Trạng thái repo
 
-Repo hiện là **documentation-only / spec-first** (xem AGENTS.md §2): không có application source code.
-Các quy tắc frontend dưới đây **chỉ áp dụng khi bắt đầu viết code ứng dụng**. Chúng không cho phép
-thêm code ứng dụng vào repo hiện tại. HTML mockup tĩnh chỉ được đặt trong `screens/html/`.
+Repo đã **mở phạm vi code** (xem AGENTS.md §2): application code nằm trong `src/`, implementation packages trong `specs/`,
+cấu hình Vite và Supabase local. Chưa có source code nào được viết; việc viết code chỉ bắt đầu sau khi plan được duyệt.
+Quy tắc frontend dưới đây áp dụng cho `src/`. HTML mockup tĩnh trong `screens/html/` chỉ là tham chiếu, không phải code ứng dụng.
 
 ## Skill
 

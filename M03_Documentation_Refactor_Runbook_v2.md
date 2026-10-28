@@ -279,7 +279,7 @@ Runbook này áp dụng khi thay đổi behavioral/contract baseline của M03 h
 | Product documentation templates | docs/templates/** | Template không phải downstream product requirement. |
 | Spec-Kit infrastructure | .specify/scripts/**; .specify/templates/** | Không sửa script/template dùng chung nếu chưa chứng minh blocker không thể xử lý bằng runbook/skill instructions và chưa xin approval riêng. |
 | Historical/source | PCCV_DBIZ3_TEAM-H.docx; Stakeholder Interview & Problem Define.pdf | Nguồn/historical artifact; không rewrite theo baseline mới. |
-| Code & tests | src/**; tests/**; application handlers; SQL/Edge implementation; migrations | Người dùng yêu cầu không tính code/test trong change set này. |
+| Code & tests | tests/**; application handlers; SQL/Edge implementation; migrations | Người dùng yêu cầu không tính code/test trong change set tài liệu này. src/** và specs/** đã mở phạm vi theo AGENTS.md §2, chỉ dùng trong change brief code. |
 | Prototype/visual code | design-prototypes/**; capture-*.js và generated screenshots | Implementation/prototype; không thuộc refactor tài liệu lần này. |
 
 Ngoại lệ: `supabase/README.md` là tài liệu, không phải code. Chỉ REVIEW nếu thay đổi M03 làm đổi quy trình database/Auth/seed/deployment. Không vì README nằm trong `supabase/` mà mặc định loại bỏ.
@@ -988,7 +988,7 @@ Expected: `git diff --check` exit 0, không conflict marker, reviewer đọc đ�
 ```powershell
 $changedFiles = git diff --name-only
 $excludedChanges = $changedFiles | Where-Object {
-    $_ -match '^(src/|tests/|supabase/migrations/|supabase/functions/|design-prototypes/)' -or
+    $_ -match '^(tests/|supabase/migrations/|supabase/functions/|design-prototypes/)' -or
     $_ -match '(^|/)(package-lock\.json|pnpm-lock\.yaml|yarn\.lock)$'
 }
 if ($excludedChanges) {
@@ -1181,7 +1181,7 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 | .specify/scripts/**; .specify/templates/** | Shared Spec-Kit infrastructure; read/validate only. Nếu runbook/skill instruction không thể xử lý blocker, document reason và xin additional approval trước mọi edit. |
 | PCCV_DBIZ3_TEAM-H.docx | Historical/source artifact. |
 | Stakeholder Interview & Problem Define.pdf | Historical/source artifact. |
-| src/**, tests/** | Code/test explicitly excluded. |
+| tests/** | Test explicitly excluded (src/** đã mở theo AGENTS.md §2). |
 | supabase migrations/Edge/RPC implementation | Code/DB implementation excluded; README may still be reviewed conditionally. |
 | design-prototypes/**, generated screenshots | Prototype/implementation artifacts excluded. |
 
