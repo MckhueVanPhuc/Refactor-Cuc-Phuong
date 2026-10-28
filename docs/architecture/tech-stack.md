@@ -39,6 +39,7 @@ Các lựa chọn frontend bổ sung hiện hành (**Selected — not implemente
 | React state/hooks/context | UI state tạm thời, language/session view | M01–M03 | Dexie sở hữu persistent state theo target design; không thêm Redux/Zustand hoặc cache server thứ hai | Selected — not implemented |
 | `@supabase/supabase-js` | Auth, Data API, Storage và function calls | M01–M03 | Một SDK cho platform đã chọn | Selected — not implemented |
 | `@zxing/browser` + `@zxing/library` | Decode QR từ camera; lazy-load scanner | M02 | Không phụ thuộc duy nhất vào browser BarcodeDetector | Selected — not implemented |
+| QR code generation library | Sinh ảnh mã QR để in (SVG và PNG ≥ 1024 px, mức sửa lỗi Q, lề 4 ô) chứa link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` | M03 | Spec M03 BR-M03-B04/B05 yêu cầu ảnh in; [NEEDS CLARIFICATION: thư viện cụ thể chưa được nhóm chốt] | Selected — not implemented |
 
 Dữ liệu domain bền vững nằm trong Dexie/Postgres; Context chỉ giữ UI state hoặc view của dữ liệu đó. Server calls dùng typed adapters với loading/error/retry rõ ràng.
 
@@ -120,8 +121,8 @@ Database constraints và server-side authorization vẫn phải enforce invarian
 
 | Module | Frontend | Local storage | Backend/data | Special responsibility |
 |---|---|---|---|---|
-| M01 — Route Planning & Preparation | Shared React/TypeScript/Vite PWA, public routes | Cache Storage; IndexedDB via Dexie | Public Published Route and `JourneySnapshot` reads from Supabase | Offline package staging/atomic activation and `SelectedRouteContext v2` publication |
-| M02 — Field Quest Experience | Shared React/TypeScript/Vite PWA, public routes | IndexedDB via Dexie | Supabase `LiveStationContent` reads and `SessionSyncRecord` intake | Frozen journey, local progress, online/offline content selection and retry queue |
+| M01 — Route Planning & Preparation | Shared React/TypeScript/Vite PWA, public routes | Cache Storage; IndexedDB via Dexie | Public Published Route and `JourneySnapshot` reads from Supabase | Offline package staging/atomic activation and `SelectedRouteContext v3` publication |
+| M02 — Field Quest Experience | Shared React/TypeScript/Vite PWA, public routes | IndexedDB via Dexie | Supabase `LiveQrLookupResult` reads and `SessionSyncRecord` intake | Frozen journey, local progress, online/offline content selection and retry queue |
 | M03 — Operations & Content Administration | Shared React/TypeScript/Vite app, protected online-only routes | No offline draft store | Supabase Postgres/Auth/RLS/Storage plus server-side functions | Administration, review/publication, snapshots, `SessionSyncRecord` intake, `SessionRecord` persistence and reports |
 
 Ba module dùng chung stack và codebase; bảng này mô tả responsibility khác nhau, không tạo ba technology stacks riêng.
