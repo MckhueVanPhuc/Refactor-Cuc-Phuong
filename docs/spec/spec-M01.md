@@ -8,7 +8,7 @@
 | Version | 3.2 |
 | Status | MVP implementation baseline — aligned to M03 v3.7 and M02 v3.3 |
 | Supersedes | 3.1 (previous repository baseline: 2.0) |
-| Last updated | 2026-10-27 |
+| Last updated | 2026-10-28 |
 | Primary consumers | Visitor web app, M02 |
 | Upstream system | M03 |
 
@@ -481,12 +481,10 @@ erDiagram
     ROUTE ||--o| SELECTED_ROUTE_CONTEXT : selected_for
     ROUTE ||--o| OFFLINE_PACKAGE : has_active
     OFFLINE_PACKAGE ||--o{ OFFLINE_RESOURCE : contains
-    OFFLINE_PACKAGE ||--o| OFFLINE_ROUTE_MAP : may_contain
-    OFFLINE_PACKAGE ||--|| ROUTE_ESSENTIALS : keeps
     CHECKPOINT ||--o{ OFFLINE_RESOURCE : has_one_per_QR
 ```
 
-A checkpoint is created and published once in M03 and may be listed by several routes, each with its own order; a route lists one or more checkpoints. In M01 a checkpoint is only ever seen as part of the selected route's snapshot.
+A checkpoint is created and published once in M03 and may be listed by several routes, each with its own order; a route lists one or more checkpoints. In M01 a checkpoint is only ever seen as part of the selected route's snapshot. The offline route map and the route essentials are values embedded in `OfflinePackage`, with no identity of their own (§6.4); they are therefore not drawn as entities.
 
 ### 6.2 Entity Definitions
 
@@ -498,8 +496,8 @@ A checkpoint is created and published once in M03 and may be listed by several r
 | SelectedRouteContext | v3 handoff, expiry and manifest | M01 |
 | OfflinePackage | Route/version, readiness/freshness, manifest/resources, optional offline route map, route essentials | M01 |
 | OfflineResource | `qrIdentifier`, `checkpointId`, bilingual object name and introduction, images (one per QR of an offline-required checkpoint) | M01 local copy; source M03 |
-| OfflineRouteMap | Declared image reference, local image bytes, optional bilingual caption; embedded in `OfflinePackage` | M01 local copy; source M03 snapshot |
-| RouteEssentials | Bilingual name, starting point, optional participation requirements and safety warning, `capturedAt`; embedded in `OfflinePackage` | M01 local copy; source M03 Published Route projection (not versioned) |
+| OfflineRouteMap (embedded value, not an entity) | Declared image reference, local image bytes, optional bilingual caption; embedded in `OfflinePackage` | M01 local copy; source M03 snapshot |
+| RouteEssentials (embedded value, not an entity) | Bilingual name, starting point, optional participation requirements and safety warning, `capturedAt`; embedded in `OfflinePackage` | M01 local copy; source M03 Published Route projection (not versioned) |
 | LanguagePreference | `languageCode`: Enum(`vi`, `en`) | M01 |
 
 ### 6.3 Entity Operation Matrix
@@ -614,10 +612,10 @@ None of these may redefine the business contracts or state transitions above.
 |---|---|---|
 | FR-001 | §4.6 | LanguagePreference |
 | FR-002…004 | §4.2 | Route, RecommendationContext |
-| FR-005…008 | §4.3, §4.8 | JourneySnapshot, OfflinePackage, OfflineResource, OfflineRouteMap, RouteEssentials |
+| FR-005…008 | §4.3, §4.8 | JourneySnapshot, OfflinePackage (with embedded OfflineRouteMap and RouteEssentials), OfflineResource |
 | FR-009…010 | §4.4, §4.8 | OfflinePackage |
 | FR-011…013 | §4.5, §4.7 | SelectedRouteContext, OfflinePackage, LanguagePreference |
-| FR-014 | §4.3, §4.4 | RouteEssentials |
+| FR-014 | §4.3, §4.4 | OfflinePackage (embedded RouteEssentials) |
 
 ### 11.2 Cross-Module Contract Checks
 
@@ -660,6 +658,7 @@ M03 v3.5, v3.6 and v3.7 change no contract consumed by M01. M03 v3.6 prints QR c
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.2 (clarification) | 2026-10-28 | §6.1, §6.2, §11.1: OfflineRouteMap and RouteEssentials are stated as values embedded in `OfflinePackage`, not entities; the ER no longer draws them (matches §6.4; Entity Dictionary HC-005). Clarification only; no behavior or contract change. |
 | 3.2 (editorial) | 2026-10-28 | References updated to M03 v3.7 and M02 v3.3. M03 v3.7 adds the spoken language of audio/video in the M03 → M02 live content contract; Published Route and JourneySnapshot are unchanged and audio/video never enters a snapshot, so M01 behavior and contracts do not change. |
 | 3.2 | 2026-10-27 | Aligned to M03 v3.6 and M02 v3.2 (public QR link opened from the phone camera). US-M01-01: the QR link entry never blocks on language; the device language applies until the visitor switches; the language control is on every visitor screen (FR-M01-001, BR-M01-001, new screen row). US-M01-03 item 5 and FR-M01-006: the offline decision tells visitors to use the in-app Scan button without network. §9.3: the cached app shell serves the QR link page offline. §9.2: iPhone home-screen installation not promoted. US → FR → BR → SC traceability table (§11.4). No contract shape change. |
 | 3.1 | 2026-10-27 | Aligned to M03 v3.5. Producer references updated from M03 v3.4 to v3.5 (no contract shape change). JourneySnapshot input mirrors M03 exactly: `contentVersion` starts at `1` and increases by `1`; `previousContentVersion` is absent for version `1` and otherwise `contentVersion - 1`; `sequence` is the 1-based list position; `offlineRouteMap.caption` branches are at most 200 characters (also in `OfflinePackage.offlineRouteMap.caption`). US-M01-05 no longer refers to deleted routes, because M03 never physically deletes a published route. The domain model shows that routes and checkpoints are many-to-many (a checkpoint is shared by several routes). Status refers to M02 v3.1. |

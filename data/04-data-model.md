@@ -7,9 +7,11 @@
 | Session | 5 — Data Modeling |
 | Stage | S4 — Logical Data Model |
 | Primary artifacts | [Entity Dictionary](01-entity-dictionary.md), [CRUD Matrix](02-crud-matrix.md), [Conceptual ERD](03-erd.mmd), [ERD Review](03-erd-review.md) |
-| Authoritative field/rule sources | [Spec M01](../docs/spec/spec-M01.md), [Spec M02](../docs/spec/spec-M02.md), [Spec M03](../docs/spec/spec-M03.md) |
+| Authoritative field/rule sources | [Spec M01](../docs/spec/spec-M01.md) v3.2, [Spec M02](../docs/spec/spec-M02.md) v3.3, [Spec M03](../docs/spec/spec-M03.md) v3.7 |
 | Authoritative S4 artifact | This document; [DBML](04-data-model.dbml) is visualization only |
-| Status | PASS — ready for S5 Seed Data |
+| Status | PASS — S4 (V2) review accepted 2026-10-28; ready for Data Acceptance Criteria ([08](08-data-acceptance-criteria.md)) |
+
+V2 rebaseline (2026-10-28): rebuilt from specs M01 v3.2, M02 v3.3, M03 v3.7 and the V2 S1–S3 artifacts. CheckpointContent (ENT-DATA-004) is retired and Revision (ENT-DATA-017) is modeled; Route, Checkpoint and QRCode keep identity, lifecycle and internal fields while their editable public content lives in Revision; the relationship catalog follows S3 V2 (24 active, 5 retired).
 
 ## 2. Modeling Principles
 
@@ -19,30 +21,35 @@
 - No generic technical fields are added; source-declared fields such as `concurrencyRevision`, `createdAt` and `updatedAt` are retained.
 - Embedded frozen values remain embedded logical paths. They are not replaced with live references.
 - A source collection represented by an approved canonical child entity is modeled as a relationship rather than duplicated as an `Array<Object>` attribute. Specifically, `OfflinePackage.resources[]` is represented by OfflineResource.
+- Editable public content of a Route, Checkpoint or QRCode is modeled once, as `Revision.content`, with one content shape per `subjectType` (M03 §6). It is not duplicated on the subject entity.
 - Source-declared logical identifiers are used as given. This model does not assert that every opaque or UUID identifier is a real-world natural key; no unnamed business attribute is promoted into a new key.
-- Embedded frozen contract values remain logical values. Relational 1NF/2NF/3NF are not claimed as completed by the DBML visualization; the separate physical mapping and its deliberate exceptions are reviewed in §10.1.
+- Numeric length, count and size limits declared in the specs (for example `NAME_MAX_CHARS`) are not repeated here; they are catalogued in the Data Acceptance Criteria. This model records presence, non-empty, both-or-none and sign constraints only.
+- Embedded frozen contract values remain logical values. Relational 1NF/2NF/3NF are not claimed as completed by the DBML visualization; deliberate embedded values are reviewed in §10.1.
 - The DBML uses quoted logical path names and logical Object/Array type labels for visualization. Those labels are not PostgreSQL type choices; this Markdown model remains authoritative.
 
 ## 3. Logical Entity Summary
 
 | Entity | Classification | Owner | Logical Identifier | Lifecycle | Notes |
 |---|---|---|---|---|---|
-| Route | THING | M03 | `routeId` | `NHAP → CHO_DUYET → HOAT_DONG → TAM_DONG → LUU_TRU`, with rejection/reopen paths | Mutable administrative source; archive is not delete. |
-| Checkpoint | THING | M03 | `checkpointId` | `NHAP → HOAT_DONG → TAM_DONG → LUU_TRU`, with reopen path | Belongs to exactly one Route. |
-| QRCode | THING | M03 | `qrIdentifier` | Created `HOAT_DONG`; may become `DA_THAY` or `THU_HOI` | Reprint preserves identity. |
-| CheckpointContent | THING | M03 | `(checkpointId, languageCode, revision)` | `NHAP → CHO_DUYET → DA_DUYET → PHAT_HANH → LUU_TRU`, rejection to `NHAP` | One revision stream per checkpoint/language. |
-| Media | THING | M03 | `mediaId` | Draft/edit and publication eligibility; no full state enum declared | `sourceRef` is not identity. |
-| JourneySnapshot | EVENT | M03 | `(routeId, contentVersion)` | `DANG_TAO → DA_CONG_BO` | Published snapshot is immutable. |
+| Route | THING | M03 | `routeId` | `NHAP → HOAT_DONG ↔ TAM_DONG → LUU_TRU`; `NHAP → LUU_TRU` on discard | Mutable administrative source; content lives in Revision; archive is not delete. |
+| Checkpoint | THING | M03 | `checkpointId` | `NHAP → HOAT_DONG ↔ TAM_DONG → LUU_TRU`; `NHAP → LUU_TRU` on discard | Shared library; belongs to no Route. |
+| QRCode | THING | M03 | `qrIdentifier` | `NHAP → HOAT_DONG → THU_HOI`; `NHAP → THU_HOI` on discard | QR object (visit point); reprint preserves identity. |
+| CheckpointContent | — | — | — | — | RETIRED (V2): ENT-DATA-004; replaced by Revision. |
+| Media | THING | M03 | `mediaId` | No lifecycle enum declared; retained after it stops being referenced | Owned by one Route or one Checkpoint; `sourceRef` is not identity. |
+| JourneySnapshot | EVENT | M03 | `(routeId, contentVersion)` | `DANG_TAO → DA_CONG_BO` | Published snapshot is immutable; versions form a single chain. |
 | AdminAccount | THING | M03 | normalized `email` | `INVITATION_PENDING → ACTIVE ↔ DEACTIVATED` | Provider `userId` is unique external linkage when present. |
 | AuditRecord | EVENT | M03 | `auditId` | Appended once | Append-only; server provisioning may have no actor. |
 | LanguagePreference | THING | M01 | singleton current preference slot | Absent before selection; create/replace current value | Standalone entity; no invented relationship. |
-| SelectedRouteContext | THING | M01 | `handoffId` | Created `AUTHORIZED`; may become `REVOKED`; later Start replaces current singleton | Complete atomic handoff. |
-| OfflinePackage | THING | M01 | `(routeId, contentVersion)` | `CHUA_TAI → DANG_TAI → SAN_SANG` or `CHUA_HOAN_TAT`; ready version is current/outdated | Local deletion is supported. |
-| OfflineResource | THING | M01 | `(routeId, contentVersion, checkpointId)` | Candidate value; exposed with ready package; removed with package/candidate | Local immutable package value. |
+| SelectedRouteContext | THING | M01 | `handoffId` | Created `AUTHORIZED`; may become `REVOKED`; later Start replaces current singleton | Complete atomic v3 handoff; expires 24 hours after authorization. |
+| OfflinePackage | THING | M01 | `(routeId, contentVersion)` | `CHUA_TAI → DANG_TAI → SAN_SANG` or `CHUA_HOAN_TAT`; ready version is current/outdated | Local deletion is supported; offline route map and route essentials are embedded values. |
+| OfflineResource | THING | M01 | `(routeId, contentVersion, qrIdentifier)` | Candidate value; exposed with ready package; removed with package/candidate | One per QR of an offline-required checkpoint; local immutable package value. |
 | PlaySession | THING | M02 | `sessionId`; `sourceHandoffId` also unique | `DANG_DIEN_RA → HOAN_TAT` or `BO_DO` | Journey values freeze at creation; terminal state is immutable. |
-| CheckpointVisit | EVENT | M02 | `(sessionId, checkpointId)` | Inserted on first valid check-in | First timestamp is immutable. |
+| CheckpointVisit | EVENT | M02 | `(sessionId, checkpointId)` | Inserted on first accepted check-in | First timestamp is immutable. |
 | PendingSyncItem | THING | M02 | `sessionId` | `PENDING → SYNCED` or `CONFLICT` | Embedded transport record is immutable. |
 | SessionRecord | EVENT | M03 | `sessionId` | Inserted on first accepted payload | Immutable and idempotent on identical retry. |
+| Revision | THING | M03 | `revisionId`; `(subjectType, subjectId, revisionNumber)` also unique | `NHAP → PHAT_HANH → LUU_TRU`; `NHAP → DA_BO` | One subject (Route, Checkpoint or QRCode); `PHAT_HANH` is immutable. |
+
+16 canonical entities: M01 = 4, M02 = 3, M03 = 9. The retired CheckpointContent row is kept for traceability only.
 
 ## 4. Entity Definitions
 
@@ -50,34 +57,33 @@
 
 #### Identity
 
-`routeId` is the stable logical identifier and never changes.
+`routeId` is the stable logical identifier, system-generated, and never changes or is reused.
 
 #### Attributes
 
 | Attribute | Logical Type | Presence | Constraint | Source |
 |---|---|---|---|---|
-| `routeId` | String | Required | Stable identity; never changes. | M03 §6.1 |
-| `status` | Enum(`NHAP`, `CHO_DUYET`, `HOAT_DONG`, `TAM_DONG`, `LUU_TRU`) | Required | Route lifecycle. | M03 §6.1 |
-| `name.vi` | String | Conditional | Required and non-empty for publication. | M03 §6.1 |
-| `name.en` | String | Conditional | Required and non-empty for publication. | M03 §6.1 |
-| `description.vi` | String | Conditional | Required and non-empty for publication. | M03 §6.1 |
-| `description.en` | String | Conditional | Required and non-empty for publication. | M03 §6.1 |
-| `safetyWarning.vi` | String | Conditional | Both-or-none with `safetyWarning.en`. | M03 §6.1 |
-| `safetyWarning.en` | String | Conditional | Both-or-none with `safetyWarning.vi`. | M03 §6.1 |
-| `distanceKm` | Decimal | Conditional | Required for publication; greater than `0`. | M03 §6.1 |
-| `durationMin` | Integer | Conditional | Required for publication; greater than `0`. | M03 §6.1 |
-| `difficulty` | Enum(`NHE`, `TRUNG_BINH`, `KHO`) | Conditional | Required for publication. | M03 §6.1 |
-| `timeTags` | Array&lt;Enum(`TIME_NGAN`, `TIME_VUA`, `TIME_DAI`)&gt; | Conditional | Required and non-empty for publication. | M03 §6.1 |
-| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Conditional | Required and non-empty for publication. | M03 §6.1 |
-| `experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Conditional | Required and non-empty for publication. | M03 §6.1 |
-| `activeContentVersion` | Integer | Conditional | Required for `HOAT_DONG`; references a `DA_CONG_BO` JourneySnapshot of the same Route. | M03 §6.1, §6.4 |
+| `routeId` | String | Required | System-generated; stable; never changes; never reused. | M03 §6.1 |
+| `status` | Enum(`NHAP`, `HOAT_DONG`, `TAM_DONG`, `LUU_TRU`) | Required | Route lifecycle (§8). | M03 §6.1, §6.4 |
+| `activeContentVersion` | Integer | Conditional | Required once the Route has been published; references the highest `DA_CONG_BO` JourneySnapshot of the same Route. Absent for a Route never published. | M03 §6.1, §6.4 |
+| `closureSource` | Enum(`MANUAL`, `AUTO_NO_ACTIVE_CHECKPOINT`) | Conditional | Required while `TAM_DONG`. | M03 §6.1 |
+| `closureReason` | String | Conditional | Required while `TAM_DONG`; internal, never exposed to visitors. | M03 §6.1 |
+| `closedAt` | DateTime | Conditional | Required while `TAM_DONG`; UTC. | M03 §6.1 |
+| `closedByUserId` | String | Conditional | Required while `TAM_DONG`; for an automatic closure, the user whose checkpoint closure triggered it. | M03 §6.1 |
+| `createdByUserId` | String | Required | — | M03 §6.1 |
+| `createdAt` | DateTime | Required | UTC. | M03 §6.1 |
+| `updatedAt` | DateTime | Required | UTC. | M03 §6.1 |
 | `concurrencyRevision` | Integer | Required | Submitted value must match stored value; stale writes are rejected. | M03 §6.1 |
+
+Route content (names, descriptions, measures, tags, images, `checkpointList`, highlights) is the Revision content with `subjectType = ROUTE` (Revision, M03 §6.1.1). The time tag, checkpoint count, offline-required flag and checkpoint name list are derived and are not attributes (M03 §6.1.1).
 
 #### Relationships
 
 | Related Entity | Cardinality | Logical Reference | Rule | Source |
 |---|---|---|---|---|
-| Checkpoint | `1 : 0..*` | `Checkpoint.routeId → Route.routeId` | Contains checkpoints. | REL-001 |
+| Checkpoint | `0..* : 0..*` | `Revision(subjectType = ROUTE).content.checkpointList[].checkpointId → Checkpoint.checkpointId` | Lists checkpoints in its own order; a checkpoint appears at most once. | REL-022 |
+| Media | `0..1 : 0..*` | `Media.(ownerType = ROUTE, ownerId) → routeId` | Owns route images. | REL-023 |
+| Revision | `0..1 : 0..*` | `Revision.(subjectType = ROUTE, subjectId) → routeId` | Has revisions; at most one `NHAP` and one `PHAT_HANH`. | REL-024 |
 | JourneySnapshot | `1 : 0..*` | `JourneySnapshot.routeId → Route.routeId` | Produces immutable versions. | REL-005 |
 | JourneySnapshot | `0..1 : 0..1` | `(Route.routeId, Route.activeContentVersion) → (JourneySnapshot.routeId, JourneySnapshot.contentVersion)` | Selects the active published version. | REL-006 |
 | SelectedRouteContext | `1 : 0..1` | `SelectedRouteContext.routeId → Route.routeId` | Current context selects one route. | REL-010 |
@@ -87,7 +93,7 @@
 
 #### Lifecycle / Immutability
 
-Archive and emergency close/reopen are lifecycle updates, not deletion. Publication changes public state only after approval; stale mutations are rejected.
+Discard of a never-published Route, archive and emergency close/reopen are lifecycle updates, not deletion. A Route never reopens automatically. Public content changes only through publication of a Revision after the mandatory review; stale mutations are rejected.
 
 #### Decision Status
 
@@ -97,35 +103,38 @@ No outstanding decision.
 
 #### Identity
 
-`checkpointId` is the stable logical identifier.
+`checkpointId` is the stable logical identifier, system-generated and never reused.
 
 #### Attributes
 
 | Attribute | Logical Type | Presence | Constraint | Source |
 |---|---|---|---|---|
-| `checkpointId` | String | Required | Stable identity. | M03 §6.2 |
-| `routeId` | String | Required | References exactly one Route. | M03 §6.2 |
-| `checkpointName` | String | Conditional | Required and non-empty before activation/publication. | M03 §6.2 |
-| `sequence` | Integer | Conditional | Required before activation; unique per Route for non-archived checkpoints. | M03 §6.2 |
-| `connectivityMode` | Enum(`ONLINE_AVAILABLE`, `OFFLINE_REQUIRED`) | Conditional | Required before activation. | M03 §6.2 |
-| `fieldVerificationConfirmed` | Boolean | Conditional | Required and `true` before `ONLINE_AVAILABLE`; not GPS data. | M03 §6.2 |
-| `status` | Enum(`NHAP`, `HOAT_DONG`, `TAM_DONG`, `LUU_TRU`) | Required | Checkpoint lifecycle. | M03 §6.2 |
+| `checkpointId` | String | Required | System-generated; stable; never reused. | M03 §6.2 |
+| `status` | Enum(`NHAP`, `HOAT_DONG`, `TAM_DONG`, `LUU_TRU`) | Required | Checkpoint lifecycle (§8). | M03 §6.2, §6.4 |
+| `locationNote` | String | Optional | Internal area note saved with the checkpoint form; not part of a revision; never public. | M03 §6.2; BR-M03-F11 |
+| `closureReason` | String | Conditional | Required while `TAM_DONG`; internal. | M03 §6.2 |
+| `closedAt` | DateTime | Conditional | Required while `TAM_DONG`; UTC. | M03 §6.2 |
+| `closedByUserId` | String | Conditional | Required while `TAM_DONG`; internal. | M03 §6.2 |
+| `createdByUserId` | String | Required | — | M03 §6.2 |
+| `createdAt` | DateTime | Required | UTC. | M03 §6.2 |
+| `updatedAt` | DateTime | Required | UTC. | M03 §6.2 |
 | `concurrencyRevision` | Integer | Required | Used for stale-write rejection. | M03 §6.2 |
+
+Checkpoint name, connectivity mode and field verification are the Revision content with `subjectType = CHECKPOINT` (M03 §6.2.1). A Checkpoint belongs to no Route; its position in a route is the order of that route's `checkpointList` (M03 §6.4).
 
 #### Relationships
 
 | Related Entity | Cardinality | Logical Reference | Rule | Source |
 |---|---|---|---|---|
-| Route | `1 : 1` from Checkpoint | `routeId → Route.routeId` | Belongs to exactly one Route. | REL-001 |
+| Route | `0..* : 0..*` | `Revision(subjectType = ROUTE).content.checkpointList[].checkpointId → checkpointId` | Listed by zero or more Routes. | REL-022 |
 | QRCode | `1 : 0..*` | `QRCode.checkpointId → checkpointId` | Active checkpoint must retain at least one active QRCode. | REL-002 |
-| CheckpointContent | `1 : 0..*` | `CheckpointContent.checkpointId → checkpointId` | Owns per-language revision streams. | REL-003 |
-| Media | `1 : 0..*` | `Media.checkpointId → checkpointId` | Owns media resources. | REL-004 |
-| OfflineResource | `1 : 0..*` | `OfflineResource.checkpointId → checkpointId` | Local resources reference manifest checkpoints. | REL-013 |
+| Media | `0..1 : 0..*` | `Media.(ownerType = CHECKPOINT, ownerId) → checkpointId` | Owns media of its visit points. | REL-004 |
+| Revision | `0..1 : 0..*` | `Revision.(subjectType = CHECKPOINT, subjectId) → checkpointId` | Has revisions. | REL-025 |
 | CheckpointVisit | `1 : 0..*` | `CheckpointVisit.checkpointId → checkpointId` | Visit refers to a frozen journey checkpoint. | REL-017 |
 
 #### Lifecycle / Immutability
 
-Close, reopen and archive are lifecycle updates. `LUU_TRU` is terminal in the MVP; no deletion is declared.
+First publication, close, reopen, archive and discard are lifecycle updates. Archive is allowed only when no non-archived Route lists the Checkpoint. `LUU_TRU` is terminal in the MVP; no deletion is declared.
 
 #### Decision Status
 
@@ -135,27 +144,35 @@ No outstanding decision.
 
 #### Identity
 
-`qrIdentifier` is globally unique and stable.
+`qrIdentifier` is system-generated at the first save of the visit point form, globally unique, stable and never reused.
 
 #### Attributes
 
 | Attribute | Logical Type | Presence | Constraint | Source |
 |---|---|---|---|---|
-| `qrIdentifier` | String | Required | Globally unique stable identity. | M03 §6.2 |
-| `checkpointId` | String | Required | References exactly one Checkpoint. | M03 §6.2 |
-| `installationLabel` | String | Required | Operational placement description; not visitor content. | M03 §6.2 |
-| `status` | Enum(`HOAT_DONG`, `DA_THAY`, `THU_HOI`) | Required | `DA_THAY` and `THU_HOI` are terminal. | M03 §6.2 |
-| `replacementReason` | String | Conditional | Required when identity replacement is submitted. | M03 §6.2 |
+| `qrIdentifier` | String | Required | Globally unique stable identity; never reused. | M03 §6.2; BR-M03-B02, BR-M03-E15 |
+| `checkpointId` | String | Required | Belongs to exactly one Checkpoint; never changes. | M03 §6.2; BR-M03-E12 |
+| `installationLabel` | String | Optional | Internal placement note saved with the visit point form; not visitor content. | M03 §6.2; BR-M03-F11 |
+| `status` | Enum(`NHAP`, `HOAT_DONG`, `THU_HOI`) | Required | `THU_HOI` is terminal. | M03 §6.2, §6.4 |
+| `statusReason` | String | Conditional | Required for `THU_HOI` by revoke; optional for a discarded draft. | M03 §6.2 |
+| `createdByUserId` | String | Required | — | M03 §6.2 |
+| `createdAt` | DateTime | Required | UTC. | M03 §6.2 |
+| `updatedAt` | DateTime | Required | UTC. | M03 §6.2 |
+| `concurrencyRevision` | Integer | Required | Used for stale-write rejection. | M03 §6.2 |
+
+Object name, introduction and media list are the Revision content with `subjectType = QRCODE` (M03 §6.2.2). The public QR link is derived from `qrIdentifier` and is not stored (M03 §6.2; BR-M03-B04).
 
 #### Relationships
 
 | Related Entity | Cardinality | Logical Reference | Rule | Source |
 |---|---|---|---|---|
-| Checkpoint | `1 : 1` from QRCode | `checkpointId → Checkpoint.checkpointId` | Belongs to one Checkpoint. | REL-002 |
+| Checkpoint | `1 : 1` from QRCode | `checkpointId → Checkpoint.checkpointId` | Belongs to one Checkpoint; exists only for a checkpoint with a saved connectivity mode. | REL-002 |
+| Revision | `0..1 : 0..*` | `Revision.(subjectType = QRCODE, subjectId) → qrIdentifier` | Has revisions carrying its own content. | REL-026 |
+| OfflineResource | `1 : 0..*` | `OfflineResource.qrIdentifier → qrIdentifier` | Local offline copies of this QR object. | REL-028 |
 
 #### Lifecycle / Immutability
 
-Reprint does not change identity. Replacement/withdrawal changes lifecycle state and never deletes the QRCode.
+Reprint does not change identity. Revoke and discard change lifecycle state and never delete the QRCode; archiving its checkpoint revokes it automatically.
 
 #### Decision Status
 
@@ -163,39 +180,7 @@ No outstanding decision.
 
 ### CheckpointContent
 
-#### Identity
-
-The composite logical identifier is `(checkpointId, languageCode, revision)`.
-
-#### Attributes
-
-| Attribute | Logical Type | Presence | Constraint | Source |
-|---|---|---|---|---|
-| `checkpointId` | String | Required | References the owning Checkpoint. | M03 §6.3 |
-| `languageCode` | Enum(`vi`, `en`) | Required | One revision stream per checkpoint/language. | M03 §6.3 |
-| `revision` | Integer | Required | Identifies a revision within its stream. | M03 §6.3 |
-| `introductionText` | String | Conditional | Required and non-empty for submission/publication. | M03 §6.3 |
-| `status` | Enum(`NHAP`, `CHO_DUYET`, `DA_DUYET`, `PHAT_HANH`, `LUU_TRU`) | Required | At most one `PHAT_HANH` revision per language. | M03 §6.3 |
-| `submittedByUserId` | String | Conditional | Required after submission. | M03 §6.3 |
-| `approvedByUserId` | String | Conditional | Required after approval; differs from submitter. | M03 §6.3 |
-| `reviewReason` | String | Conditional | Required when a submitted revision is rejected. | M03 §6.3 |
-| `concurrencyRevision` | Integer | Required | Used for stale-write rejection. | M03 §6.3 |
-
-#### Relationships
-
-| Related Entity | Cardinality | Logical Reference | Rule | Source |
-|---|---|---|---|---|
-| Checkpoint | `1 : 1` from content | `checkpointId → Checkpoint.checkpointId` | Belongs to one Checkpoint. | REL-003 |
-| AdminAccount | `0..1 : 1` from content | `submittedByUserId → AdminAccount.userId` | Optional before submission. | REL-008 |
-| AdminAccount | `0..1 : 1` from content | `approvedByUserId → AdminAccount.userId` | Optional before approval; maker-checker applies. | REL-009 |
-
-#### Lifecycle / Immutability
-
-Published content is preserved as a revision; editing published content creates a new `NHAP` revision. Current published content is a projection, not another entity.
-
-#### Decision Status
-
-No outstanding decision.
+RETIRED (V2). ENT-DATA-004 is retired in S1: content belongs to each QR object and every content version is a Revision (M03 §6.3). Its V1 attributes and REL-003, REL-008 and REL-009 are not modeled; see Revision.
 
 ### Media
 
@@ -207,23 +192,33 @@ No outstanding decision.
 
 | Attribute | Logical Type | Presence | Constraint | Source |
 |---|---|---|---|---|
-| `mediaId` | UUID | Required | Stable logical identity. | M03 §6.3 |
-| `sourceRef` | String | Required | Resource/storage reference; not identity. | M03 §6.3 |
-| `checkpointId` | String | Required | References the owning Checkpoint. | M03 §6.3 |
+| `mediaId` | UUID | Required | System-generated logical identity. | M03 §6.3 |
+| `ownerType` | Enum(`ROUTE`, `CHECKPOINT`) | Required | Route media belong to a Route; media of visit points belong to a Checkpoint. | M03 §6.3 |
+| `ownerId` | String | Required | The `routeId` or `checkpointId` of the owner. | M03 §6.3 |
+| `usage` | Enum(`ROUTE_THUMBNAIL`, `ROUTE_GALLERY`, `ROUTE_MAP`, `QR_MEDIA`) | Required | Route usages require `type = IMAGE` and `ownerType = ROUTE`; `QR_MEDIA` requires `ownerType = CHECKPOINT`. | M03 §6.3 |
 | `type` | Enum(`IMAGE`, `AUDIO`, `VIDEO`) | Required | Offline resources include images only. | M03 §6.3 |
-| `usageRightsConfirmed` | Boolean | Required | Must be `true` before publication. | M03 §6.3 |
-| `isPublished` | Boolean | Required | Only published media appears publicly. | M03 §6.3 |
+| `spokenLanguage` | Enum(`vi`, `en`, `NONE`) | Conditional | Required for `AUDIO` and `VIDEO`; absent for `IMAGE`. | M03 §6.3; BR-M03-E17 |
+| `sourceRef` | String | Required | Resource/storage reference; not identity. | M03 §6.3 |
+| `mimeType` | String | Required | Supported file type. | M03 §6.3 |
+| `fileSizeBytes` | Integer | Required | Greater than `0`; within the per-type limit. | M03 §6.3 |
+| `usageRightsConfirmed` | Boolean | Required | Must be `true` before any revision referencing it is published; confirmed file by file. | M03 §6.3; BR-M03-E14 |
+| `usageRightsConfirmedByUserId` | String | Conditional | Required when confirmed. | M03 §6.3 |
+| `usageRightsConfirmedAt` | DateTime | Conditional | Required when confirmed; UTC. | M03 §6.3 |
+| `createdByUserId` | String | Required | — | M03 §6.3 |
+| `createdAt` | DateTime | Required | UTC. | M03 §6.3 |
 | `concurrencyRevision` | Integer | Required | Used for stale-write rejection. | M03 §6.3 |
 
 #### Relationships
 
 | Related Entity | Cardinality | Logical Reference | Rule | Source |
 |---|---|---|---|---|
-| Checkpoint | `1 : 1` from Media | `checkpointId → Checkpoint.checkpointId` | Belongs to one Checkpoint. | REL-004 |
+| Route | `0..1 : 1` from Media | `(ownerType = ROUTE, ownerId) → Route.routeId` | Owned by one Route, or else by a Checkpoint. | REL-023 |
+| Checkpoint | `0..1 : 1` from Media | `(ownerType = CHECKPOINT, ownerId) → Checkpoint.checkpointId` | Owned by one Checkpoint, or else by a Route. | REL-004 |
+| Revision | `0..* : 0..*` | Media IDs in `Revision.content` → `mediaId` | Referenced only by revisions of its owner. | REL-027 |
 
 #### Lifecycle / Immutability
 
-The source defines edit/publication eligibility but does not declare a separate Media lifecycle enum. Rights-incomplete or unpublished media is excluded from public output.
+The source does not declare a Media lifecycle enum. Media is retained after it stops being referenced, so earlier revisions can be restored; public output includes only media referenced by a `PHAT_HANH` revision.
 
 #### Decision Status
 
@@ -240,23 +235,33 @@ The composite logical identifier is `(routeId, contentVersion)`.
 | Attribute | Logical Type | Presence | Constraint | Source |
 |---|---|---|---|---|
 | `routeId` | String | Required | References the owning Route. | M03 §5.1 |
-| `contentVersion` | Integer | Required | Immutable version within the Route. | M03 §5.1 |
+| `contentVersion` | Integer | Required | Starts at `1` and increases by exactly `1` per published snapshot of the Route. | M03 §5.1 |
 | `status` | Enum(`DA_CONG_BO`) | Required | Published snapshot state. | M03 §5.1 |
 | `publishedAt` | DateTime | Required | UTC. | M03 §5.1 |
-| `previousContentVersion` | Integer | Optional | May reference the preceding snapshot of the same Route. | M03 §5.1, §6.4 |
-| `checkpoints` | Array&lt;Object&gt; | Required | Every and only active checkpoint; IDs/sequences unique. | M03 §5.1 |
+| `previousContentVersion` | Integer | Optional | Absent for version `1`; otherwise `contentVersion - 1` of the same Route. | M03 §5.1, §6.4 |
+| `estimatedOfflineSizeBytes` | Integer | Optional | Estimate of what is downloaded for offline use; consumers tolerate its absence. | M03 §5.1; BR-M03-G10 |
+| `offlineRouteMap` | Object | Optional | Present only when the route map is marked as needed offline. | M03 §5.1; BR-M03-C16 |
+| `offlineRouteMap.sourceRef` | String | Conditional | Required when `offlineRouteMap` is present. | M03 §5.1 |
+| `offlineRouteMap.caption` | Object | Optional | Both-or-none language branches. | M03 §5.1 |
+| `offlineRouteMap.caption.vi` | String | Conditional | Required when `caption` is present. | M03 §5.1 |
+| `offlineRouteMap.caption.en` | String | Conditional | Required when `caption` is present. | M03 §5.1 |
+| `checkpoints` | Array&lt;Object&gt; | Required | Every and only active checkpoint; IDs/sequences unique; may be empty only when the Route is not `HOAT_DONG`. | M03 §5.1 |
 | `checkpoints[].checkpointId` | String | Required | Stable frozen checkpoint identity. | M03 §5.1 |
-| `checkpoints[].sequence` | Integer | Required | Unique within snapshot. | M03 §5.1 |
-| `checkpoints[].checkpointName` | String | Required | Frozen display name. | M03 §5.1 |
+| `checkpoints[].sequence` | Integer | Required | Unique within snapshot; 1-based position in the route's list; gaps allowed. | M03 §5.1 |
+| `checkpoints[].checkpointName` | Object | Required | Frozen display name for this version. | M03 §5.1 |
+| `checkpoints[].checkpointName.vi` | String | Required | Non-empty. | M03 §5.1 |
+| `checkpoints[].checkpointName.en` | String | Required | Non-empty. | M03 §5.1 |
 | `checkpoints[].connectivityMode` | Enum(`ONLINE_AVAILABLE`, `OFFLINE_REQUIRED`) | Required | Frozen connectivity classification. | M03 §5.1 |
 | `checkpoints[].qrIdentifiers` | Array&lt;String&gt; | Required | Non-empty active identifiers only. | M03 §5.1 |
-| `checkpoints[].offlineResource` | Object | Conditional | Present only for `OFFLINE_REQUIRED`. | M03 §5.1 |
-| `checkpoints[].offlineResource.localizedContent` | Object | Conditional | Required with embedded offline resource. | M03 §5.1 |
-| `checkpoints[].offlineResource.localizedContent.vi` | Object | Conditional | Required with embedded offline resource. | M03 §5.1 |
-| `checkpoints[].offlineResource.localizedContent.vi.introductionText` | String | Conditional | Required and non-empty with embedded resource. | M03 §5.1 |
-| `checkpoints[].offlineResource.localizedContent.en` | Object | Conditional | Required with embedded offline resource. | M03 §5.1 |
-| `checkpoints[].offlineResource.localizedContent.en.introductionText` | String | Conditional | Required and non-empty with embedded resource. | M03 §5.1 |
-| `checkpoints[].offlineResource.staticImages` | Array&lt;String&gt; | Conditional | Required with embedded resource; may be empty. | M03 §5.1 |
+| `checkpoints[].offlineResources` | Array&lt;Object&gt; | Conditional | Required only for `OFFLINE_REQUIRED`; exactly one item per identifier in `qrIdentifiers`. | M03 §5.1 |
+| `checkpoints[].offlineResources[].qrIdentifier` | String | Conditional | Required for every item; unique within the snapshot; an identifier of the same checkpoint. | M03 §5.1 |
+| `checkpoints[].offlineResources[].objectName` | Object | Conditional | Required for every item; `vi` and `en` both required, non-empty. | M03 §5.1 |
+| `checkpoints[].offlineResources[].localizedContent` | Object | Conditional | Required for every item. | M03 §5.1 |
+| `checkpoints[].offlineResources[].localizedContent.vi` | Object | Conditional | Required for every item. | M03 §5.1 |
+| `checkpoints[].offlineResources[].localizedContent.vi.introductionText` | String | Conditional | Required for every item; non-empty. | M03 §5.1 |
+| `checkpoints[].offlineResources[].localizedContent.en` | Object | Conditional | Required for every item. | M03 §5.1 |
+| `checkpoints[].offlineResources[].localizedContent.en.introductionText` | String | Conditional | Required for every item; non-empty. | M03 §5.1 |
+| `checkpoints[].offlineResources[].staticImages` | Array&lt;String&gt; | Conditional | Required for every item; may be empty; image references of that QR object. | M03 §5.1 |
 
 #### Relationships
 
@@ -264,15 +269,16 @@ The composite logical identifier is `(routeId, contentVersion)`.
 |---|---|---|---|---|
 | Route | `1 : 1` from snapshot | `routeId → Route.routeId` | Belongs to one Route/version. | REL-005 |
 | Route | `0..1 : 0..1` | `(routeId, contentVersion) ← (Route.routeId, Route.activeContentVersion)` | May be the Route active version. | REL-006 |
-| JourneySnapshot | `0..1 predecessor : 0..* successors` | `(routeId, previousContentVersion) → (routeId, contentVersion)` | Same-Route ancestry; no inverse uniqueness. Route activation remains singular. | REL-021; M03 §6.4 CL-S4-001 |
+| JourneySnapshot | `0..1 predecessor : 0..1 successor` | `(routeId, previousContentVersion) → (routeId, contentVersion)` | Same-Route single version chain. | REL-021; M03 §6.4 CL-S4-001 |
+| SessionRecord | `1 : 0..*` | `(SessionRecord.routeId, SessionRecord.contentVersion) → (routeId, contentVersion)` | Accepted sessions are validated against this snapshot. | REL-029 |
 
 #### Lifecycle / Immutability
 
-`DANG_TAO → DA_CONG_BO` is the build/publication lifecycle. The persisted public contract is `DA_CONG_BO` and immutable. Persisted snapshots are retained without MVP hard-delete or automatic purge (M03 §6.4 DEC-S6-002).
+`DANG_TAO → DA_CONG_BO` is the build/publication lifecycle; a candidate consumes no version number. The persisted public contract is `DA_CONG_BO` and immutable. The snapshots of all routes affected by one change switch together or not at all. Persisted snapshots are retained without MVP hard-delete or automatic purge (M03 §6.4 DEC-S6-002).
 
 #### Decision Status
 
-CL-S4-001 is resolved: zero or one predecessor and zero or many successors, as finalized in M03 §6.4. This relationship does not impose a one-to-one publication chain.
+CL-S4-001 (revised) is resolved: each snapshot has zero or one same-Route predecessor, and the versions of a Route form a single chain (M03 §6.4).
 
 ### AdminAccount
 
@@ -297,8 +303,8 @@ Normalized `email` is the MVP logical identity from invitation through active li
 | Related Entity | Cardinality | Logical Reference | Rule | Source |
 |---|---|---|---|---|
 | AuditRecord | `0..1 actor : 0..* records` | `AuditRecord.actorUserId → userId` | Server provisioning may have no actor. | REL-007 |
-| CheckpointContent | `0..1 submitter : 0..* revisions` | `CheckpointContent.submittedByUserId → userId` | Submitter is recorded after submission. | REL-008 |
-| CheckpointContent | `0..1 approver : 0..* revisions` | `CheckpointContent.approvedByUserId → userId` | Approver differs from submitter. | REL-009 |
+
+Other recorded user IDs (`createdByUserId`, `lastEditedByUserId`, `publishedByUserId`, `closedByUserId`, `fieldVerifiedByUserId`, `usageRightsConfirmedByUserId`) are history/display values and are not drawn as relationships (S3 §2).
 
 #### Lifecycle / Immutability
 
@@ -323,7 +329,10 @@ If future behavior permits email change, the identity rule must be reviewed; thi
 | `action` | String | Required | Administrative/provisioning action name. | M03 §6.4 |
 | `entityType` | String | Required | Logical affected entity type. | M03 §6.4 |
 | `entityId` | String | Required | Logical affected entity identity. | M03 §6.4 |
-| `revision` | Integer | Optional | Present when action concerns a revisioned value. | M03 §6.4 |
+| `revision` | Integer | Optional | Present when the action concerns a revisioned value: the `revisionNumber` of that Revision, whose subject is identified by `entityType` and `entityId`. | M03 §6.4; S1 HC-006 |
+| `reason` | String | Conditional | Required for close, reopen, archive and discard of a route or checkpoint, and for revoke of a visit point. | M03 §6.4; BR-M03-F08 |
+| `outcome` | Enum(`SUCCESS`, `FAILURE`) | Required | Failed operations are logged too. | M03 §6.4 |
+| `selfPublished` | Boolean | Conditional | Present on publication actions; `true` when publisher equals last editor. | M03 §6.4 |
 | `beforeState` | Object | Optional | Must not contain credential/token values. | M03 §6.4 |
 | `afterState` | Object | Optional | Must not contain credential/token values. | M03 §6.4 |
 | `occurredAt` | DateTime | Required | UTC append time. | M03 §6.4 |
@@ -336,11 +345,11 @@ If future behavior permits email change, the identity rule must be reviewed; thi
 
 #### Lifecycle / Immutability
 
-Append-only; never updated. Generic affected-entity fields do not create separate typed relationships without source cardinality.
+Append-only; never updated. Generic affected-entity fields do not create separate typed relationships without source cardinality (S3 §2).
 
 #### Decision Status
 
-No outstanding decision. Absence of audit-history read behavior is accepted non-blocking MVP behavior in S2.
+No outstanding decision. Reviewers read the system-wide audit log (SF-M03-011-05), so S2 `ANOM-S2-001` is resolved.
 
 ### LanguagePreference
 
@@ -376,18 +385,19 @@ No outstanding decision.
 
 | Attribute | Logical Type | Presence | Constraint | Source |
 |---|---|---|---|---|
-| `contractVersion` | Integer | Required | Exactly `2`. | M01 §5.3 |
+| `contractVersion` | Integer | Required | Exactly `3`. | M01 §5.3 |
 | `handoffId` | UUID | Required | Globally unique; used for at most one PlaySession. | M01 §5.3 |
 | `routeId` | String | Required | Equals embedded manifest Route. | M01 §5.3 |
 | `authorizedAt` | DateTime | Required | UTC. | M01 §5.3 |
+| `expiresAt` | DateTime | Required | UTC; exactly `authorizedAt` plus 24 hours; never extended by M01. | M01 §5.3, §6.4 |
 | `authorizationStatus` | Enum(`AUTHORIZED`, `REVOKED`) | Required | Start creates authorized; discovered closure may revoke. | M01 §5.3 |
 | `routeJourneyManifest` | Object | Required | Complete journey-only manifest written atomically. | M01 §5.3 |
 | `routeJourneyManifest.routeId` | String | Required | Equals outer `routeId`. | M01 §5.3 |
 | `routeJourneyManifest.contentVersion` | Integer | Required | Source snapshot/package version. | M01 §5.3 |
 | `routeJourneyManifest.checkpoints` | Array&lt;Object&gt; | Required | Complete frozen checkpoint list. | M01 §5.3 |
 | `routeJourneyManifest.checkpoints[].checkpointId` | String | Required | Unique in manifest. | M01 §5.3 |
-| `routeJourneyManifest.checkpoints[].sequence` | Integer | Required | Unique in manifest. | M01 §5.3 |
-| `routeJourneyManifest.checkpoints[].checkpointName` | String | Required | Frozen display name. | M01 §5.3 |
+| `routeJourneyManifest.checkpoints[].sequence` | Integer | Required | Unique in manifest; gaps allowed. | M01 §5.3 |
+| `routeJourneyManifest.checkpoints[].checkpointName` | Object | Required | Frozen display name; `vi` and `en` both required, non-empty. | M01 §5.3 |
 | `routeJourneyManifest.checkpoints[].connectivityMode` | Enum(`ONLINE_AVAILABLE`, `OFFLINE_REQUIRED`) | Required | Copied without reclassification. | M01 §5.3 |
 | `routeJourneyManifest.checkpoints[].qrIdentifiers` | Array&lt;String&gt; | Required | Non-empty frozen active identifier set. | M01 §5.3 |
 
@@ -400,7 +410,7 @@ No outstanding decision.
 
 #### Lifecycle / Immutability
 
-Complete manifest freezes at atomic context creation. Status may change to `REVOKED`; later successful Start replaces the current singleton with a new handoff identity.
+Complete manifest freezes at atomic context creation. Status may change to `REVOKED`; expiry is enforced by M02 and never changes `authorizationStatus`. A later successful Start replaces the current singleton with a new handoff identity.
 
 #### Decision Status
 
@@ -425,24 +435,35 @@ The composite logical identifier is `(routeId, contentVersion)`.
 | `manifest.contentVersion` | Integer | Required | Equals package `contentVersion`. | M01 §5.3 |
 | `manifest.checkpoints` | Array&lt;Object&gt; | Required | Complete checkpoint list for package version. | M01 §5.3 |
 | `manifest.checkpoints[].checkpointId` | String | Required | Unique in manifest. | M01 §5.3 |
-| `manifest.checkpoints[].sequence` | Integer | Required | Unique in manifest. | M01 §5.3 |
-| `manifest.checkpoints[].checkpointName` | String | Required | Frozen display name. | M01 §5.3 |
+| `manifest.checkpoints[].sequence` | Integer | Required | Unique in manifest; gaps allowed. | M01 §5.3 |
+| `manifest.checkpoints[].checkpointName` | Object | Required | Frozen display name; `vi` and `en` both required, non-empty. | M01 §5.3 |
 | `manifest.checkpoints[].connectivityMode` | Enum(`ONLINE_AVAILABLE`, `OFFLINE_REQUIRED`) | Required | Frozen source classification. | M01 §5.3 |
 | `manifest.checkpoints[].qrIdentifiers` | Array&lt;String&gt; | Required | Non-empty active source identifiers. | M01 §5.3 |
+| `offlineRouteMap` | Object | Optional | Embedded value; present only when the source snapshot carries `offlineRouteMap`. | M01 §5.3, §6.4; S1 HC-005 |
+| `offlineRouteMap.sourceRef` | String | Conditional | Required when present; image bytes present in the ready package. | M01 §5.3 |
+| `offlineRouteMap.caption` | Object | Optional | Both-or-none `vi`/`en`. | M01 §5.3 |
+| `offlineRouteMap.caption.vi` | String | Conditional | Required when `caption` is present. | M01 §5.3 |
+| `offlineRouteMap.caption.en` | String | Conditional | Required when `caption` is present. | M01 §5.3 |
+| `routeEssentials` | Object | Required | Embedded M01-owned point-in-time copy of route texts; present in every ready package; text only. | M01 §5.3, §6.4; S1 HC-005 |
+| `routeEssentials.capturedAt` | DateTime | Required | UTC; when the texts were last read from M03. | M01 §5.3 |
+| `routeEssentials.name` | Object | Required | `vi` and `en` both required, non-empty. | M01 §5.3 |
+| `routeEssentials.startingPoint` | Object | Required | `vi` and `en` both required, non-empty. | M01 §5.3 |
+| `routeEssentials.participationRequirements` | Object | Optional | Both-or-none `vi`/`en`. | M01 §5.3 |
+| `routeEssentials.safetyWarning` | Object | Optional | Both-or-none `vi`/`en`. | M01 §5.3 |
 | `downloadedAt` | DateTime | Optional | UTC completed-download time when available. | M01 §5.3 |
 
-`resources[]` is represented by the canonical OfflineResource relationship below, not duplicated as an embedded attribute.
+`resources[]` is represented by the canonical OfflineResource relationship below, not duplicated as an embedded attribute. `offlineRouteMap` and `routeEssentials` are embedded values without identity of their own (S1 HC-005).
 
 #### Relationships
 
 | Related Entity | Cardinality | Logical Reference | Rule | Source |
 |---|---|---|---|---|
 | Route | `1 : 1` from package | `routeId → Route.routeId` | Belongs to one Route/version. | REL-011 |
-| OfflineResource | `1 : 0..*` | `(OfflineResource.routeId, contentVersion) → (routeId, contentVersion)` | One resource for each offline-required checkpoint; may be empty for all-online manifest. | REL-012 |
+| OfflineResource | `1 : 0..*` | `(OfflineResource.routeId, contentVersion) → (routeId, contentVersion)` | One resource for each QR of each offline-required checkpoint; may be empty for an all-online manifest. | REL-012 |
 
 #### Lifecycle / Immutability
 
-Candidate activation is atomic. Old ready package remains usable during failed update. At most one active ready package exists per Route; visitor-confirmed delete removes package/resources.
+Candidate activation is atomic. Old ready package remains usable during failed update. At most one active ready package exists per Route; visitor-confirmed delete removes package, resources and embedded values. `routeEssentials` is refreshed independently of the package version: a refresh replaces the value atomically and, on failure, keeps the old texts and their `capturedAt`.
 
 #### Decision Status
 
@@ -452,7 +473,7 @@ No outstanding decision.
 
 #### Identity
 
-The composite logical identifier is `(routeId, contentVersion, checkpointId)`.
+The composite logical identifier is `(routeId, contentVersion, qrIdentifier)`; `qrIdentifier` is unique within a package.
 
 #### Attributes
 
@@ -460,7 +481,9 @@ The composite logical identifier is `(routeId, contentVersion, checkpointId)`.
 |---|---|---|---|---|
 | `routeId` | String | Required | Inherited owning package Route component. | S1 ENT-DATA-012; M01 §5.3/§6.4 |
 | `contentVersion` | Integer | Required | Inherited owning package version component. | S1 ENT-DATA-012; M01 §5.3/§6.4 |
-| `checkpointId` | String | Required | Unique within package; references manifest Checkpoint. | M01 §5.3 |
+| `qrIdentifier` | String | Required | Logical lookup key; unique within the package; equals an identifier in `manifest`. | M01 §5.3, §6.4 |
+| `checkpointId` | String | Required | The `OFFLINE_REQUIRED` manifest checkpoint that holds the QR; not identity. | M01 §5.3 |
+| `objectName` | Object | Required | `vi` and `en` both required, non-empty. | M01 §5.3 |
 | `localizedContent` | Object | Required | Contains both language branches. | M01 §5.3 |
 | `localizedContent.vi` | Object | Required | Vietnamese branch. | M01 §5.3 |
 | `localizedContent.vi.introductionText` | String | Required | Non-empty. | M01 §5.3 |
@@ -473,7 +496,7 @@ The composite logical identifier is `(routeId, contentVersion, checkpointId)`.
 | Related Entity | Cardinality | Logical Reference | Rule | Source |
 |---|---|---|---|---|
 | OfflinePackage | `1 : 1` from resource | `(routeId, contentVersion) → (OfflinePackage.routeId, contentVersion)` | Belongs to one package. | REL-012 |
-| Checkpoint | `1 : 1` from resource | `checkpointId → Checkpoint.checkpointId` | References one manifest checkpoint. | REL-013 |
+| QRCode | `1 : 1` from resource | `qrIdentifier → QRCode.qrIdentifier` | Local copy of one QR object. | REL-028 |
 
 #### Lifecycle / Immutability
 
@@ -499,13 +522,13 @@ No outstanding decision.
 | `contentVersion` | Integer | Required | Copied from accepted manifest. | M02 §6.1 |
 | `journeyCheckpoints` | Array&lt;Object&gt; | Required | Frozen after creation. | M02 §6.1, §6.3 |
 | `journeyCheckpoints[].checkpointId` | String | Required | Unique in session journey. | M02 §6.3 |
-| `journeyCheckpoints[].sequence` | Integer | Required | Unique in session journey. | M02 §6.3 |
-| `journeyCheckpoints[].checkpointName` | String | Required | Frozen historical label. | M02 §6.3 |
+| `journeyCheckpoints[].sequence` | Integer | Required | Unique in session journey; gaps allowed. | M02 §6.3 |
+| `journeyCheckpoints[].checkpointName` | Object | Required | Frozen historical label; `vi` and `en` both required, non-empty. | M02 §6.3 |
 | `journeyCheckpoints[].connectivityMode` | Enum(`ONLINE_AVAILABLE`, `OFFLINE_REQUIRED`) | Required | Frozen classification. | M02 §6.3 |
-| `journeyCheckpoints[].qrIdentifiers` | Array&lt;String&gt; | Required | Non-empty frozen identifier set. | M02 §6.3 |
+| `journeyCheckpoints[].qrIdentifiers` | Array&lt;String&gt; | Required | Non-empty frozen identifier set; codes added later are never added here. | M02 §6.3; BR-M02-020 |
 | `status` | Enum(`DANG_DIEN_RA`, `HOAN_TAT`, `BO_DO`) | Required | Session lifecycle. | M02 §6.1 |
 | `startedAt` | DateTime | Required | UTC. | M02 §6.1 |
-| `endedAt` | DateTime | Conditional | Required for terminal status; absent while active. | M02 §6.1 |
+| `endedAt` | DateTime | Conditional | Required for terminal status; absent while active. For an automatic end, the latest `checkedInAt`, or `startedAt` when no visit exists. | M02 §6.1; BR-M02-022 |
 
 #### Relationships
 
@@ -519,7 +542,7 @@ No outstanding decision.
 
 #### Lifecycle / Immutability
 
-Journey freezes at creation. Terminal header, visits and sync payload are immutable; a terminal session cannot return active. At most one in-progress session exists per device/local profile.
+Journey freezes at creation. Terminal header, visits and sync payload are immutable; a terminal session cannot return active. At most one in-progress session exists per browser. A session left in progress for more than 24 hours is ended automatically the next time the app is opened (BR-M02-022).
 
 #### Decision Status
 
@@ -537,8 +560,8 @@ The composite logical identifier is `(sessionId, checkpointId)`; visit uniquenes
 |---|---|---|---|---|
 | `sessionId` | UUID | Required | References owning PlaySession. | M02 §6.2 |
 | `checkpointId` | String | Required | Identifies visited frozen-journey checkpoint. | M02 §6.2 |
-| `qrIdentifier` | String | Required | QR observed at first valid check-in; not identity. | M02 §6.2 |
-| `checkedInAt` | DateTime | Required | UTC; first value immutable. | M02 §6.2 |
+| `qrIdentifier` | String | Required | QR observed at first accepted check-in; may be a code added after the session started; not identity. | M02 §6.2; BR-M02-020 |
+| `checkedInAt` | DateTime | Required | UTC; first value immutable; records a scan, not presence. | M02 §6.2 |
 
 #### Relationships
 
@@ -549,7 +572,7 @@ The composite logical identifier is `(sessionId, checkpointId)`; visit uniquenes
 
 #### Lifecycle / Immutability
 
-Inserted before content loading on first valid check-in. Repeated scans reuse the original value; no timestamp update is allowed.
+Inserted before content is shown on the first accepted check-in. Repeated scans reuse the original value; no timestamp update is allowed.
 
 #### Decision Status
 
@@ -575,10 +598,10 @@ No outstanding decision.
 | `record.status` | Enum(`HOAN_TAT`, `BO_DO`) | Required | Terminal only. | M02 §5.1 |
 | `record.visitedCheckpoints` | Array&lt;Object&gt; | Required | May be empty; checkpoint IDs unique in session. | M02 §5.1 |
 | `record.visitedCheckpoints[].checkpointId` | String | Required | Stable frozen checkpoint identity. | M02 §5.1 |
-| `record.visitedCheckpoints[].checkpointName` | String | Required | Historical frozen label. | M02 §5.1 |
+| `record.visitedCheckpoints[].checkpointName` | String | Required | Vietnamese name (`checkpointName.vi`) from the frozen journey, as a plain string. | M02 §5.1, §6.4 |
 | `record.visitedCheckpoints[].sequence` | Integer | Required | Historical frozen sequence. | M02 §5.1 |
 | `record.visitedCheckpoints[].checkedInAt` | DateTime | Required | UTC and within session interval. | M02 §5.1 |
-| `syncStatus` | Enum(`PENDING`, `SYNCED`, `CONFLICT`) | Required | Failure remains pending; conflict stops automatic retry. | M02 §6.4 |
+| `syncStatus` | Enum(`PENDING`, `SYNCED`, `CONFLICT`) | Required | Failure remains pending; a changed-payload conflict or an invalid-record rejection becomes `CONFLICT` and stops automatic retry. | M02 §6.4 |
 
 #### Relationships
 
@@ -605,15 +628,15 @@ No outstanding decision.
 | Attribute | Logical Type | Presence | Constraint | Source |
 |---|---|---|---|---|
 | `sessionId` | UUID | Required | Globally unique identity. | M03 §6.4 |
-| `routeId` | String | Required | Historical Route identity copied unchanged. | M03 §6.4 |
-| `contentVersion` | Integer | Required | Historical journey version copied unchanged. | M03 §6.4 |
+| `routeId` | String | Required | Historical Route identity copied unchanged; must identify a Route known to M03. | M03 §5.1, §6.4 |
+| `contentVersion` | Integer | Required | Historical journey version copied unchanged; must be a published snapshot version of `routeId`. | M03 §5.1, §6.4 |
 | `startedAt` | DateTime | Required | UTC. | M03 §6.4 |
 | `endedAt` | DateTime | Required | UTC; not earlier than start. | M03 §5.1, §6.4 |
 | `status` | Enum(`HOAN_TAT`, `BO_DO`) | Required | Terminal status only. | M03 §6.4 |
 | `visitedCheckpoints` | Array&lt;Object&gt; | Required | Immutable child values; may be empty for abandoned session. | M03 §6.4; M02 §5.1 |
-| `visitedCheckpoints[].checkpointId` | String | Required | Unique within session. | M03 §6.4 |
-| `visitedCheckpoints[].checkpointName` | String | Required | Historical label. | M03 §6.4 |
-| `visitedCheckpoints[].sequence` | Integer | Required | Historical sequence. | M03 §6.4 |
+| `visitedCheckpoints[].checkpointId` | String | Required | Unique within session; a checkpoint of the snapshot `(routeId, contentVersion)`. | M03 §5.1, §6.4 |
+| `visitedCheckpoints[].checkpointName` | String | Required | Historical Vietnamese label; equals the snapshot `checkpointName.vi`. | M03 §5.1, §6.4 |
+| `visitedCheckpoints[].sequence` | Integer | Required | Historical sequence; equals the snapshot `sequence`. | M03 §5.1, §6.4 |
 | `visitedCheckpoints[].checkedInAt` | DateTime | Required | UTC and within session interval. | M03 §6.4 |
 | `ingestedAt` | DateTime | Required | M03-owned UTC receipt time. | M03 §6.4 |
 
@@ -623,6 +646,7 @@ No outstanding decision.
 |---|---|---|---|---|
 | PlaySession | `0..1 record : 1 session` at intake | `sessionId` copied through `SessionSyncRecord` | Accepted synchronized outcome retains historical identity without requiring a browser-local PlaySession to remain. | REL-019 |
 | Route | `1 : 1` from record | `routeId → Route.routeId` | Reports group historical records by Route. | REL-020 |
+| JourneySnapshot | `1 : 1` from record | `(routeId, contentVersion) → (JourneySnapshot.routeId, contentVersion)` | Validation reference at intake, whatever the Route's current status. | REL-029 |
 
 #### Lifecycle / Immutability
 
@@ -632,58 +656,172 @@ Inserted atomically on first accepted payload and never changed. Identical retry
 
 No outstanding decision.
 
+### Revision
+
+#### Identity
+
+`revisionId` is the system-generated logical identifier; `(subjectType, subjectId, revisionNumber)` is also unique.
+
+#### Attributes
+
+| Attribute | Logical Type | Presence | Constraint | Source |
+|---|---|---|---|---|
+| `revisionId` | String | Required | System-generated. | M03 §6.3 |
+| `subjectType` | Enum(`ROUTE`, `CHECKPOINT`, `QRCODE`) | Required | Determines the shape of `content`. | M03 §6.3 |
+| `subjectId` | String | Required | `routeId`, `checkpointId` or `qrIdentifier`. | M03 §6.3 |
+| `revisionNumber` | Integer | Required | Starts at `1` per subject; `+1` for each new revision; never reused. | M03 §6.3 |
+| `status` | Enum(`NHAP`, `PHAT_HANH`, `LUU_TRU`, `DA_BO`) | Required | At most one `NHAP` and at most one `PHAT_HANH` per subject. | M03 §6.3, §6.4 |
+| `content` | Object | Required | Editable public content of the subject (content tables below); immutable once `PHAT_HANH`. | M03 §6.3 |
+| `basedOnRevisionNumber` | Integer | Optional | The published revision this draft was copied from; for a restore, the earlier revision restored. | M03 §6.3; BR-M03-F07 |
+| `createdByUserId` | String | Required | — | M03 §6.3 |
+| `createdAt` | DateTime | Required | UTC. | M03 §6.3 |
+| `lastEditedByUserId` | String | Required | Used for the stale message and the self-publish flag. | M03 §6.3 |
+| `lastEditedAt` | DateTime | Required | UTC. | M03 §6.3 |
+| `publishedByUserId` | String | Conditional | Required once published. | M03 §6.3 |
+| `publishedAt` | DateTime | Conditional | Required once published; UTC. | M03 §6.3 |
+| `selfPublished` | Boolean | Conditional | Required once published; `true` when the publisher equals `lastEditedByUserId`. | M03 §6.3 |
+| `concurrencyRevision` | Integer | Required | Used for stale-write rejection and review confirmation. | M03 §6.3 |
+
+Route content (`subjectType = ROUTE`):
+
+| Attribute | Logical Type | Presence | Constraint | Source |
+|---|---|---|---|---|
+| `content.name.vi` | String | Conditional | May be absent in a draft; required and non-empty for publication. | M03 §6.1.1 |
+| `content.name.en` | String | Conditional | May be absent in a draft; required and non-empty for publication. | M03 §6.1.1 |
+| `content.shortDescription.vi` | String | Conditional | Required for publication. | M03 §6.1.1 |
+| `content.shortDescription.en` | String | Conditional | Required for publication. | M03 §6.1.1 |
+| `content.description.vi` | String | Conditional | Required for publication. | M03 §6.1.1 |
+| `content.description.en` | String | Conditional | Required for publication. | M03 §6.1.1 |
+| `content.startingPoint.vi` | String | Conditional | Required for publication. | M03 §6.1.1 |
+| `content.startingPoint.en` | String | Conditional | Required for publication. | M03 §6.1.1 |
+| `content.participationRequirements.vi` | String | Optional | Both-or-none with `.en`. | M03 §6.1.1 |
+| `content.participationRequirements.en` | String | Optional | Both-or-none with `.vi`. | M03 §6.1.1 |
+| `content.preparation.vi` | String | Optional | Both-or-none with `.en`. | M03 §6.1.1 |
+| `content.preparation.en` | String | Optional | Both-or-none with `.vi`. | M03 §6.1.1 |
+| `content.bestTime.vi` | String | Optional | Both-or-none with `.en`. | M03 §6.1.1 |
+| `content.bestTime.en` | String | Optional | Both-or-none with `.vi`. | M03 §6.1.1 |
+| `content.safetyWarning.vi` | String | Optional | Both-or-none with `.en`. | M03 §6.1.1 |
+| `content.safetyWarning.en` | String | Optional | Both-or-none with `.vi`. | M03 §6.1.1 |
+| `content.noSafetyWarningConfirmed` | Boolean | Required | Default `false`; must be `true` for publication when `safetyWarning` is absent; reset to `false` when a warning is entered. | M03 §6.1.1; BR-M03-C09 |
+| `content.distanceKm` | Decimal | Conditional | Required for publication; greater than `0`. | M03 §6.1.1 |
+| `content.durationMin` | Integer | Conditional | Required for publication; greater than `0`. | M03 §6.1.1 |
+| `content.difficulty` | Enum(`NHE`, `TRUNG_BINH`, `KHO`) | Conditional | Required for publication. | M03 §6.1.1 |
+| `content.groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Conditional | Required and non-empty for publication; no contradiction with `difficulty`. | M03 §6.1.1; BR-M03-C12 |
+| `content.experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Conditional | Required and non-empty for publication. | M03 §6.1.1 |
+| `content.thumbnailMediaId` | UUID | Conditional | Required for publication; an `IMAGE` Media of this Route. | M03 §6.1.1 |
+| `content.galleryItems` | Array&lt;Object&gt; | Optional | Ordered; the first is the cover. | M03 §6.1.1 |
+| `content.galleryItems[].mediaId` | UUID | Required | Required for every item; an `IMAGE` Media of this Route. | M03 §6.1.1 |
+| `content.galleryItems[].caption.vi` | String | Optional | Both-or-none with `.en`. | M03 §6.1.1 |
+| `content.galleryItems[].caption.en` | String | Optional | Both-or-none with `.vi`. | M03 §6.1.1 |
+| `content.routeMapMediaId` | UUID | Optional | An `IMAGE` Media of this Route. | M03 §6.1.1 |
+| `content.routeMapCaption.vi` | String | Optional | Both-or-none; allowed only with `routeMapMediaId`. | M03 §6.1.1 |
+| `content.routeMapCaption.en` | String | Optional | Both-or-none; allowed only with `routeMapMediaId`. | M03 §6.1.1 |
+| `content.offlineRouteMapRequired` | Boolean | Required | Default `false`; may be `true` only while `routeMapMediaId` is present. | M03 §6.1.1; BR-M03-C16 |
+| `content.checkpointList` | Array&lt;Object&gt; | Conditional | Required, with at least one active checkpoint, for publication; ordered visiting order; a checkpoint appears at most once. | M03 §6.1.1, §6.4 |
+| `content.checkpointList[].checkpointId` | String | Required | Required for every item; a `HOAT_DONG` checkpoint when added; never `LUU_TRU` while a non-archived route lists it. | M03 §6.1.1, §6.4 |
+| `content.highlights` | Array&lt;Object&gt; | Optional | Ordered highlight items. | M03 §6.1.1 |
+| `content.highlights[].vi` | String | Required | Required for every item; non-empty. | M03 §6.1.1 |
+| `content.highlights[].en` | String | Required | Required for every item; non-empty. | M03 §6.1.1 |
+
+Checkpoint content (`subjectType = CHECKPOINT`):
+
+| Attribute | Logical Type | Presence | Constraint | Source |
+|---|---|---|---|---|
+| `content.checkpointName.vi` | String | Conditional | Required and non-empty before activation/publication; unique among non-archived checkpoints. | M03 §6.2.1, §6.4 |
+| `content.checkpointName.en` | String | Conditional | Required and non-empty before activation/publication. | M03 §6.2.1 |
+| `content.connectivityMode` | Enum(`ONLINE_AVAILABLE`, `OFFLINE_REQUIRED`) | Conditional | Required before activation/publication and before any visit point can be added. | M03 §6.2.1; BR-M03-E15 |
+| `content.fieldVerificationConfirmed` | Boolean | Conditional | Required and `true` when `ONLINE_AVAILABLE`; cleared when the mode changes away; not a GPS field. | M03 §6.2.1 |
+| `content.fieldVerifiedByUserId` | String | Conditional | Set when the confirmation is ticked. | M03 §6.2.1 |
+| `content.fieldVerifiedAt` | DateTime | Conditional | Set when the confirmation is ticked; UTC. | M03 §6.2.1 |
+
+QR object content (`subjectType = QRCODE`):
+
+| Attribute | Logical Type | Presence | Constraint | Source |
+|---|---|---|---|---|
+| `content.objectName.vi` | String | Conditional | May be absent in a draft; required and non-empty for publication. | M03 §6.2.2 |
+| `content.objectName.en` | String | Conditional | May be absent in a draft; required and non-empty for publication. | M03 §6.2.2 |
+| `content.introductionText.vi` | String | Conditional | Required for publication. | M03 §6.2.2 |
+| `content.introductionText.en` | String | Conditional | Required for publication. | M03 §6.2.2 |
+| `content.mediaItems` | Array&lt;Object&gt; | Optional | Ordered; audio/video only when the QR object's checkpoint is `ONLINE_AVAILABLE`. | M03 §6.2.2 |
+| `content.mediaItems[].mediaId` | UUID | Required | Required for every item; a `QR_MEDIA` Media owned by the checkpoint of this QR object. | M03 §6.2.2, §6.4 |
+
+#### Relationships
+
+| Related Entity | Cardinality | Logical Reference | Rule | Source |
+|---|---|---|---|---|
+| Route | `0..1 : 1` from revision | `(subjectType = ROUTE, subjectId) → Route.routeId` | Exactly one subject among Route, Checkpoint and QRCode. | REL-024 |
+| Checkpoint | `0..1 : 1` from revision | `(subjectType = CHECKPOINT, subjectId) → Checkpoint.checkpointId` | Exactly one subject. | REL-025 |
+| QRCode | `0..1 : 1` from revision | `(subjectType = QRCODE, subjectId) → QRCode.qrIdentifier` | Exactly one subject. | REL-026 |
+| Media | `0..* : 0..*` | Media IDs in `content` → `Media.mediaId` | Only media of the subject's owner (route media for a route; checkpoint media for a QR object of that checkpoint). | REL-027 |
+| Checkpoint | `0..* : 0..*` (route revisions) | `content.checkpointList[].checkpointId → Checkpoint.checkpointId` | Drawn as Route lists Checkpoint. | REL-022 |
+
+#### Lifecycle / Immutability
+
+`NHAP → PHAT_HANH` on publication (the previous `PHAT_HANH` becomes `LUU_TRU` in the same operation); `NHAP → DA_BO` when a pending draft is discarded; `PHAT_HANH → LUU_TRU` when superseded. Restoring creates a new `NHAP` revision. A `PHAT_HANH` revision is immutable; no Revision is deleted (M03 §6.4 DEC-S6-002).
+
+#### Decision Status
+
+No outstanding decision. AuditRecord `revision` identifies a Revision by `revisionNumber` with the subject given by `entityType`/`entityId` (S1 HC-006).
+
 ## 5. Relationship Catalog
 
 | ID | Entity A | Cardinality | Entity B | Logical Reference | Requiredness | Source |
 |---|---|---|---|---|---|---|
-| REL-001 | Route | `1 : 0..*` | Checkpoint | `Checkpoint.routeId → Route.routeId` | Required on Checkpoint | S3 REL-001; M03 §6.2 |
+| REL-001 | Route | `1 : 0..*` | Checkpoint | — | RETIRED (V2): a checkpoint belongs to no route; replaced by REL-022 | S3 REL-001; M03 §6.4 |
 | REL-002 | Checkpoint | `1 : 0..*` | QRCode | `QRCode.checkpointId → Checkpoint.checkpointId` | Required on QRCode | S3 REL-002; M03 §6.2 |
-| REL-003 | Checkpoint | `1 : 0..*` | CheckpointContent | `CheckpointContent.checkpointId → Checkpoint.checkpointId` | Required on CheckpointContent | S3 REL-003; M03 §6.3 |
-| REL-004 | Checkpoint | `1 : 0..*` | Media | `Media.checkpointId → Checkpoint.checkpointId` | Required on Media | S3 REL-004; M03 §6.3 |
+| REL-003 | Checkpoint | `1 : 0..*` | CheckpointContent | — | RETIRED (V2): ENT-DATA-004 retired | S3 REL-003 |
+| REL-004 | Checkpoint | `0..1 : 0..*` | Media | `Media.(ownerType = CHECKPOINT, ownerId) → Checkpoint.checkpointId` | Required on Media when `ownerType = CHECKPOINT` | S3 REL-004; M03 §6.3 |
 | REL-005 | Route | `1 : 0..*` | JourneySnapshot | `JourneySnapshot.routeId → Route.routeId` | Required on JourneySnapshot | S3 REL-005; M03 §5.1 |
-| REL-006 | Route | `0..1 : 0..1` | JourneySnapshot | `(Route.routeId, activeContentVersion) → (JourneySnapshot.routeId, contentVersion)` | Conditional on active Route version | S3 REL-006; M03 §6.4 |
+| REL-006 | Route | `0..1 : 0..1` | JourneySnapshot | `(Route.routeId, activeContentVersion) → (JourneySnapshot.routeId, contentVersion)` | Conditional on published Route | S3 REL-006; M03 §6.1, §6.4 |
 | REL-007 | AdminAccount | `0..1 : 0..*` | AuditRecord | `AuditRecord.actorUserId → AdminAccount.userId` | Conditional on authenticated action | S3 REL-007; M03 §6.4 |
-| REL-008 | AdminAccount | `0..1 : 0..*` | CheckpointContent | `CheckpointContent.submittedByUserId → AdminAccount.userId` | Conditional after submission | S3 REL-008; M03 §6.3 |
-| REL-009 | AdminAccount | `0..1 : 0..*` | CheckpointContent | `CheckpointContent.approvedByUserId → AdminAccount.userId` | Conditional after approval | S3 REL-009; M03 §6.3 |
+| REL-008 | AdminAccount | `0..1 : 0..*` | CheckpointContent | — | RETIRED (V2): ENT-DATA-004 retired; maker-checker removed | S3 REL-008 |
+| REL-009 | AdminAccount | `0..1 : 0..*` | CheckpointContent | — | RETIRED (V2): ENT-DATA-004 retired; maker-checker removed | S3 REL-009 |
 | REL-010 | Route | `1 : 0..1` | SelectedRouteContext | `SelectedRouteContext.routeId → Route.routeId` | Required on context | S3 REL-010; M01 §5.3 |
 | REL-011 | Route | `1 : 0..*` | OfflinePackage | `OfflinePackage.routeId → Route.routeId` | Required on package | S3 REL-011; M01 §5.3 |
 | REL-012 | OfflinePackage | `1 : 0..*` | OfflineResource | `(OfflineResource.routeId, contentVersion) → (OfflinePackage.routeId, contentVersion)` | Required on resource | S3 REL-012; M01 §5.3/§6.4 |
-| REL-013 | Checkpoint | `1 : 0..*` | OfflineResource | `OfflineResource.checkpointId → Checkpoint.checkpointId` | Required on resource | S3 REL-013; M01 §5.3 |
-| REL-014 | SelectedRouteContext | `1 : 0..1` at creation | PlaySession | `PlaySession.sourceHandoffId` copies accepted `handoffId` | Handoff ID required and unique on session; current context need only match at creation | S3 REL-014; M01 BR-M01-009; M02 §6.1 |
+| REL-013 | Checkpoint | `1 : 0..*` | OfflineResource | — | RETIRED (V2): resources are per QR; replaced by REL-028 | S3 REL-013; M01 §6.4 |
+| REL-014 | SelectedRouteContext | `1 : 0..1` at creation | PlaySession | `PlaySession.sourceHandoffId` copies `SelectedRouteContext.handoffId` | Lineage at creation; no continuing reference | S3 REL-014; M01 BR-M01-009; M02 §6.1 |
 | REL-015 | Route | `1 : 0..*` | PlaySession | `PlaySession.routeId → Route.routeId` | Required on session | S3 REL-015; M02 §6.1 |
 | REL-016 | PlaySession | `1 : 0..*` | CheckpointVisit | `CheckpointVisit.sessionId → PlaySession.sessionId` | Required on visit | S3 REL-016; M02 §6.2 |
 | REL-017 | Checkpoint | `1 : 0..*` | CheckpointVisit | `CheckpointVisit.checkpointId → Checkpoint.checkpointId` | Required on visit | S3 REL-017; M02 §6.2 |
 | REL-018 | PlaySession | `1 : 0..1` | PendingSyncItem | `PendingSyncItem.sessionId → PlaySession.sessionId` | Required on item; item optional before terminal queue | S3 REL-018; M02 §6.4 |
 | REL-019 | PlaySession | `1 : 0..1` at intake | SessionRecord | `SessionRecord.sessionId` is copied through `SessionSyncRecord` | Accepted record has its own required ID; local PlaySession need not persist afterward | S3 REL-019; M02/M03 session contract |
 | REL-020 | Route | `1 : 0..*` | SessionRecord | `SessionRecord.routeId → Route.routeId` | Required on record | S3 REL-020; M03 §6.4 |
-| REL-021 | JourneySnapshot (predecessor) | `0..1 : 0..*` | JourneySnapshot (successor) | `(routeId, previousContentVersion) → (routeId, contentVersion)` | Optional predecessor; no inverse uniqueness | S3 REL-021; M03 §6.4 CL-S4-001 |
+| REL-021 | JourneySnapshot (predecessor) | `0..1 : 0..1` | JourneySnapshot (successor) | `(routeId, previousContentVersion) → (routeId, contentVersion)` | Optional predecessor; single chain | S3 REL-021; M03 §6.4 CL-S4-001 |
+| REL-022 | Route | `0..* : 0..*` | Checkpoint | `Revision(subjectType = ROUTE).content.checkpointList[].checkpointId → Checkpoint.checkpointId` | Embedded ordered list in route revision content | S3 REL-022; M03 §6.1.1, §6.4 |
+| REL-023 | Route | `0..1 : 0..*` | Media | `Media.(ownerType = ROUTE, ownerId) → Route.routeId` | Required on Media when `ownerType = ROUTE` | S3 REL-023; M03 §6.3 |
+| REL-024 | Route | `0..1 : 0..*` | Revision | `Revision.(subjectType = ROUTE, subjectId) → Route.routeId` | Required on Revision when `subjectType = ROUTE` | S3 REL-024; M03 §6.3 |
+| REL-025 | Checkpoint | `0..1 : 0..*` | Revision | `Revision.(subjectType = CHECKPOINT, subjectId) → Checkpoint.checkpointId` | Required on Revision when `subjectType = CHECKPOINT` | S3 REL-025; M03 §6.3 |
+| REL-026 | QRCode | `0..1 : 0..*` | Revision | `Revision.(subjectType = QRCODE, subjectId) → QRCode.qrIdentifier` | Required on Revision when `subjectType = QRCODE` | S3 REL-026; M03 §6.3 |
+| REL-027 | Revision | `0..* : 0..*` | Media | Media IDs in `Revision.content` (`thumbnailMediaId`, `galleryItems[].mediaId`, `routeMapMediaId`, `mediaItems[].mediaId`) → `Media.mediaId` | Optional references in revision content | S3 REL-027; M03 §6.1.1, §6.2.2, §6.4 |
+| REL-028 | QRCode | `1 : 0..*` | OfflineResource | `OfflineResource.qrIdentifier → QRCode.qrIdentifier` | Required on resource | S3 REL-028; M01 §5.3/§6.4 |
+| REL-029 | JourneySnapshot | `1 : 0..*` | SessionRecord | `(SessionRecord.routeId, contentVersion) → (JourneySnapshot.routeId, contentVersion)` | Required on record; validation reference | S3 REL-029; M03 §5.1, §6.4 |
 
-REL-014 and REL-019 are historical lineage. Their identity values are source-supported, but they are not continuing parent references: M01 replaces the current handoff, and M03 retains an accepted record independently of browser-local M02 data. DBML records these links in notes rather than `Ref` statements.
+REL-014 and REL-019 are historical lineage. Their identity values are source-supported, but they are not continuing parent references: M01 replaces the current handoff, and M03 retains an accepted record independently of browser-local M02 data. REL-004, REL-023 and REL-024–REL-026 use a typed polymorphic reference (`ownerType`/`ownerId`, `subjectType`/`subjectId`); REL-022 and REL-027 are references inside `Revision.content`. DBML records these nine links in notes rather than `Ref` statements.
 
 ### 5.1 Diagram check
 
 | Check | Result | Evidence |
 |---|---|---|
-| Canonical entity inventory and ownership | 16 entities: M01 = 4, M02 = 3, M03 = 9; each has one owner. | §3; specs M01/M02/M03 §6; S1 Entity Dictionary. |
-| Relationship inventory and both directions | 21 REL IDs in this catalog and [S3 review](03-erd-review.md); 21 Mermaid edges in [canonical ERD](03-erd.mmd). S3 records the inverse reading and cardinality for each link. | REL-001–REL-021; [ERD preview](03-erd-preview.md) contains the same Mermaid body. |
-| DBML representation | 16 entity blocks and 19 `Ref` statements; REL-014 and REL-019 are historical lineage notes, not continuing references. Thus 19 + 2 = 21 catalog links. | [DBML](04-data-model.dbml) and §12. |
-| Storage mapping | 9 M03 entities map to backend tables; 7 M01/M02 entities map to browser-local stores. The three extra local stores are technical package/image state, not canonical entities. Cross-store and historical links do not become physical foreign keys. | [Physical schema](06-physical-schema.md) §§3, 6; §12. |
-| Physical relationship disposition | 11 backend links (REL-001–REL-009, REL-020/021) have SQL foreign keys; 8 local or cross-store links (REL-010–REL-013, REL-015–REL-018) use local ownership/identity values rather than backend foreign keys; 2 links (REL-014/019) are creation/intake lineage. 11 + 8 + 2 = 21. | [Core migration](../supabase/migrations/20260930000100_core.sql), [local database](../src/data/local-db.ts), physical schema §§3, 6. |
-| Many-to-many resolution | No direct many-to-many link remains in the catalog. Session/checkpoint visits are CheckpointVisit; package/checkpoint resources are OfflineResource. LanguagePreference intentionally has no relationship. | REL-012/013/016/017; S3 §2; M01/M02 §6. |
+| Canonical entity inventory and ownership | 16 entities: M01 = 4, M02 = 3, M03 = 9; each has one owner. CheckpointContent is retired. | §3; specs M01/M02/M03 §6; S1 Entity Dictionary. |
+| Relationship inventory and both directions | 29 REL IDs in this catalog and [S3 review](03-erd-review.md): 24 active and 5 retired (REL-001, 003, 008, 009, 013). 24 Mermaid edges in [canonical ERD](03-erd.mmd). S3 records the inverse reading and cardinality for each link. | REL-002, 004–007, 010–012, 014–029; [ERD preview](03-erd-preview.md) contains the same Mermaid body. |
+| DBML representation | 16 entity blocks and 15 `Ref` statements; nine links (REL-004, 014, 019, 022–027) are recorded as notes. Thus 15 + 9 = 24 active links. | [DBML](04-data-model.dbml) and §12. |
+| Many-to-many links | REL-022 (Route lists Checkpoint) and REL-027 (Revision references Media) are many-to-many through ordered/embedded references in `Revision.content`; no extra canonical join entity is approved. Session/checkpoint visits are CheckpointVisit; package/QR resources are OfflineResource. LanguagePreference intentionally has no relationship. | REL-012, 016, 017, 022, 027, 028; S3 §2; M01/M02 §6; M03 §6.4. |
 
-This is a structural/source-to-storage check, not a claim that Mermaid or DBML rendered in a parser. A new relation or storage mapping must update the catalog, ERD, visualization and this count together.
+This is a structural check, not a claim that Mermaid or DBML rendered in a parser. Physical storage mapping belongs to the [physical schema](06-physical-schema.md), which has not been re-evaluated for V2. A new relation must update the catalog, ERD, visualization and this count together.
 
 ## 6. Freeze Value Review
 
 | Entity | Frozen Value | Freeze Moment | Later source changes affect it? | Source |
 |---|---|---|---|---|
-| JourneySnapshot | Complete checkpoint order/name/mode/QR arrays and conditional offline values | Atomic publication as `DA_CONG_BO` | No; published snapshot is immutable. | M03 §5.1, BR-M03-005/006 |
-| SelectedRouteContext | `routeJourneyManifest` | Successful Start context commit | No; later source change does not rewrite the handoff. Closure may change only authorization status. | M01 §4.5, §5.3, BR-M01-009/011 |
-| OfflinePackage | Manifest and OfflineResource values for one version | Candidate validates and becomes ready | No; newer source creates/switches a candidate while old ready version survives failure. | M01 §4.3/§4.8, BR-M01-004–008 |
-| PlaySession | Route/version and `journeyCheckpoints` | Session creation from accepted handoff | No; journey is immutable for session life. | M02 FR-M02-004, BR-M02-003, §6.1/§6.3 |
-| CheckpointVisit | `qrIdentifier` and first `checkedInAt` | First valid session/checkpoint check-in | No; repeated scans retain first time. | M02 FR-M02-007/009, §6.2 |
+| Revision | `content` of a `PHAT_HANH` revision | Publication | No; a change creates a new revision; restore creates a new draft. | M03 §6.3, §6.4 |
+| JourneySnapshot | Complete checkpoint order/name/mode/QR arrays, per-QR offline resources and offline route map | Atomic publication as `DA_CONG_BO` | No; published snapshot is immutable. | M03 §5.1, §5.2.G, §6.4 |
+| SelectedRouteContext | `routeJourneyManifest` | Successful Start context commit | No; later source change does not rewrite the handoff. Closure may change only authorization status. | M01 §4.5, §5.3, BR-M01-009 |
+| OfflinePackage | Manifest, OfflineResource values and offline route map for one version | Candidate validates and becomes ready | No; newer source creates/switches a candidate while old ready version survives failure. `routeEssentials` is not frozen: it is refreshed independently of the version and keeps its `capturedAt`. | M01 §4.3/§4.8, §5.3, §6.4, BR-M01-004/006 |
+| PlaySession | Route/version and `journeyCheckpoints` | Session creation from accepted handoff | No; journey is immutable for session life; codes added later are resolved by lookup. | M02 FR-M02-004, BR-M02-020, §6.1/§6.3 |
+| CheckpointVisit | `qrIdentifier` and first `checkedInAt` | First accepted session/checkpoint check-in | No; repeated scans retain first time. | M02 FR-M02-007/009, §6.2 |
 | PendingSyncItem | Embedded terminal `record` | Terminal session payload creation/queue | No; only `syncStatus` changes. | M02 FR-M02-018, §6.4 |
-| SessionRecord | Terminal header and historical checkpoint values | First accepted ingest | No; identical retry is no-op and changed retry conflicts. | M03 BR-M03-016, §6.4 |
+| SessionRecord | Terminal header and historical checkpoint values | First accepted ingest | No; identical retry is no-op and changed retry conflicts. | M03 §5.1, §5.2.J, §6.4 |
 | AuditRecord | Optional `beforeState`/`afterState` | Administrative/provisioning action is appended | No; AuditRecord is append-only. | M03 §6.4 |
 
 ## 7. Delete Behavior Review
@@ -691,17 +829,17 @@ This is a structural/source-to-storage check, not a claim that Mermaid or DBML r
 | Entity / Relationship | Source Behavior | Logical Decision | Source |
 |---|---|---|---|
 | OfflinePackage | Visitor-confirmed local delete removes package and yields logical `CHUA_TAI`. | Delete is supported only for local package lifecycle. | M01 FR-M01-009, §6.4 |
-| OfflinePackage → OfflineResource | Package/candidate deletion removes owned resources. | Confirmed logical cascade within M01 local ownership. | M01 §6.4 |
-| Route | Archive is `LUU_TRU`; history retained. | Lifecycle U, not D. | M03 SF-M03-001-06; §6.4 |
-| Checkpoint | Close/archive are `TAM_DONG`/`LUU_TRU`. | Lifecycle U, not D. | M03 SF-M03-002-07, FN-M03-007; §6.4 |
-| QRCode | Replace/withdraw yields terminal state. | Lifecycle U, not D. | M03 BR-M03-009/010; §6.4 |
-| JourneySnapshot | Current, previous and recently replaced versions must be retained. | Retain persisted versions; no MVP hard-delete or automatic purge. | M03 BR-M03-008; §6.4 DEC-S6-002 |
-| CheckpointContent | Published revision may become archived when replaced. | Lifecycle U; retain revisions, no MVP hard-delete or purge. | M03 §6.3/§6.4 DEC-S6-002 |
-| Media | Unpublished/ineligible media is excluded. | Retain canonical records; no MVP hard-delete or purge. | M03 §6.3/§6.4 DEC-S6-002 |
-| AdminAccount | Deactivation preserves account and authorization history. | Lifecycle U; retain accounts, no MVP hard-delete or purge. | M03 §3 US-M03-05; §6.4 DEC-S6-002 |
+| OfflinePackage → OfflineResource | Package/candidate deletion removes owned resources, offline route map and route essentials. | Confirmed logical cascade within M01 local ownership. | M01 §6.4 |
+| Route | Discard of a never-published route and archive are `LUU_TRU`; history retained. | Lifecycle U, not D. | M03 SF-M03-001-06, SF-M03-001-10; §6.4 |
+| Checkpoint | Close, discard and archive are `TAM_DONG`/`LUU_TRU`. | Lifecycle U, not D. | M03 SF-M03-002-07, SF-M03-002-10, FN-M03-007; §6.4 |
+| QRCode | Revoke and discard yield terminal `THU_HOI`; the identifier is never reused. | Lifecycle U, not D. | M03 SF-M03-003-07, SF-M03-003-13; §6.4 |
+| Revision | Discarded draft becomes `DA_BO`; superseded published revision becomes `LUU_TRU`. | Lifecycle U; retain revisions, no MVP hard-delete or purge. | M03 §6.3/§6.4 DEC-S6-002 |
+| JourneySnapshot | Persisted versions are retained. | Retain persisted versions; no MVP hard-delete or automatic purge. | M03 BR-M03-G08; §6.4 DEC-S6-002 |
+| Media | Retained after it stops being referenced. | Retain canonical records; no MVP hard-delete or purge. | M03 §6.3/§6.4 DEC-S6-002 |
+| AdminAccount | Deactivation preserves account and authorization history. | Lifecycle U; retain accounts, no MVP hard-delete or purge. | M03 §5.2.K; §6.4 DEC-S6-002 |
 | AuditRecord | Append-only historical record. | No U/D. | M03 §6.4 |
 | PlaySession / CheckpointVisit / PendingSyncItem | Browser data deletion may remove local values; no remote recovery. | Environmental local-data lifecycle is acknowledged; no product FN-level targeted delete operation is invented. | M02 §6 logical constraints |
-| SessionRecord | Immutable accepted record. | Retain record and embedded visits together; no U, hard-delete or automatic purge in MVP. | M03 BR-M03-016; §6.4 DEC-S6-002 |
+| SessionRecord | Immutable accepted record. | Retain record and embedded visits together; no U, hard-delete or automatic purge in MVP. | M03 §5.2.J; §6.4 DEC-S6-002 |
 | SelectedRouteContext | Later Start replaces current singleton; browser lifecycle may remove local data. | Replacement is U in S2; no independent D function is inferred. | M01 §6.3/§6.4; S2 |
 | LanguagePreference | Browser data lifecycle may remove singleton. | No product delete behavior beyond browser lifecycle is declared. | M01 §6.3/§6.4 |
 
@@ -709,148 +847,117 @@ This is a structural/source-to-storage check, not a claim that Mermaid or DBML r
 
 | Entity | States | Allowed Transitions | Terminal States | Guards | Source |
 |---|---|---|---|---|---|
-| Route | `NHAP`, `CHO_DUYET`, `HOAT_DONG`, `TAM_DONG`, `LUU_TRU` | `NHAP→CHO_DUYET→HOAT_DONG→TAM_DONG→LUU_TRU`; reject `CHO_DUYET→NHAP`; Reviewer reopen `TAM_DONG→HOAT_DONG` | `LUU_TRU` | Publication completeness, maker-checker, concurrency; active version required when active. | M03 §6.1/§6.4 |
-| Checkpoint | `NHAP`, `HOAT_DONG`, `TAM_DONG`, `LUU_TRU` | `NHAP→HOAT_DONG→TAM_DONG→LUU_TRU`; Reviewer reopen `TAM_DONG→HOAT_DONG` | `LUU_TRU` | Active QR, bilingual content, connectivity completeness; online requires field verification. | M03 §6.2/§6.4 |
-| QRCode | `HOAT_DONG`, `DA_THAY`, `THU_HOI` | Created active; `HOAT_DONG→DA_THAY` or `HOAT_DONG→THU_HOI` | `DA_THAY`, `THU_HOI` | Cannot leave active Checkpoint without active QR; replacement requires reason/approval. | M03 §6.2/§6.4 |
-| CheckpointContent | `NHAP`, `CHO_DUYET`, `DA_DUYET`, `PHAT_HANH`, `LUU_TRU` | Forward publication path; rejection returns to `NHAP`; editing published creates new `NHAP` revision | `LUU_TRU` for a revision | Minimum content, maker-checker; one current `PHAT_HANH` per language. | M03 §6.3/§6.4 |
-| JourneySnapshot | `DANG_TAO`, `DA_CONG_BO` | `DANG_TAO→DA_CONG_BO` | `DA_CONG_BO` immutable | Complete active journey, unique IDs/sequences, conditional resources; atomic active switch. | M03 §5.1/§6.4 |
-| AdminAccount | `INVITATION_PENDING`, `ACTIVE`, `DEACTIVATED` | `INVITATION_PENDING→ACTIVE↔DEACTIVATED`; retry keeps pending | None declared | Matching provider identity; Reviewer-only management; preserve last active Reviewer. | M03 §3 US-M03-05, §6.4 |
-| SelectedRouteContext | `AUTHORIZED`, `REVOKED` | Created authorized; discovered closure may revoke; later Start replaces current value | `REVOKED` for that handoff | Complete atomic manifest; new handoff identity per Start. | M01 §5.3/§6.4 |
+| Route | `NHAP`, `HOAT_DONG`, `TAM_DONG`, `LUU_TRU` | `NHAP→HOAT_DONG` (first publication); `NHAP→LUU_TRU` (discard); `HOAT_DONG→TAM_DONG` (close, or automatically when its last active listed checkpoint closes); Reviewer reopen `TAM_DONG→HOAT_DONG`; Reviewer archive `TAM_DONG→LUU_TRU` | `LUU_TRU` | Publication guard and mandatory review; concurrency; never reopens automatically; active version required once published. | M03 §5.2.C, §5.2.H, §6.1/§6.4 |
+| Checkpoint | `NHAP`, `HOAT_DONG`, `TAM_DONG`, `LUU_TRU` | `NHAP→HOAT_DONG` (own publication); `NHAP→LUU_TRU` (discard); `HOAT_DONG→TAM_DONG` (close, affecting every listing route); Reviewer reopen `TAM_DONG→HOAT_DONG`; Reviewer archive `TAM_DONG→LUU_TRU` | `LUU_TRU` | At least one ready visit point; bilingual name; online requires field verification; archive only when no non-archived route lists it. | M03 §5.2.D, §5.2.H, §6.2/§6.4 |
+| QRCode | `NHAP`, `HOAT_DONG`, `THU_HOI` | Created `NHAP` at first save; `NHAP→HOAT_DONG` (publication); `NHAP→THU_HOI` (discard); `HOAT_DONG→THU_HOI` (revoke, or automatically when its checkpoint is archived) | `THU_HOI` | Cannot revoke the last active QR of an active checkpoint; created only for a checkpoint with a saved mode. | M03 §5.2.E, §6.2/§6.4 |
+| Revision | `NHAP`, `PHAT_HANH`, `LUU_TRU`, `DA_BO` | `NHAP→PHAT_HANH` (previous published becomes `LUU_TRU`); `NHAP→DA_BO` (discard); `PHAT_HANH→LUU_TRU` (superseded); restore creates a new `NHAP` | `LUU_TRU`, `DA_BO` | At most one `NHAP` and one `PHAT_HANH` per subject; publication guard; reviewed concurrency revision; restore blocked while a draft exists. | M03 §5.2.F, §6.3/§6.4 |
+| JourneySnapshot | `DANG_TAO`, `DA_CONG_BO` | `DANG_TAO→DA_CONG_BO` | `DA_CONG_BO` immutable | Complete active journey, unique IDs/sequences, per-QR offline resources; consecutive number allocated in the atomic switch; all affected routes switch together. | M03 §5.1, §5.2.G, §6.4 |
+| AdminAccount | `INVITATION_PENDING`, `ACTIVE`, `DEACTIVATED` | `INVITATION_PENDING→ACTIVE↔DEACTIVATED`; retry keeps pending | None declared | Matching provider identity; Reviewer-only management; preserve last active Reviewer. | M03 §5.2.K, §6.4 |
+| SelectedRouteContext | `AUTHORIZED`, `REVOKED` | Created authorized; discovered closure may revoke; later Start replaces current value | `REVOKED` for that handoff | Complete atomic manifest; new handoff identity per Start; expiry checked by M02, not a state. | M01 §5.3/§6.4 |
 | OfflinePackage | `CHUA_TAI`, `DANG_TAI`, `SAN_SANG`, `CHUA_HOAN_TAT`; ready freshness `CURRENT`/`OUTDATED` | Download/candidate validation; ready may become outdated; valid candidate atomically replaces; delete returns logical not-downloaded | No terminal persisted state declared | Completeness, serialization, retain old ready package on failed update. | M01 §4.8, §5.3/§6.4 |
-| PlaySession | `DANG_DIEN_RA`, `HOAN_TAT`, `BO_DO` | Active to completed after final checkpoint plus confirmation, or active to abandoned on valid replacement | `HOAN_TAT`, `BO_DO` | At most one active local session; terminal state immutable. | M02 §5.2, §6.1 |
-| PendingSyncItem | `PENDING`, `SYNCED`, `CONFLICT` | Pending to synced on success/identical acknowledgement; pending to conflict on changed payload; failure remains pending | `SYNCED`, `CONFLICT` for automatic processing | Embedded record immutable; conflict stops automatic retry. | M02 §6.4 |
-| SessionRecord | `HOAN_TAT`, `BO_DO` | Inserted directly in terminal state; no transitions | Both terminal | Schema/privacy/timestamp validation; identical retry succeeds, changed retry conflicts. | M03 §5.1/§5.2/§6.4 |
+| PlaySession | `DANG_DIEN_RA`, `HOAN_TAT`, `BO_DO` | Active to completed after final checkpoint plus confirmation; active to abandoned on valid replacement; automatic end after 24 hours (`HOAN_TAT` when the final checkpoint was visited, else `BO_DO`) | `HOAN_TAT`, `BO_DO` | At most one active session per browser; terminal state immutable. | M02 §5.2 BR-M02-022, §6.1 |
+| PendingSyncItem | `PENDING`, `SYNCED`, `CONFLICT` | Pending to synced on success/identical acknowledgement; pending to conflict on changed payload or invalid-record rejection; failure remains pending | `SYNCED`, `CONFLICT` for automatic processing | Embedded record immutable; conflict stops automatic retry. | M02 §6.4 |
+| SessionRecord | `HOAN_TAT`, `BO_DO` | Inserted directly in terminal state; no transitions | Both terminal | Schema/privacy/timestamp and snapshot validation; identical retry succeeds, changed retry conflicts. | M03 §5.1/§5.2.J/§6.4 |
 
 ## 9. Logical Integrity Constraints
 
-1. Route, Checkpoint, QRCode, Media, AuditRecord, handoff and session identities are stable according to their source declarations; no surrogate identifier is introduced.
-2. `qrIdentifier`, normalized AdminAccount email, conditional provider `userId`, `handoffId`, `PlaySession.sessionId`, `PlaySession.sourceHandoffId` and `SessionRecord.sessionId` are unique where declared.
-3. Composite identities are exactly those accepted in S1: CheckpointContent, JourneySnapshot, OfflinePackage, OfflineResource and CheckpointVisit.
-4. Checkpoint belongs to exactly one Route; `(routeId, sequence)` is unique for non-archived checkpoints.
-5. QRCode belongs to exactly one Checkpoint; an active Checkpoint retains at least one active QRCode.
-6. CheckpointContent belongs to one checkpoint/language stream; at most one revision per language is `PHAT_HANH`.
-7. Submitter and approver differ for an approved revision.
-8. Route publication requires complete bilingual fields, allowed non-empty tag groups, positive measures and at least one publishable checkpoint.
-9. Route active version references a published JourneySnapshot of the same Route. JourneySnapshot identity is unique per Route/version and published contents are immutable.
-10. Optional `previousContentVersion`, when present, references one JourneySnapshot of the same Route. A predecessor may have zero or many successors; there is no inverse uniqueness (M03 §6.4 CL-S4-001).
-11. SelectedRouteContext is one current singleton, is written atomically, has a globally unique handoff and creates at most one PlaySession. A historical session retains the handoff ID after that current context is replaced.
-12. OfflinePackage is unique per Route/version; at most one active ready package exists per Route. Candidate/partial data is not exposed.
-13. OfflineResource is unique per Route/version/checkpoint and exists exactly for offline-required checkpoints of its owning complete package.
-14. At most one PlaySession is `DANG_DIEN_RA` per device/local profile. Its copied journey cannot change after creation.
-15. CheckpointVisit is unique per session/checkpoint, not per QR, and preserves the first timestamp.
-16. PendingSyncItem is at most one per terminal session. Its embedded record is immutable; only sync status transitions.
-17. SessionRecord child checkpoint IDs are unique within session; timestamps fall within the session interval; no visitor/device/GPS PII is accepted.
-18. SessionRecord ingest is idempotent for identical business data and rejects changed payload for an existing identity.
-19. AdminAccount roles are fixed to the declared enum; protected access requires provider authentication plus an active account. Role/status mutation cannot leave zero active Reviewers.
-20. AuditRecord is append-only and excludes credential/token values.
-21. Ownership remains module-bound: M01/M02 do not write M03 sources, M02 does not write M01 shared values, and M03 SessionRecord is distinct from M02 local PlaySession state. SessionRecord intake lineage does not require a continuing local PlaySession reference.
-22. Every Required/Optional/Conditional designation in §4 is logical contract presence, not physical database nullability.
+1. Route, Checkpoint, QRCode, Revision, Media, AuditRecord, handoff and session identities are stable according to their source declarations; no surrogate identifier is introduced.
+2. `qrIdentifier`, normalized AdminAccount email, conditional provider `userId`, `handoffId`, `PlaySession.sessionId`, `PlaySession.sourceHandoffId` and `SessionRecord.sessionId` are unique where declared; identifiers are never reused.
+3. Composite identities are exactly those accepted in S1: JourneySnapshot, OfflinePackage, OfflineResource and CheckpointVisit; Revision is also unique by `(subjectType, subjectId, revisionNumber)`.
+4. A Checkpoint belongs to no Route. A Route lists checkpoints in its revision content (`checkpointList`); a checkpoint appears at most once in a list; the list position is the snapshot `sequence`. No two non-archived checkpoints share the same Vietnamese name.
+5. QRCode belongs to exactly one Checkpoint and never moves; an active Checkpoint retains at least one active QRCode; a QR object holding audio/video belongs to an `ONLINE_AVAILABLE` checkpoint; a QRCode exists only for a checkpoint that had a saved connectivity mode.
+6. Each subject has at most one `NHAP` and at most one `PHAT_HANH` Revision; a `PHAT_HANH` revision is immutable; public views expose only the `PHAT_HANH` revision.
+7. A Media record is referenced only by revisions of its owner; it is owned by exactly one Route or one Checkpoint; `spokenLanguage` is present exactly for audio/video; usage rights are confirmed before a referencing revision is published.
+8. Route publication requires complete bilingual fields, allowed non-empty tag groups, positive measures, a thumbnail, the safety tick when no warning exists and at least one active listed checkpoint.
+9. Route active version references the highest `DA_CONG_BO` JourneySnapshot of the same Route, which lists exactly the currently active checkpoints of the route's published list, in list order. JourneySnapshot identity is unique per Route/version and published contents are immutable.
+10. `contentVersion` is consecutive per Route starting at `1`; `previousContentVersion`, when present, is `contentVersion - 1` of the same Route; the versions of a Route form a single chain (M03 §6.4 CL-S4-001). The snapshots of all routes affected by one change switch together or not at all.
+11. The published or pending-draft list of a non-archived Route never contains a `LUU_TRU` checkpoint; a checkpoint is archived only when no non-archived route lists it.
+12. SelectedRouteContext is one current singleton, is written atomically, has a globally unique handoff, expires 24 hours after authorization and creates at most one PlaySession. A historical session retains the handoff ID after that current context is replaced.
+13. OfflinePackage is unique per Route/version; at most one active ready package exists per Route. Candidate/partial data is not exposed. A package has at most one offline route map and exactly one route-essentials value.
+14. OfflineResource is unique per Route/version/QR and exists exactly for the QRs of the offline-required checkpoints of its owning complete package.
+15. At most one PlaySession is `DANG_DIEN_RA` per browser. Its copied journey cannot change after creation.
+16. CheckpointVisit is unique per session/checkpoint, not per QR, and preserves the first timestamp; its checkpoint always belongs to the session's frozen journey.
+17. PendingSyncItem is at most one per terminal session. Its embedded record is immutable; only sync status transitions.
+18. SessionRecord child checkpoint IDs are unique within session; timestamps fall within the session interval; the route is known, the version is published, and every visit matches the snapshot name and sequence; no visitor/device/GPS PII is accepted.
+19. SessionRecord ingest is idempotent for identical business data and rejects changed payload for an existing identity.
+20. AdminAccount roles are fixed to the declared enum; protected access requires provider authentication plus an active account. Role/status mutation cannot leave zero active Reviewers.
+21. AuditRecord is append-only and excludes credential/token values.
+22. Ownership remains module-bound: M01/M02 do not write M03 sources, M02 does not write M01 shared values, and M03 SessionRecord is distinct from M02 local PlaySession state. SessionRecord intake lineage does not require a continuing local PlaySession reference.
+23. Every Required/Optional/Conditional designation in §4 is logical contract presence, not physical database nullability.
 
 ### 9.1 Business-rule enforcement register
 
-Every rule in the three specs has a named enforcement boundary. “Data layer present” means the cited persistence or database guard exists; “integration pending” means application or provider code must still invoke/enforce it before claiming end-to-end behavior. The register assigns responsibility without adding a new product rule.
-
-| Rule IDs | Enforcement boundary | Current evidence / limit |
-|---|---|---|
-| BR-M01-001 | M01 language preference command | `m01Store.setLanguage` validates and persists `vi`/`en`; UI language switch is integration pending. |
-| BR-M01-002 | M01 route catalog reader over M03 Published Route | Public projection exists; catalog filtering and offline freshness display are integration pending. |
-| BR-M01-003 | M01 recommendation handler | Integration pending; the handler must apply all three spec tag groups. |
-| BR-M01-004, BR-M01-005, BR-M01-006 | M01 offline package staging/activation transaction | `m01Store.stagePackage`, `activatePackage`, `markOutdated` and `readOfflineResource` provide data-layer guards; download/orchestration is integration pending. |
-| BR-M01-007 | M01 continue-without-download confirmation flow | Integration pending. |
-| BR-M01-008, BR-M01-009 | M01 Start command and handoff write | `m01Store.writeContext` enforces a new authorized handoff; online source check, ready-package selection and Start orchestration are integration pending. |
-| BR-M01-010 | M01/M02 store ownership boundary | `m01Store` writes only M01 stores; `m02Store` writes only M02 stores. |
-| BR-M01-011 | M01 route-closure reader and context revocation | `m01Store.revokeRoute` is present; discovery and blocking of a new Start are integration pending. |
-| BR-M02-001, BR-M02-002, BR-M02-003, BR-M02-013 | M02 session-start transaction | `m02Store.start` consumes the authorized handoff, copies the journey and atomically replaces an active session. |
-| BR-M02-004, BR-M02-005, BR-M02-006, BR-M02-008 | M02 QR check-in transaction | `m02Store.checkIn` keys visits by session/checkpoint, accepts unordered journey visits and leaves outside-journey scans without progress; content resolution remains separate. |
-| BR-M02-007, BR-M02-010 | M02 terminal transition and sync queue | `m02Store.finish`/`terminate` require final checkpoint and confirmation, then freeze terminal business data. |
-| BR-M02-009 | M02 content resolver using M01 offline resource or M03 live lookup | `m02Store.readOfflineResource` is present; online/outside-journey lookup integration is pending. |
-| BR-M02-011 | M02 sync acknowledgement and M03 terminal intake | `m02Store.acknowledge` and `api.ingest_session` implement data-layer outcomes; network retry orchestration is pending. |
-| BR-M02-012 | M02 free-visitor scan flow | Integration pending; it must not call session/progress/report writers. |
-| BR-M03-001, BR-M03-002 | M03 review/publication command | Private draft/public copy and database guards exist; authenticated maker-checker command is integration pending. |
-| BR-M03-003, BR-M03-004, BR-M03-005, BR-M03-006, BR-M03-007 | M03 publication transaction | Snapshot/public integrity and immutable-snapshot database guards exist; complete publication command and revision-diff decision are integration pending. |
-| BR-M03-008 | M03 snapshot retention boundary | Database denies snapshot delete; no MVP purge command exists. |
-| BR-M03-009, BR-M03-010 | M03 QR replacement command and active-checkpoint guard | Database lifecycle/public-integrity guards exist; replacement command is integration pending. |
-| BR-M03-011, BR-M03-012, BR-M03-013 | M03 close/reopen command and checkpoint activation guard | Database integrity/lifecycle guards exist; reason, Reviewer permission and field-verification command path are integration pending. |
-| BR-M03-014 | M03 administrative write command with expected revision | Database revision guard exists; compare-and-write command is integration pending. |
-| BR-M03-015 | M03 account-management command and last-Reviewer guard | Database account guard/serialization exist; Reviewer-only command is integration pending. |
-| BR-M03-016 | M03 `api.ingest_session` | Service-only database function validates privacy/time/visits and identical-versus-conflicting retry; application intake adapter is integration pending. |
-| BR-M03-017 | M03 report query over SessionRecord | Physical schema defines `Asia/Ho_Chi_Minh` date boundary; report query/UI integration is pending. |
-| BR-M03-018 | M03 Auth-to-active-account authorization boundary | Database role lookup, RLS and grants exist; provider configuration and application command authorization are integration pending. |
-| BR-M03-019, BR-M03-020 | M03 server-side initial Reviewer provisioning and provider invitation/recovery flow | Provider-backed bootstrap, invitation and recovery integration is pending; no browser privilege grant is defined here. |
-
-The planned boundaries above are traceable to specs M01 §5.5, M02 §5.2 and M03 §5.2; implementation status is supported by [local data operations](../src/data/local-db.ts), [physical schema](06-physical-schema.md) and [storage validation](07-storage-validation.md). A named boundary is not evidence that an unimplemented handler has run.
+RETIRED (V2). The V1 register mapped V1 business-rule IDs (for example `BR-M03-001`–`BR-M03-020`) to implementation evidence (`src/`, `supabase/`, storage validation). Those IDs no longer exist in spec M03 v3.7, whose rules are grouped `BR-M03-A01`–`L13`, and the implementation files are not part of the V2 documentation set (AGENTS.md §2). The complete rule-to-data catalogue is produced in the [Data Acceptance Criteria](08-data-acceptance-criteria.md) stage; this model adds no rule.
 
 ## 10. Finalized Decisions
 
 | ID | Status | Decision | Impact / disposition |
 |---|---|---|---|
-| CL-S4-001 | RESOLVED | Each snapshot has zero or one same-Route predecessor; a predecessor has zero or many successors. | M03 §6.4; REL-021 is confirmed and drawn. No inverse uniqueness; atomic publication and singular Route activation still apply. |
-| DEC-S6-002 | RESOLVED | Retain M03 canonical records in MVP; no hard-delete or automatic purge. | M03 §6.4; lifecycle archive/deactivation and M01 local package deletion remain as specified. |
+| CL-S4-001 | RESOLVED (revised) | Each snapshot has zero or one same-Route predecessor; the versions of a Route form a single chain because numbers are allocated consecutively inside the atomic publication. | M03 §6.4; REL-021 is `0..1 : 0..1` and drawn. Atomic publication and singular Route activation still apply. |
+| DEC-S6-002 | RESOLVED (revised) | Retain the nine M03 canonical entities (Route, Checkpoint, QRCode, Revision, Media, JourneySnapshot, AdminAccount, SessionRecord, AuditRecord) in MVP; no hard-delete or automatic purge. | M03 §6.4; lifecycle archive, discard, revoke and deactivation and M01 local package deletion remain as specified. |
 
-No logical-model decision remains outstanding. The subsequent physical storage representation is documented in [06-physical-schema.md](06-physical-schema.md).
+No logical-model decision remains outstanding. The physical storage representation in [06-physical-schema.md](06-physical-schema.md) has not been re-evaluated for V2.
 
 ### 10.1 Normalization check and deliberate exceptions
 
-The 16 entities have explicit ownership and identities (§3); attributes trace to spec fields (§4), and relationships to S3 (§5). Mutable source entities and their dependent collections are separated where the specs declare distinct entities: Route/Checkpoint/QRCode/CheckpointContent/Media, OfflinePackage/OfflineResource and PlaySession/CheckpointVisit. No unresolved many-to-many relation or extra canonical join entity is needed. The DBML's Object/Array paths are logical values, so this check does not certify relational 1NF/2NF/3NF from a visualization. The physical storage review in [§§2–6 of the physical schema](06-physical-schema.md) maps scalar ownership to tables/keys and the following approved value copies to immutable aggregates or local stores.
+The 16 entities have explicit ownership and identities (§3); attributes trace to spec fields (§4), and relationships to S3 (§5). Mutable source entities and their dependent collections are separated where the specs declare distinct entities: Route/Checkpoint/QRCode/Revision/Media, OfflinePackage/OfflineResource and PlaySession/CheckpointVisit. The two many-to-many links (REL-022, REL-027) are held as references inside `Revision.content`; no extra canonical join entity is approved. The DBML's Object/Array paths are logical values, so this check does not certify relational 1NF/2NF/3NF from a visualization.
 
 | Deliberate repeated or embedded value | Why it is retained | Upkeep rule / source |
 |---|---|---|
-| Route published metadata copy beside editable draft | A partial draft must not alter public output. | Publication updates the approved public copy atomically; never read unapproved draft as public. M03 BR-M03-001/004/007; physical schema §3. |
-| Route/Checkpoint/QRCode/Media `draft_state` and `review_state` envelopes | Pending edits and review evidence must coexist with the last published values. | Administrative command validates expected revision and maker-checker evidence; only approved changes enter public state. M03 BR-M03-001/002/014; physical schema §3. |
-| JourneySnapshot checkpoint names, order, QR set and offline content | An old route version must remain self-contained after live content changes. | Build the full copy at publication, then leave it immutable; a journey change creates a new version. M03 BR-M03-005/006. |
-| OfflinePackage manifest and OfflineResource localized content/image references | An offline route/version must work without the live source. | Validate complete candidate and local image bytes; switch ready version atomically and keep the old ready copy on failure. M01 BR-M01-004–006. |
-| SelectedRouteContext v2 `routeJourneyManifest` | M02 receives the exact selected journey even if published data later changes. | Copy once at successful Start; subsequent Start replaces the singleton with a new handoff. M01 BR-M01-009/011; §6. |
-| PlaySession `journeyCheckpoints` and CheckpointVisit first event | The session must use its frozen route version and first valid check-in. | Copy from authorized handoff at session creation; never rewrite frozen journey or first visit. M02 BR-M02-003/004/010. |
-| PendingSyncItem embedded SessionSyncRecord | A failed sync must resend the same terminal business payload. | Create with terminal transition; only sync status changes. M02 BR-M02-010/011. |
-| SessionRecord embedded historical visits and checkpoint labels | Reports must survive local session cleanup and later route revisions. | Validate/normalize once on intake; identical retry is no-op and changed retry conflicts. M03 BR-M03-016/017. |
+| Revision `NHAP` beside the `PHAT_HANH` revision of the same subject | A draft must not alter public output; history and restore need earlier versions. | Publication switches the published revision atomically; public views read only `PHAT_HANH`. M03 §5.2.F, §6.3/§6.4. |
+| JourneySnapshot checkpoint names, order, QR set, per-QR offline content and offline route map | An old route version must remain self-contained after live content changes. | Build the full copy at publication, then leave it immutable; a journey change creates a new version. M03 §5.1, §5.2.G. |
+| OfflinePackage manifest, OfflineResource content/image references and offline route map | An offline route/version must work without the live source. | Validate complete candidate and local image bytes; switch ready version atomically and keep the old ready copy on failure. M01 BR-M01-004/006. |
+| OfflinePackage `routeEssentials` | Essential route texts must be shown offline. | Copy from the Published Route at package creation and on each successful later read; keep the old value and `capturedAt` on failure. M01 §5.3, §6.4. |
+| SelectedRouteContext v3 `routeJourneyManifest` | M02 receives the exact selected journey even if published data later changes. | Copy once at successful Start; subsequent Start replaces the singleton with a new handoff. M01 BR-M01-009; §6. |
+| PlaySession `journeyCheckpoints` and CheckpointVisit first event | The session must use its frozen route version and first accepted check-in. | Copy from authorized handoff at session creation; never rewrite frozen journey or first visit. M02 §6.1–§6.3. |
+| PendingSyncItem embedded SessionSyncRecord | A failed sync must resend the same terminal business payload. | Create with terminal transition; only sync status changes. M02 §6.4. |
+| SessionRecord embedded historical visits and checkpoint labels | Reports must survive local session cleanup and later route revisions. | Validate once on intake; identical retry is no-op and changed retry conflicts. M03 §5.1, §5.2.J. |
 | AuditRecord before/after state | Administrative history must not be reconstructed from mutable current rows. | Append once with the action; exclude credentials/tokens and never update the record. M03 §6.4. |
-| Local `activePackages` pointer, `packageCandidates` bundle and `imageBytes` | A ready version, an unexposed candidate and actual offline image bytes need separate local lifecycles. | Validate the candidate before activation; update pointer/resources/bytes in one local transaction; delete owned bytes with the package. M01 BR-M01-004–006; physical schema §6. |
 
-These are the deliberate duplicated or embedded values in the current S4/physical mapping. Technical fields and stores in the last two relevant rows are not extra canonical entities or new logical relationships.
+These are the deliberate duplicated or embedded values in the current S4 model. Physical stores and technical fields are out of scope for this logical model.
 
 ## 11. Privacy Declaration
 
 | Check | Declaration and evidence |
 |---|---|
-| [x] Visitor data minimization | SessionSyncRecord/SessionRecord carry anonymous session, route, status, time and visited-checkpoint fields only; no visitor name, contact, device identifier or GPS field. M02 §5.1; M03 §5.1; §9(17). |
-| [x] Administrative identity isolation | AdminAccount email/provider user ID are M03 private data; public route/content projections do not expose them. Provider credentials remain in the provider, and AuditRecord excludes tokens/credential values. M03 §3/§6.4; physical schema §5. |
-| [x] Access and storage boundary | Backend canonical tables use RLS and limited grants; M01/M02 browser-local values stay in the local profile. The latter can be lost when browser data is cleared. Physical schema §§5–6; M01/M02 §6. |
-| [x] Seed values are synthetic | Repository owner confirmed in this review that all 17 canonical CSV files contain synthetic values and no real person's name, contact detail or identifier. The admin emails use `cucphuong-seed.example`; fixture provider IDs are synthetic. This is an attestation plus fixture inspection, not an automated proof of arbitrary text. |
+| [x] Visitor data minimization | SessionSyncRecord/SessionRecord carry anonymous session, route, status, time and visited-checkpoint fields only; no visitor name, contact, device identifier or GPS field. M02 §5.1; M03 §5.1; §9(18). |
+| [x] Administrative identity isolation | AdminAccount email/provider user ID and recorded actor user IDs are M03 private data; public route/content projections do not expose them. Provider credentials remain in the provider, and AuditRecord excludes tokens/credential values. M03 §6.4. |
+| [x] Local storage boundary | M01/M02 values stay in the browser-local profile and can be lost when browser data is cleared. M01/M02 §6. Backend access control belongs to the physical schema, which has not been re-evaluated for V2. |
 
-The synthetic-data declaration applies to the current canonical CSV package only. Any replacement fixture needs the same review before publication or sharing.
+Seed fixtures are not part of the V2 documentation set (AGENTS.md §2); no seed declaration is made here.
 
 ## 12. DBML Representation and Validation
 
-- The prior S4 revision recorded local syntax validation with `@dbml/core` 5.3.0 (`dbmlv2` parser). Current-revision parser result is recorded in the S6 review; the prior result alone does not validate these edits.
-- Parsed inventory from the previous S4 validation: 16 tables and 160 fields. This revision represents all 21 confirmed S3 links: 19 DBML references, including REL-021, and two temporal lineage links in notes. Parser validation must be rerun for this revision before claiming syntax PASS.
-- The previous parser validation reported no duplicate names or undefined references and accepted the composite syntax. Current structural checks do not replace parser validation.
-- Markdown-to-DBML comparison: all 160 attribute paths match by entity/name, logical type category and presence (`Required` maps to DBML `not null`; Optional/Conditional remain nullable in the visualization).
-- DBML parser/render validation was not rerun for this revision because no local parser is available. The structural inventory and attribute comparison do not constitute a syntax/render PASS.
+- DBML parser/render validation was not run for this revision: no local DBML parser is available, and none was installed. Syntax/render result: NOT RUN.
+- Structural inventory of this revision: 16 tables with 250 attribute paths and 15 `Ref` statements; the nine remaining active S3 links (REL-004, 014, 019, 022–027) are recorded as notes. 15 + 9 = 24 active links.
+- Markdown-to-DBML comparison: every attribute path of §4 appears in the DBML table of the same entity with the same logical type category and presence (`Required` maps to DBML `not null`; Optional/Conditional remain nullable in the visualization). The Revision table lists the three content shapes with `content.` paths, annotated by `subjectType`. Because each `content.` path applies to one `subjectType` only, all of them stay nullable in the visualization, including paths that are Required within their own content shape.
+- The structural inventory and attribute comparison do not constitute a syntax/render PASS.
 
 Representation differences:
 
 1. DBML maps UUID/String/Integer/Decimal/Boolean/Date/DateTime to `uuid`/`varchar`/`int`/`decimal`/`boolean`/`date`/`timestamp` only for visualization, as requested. These are not final PostgreSQL selections.
 2. Embedded Object and Array paths are shown with quoted logical field names and logical custom type labels such as `Object` and `Array<Object>`; they are not mapped to JSON/JSONB and do not prescribe storage layout.
 3. `OfflinePackage.resources[]` is visualized through the canonical OfflinePackage–OfflineResource relationship rather than as a duplicated embedded DBML field.
-4. DBML composite `indexes { ... [pk] }` blocks visualize approved composite logical identifiers only; they do not prescribe physical indexes.
+4. DBML composite `indexes { ... [pk] }` and `[unique]` blocks visualize approved logical identifiers only; they do not prescribe physical indexes.
 5. REL-014 and REL-019 remain in the conceptual catalog as creation/intake lineage. DBML does not draw them as continuing references because the current handoff can be replaced and browser-local sessions can disappear after accepted backend intake.
-6. The remaining DBML `Ref` statements visualize logical associations, including IDs crossing browser/backend storage boundaries; they do not prescribe enforceable physical foreign keys. Physical design must classify each link by storage location.
-7. Singleton/current, conditional presence, lifecycle, freeze, maker-checker, idempotency and last-active-Reviewer rules remain authoritative in this Markdown because DBML cannot express them completely.
+6. REL-004, REL-023 and REL-024–REL-026 are typed polymorphic references, and REL-022 and REL-027 are references inside `Revision.content`. DBML cannot express them without implying an unconditional foreign key, so they are recorded as notes.
+7. The remaining DBML `Ref` statements visualize logical associations, including IDs crossing browser/backend storage boundaries; they do not prescribe enforceable physical foreign keys. Physical design must classify each link by storage location.
+8. Singleton/current, conditional presence, lifecycle, freeze, at-most-one-draft/published revision, idempotency and last-active-Reviewer rules remain authoritative in this Markdown because DBML cannot express them completely.
 
 ## 13. Automatic S4 Gate
 
 | Check | Result |
 |---|---|
-| All 16 canonical entities modeled | PASS |
+| All 16 canonical entities modeled; retired CheckpointContent recorded | PASS |
 | All source-supported attributes represented | PASS |
 | Logical types and presence reviewed | PASS |
 | Approved logical identifiers reviewed | PASS |
-| All 21 confirmed S3 links represented (19 references, two lineage notes) | PASS |
+| All 24 active S3 links represented (15 references, nine notes); 5 retired links recorded | PASS |
 | Frozen/historical values reviewed | PASS |
 | Delete behavior reviewed | PASS |
 | Enum/lifecycle transitions reviewed | PASS |
 | Logical integrity constraints reviewed | PASS |
-| DBML field and lineage mapping consistent with authoritative model | PASS — structural review; parser/render not rerun |
+| DBML field and note mapping consistent with authoritative model | PASS — structural review; parser/render NOT RUN |
 | No unsupported physical design introduced | PASS |
 
-**S4 STATUS: PASS — READY FOR S5 SEED DATA**
+**S4 STATUS: PASS — READY FOR DATA ACCEPTANCE CRITERIA**

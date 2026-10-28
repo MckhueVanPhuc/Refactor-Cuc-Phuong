@@ -373,7 +373,7 @@ Thứ tự dưới đây là dependency order. Không “song song hóa” nhữ
 | P6 | Sync MVP Scope & Function Lists | Priority/boundary ở MVP-Scope; decomposition/coverage ở function lists. Không tạo behavior mới. |
 | P7 | Sync Architecture | Context/usage/sequence/system config; tech/environment chỉ khi trigger kỹ thuật thực sự có. |
 | P8 | Sync Screen Documentation | Inventory + screen specs cho field/action/state/role/error/coverage bị đổi; không dùng UI suy ngược rule. |
-| P9 | Sync Data/Database Documentation, including DAC after S4 | S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema→Field Mapping→Seed/edge-case evidence→Storage Validation evidence only if executed. Không infer physical choices hoặc hand-edit generated artifacts. |
+| P9 | Sync Data/Database Documentation, including DAC after S4 | S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema→Field Mapping→Seed/edge-case evidence→Storage Validation evidence only if executed. Không infer physical choices hoặc hand-edit generated artifacts. V2: theo AGENTS.md §2, active documentation set kết thúc ở Physical Schema; Field Mapping, Seed và Storage Validation không thuộc phạm vi V2. |
 | P10 | Complete & Validate Implementation Documentation | Inventory và validate đầy đủ cả ba package specs/001\|002\|003; hoàn tất spec/research/plan/data-model/contracts/quickstart/tasks; chạy I1 clarify → I2 checklist → I3 plan → I4 tasks → I5 analyze; resolve blocking findings; xuất implementation-readiness report. Không chạy task hoặc sửa code/test/migration/runtime. |
 | P11 | Repository-wide Final Audit | Search canonical names/IDs/old terms; diff review; validate phase references, version/date/link/coverage; classify remaining stale items. |
 
@@ -604,9 +604,9 @@ Giữ producer/consumer ownership, canonical contract names và stable identifie
 
 - SessionSyncRecord là transport contract; SessionRecord là canonical M03 entity.
 
-- Current published content là projection của CheckpointContent, không phải entity mới.
+- Current published content là projection của revision `PHAT_HANH` của route, checkpoint hoặc QR object (spec-M03 §6.3), không phải entity mới. (V2: `CheckpointContent` đã retire, thay bằng `Revision` — xem AGENTS.md §5.)
 
-- Baseline hiện tại có 16 canonical entities; thêm/bớt chỉ khi spec mới + explicit approval hỗ trợ.
+- Baseline S1 V2 có 16 canonical entities (ENT-DATA-001–003, 005–017; ENT-DATA-004 retired); thêm/bớt chỉ khi spec mới + explicit approval hỗ trợ.
 
 - CRUD chỉ phản ánh effect trực tiếp; archive/withdraw/replace/invalidate không mặc định là Delete.
 
@@ -696,7 +696,7 @@ Khuyến nghị một dòng cho mỗi field hoặc một rule cross-field. Dùng
 
 ### 7.3.5 Baseline acceptance rules đã có source trong repository
 
-Bảng này là **inventory khởi đầu**, không thay thế file DAC chính thức. Khi tạo `data/08-data-acceptance-criteria.md`, tách các rule này thành field-level rows có source cụ thể.
+Bảng này là **inventory khởi đầu** của baseline V1, không thay thế file DAC chính thức. **V2 (2026-10-28):** các dòng nhắc tới `SelectedRouteContext v2`, CheckpointContent, maker-checker, `(routeId, sequence)` hoặc seed docs đã lỗi thời; catalog V2 nằm trong `data/08-data-acceptance-criteria.md`. Khi tạo `data/08-data-acceptance-criteria.md`, tách các rule này thành field-level rows có source cụ thể.
 
 | Area | Source-backed acceptance hiện có |
 | --- | --- |
@@ -719,7 +719,7 @@ Bảng này là **inventory khởi đầu**, không thay thế file DAC chính t
 
 ### 7.3.6 Những acceptance criteria hiện **chưa được canonical source định nghĩa đầy đủ**
 
-Đây là phần quan trọng nhất của artifact mới. Baseline hiện tại cố ý dùng PostgreSQL `text` **không đặt arbitrary length limit**, và seed documentation cũng nêu rõ không invent numeric range cho version/identity/sequence. Vì vậy các mục dưới đây không được tự điền số; phải để `TBD-HUMAN` cho tới khi người dùng/nhóm sản phẩm quyết định và canonical spec được cập nhật.
+Đây là phần quan trọng nhất của artifact mới. **V2 (2026-10-28):** phần lớn các giới hạn dưới đây nay đã có nguồn trong Spec M03 v3.7 §5.3; các quyết định còn mở được ghi là T1–T8 trong `data/08-data-acceptance-criteria.md` §4, và các field `replacementReason`/`reviewReason` không còn tồn tại. Baseline hiện tại cố ý dùng PostgreSQL `text` **không đặt arbitrary length limit**, và seed documentation cũng nêu rõ không invent numeric range cho version/identity/sequence. Vì vậy các mục dưới đây không được tự điền số; phải để `TBD-HUMAN` cho tới khi người dùng/nhóm sản phẩm quyết định và canonical spec được cập nhật.
 
 | Nhóm field | Missing decision cần xác nhận |
 | --- | --- |

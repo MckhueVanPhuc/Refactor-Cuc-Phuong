@@ -103,9 +103,9 @@ Khi behavior/contract đổi, cập nhật spec canonical trước. Sau đó ch�
 - Phân biệt mutable source với frozen/historical copy. Không thay frozen value bằng live reference vì thuận tiện triển khai.
 - SessionSyncRecord là transport contract; SessionRecord là canonical M03 entity. Không hợp nhất hai khái niệm.
 - Current published content là projection của revision `PHAT_HANH` của route, checkpoint hoặc QR object (spec-M03 §6.3), không phải entity mới.
-- `Revision` là canonical entity của M03 theo spec-M03 v3.6 (§6.3), thay cho `CheckpointContent`; không tạo thêm entity revision nào khác.
+- `Revision` là canonical entity của M03 theo spec-M03 v3.7 (§6.3), thay cho `CheckpointContent`; không tạo thêm entity revision nào khác.
 - LanguagePreference có thể đứng độc lập; không invent relationship chỉ để ERD trông “đầy đủ”.
-- Baseline S1 cũ (16 canonical entities) đã lỗi thời so với spec M01 v3.2/M02 v3.2/M03 v3.6 và phải được rebaseline ở P9. Không thêm/bớt entity nếu spec không có và không có explicit approval.
+- Baseline S1 V2 (Human Gate 1, 2026-10-28) có 16 canonical entities: ENT-DATA-001–003 và 005–017; ENT-DATA-004 `CheckpointContent` đã retire, ENT-DATA-017 `Revision` thay thế. Không thêm/bớt entity nếu spec không có và không có explicit approval.
 - CRUD chỉ phản ánh effect trực tiếp của FN-level function. Effect do function khác thực hiện không được gán gián tiếp.
 - Delete chỉ mang nghĩa xóa persisted canonical entity khi requirement nói rõ; archive, withdraw, replace, invalidate hoặc local cleanup không tự động là D.
 - Không bắt đầu stage data-model kế tiếp khi người dùng chưa yêu cầu. Luồng dữ liệu phải đi tuần tự: S1 → S2 → S3 → S4 → DAC → review gate → Physical Schema.
