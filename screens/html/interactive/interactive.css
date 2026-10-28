@@ -1,0 +1,16 @@
+/* Bổ sung cho demo tương tác; token lấy từ ../mockup.css (design-system). */
+.auth-wrap { min-height: calc(100vh - 70px); display: grid; place-items: center; padding: var(--space-5); }
+.row-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.row-actions .btn { font-size: 14px; padding: 0 var(--space-3); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-4); }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-4); }
+.stat .v { font-size: 28px; font-weight: var(--font-weight-semibold); line-height: var(--line-height-heading); }
+.stat .l { font-size: 14px; color: var(--fg2); }
+td.n, th.n { text-align: right; }
+.issues { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.issues li { display: flex; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
+.old { color: var(--fg2); } .new { font-weight: var(--font-weight-semibold); }
+tr.sens th:first-child { box-shadow: inset 4px 0 0 var(--c-warn); }
+.ba { display: grid; gap: var(--space-1); font-size: 14px; color: var(--fg2); }
+.list-plain li.row { display: flex; }
+.btn[href] { text-decoration: none; }
