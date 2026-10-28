@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M03-004 — Xem lại và xuất bản</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  tr.sens th:first-child { box-shadow: inset 4px 0 0 var(--c-warn); }
+  .old { color: var(--fg2); } .new { font-weight: var(--font-weight-semibold); }
+  .issues { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+  .issues li { display: flex; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
+</style>
+</head>
+<body class="m03" data-initial="default" data-base="default">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M03-004 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="default">Có thể xuất bản</button>
+    <button type="button" data-set="blocked">Bị chặn</button>
+    <button type="button" data-set="oversize">Vượt dung lượng</button>
+    <button type="button" data-set="safety">Tuyến cần xác nhận an toàn</button>
+    <button type="button" data-set="confirm">Dialog xác nhận</button>
+    <button type="button" data-set="success">Thành công</button>
+    <button type="button" data-set="failed">Thất bại</button>
+  </div>
+</aside>
+
+<div class="m03-shell">
+  <div class="m03-side">
+    <div class="brand">Cúc Phương Quest · Quản trị</div>
+    <nav aria-label="Menu quản trị"><ul>
+      <li><a href="#" aria-current="page">Tuyến</a></li><li><a href="#">Thư viện điểm dừng</a></li><li><a href="#">Báo cáo</a></li><li><a href="#">Tài khoản</a></li><li><a href="#">Nhật ký hệ thống</a></li>
+    </ul></nav>
+  </div>
+
+  <div class="m03-main">
+    <header class="m03-top">
+      <div>
+        <p class="small" style="margin:0">Xem lại trước khi xuất bản</p>
+        <h1 style="margin:0">
+          <span data-hide="safety">Điểm tham quan (một mã QR)</span><span data-show="safety" hidden>Thông tin tuyến và danh sách điểm dừng</span>
+        </h1>
+      </div>
+      <div class="row"><span class="small">quanly@example.org · Quản lý</span><button class="btn" type="button">Đăng xuất</button></div>
+    </header>
+
+    <main class="m03-body">
+      <div class="banner ok" role="status" data-show="success" hidden><span class="t">Đã xuất bản</span><p>Đã xuất bản. Du khách sẽ thấy nội dung mới.</p></div>
+      <div class="banner err" role="alert" data-show="failed" hidden><span class="t">Chưa xuất bản được</span><p>Chưa xuất bản được. Những gì du khách đang thấy vẫn như cũ. Hãy thử lại sau ít phút.</p></div>
+
+      <p style="margin:0"><strong data-hide="safety">Mặt cắt gốc cây</strong><strong data-show="safety" hidden>Tuyến Cây chò</strong> <span class="chip draft">Bản nháp sẽ thay bản đang chạy</span></p>
+
+      <section class="card stack" data-show="blocked" hidden aria-labelledby="bl-h">
+        <h2 id="bl-h">Chưa thể xuất bản: cần sửa các mục sau</h2>
+        <ul class="issues">
+          <li><span>Giới thiệu: còn thiếu bản tiếng Anh.</span><a href="#">Đi tới ô cần sửa</a></li>
+          <li><span>Hãy xác nhận quyền sử dụng cho "vong-tuoi-2.png" trước khi xuất bản.</span><a href="#">Đi tới ô cần sửa</a></li>
+        </ul>
+      </section>
+
+      <section class="banner err" data-show="oversize" hidden role="alert"><span class="t">Vượt dung lượng tải trước</span>
+        <p>Gói tải trước của tuyến "Tuyến Cây chò" sẽ nặng khoảng 54 MB, vượt mức 50 MB. Ảnh nặng nhất: anh-bia.jpg (1,9 MB), vong-tuoi-1.jpg (1,8 MB). Hãy nén hoặc bớt ảnh.</p></section>
+
+      <section class="card stack" aria-labelledby="cmp-h">
+        <h2 id="cmp-h">Thay đổi so với bản đang chạy</h2>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">So sánh bản đang chạy và bản mới</caption>
+            <thead><tr><th scope="col">Ô</th><th scope="col">Bản đang chạy</th><th scope="col">Bản mới</th></tr></thead>
+            <tbody data-hide="safety">
+              <tr><th scope="row">Tên đối tượng (Tiếng Việt)</th><td class="old">Mặt cắt gốc cây</td><td class="new">Mặt cắt gốc cây chò</td></tr>
+              <tr><th scope="row">Giới thiệu (English)</th><td class="old">(chưa có)</td><td class="new">Growth rings of the Cho tree record hundreds of years of the forest.</td></tr>
+              <tr><th scope="row">Ảnh</th><td class="old">2 ảnh</td><td class="new">3 ảnh</td></tr>
+            </tbody>
+            <tbody data-show="safety" hidden>
+              <tr class="sens"><th scope="row">Cảnh báo an toàn <span class="chip warn">Thay đổi nhạy cảm</span></th><td class="old">Đường mòn trơn khi mưa, hãy mang giày bám tốt.</td><td class="new">(để trống)</td></tr>
+              <tr class="sens"><th scope="row">Yêu cầu tham gia <span class="chip warn">Thay đổi nhạy cảm</span></th><td class="old">Đi bộ khoảng 2 giờ, có hướng dẫn viên.</td><td class="new">Đi bộ khoảng 1 giờ</td></tr>
+              <tr class="sens"><th scope="row">Sơ đồ dùng khi không có mạng <span class="chip warn">Thay đổi nhạy cảm</span></th><td class="old">Đã chọn</td><td class="new">Không chọn</td></tr>
+              <tr><th scope="row">Thời lượng dự kiến</th><td class="old">120 phút</td><td class="new">60 phút</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small" style="margin:0" data-show="safety" hidden>Thay đổi nhạy cảm luôn được đánh dấu bằng chữ và vạch bên trái vì không có người duyệt thứ hai.</p>
+      </section>
+
+      <section class="card stack" aria-labelledby="imp-h">
+        <h2 id="imp-h">Tác động</h2>
+        <p style="margin:0">Thay đổi này ảnh hưởng 2 tuyến: Tuyến Cây chò, Tuyến Động Người Xưa. Gói tải trước của du khách ở các tuyến đó cần cập nhật.</p>
+        <div class="table-wrap">
+          <table class="compact">
+            <caption class="sr-only">Tuyến bị ảnh hưởng</caption>
+            <thead><tr><th scope="col">Tuyến</th><th scope="col">Trạng thái</th><th scope="col">Dung lượng tải trước ước tính</th></tr></thead>
+            <tbody>
+              <tr><td>Tuyến Cây chò</td><td><span class="chip ok">Đang hoạt động</span></td><td><span data-hide="oversize">38 MB</span><span data-show="oversize" hidden><strong>54 MB (vượt mức 50 MB)</strong></span></td></tr>
+              <tr><td>Tuyến Động Người Xưa</td><td><span class="chip ok">Đang hoạt động</span></td><td>21 MB</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul style="margin:0;padding-left:20px">
+          <li>Gói tải trước đã tải về của du khách sẽ cũ.</li>
+          <li>Phiên đang chạy không bị đổi giữa chừng.</li>
+        </ul>
+        <div class="banner info" data-hide="safety"><span class="t">Âm thanh/video chỉ có một ngôn ngữ</span><p>Điểm tham quan "Mặt cắt gốc cây" chỉ có âm thanh/video Tiếng Việt. Du khách chọn Tiếng Anh sẽ không thấy các tệp này. Đây là cảnh báo, không chặn xuất bản.</p></div>
+        <div class="banner info" data-show="safety" hidden><span class="t">Điểm dừng đang tạm đóng</span><p>Điểm dừng "Bản làng ven suối" đang tạm đóng nên chưa nằm trong hành trình của tuyến.</p></div>
+      </section>
+
+      <section class="card stack-sm" data-show="safety" hidden aria-labelledby="sf-h">
+        <h2 id="sf-h">Xác nhận an toàn</h2>
+        <p style="margin:0">Hãy nhập cảnh báo an toàn, hoặc tick xác nhận tuyến không có cảnh báo an toàn cần nêu.</p>
+        <div class="check"><input id="safe" type="checkbox" aria-describedby="safe-h"><label for="safe">Tôi xác nhận tuyến không có cảnh báo an toàn cần nêu</label></div>
+        <p class="hint" id="safe-h" style="margin:0">Bắt buộc tick thì nút Xuất bản mới bật. Nhập cảnh báo ở màn biên tập sẽ đặt lại ô này.</p>
+      </section>
+
+      <div class="sticky-actions" role="group" aria-label="Hành động chính">
+        <button class="btn" type="button">Quay lại sửa</button>
+        <button class="btn" type="button" data-hide="safety">Xem trước như du khách</button>
+        <button class="btn btn-primary" type="button" data-show="default failed" data-set="confirm">Xuất bản</button>
+        <button class="btn btn-primary" type="button" data-show="blocked oversize safety" hidden disabled aria-disabled="true">Xuất bản</button>
+        <button class="btn btn-primary" type="button" data-show="success confirm" hidden disabled aria-disabled="true">Xuất bản</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="dialog-backdrop" data-show="confirm" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="cf-h">
+    <h2 id="cf-h">Xuất bản "Mặt cắt gốc cây"</h2>
+    <p>Xuất bản "Mặt cắt gốc cây": du khách sẽ thấy nội dung mới ngay sau khi xuất bản.</p>
+    <div class="actions"><button class="btn" type="button" data-set="default">Quay lại</button><button class="btn btn-primary" type="button" data-set="success">Xuất bản</button></div>
+  </div>
+</div>
+<script src="mockup.js"></script>
+</body>
+</html>

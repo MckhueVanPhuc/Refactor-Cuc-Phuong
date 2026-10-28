@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M03-002 — Biên tập tuyến</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .ordered { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+  .ordered li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
+  .ordered .name { flex: 1 1 200px; min-width: 0; }
+  .ordered .ctl { display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; }
+  .ordered .ctl .btn { font-size: 14px; padding: 0 var(--space-3); }
+  .ordered input[type="number"] { width: 72px; }
+  .missing { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+</style>
+</head>
+<body class="m03" data-initial="step4" data-base="step4">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M03-002 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="step4">Bước 4: điểm dừng</button>
+    <button type="button" data-set="step2">Bước 2: chi tiết</button>
+    <button type="button" data-set="errors">Lỗi ở ô nhập</button>
+    <button type="button" data-set="saved">Đã lưu</button>
+    <button type="button" data-set="stale">Ghi cũ (stale)</button>
+    <button type="button" data-set="unsaved">Rời khi chưa lưu</button>
+  </div>
+</aside>
+
+<div class="m03-shell">
+  <div class="m03-side">
+    <div class="brand">Cúc Phương Quest · Quản trị</div>
+    <nav aria-label="Menu quản trị"><ul>
+      <li><a href="#" aria-current="page">Tuyến</a></li><li><a href="#">Thư viện điểm dừng</a></li><li><a href="#">Báo cáo</a></li><li><a href="#">Tài khoản</a></li><li><a href="#">Nhật ký hệ thống</a></li>
+    </ul></nav>
+  </div>
+
+  <div class="m03-main">
+    <header class="m03-top">
+      <div><p class="small" style="margin:0"><a href="#">Quản trị tuyến</a> / Tuyến Cây chò</p><h1 style="margin:0">Biên tập tuyến</h1></div>
+      <div class="row"><span class="small">nhanvien@example.org · Nhân viên nội dung</span><button class="btn" type="button">Đăng xuất</button></div>
+    </header>
+
+    <main class="m03-body">
+      <div class="banner ok" role="status" data-show="saved" hidden><span class="t">Đã lưu</span><p>Đã lưu bản nháp.</p></div>
+      <div class="banner warn" role="alert" data-show="stale" hidden><span class="t">Bản của bạn đã cũ</span>
+        <p>Trần Minh vừa sửa mục này lúc 09:42. Bấm Tải lại để xem bản mới nhất. Nội dung bạn đang gõ vẫn được giữ trên màn hình để bạn sao chép.</p>
+        <div class="row"><button class="btn" type="button">Tải lại</button></div></div>
+
+      <div class="ver-strip"><span class="chip draft">Bản nháp — du khách chưa thấy.</span><span class="small">Đang sửa tuyến đã xuất bản; bản công khai giữ nguyên đến khi xuất bản.</span></div>
+
+      <nav class="tabs" aria-label="Các bước biên tập">
+        <a href="#">1 · Thẻ tuyến</a>
+        <a href="#" data-hide="step4" aria-current="step">2 · Chi tiết</a>
+        <a href="#" data-show="step4" hidden>2 · Chi tiết</a>
+        <a href="#">3 · Nhóm đối tượng và trải nghiệm</a>
+        <a href="#" data-show="step4" aria-current="step" hidden>4 · Điểm dừng</a>
+        <a href="#" data-hide="step4">4 · Điểm dừng</a>
+      </nav>
+
+      <div class="split main-aside">
+        <div class="stack">
+          <!-- Bước 2 -->
+          <section class="card stack" data-hide="step4" aria-labelledby="s2-h">
+            <h2 id="s2-h">Chi tiết tuyến</h2>
+            <div class="pair">
+              <div class="field"><label for="dist">Quãng đường (km)</label>
+                <input id="dist" type="number" value="2.4" step="0.1" data-hide="errors"><input id="dist2" aria-label="Quãng đường (km)" type="number" value="0" data-show="errors" aria-invalid="true" aria-describedby="dist-e" hidden>
+                <span class="err" id="dist-e" data-show="errors" hidden>Quãng đường (km) phải lớn hơn 0.</span></div>
+              <div class="field"><label for="dur">Thời lượng dự kiến (phút)</label><input id="dur" type="number" value="90"><span class="hint">Nhãn thời gian: Ngắn (≤ 90 phút) — tự tính, không chọn được.</span></div>
+            </div>
+            <div class="field"><label for="diff">Độ khó</label><select id="diff"><option>Nhẹ</option><option>Trung bình</option><option>Khó</option></select></div>
+            <div class="pair">
+              <div class="field"><label for="dvi">Mô tả đầy đủ (Tiếng Việt)</label>
+                <textarea id="dvi" data-hide="errors">Con đường mòn đi qua rừng nguyên sinh, dẫn tới cây chò ngàn năm.</textarea>
+                <textarea id="dvi2" aria-label="Mô tả đầy đủ (Tiếng Việt)" data-show="errors" aria-invalid="true" aria-describedby="dvi-e" hidden>Con đường mòn đi qua rừng nguyên sinh, dẫn tới cây chò ngàn năm. (nội dung dài…)</textarea>
+                <span class="err" id="dvi-e" data-show="errors" hidden>Mô tả đầy đủ (Tiếng Việt) dài quá 2000 ký tự (hiện có 2143). Hãy rút gọn.</span></div>
+              <div class="field"><label for="den">Mô tả đầy đủ (English)</label><textarea id="den" lang="en">The trail runs through primary forest to the thousand-year-old Cho tree.</textarea></div>
+            </div>
+            <div class="pair">
+              <div class="field"><label for="svi">Cảnh báo an toàn (Tiếng Việt)</label><textarea id="svi" aria-describedby="s-h"></textarea></div>
+              <div class="field"><label for="sen">Cảnh báo an toàn (English)</label><textarea id="sen" lang="en" aria-describedby="s-h"></textarea></div>
+            </div>
+            <p class="hint" id="s-h" style="margin:0">Rủi ro và cách phòng tránh. Cả hai ngôn ngữ hoặc không có ngôn ngữ nào; tối đa 500 ký tự. Để trống thì màn xem lại sẽ yêu cầu tick xác nhận không có cảnh báo.</p>
+          </section>
+
+          <!-- Bước 4 -->
+          <section class="card stack" data-show="step4" hidden aria-labelledby="s4-h">
+            <h2 id="s4-h">Điểm dừng của tuyến</h2>
+            <div class="field"><label for="pick">Thêm điểm dừng đang hoạt động từ thư viện</label><input id="pick" type="search" placeholder="Tìm theo tên"></div>
+            <ul class="list-plain">
+              <li><div class="row between"><div><strong>Động Người Xưa</strong><br><span class="small">Dùng được khi có mạng · 5 điểm tham quan · Đang dùng ở: Tuyến Động Người Xưa</span></div><button class="btn" type="button">Thêm vào tuyến</button></div></li>
+            </ul>
+            <p class="small" style="margin:0"><a href="#">Tạo điểm dừng mới</a> (mở Thư viện điểm dừng; điểm dừng mới chỉ chọn được sau khi đã xuất bản).</p>
+
+            <h3 style="margin-top:8px">Thứ tự thăm</h3>
+            <p class="hint" style="margin:0">Kéo để sắp xếp, hoặc dùng nút Chuyển lên/Chuyển xuống và ô Vị trí. Mỗi điểm dừng chỉ xuất hiện một lần.</p>
+            <ol class="ordered">
+              <li><span class="num">1</span><span class="name"><strong>Cổng vườn</strong> <span class="chip ok">Đang hoạt động</span></span>
+                <span class="ctl"><label class="sr-only" for="p1">Vị trí của Cổng vườn</label><input id="p1" type="number" value="1" min="1"><button class="btn" type="button" disabled aria-disabled="true">Chuyển lên</button><button class="btn" type="button">Chuyển xuống</button><button class="btn" type="button">Bỏ khỏi tuyến</button></span></li>
+              <li><span class="num">2</span><span class="name"><strong>Cây chò ngàn năm</strong> <span class="chip ok">Đang hoạt động</span></span>
+                <span class="ctl"><label class="sr-only" for="p2">Vị trí của Cây chò ngàn năm</label><input id="p2" type="number" value="2" min="1"><button class="btn" type="button">Chuyển lên</button><button class="btn" type="button">Chuyển xuống</button><button class="btn" type="button">Bỏ khỏi tuyến</button></span></li>
+              <li><span class="num">3</span><span class="name"><strong>Bản làng ven suối</strong> <span class="chip warn">Tạm đóng</span><br><span class="small">Giữ chỗ trong danh sách, chưa nằm trong hành trình.</span></span>
+                <span class="ctl"><label class="sr-only" for="p3">Vị trí của Bản làng ven suối</label><input id="p3" type="number" value="3" min="1"><button class="btn" type="button">Chuyển lên</button><button class="btn" type="button" disabled aria-disabled="true">Chuyển xuống</button><button class="btn" type="button">Bỏ khỏi tuyến</button></span></li>
+            </ol>
+          </section>
+        </div>
+
+        <aside class="stack">
+          <section class="card stack-sm" aria-labelledby="ms-h">
+            <h2 id="ms-h" style="font-size:16px">Còn thiếu để xuất bản</h2>
+            <ul class="missing">
+              <li><a href="#">Còn thiếu: Ảnh đại diện.</a></li>
+              <li><a href="#">Mô tả ngắn: còn thiếu bản tiếng Anh.</a></li>
+              <li data-hide="step4"><a href="#">Còn thiếu: Điểm xuất phát (Tiếng Anh).</a></li>
+            </ul>
+            <p class="hint" style="margin:0">Cập nhật sau mỗi lần lưu.</p>
+          </section>
+          <section class="card stack-sm" aria-labelledby="vh-h">
+            <h2 id="vh-h" style="font-size:16px">Phiên bản</h2>
+            <p class="small" style="margin:0">Đã xuất bản: bản 3 · 24/10/2026 09:30</p>
+            <div class="row"><button class="btn" type="button" disabled aria-disabled="true">Khôi phục bản đã xuất bản trước đó</button><button class="btn" type="button">Bỏ thay đổi</button></div>
+          </section>
+        </aside>
+      </div>
+
+      <div class="sticky-actions" role="group" aria-label="Hành động chính">
+        <button class="btn btn-primary" type="button" data-set="saved">Lưu bản nháp</button>
+        <button class="btn" type="button" style="margin-left:auto">Xuất bản</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="dialog-backdrop" data-show="unsaved" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="u-h">
+    <h2 id="u-h">Thay đổi chưa lưu</h2>
+    <p>Bạn có thay đổi chưa lưu. Rời trang sẽ mất các thay đổi này.</p>
+    <div class="actions"><button class="btn btn-primary" type="button" data-set="step4">Ở lại</button><button class="btn" type="button" data-set="step4">Rời trang</button></div>
+  </div>
+</div>
+<script src="mockup.js"></script>
+</body>
+</html>

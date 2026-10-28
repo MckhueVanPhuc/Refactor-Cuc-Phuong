@@ -7,7 +7,7 @@
 | Module | `M03` |
 | Actor | Nhân viên nội dung, Quản lý |
 | Priority | Must; xem trước như du khách Should |
-| Mockup | Chưa có |
+| Mockup | [mockup-SCR-M03-003.html](../../html/mockup-SCR-M03-003.html) (HTML tĩnh, chưa sign-off UX) |
 | Status | Draft — đồng bộ [Spec M03 v3.7](../../../docs/spec/spec-M03.md) |
 
 Nguồn hành vi/contract: [Spec M03](../../../docs/spec/spec-M03.md) (US-M03-03, BR-M03-B02 đến B05, E01 đến E17, F11, F12; giới hạn §5.3; thông báo §5.6). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. "Điểm tham quan" là tên hiển thị của QR object; mã nội bộ không hiện trên màn hình, ngoại lệ duy nhất là 6 ký tự cuối của mã QR (BR-M03-E16).
@@ -22,7 +22,7 @@ Các Type/pattern trong inventory và §8 là đề xuất trình bày; control 
 
 ## 2. Mockup
 
-Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ngược business rule.
+Mockup HTML tĩnh: [mockup-SCR-M03-003.html](../../html/mockup-SCR-M03-003.html). Không dùng mockup để suy ngược business rule.
 
 ## 3. Element inventory
 

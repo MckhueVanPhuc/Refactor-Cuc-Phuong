@@ -280,7 +280,7 @@ Runbook này áp dụng khi thay đổi behavioral/contract baseline của M03 h
 | Spec-Kit infrastructure | .specify/scripts/**; .specify/templates/** | Không sửa script/template dùng chung nếu chưa chứng minh blocker không thể xử lý bằng runbook/skill instructions và chưa xin approval riêng. |
 | Historical/source | PCCV_DBIZ3_TEAM-H.docx; Stakeholder Interview & Problem Define.pdf | Nguồn/historical artifact; không rewrite theo baseline mới. |
 | Code & tests | src/**; tests/**; application handlers; SQL/Edge implementation; migrations | Người dùng yêu cầu không tính code/test trong change set này. |
-| Prototype/visual code | design-prototypes/**; screens/html/**; capture-*.js và generated screenshots | Implementation/prototype; không thuộc refactor tài liệu lần này. |
+| Prototype/visual code | design-prototypes/**; capture-*.js và generated screenshots | Implementation/prototype; không thuộc refactor tài liệu lần này. |
 
 Ngoại lệ: `supabase/README.md` là tài liệu, không phải code. Chỉ REVIEW nếu thay đổi M03 làm đổi quy trình database/Auth/seed/deployment. Không vì README nằm trong `supabase/` mà mặc định loại bỏ.
 
@@ -462,6 +462,7 @@ Thứ tự dưới đây là dependency order. Không “song song hóa” nhữ
 | screen-list-M01 + screen-spec/M01 | M03 thay đổi public route/snapshot làm UI M01 cần field/state/start behavior mới. | Update affected screen + FR mapping. |
 | screen-list-M02 + screen-spec/M02 | Live QR/content/frozen journey/session sync behavior visible/change state. | Update affected screen + state/error/coverage. |
 | screens/screen list/README.md | Screen counts/coverage/version summary đổi. | Sync index only; không định nghĩa behavior. |
+| screens/html/mockup-SCR-Mxx-nnn.html | Screen spec tương ứng đổi hiển thị/state/guard. | Chỉ sửa mockup của screen impacted; mockup không tạo requirement. |
 
 | Known stale metadata: Ở baseline hiện tại, screen-list-M03 §7 và screen inventory README vẫn nói target screen specs chưa tồn tại, nhưng repository đã có đủ 8 file dưới screens/screen-spec/M03/. Khi chạm nhóm screen docs, nên sửa metadata này; không dùng câu stale đó để kết luận phải tạo file mới. |
 | --- |
@@ -987,7 +988,7 @@ Expected: `git diff --check` exit 0, không conflict marker, reviewer đọc đ�
 ```powershell
 $changedFiles = git diff --name-only
 $excludedChanges = $changedFiles | Where-Object {
-    $_ -match '^(src/|tests/|supabase/migrations/|supabase/functions/|design-prototypes/|screens/html/)' -or
+    $_ -match '^(src/|tests/|supabase/migrations/|supabase/functions/|design-prototypes/)' -or
     $_ -match '(^|/)(package-lock\.json|pnpm-lock\.yaml|yarn\.lock)$'
 }
 if ($excludedChanges) {
@@ -1163,6 +1164,7 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 | Architecture | docs/architecture/README.md; context-diagram.md; usage-flow.md; sequence-diagrams.md; system-configuration.md; tech-stack.md; environment.md |
 | Screen lists | screens/screen list/README.md; screen-list-M01.md; screen-list-M02.md; screen-list-M03.md |
 | Screen specs | screens/screen-spec/M01/001…004; M02/001…004; M03/000…009 |
+| Screen mockups | screens/html/mockup-SCR-Mxx-nnn.html (HTML tĩnh, nếu đã có) |
 | Data (workflow order) | data/01-entity-dictionary.md; 02-crud-matrix.md; 03-erd.mmd; 03-erd-preview.md; 03-erd-review.md; 04-data-model.md; 04-data-model.dbml; **08-data-acceptance-criteria.md (NEW)**; 05-review.md; 06-physical-schema.md; data/schema/field-mapping.md; 07-storage-validation.md |
 | Seed (V1, ngoài bộ V2) | data/seed/README.md; CSV fixtures; edge-case-register.md; edge-cases.json — nếu còn tồn tại thì chỉ là lịch sử; không sửa, không nạp vào Shared Backend (§1.3) |
 | M01/M02/M03 implementation docs (P10) | Không áp dụng cho V2 (AGENTS.md §2); không tồn tại `specs/` |
@@ -1181,7 +1183,7 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 | Stakeholder Interview & Problem Define.pdf | Historical/source artifact. |
 | src/**, tests/** | Code/test explicitly excluded. |
 | supabase migrations/Edge/RPC implementation | Code/DB implementation excluded; README may still be reviewed conditionally. |
-| design-prototypes/**, screens/html/**, generated screenshots | Prototype/implementation artifacts excluded. |
+| design-prototypes/**, generated screenshots | Prototype/implementation artifacts excluded. |
 
 # Phụ lục C — Baseline warnings tại tree SHA hiện tại
 

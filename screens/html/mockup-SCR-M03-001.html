@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M03-001 — Quản trị tuyến</title>
+<link rel="stylesheet" href="mockup.css">
+<style>.row-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; } .row-actions .btn { font-size: 14px; padding: 0 var(--space-3); }</style>
+</head>
+<body class="m03" data-initial="default" data-base="default">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M03-001 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="default">Quản lý</button>
+    <button type="button" data-set="staff">Nhân viên nội dung</button>
+    <button type="button" data-set="close">Dialog đóng tạm</button>
+    <button type="button" data-set="reopen">Dialog mở lại</button>
+    <button type="button" data-set="archive">Dialog lưu trữ</button>
+    <button type="button" data-set="discard">Dialog hủy</button>
+    <button type="button" data-set="busy">Đang bận</button>
+  </div>
+</aside>
+
+<div class="m03-shell">
+  <div class="m03-side">
+    <div class="brand">Cúc Phương Quest · Quản trị</div>
+    <nav aria-label="Menu quản trị"><ul>
+      <li><a href="#" aria-current="page">Tuyến</a></li><li><a href="#">Thư viện điểm dừng</a></li><li><a href="#">Báo cáo</a></li>
+      <li data-hide="staff"><a href="#">Tài khoản</a></li><li data-hide="staff"><a href="#">Nhật ký hệ thống</a></li>
+    </ul></nav>
+  </div>
+
+  <div class="m03-main">
+    <header class="m03-top">
+      <h1>Quản trị tuyến</h1>
+      <div class="row"><span class="small"><span data-hide="staff">quanly@example.org · Quản lý</span><span data-show="staff" hidden>nhanvien@example.org · Nhân viên nội dung</span></span><button class="btn" type="button">Đăng xuất</button></div>
+    </header>
+
+    <main class="m03-body">
+      <div class="banner warn" role="alert" data-show="busy" hidden><span class="t">Đang có thao tác khác</span><p>Đang có thao tác khác chạy trên Tuyến Cây chò. Hãy thử lại sau ít phút.</p></div>
+      <div class="banner err" role="alert" data-show="staff" hidden><span class="t">Không đủ quyền</span><p>Bạn chưa có quyền làm việc này. Hãy nhờ quản lý.</p></div>
+
+      <div class="split" style="grid-template-columns:minmax(0,1fr)">
+        <section class="stack" aria-labelledby="rt-h">
+          <div class="row between"><h2 id="rt-h" style="margin:0">Danh sách tuyến</h2><button class="btn btn-primary" type="button">Tạo tuyến</button></div>
+          <div class="pair">
+            <div class="field"><label for="q">Tìm theo tên tuyến</label><input id="q" type="search"></div>
+            <div class="field"><label for="f">Lọc theo trạng thái</label><select id="f"><option>Tất cả</option><option>Nháp</option><option>Đang hoạt động</option><option>Tạm đóng</option><option>Đã lưu trữ</option></select></div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <caption class="sr-only">Danh sách tuyến</caption>
+              <thead><tr><th scope="col">Tuyến</th><th scope="col">Trạng thái</th><th scope="col">Thông tin</th><th scope="col">Thao tác</th></tr></thead>
+              <tbody>
+                <tr aria-current="true">
+                  <th scope="row">Tuyến Cây chò</th>
+                  <td><span class="chip ok">Đang hoạt động</span></td>
+                  <td><span class="chip draft">Có bản nháp chưa xuất bản</span></td>
+                  <td><div class="row-actions"><button class="btn" type="button">Mở tuyến</button><button class="btn" type="button" data-set="close">Đóng tạm</button></div></td>
+                </tr>
+                <tr>
+                  <th scope="row">Tuyến Động Người Xưa</th>
+                  <td><span class="chip warn">Tạm đóng</span></td>
+                  <td>Đóng thủ công · Mưa lớn, đường mòn ngập · 26/10/2026 08:15</td>
+                  <td><div class="row-actions"><button class="btn" type="button">Mở tuyến</button>
+                    <button class="btn" type="button" data-hide="staff" data-set="reopen">Mở lại</button>
+                    <button class="btn btn-danger" type="button" data-hide="staff" data-set="archive">Lưu trữ</button>
+                    <button class="btn" type="button" data-show="staff" hidden disabled aria-disabled="true">Mở lại (chỉ quản lý)</button>
+                    <button class="btn btn-danger" type="button" data-show="staff" hidden disabled aria-disabled="true">Lưu trữ (chỉ quản lý)</button></div></td>
+                </tr>
+                <tr>
+                  <th scope="row">Tuyến Bản làng ven suối</th>
+                  <td><span class="chip draft">Nháp</span></td>
+                  <td>Chưa từng xuất bản</td>
+                  <td><div class="row-actions"><button class="btn" type="button">Mở tuyến</button><button class="btn btn-danger" type="button" data-set="discard">Hủy</button></div></td>
+                </tr>
+                <tr>
+                  <th scope="row">Tuyến thử nghiệm 2025</th>
+                  <td><span class="chip">Đã lưu trữ</span></td>
+                  <td>Chỉ đọc</td>
+                  <td><div class="row-actions"><button class="btn" type="button">Mở tuyến</button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="hint" style="margin:0">Lưu trữ không thể hoàn tác và chỉ áp dụng cho tuyến Tạm đóng; mỗi hành động đổi trạng thái mở hộp thoại xác nhận riêng.</p>
+        </section>
+
+        <section class="card stack-sm" aria-labelledby="hs-h">
+          <h2 id="hs-h">Lịch sử của "Tuyến Cây chò"</h2>
+          <ul class="list-plain">
+            <li><strong>Bản 3</strong> — đã xuất bản 24/10/2026 09:30 · Quản lý</li>
+            <li><strong>Bản 2</strong> — đã xuất bản 02/10/2026 14:05 · Nhân viên nội dung</li>
+          </ul>
+          <div class="row"><button class="btn" type="button" disabled aria-disabled="true">Khôi phục bản đã xuất bản trước đó</button><button class="btn" type="button">Bỏ thay đổi</button></div>
+          <p class="hint" style="margin:0">Đang có bản nháp chưa xuất bản. Hãy xuất bản hoặc bỏ thay đổi trước, rồi mới khôi phục bản cũ.</p>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Dialog: đóng tạm -->
+<div class="dialog-backdrop" data-show="close" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="d1">
+  <h2 id="d1">Đóng tạm tuyến</h2>
+  <p>Tuyến "Tuyến Cây chò" sẽ ẩn khỏi lựa chọn của du khách; các chuyến đang đi không bị dừng.</p>
+  <div class="field"><label for="r1">Lý do (bắt buộc)</label><textarea id="r1" aria-describedby="r1h"></textarea><span class="hint" id="r1h">Không để trống, tối đa 300 ký tự. Lý do là nội bộ.</span></div>
+  <div class="actions"><button class="btn" type="button" data-set="default">Quay lại</button><button class="btn btn-primary" type="button" data-set="default">Đóng tạm</button></div>
+</div></div>
+<!-- Dialog: mở lại (chỉ quản lý) -->
+<div class="dialog-backdrop" data-show="reopen" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="d2">
+  <h2 id="d2">Mở lại tuyến</h2>
+  <p>Tuyến "Tuyến Động Người Xưa" sẽ lại hiện cho du khách chọn.</p>
+  <p class="small" style="margin:0 0 12px">Kiểm tra kỹ thuật trước khi mở lại: đạt.</p>
+  <div class="field"><label for="r2">Ghi chú xác nhận an toàn (bắt buộc)</label><textarea id="r2" aria-describedby="r2h"></textarea><span class="hint" id="r2h">Tối đa 300 ký tự.</span></div>
+  <div class="actions"><button class="btn" type="button" data-set="default">Quay lại</button><button class="btn btn-primary" type="button" data-set="default">Mở lại</button></div>
+</div></div>
+<!-- Dialog: lưu trữ (không hoàn tác) -->
+<div class="dialog-backdrop" data-show="archive" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="d3">
+  <h2 id="d3">Lưu trữ tuyến</h2>
+  <p>Lưu trữ tuyến "Tuyến Động Người Xưa" không thể hoàn tác; dữ liệu vẫn được giữ cho lịch sử và báo cáo.</p>
+  <div class="field"><label for="r3">Lý do (bắt buộc)</label><textarea id="r3"></textarea><span class="hint">Tối đa 300 ký tự.</span></div>
+  <div class="actions"><button class="btn" type="button" data-set="default">Quay lại</button><button class="btn btn-danger" type="button" data-set="default">Lưu trữ</button></div>
+</div></div>
+<!-- Dialog: hủy tuyến chưa từng xuất bản -->
+<div class="dialog-backdrop" data-show="discard" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="d4">
+  <h2 id="d4">Hủy tuyến</h2>
+  <p>Hủy tuyến "Tuyến Bản làng ven suối": tuyến chưa từng xuất bản này sẽ không dùng được nữa.</p>
+  <div class="field"><label for="r4">Lý do (bắt buộc)</label><textarea id="r4"></textarea><span class="hint">Tối đa 300 ký tự.</span></div>
+  <div class="actions"><button class="btn" type="button" data-set="default">Quay lại</button><button class="btn btn-danger" type="button" data-set="default">Hủy tuyến</button></div>
+</div></div>
+<script src="mockup.js"></script>
+</body>
+</html>

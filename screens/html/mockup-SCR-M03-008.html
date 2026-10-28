@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M03-008 — Thư viện điểm dừng</title>
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body class="m03" data-initial="default" data-base="default">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M03-008 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="default">Mặc định</button>
+    <button type="button" data-set="close">Dialog đóng tạm</button>
+    <button type="button" data-set="closefail">Đóng tạm thất bại</button>
+    <button type="button" data-set="archiveblocked">Lưu trữ bị chặn</button>
+    <button type="button" data-set="stale">Ghi cũ (stale)</button>
+  </div>
+</aside>
+
+<div class="m03-shell">
+  <div class="m03-side">
+    <div class="brand">Cúc Phương Quest · Quản trị</div>
+    <nav aria-label="Menu quản trị">
+      <ul>
+        <li><a href="#">Tuyến</a></li>
+        <li><a href="#" aria-current="page">Thư viện điểm dừng</a></li>
+        <li><a href="#">Báo cáo</a></li>
+        <li><a href="#">Tài khoản</a></li>
+        <li><a href="#">Nhật ký hệ thống</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="m03-main">
+    <header class="m03-top">
+      <h1>Thư viện điểm dừng</h1>
+      <div class="row"><span class="small">quanly@example.org · Quản lý</span><button class="btn" type="button">Đăng xuất</button></div>
+    </header>
+
+    <main class="m03-body">
+      <div data-show="stale" class="banner warn" role="alert" hidden>
+        <span class="t">Bản của bạn đã cũ</span>
+        <p>Trần Minh vừa sửa mục này lúc 09:42. Bấm Tải lại để xem bản mới nhất. Nội dung bạn đang gõ vẫn được giữ trên màn hình để bạn sao chép.</p>
+        <div class="row"><button class="btn" type="button">Tải lại</button></div>
+      </div>
+      <div data-show="closefail" class="banner err" role="alert" hidden>
+        <span class="t">Chưa đóng được điểm dừng</span>
+        <p>Chưa đóng được điểm dừng, mọi thứ vẫn như cũ. Hãy thử lại. Nếu khẩn cấp, bạn có thể bấm "Đóng tạm các tuyến liên quan".</p>
+        <div class="row"><button class="btn btn-danger" type="button">Đóng tạm các tuyến liên quan</button><button class="btn" type="button" data-set="close">Thử lại</button></div>
+      </div>
+      <div data-show="archiveblocked" class="banner err" role="alert" hidden>
+        <span class="t">Chưa thể lưu trữ</span>
+        <p>Chưa thể lưu trữ điểm dừng này vì tuyến Tuyến Cây chò, Tuyến Động Người Xưa vẫn có trong danh sách. Hãy bỏ điểm dừng khỏi các tuyến đó trước.</p>
+      </div>
+
+      <div class="split">
+        <!-- Danh sách (master) -->
+        <section class="stack" aria-labelledby="list-h">
+          <h2 id="list-h">Danh sách điểm dừng</h2>
+          <div class="field"><label for="q">Tìm theo tên</label><input id="q" type="search" placeholder="Nhập tên điểm dừng"></div>
+          <div class="field"><label for="f">Lọc theo trạng thái</label>
+            <select id="f"><option>Tất cả</option><option>Nháp</option><option>Đang hoạt động</option><option>Tạm đóng</option><option>Đã lưu trữ</option></select></div>
+          <button class="btn btn-primary" type="button">Tạo điểm dừng</button>
+          <div class="table-wrap">
+            <table class="compact">
+              <caption class="sr-only">Điểm dừng trong thư viện</caption>
+              <thead><tr><th scope="col">Điểm dừng</th><th scope="col">Trạng thái</th></tr></thead>
+              <tbody>
+                <tr aria-current="true"><td><strong>Cây chò ngàn năm</strong><br><span class="small">Cần tải trước · 2 điểm tham quan</span></td>
+                  <td><span class="chip ok" data-hide="archiveblocked">Đang hoạt động</span><span class="chip warn" data-show="archiveblocked" hidden>Tạm đóng</span></td></tr>
+                <tr><td>Động Người Xưa<br><span class="small">Dùng được khi có mạng · 5 điểm tham quan</span></td><td><span class="chip ok">Đang hoạt động</span></td></tr>
+                <tr><td>Bản làng ven suối<br><span class="small">Dùng được khi có mạng · 0 điểm tham quan</span></td><td><span class="chip draft">Nháp</span></td></tr>
+                <tr><td>Cổng vườn<br><span class="small">Dùng được khi có mạng · 1 điểm tham quan</span></td><td><span class="chip">Đã lưu trữ</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Chi tiết -->
+        <section class="stack" aria-labelledby="det-h">
+          <div class="ver-strip">
+            <h2 id="det-h" style="margin:0">Cây chò ngàn năm</h2>
+            <span class="chip ok" data-hide="archiveblocked">Đang hoạt động</span><span class="chip warn" data-show="archiveblocked" hidden>Tạm đóng</span>
+            <span class="chip draft">Bản nháp — du khách chưa thấy.</span>
+          </div>
+
+          <div class="card stack">
+            <h3>Thông tin điểm dừng</h3>
+            <div class="pair">
+              <div class="field"><label for="nvi">Tên (Tiếng Việt)</label><input id="nvi" type="text" value="Cây chò ngàn năm" aria-describedby="nvi-h"><span class="hint" id="nvi-h">Tối đa 100 ký tự.</span></div>
+              <div class="field"><label for="nen">Tên (English)</label><input id="nen" lang="en" type="text" value="Thousand-year-old Cho tree" aria-describedby="nen-h"><span class="hint" id="nen-h">Tối đa 100 ký tự.</span></div>
+            </div>
+            <div class="field"><label for="mode">Loại kết nối</label>
+              <select id="mode"><option>Cần tải trước</option><option>Dùng được khi có mạng</option></select></div>
+            <div class="check"><input id="verify" type="checkbox" disabled aria-describedby="verify-h"><label for="verify">Đã khảo sát thực địa, có sóng ổn định</label></div>
+            <p class="hint" id="verify-h" style="margin-top:-8px">Chỉ chọn được khi loại kết nối là "Dùng được khi có mạng".</p>
+            <div class="field"><label for="loc">Ghi chú vị trí (nội bộ)</label><textarea id="loc" aria-describedby="loc-h">Cách cổng chính khoảng 2 km, bên trái đường mòn.</textarea>
+              <span class="hint" id="loc-h">Tối đa 300 ký tự. Không bao giờ hiện cho du khách.</span></div>
+          </div>
+
+          <div class="card stack">
+            <div class="row between"><h3 style="margin:0">Điểm tham quan (2/20)</h3><button class="btn" type="button">Thêm điểm tham quan</button></div>
+            <div class="table-wrap">
+              <table>
+                <caption class="sr-only">Điểm tham quan của điểm dừng</caption>
+                <thead><tr><th scope="col">Tên</th><th scope="col">Trạng thái</th><th scope="col">Sẵn sàng</th><th scope="col">Mã</th></tr></thead>
+                <tbody>
+                  <tr><td>Mặt cắt gốc cây</td><td><span class="chip ok">Đang hoạt động</span></td><td>Sẵn sàng</td><td>Mã …A4F9K2</td></tr>
+                  <tr><td>Điểm tham quan chưa đặt tên 2</td><td><span class="chip draft">Nháp</span></td><td>Chưa đủ: giới thiệu tiếng Anh</td><td>Mã …7QD1ZP</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Tuyến đang dùng điểm dừng này</h3>
+            <ul class="list-plain"><li>Tuyến Cây chò — <span class="chip ok">Đang hoạt động</span></li><li>Tuyến Động Người Xưa — <span class="chip ok">Đang hoạt động</span></li></ul>
+          </div>
+
+          <!-- Nhóm 1: hành động chính -->
+          <div class="sticky-actions" role="group" aria-label="Hành động chính">
+            <button class="btn btn-primary" type="button">Lưu bản nháp</button>
+            <button class="btn" type="button" style="margin-left:auto">Xuất bản</button>
+          </div>
+
+          <div class="card stack-sm">
+            <h3>Phiên bản</h3>
+            <p class="small" style="margin:0">Đã xuất bản: 24/10/2026 09:30 — Quản lý</p>
+            <div class="row"><button class="btn" type="button" aria-disabled="true" disabled>Khôi phục bản đã xuất bản trước đó</button><button class="btn" type="button">Bỏ thay đổi</button></div>
+            <p class="hint" style="margin:0">Đang có bản nháp: hãy xuất bản hoặc bỏ thay đổi trước khi khôi phục bản cũ.</p>
+          </div>
+
+          <!-- Nhóm 2: vòng đời -->
+          <div class="card stack-sm" role="group" aria-label="Vòng đời điểm dừng">
+            <h3>Đóng và mở lại</h3>
+            <p class="small" style="margin:0">Đóng tạm ẩn điểm dừng khỏi hành trình; các chuyến đang đi không bị dừng.</p>
+            <div class="row">
+              <button class="btn" type="button" data-hide="archiveblocked" data-set="close">Đóng tạm</button>
+              <button class="btn" type="button" data-show="archiveblocked" hidden>Mở lại</button>
+            </div>
+          </div>
+
+          <!-- Nhóm 3: không hoàn tác, tách xa -->
+          <div class="zone stack-sm" role="group" aria-label="Hành động không hoàn tác">
+            <h3>Hành động không hoàn tác</h3>
+            <div class="row">
+              <button class="btn btn-danger" type="button" data-hide="archiveblocked" disabled aria-disabled="true">Lưu trữ</button>
+              <button class="btn btn-danger" type="button" data-show="archiveblocked" hidden>Lưu trữ</button>
+              <button class="btn btn-danger" type="button" disabled aria-disabled="true">Hủy</button>
+            </div>
+            <p class="hint" style="margin:0">Lưu trữ chỉ dùng cho điểm dừng đang Tạm đóng. Hủy chỉ dùng cho điểm dừng chưa từng xuất bản. Cả hai đều mở hộp thoại xác nhận riêng.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Dialog đóng tạm -->
+<div class="dialog-backdrop" data-show="close" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-h">
+    <h2 id="dlg-h">Đóng tạm "Cây chò ngàn năm"</h2>
+    <p>Điểm dừng này có trong 2 tuyến: Tuyến Cây chò, Tuyến Động Người Xưa.</p>
+    <p>Các tuyến sau sẽ tự đóng tạm vì hết điểm dừng hoạt động: Tuyến Cây chò.</p>
+    <div class="field"><label for="reason">Lý do (bắt buộc)</label><textarea id="reason" aria-describedby="reason-h"></textarea><span class="hint" id="reason-h">Không để trống, tối đa 300 ký tự. Lý do là nội bộ.</span></div>
+    <div class="actions"><button class="btn" type="button" data-set="default">Quay lại</button><button class="btn btn-primary" type="button" data-set="closefail">Đóng tạm</button></div>
+  </div>
+</div>
+
+<script src="mockup.js"></script>
+</body>
+</html>

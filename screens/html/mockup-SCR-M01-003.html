@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M01-003 — Chi tiết tuyến và chuẩn bị</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .logo { height: 40px; width: auto; border-radius: var(--radius-sm); display: block; }
+  .hero { background: var(--color-m01-deep); color: var(--color-white); padding: var(--space-6) var(--space-5); }
+  .hero h1 { font-family: var(--font-serif); font-size: clamp(36px, 10vw, 46px); margin: 0 0 var(--space-3); font-weight: var(--font-weight-regular); }
+  .hero .chip { background: transparent; color: var(--color-m01-amber); border-color: var(--color-m01-amber); }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); text-align: center; }
+  .facts div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-3) var(--space-2); }
+  .facts b { display: block; font-size: 18px; }
+  .safety { background: var(--color-m01-amber); color: var(--color-m01-ink); border-radius: var(--radius-md); padding: var(--space-4); }
+  .safety h2 { font-size: 16px; }
+  .pkg { border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); padding: var(--space-4); display: grid; gap: var(--space-3); }
+  .pkg .sub { border-left: 4px solid var(--c-info); padding-left: var(--space-3); }
+  .pkg .sub.bad { border-left-color: var(--c-err); }
+  .pkg .sub.good { border-left-color: var(--c-ok); }
+  .pkg .sub.warnb { border-left-color: var(--c-warn); }
+  .pkg h3 { font-size: 14px; color: var(--fg2); margin: 0 0 var(--space-1); }
+  .stops li { display: flex; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
+</style>
+</head>
+<body class="m01" data-initial="default" data-base="default">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M01-003 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="default">Online, không cần gói</button>
+    <button type="button" data-set="missing">Chưa có gói (quyết định)</button>
+    <button type="button" data-set="downloading">Đang tải bản mới</button>
+    <button type="button" data-set="ready">Sẵn sàng (hiện hành)</button>
+    <button type="button" data-set="outdated">Sẵn sàng (cũ)</button>
+    <button type="button" data-set="incomplete">Tải chưa hoàn tất</button>
+    <button type="button" data-set="blocked">Start bị chặn</button>
+    <button type="button" data-set="unavailable">Tuyến không khả dụng</button>
+    <button type="button" data-set="offline">Offline, bản lưu</button>
+  </div>
+</aside>
+
+<div class="phone">
+  <header class="app-bar">
+    <img class="logo" src="../../assets/icons/icon.png" alt="Vườn quốc gia Cúc Phương">
+    <div class="lang" role="group" aria-label="Ngôn ngữ"><button type="button" aria-pressed="true">VI</button><button type="button" aria-pressed="false">EN</button></div>
+  </header>
+
+  <div class="hero on-dark">
+    <p class="small" style="color:var(--color-m01-amber);margin:0 0 8px"><a href="#" style="color:inherit">Danh mục tuyến</a></p>
+    <h1>Tuyến Cây chò</h1>
+    <span class="chip">Cần tải trước một số điểm dừng</span>
+  </div>
+
+  <main class="phone-pad stack">
+    <div class="banner warn" role="status" data-show="offline" hidden><span class="t">Đang dùng thông tin đã lưu</span>
+      <p>Chưa tải được thông tin mới. Đang hiển thị thông tin đã lưu.</p><p class="small" style="margin:0">Thông tin được lưu lúc 24/10/2026 09:30, có thể không phải bản mới nhất.</p></div>
+    <div class="banner err" role="alert" data-show="unavailable" hidden><span class="t">Tuyến không nhận chuyến mới</span><p>Tuyến này hiện không nhận chuyến mới.</p></div>
+
+    <div class="placeholder-img" style="min-height:160px" role="img" aria-label="Ảnh minh họa của tuyến" data-hide="offline">Ảnh minh họa (chưa có ảnh thật)</div>
+    <div class="placeholder-img" style="min-height:96px" data-show="offline" hidden>Ảnh không được lưu trên thiết bị</div>
+
+    <div class="facts" aria-label="Thông tin nhanh">
+      <div><b>2,4 km</b><span class="small">Quãng đường</span></div>
+      <div><b>90 phút</b><span class="small">Thời lượng</span></div>
+      <div><b>Nhẹ</b><span class="small">Độ khó</span></div>
+    </div>
+
+    <section class="safety" aria-labelledby="sf-h"><h2 id="sf-h">Cảnh báo an toàn</h2><p style="margin:0">Đường mòn trơn khi mưa, hãy mang giày bám tốt và không rời lối đi.</p></section>
+
+    <section class="stack-sm"><h2>Giới thiệu</h2>
+      <p>Con đường mòn đi qua rừng nguyên sinh, dẫn tới cây chò ngàn năm. Nhiều đoạn có bóng râm dày và độ ẩm cao quanh năm.</p></section>
+    <section class="stack-sm"><h2>Điểm xuất phát</h2><p>Cổng vườn, cách bãi gửi xe khoảng 200 m về phía suối.</p></section>
+    <section class="stack-sm" data-hide="offline"><h2>Cần chuẩn bị</h2><p>Nước uống, mũ và áo mưa nhẹ.</p></section>
+
+    <section class="stack-sm" aria-labelledby="cp-h"><h2 id="cp-h">Các điểm dừng</h2>
+      <ol class="list-plain stops" style="padding:0">
+        <li><span><span class="num">1</span>Cổng vườn</span></li>
+        <li><span><span class="num">2</span>Cây chò ngàn năm</span><span class="chip info">Cần tải trước</span></li>
+        <li><span><span class="num">3</span>Bản làng ven suối</span></li>
+      </ol>
+    </section>
+
+    <!-- Gói tải trước: bản đang dùng tách khỏi bản đang tải -->
+    <section class="pkg" data-hide="default unavailable" aria-labelledby="pk-h">
+      <h2 id="pk-h" style="font-size:16px;margin:0">Gói tải trước</h2>
+
+      <div data-show="missing" hidden class="stack-sm">
+        <h3 style="font-size:16px;color:var(--fg)">Tuyến này nên tải trước</h3>
+        <p style="margin:0">Một số điểm dừng có thể không có nội dung nếu bạn không tải trước: Cây chò ngàn năm.</p>
+        <p style="margin:0">Dung lượng ước tính: khoảng 38 MB.</p>
+        <p class="small" style="margin:0">Khi không có mạng, hãy quét mã bằng nút Quét trong ứng dụng, vì camera điện thoại có thể không mở được ứng dụng nếu không có mạng.</p>
+        <div class="stack-sm" style="margin-top:8px">
+          <button class="btn btn-primary btn-block" type="button" data-set="downloading">Tải về</button>
+          <button class="btn btn-block" type="button" data-set="default">Tiếp tục không tải</button>
+          <button class="btn btn-block" type="button" data-set="default">Quay lại</button>
+        </div>
+      </div>
+
+      <div class="sub good" data-show="ready" hidden><h3>Bản đang dùng</h3><p style="margin:0"><span class="chip ok">Sẵn sàng</span> Hiện hành</p></div>
+      <div class="sub warnb" data-show="outdated downloading incomplete" hidden><h3>Bản đang dùng</h3><p style="margin:0"><span class="chip ok">Sẵn sàng</span> <span class="chip warn">Cũ</span></p>
+        <p style="margin:8px 0 0">Gói tải trước này đã cũ nhưng vẫn dùng được.</p></div>
+      <div class="sub" data-show="downloading" hidden role="status"><h3>Bản mới đang tải</h3><p style="margin:0 0 8px"><span class="chip info">Đang tải</span></p><div class="progress"><span></span></div>
+        <p class="small" style="margin:8px 0 0">Bản đang dùng vẫn dùng được trong lúc tải. Chưa có nút hủy tải.</p></div>
+      <div class="sub bad" data-show="incomplete" hidden role="alert"><h3>Bản mới</h3><p style="margin:0 0 8px"><span class="chip err">Chưa hoàn tất</span></p>
+        <p style="margin:0">Tải chưa hoàn tất. Hãy thử tải lại.</p><div class="row"><button class="btn" type="button" data-set="downloading">Tải lại</button></div></div>
+      <div class="sub bad" data-show="blocked" hidden><h3>Trạng thái</h3><p style="margin:0"><span class="chip err">Chưa tải</span></p></div>
+      <div class="sub" data-show="offline" hidden><h3>Bản đang dùng</h3><p style="margin:0"><span class="chip ok">Sẵn sàng</span></p></div>
+
+      <p class="small" style="margin:0" data-show="ready outdated offline" hidden>Khi không có mạng, hãy quét mã bằng nút Quét trong ứng dụng.</p>
+      <a href="#" style="min-height:44px;display:inline-flex;align-items:center">Tài nguyên offline</a>
+    </section>
+
+    <div class="banner err" role="alert" data-show="blocked" hidden><span class="t">Chưa bắt đầu được</span><p>Chưa bắt đầu được vì không có mạng và tuyến này chưa được tải trước.</p></div>
+  </main>
+
+  <div class="sticky-actions" style="justify-content:stretch">
+    <button class="btn btn-primary btn-lg btn-block" type="button" data-hide="missing blocked unavailable">Bắt đầu</button>
+    <button class="btn btn-primary btn-lg btn-block" type="button" data-show="missing blocked unavailable" hidden disabled aria-disabled="true">Bắt đầu</button>
+  </div>
+</div>
+<script src="mockup.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M02-001 — Phiên và scanner</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .camera { aspect-ratio: 1 / 1; background: var(--color-m02-scanner-surface); border: 1px solid var(--line); border-radius: var(--radius-lg); display: grid; place-items: center; }
+  .reticle { width: 62%; aspect-ratio: 1; border: 3px solid var(--color-m02-scanner-text); border-radius: var(--radius-md); animation: pulse 1000ms linear infinite alternate; }
+  @keyframes pulse { from { opacity: 1; } to { opacity: 0.45; } }
+  @media (prefers-reduced-motion: reduce) { .reticle { animation: none; } }
+  .j-item { display: flex; gap: var(--space-3); align-items: flex-start; }
+  .j-item .main { flex: 1 1 auto; min-width: 0; }
+  .j-item button { all: unset; cursor: pointer; display: block; width: 100%; }
+  .j-item button:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
+  .scanned { color: var(--c-ok); font-weight: var(--font-weight-semibold); font-size: 14px; }
+  .not-scanned { color: var(--fg2); font-size: 14px; }
+  .bottom { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--line); padding: var(--space-3) var(--space-5); box-shadow: var(--shadow-bottom-nav); display: grid; gap: var(--space-2); }
+</style>
+</head>
+<body class="m02s" data-initial="default" data-base="default">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M02-001 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="default">Phiên bắt đầu</button>
+    <button type="button" data-set="scanning">Đang quét</button>
+    <button type="button" data-set="camera">Camera bị từ chối</button>
+    <button type="button" data-set="lookup">Đang tra cứu</button>
+    <button type="button" data-set="recorded">Đã ghi lượt quét</button>
+    <button type="button" data-set="closure">Tạm đóng</button>
+    <button type="button" data-set="invalid">Mã không hợp lệ</button>
+    <button type="button" data-set="offline">Cần kết nối</button>
+    <button type="button" data-set="autoend">Chuyến trước tự kết thúc</button>
+    <button type="button" data-set="free">Khách tự do</button>
+    <button type="button" data-set="final">Điểm cuối đã quét</button>
+  </div>
+</aside>
+
+<div class="phone">
+  <header class="app-bar">
+    <h1 style="margin:0;font-size:20px">Chuyến đi</h1>
+    <div class="lang" role="group" aria-label="Ngôn ngữ"><button type="button" aria-pressed="true">VI</button><button type="button" aria-pressed="false">EN</button></div>
+  </header>
+
+  <main class="phone-pad stack">
+    <!-- Vùng thông báo: một thông báo tra cứu, rồi lỗi nguồn, rồi chuyến trước -->
+    <div class="stack-sm" aria-live="polite">
+      <div class="banner warn" role="alert" data-show="closure" hidden><span class="t">Khu vực tạm đóng</span><p>Khu vực này đang tạm đóng. Vui lòng dừng lại hoặc quay về theo hướng dẫn của Ban Quản lý.</p></div>
+      <div class="banner err" role="alert" data-show="invalid" hidden><span class="t">Mã không dùng được</span><p>Mã không còn hiệu lực hoặc không tồn tại.</p></div>
+      <div class="banner info" role="alert" data-show="offline" hidden><span class="t">Chưa kiểm tra được mã</span><p>Cần có kết nối mạng để kiểm tra mã QR này.</p></div>
+      <div class="banner info" data-show="autoend" hidden><span class="t">Chuyến đi trước</span><p>Chuyến đi trước đã tự kết thúc vì đã quá 24 giờ.</p></div>
+      <div class="banner ok" role="status" data-show="recorded" hidden><span class="t">Đã ghi nhận lượt quét.</span><p>Bạn đã quét Cây chò ngàn năm. Nội dung điểm dừng mở ngay sau đây.</p></div>
+    </div>
+
+    <section class="card stack-sm" data-hide="free scanning camera lookup" aria-labelledby="ctx-h">
+      <h2 id="ctx-h" style="font-size:16px">Tuyến Cây chò</h2>
+      <p class="small" style="margin:0" data-hide="final">Trong chuyến đi, hãy quét bằng nút Quét trong ứng dụng để lượt ghé được ghi lại.</p>
+      <p style="margin:0"><span class="chip ok" data-hide="recorded final">Đã quét QR: 1/4 điểm</span><span class="chip ok" data-show="recorded" hidden>Đã quét QR: 2/4 điểm</span><span class="chip ok" data-show="final" hidden>Đã quét QR: 4/4 điểm</span></p>
+    </section>
+
+    <!-- Khách tự do -->
+    <section class="card stack-sm" data-show="free" hidden aria-labelledby="fr-h">
+      <h2 id="fr-h" style="font-size:16px">Xem tự do</h2>
+      <p style="margin:0">Bạn đang xem tự do, lượt quét này không được ghi vào chuyến đi. Muốn ghi lại hành trình, hãy chọn tuyến.</p>
+      <a class="btn" href="#">Chọn tuyến</a>
+    </section>
+
+    <!-- Hành trình -->
+    <section data-hide="free scanning camera lookup" aria-labelledby="jr-h">
+      <h2 id="jr-h" style="font-size:16px">Hành trình</h2>
+      <ol class="list-plain" style="padding:0">
+        <li class="j-item"><span class="num">1</span><div class="main"><button type="button"><strong>Cổng vườn</strong><br><span class="scanned">Đã quét QR</span> <span class="small">· 08:42</span></button></div></li>
+        <li class="j-item"><span class="num">2</span><div class="main"><button type="button"><strong>Cây chò ngàn năm</strong><br>
+          <span class="not-scanned" data-hide="recorded final">Chưa quét</span><span class="scanned" data-show="recorded final" hidden>Đã quét QR</span> <span class="small" data-show="recorded final" hidden>· 09:15</span></button></div></li>
+        <li class="j-item"><span class="num">3</span><div class="main"><button type="button"><strong>Bản làng ven suối</strong><br>
+          <span class="not-scanned" data-hide="final">Chưa quét</span><span class="scanned" data-show="final" hidden>Đã quét QR</span> <span class="small" data-show="final" hidden>· 09:48</span></button></div></li>
+        <li class="j-item"><span class="num">4</span><div class="main"><button type="button"><strong>Động Người Xưa</strong><br>
+          <span class="not-scanned" data-hide="final">Chưa quét</span><span class="scanned" data-show="final" hidden>Đã quét QR</span> <span class="small" data-show="final" hidden>· 10:20</span></button></div></li>
+      </ol>
+      <p class="small">"Đã quét QR" nghĩa là mã đã được quét, không phải xác nhận bạn đã đến nơi.</p>
+    </section>
+
+    <!-- Camera -->
+    <section class="stack" data-show="scanning lookup" hidden aria-labelledby="cm-h">
+      <h2 id="cm-h" style="font-size:16px">Quét mã QR</h2>
+      <p class="small" style="margin:0">Đưa mã QR của điểm dừng vào khung.</p>
+      <div class="camera" role="img" aria-label="Vùng xem camera"><div class="reticle"></div></div>
+      <div data-show="lookup" hidden role="status"><p style="margin:0 0 8px">Đang kiểm tra mã QR…</p><div class="progress"><span></span></div></div>
+      <button class="btn btn-block" type="button" data-set="default">Đóng camera</button>
+    </section>
+
+    <section class="banner warn" data-show="camera" hidden role="alert"><span class="t">Chưa dùng được camera</span>
+      <p>Chưa dùng được camera. Hãy cho phép trình duyệt truy cập camera rồi thử lại.</p>
+      <div class="row"><button class="btn" type="button" data-set="scanning">Thử lại</button></div></section>
+  </main>
+
+  <div class="bottom">
+    <button class="btn btn-primary btn-lg btn-block" type="button" data-hide="scanning lookup" data-set="scanning">Quét</button>
+    <button class="btn btn-lg btn-block" type="button" data-show="final" hidden>Kết thúc chuyến</button>
+  </div>
+</div>
+<script src="mockup.js"></script>
+</body>
+</html>

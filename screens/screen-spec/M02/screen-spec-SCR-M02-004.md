@@ -7,7 +7,7 @@
 | Module | `M02` |
 | Actor | Bất kỳ ai quét mã bằng camera điện thoại |
 | Priority | Must |
-| Mockup | Chưa có |
+| Mockup | [mockup-SCR-M02-004.html](../../html/mockup-SCR-M02-004.html) (HTML tĩnh, chưa sign-off UX) |
 | Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) |
 
 Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (US-M02-09, FR-M02-025/026, BR-M02-023 đến 025) và link công khai theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) BR-M03-B04. Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
@@ -22,7 +22,7 @@ Các Type/pattern trong inventory và §8 là đề xuất trình bày; control 
 
 ## 2. Mockup
 
-Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ngược business rule.
+Mockup HTML tĩnh: [mockup-SCR-M02-004.html](../../html/mockup-SCR-M02-004.html). Không dùng mockup để suy ngược business rule.
 
 ## 3. Element inventory
 

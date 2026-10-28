@@ -18,7 +18,7 @@ Tổng inventory: 18 module screens. Coverage 58/58 FR đang dùng gồm cả em
 - Priority kế thừa function trong MVP Scope; screen Must có thể chứa action Should. Không vì dùng chung screen mà nâng tất cả capability lên Must.
 - M01–M02 không có tài khoản du khách. M03 bắt buộc authenticated role và online.
 - Spec mới là baseline hành vi; layout/gộp màn và supporting UX là quyết định thiết kế ghi tại inventory này. Nội dung ngoài spec không được đưa vào FR coverage.
-- Screen specification chi tiết nằm trong [screen-spec](../screen-spec/), mỗi screen một file `screen-spec-SCR-Mxx-nnn.md`, trạng thái Draft (chưa có mockup, chưa sign-off UX). Mục §7 của từng screen list ghi file tương ứng. Mọi câu hỏi trong mục Open questions của từng file đã được chốt (Resolved); chữ thông báo M03 nằm trong danh mục Spec M03 §5.6, chữ của M01/M02 nằm trong bảng copy i18n của từng file.
+- Screen specification chi tiết nằm trong [screen-spec](../screen-spec/), mỗi screen một file `screen-spec-SCR-Mxx-nnn.md`, trạng thái Draft (mockup HTML tĩnh mới có cho 8 màn chính trong screens/html/, chưa sign-off UX). Mục §7 của từng screen list ghi file tương ứng. Mọi câu hỏi trong mục Open questions của từng file đã được chốt (Resolved); chữ thông báo M03 nằm trong danh mục Spec M03 §5.6, chữ của M01/M02 nằm trong bảng copy i18n của từng file.
 
 ## Luồng xuyên module
 

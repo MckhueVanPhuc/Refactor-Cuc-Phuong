@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M02-004 — Trang mở từ mã QR</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .article { font-size: 16px; max-width: 62ch; }
+  .article h2 { font-size: 20px; margin-bottom: var(--space-1); }
+  .eyebrow { font-size: 14px; color: var(--fg2); margin: 0; }
+</style>
+</head>
+<body class="m02r" data-initial="default" data-base="default">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M02-004 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="default">Khách tự do</button>
+    <button type="button" data-set="session">Có phiên (đã ghi lượt ghé)</button>
+    <button type="button" data-set="loading">Đang tra cứu</button>
+    <button type="button" data-set="closure">Tạm đóng</button>
+    <button type="button" data-set="invalid">Mã không hợp lệ</button>
+    <button type="button" data-set="offline">Cần kết nối</button>
+    <button type="button" data-set="autoend">Chuyến trước tự kết thúc</button>
+  </div>
+</aside>
+
+<div class="phone">
+  <header class="app-bar">
+    <p style="margin:0;font-weight:600">Cúc Phương Quest</p>
+    <div class="lang" role="group" aria-label="Ngôn ngữ"><button type="button" aria-pressed="true">VI</button><button type="button" aria-pressed="false">EN</button></div>
+  </header>
+
+  <main class="phone-pad stack">
+    <!-- Vùng thông báo: tra cứu, lỗi nguồn, chuyến trước -->
+    <div class="stack-sm" aria-live="polite">
+      <div class="banner warn" role="alert" data-show="closure" hidden><span class="t">Khu vực tạm đóng</span><p>Khu vực này đang tạm đóng. Vui lòng dừng lại hoặc quay về theo hướng dẫn của Ban Quản lý.</p></div>
+      <div class="banner err" role="alert" data-show="invalid" hidden><span class="t">Mã không dùng được</span><p>Mã không còn hiệu lực hoặc không tồn tại.</p></div>
+      <div class="banner info" role="alert" data-show="offline" hidden><span class="t">Chưa kiểm tra được mã</span><p>Cần có kết nối mạng để kiểm tra mã QR này.</p></div>
+      <div class="banner info" data-show="autoend" hidden><span class="t">Chuyến đi trước</span><p>Chuyến đi trước đã tự kết thúc và được ghi là hoàn thành.</p></div>
+      <div class="banner ok" role="status" data-show="session" hidden><span class="t">Đã ghi nhận lượt quét.</span></div>
+    </div>
+
+    <div data-show="loading" hidden role="status" class="card stack-sm"><p style="margin:0">Đang kiểm tra mã QR…</p><div class="progress"><span></span></div></div>
+
+    <!-- Nội dung điểm tham quan -->
+    <article class="article stack" data-show="default session autoend" hidden>
+      <div>
+        <p class="eyebrow">Cây chò ngàn năm</p>
+        <h1>Mặt cắt gốc cây chò</h1>
+      </div>
+      <div class="placeholder-img" style="min-height:180px" role="img" aria-label="Ảnh minh họa: mặt cắt gốc cây chò">Ảnh minh họa<br>(chưa có ảnh thật)</div>
+      <p class="small" style="margin:0">Vòng tuổi của cây chò trong ảnh minh họa.</p>
+      <p>Vòng tuổi của cây chò cho thấy hàng trăm năm sinh trưởng của rừng. Mỗi vòng là một năm: vòng rộng là năm thuận lợi, vòng hẹp là năm khô hạn.</p>
+    </article>
+
+    <!-- Gợi ý khách tự do -->
+    <section class="card stack-sm" data-show="default closure invalid offline autoend" hidden aria-labelledby="fr-h">
+      <h2 id="fr-h" style="font-size:16px">Xem tự do</h2>
+      <p style="margin:0">Bạn đang xem tự do, lượt quét này không được ghi vào chuyến đi. Muốn ghi lại hành trình, hãy chọn tuyến.</p>
+      <a class="btn btn-primary btn-block" href="#">Chọn tuyến</a>
+    </section>
+  </main>
+</div>
+<script src="mockup.js"></script>
+</body>
+</html>

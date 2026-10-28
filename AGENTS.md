@@ -15,8 +15,9 @@ File này áp dụng cho toàn bộ repository Refactor-Cuc-Phuong. Mọi agent 
 Đây là repository **documentation-only / spec-first** phục vụ rebaseline và refactor tài liệu Cúc Phương Quest V2 (bắt đầu từ việc rebaseline Spec-M03).
 
 - **Phạm vi tài liệu hiện có:** Từ Layer 1 (Canonical Specifications) đến Layer 4 (Data Modeling & Physical Schema). Điểm kết thúc của bộ tài liệu hiện tại là [Physical Schema](data/06-physical-schema.md).
-- **Không chứa implementation:** Repository này hoàn toàn KHÔNG chứa application source code, SQL migrations, Edge Functions, tests, UI prototypes/HTML mockups, seed generation scripts, hoặc runtime environments (Supabase/Vercel).
+- **Không chứa implementation:** Repository này hoàn toàn KHÔNG chứa application source code, SQL migrations, Edge Functions, tests, seed generation scripts, hoặc runtime environments (Supabase/Vercel).
 - **Không chứa downstream artifacts:** Các tài liệu downstream từ V1 như Field Mapping (data/schema/field-mapping.md), Seed Data (data/seed/**), Storage Validation (data/07-storage-validation.md), và các P10 implementation packages (specs/00*-*) KHÔNG nằm trong active documentation set của V2.
+- **HTML mockup:** chỉ là mockup tĩnh theo screen spec, đặt trong `screens/html/`; không chứa logic nghiệp vụ, gọi API hay dữ liệu thật.
 - Ba module logic là:
   - **M01 — Route Planning & Preparation:** Ngôn ngữ, khám phá/chọn tuyến, recommendation, offline package và handoff.
   - **M02 — Field Quest Experience:** Phiên thực địa, journey cố định, QR check-in, content delivery và terminal sync.
@@ -80,6 +81,7 @@ Không đổi tên contract, bỏ suffix/version hoặc hợp nhất transport s
 | docs/architecture/ | Context, flows, runtime, tech stack, environment | Derived từ spec và approved technical decisions; sửa minimal diff |
 | screens/screen list/ | Screen inventory và requirement coverage | Derived từ spec/function list; screen không tạo requirement |
 | screens/screen-spec/ | Chi tiết đặc tả màn hình | Bám sát spec và screen list; không tự tạo business rule |
+| screens/html/ | HTML mockup tĩnh, mỗi screen một file `mockup-SCR-Mxx-nnn.html` | Derived từ screen spec và docs/design/design-system.md; chỉ trực quan hóa, không tạo requirement hay behavior; không giả lập API/dữ liệu thật |
 | docs/design/ | Design system: token, typography, component và truy cập | Derived từ spec và screen spec; chỉ định nghĩa hình thức, không tạo requirement hay behavior mới |
 | assets/ | Static assets dùng chung (hiện có assets/icons/) | Chỉ thêm file do người dùng cung cấp; không tự tạo hay vẽ asset |
 | data/01-entity-dictionary.md | S1 canonical entity vocabulary | Không thêm entity từ implementation convenience |

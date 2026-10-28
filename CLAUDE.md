@@ -7,7 +7,7 @@ AGENTS.md là quy tắc chính của repo. Nếu một yêu cầu xung đột v�
 
 Repo hiện là **documentation-only / spec-first** (xem AGENTS.md §2): không có application source code.
 Các quy tắc frontend dưới đây **chỉ áp dụng khi bắt đầu viết code ứng dụng**. Chúng không cho phép
-thêm code, UI prototype hay HTML mockup vào repo hiện tại.
+thêm code ứng dụng vào repo hiện tại. HTML mockup tĩnh chỉ được đặt trong `screens/html/`.
 
 ## Skill
 

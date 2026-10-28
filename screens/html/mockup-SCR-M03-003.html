@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M03-003 — Điểm tham quan, QR và nội dung</title>
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body class="m03" data-initial="default" data-base="default">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M03-003 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="default">Chưa đủ</button>
+    <button type="button" data-set="ready">Sẵn sàng</button>
+    <button type="button" data-set="uploadfail">Tải tệp lỗi</button>
+    <button type="button" data-set="offline">Điểm dừng cần tải trước</button>
+    <button type="button" data-set="lastqr">Thu hồi bị chặn</button>
+    <button type="button" data-set="revoke">Dialog thu hồi</button>
+    <button type="button" data-set="stale">Ghi cũ (stale)</button>
+  </div>
+</aside>
+
+<div class="m03-shell">
+  <div class="m03-side">
+    <div class="brand">Cúc Phương Quest · Quản trị</div>
+    <nav aria-label="Menu quản trị"><ul>
+      <li><a href="#">Tuyến</a></li><li><a href="#" aria-current="page">Thư viện điểm dừng</a></li><li><a href="#">Báo cáo</a></li><li><a href="#">Tài khoản</a></li><li><a href="#">Nhật ký hệ thống</a></li>
+    </ul></nav>
+  </div>
+
+  <div class="m03-main">
+    <header class="m03-top">
+      <div>
+        <p class="small" style="margin:0"><a href="#">Thư viện điểm dừng</a> / Cây chò ngàn năm</p>
+        <h1 style="margin:0">Đang sửa: Mặt cắt gốc cây</h1>
+      </div>
+      <div class="row"><span class="small">nhanvien@example.org · Nhân viên nội dung</span><button class="btn" type="button">Đăng xuất</button></div>
+    </header>
+
+    <main class="m03-body">
+      <div data-show="stale" class="banner warn" role="alert" hidden><span class="t">Bản của bạn đã cũ</span>
+        <p>Trần Minh vừa sửa mục này lúc 09:42. Bấm Tải lại để xem bản mới nhất. Nội dung bạn đang gõ vẫn được giữ trên màn hình để bạn sao chép.</p>
+        <div class="row"><button class="btn" type="button">Tải lại</button></div></div>
+      <div data-show="lastqr" class="banner err" role="alert" hidden><span class="t">Chưa thể thu hồi</span>
+        <p>Không thể thu hồi mã QR cuối cùng của điểm dừng đang hoạt động. Hãy thêm mã QR khác hoặc đóng tạm điểm dừng trước.</p></div>
+      <div data-show="uploadfail" class="banner err" role="alert" hidden><span class="t">Một số tệp chưa tải được</span>
+        <p>Đã tải 2/3 tệp. Chưa tải được: ban-do-goc-cay.tiff. Các tệp đã tải vẫn được giữ.</p></div>
+
+      <!-- Nhãn bản đang xem, trạng thái, mã -->
+      <div class="ver-strip">
+        <span class="chip draft" data-hide="revoke lastqr">Bản nháp — du khách chưa thấy.</span>
+        <span class="chip ok" data-show="revoke lastqr" hidden>Đang hiển thị cho du khách.</span>
+        <span class="chip draft" data-hide="revoke lastqr">Nháp</span>
+        <span class="chip ok" data-show="revoke lastqr" hidden>Đang hoạt động</span>
+        <span class="chip warn" data-hide="ready revoke lastqr">Chưa đủ: giới thiệu tiếng Anh, ngôn ngữ cho tệp âm thanh</span>
+        <span class="chip ok" data-show="ready revoke lastqr" hidden>Sẵn sàng</span>
+        <span class="small">Mã …A4F9K2</span>
+      </div>
+
+      <nav class="tabs" aria-label="Các phần của màn hình">
+        <a href="#noi-dung" aria-current="step">Nội dung</a><a href="#media">Ảnh và âm thanh/video</a><a href="#qr">Mã QR</a>
+      </nav>
+
+      <div class="split" style="grid-template-columns:minmax(0,1fr)">
+        <section class="card stack" id="noi-dung" aria-labelledby="nd-h">
+          <h2 id="nd-h">Nội dung hiện cho du khách</h2>
+          <div class="pair">
+            <div class="field"><label for="ovi">Tên đối tượng (Tiếng Việt)</label><input id="ovi" type="text" value="Mặt cắt gốc cây chò" aria-describedby="ovi-h"><span class="hint" id="ovi-h">Tối đa 100 ký tự.</span></div>
+            <div class="field"><label for="oen">Tên đối tượng (English)</label><input id="oen" lang="en" type="text" value="Cross-section of a Cho trunk" aria-describedby="oen-h"><span class="hint" id="oen-h">Tối đa 100 ký tự.</span></div>
+          </div>
+          <div class="pair">
+            <div class="field"><label for="ivi">Giới thiệu (Tiếng Việt)</label>
+              <textarea id="ivi" aria-describedby="ivi-h">Vòng tuổi của cây chò cho thấy hàng trăm năm sinh trưởng của rừng.
+Mỗi vòng là một năm: vòng rộng là năm thuận lợi, vòng hẹp là năm khô hạn.</textarea>
+              <span class="counter" id="ivi-h">150/2000 ký tự (tối thiểu 30)</span></div>
+            <div class="field"><label for="ien">Giới thiệu (English)</label>
+              <textarea id="ien" lang="en" aria-describedby="ien-h" aria-invalid="true" data-hide="ready"></textarea>
+              <textarea id="ien2" lang="en" aria-label="Giới thiệu (English)" aria-describedby="ien-h" data-show="ready" hidden>Growth rings of the Cho tree record hundreds of years of the forest.
+Each ring is one year: wide rings mean good years, narrow rings dry years.</textarea>
+              <span class="err" data-hide="ready">Giới thiệu: còn thiếu bản tiếng Anh.</span>
+              <span class="counter" id="ien-h">Tối thiểu 30, tối đa 2000 ký tự</span></div>
+          </div>
+        </section>
+
+        <section class="card stack" id="media" aria-labelledby="md-h">
+          <h2 id="md-h">Ảnh</h2>
+          <div class="field"><label for="img">Thêm ảnh (tối đa 5, mỗi ảnh ≤ 2 MB; JPEG, PNG hoặc WebP)</label><input id="img" type="file" multiple accept="image/jpeg,image/png,image/webp"></div>
+          <p class="small" style="margin:0">Đã tải lên — chưa lưu vào bản nháp.</p>
+          <ul class="list-plain">
+            <li><div class="row between"><strong>vong-tuoi-1.jpg</strong><span class="chip ok">Đã tải</span></div>
+              <div class="check"><input id="r1" type="checkbox" checked><label for="r1">Tôi xác nhận có quyền sử dụng tệp này</label></div></li>
+            <li><div class="row between"><strong>vong-tuoi-2.png</strong><span class="chip ok">Đã tải</span></div>
+              <div class="check"><input id="r2" type="checkbox"><label for="r2">Tôi xác nhận có quyền sử dụng tệp này</label></div></li>
+            <li data-show="uploadfail" hidden><div class="row between"><strong>ban-do-goc-cay.tiff</strong><span class="chip err">Không tải được</span></div>
+              <p class="err" style="margin-top:8px">Tệp "ban-do-goc-cay.tiff" không đúng định dạng. Chỉ nhận JPEG, PNG, WebP.</p></li>
+          </ul>
+
+          <div data-hide="offline">
+            <h2>Âm thanh và video</h2>
+            <div class="field"><label for="av">Thêm tệp (MP3/M4A ≤ 5 MB; MP4 ≤ 30 MB; tối đa 3 tệp)</label><input id="av" type="file" multiple accept="audio/mpeg,audio/mp4,video/mp4"></div>
+            <ul class="list-plain" style="margin-top:12px">
+              <li><div class="row between"><strong>gioi-thieu.mp3</strong><span class="chip warn" data-hide="ready">Thiếu ngôn ngữ</span><span class="chip ok" data-show="ready" hidden>Tiếng Việt</span></div>
+                <div class="field"><label for="sl1">Ngôn ngữ trong tệp</label>
+                  <select id="sl1" aria-describedby="sl1-e"><option>Chọn ngôn ngữ…</option><option>Tiếng Việt</option><option>Tiếng Anh</option><option>Không lời</option></select>
+                  <span class="err" id="sl1-e" data-hide="ready">Hãy chọn ngôn ngữ cho tệp "gioi-thieu.mp3": Tiếng Việt, Tiếng Anh hoặc Không lời.</span></div>
+                <div class="check"><input id="r3" type="checkbox" checked><label for="r3">Tôi xác nhận có quyền sử dụng tệp này</label></div></li>
+            </ul>
+          </div>
+          <div class="banner info" data-show="offline" hidden><span class="t">Điểm dừng cần tải trước</span><p>Điểm dừng cần tải trước chỉ nhận chữ và ảnh.</p></div>
+          <div class="field"><label for="note">Ghi chú lắp đặt (nội bộ)</label><textarea id="note" aria-describedby="note-h">Gắn trên cột gỗ cao 1,2 m, hướng ra đường mòn.</textarea>
+            <span class="hint" id="note-h">Tối đa 300 ký tự. Không bao giờ hiện cho du khách.</span></div>
+        </section>
+
+        <section class="card stack" id="qr" aria-labelledby="qr-h">
+          <h2 id="qr-h">Mã QR</h2>
+          <p style="margin:0"><strong>Mã …A4F9K2</strong> <span class="small">(6 ký tự cuối, để đối chiếu với mã đã in)</span></p>
+          <div class="banner warn" data-hide="revoke lastqr"><span class="t">Chưa xuất bản</span><p>Điểm tham quan này chưa xuất bản. Nếu dán mã ra thực địa, người quét sẽ thấy mã không hợp lệ.</p></div>
+          <div class="row"><button class="btn" type="button">Tải ảnh mã (SVG)</button><button class="btn" type="button">Tải ảnh mã (PNG)</button><button class="btn" type="button" disabled>In lại</button></div>
+          <p class="hint" style="margin:0">Mã in phải rộng ít nhất 3 cm. Ảnh mã có dòng "Mã …A4F9K2" bên dưới.</p>
+          <p class="hint" style="margin:0" data-show="offline" hidden>Ảnh mã có thêm dòng: "Khu vực không có sóng — hãy tải dữ liệu tuyến trước khi đến / <span lang="en">No signal here — download the route data before you come</span>".</p>
+        </section>
+
+        <section class="card stack-sm" aria-labelledby="ver-h">
+          <h2 id="ver-h">Phiên bản</h2>
+          <p class="small" style="margin:0">Chưa có bản đã xuất bản.</p>
+          <div class="row"><button class="btn" type="button" disabled>Khôi phục bản đã xuất bản trước đó</button><button class="btn" type="button">Bỏ thay đổi</button></div>
+        </section>
+      </div>
+
+      <!-- Nhóm hành động chính -->
+      <div class="sticky-actions" role="group" aria-label="Hành động chính">
+        <button class="btn btn-primary" type="button">Lưu bản nháp</button>
+        <button class="btn" type="button">Xem trước như du khách</button>
+        <button class="btn" type="button" style="margin-left:auto">Xuất bản</button>
+      </div>
+
+      <!-- Nhóm không hoàn tác -->
+      <div class="zone stack-sm" role="group" aria-label="Hành động không hoàn tác">
+        <h3>Hành động không hoàn tác</h3>
+        <div class="row">
+          <button class="btn btn-danger" type="button" data-hide="revoke lastqr" disabled aria-disabled="true">Thu hồi mã QR</button>
+          <button class="btn btn-danger" type="button" data-show="revoke lastqr" data-set="revoke" hidden>Thu hồi mã QR</button>
+          <button class="btn btn-danger" type="button" data-hide="revoke lastqr">Hủy điểm tham quan</button>
+        </div>
+        <p class="hint" style="margin:0">Thu hồi chỉ dùng cho điểm tham quan đang hoạt động; Hủy chỉ dùng cho điểm tham quan chưa từng xuất bản. Mỗi hành động mở hộp thoại xác nhận riêng.</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="dialog-backdrop" data-show="revoke" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="rv-h">
+    <h2 id="rv-h">Thu hồi mã QR</h2>
+    <p>Thu hồi mã QR của "Mặt cắt gốc cây": người quét mã này sẽ thấy mã không hợp lệ; gói tải trước của du khách ở các tuyến liên quan cần cập nhật.</p>
+    <div class="field"><label for="rvr">Lý do (tùy chọn)</label><textarea id="rvr"></textarea><span class="hint">Tối đa 300 ký tự.</span></div>
+    <div class="actions"><button class="btn" type="button" data-set="default">Quay lại</button><button class="btn btn-danger" type="button" data-set="lastqr">Thu hồi</button></div>
+  </div>
+</div>
+<script src="mockup.js"></script>
+</body>
+</html>

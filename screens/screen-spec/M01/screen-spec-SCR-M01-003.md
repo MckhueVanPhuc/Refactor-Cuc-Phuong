@@ -7,7 +7,7 @@
 | Module | `M01` |
 | Actor | Visitor |
 | Priority | Must; chuẩn bị offline Should* |
-| Mockup | Chưa có |
+| Mockup | [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html) (HTML tĩnh, chưa sign-off UX) |
 | Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) |
 
 Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md) (Published Route và JourneySnapshot theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; \* gói offline là Should nhưng phải nâng lên Must nếu increment có điểm dừng `OFFLINE_REQUIRED` hoặc sơ đồ tuyến cần dùng offline. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
@@ -22,7 +22,7 @@ Các Type/pattern trong inventory và §8 là đề xuất trình bày; control 
 
 ## 2. Mockup
 
-Chưa có mockup cho màn này. Không suy ngược business rule từ bất kỳ ảnh mockup nào về sau.
+Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html). Không dùng mockup để suy ngược business rule.
 
 ## 3. Element inventory
 

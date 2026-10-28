@@ -4,7 +4,7 @@
 
 - Baseline: [Spec M02 v3.3](../../docs/spec/spec-M02.md), [Function List M02](../../docs/function%20list/function-list-M02.md).
 - Release priority: [MVP Scope](../../MVP-Scope.md). Priority dưới đây theo function scope; không thay requirement trong spec.
-- Cập nhật: 2026-10-28. Status: screen inventory và screen specification (Draft) đồng bộ baseline v3.3; chưa có mockup hoặc route implementation.
+- Cập nhật: 2026-10-28. Status: screen inventory và screen specification (Draft) đồng bộ baseline v3.3; chỉ có mockup tĩnh cho SCR-M02-001 và SCR-M02-004 (screens/html/); chưa có route implementation.
 - Quy ước chung: [Screen index](README.md).
 - Giữ ID cũ để truy vết; cách gộp screen là quyết định UI decomposition, không giả định spec yêu cầu đúng số trang này.
 

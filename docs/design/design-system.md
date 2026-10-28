@@ -70,7 +70,7 @@ Màu gán theo bề mặt (bảng 2.1) và các vai trò sau:
 
 ## 3. Typography
 
-Dùng Segoe UI/system sans cho điều khiển và nội dung. Tiêu đề discovery của M01 dùng serif Georgia/Times New Roman như hướng đã duyệt; form, metadata và preparation giữ sans. M02 và M03 dùng sans toàn bộ. Không dùng font từ xa.
+Dùng Segoe UI/system sans cho điều khiển và nội dung. Tiêu đề discovery của M01 dùng serif Times New Roman/Georgia như hướng đã duyệt; form, metadata và preparation giữ sans. M02 và M03 dùng sans toàn bộ. Không dùng font từ xa.
 
 | Vai trò | Quy tắc production được chọn |
 |---|---|
@@ -88,7 +88,7 @@ Giá trị bổ sung:
 | Mục | Giá trị |
 |---|---|
 | Sans stack | `"Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif` |
-| Serif stack (M01 hero/heading) | `Georgia, "Times New Roman", serif` |
+| Serif stack (M01 hero/heading) | `"Times New Roman", Georgia, serif` — Times New Roman đứng trước vì Georgia hiển thị sai dấu chồng tiếng Việt (ví dụ "Tuyến") khi render thử trên Edge/Windows |
 | Độ đậm | Regular 400 cho nội dung; semibold 600 cho button, tên hàng, nhãn nhấn mạnh |
 | Line-height tiêu đề | 1.2–1.3 (nội dung vẫn ≥ 1.5 ) |
 | Token | `--font-sans`, `--font-serif` (hai stack trên); `--font-weight-regular` 400, `--font-weight-semibold` 600; `--line-height-body` 1.5, `--line-height-heading` 1.25 |
