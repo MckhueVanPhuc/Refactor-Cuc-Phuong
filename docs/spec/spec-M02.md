@@ -3,14 +3,14 @@
 | Field | Value |
 |---|---|
 | Module | M02 — Field Quest Experience |
-| Version | 3.2 |
-| Status | MVP implementation baseline — aligned to M03 v3.6 and M01 v3.2 |
-| Supersedes | 3.1 (previous repository baseline: 2.0) |
-| Last updated | 2026-10-27 |
+| Version | 3.3 |
+| Status | MVP implementation baseline — aligned to M03 v3.7 and M01 v3.2 |
+| Supersedes | 3.2 (previous repository baseline: 2.0) |
+| Last updated | 2026-10-28 |
 | Inputs | M01 handoff/language/package; M03 live QR lookup |
 | Output | Terminal anonymous `SessionSyncRecord` to M03 |
 
-This specification is self-contained and is the implementation source of truth for M02. Where M02 consumes a contract produced by M01 or M03, the producer specification (M01 v3.2, M03 v3.6) is the baseline and this document mirrors its shape.
+This specification is self-contained and is the implementation source of truth for M02. Where M02 consumes a contract produced by M01 or M03, the producer specification (M01 v3.2, M03 v3.7) is the baseline and this document mirrors its shape.
 
 ## 1. Purpose and scope
 
@@ -79,7 +79,7 @@ Dependencies:
 1. The content shown is that of the scanned QR (one visit point): the name of the object, its introduction, images and, where it has them, audio/video. It is never content shared by the whole checkpoint.
 2. While online, M02 asks M03 about the scanned QR for both connectivity modes. When the answer is `VALID`, M02 shows the returned content, which is the most current.
 3. While offline, or when the lookup fails, an `OFFLINE_REQUIRED` checkpoint reads bilingual text/images from the ready package resource keyed by `qrIdentifier`; an `ONLINE_AVAILABLE` checkpoint has no offline content and shows an unavailable message.
-4. Audio/video exists only for `ONLINE_AVAILABLE` checkpoints and plays only after explicit visitor action. Media controls appear only when the content shown carries audio/video: M03 never returns audio/video for an `OFFLINE_REQUIRED` checkpoint, and package content never contains any.
+4. Audio/video exists only for `ONLINE_AVAILABLE` checkpoints and plays only after explicit visitor action. Only the files spoken in the current language, plus the files without speech, are shown; switching VI/EN switches them at once (BR-M02-026). Media controls appear only when the content shown carries audio/video: M03 never returns audio/video for an `OFFLINE_REQUIRED` checkpoint, and package content never contains any.
 5. Missing content shows an unavailable message while retaining the visit. If the package has no resource for the scanned QR and the device is online, M02 asks M03 for that QR only and never changes the package; if offline, it shows "Chưa có nội dung offline cho điểm này". A missing resource is not an invalid QR.
 
 ### US-M02-04 — Scan outside the journey
@@ -251,7 +251,7 @@ Language on this page follows BR-M02-024: the stored preference, otherwise the d
 | FR-M02-011 | Look up the scanned QR in M03 whenever online, show the returned content of that QR, and play media on demand. | Required |
 | FR-M02-012 | Handle QR outside journey without recording progress. | Required |
 | FR-M02-013 | Distinguish `INVALID` and `TEMPORARILY_CLOSED` outcomes from connectivity/source failure. | Required |
-| FR-M02-014 | Apply current `LanguagePreference` to available content. | Required |
+| FR-M02-014 | Apply current `LanguagePreference` to available content, including which audio/video files are shown. | Required |
 | FR-M02-015 | Enable Finish after the highest-sequence checkpoint is visited. | Required |
 | FR-M02-016 | Complete on confirmation; do not require every earlier checkpoint. | Required |
 | FR-M02-017 | Atomically create the replacement session and change the previous active session to `BO_DO` when a new handoff is accepted. | Required |
@@ -367,6 +367,7 @@ A source failure is not an outcome value: it is a distinct failure that M02 trea
 | `mediaResources` | Array&lt;Object&gt; | Required | May be empty; always empty for `OFFLINE_REQUIRED` checkpoints; audio/video play only on explicit visitor action. |
 | `mediaResources[].type` | Enum(`AUDIO`, `VIDEO`) | Required | Required for every array item. |
 | `mediaResources[].sourceRef` | String | Required | Required for every array item; public media resource reference. |
+| `mediaResources[].spokenLanguage` | Enum(`vi`, `en`, `NONE`) | Required | Required for every array item; the language spoken in the file, `NONE` when it has no speech. M02 shows only the files of the current language plus `NONE` (BR-M02-026). |
 
 The result carries no route identifier; M02 knows the route from its own session.
 
@@ -434,6 +435,7 @@ These texts are fixed by M02 (the closure notice is not supplied by M03).
 | BR-M02-023 | **Public QR link.** Every printed code is the link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` (M03 BR-M03-B04). M02 takes `qrIdentifier` from the last path segment, both in the in-app scanner and on the link page. Content that is not such a link, or a link whose base is not the current environment's `QR_PUBLIC_BASE_URL`, is an invalid QR for the in-app scanner and is answered with the invalid-QR message without a lookup. |
 | BR-M02-024 | **QR link page.** Opening `/q/{qrIdentifier}` first applies BR-M02-022, then: when an in-progress session exists in the same browser, the scan is handled exactly like an in-app scan; otherwise the page is in free-visitor mode (no `routeId` sent, nothing recorded) with the free-visitor hint. It never creates a session and never asks for a route or a language first. Language is the stored `LanguagePreference`, or, when none exists, Vietnamese if the device language is Vietnamese and English otherwise; the VI/EN switch on the page is the M01 language control, so M01 stays the only writer of `LanguagePreference`. A session in another browser or in an installed app that the camera does not open is not visible; this limit is accepted. |
 | BR-M02-025 | **QR link offline.** The link page opens without network only when this browser opened the app before, so that the M01 app shell is cached; it then behaves like an offline in-app scan (frozen journey and package for a session, connection-needed message otherwise). When the browser never opened the app, it shows its own offline page; the app cannot change this. Only the in-app scanner is guaranteed offline. |
+| BR-M02-026 | **Language of audio/video.** Among the `mediaResources` of the content shown, M02 lists only the files whose `spokenLanguage` equals the current `LanguagePreference`, plus the files with `NONE`, in the order received. Switching VI/EN changes the listed files at once and stops a file that is no longer listed. When no file matches, no media control is shown. Images are the same in both languages. |
 
 ## 6. Key entities
 
@@ -544,6 +546,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 | SC-M02-016 | After the app is opened, no session older than 24 hours stays in progress; it becomes `HOAN_TAT` or `BO_DO` by the rule of BR-M02-022 and is synchronized like any terminal session. |
 | SC-M02-017 | A printed code scanned with a phone's own camera while online always opens the visit point, with no language or route step first. |
 | SC-M02-018 | Opening a QR link never creates a session; it records a visit only when an in-progress session exists in the same browser and the scan is accepted. |
+| SC-M02-019 | Switching VI/EN changes the text and the audio/video shown at once; images and files without speech stay. |
 
 ## 9. Assumptions
 
@@ -569,7 +572,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 - Content belongs to the scanned QR, not to the checkpoint.
 - While online, M02 shows the lookup content for both connectivity modes; package content is the fallback when offline or on lookup failure.
 - A visit is recorded only for an accepted scan: online `VALID`, or offline with a QR of the frozen journey; a temporary closure shows a fixed notice and records nothing; a visit is a scanned QR, not proof of presence.
-- Audio/video exist only for online-capable checkpoints.
+- Audio/video exist only for online-capable checkpoints; visitors see the files of their language plus those without speech.
 - A missing offline resource asks M03 for that QR only when online and never changes the package.
 - A code added after the session started is resolved through the online lookup's `checkpointId`; the frozen journey is never changed.
 - Printed codes are public links; the phone's own camera opens a page that needs no earlier step; sessions are recognized only in the same browser; only the in-app scanner is guaranteed offline.
@@ -583,7 +586,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 | M01 context | Version 3, authorized, route matches manifest, unused UUID handoff, not expired; version 2 and expired handoffs are rejected with a clear message. |
 | M01 package | Read only active ready resources, per QR; never read staging/partial data; ignore `offlineRouteMap` and `routeEssentials`. |
 | M03 snapshot heritage | Journey checkpoint IDs, order (with gaps), bilingual names, modes and QR arrays remain fixed within session. Codes activated later by M03 are resolved through the live lookup, never added to the frozen journey. |
-| M03 live QR lookup | Request carries `qrIdentifier` and, when a session exists, `routeId`. Result is `VALID` (with the scanned QR's content), `TEMPORARILY_CLOSED` (no content) or `INVALID`; source failure is not invalid QR. The result carries no route identifier. `content.checkpointId` resolves codes that are not in the frozen journey (BR-M02-020). A visit is recorded online only for `VALID` (BR-M02-005). |
+| M03 live QR lookup | Request carries `qrIdentifier` and, when a session exists, `routeId`. Result is `VALID` (with the scanned QR's content), `TEMPORARILY_CLOSED` (no content) or `INVALID`; source failure is not invalid QR. The result carries no route identifier. `content.checkpointId` resolves codes that are not in the frozen journey (BR-M02-020). A visit is recorded online only for `VALID` (BR-M02-005). `mediaResources[].spokenLanguage` selects the audio/video shown (BR-M02-026). |
 | M03 session ingest | Send exactly one immutable terminal business payload, with the Vietnamese checkpoint name string; retry identically until acknowledged, conflicted or rejected. A session ended automatically (BR-M02-022) produces an ordinary terminal record with the same shape. M03 checks each visited checkpoint against the snapshot; values copied from the frozen journey always match. |
 | M03 printed QR link | The code is `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` (M03 BR-M03-B04); M02 serves the link page and takes the identifier from the link (BR-M02-023 to 025). |
 | M01 language and app shell | The VI/EN switch on the link page is the M01 language control (M01 v3.2); the M01 app shell serves the link page offline once the browser has opened the app. |
@@ -594,7 +597,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 |---|---|---|---|
 | US-M02-01 Start and restore a session | FR-M02-001 to 005 | BR-M02-001, 002, 003, 017 | SC-M02-001, 003, 010 |
 | US-M02-02 Scan and check in | FR-M02-006 to 009, 022 | BR-M02-004, 005, 006, 014, 020 | SC-M02-002, 008, 013, 014 |
-| US-M02-03 Read the content of the scanned QR | FR-M02-010, 011, 014 | BR-M02-009, 016, 018 | SC-M02-004, 011, 012 |
+| US-M02-03 Read the content of the scanned QR | FR-M02-010, 011, 014 | BR-M02-009, 016, 018, 026 | SC-M02-004, 011, 012, 019 |
 | US-M02-04 Scan outside the journey | FR-M02-012, 013 | BR-M02-008 | — |
 | US-M02-05 Complete or abandon a session | FR-M02-015, 016, 017, 023, 024 | BR-M02-007, 013, 021, 022 | SC-M02-005, 015, 016 |
 | US-M02-06 Synchronize terminal data | FR-M02-018 | BR-M02-010, 011 | SC-M02-006, 007 |
@@ -613,13 +616,14 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 - [x] Codes added after the session started are resolved without changing the frozen journey.
 - [x] Public QR link page, free-visitor mode from the phone camera, the single visit rule and the offline limits are specified.
 - [x] Privacy boundary is explicit.
-- [x] Aligned to M01 v3.2 and M03 v3.6.
+- [x] Aligned to M01 v3.2 and M03 v3.7.
 - [x] No external requirements document is needed to implement M02.
 
 ## 12. Change notes
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.3 | 2026-10-28 | Aligned to M03 v3.7. Language of audio/video: `LiveStationContent.mediaResources[].spokenLanguage` (`vi` / `en` / `NONE`); new BR-M02-026 and SC-M02-019; US-M02-03 item 4 and FR-M02-014 updated; only the files of the current language plus those without speech are shown, and switching VI/EN switches them at once. |
 | 3.2 | 2026-10-27 | Aligned to M03 v3.6 and M01 v3.2. Public QR link from the phone camera: new US-M02-09, FR-M02-025/026, BR-M02-023 to 025, SC-M02-017/018, flow §4.4, QR link page screen, free-visitor and session start hints; lookup `qrIdentifier` comes from the link. Single visit rule (BL-01, BL-04): a visit is recorded only for an online `VALID` answer or, offline/on lookup failure, for a QR of the frozen journey; an online `TEMPORARILY_CLOSED` or `INVALID` answer records nothing (BR-M02-005, 015, 020, 021, FR-M02-006, 007, 021, US-M02-02, 08, SC-M02-009, flows §4.1/§4.2). Wording follows the removal of QR identity replacement in M03 (codes are "added later"). iPhone home-screen installation not promoted. Analysis fixes: lookup timeout `LOOKUP_TIMEOUT_SECONDS` (BR-M02-005, §4.1, §9); one in-progress session per browser (FR-M02-002, BR-M02-002, §6.4); link base must match the current environment (BR-M02-023, FR-M02-026); free-visitor hint on every free scan (US-M02-07, §5.1); stale "replaced" wording removed from the lookup result; US → FR → BR → SC traceability table in §11. |
 | 3.1 | 2026-10-27 | Aligned to M01 v3.1 and M03 v3.5. New BR-M02-020, FR-M02-022, SC-M02-014 and US-M02-02 item 6: a code that M03 activated after the session started (QR identity replacement, later-published visit point) and that the online lookup resolves to a journey checkpoint records the visit, so a replacement during a trip no longer blocks check-in or Finish while online; FR-M02-006, BR-M02-008, CheckpointVisit and the flows updated accordingly. Media controls follow the content shown (BR-M02-016, US-M02-03, SC-M02-011), which removes an ambiguity when a checkpoint's mode changes after the session started. `OfflinePackage.resources` wording mirrors M01 exactly. No contract shape change. User story IDs follow the M01/M03 pattern: US-1…US-8 became US-M02-01…US-M02-08 with the same meaning, and the P1/P2 labels were removed because release priority belongs to `MVP-Scope.md`. A route archived during a trip is answered as temporarily closed by M03 v3.5 (US-M02-08). Forgotten sessions: end-of-trip prompt when the final checkpoint is first visited and automatic end 24 hours after the start (US-M02-05 items 4-5, FR-M02-023/024, BR-M02-021/022, SC-M02-015/016, new visitor messages); BR-M02-007 now counts an automatic end with the final checkpoint visited as completion. |
 | 3.0 | 2026-10-23 | Baseline supplied for the V2 rebaseline (supersedes repository version 2.0). |

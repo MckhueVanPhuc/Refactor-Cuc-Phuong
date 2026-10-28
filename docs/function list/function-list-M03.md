@@ -5,8 +5,8 @@
 | Field | Value |
 |---|---|
 | Module | M03 — Operations & Content Administration |
-| Source spec | [spec-M03.md](../spec/spec-M03.md), v3.6 |
-| Updated | 2026-10-27 |
+| Source spec | [spec-M03.md](../spec/spec-M03.md), v3.7 |
+| Updated | 2026-10-28 |
 | Purpose | Functional decomposition for admin UI/API/database/security design |
 | Priority rule | Complete functional baseline; delivery priority comes from `MVP-Scope.md` and sub-functions inherit their parent function's priority unless `MVP-Scope.md` §3.4 lists them separately. |
 | Source FR notation | After one full ID, following comma-separated numbers inherit the same `FR-M03-` prefix. Business rules are cited as `BR-M03-<group><number>`. |
@@ -84,12 +84,13 @@
 |---|---|---|---|---|---|
 | SF-M03-004-01 | Edit a visit point's object name and introduction in both languages. | Draft edit | Draft revision of the QR object | Introduction 30–2000 characters per language; name at most 100 | FR-M03-004 |
 | SF-M03-004-04 | Publish a visit point on its own. | Review screen confirmation | `PHAT_HANH` revision; previous one becomes history | No batch publication; replacement versions per BR rules | FR-M03-004, 008 |
-| SF-M03-004-05 | Attach media to a visit point. | Upload | IMAGE/AUDIO/VIDEO media owned by the checkpoint | Size/count/type limits; audio/video only for `ONLINE_AVAILABLE` | FR-M03-004 |
+| SF-M03-004-05 | Attach media to a visit point. | Upload | IMAGE/AUDIO/VIDEO media owned by the checkpoint | Size/count/type limits; audio/video only for `ONLINE_AVAILABLE`, each with a spoken language (SF-M03-004-11) | FR-M03-004 |
 | SF-M03-004-06 | Expose only eligible media. | Publication | Public media resources | Only media referenced by a published revision with usage rights | FR-M03-004 |
 | SF-M03-004-07 | Package offline images only. | Snapshot build for an offline checkpoint | Static images per QR in the offline resource | Audio/video excluded | FR-M03-004, 009 |
 | SF-M03-004-08 | Serve live media. | M02 live request | Public images/audio/video of the scanned QR | Only published active content | FR-M03-004, 012 |
 | SF-M03-004-09 | Upload several files in one selection. | Multi-file selection | Per-file state "Đang tải / Đã tải / Không tải được" and a summary | A failed file never removes uploaded ones; files join the draft only on save | FR-M03-004 |
 | SF-M03-004-10 | Confirm usage rights file by file. | Tick per file | `usageRightsConfirmed` with who/when | No single tick for several files | FR-M03-004 |
+| SF-M03-004-11 | Mark the spoken language of each audio/video file. | Upload or edit of an audio/video file | `spokenLanguage` = Tiếng Việt / Tiếng Anh / Không lời | Required before publication (MSG-AV-LANGUAGE-MISSING); review warns, without blocking, when audio/video exists in only one language (MSG-AV-ONE-LANGUAGE) | FR-M03-004 |
 
 ### FN-M03-005 — Publication Review & Self-Publish
 
@@ -104,7 +105,7 @@
 | SF-M03-005-09 | Keep the "missing for publication" panel visible. | Editing | Gap list linked to fields | Each line jumps to the field | FR-M03-005 |
 | SF-M03-005-10 | Confirm once with the reviewed concurrency revision. | Confirmation | Publication or stale rejection | Stale confirmation reopens the review | FR-M03-006, 007 |
 | SF-M03-005-11 | Save the whole form as one unit. | "Lưu bản nháp" | All texts, ordered media with rights ticks and internal note saved atomically | No per-language save; no autosave; unsaved-changes dialog on leave | FR-M03-007 |
-| SF-M03-005-12 | Preview a visit point as visitors see it. | "Xem trước như du khách" | Draft rendering with VI/EN switch and preview label | Writes nothing; never shown to visitors | FR-M03-006 |
+| SF-M03-005-12 | Preview a visit point as visitors see it. | "Xem trước như du khách" | Draft rendering with VI/EN switch and preview label; audio/video of the chosen language plus files without speech | Writes nothing; never shown to visitors | FR-M03-006 |
 | SF-M03-005-13 | Show staff only plain Vietnamese. | Any administrative screen | Display names, catalog messages, allowed hints | No raw data, code names or technical terms | FR-M03-019 |
 | SF-M03-005-14 | Serialize operations on a connected set. | Concurrent publication/closure/reopen | One operation at a time | Second operation rejected with the busy message, not queued | FR-M03-007 |
 
@@ -162,7 +163,7 @@
 |---|---|---|---|---|---|
 | SF-M03-009-01 | Resolve an active `qrIdentifier`. | M02 lookup (identifier taken from the public link, optional `routeId`) | Stable checkpoint identity | Exact match after trimming; `NHAP`/`THU_HOI`/unknown is `INVALID` | FR-M03-012 |
 | SF-M03-009-02 | Evaluate checkpoint and route state. | Resolved QR | Outcome in the order of BR-M03-I02 | Checkpoint `NHAP`/`LUU_TRU` and unknown/`NHAP` route are `INVALID` | FR-M03-012 |
-| SF-M03-009-03 | Return the scanned QR's own content. | `VALID` | Checkpoint name, mode, object name, introduction, images, media | Audio/video only for `ONLINE_AVAILABLE`; no route data | FR-M03-012 |
+| SF-M03-009-03 | Return the scanned QR's own content. | `VALID` | Checkpoint name, mode, object name, introduction, images, media with `spokenLanguage` | Audio/video only for `ONLINE_AVAILABLE`; no route data | FR-M03-012 |
 | SF-M03-009-04 | Return an invalid result. | Unknown/inactive QR | `INVALID` | Distinguishable from service failure | FR-M03-012 |
 | SF-M03-009-05 | Preserve consumer read-only boundary. | M01/M02 public access | Read result | No source mutation permission; no visitor data written | FR-M03-012 |
 | SF-M03-009-06 | Return a temporary closure. | Supplied route `TAM_DONG`/`LUU_TRU`, or checkpoint `TAM_DONG` | `TEMPORARILY_CLOSED` with scope `ROUTE` or `CHECKPOINT`, no content | Route scope takes priority | FR-M03-012 |
@@ -202,7 +203,7 @@
 | Metric | Value |
 |---|---:|
 | Functions | 11 |
-| Sub-functions | 112 |
+| Sub-functions | 113 |
 | Source FR covered | 18/18 (FR-M03-017 removed in the spec) |
 
 Every sub-function maps to at least one source FR; physical schema, endpoint and security-policy syntax remain design outputs derived from the source spec.

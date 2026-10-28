@@ -5,8 +5,8 @@
 | Field | Value |
 |---|---|
 | Module | M02 — Field Quest Experience |
-| Source spec | [spec-M02.md](../spec/spec-M02.md), v3.2 |
-| Updated | 2026-10-27 |
+| Source spec | [spec-M02.md](../spec/spec-M02.md), v3.3 |
+| Updated | 2026-10-28 |
 | Purpose | Functional decomposition for UI/API/local-storage/database design |
 | Priority rule | Complete functional baseline; delivery priority comes from `MVP-Scope.md` and sub-functions inherit their parent function's priority unless `MVP-Scope.md` §3.4 lists them separately. |
 | Source FR notation | After one full ID, following comma-separated numbers inherit the same `FR-M02-` prefix. |
@@ -84,10 +84,11 @@
 | SF-M02-005-02 | Read offline resource by `qrIdentifier`. | Offline/lookup failure + `OFFLINE_REQUIRED` | Object name, introduction, static images | Package must be `SAN_SANG` | FR-M02-010 |
 | SF-M02-005-03 | Use a matching resource from an older package. | Package version differs | Outdated content + warning | Missing resource: online asks M03 for that QR only; offline shows "no offline content" | FR-M02-010 |
 | SF-M02-005-04 | Show live content of the scanned QR. | Online `VALID` | Checkpoint name, object name, introduction, images, media | Never content shared by the checkpoint | FR-M02-011 |
-| SF-M02-005-05 | Play audio/video on explicit action. | Visitor presses media control | Playback request | Controls only when the content shown carries media; never autoplay | FR-M02-011 |
-| SF-M02-005-06 | Apply current language branch. | Content render | `vi` or `en` content | — | FR-M02-014 |
+| SF-M02-005-05 | Play audio/video on explicit action. | Visitor presses media control | Playback request | Controls only for the listed files (SF-M02-005-09); never autoplay | FR-M02-011 |
+| SF-M02-005-06 | Apply current language branch. | Content render | `vi` or `en` text content | Images are the same in both languages | FR-M02-014 |
 | SF-M02-005-07 | Show unavailable content state. | Resource/source missing | Message; recorded visit kept | Never rollback visit | FR-M02-007, 010, 011 |
 | SF-M02-005-08 | Show the closure notice. | Online `TEMPORARILY_CLOSED` | Fixed notice, no content | Same notice for route and checkpoint scope; no visit | FR-M02-021 |
+| SF-M02-005-09 | List only the audio/video of the current language. | Content shown or VI/EN switched | Files whose `spokenLanguage` equals the current language, plus `NONE` files, in the order received | Switching language changes the list at once and stops a file that is no longer listed; no control when nothing matches | FR-M02-011, 014 |
 
 ### FN-M02-006 — Completion & Route Replacement
 
@@ -126,7 +127,7 @@
 | Metric | Value |
 |---|---:|
 | Functions | 8 |
-| Sub-functions | 54 |
+| Sub-functions | 55 |
 | Source FR covered | 26/26 |
 
 Every sub-function maps to a source FR; contract field definitions and lifecycle invariants remain authoritative in the source spec.

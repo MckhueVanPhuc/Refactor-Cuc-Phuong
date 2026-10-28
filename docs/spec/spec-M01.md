@@ -6,13 +6,13 @@
 |---|---|
 | Module | M01 — Route Planning & Preparation |
 | Version | 3.2 |
-| Status | MVP implementation baseline — aligned to M03 v3.6 and M02 v3.2 |
+| Status | MVP implementation baseline — aligned to M03 v3.7 and M02 v3.3 |
 | Supersedes | 3.1 (previous repository baseline: 2.0) |
 | Last updated | 2026-10-27 |
 | Primary consumers | Visitor web app, M02 |
 | Upstream system | M03 |
 
-This specification is self-contained and is the implementation source of truth for M01. UI mockups, physical API/database schemas and deployment details may refine implementation but must not change the behavior or contracts defined here without updating this document. Where M01 consumes a contract produced by M03, the M03 specification (v3.6) is the producer baseline and this document mirrors its shape.
+This specification is self-contained and is the implementation source of truth for M01. UI mockups, physical API/database schemas and deployment details may refine implementation but must not change the behavior or contracts defined here without updating this document. Where M01 consumes a contract produced by M03, the M03 specification (v3.7) is the producer baseline and this document mirrors its shape.
 
 ## 1. Purpose & Scope
 
@@ -256,7 +256,7 @@ Contract presence uses these terms: **Required** means the field and a value are
 
 #### Published Route input
 
-This is the Published Route projection produced by M03; its shape is identical to M03 v3.6. It exists only for routes that have been published at least once.
+This is the Published Route projection produced by M03; its shape is identical to M03 v3.7. It exists only for routes that have been published at least once.
 
 | Field path | Logical type | Presence | Constraints |
 |---|---|---|---|
@@ -318,7 +318,7 @@ Allowed recommendation values:
 
 #### JourneySnapshot input
 
-This is the immutable snapshot produced by M03; its shape is identical to M03 v3.6. It carries journey data only, plus the route-map image when M03 marks it as needed offline. Audio and video never appear in it.
+This is the immutable snapshot produced by M03; its shape is identical to M03 v3.7. It carries journey data only, plus the route-map image when M03 marks it as needed offline. Audio and video never appear in it.
 
 | Field path | Logical type | Presence | Constraints |
 |---|---|---|---|
@@ -623,14 +623,14 @@ None of these may redefine the business contracts or state transitions above.
 
 | Contract | Producer guarantee | Consumer expectation |
 |---|---|---|
-| Published Route | M03 exposes only complete published route projections in the shape of M03 v3.6. The projection may carry `HOAT_DONG`, `TAM_DONG`, or `LUU_TRU`; only `HOAT_DONG` with a non-null `activeContentVersion` is selectable by M01. | M01 does not repair incomplete public data and hides absent optional fields. |
+| Published Route | M03 exposes only complete published route projections in the shape of M03 v3.7. The projection may carry `HOAT_DONG`, `TAM_DONG`, or `LUU_TRU`; only `HOAT_DONG` with a non-null `activeContentVersion` is selectable by M01. | M01 does not repair incomplete public data and hides absent optional fields. |
 | JourneySnapshot | M03 includes all active checkpoints, one conditional offline resource per QR of offline-required checkpoints, the optional offline route map and the optional size estimate, with consecutive version numbers per route. | M01 copies it without reconstructing the journey and tolerates a missing estimate. |
 | SelectedRouteContext v3 | M01 writes a complete atomic one-use handoff with an `expiresAt` 24 hours after `authorizedAt`. | M02 validates version 3/status/uniqueness/expiry before creating a session and rejects version 2. |
 | OfflinePackage | M01 exposes only active `SAN_SANG` data. | M02 never reads staging/partial packages and reads offline content per QR. |
 | Route essentials | M01-owned point-in-time copy of route texts. | Not a contract with M03 or M02; never presented as current when shown offline. |
 | LanguagePreference at QR link entry | M01 language control, reused on the M02 QR link page. | M02 uses the stored preference or, when none exists, the device language; M01 stays the only writer. |
 
-M03 v3.5 and v3.6 change no contract consumed by M01. M03 v3.6 prints QR codes as public links that M02 serves; M01 supports that entry with its language control and its cached app shell (§12).
+M03 v3.5, v3.6 and v3.7 change no contract consumed by M01. M03 v3.6 prints QR codes as public links that M02 serves; M01 supports that entry with its language control and its cached app shell (§12).
 
 ### 11.3 Completion Checklist
 
@@ -642,8 +642,8 @@ M03 v3.5 and v3.6 change no contract consumed by M01. M03 v3.6 prints QR codes a
 - [x] Handoff version 3 and its 24-hour expiry are specified.
 - [x] FRs, entities, screens and success criteria are internally linked.
 - [x] No external requirements document is needed to implement M01.
-- [x] Published Route and JourneySnapshot inputs mirror the M03 v3.6 producer contracts.
-- [x] M02 v3.2 aligned to `SelectedRouteContext v3`, per-QR offline resources and the live QR lookup result.
+- [x] Published Route and JourneySnapshot inputs mirror the M03 v3.7 producer contracts.
+- [x] M02 v3.3 aligned to `SelectedRouteContext v3`, per-QR offline resources and the live QR lookup result.
 
 ### 11.4 US → FR → BR → SC Traceability
 
@@ -660,6 +660,7 @@ M03 v3.5 and v3.6 change no contract consumed by M01. M03 v3.6 prints QR codes a
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.2 (editorial) | 2026-10-28 | References updated to M03 v3.7 and M02 v3.3. M03 v3.7 adds the spoken language of audio/video in the M03 → M02 live content contract; Published Route and JourneySnapshot are unchanged and audio/video never enters a snapshot, so M01 behavior and contracts do not change. |
 | 3.2 | 2026-10-27 | Aligned to M03 v3.6 and M02 v3.2 (public QR link opened from the phone camera). US-M01-01: the QR link entry never blocks on language; the device language applies until the visitor switches; the language control is on every visitor screen (FR-M01-001, BR-M01-001, new screen row). US-M01-03 item 5 and FR-M01-006: the offline decision tells visitors to use the in-app Scan button without network. §9.3: the cached app shell serves the QR link page offline. §9.2: iPhone home-screen installation not promoted. US → FR → BR → SC traceability table (§11.4). No contract shape change. |
 | 3.1 | 2026-10-27 | Aligned to M03 v3.5. Producer references updated from M03 v3.4 to v3.5 (no contract shape change). JourneySnapshot input mirrors M03 exactly: `contentVersion` starts at `1` and increases by `1`; `previousContentVersion` is absent for version `1` and otherwise `contentVersion - 1`; `sequence` is the 1-based list position; `offlineRouteMap.caption` branches are at most 200 characters (also in `OfflinePackage.offlineRouteMap.caption`). US-M01-05 no longer refers to deleted routes, because M03 never physically deletes a published route. The domain model shows that routes and checkpoints are many-to-many (a checkpoint is shared by several routes). Status refers to M02 v3.1. |
 | 3.0 | 2026-10-23 | Baseline supplied for the V2 rebaseline (supersedes repository version 2.0). |
