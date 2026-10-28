@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M03-007 — Nhận lời mời và khôi phục mật khẩu</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+.auth-wrap { min-height: calc(100vh - 70px); display: grid; place-items: center; padding: var(--space-5); }
+.auth-card { width: 100%; max-width: 440px; }
+.auth-card .brand { font-weight: var(--font-weight-semibold); color: var(--fg2); margin-bottom: var(--space-2); }
+.spin { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--ctl); border-top-color: var(--primary); border-radius: 50%; animation: spin 900ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+</style>
+</head>
+<body class="m03" data-initial="invite" data-base="invite">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M03-007 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="invite">Nhận lời mời</button>
+    <button type="button" data-set="recovery">Yêu cầu khôi phục</button>
+    <button type="button" data-set="sent">Đã gửi yêu cầu</button>
+    <button type="button" data-set="reset">Đặt mật khẩu mới</button>
+    <button type="button" data-set="mismatch">Mật khẩu không khớp</button>
+    <button type="button" data-set="rejected">Mật khẩu bị từ chối</button>
+    <button type="button" data-set="processing">Đang xử lý</button>
+    <button type="button" data-set="invalid">Liên kết hỏng</button>
+    <button type="button" data-set="network">Lỗi mạng</button>
+  </div>
+</aside>
+
+<div class="auth-wrap">
+  <main class="card auth-card stack" aria-labelledby="t">
+    <div>
+      <div class="brand">Cúc Phương Quest · Quản trị</div>
+      <h1 id="t" style="margin:0">
+        <span data-show="invite mismatch rejected processing network" hidden>Nhận lời mời</span>
+        <span data-show="recovery sent" hidden>Khôi phục mật khẩu</span>
+        <span data-show="reset" hidden>Đặt mật khẩu mới</span>
+        <span data-show="invalid" hidden>Liên kết không dùng được</span>
+      </h1>
+    </div>
+
+    <div class="banner err" role="alert" data-show="invalid" hidden><span class="t">Liên kết không dùng được</span><p>Liên kết này không dùng được hoặc đã hết hạn. Nếu là lời mời, hãy nhờ quản lý gửi lại; nếu là khôi phục mật khẩu, hãy yêu cầu lại.</p></div>
+    <div class="banner err" role="alert" data-show="network" hidden><span class="t">Lỗi kết nối</span><p>Chưa kết nối được. Hãy kiểm tra mạng rồi thử lại.</p></div>
+    <div class="banner ok" role="status" data-show="sent" hidden><span class="t">Đã nhận yêu cầu</span><p>Nếu email này có tài khoản, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.</p></div>
+
+    <!-- Chế độ: nhận lời mời (và hoàn tất khôi phục dùng cùng cặp ô mật khẩu) -->
+    <form class="stack" onsubmit="return false" novalidate data-show="invite mismatch rejected processing network reset" hidden>
+      <p class="small" style="margin:0" data-show="invite mismatch rejected processing network" hidden>Bạn được mời vào hệ thống quản trị với email <strong>nhanvien.moi@example.org</strong>. Hãy đặt mật khẩu để kích hoạt tài khoản.</p>
+      <p class="small" style="margin:0" data-show="reset" hidden>Hãy đặt mật khẩu mới cho tài khoản của bạn.</p>
+      <div class="field"><label for="pw1">Mật khẩu</label><input id="pw1" type="password" autocomplete="new-password" value="matkhau-minh-hoa" aria-describedby="pw1e"></div>
+      <div class="field"><label for="pw2">Nhập lại mật khẩu</label><input id="pw2" type="password" autocomplete="new-password" value="matkhau-minh-hoa" aria-describedby="pw2e">
+        <p class="err" id="pw2e" data-show="mismatch" hidden>Hai lần nhập mật khẩu chưa giống nhau. Hãy nhập lại.</p></div>
+      <p class="err" id="pw1e" data-show="rejected" hidden>Mật khẩu này chưa được chấp nhận. Hãy chọn mật khẩu khác dài hơn và khó đoán hơn.</p>
+      <button class="btn btn-primary btn-lg btn-block" type="button" data-hide="processing reset">Hoàn tất lời mời</button>
+      <button class="btn btn-primary btn-lg btn-block" type="button" data-show="reset" hidden>Đặt mật khẩu mới</button>
+      <button class="btn btn-primary btn-lg btn-block" type="button" disabled aria-disabled="true" data-show="processing" hidden><span class="spin" aria-hidden="true"></span> Đang xử lý…</button>
+    </form>
+
+    <!-- Chế độ: yêu cầu khôi phục -->
+    <form class="stack" onsubmit="return false" novalidate data-show="recovery sent" hidden>
+      <div class="field"><label for="rem">Email của tài khoản</label><input id="rem" type="text" inputmode="email" autocomplete="username" value="quanly@example.org"></div>
+      <button class="btn btn-primary btn-lg btn-block" type="button">Gửi yêu cầu khôi phục</button>
+    </form>
+
+    <p style="margin:0"><a href="mockup-SCR-M03-000.html">Về đăng nhập</a></p>
+    <p class="hint" style="margin:0">Mật khẩu chỉ được gửi tới nhà cung cấp xác thực, hệ thống không lưu lại.</p>
+  </main>
+</div>
+<script src="mockup.js"></script>
+</body>
+</html>

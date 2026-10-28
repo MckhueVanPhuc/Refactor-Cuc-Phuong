@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M03-006 — Tài khoản và vai trò</title>
+<link rel="stylesheet" href="mockup.css">
+<style>.row-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; } .row-actions .btn { font-size: 14px; padding: 0 var(--space-3); }
+.spin { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--ctl); border-top-color: var(--primary); border-radius: 50%; animation: spin 900ms linear infinite; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }</style>
+</head>
+<body class="m03" data-initial="default" data-base="default">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M03-006 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="default">Danh sách</button>
+    <button type="button" data-set="sent">Đã gửi lời mời</button>
+    <button type="button" data-set="resent">Đã gửi lại</button>
+    <button type="button" data-set="taken">Email đã có</button>
+    <button type="button" data-set="invalid">Email sai</button>
+    <button type="button" data-set="last">Quản lý cuối cùng</button>
+    <button type="button" data-set="stale">Dữ liệu cũ</button>
+    <button type="button" data-set="loading">Đang tải</button>
+    <button type="button" data-set="lock">Dialog khóa</button>
+    <button type="button" data-set="role">Dialog đổi vai trò</button>
+  </div>
+</aside>
+
+<div class="m03-shell">
+  <div class="m03-side">
+    <div class="brand">Cúc Phương Quest · Quản trị</div>
+    <nav aria-label="Menu quản trị"><ul>
+      <li><a href="mockup-SCR-M03-001.html">Tuyến</a></li><li><a href="mockup-SCR-M03-008.html">Thư viện điểm dừng</a></li><li><a href="mockup-SCR-M03-005.html">Báo cáo</a></li>
+      <li><a href="#" aria-current="page">Tài khoản</a></li><li><a href="mockup-SCR-M03-009.html">Nhật ký hệ thống</a></li>
+    </ul></nav>
+  </div>
+
+  <div class="m03-main">
+    <header class="m03-top">
+      <h1>Tài khoản &amp; Vai trò</h1>
+      <div class="row"><span class="small">quanly@example.org · Quản lý</span><button class="btn" type="button">Đăng xuất</button></div>
+    </header>
+
+    <main class="m03-body">
+      <div class="banner ok" role="status" data-show="sent" hidden><span class="t">Đã gửi lời mời</span><p>Đã gửi lời mời tới nhanvien.moi@example.org.</p></div>
+      <div class="banner ok" role="status" data-show="resent" hidden><span class="t">Đã gửi lại lời mời</span><p>Đã gửi lại lời mời tới nhanvien.cho@example.org.</p></div>
+      <div class="banner err" role="alert" data-show="last" hidden><span class="t">Không thực hiện được</span><p>Đây là quản lý đang hoạt động cuối cùng nên không thể khóa hoặc hạ quyền. Hãy mời thêm một quản lý trước.</p></div>
+      <div class="banner warn" role="alert" data-show="stale" hidden><span class="t">Dữ liệu đã thay đổi</span><p>Tài khoản này vừa được người khác cập nhật. Hãy tải lại trang rồi thử lại.</p><div class="row"><button class="btn" type="button">Tải lại</button></div></div>
+
+      <div class="split main-aside">
+        <section class="stack" aria-labelledby="acc-h">
+          <h2 id="acc-h" style="margin:0">Danh sách tài khoản</h2>
+          <p data-show="loading" hidden role="status"><span class="spin" aria-hidden="true"></span> Đang tải danh sách…</p>
+          <div class="table-wrap" data-hide="loading" tabindex="0" role="region" aria-label="Bảng tài khoản">
+            <table>
+              <caption class="sr-only">Danh sách tài khoản quản trị</caption>
+              <thead><tr><th scope="col">Email</th><th scope="col">Vai trò</th><th scope="col">Trạng thái</th><th scope="col">Thao tác</th></tr></thead>
+              <tbody>
+                <tr aria-current="true">
+                  <th scope="row">quanly@example.org <span class="small">(bạn)</span></th>
+                  <td>Quản lý</td>
+                  <td><span class="chip ok">Đang hoạt động</span></td>
+                  <td><div class="row-actions"><button class="btn" type="button" data-set="last">Đổi vai trò</button><button class="btn btn-danger" type="button" data-set="last">Khóa</button></div></td>
+                </tr>
+                <tr>
+                  <th scope="row">bientap.vien@example.org</th>
+                  <td>Nhân viên nội dung</td>
+                  <td><span class="chip ok">Đang hoạt động</span></td>
+                  <td><div class="row-actions"><button class="btn" type="button" data-set="role">Đổi vai trò</button><button class="btn btn-danger" type="button" data-set="lock">Khóa</button></div></td>
+                </tr>
+                <tr>
+                  <th scope="row">nhanvien.cho@example.org</th>
+                  <td>Nhân viên nội dung</td>
+                  <td><span class="chip info">Chờ nhận lời mời</span></td>
+                  <td><div class="row-actions"><button class="btn" type="button" data-set="resent">Gửi lại lời mời</button></div></td>
+                </tr>
+                <tr data-show="sent" hidden>
+                  <th scope="row">nhanvien.moi@example.org</th>
+                  <td>Nhân viên nội dung</td>
+                  <td><span class="chip info">Chờ nhận lời mời</span></td>
+                  <td><div class="row-actions"><button class="btn" type="button" data-set="resent">Gửi lại lời mời</button></div></td>
+                </tr>
+                <tr>
+                  <th scope="row">cuhoc.cu@example.org</th>
+                  <td>Nhân viên nội dung</td>
+                  <td><span class="chip">Đã khóa</span></td>
+                  <td><div class="row-actions"><button class="btn" type="button">Mở khóa</button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="hint" style="margin:0">Chỉ có hai vai trò cố định: Quản lý và Nhân viên nội dung. Không thể khóa hoặc hạ quyền quản lý đang hoạt động cuối cùng.</p>
+        </section>
+
+        <section class="card stack" aria-labelledby="inv-h">
+          <h2 id="inv-h" style="margin:0">Mời người dùng</h2>
+          <div class="field"><label for="iem">Email người được mời</label>
+            <input id="iem" type="text" inputmode="email" autocomplete="off" value="nhanvien.moi@example.org" data-hide="taken invalid">
+            <input id="iem2" type="text" inputmode="email" autocomplete="off" value="bientap.vien@example.org" aria-label="Email người được mời" aria-invalid="true" aria-describedby="e1" data-show="taken" hidden>
+            <input id="iem3" type="text" inputmode="email" autocomplete="off" value="nhanvien.moi@" aria-label="Email người được mời" aria-invalid="true" aria-describedby="e2" data-show="invalid" hidden>
+            <p class="err" id="e1" role="alert" data-show="taken" hidden>Email bientap.vien@example.org đã có tài khoản. Nếu tài khoản đang chờ nhận lời mời, hãy bấm Gửi lại lời mời.</p>
+            <p class="err" id="e2" role="alert" data-show="invalid" hidden>Email chưa đúng. Hãy kiểm tra lại.</p>
+            <span class="hint">Tối đa 254 ký tự.</span></div>
+          <div class="field"><label for="irole">Vai trò</label><select id="irole"><option>Nhân viên nội dung</option><option>Quản lý</option></select></div>
+          <button class="btn btn-primary" type="button" data-set="sent">Gửi lời mời</button>
+          <p class="hint" style="margin:0">Người được mời nhận email và tự đặt mật khẩu. Vai trò chỉ do quản lý chọn tại đây.</p>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Dialog: khóa tài khoản -->
+<div class="dialog-backdrop" data-show="lock" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="d1">
+  <h2 id="d1">Khóa tài khoản</h2>
+  <p>Tài khoản bientap.vien@example.org sẽ không đăng nhập được cho tới khi được mở khóa.</p>
+  <div class="actions"><button class="btn" type="button" data-set="default">Quay lại</button><button class="btn btn-danger" type="button" data-set="default">Khóa</button></div>
+</div></div>
+<!-- Dialog: đổi vai trò -->
+<div class="dialog-backdrop" data-show="role" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="d2">
+  <h2 id="d2">Đổi vai trò</h2>
+  <p>Đổi vai trò của bientap.vien@example.org.</p>
+  <div class="field"><label for="nr">Vai trò mới</label><select id="nr"><option>Quản lý</option><option>Nhân viên nội dung</option></select></div>
+  <div class="actions"><button class="btn" type="button" data-set="default">Quay lại</button><button class="btn btn-primary" type="button" data-set="default">Đổi vai trò</button></div>
+</div></div>
+<script src="mockup.js"></script>
+</body>
+</html>

@@ -292,7 +292,7 @@ originating BR-* or FR-* ID in an adjacent comment or reference section.
 
 **Documentation rebaseline phase (V2 repository status):**
 
-This repository is currently in a **documentation-only / spec-first** rebaseline phase. No application source code, SQL migrations, tests, or seed scripts are present.
+This repository is in a **spec-first** phase: the V2 documentation set is complete and code scope has been opened (`src/`, `specs/`, Vite and local Supabase configuration). As of this amendment no application source code, SQL migrations, tests, or seed scripts are present yet.
 
 Validation in this phase focuses on:
 

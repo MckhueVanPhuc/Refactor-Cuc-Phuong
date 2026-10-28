@@ -6,7 +6,7 @@ Tài liệu này là nguồn canonical cho environment strategy và configuratio
 
 Kiến trúc sử dụng một **Single Cloud Application Environment** gồm đúng một **Single Vercel Project** phục vụ website/PWA và một **Single Supabase Cloud Project** làm **Shared Backend** cho **M01 / M02 / M03 — Logical Modules**. **Local Development Workstation** chỉ phục vụ development/testing và không phải hosted application environment.
 
-Repository hiện là documentation-only; các technology và workflow dưới đây là quyết định kiến trúc, không phải implementation evidence. Không ghi secret, password, token, credential hoặc key value thật trong tài liệu.
+Repository đã mở phạm vi code nhưng chưa có implementation; các technology và workflow dưới đây là quyết định kiến trúc, không phải implementation evidence. Không ghi secret, password, token, credential hoặc key value thật trong tài liệu.
 
 ## 2. Environment Strategy
 

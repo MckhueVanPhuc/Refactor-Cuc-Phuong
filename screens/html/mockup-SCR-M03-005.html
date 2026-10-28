@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M03-005 — Báo cáo vận hành</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-4); }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-4); }
+.stat .v { font-size: 28px; font-weight: var(--font-weight-semibold); line-height: var(--line-height-heading); }
+.stat .l { font-size: 14px; color: var(--fg2); }
+td.n, th.n { text-align: right; }
+.spin { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--ctl); border-top-color: var(--primary); border-radius: 50%; animation: spin 900ms linear infinite; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+</style>
+</head>
+<body class="m03" data-initial="rpt1" data-base="rpt1">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M03-005 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="rpt1">Tổng hợp chuyến đi</button>
+    <button type="button" data-set="rpt2">Lượt ghé theo điểm dừng</button>
+    <button type="button" data-set="empty">Kỳ không có dữ liệu</button>
+    <button type="button" data-set="nodata">Chưa có chuyến nào</button>
+    <button type="button" data-set="dates">Ngày không hợp lệ</button>
+    <button type="button" data-set="span">Khoảng quá dài</button>
+    <button type="button" data-set="loading">Đang tải</button>
+    <button type="button" data-set="error">Lỗi tải</button>
+  </div>
+</aside>
+
+<div class="m03-shell">
+  <div class="m03-side">
+    <div class="brand">Cúc Phương Quest · Quản trị</div>
+    <nav aria-label="Menu quản trị"><ul>
+      <li><a href="mockup-SCR-M03-001.html">Tuyến</a></li><li><a href="mockup-SCR-M03-008.html">Thư viện điểm dừng</a></li><li><a href="#" aria-current="page">Báo cáo</a></li>
+      <li><a href="mockup-SCR-M03-006.html">Tài khoản</a></li><li><a href="mockup-SCR-M03-009.html">Nhật ký hệ thống</a></li>
+    </ul></nav>
+  </div>
+
+  <div class="m03-main">
+    <header class="m03-top">
+      <h1>Báo cáo vận hành</h1>
+      <div class="row"><span class="small">quanly@example.org · Quản lý</span><button class="btn" type="button">Đăng xuất</button></div>
+    </header>
+
+    <main class="m03-body">
+      <div class="stack-sm">
+        <p class="small" style="margin:0" data-hide="nodata">Số liệu tính đến 09:40 ngày 28/10/2026.</p>
+        <p class="small" style="margin:0" data-show="nodata" hidden>Chưa có chuyến đi nào được gửi về hệ thống.</p>
+        <p class="small" style="margin:0">Chỉ tính các chuyến đi đã kết thúc và đã gửi về hệ thống; số liệu không cập nhật tức thời.</p>
+      </div>
+
+      <section class="card stack" aria-labelledby="flt-h">
+        <h2 id="flt-h" class="sr-only">Bộ lọc báo cáo</h2>
+        <div class="pair">
+          <div class="field"><label for="from">Từ ngày</label><input id="from" type="text" inputmode="numeric" placeholder="dd/mm/yyyy" value="29/09/2026" data-hide="dates span"><input id="from2" type="text" inputmode="numeric" placeholder="dd/mm/yyyy" value="30/10/2026" aria-label="Từ ngày" aria-invalid="true" aria-describedby="de" data-show="dates" hidden><input id="from3" type="text" inputmode="numeric" placeholder="dd/mm/yyyy" value="01/01/2025" aria-label="Từ ngày" aria-invalid="true" aria-describedby="se" data-show="span" hidden></div>
+          <div class="field"><label for="to">Đến ngày</label><input id="to" type="text" inputmode="numeric" placeholder="dd/mm/yyyy" value="28/10/2026"></div>
+        </div>
+        <p class="err" id="de" role="alert" data-show="dates" hidden>Hãy chọn đủ ngày bắt đầu và ngày kết thúc, ngày bắt đầu không được sau ngày kết thúc.</p>
+        <p class="err" id="se" role="alert" data-show="span" hidden>Khoảng thời gian chọn quá dài. Hãy chọn tối đa 366 ngày.</p>
+        <div class="row">
+          <div class="field grow"><label for="rt">Tuyến</label><select id="rt"><option>Tất cả tuyến</option><option>Tuyến Cây chò</option><option>Tuyến Động Người Xưa</option></select></div>
+          <button class="btn btn-primary" type="button" style="align-self:end">Áp dụng</button>
+        </div>
+        <p class="hint" style="margin:0">Mặc định là 30 ngày gần nhất tính theo giờ Việt Nam, gồm cả ngày đầu và ngày cuối.</p>
+      </section>
+
+      <div class="tabs" role="tablist" aria-label="Loại báo cáo">
+        <button role="tab" type="button" data-set="rpt1" aria-selected="true" id="tab1">Tổng hợp chuyến đi</button>
+        <button role="tab" type="button" data-set="rpt2" aria-selected="false" id="tab2">Lượt ghé theo điểm dừng</button>
+      </div>
+
+      <div class="banner err" role="alert" data-show="error" hidden><span class="t">Không tải được báo cáo</span><p>Có lỗi xảy ra. Nội dung bạn nhập vẫn được giữ. Hãy thử lại, nếu vẫn lỗi hãy báo quản lý.</p></div>
+      <p data-show="loading" hidden role="status"><span class="spin" aria-hidden="true"></span> Đang tải báo cáo…</p>
+      <p data-show="empty" hidden>Không có chuyến đi nào trong khoảng thời gian đã chọn.</p>
+
+      <!-- RPT-01 -->
+      <section class="stack" aria-labelledby="r1-h" data-show="rpt1 nodata" hidden>
+        <h2 id="r1-h" style="margin:0">Tổng hợp chuyến đi</h2>
+        <div class="stats">
+          <div class="stat"><div class="v" data-hide="nodata">248</div><div class="v" data-show="nodata" hidden>0</div><div class="l">Tổng chuyến đi</div></div>
+          <div class="stat"><div class="v" data-hide="nodata">187</div><div class="v" data-show="nodata" hidden>0</div><div class="l">Hoàn thành</div></div>
+          <div class="stat"><div class="v" data-hide="nodata">61</div><div class="v" data-show="nodata" hidden>0</div><div class="l">Bỏ dở</div></div>
+          <div class="stat"><div class="v" data-hide="nodata">75,4%</div><div class="v" data-show="nodata" hidden>0%</div><div class="l">Tỷ lệ hoàn thành</div></div>
+          <div class="stat"><div class="v" data-hide="nodata">24,6%</div><div class="v" data-show="nodata" hidden>0%</div><div class="l">Tỷ lệ bỏ dở</div></div>
+        </div>
+      </section>
+
+      <!-- RPT-02 -->
+      <section class="stack" aria-labelledby="r2-h" data-show="rpt2" hidden>
+        <h2 id="r2-h" style="margin:0">Lượt ghé theo điểm dừng</h2>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Bảng lượt ghé theo điểm dừng">
+          <table>
+            <caption class="sr-only">Số chuyến đi duy nhất theo tuyến và điểm dừng</caption>
+            <thead><tr><th scope="col">Tuyến</th><th scope="col">Điểm dừng</th><th scope="col" class="n">Thứ tự</th><th scope="col" class="n">Số chuyến đi</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Tuyến Cây chò</th><td>Cổng vườn quốc gia</td><td class="n">1</td><td class="n">231</td></tr>
+              <tr><th scope="row">Tuyến Cây chò</th><td>Cây chò ngàn năm</td><td class="n">2</td><td class="n">204</td></tr>
+              <tr><th scope="row">Tuyến Cây chò</th><td>Suối Mơ</td><td class="n">3</td><td class="n">187</td></tr>
+              <tr><th scope="row">Tuyến Động Người Xưa</th><td>Bãi đỗ xe Động Người Xưa</td><td class="n">1</td><td class="n">17</td></tr>
+              <tr><th scope="row">Tuyến Động Người Xưa</th><td>Cửa động</td><td class="n">2</td><td class="n">12</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small" style="margin:0">Một lượt ghé là một lần quét mã QR, không chứng minh du khách đã có mặt tại chỗ.</p>
+      </section>
+
+      <p class="hint" style="margin:0"><a href="mockup-SCR-M03-001.html">Quay lại danh sách tuyến</a></p>
+    </main>
+  </div>
+</div>
+<script src="mockup.js"></script>
+<script>
+/* Chỉ đồng bộ tab được chọn với trạng thái mockup. */
+document.addEventListener('click', function () { setTimeout(function () {
+  var s = document.body.dataset.state;
+  document.getElementById('tab1').setAttribute('aria-selected', String(s !== 'rpt2'));
+  document.getElementById('tab2').setAttribute('aria-selected', String(s === 'rpt2'));
+}, 0); });
+</script>
+</body>
+</html>

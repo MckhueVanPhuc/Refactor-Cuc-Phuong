@@ -12,7 +12,7 @@
 | Baseline history | The V1 review (based on the V1 specs, a 17-file seed package and executed storage checks) is superseded. No V1 conclusion or number is reused here; every figure below was recounted from the V2 artifacts. |
 | Status | PASS — S6 (V2) review accepted 2026-10-28; ready for physical schema design, with the NOT RUN items listed in §5 |
 
-The three module specs own behavior and logical contracts. This review judges whether S1–S4 and the DAC are good enough to start the Physical Schema; it adds no product requirement. Physical table/column names, storage types, indexes, migrations and policy syntax belong to the next stage. The repository remains documentation-only.
+The three module specs own behavior and logical contracts. This review judges whether S1–S4 and the DAC are good enough to start the Physical Schema; it adds no product requirement. Physical table/column names, storage types, indexes, migrations and policy syntax belong to the next stage. At the time of this review the repository was documentation-only; code scope was opened afterwards (see AGENTS.md §2).
 
 ## 2. Stage Evidence and Gate Record
 

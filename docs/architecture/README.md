@@ -14,7 +14,7 @@
 - `usage-flow.md` và `sequence-diagrams.md` chỉ tổng hợp diagram đã tồn tại trong spec; không tự sửa node, participant hoặc nhánh.
 - `context-diagram.md` là sơ đồ tổng hợp liên module, vì vậy có thể chuẩn hóa tên nhưng không được tạo contract mới.
 - `system-configuration.md` là runtime architecture; `tech-stack.md` sở hữu technology choices và `environment.md` sở hữu environment-specific configuration.
-- Technology được đánh dấu `Selected` khi đã có approved technical decision; `Present` chỉ dùng khi artifact thực sự tồn tại trong repository. Repository hiện là documentation-only nên selected technology không được mô tả như đã implemented hoặc deployed.
+- Technology được đánh dấu `Selected` khi đã có approved technical decision; `Present` chỉ dùng khi artifact thực sự tồn tại trong repository. Repository đã mở phạm vi code nhưng chưa có implementation, nên selected technology không được mô tả như đã implemented hoặc deployed.
 - Secret value không được đưa vào repository hoặc documentation; `environment.md` chỉ quản lý tên biến, classification và placement.
 - Khi một spec thay đổi diagram hoặc contract, phải cập nhật tài liệu architecture và chạy lại kiểm tra đối chiếu.
 

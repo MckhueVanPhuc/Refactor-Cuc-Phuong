@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup SCR-M03-000 — Đăng nhập quản trị</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+.auth-wrap { min-height: calc(100vh - 70px); display: grid; place-items: center; padding: var(--space-5); }
+.auth-card { width: 100%; max-width: 440px; }
+.auth-card .brand { font-weight: var(--font-weight-semibold); color: var(--fg2); margin-bottom: var(--space-2); }
+.spin { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--ctl); border-top-color: var(--primary); border-radius: 50%; animation: spin 900ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+</style>
+</head>
+<body class="m03" data-initial="default" data-base="default">
+<aside class="mock-bar" aria-label="Chọn trạng thái mockup">
+  <div class="row">
+    <strong>Mockup SCR-M03-000 · dữ liệu minh họa · Trạng thái:</strong>
+    <button type="button" data-set="default">Mặc định</button>
+    <button type="button" data-set="submitting">Đang đăng nhập</button>
+    <button type="button" data-set="credential">Sai thông tin</button>
+    <button type="button" data-set="network">Lỗi mạng</button>
+    <button type="button" data-set="expired">Hết phiên</button>
+    <button type="button" data-set="denied">Không có quyền</button>
+  </div>
+</aside>
+
+<div class="auth-wrap">
+  <main class="card auth-card stack" aria-labelledby="t">
+    <div>
+      <div class="brand">Cúc Phương Quest · Quản trị</div>
+      <h1 id="t" style="margin:0">Đăng nhập</h1>
+    </div>
+
+    <div class="banner info" role="status" data-show="expired" hidden><span class="t">Hết phiên</span><p>Phiên làm việc đã hết hạn. Hãy đăng nhập lại.</p></div>
+    <div class="banner err" role="alert" data-show="credential" hidden><span class="t">Không đăng nhập được</span><p>Email hoặc mật khẩu chưa đúng. Hãy kiểm tra lại.</p></div>
+    <div class="banner err" role="alert" data-show="network" hidden><span class="t">Lỗi kết nối</span><p>Chưa kết nối được. Hãy kiểm tra mạng rồi thử lại.</p></div>
+    <div class="banner err" role="alert" data-show="denied" hidden><span class="t">Không có quyền</span><p>Tài khoản này chưa được phép vào hệ thống. Hãy nhờ quản lý.</p></div>
+
+    <form class="stack" onsubmit="return false" novalidate>
+      <div class="field"><label for="em">Email</label><input id="em" type="text" inputmode="email" autocomplete="username" value="quanly@example.org"></div>
+      <div class="field"><label for="pw">Mật khẩu</label><input id="pw" type="password" autocomplete="current-password" value="matkhau-minh-hoa"></div>
+      <button class="btn btn-primary btn-lg btn-block" type="button" data-hide="submitting">Đăng nhập</button>
+      <button class="btn btn-primary btn-lg btn-block" type="button" disabled aria-disabled="true" data-show="submitting" hidden><span class="spin" aria-hidden="true"></span> Đang đăng nhập…</button>
+      <p style="margin:0"><a href="mockup-SCR-M03-007.html#state=recovery">Quên mật khẩu</a></p>
+    </form>
+    <p class="hint" style="margin:0">Hệ thống chỉ dành cho tài khoản được quản lý mời. Không có đăng ký công khai.</p>
+  </main>
+</div>
+<script src="mockup.js"></script>
+</body>
+</html>
