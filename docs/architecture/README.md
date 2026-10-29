@@ -22,6 +22,6 @@
 
 Technical decisions: [Tech Stack](tech-stack.md) §§2–8, 13; [Environment Configuration](environment.md) §§2–12; [System Configuration](system-configuration.md), Runtime decisions. Baseline là **Modular Monolith** với **M01 / M02 / M03 — Logical Modules**, một shared React/TypeScript/Vite PWA trong **Single Vercel Project**, và **Single Supabase Cloud Project** làm **Shared Backend** trong đúng một **Single Cloud Application Environment**. **Local Development Workstation** phục vụ development/testing nhưng không phải hosted environment. Deployment history không tạo environment thứ hai.
 
-- M01: [`spec-M01.md`](../spec/spec-M01.md) v3.2, status MVP implementation baseline, cập nhật ngày 2026-10-28.
-- M02: [`spec-M02.md`](../spec/spec-M02.md) v3.3, status MVP implementation baseline, cập nhật ngày 2026-10-28.
-- M03: [`spec-M03.md`](../spec/spec-M03.md) v3.7, status MVP implementation baseline, cập nhật ngày 2026-10-28.
+- M01: [`spec-M01.md`](../spec/spec-M01.md) v3.2, status MVP implementation baseline, cập nhật ngày 2026-10-29.
+- M02: [`spec-M02.md`](../spec/spec-M02.md) v3.3, status MVP implementation baseline, cập nhật ngày 2026-10-29.
+- M03: [`spec-M03.md`](../spec/spec-M03.md) v3.7, status MVP implementation baseline, cập nhật ngày 2026-10-29.

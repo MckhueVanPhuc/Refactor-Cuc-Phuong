@@ -152,7 +152,7 @@ Closure ở M03 không trực tiếp sửa dữ liệu trên thiết bị. Khi M
 | Situation | Runtime behavior |
 |---|---|
 | App opened without network | App shell và i18n được đọc từ Cache Storage; local preference/context/package/session được đọc từ IndexedDB. |
-| Source appears online but request fails | Không dùng riêng trạng thái kết nối của browser để coi nguồn là khả dụng; kết quả request thực tế quyết định online path. |
+| Source appears online but request fails | Không dùng riêng trạng thái kết nối của browser để coi nguồn là khả dụng; kết quả request thực tế quyết định online path; request không trả lời trong `SOURCE_REQUEST_TIMEOUT_SECONDS` (provisional, Spec M01 §9.3) tính là lỗi. |
 | Online Start | M01 xác nhận route và current published snapshot từ backend, sau đó atomic-write handoff. |
 | Offline Start with ready package | M01 dùng manifest của active package `SAN_SANG`; package có thể `OUTDATED` nhưng vẫn dùng được với cảnh báo khi biết trạng thái. |
 | Offline Start without ready package | Start bị chặn vì không có manifest hợp lệ để tạo handoff. |

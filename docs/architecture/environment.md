@@ -49,7 +49,7 @@ Browser data bị scope theo origin và device. Build/deployment record không t
 | `QR_PUBLIC_BASE_URL` | Frontend (M02 link page and in-app scanner) and M03 printable QR images | Public, build-time configuration | Domain HTTPS cố định của Single Vercel Project; mã QR in ra là `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` (Spec M03 BR-M03-B04). Không đổi khi tem đã được dán; nếu buộc đổi domain thì link cũ phải tiếp tục chuyển hướng. Tên biến cụ thể trong build (ví dụ có prefix `VITE_`) thuộc implementation. |
 | `SUPABASE_URL` | Edge runtime | Platform configuration | URL của Supabase project đang chạy function |
 
-**Ánh xạ thuật ngữ trong spec:** "Production" trong Spec M03 BR-M03-B04/B05 là **Single Cloud Application Environment**; "non-Production" là **Local Development Workstation**. Mã QR tạo trên máy local mang dấu "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA" và không bao giờ được dán ra thực địa; nút Quét trong app chỉ nhận link có base đúng `QR_PUBLIC_BASE_URL` của môi trường đang chạy (Spec M02 BR-M02-023).
+**Ánh xạ thuật ngữ trong spec:** "Production" trong Spec M03 BR-M03-B04/B05 là **Single Cloud Application Environment**; "non-Production" là **Local Development Workstation**. Mã QR tạo trên máy local mang dấu "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA" và không bao giờ được dán ra thực địa. Khi build, frontend chỉ coi là Production khi biến nền tảng `VERCEL_ENV` bằng `production`; mọi build khác (local, preview) luôn mang dấu bản thử. Nút Quét trong app chỉ nhận link có base đúng `QR_PUBLIC_BASE_URL` của môi trường đang chạy (Spec M02 BR-M02-023).
 
 **Cấp tài khoản Reviewer đầu tiên:** không có ngoại lệ theo môi trường; Single Cloud Application Environment áp dụng quy tắc chuẩn của Spec M03 BR-M03-K04.
 

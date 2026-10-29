@@ -84,6 +84,8 @@ RPC mặc định security-invoker; chỉ dùng security-definer khi cần, vớ
 
 Storage upload và Postgres publication cũng không chung transaction. Upload/verify object trước, publish immutable reference sau; upload lỗi không switch public state. Giữ object còn được retained snapshot tham chiếu; không overwrite media đã snapshot. Cleanup orphan là thao tác vận hành theo yêu cầu, không thêm scheduler.
 
+Chống lạm dụng cho lookup QR công khai và terminal intake (Spec M03 §9): MVP dựa vào giới hạn mặc định của nền tảng Supabase, không có bộ đếm tần suất tự viết; Edge intake từ chối body quá 64 KiB và mọi khóa ngoài allowlist trước khi chạy Zod. Rủi ro bản ghi giả đúng định dạng vẫn được chấp nhận. Reviewer đầu tiên (BR-M03-K04) được cấp bằng script phía server do operator chạy từ máy của mình với `APP_BACKEND_SECRET_KEY` lấy từ môi trường shell; không có endpoint, route hay Edge Function công khai cho việc này.
+
 ## 6. Validation and Typed Contracts
 
 | Technology | Responsibility | Scope | Status |

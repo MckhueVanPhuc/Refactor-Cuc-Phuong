@@ -64,7 +64,7 @@ Common rules for all nine tables: Row Level Security enabled; no `DELETE` or `TR
 |---|---|---|---|---|
 | `route_id` | `routeId` | text | no | PK; default `app.new_id()`; immutable |
 | `status` | `status` | text | no | CHECK in `NHAP`, `HOAT_DONG`, `TAM_DONG`, `LUU_TRU`; transitions per S4 §8 enforced by trigger (DAC-M03-005) |
-| `active_content_version` | `activeContentVersion` | integer | yes | CHECK: required when status is `HOAT_DONG` or `TAM_DONG`; deferred composite FK `(route_id, active_content_version)` → `app.journey_snapshots`; must be the highest snapshot of the route (trigger) (DAC-M03-006) |
+| `active_content_version` | `activeContentVersion` | integer | yes | CHECK: required when status is `HOAT_DONG` or `TAM_DONG` (not forced for `LUU_TRU`: a never-published route can be discarded `NHAP → LUU_TRU`, and the column alone cannot tell it from an archived published route; the publication and archive commands keep the value); deferred composite FK `(route_id, active_content_version)` → `app.journey_snapshots`; must be the highest snapshot of the route (trigger) (DAC-M03-006) |
 | `closure_source` | `closureSource` | text | yes | CHECK in `MANUAL`, `AUTO_NO_ACTIVE_CHECKPOINT` |
 | `closure_reason` | `closureReason` | text | yes | non-empty and ≤ `NOTE_MAX_CHARS` when present (DAC-M03-008) |
 | `closed_at` | `closedAt` | timestamptz | yes | |
@@ -95,7 +95,7 @@ A checkpoint has no route column: it belongs to no route (M03 §6.4). Name, conn
 | `checkpoint_id` | `checkpointId` | text | no | FK → `app.checkpoints`; immutable; insert allowed only if the checkpoint has a saved connectivity mode (DAC-M03-012) |
 | `installation_label` | `installationLabel` | text | yes | ≤ `NOTE_MAX_CHARS` (DAC-M03-011) |
 | `status` | `status` | text | no | CHECK in `NHAP`, `HOAT_DONG`, `THU_HOI`; `THU_HOI` terminal (DAC-M03-013) |
-| `status_reason` | `statusReason` | text | yes | required on `HOAT_DONG` → `THU_HOI` (revoke); optional on discard; non-empty and ≤ `NOTE_MAX_CHARS` when present (DAC-M03-008, 014) |
+| `status_reason` | `statusReason` | text | yes | required when a user revokes an active visit point (`HOAT_DONG` → `THU_HOI`, BR-M03-E09); optional on discard (BR-M03-E10); not required when the visit point is revoked automatically by the archive of its checkpoint (BR-M03-D10); non-empty and ≤ `NOTE_MAX_CHARS` when present (DAC-M03-008, 014). The revoke command enforces the requirement; a table CHECK cannot tell the three paths apart |
 | `created_by_user_id`, `created_at`, `updated_at`, `concurrency_revision` | `createdByUserId`, `createdAt`, `updatedAt`, `concurrencyRevision` | as 5.1 | no | |
 
 Triggers: a checkpoint in `HOAT_DONG` keeps at least one `HOAT_DONG` QR (deferred constraint trigger, DAC-M03-015); the number of QR objects of a checkpoint whose status is not `THU_HOI` is at most `CHECKPOINT_QR_MAX_ITEMS` (DAC-M03-089). Content lives in `app.revisions` (subject type `QRCODE`). The public link is derived and never stored.
@@ -109,7 +109,7 @@ Triggers: a checkpoint in `HOAT_DONG` keeps at least one `HOAT_DONG` QR (deferre
 | `subject_id` | `subjectId` | text | no | polymorphic reference to `routes`, `checkpoints` or `qr_codes`, checked by a constraint trigger (S4 §12 item 6); immutable |
 | `revision_number` | `revisionNumber` | integer | no | CHECK ≥ 1; UNIQUE `(subject_type, subject_id, revision_number)`; +1 per new revision; never reused (DAC-M03-019) |
 | `status` | `status` | text | no | CHECK in `NHAP`, `PHAT_HANH`, `LUU_TRU`, `DA_BO`; partial UNIQUE `(subject_type, subject_id)` where `NHAP`, and again where `PHAT_HANH`; transitions per S4 §8 (DAC-M03-020) |
-| `content` | `content.*` | jsonb | no | CHECK `app.revision_content_ok(subject_type, content)` (§5.4.1); immutable once `PHAT_HANH` |
+| `content` | `content.*` | jsonb | no | validated by `app.revision_content_ok(subject_type, content)` through a trigger on insert and on change of `content` (§5.4.1); immutable once `PHAT_HANH` |
 | `based_on_revision_number` | `basedOnRevisionNumber` | integer | yes | |
 | `created_by_user_id`, `created_at` | `createdByUserId`, `createdAt` | text, timestamptz | no | |
 | `last_edited_by_user_id`, `last_edited_at` | `lastEditedByUserId`, `lastEditedAt` | text, timestamptz | no | |
@@ -120,9 +120,9 @@ Only `NHAP` content can be edited; a `PHAT_HANH` revision may only move to `LUU_
 
 #### 5.4.1 Content validation
 
-`app.revision_content_ok` is a pure function that validates the shape for the subject type. It applies save-time rules always and never requires fields that are "required for publication" (those are checked by the publish command, §8).
+`app.revision_content_ok` is a pure function that validates the shape for the subject type. It applies save-time rules always and never requires fields that are "required for publication" (those are checked by the publish command, §8). It is called by a `BEFORE INSERT OR UPDATE OF content` trigger, not by a table CHECK, so a status-only update of an older revision (superseded to `LUU_TRU`) is never re-checked against limits changed later. The restore command inserts the copy inside a savepoint; when the trigger rejects it, the command returns MSG-RESTORE-BLOCKED with the failing items and creates nothing (BR-M03-F07).
 
-| Subject type | Save-time rules enforced by the CHECK | DAC |
+| Subject type | Save-time rules enforced by the trigger | DAC |
 |---|---|---|
 | `ROUTE` | Text fields ≤ their limits (`NAME_MAX_CHARS`, `ROUTE_SHORT_DESC_MAX_CHARS`, `ROUTE_DESC_MAX_CHARS`, `ROUTE_START_MAX_CHARS`, `ROUTE_PARTICIPATION_MAX_CHARS`, `ROUTE_PREPARATION_MAX_CHARS`, `ROUTE_BEST_TIME_MAX_CHARS`, `ROUTE_SAFETY_WARNING_MAX_CHARS`, `CAPTION_MAX_CHARS`); `distanceKm` > 0, ≤ `ROUTE_DISTANCE_MAX_KM`, one decimal place; `durationMin` > 0, ≤ `ROUTE_DURATION_MAX_MIN`; enum values; tag arrays distinct, no `KHO` with `GROUP_GIA_DINH_CO_TRE` or `GROUP_CAN_DE_DANG`; `galleryItems` ≤ `ROUTE_GALLERY_MAX_IMAGES`; `highlights` ≤ `ROUTE_HIGHLIGHTS_MAX_ITEMS`, each text ≤ `ROUTE_HIGHLIGHT_MAX_CHARS` and non-empty; `checkpointList` ≤ `ROUTE_CHECKPOINTS_MAX_ITEMS`, no repeated `checkpointId`; both-or-none pairs are complete or empty when published, not at save; `routeMapCaption` only with `routeMapMediaId`; `offlineRouteMapRequired` true only with `routeMapMediaId`; single-line fields contain no CR/LF | DAC-M03-023–043, 087, 088 |
 | `CHECKPOINT` | `checkpointName.*` ≤ `NAME_MAX_CHARS`, single line; `connectivityMode` enum; `fieldVerificationConfirmed` true when `ONLINE_AVAILABLE` | DAC-M03-045, 047, 048 |
@@ -287,9 +287,9 @@ Immutability: snapshots, `PHAT_HANH` revisions, session records and audit record
 | Active `REVIEWER` | yes | as staff plus accounts | no | all | no | yes |
 | `service_role` (Edge Functions) | yes | server-side | no direct DML on `app` | account linking, intake | yes | server-side |
 
-- Every `app` table has RLS enabled. Authenticated users have `SELECT` policies that call `app.current_admin()` (security definer, fixed `search_path`), which finds the active account by `auth.uid()::text = user_id` and `status = 'ACTIVE'`; role and status are never read from JWT metadata (BR-M03-K05). `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE` are revoked from `anon` and `authenticated`; only the definer commands write.
+- Every `app` table has RLS enabled. Authenticated users have `SELECT` policies that call `app.current_admin()` (security definer, fixed `search_path`), which finds the active account by `auth.uid()::text = user_id` and `status = 'ACTIVE'` and requires that the session in the JWT (`session_id` claim) still exists in `auth.sessions`, so a token of a signed-out session is refused (BR-M03-K06, SC-M03-040); role and status are never read from JWT metadata (BR-M03-K05). `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE` are revoked from `anon` and `authenticated`; only the definer commands write.
 - Functions in `api` have `EXECUTE` revoked from `PUBLIC` and granted explicitly per row of §7. The service-role key is a server secret (`APP_BACKEND_SECRET_KEY`) and never reaches the browser bundle.
-- Storage: bucket `quest-media` is private. Active administrators may insert new objects; no policy allows client overwrite or delete. Reads (including creating signed URLs) are allowed for objects referenced by a media row used in a `PHAT_HANH` revision or inside a retained snapshot. Objects referenced by a retained snapshot are never removed. Bytes are uploaded and verified before the database reference is published. `source_ref` is the bucket-relative path; Workbox does not cache signed media responses.
+- Storage: bucket `quest-media` is private. Active administrators may insert new objects; no policy allows client overwrite or delete. Reads (including creating signed URLs) are allowed for objects referenced by a media row used in a `PHAT_HANH` revision or inside a retained snapshot. An active administrator may also read (and create signed URLs for) any object in the bucket, so that the editor shows files just uploaded and the visitor preview of a draft works (BR-M03-E14, F12); this opens nothing to visitors. Objects referenced by a retained snapshot are never removed. Bytes are uploaded and verified before the database reference is published. `source_ref` is the bucket-relative path; Workbox does not cache signed media responses.
 
 ## 10. Indexes
 
@@ -350,7 +350,7 @@ Where each DAC row is enforced. Every one of the 118 DAC IDs appears below.
 | DAC-M03-016 | `concurrency_revision` equality in commands and +1 trigger |
 | DAC-M03-017 | `timestamptz` columns |
 | DAC-M03-018, 019, 021, 022 | Revision CHECKs, UNIQUE key, polymorphic trigger, published-triple CHECK |
-| DAC-M03-023–030, 032–035, 038, 040, 043, 045, 047, 048, 051–053, 087, 088 | `app.revision_content_ok` CHECK (shape and save-time limits) |
+| DAC-M03-023–030, 032–035, 038, 040, 043, 045, 047, 048, 051–053, 087, 088 | `app.revision_content_ok` trigger (shape and save-time limits) |
 | DAC-M03-031, 036, 037, 039, 041, 042, 044, 046, 049, 050, 054 | Save and publish commands plus constraint triggers (cross-row rules, publication guard, name uniqueness) |
 | DAC-M03-055–060 | `app.media` CHECKs; rights tick checked by the publish command |
 | DAC-M03-061–066 | `app.journey_snapshots` CHECKs, composite FK, `app.snapshot_checkpoints_ok`, immutability trigger |

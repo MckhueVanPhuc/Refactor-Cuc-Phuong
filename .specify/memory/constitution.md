@@ -1,5 +1,19 @@
 ﻿<!--
 SYNC IMPACT REPORT
+Version change: 2.0.1 → 2.0.2 (PATCH: correction of downstream status; no principle changed)
+Modified principles: none. Added sections: none. Removed sections: none.
+Correction: the screen specifications under screens/screen-spec/ (M01, M02, M03) are marked "Draft — đồng bộ"
+  with the current specs (M03 v3.7) and no longer describe a review queue or a pending-review state;
+  SCR-M03-001/002/004 state explicitly that there is none. MVP-Scope.md and the function lists declare
+  M01 v3.2, M02 v3.3 and M03 v3.7. The "stale" warnings of 2.0.1 are withdrawn (checked 2026-10-29 by keyword
+  audit against v3.7 items: spoken language, sign-out, routeName, public QR link, message catalog).
+Context: Spec-Kit feature packages specs/001-m01-route-planning-preparation, 002-m02-field-quest-experience and
+  003-m03-operations-content-administration were created (spec.md only) per AGENTS.md §2.
+Follow-up TODOs: none.
+-->
+
+<!--
+SYNC IMPACT REPORT
 Version change: 2.0.0 → 2.0.1 (PATCH: clarification of downstream status; no principle changed)
 Modified principles: none. Added sections: none. Removed sections: none.
 Clarification: the data layer is no longer stale. S1–S4, the Data Acceptance Criteria catalog,
@@ -359,4 +373,4 @@ system-configuration.md, tech-stack.md, environment.md.
 
 ---
 
-**Version**: 2.0.1 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-10-28
+**Version**: 2.0.2 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-10-29

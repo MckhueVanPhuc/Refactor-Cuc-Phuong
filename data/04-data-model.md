@@ -811,7 +811,7 @@ REL-014 and REL-019 are historical lineage. Their identity values are source-sup
 | DBML representation | 16 entity blocks and 16 `Ref` statements; nine links (REL-004, 014, 019, 022–027) are recorded as notes. Thus 16 + 9 = 25 active links. | [DBML](04-data-model.dbml) and §12. |
 | Many-to-many links | REL-022 (Route lists Checkpoint) and REL-027 (Revision references Media) are many-to-many through ordered/embedded references in `Revision.content`; no extra canonical join entity is approved. Session/checkpoint visits are CheckpointVisit; package/QR resources are OfflineResource. LanguagePreference intentionally has no relationship. | REL-012, 016, 017, 022, 027, 028; S3 §2; M01/M02 §6; M03 §6.4. |
 
-This is a structural check, not a claim that Mermaid or DBML rendered in a parser. Physical storage mapping belongs to the [physical schema](06-physical-schema.md), which has not been re-evaluated for V2. A new relation must update the catalog, ERD, visualization and this count together.
+This is a structural check, not a claim that Mermaid or DBML rendered in a parser. Physical storage mapping belongs to the [physical schema](06-physical-schema.md), rebuilt for V2 after the review gate (2026-10-28). A new relation must update the catalog, ERD, visualization and this count together.
 
 ## 6. Freeze Value Review
 
@@ -899,7 +899,7 @@ RETIRED (V2). The V1 register mapped V1 business-rule IDs (for example `BR-M03-0
 | CL-S4-001 | RESOLVED (revised) | Each snapshot has zero or one same-Route predecessor; the versions of a Route form a single chain because numbers are allocated consecutively inside the atomic publication. | M03 §6.4; REL-021 is `0..1 : 0..1` and drawn. Atomic publication and singular Route activation still apply. |
 | DEC-S6-002 | RESOLVED (revised) | Retain the nine M03 canonical entities (Route, Checkpoint, QRCode, Revision, Media, JourneySnapshot, AdminAccount, SessionRecord, AuditRecord) in MVP; no hard-delete or automatic purge. | M03 §6.4; lifecycle archive, discard, revoke and deactivation and M01 local package deletion remain as specified. |
 
-No logical-model decision remains outstanding. The physical storage representation in [06-physical-schema.md](06-physical-schema.md) has not been re-evaluated for V2.
+No logical-model decision remains outstanding. The physical storage representation is in [06-physical-schema.md](06-physical-schema.md), rebuilt for V2 after the review gate (2026-10-28).
 
 ### 10.1 Normalization check and deliberate exceptions
 
@@ -925,7 +925,7 @@ These are the deliberate duplicated or embedded values in the current S4 model. 
 |---|---|
 | [x] Visitor data minimization | SessionSyncRecord/SessionRecord carry anonymous session, route, status, time and visited-checkpoint fields only; no visitor name, contact, device identifier or GPS field. M02 §5.1; M03 §5.1; §9(18). |
 | [x] Administrative identity isolation | AdminAccount email/provider user ID and recorded actor user IDs are M03 private data; public route/content projections do not expose them. Provider credentials remain in the provider, and AuditRecord excludes tokens/credential values. M03 §6.4. |
-| [x] Local storage boundary | M01/M02 values stay in the browser-local profile and can be lost when browser data is cleared. M01/M02 §6. Backend access control belongs to the physical schema, which has not been re-evaluated for V2. |
+| [x] Local storage boundary | M01/M02 values stay in the browser-local profile and can be lost when browser data is cleared. M01/M02 §6. Backend access control belongs to the physical schema ([06-physical-schema.md](06-physical-schema.md) §9). |
 
 Seed fixtures are not part of the V2 documentation set (AGENTS.md §2); no seed declaration is made here.
 
