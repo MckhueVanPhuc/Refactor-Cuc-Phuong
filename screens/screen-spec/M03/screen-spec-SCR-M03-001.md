@@ -7,7 +7,7 @@
 | Module | `M03` |
 | Actor | Nhân viên nội dung, Quản lý |
 | Priority | Must |
-| Mockup | [mockup-SCR-M03-001.html](../../html/mockup-SCR-M03-001.html) (HTML tĩnh, chưa sign-off UX) |
+| Mockup | [mockup-SCR-M03-001.html](../../html/mockup-SCR-M03-001.html) (HTML tĩnh, chỉ để xem tham khảo, không phải thiết kế chính thức; chưa sign-off UX) |
 | Status | Draft — đồng bộ [Spec M03 v3.7](../../../docs/spec/spec-M03.md) |
 
 Nguồn hành vi/contract: [Spec M03](../../../docs/spec/spec-M03.md) (US-M03-01/02/04/08, BR-M03-C01, H01 đến H09, F07, F10). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Giao diện quản trị chỉ dùng tên hiển thị của §5.4 và thông báo từ danh mục §5.6; mã trạng thái không hiện trên màn hình.
@@ -47,7 +47,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-001.html](../../html/mockup-SCR-M03-001.html)
 | 17 | E-SCR-M03-001-17 | Archive dialog | Dialog | MSG-CONFIRM-ARCHIVE-ROUTE: "Lưu trữ tuyến \"{tên}\" không thể hoàn tác; dữ liệu vẫn được giữ cho lịch sử và báo cáo." và hai nút; ô lý do | Conditional | Lý do bắt buộc, tối đa 300 ký tự |
 | 18 | E-SCR-M03-001-18 | Discard dialog | Dialog | MSG-CONFIRM-DISCARD-ROUTE: "Hủy tuyến \"{tên}\": tuyến chưa từng xuất bản này sẽ không dùng được nữa." và hai nút; ô lý do | Conditional | Lý do bắt buộc, tối đa 300 ký tự; tuyến chuyển sang Đã lưu trữ; không ảnh hưởng điểm dừng đã liệt kê (BR-M03-C01) |
 | 19 | E-SCR-M03-001-19 | History panel | Panel | Lịch sử các bản đã xuất bản của tuyến | Conditional | Mọi quản trị viên xem được (BR-M03-F09) |
-| 20 | E-SCR-M03-001-20 | Action: Khôi phục bản đã xuất bản trước đó | Button | Sao chép bản cũ thành bản nháp mới | Conditional | Bị chặn khi đang có bản nháp: MSG-DRAFT-EXISTS (BR-M03-F07) |
+| 20 | E-SCR-M03-001-20 | Action: Khôi phục bản đã xuất bản trước đó | Button | Sao chép bản cũ thành bản nháp mới | Conditional | Bị chặn khi đang có bản nháp: MSG-DRAFT-EXISTS; bị từ chối với MSG-RESTORE-BLOCKED khi bản cũ vi phạm giới hạn hiện hành (BR-M03-F07) |
 | 21 | E-SCR-M03-001-21 | Action: Bỏ thay đổi | Button | Bỏ bản nháp đang chờ | Conditional | Bản đã xuất bản giữ nguyên (BR-M03-F10) |
 | 22 | E-SCR-M03-001-22 | Busy / stale / permission feedback | Banner | MSG-ROUTE-BUSY, MSG-STALE, MSG-NO-PERMISSION, MSG-GENERIC | Conditional | Hiện khi thao tác bị từ chối; không hiện mã kỹ thuật |
 | 23 | E-SCR-M03-001-23 | Empty / loading / error states | Panel | Chưa có tuyến, đang tải, lỗi mạng | Conditional | Lỗi bất ngờ dùng MSG-GENERIC |
@@ -94,7 +94,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-001.html](../../html/mockup-SCR-M03-001.html)
 | SR-SCR-M03-001-004 | Tuyến không bao giờ tự mở lại, kể cả khi điểm dừng được mở lại; mở lại cần tuyến còn trường bắt buộc hợp lệ và ít nhất một điểm dừng hoạt động | BR-M03-H07, SC-M03-019 |
 | SR-SCR-M03-001-005 | Đóng tuyến không dừng hay báo cho phiên M02 đang chạy; Ban Quản lý xử lý cảnh báo tại chỗ | BR-M03-H05 |
 | SR-SCR-M03-001-006 | Hủy hoặc lưu trữ tuyến không ảnh hưởng điểm dừng mà tuyến liệt kê | BR-M03-C01, T07 |
-| SR-SCR-M03-001-007 | Khôi phục bị chặn khi đang có bản nháp (MSG-DRAFT-EXISTS); lịch sử không bị xóa | BR-M03-F07, SC-M03-021 |
+| SR-SCR-M03-001-007 | Khôi phục bị chặn khi đang có bản nháp (MSG-DRAFT-EXISTS) hoặc khi bản cũ vi phạm giới hạn hiện hành (MSG-RESTORE-BLOCKED, không tạo bản nháp); lịch sử không bị xóa | BR-M03-F07, SC-M03-021 |
 | SR-SCR-M03-001-008 | Thao tác trên một tập kết nối chạy tuần tự; thao tác thứ hai bị từ chối bằng MSG-ROUTE-BUSY | BR-M03-F05 |
 | SR-SCR-M03-001-009 | Mỗi thao tác quản trị ghi đúng một dòng nhật ký; mọi trạng thái hiện bằng tên hiển thị | BR-M03-F08, L11 |
 | SR-SCR-M03-001-010 | Không có xóa vật lý bản ghi nào | BR-M03-D12 |

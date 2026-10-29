@@ -38,7 +38,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | 8 | E-SCR-M02-001-08 | Item visited time | Text | `CheckpointVisit.checkedInAt` đầu tiên | Conditional | Giá trị đầu tiên bất biến; chỉ hiện với điểm đã quét |
 | 9 | E-SCR-M02-001-09 | Action: Quét | Button | Mở scanner trong app; khách tự do dùng cùng nút khi không có phiên | Yes | Luôn khả dụng khi không có thao tác chặn |
 | 10 | E-SCR-M02-001-10 | QR scanner | Camera view (vùng hoặc toàn màn hình) | Đọc nội dung mã QR | Conditional | Chỉ nhận link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` của môi trường hiện tại; mã khác hoặc base khác → thông báo mã không hợp lệ, không tra cứu (FR-M02-026, BR-M02-023) |
-| 11 | E-SCR-M02-001-11 | Camera permission / unavailable state | Panel | Giải thích trạng thái quyền camera và cách thử lại | Conditional | Quyền do trình duyệt cấp; UI chỉ giải thích (Screen list M02 §4) |
+| 11 | E-SCR-M02-001-11 | Camera permission / unavailable state | Panel | Giải thích trạng thái quyền camera và cách thử lại, gồm lựa chọn quét bằng camera điện thoại | Conditional | Quyền do trình duyệt cấp; UI chỉ giải thích (Screen list M02 §4; BR-M02-023) |
 | 12 | E-SCR-M02-001-12 | Lookup in progress | Spinner | Đang tra cứu mã QR | Conditional | Không có phản hồi trong 8 giây (`LOOKUP_TIMEOUT_SECONDS`) = lỗi tra cứu (BR-M02-005) |
 | 13 | E-SCR-M02-001-13 | Check-in feedback | Toast/inline | Xác nhận lượt ghé đã được ghi (kể cả mã thêm sau khi phiên bắt đầu) | Conditional | Ghi một lượt ghé theo `(sessionId, checkpointId)` trước khi hiện nội dung; quét lặp không tạo bản ghi mới (FR-M02-007, FR-M02-009) |
 | 14 | E-SCR-M02-001-14 | Closure notice | Banner | VI: "Khu vực này đang tạm đóng. Vui lòng dừng lại hoặc quay về theo hướng dẫn của Ban Quản lý." | Conditional | Cùng một thông báo cho `closedScope` `ROUTE` và `CHECKPOINT`; không nội dung, không lượt ghé (BR-M02-015) |
@@ -64,7 +64,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | Handoff hết hạn | Lượt bắt đầu này đã hết hạn (quá 24 giờ). Hãy bắt đầu lại từ danh sách tuyến. | This start has expired (over 24 hours). Please start again from the route list. |
 | Handoff bị thu hồi | Tuyến này không còn nhận chuyến mới. Hãy chọn tuyến khác. | This route no longer accepts new trips. Please choose another route. |
 | Không có handoff | Chưa có chuyến đi để bắt đầu. Hãy chọn một tuyến. | There is no trip to start. Please choose a route. |
-| Camera bị từ chối/không có | Chưa dùng được camera. Hãy cho phép trình duyệt truy cập camera rồi thử lại. | The camera is not available. Allow camera access in your browser and try again. |
+| Camera bị từ chối/không có | Không dùng được camera. Hãy cho phép truy cập camera hoặc quét mã bằng ứng dụng máy ảnh của điện thoại. | The camera cannot be used. Allow camera access, or scan the code with your phone's own camera app. |
 | Thay phiên lỗi | Chưa bắt đầu được chuyến mới. Chuyến hiện tại vẫn đang chạy. | Could not start the new trip. Your current trip is still in progress. |
 | Chuyến trước không gửi được (E-SCR-M02-001-22) | Chuyến đi trước không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này. | Your previous trip could not be sent to the system. It is still saved on this device. |
 

@@ -7,7 +7,7 @@
 | Module | `M03` |
 | Actor | Nhân viên nội dung, Quản lý |
 | Priority | Must |
-| Mockup | [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html) (HTML tĩnh, chưa sign-off UX) |
+| Mockup | [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html) (HTML tĩnh, chỉ để xem tham khảo, không phải thiết kế chính thức; chưa sign-off UX) |
 | Status | Draft — đồng bộ [Spec M03 v3.7](../../../docs/spec/spec-M03.md) |
 
 Nguồn hành vi/contract: [Spec M03](../../../docs/spec/spec-M03.md) (US-M03-01/02/09, BR-M03-C02 đến C17, T01 đến T09, E14, F06, F07, F10, F11, L01 đến L13; giới hạn §5.3; thông báo §5.6). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Giao diện chỉ dùng tên hiển thị và thông báo từ danh mục; mã trạng thái, tên trường nội bộ và định danh không hiện trên màn hình.
@@ -59,7 +59,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html)
 | 29 | E-SCR-M03-002-29 | Action: Lưu bản nháp | Button | Lưu cả editor (mọi ngôn ngữ, danh sách ảnh với quyền sử dụng, danh sách điểm dừng) hoặc không gì cả | Yes | MSG-SAVED chỉ hiện khi toàn bộ đã lưu; chặn khi giá trị rõ ràng không hợp lệ; thiếu nội dung không chặn lưu (BR-M03-C03, F11) |
 | 30 | E-SCR-M03-002-30 | Action: Xuất bản | Button | Mở SCR-M03-004 | Yes | Kiểm tra đầy đủ trước; thiếu gì thì liệt kê và không xuất bản (BR-M03-F01) |
 | 31 | E-SCR-M03-002-31 | Version / history panel | Panel | Lịch sử bản đã xuất bản; nhãn bản đang xem | Conditional | Cả hai role xem được |
-| 32 | E-SCR-M03-002-32 | Action: Khôi phục bản đã xuất bản trước đó | Button | Tạo bản nháp từ bản cũ | Conditional | Chặn khi đã có bản nháp: MSG-DRAFT-EXISTS |
+| 32 | E-SCR-M03-002-32 | Action: Khôi phục bản đã xuất bản trước đó | Button | Tạo bản nháp từ bản cũ; từ chối với MSG-RESTORE-BLOCKED nếu bản cũ vi phạm giới hạn hiện hành | Conditional | Chặn khi đã có bản nháp: MSG-DRAFT-EXISTS |
 | 33 | E-SCR-M03-002-33 | Action: Bỏ thay đổi | Button | Bỏ bản nháp | Conditional | Bản đã xuất bản giữ nguyên |
 | 34 | E-SCR-M03-002-34 | Stale banner + Tải lại | Banner + Button | MSG-STALE nêu ai sửa và lúc nào | Conditional | Nội dung đang gõ vẫn giữ trên màn hình để sao chép; không tự gộp |
 | 35 | E-SCR-M03-002-35 | Unsaved-changes dialog | Dialog | MSG-UNSAVED-CHANGES, chọn ở lại hoặc rời | Conditional | Một câu và hai nút (BR-M03-L12) |
@@ -80,6 +80,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html)
 | Unsaved changes | MSG-UNSAVED-CHANGES | Rời trang khi còn thay đổi chưa lưu |
 | Operation busy | MSG-ROUTE-BUSY | Có thao tác khác trên tuyến hoặc điểm dừng liên quan |
 | Restore blocked | MSG-DRAFT-EXISTS | Khôi phục khi đang có bản nháp |
+| Restore refused | MSG-RESTORE-BLOCKED | Bản cũ vi phạm giới hạn hiện hành |
 | Archived | Chỉ đọc | Tuyến Đã lưu trữ |
 | Permission denied | MSG-NO-PERMISSION | Không đủ quyền |
 

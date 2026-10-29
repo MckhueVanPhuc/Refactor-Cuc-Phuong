@@ -99,7 +99,7 @@
 | SF-M02-006-03 | Validate replacement handoff. | New context while active | Candidate replacement session | Failure leaves old session active | FR-M02-017 |
 | SF-M02-006-04 | Atomically replace active session. | Replacement valid | New active session + old `BO_DO` | Preserve old visits and set `endedAt` | FR-M02-017 |
 | SF-M02-006-05 | Create terminal payload immediately. | Completion/abandonment commit | Frozen sync record | One payload per session | FR-M02-018 |
-| SF-M02-006-06 | Ask to end the trip at the final checkpoint. | Final checkpoint's visit first recorded | "Bạn đã đến điểm cuối. Kết thúc chuyến đi?" with [Kết thúc] / [Đi tiếp] | Shown once; [Đi tiếp] keeps Finish available | FR-M02-023 |
+| SF-M02-006-06 | Ask to end the trip at the final checkpoint. | Final checkpoint's visit first recorded | "Bạn đã quét điểm cuối. Kết thúc chuyến đi?" with [Kết thúc] / [Đi tiếp] | Shown once; [Đi tiếp] keeps Finish available | FR-M02-023 |
 | SF-M02-006-07 | End a forgotten session automatically. | App opened/resumed more than 24 hours after `startedAt` | `HOAN_TAT` if the final checkpoint was visited, otherwise `BO_DO`; `endedAt` = latest `checkedInAt` or `startedAt`; record queued; notice shown | Runs before any handoff is processed | FR-M02-024 |
 
 ### FN-M02-007 — Terminal Sync

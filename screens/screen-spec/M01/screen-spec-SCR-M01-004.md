@@ -43,7 +43,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 13 | E-SCR-M01-004-13 | Delete confirmation | Dialog | Xác nhận xóa package | Conditional | Xóa chỉ sau khi xác nhận (FR-M01-009) |
 | 14 | E-SCR-M01-004-14 | Download progress | Panel | Tiến độ tải/cập nhật | Conditional | Không có nút hủy |
 | 15 | E-SCR-M01-004-15 | Update failure note | Text | Cập nhật lỗi, package cũ được giữ | Conditional | Giữ `SAN_SANG + OUTDATED`; candidate bị bỏ |
-| 16 | E-SCR-M01-004-16 | Storage failure note | Text | Lỗi lưu trữ cục bộ | Conditional | Bỏ candidate, giữ package sẵn sàng hiện có |
+| 16 | E-SCR-M01-004-16 | Storage failure note | Text | Lỗi lưu trữ cục bộ | Conditional | Bỏ candidate, giữ package sẵn sàng hiện có; báo tải chưa hoàn tất và cho thử lại (spec-M01 §5.4) |
 | 17 | E-SCR-M01-004-17 | Scan hint line | Text | Một dòng: không có mạng thì check-in bằng nút Quét trong ứng dụng | Conditional | Hiện khi có package sẵn sàng (US-M01-03 mục 5) |
 | 18 | E-SCR-M01-004-18 | Empty state | Text | Chưa có package nào | Conditional | Hiện khi không có package local |
 
@@ -59,7 +59,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | Thời điểm lưu chữ cốt lõi | Thông tin tuyến lưu lúc {thời điểm} | Route information saved on {time} |
 | Có sơ đồ offline | Có sơ đồ tuyến offline | Includes offline route map |
 | Cập nhật lỗi | Chưa cập nhật được. Vẫn dùng bản đã tải. | Could not update. The downloaded version is still in use. |
-| Lỗi lưu trữ | Không lưu được dữ liệu trên thiết bị. Bản đã tải trước đó không bị ảnh hưởng. | Could not save data on this device. Your earlier download is not affected. |
+| Lỗi lưu trữ | Không lưu được dữ liệu trên thiết bị nên chưa tải xong. Bản đã tải trước đó không bị ảnh hưởng. Bạn có thể thử lại. | Could not save data on this device, so the download did not finish. Your earlier download is not affected. You can try again. |
 | Xác nhận xóa | Xóa gói tải trước của tuyến "{tên}"? Chuyến đi đang diễn ra không bị ảnh hưởng. | Delete the download for "{name}"? A trip in progress is not affected. |
 | Nút xác nhận xóa | Xóa · Giữ lại | Delete · Keep |
 | Chưa có package | Bạn chưa tải tuyến nào. | You have not downloaded any route. |

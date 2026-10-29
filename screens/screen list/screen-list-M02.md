@@ -43,7 +43,7 @@ Khách tự do không có tiến độ hoặc Finish; không tạo visitor accou
 
 | Nội dung | Mô tả |
 |---|---|
-| Entry | Câu hỏi "Bạn đã đến điểm cuối. Kết thúc chuyến đi?" ngay khi lượt ghé điểm cuối được ghi lần đầu, hoặc nút Finish sau đó. |
+| Entry | Câu hỏi "Bạn đã quét điểm cuối. Kết thúc chuyến đi?" ngay khi lượt ghé điểm cuối được ghi lần đầu, hoặc nút Finish sau đó. |
 | Data | Phiên local, frozen journey và các lượt ghé; trạng thái đồng bộ khi capability được phát hành. |
 | Actions / exit | [Kết thúc] → `HOAN_TAT` và hiển thị các điểm đã quét, quay danh mục; [Đi tiếp] → quay lại phiên, Finish vẫn còn. |
 | States / guards | Confirmation, completed/pending sync, synced, conflict/rejected. Không yêu cầu quét 100%; kết thúc không bị chặn bởi mạng. |

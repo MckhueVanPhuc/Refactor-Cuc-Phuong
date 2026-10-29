@@ -7,7 +7,7 @@
 | Module | `M03` |
 | Actor | Nhân viên nội dung, Quản lý |
 | Priority | Must |
-| Mockup | [mockup-SCR-M03-008.html](../../html/mockup-SCR-M03-008.html) (HTML tĩnh, chưa sign-off UX) |
+| Mockup | [mockup-SCR-M03-008.html](../../html/mockup-SCR-M03-008.html) (HTML tĩnh, chỉ để xem tham khảo, không phải thiết kế chính thức; chưa sign-off UX) |
 | Status | Draft — đồng bộ [Spec M03 v3.7](../../../docs/spec/spec-M03.md) |
 
 Nguồn hành vi/contract: [Spec M03](../../../docs/spec/spec-M03.md) (US-M03-03/04, BR-M03-D01 đến D12, E15, E16, H01, H02, H04 đến H06, X01 đến X07, F11; giới hạn §5.3; thông báo §5.6). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Điểm dừng là khu vực thực tế trong thư viện dùng chung, không thuộc tuyến nào; nhiều tuyến có thể liệt kê cùng một điểm dừng, nên mọi hộp thoại và màn xem lại đều nêu các tuyến bị ảnh hưởng.
@@ -49,7 +49,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-008.html](../../html/mockup-SCR-M03-008.html)
 | 19 | E-SCR-M03-008-19 | Action: Lưu trữ | Button + dialog | Lưu trữ điểm dừng; dialog dùng MSG-CONFIRM-ARCHIVE-CHECKPOINT: "Lưu trữ điểm dừng \"{tên}\" không thể hoàn tác; các điểm tham quan của điểm dừng này sẽ bị thu hồi." | Conditional | Chỉ Quản lý; chỉ khi Tạm đóng; không tuyến chưa lưu trữ nào liệt kê (kể cả trong bản nháp) nếu không thì MSG-CHECKPOINT-IN-USE nêu tuyến; không thể hoàn tác; điểm tham quan thành Đã thu hồi; lý do bắt buộc |
 | 20 | E-SCR-M03-008-20 | Action: Hủy | Button + dialog | Hủy điểm dừng chưa từng xuất bản; dialog dùng MSG-CONFIRM-DISCARD-CHECKPOINT: "Hủy điểm dừng \"{tên}\": điểm dừng chưa từng xuất bản và các điểm tham quan nháp của nó sẽ không dùng được nữa." | Conditional | Cả hai role; lý do bắt buộc; điểm dừng thành Đã lưu trữ, điểm tham quan Nháp thành Đã thu hồi |
 | 21 | E-SCR-M03-008-21 | Version / history panel | Panel | Lịch sử bản đã xuất bản của điểm dừng | Conditional | Cả hai role xem được |
-| 22 | E-SCR-M03-008-22 | Action: Khôi phục bản đã xuất bản trước đó | Button | Tạo bản nháp từ bản cũ | Conditional | Chặn khi đã có bản nháp: MSG-DRAFT-EXISTS |
+| 22 | E-SCR-M03-008-22 | Action: Khôi phục bản đã xuất bản trước đó | Button | Tạo bản nháp từ bản cũ; từ chối với MSG-RESTORE-BLOCKED nếu bản cũ vi phạm giới hạn hiện hành | Conditional | Chặn khi đã có bản nháp: MSG-DRAFT-EXISTS |
 | 23 | E-SCR-M03-008-23 | Action: Bỏ thay đổi | Button | Bỏ bản nháp đang chờ | Conditional | Bản đã xuất bản giữ nguyên |
 | 24 | E-SCR-M03-008-24 | Stale banner + Tải lại | Banner + Button | MSG-STALE | Conditional | Nội dung đang gõ vẫn giữ |
 | 25 | E-SCR-M03-008-25 | Unsaved-changes dialog | Dialog | MSG-UNSAVED-CHANGES | Conditional | Một câu và hai nút |

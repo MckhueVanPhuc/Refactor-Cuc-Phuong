@@ -28,14 +28,14 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 
 | # | Element ID | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|---|
-| 1 | E-SCR-M02-003-01 | End-of-trip prompt | Dialog | VI: "Bạn đã đến điểm cuối. Kết thúc chuyến đi?" (EN: "You have reached the last point. End the trip?") | Conditional | Hiện đúng một lần khi lượt ghé điểm cuối được ghi lần đầu; không hiện lại cho lần quét sau (BR-M02-021) |
+| 1 | E-SCR-M02-003-01 | End-of-trip prompt | Dialog | VI: "Bạn đã quét điểm cuối. Kết thúc chuyến đi?" (EN: "You have scanned the last point. End the trip?") | Conditional | Hiện đúng một lần khi lượt ghé điểm cuối được ghi lần đầu; không hiện lại cho lần quét sau (BR-M02-021) |
 | 2 | E-SCR-M02-003-02 | Action: Kết thúc | Button | VI: "Kết thúc" (EN: "End") | Yes | Tác dụng giống xác nhận Finish: phiên thành `HOAN_TAT` (BR-M02-007) |
 | 3 | E-SCR-M02-003-03 | Action: Đi tiếp | Button | VI: "Đi tiếp" (EN: "Continue") | Yes | Không đổi gì; Finish vẫn khả dụng đến khi phiên kết thúc |
 | 4 | E-SCR-M02-003-04 | Finish confirmation | Dialog | Xác nhận kết thúc khi dùng Finish | Conditional | Finish chỉ khả dụng khi đã quét điểm có `sequence` lớn nhất |
 | 5 | E-SCR-M02-003-05 | Visit summary | List | Các điểm đã quét: tên theo ngôn ngữ, thứ tự, `checkedInAt` | Yes | Từ `PlaySession` và `CheckpointVisit` local; nhãn "Đã quét QR", không phải "đã đến" (SC-M02-013) |
 | 6 | E-SCR-M02-003-06 | Completion result | Text | Phiên đã hoàn tất kèm danh sách điểm đã quét | Conditional | Hiện sau [Kết thúc]; không yêu cầu quét 100% điểm (FR-M02-016) |
 | 7 | E-SCR-M02-003-07 | Sync status | Text/badge | Trạng thái đồng bộ: chờ đồng bộ, đã đồng bộ, conflict/bị từ chối | Conditional | Theo `PendingSyncItem.syncStatus` (`PENDING`/`SYNCED`/`CONFLICT`); không có trang hàng đợi sync |
-| 8 | E-SCR-M02-003-08 | Sync error message | Banner | Lỗi khi M03 báo conflict hoặc từ chối record | Conditional | Dừng retry tự động; không sửa payload bất biến (BR-M02-011) |
+| 8 | E-SCR-M02-003-08 | Sync error message | Banner | Lỗi khi M03 báo conflict hoặc từ chối record | Conditional | Dừng retry tự động; không sửa payload bất biến; không có thao tác thử lại hay xóa của du khách (BR-M02-011) |
 | 9 | E-SCR-M02-003-09 | Action: Về danh mục | Button | Mở SCR-M01-001 | Conditional | Sau khi phiên kết thúc |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Câu hỏi kết thúc chuyến và hai nút Kết thúc / Đi tiếp đã cố định trong Spec M02 §5.1 và dùng nguyên văn.

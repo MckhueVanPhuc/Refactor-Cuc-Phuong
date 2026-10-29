@@ -42,7 +42,7 @@
 | SF-M01-002-01 | Read/refresh published route projection. | Catalog entry or source refresh | Locally usable route view | Successful request defines current source availability | FR-M01-002 |
 | SF-M01-002-02 | Filter selectable routes. | Published routes | Only `HOAT_DONG` with valid `activeContentVersion` | Closed/archived routes excluded | FR-M01-002 |
 | SF-M01-002-03 | Display route cards. | Active routes + language | Thumbnail, name, short description, distance, duration, difficulty, checkpoint count, offline-needed mark | Do not synthesize missing fields | FR-M01-002 |
-| SF-M01-002-04 | Handle source unavailable while browsing. | Failed source request | Last local view may remain visibly stale | Must not claim local data is current | FR-M01-002 |
+| SF-M01-002-04 | Handle source unavailable while browsing. | Failed source request (including no answer within `SOURCE_REQUEST_TIMEOUT_SECONDS`, provisional) | Last local view may remain visibly stale | Must not claim local data is current | FR-M01-002 |
 | SF-M01-002-05 | Remove newly unavailable route after refresh. | Route becomes closed or archived | Removed from new choices; current context may be revoked | Package/session not automatically deleted | FR-M01-002, 011, 012 |
 | SF-M01-002-06 | Display route details. | Selected route + language | Gallery (first image is the cover), full description, starting point, distance, duration, difficulty, highlights, checkpoint names in order; when present participation requirements, preparation, best time, route map and a prominent safety warning | Absent optional fields are hidden | FR-M01-003 |
 | SF-M01-002-07 | Show a neutral placeholder for an image that cannot be loaded. | Image load failure | Card/detail stays usable | No broken layout | FR-M01-002, 003 |
@@ -98,7 +98,7 @@
 | SF-M01-006-03 | Allow known outdated package for offline Start. | Ready `OUTDATED` package | Handoff based on package version | Preserve outdated warning | FR-M01-011 |
 | SF-M01-006-04 | Generate new handoff identity and expiry. | Start path valid | New UUID `handoffId`; `expiresAt` = `authorizedAt` + 24 hours | Never reuse previous handoff; M01 never extends the expiry | FR-M01-012 |
 | SF-M01-006-05 | Build journey-only context. | Selected snapshot/package manifest | Context metadata without duplicated resource bytes | Route IDs/version must match | FR-M01-012 |
-| SF-M01-006-06 | Atomically replace current context. | Complete context | `AUTHORIZED` v3 context | Failure keeps previous context unchanged | FR-M01-012 |
+| SF-M01-006-06 | Atomically replace current context. | Complete context | `AUTHORIZED` v3 context | Failure keeps previous context unchanged; a repeated Start in progress creates no second context | FR-M01-012 |
 | SF-M01-006-07 | Revoke current context after closure discovered. | Successful refresh sees unavailable route | `authorizationStatus = REVOKED` | Created M02 session continues | FR-M01-002, 012 |
 | SF-M01-006-08 | Open M02 only after context commit. | Atomic write success | M02 entry | No partial handoff | FR-M01-011, 012 |
 

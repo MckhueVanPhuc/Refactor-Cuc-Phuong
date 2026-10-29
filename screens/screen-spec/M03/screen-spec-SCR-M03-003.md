@@ -7,7 +7,7 @@
 | Module | `M03` |
 | Actor | Nhân viên nội dung, Quản lý |
 | Priority | Must; xem trước như du khách Should |
-| Mockup | [mockup-SCR-M03-003.html](../../html/mockup-SCR-M03-003.html) (HTML tĩnh, chưa sign-off UX) |
+| Mockup | [mockup-SCR-M03-003.html](../../html/mockup-SCR-M03-003.html) (HTML tĩnh, chỉ để xem tham khảo, không phải thiết kế chính thức; chưa sign-off UX) |
 | Status | Draft — đồng bộ [Spec M03 v3.7](../../../docs/spec/spec-M03.md) |
 
 Nguồn hành vi/contract: [Spec M03](../../../docs/spec/spec-M03.md) (US-M03-03, BR-M03-B02 đến B05, E01 đến E17, F11, F12; giới hạn §5.3; thông báo §5.6). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. "Điểm tham quan" là tên hiển thị của QR object; mã nội bộ không hiện trên màn hình, ngoại lệ duy nhất là 6 ký tự cuối của mã QR (BR-M03-E16).
@@ -54,7 +54,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-003.html](../../html/mockup-SCR-M03-003.html)
 | 24 | E-SCR-M03-003-24 | Action: Hủy | Button + dialog | Hủy điểm tham quan chưa từng xuất bản; dialog dùng MSG-CONFIRM-DISCARD-QR: "Hủy điểm tham quan \"{tên}\": mã QR của nó sẽ không bao giờ được dùng lại." | Conditional | Cả hai role; lý do tùy chọn (tối đa 300 ký tự); điểm tham quan thành Đã thu hồi, mã không bao giờ dùng lại |
 | 25 | E-SCR-M03-003-25 | Action: Xuất bản | Button | Mở SCR-M03-004 cho đơn vị "Điểm tham quan (một mã QR)" | Yes | Kiểm tra sẵn sàng trước; thiếu thì liệt kê |
 | 26 | E-SCR-M03-003-26 | Version / history panel | Panel | Lịch sử bản đã xuất bản | Conditional | Cả hai role xem được |
-| 27 | E-SCR-M03-003-27 | Action: Khôi phục bản đã xuất bản trước đó | Button | Tạo bản nháp từ bản cũ | Conditional | Chặn khi đã có bản nháp: MSG-DRAFT-EXISTS |
+| 27 | E-SCR-M03-003-27 | Action: Khôi phục bản đã xuất bản trước đó | Button | Tạo bản nháp từ bản cũ; từ chối với MSG-RESTORE-BLOCKED nếu bản cũ vi phạm giới hạn hiện hành | Conditional | Chặn khi đã có bản nháp: MSG-DRAFT-EXISTS |
 | 28 | E-SCR-M03-003-28 | Action: Bỏ thay đổi | Button | Bỏ bản nháp đang chờ | Conditional | Bản đã xuất bản giữ nguyên |
 | 29 | E-SCR-M03-003-29 | Stale banner + Tải lại | Banner + Button | MSG-STALE | Conditional | Nội dung đang gõ và tệp đã tải vẫn giữ trên màn hình |
 | 30 | E-SCR-M03-003-30 | Unsaved-changes dialog | Dialog | MSG-UNSAVED-CHANGES | Conditional | Một câu và hai nút |

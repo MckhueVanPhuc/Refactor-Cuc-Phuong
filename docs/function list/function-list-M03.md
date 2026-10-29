@@ -107,7 +107,7 @@
 | SF-M03-005-11 | Save the whole form as one unit. | "Lưu bản nháp" | All texts, ordered media with rights ticks and internal note saved atomically | No per-language save; no autosave; unsaved-changes dialog on leave | FR-M03-007 |
 | SF-M03-005-12 | Preview a visit point as visitors see it. | "Xem trước như du khách" | Draft rendering with VI/EN switch and preview label; audio/video of the chosen language plus files without speech | Writes nothing; never shown to visitors | FR-M03-006 |
 | SF-M03-005-13 | Show staff only plain Vietnamese. | Any administrative screen | Display names, catalog messages, allowed hints | No raw data, code names or technical terms | FR-M03-019 |
-| SF-M03-005-14 | Serialize operations on a connected set. | Concurrent publication/closure/reopen | One operation at a time | Second operation rejected with the busy message, not queued | FR-M03-007 |
+| SF-M03-005-14 | Serialize operations on a connected set. | Concurrent publication/closure/reopen | One operation at a time | Second operation rejected with the busy message, not queued; a route's checkpoints are those in its published and pending-draft lists | FR-M03-007 |
 
 ### FN-M03-006 — Journey Snapshot
 
@@ -193,7 +193,7 @@
 | Sub-function ID | Behavior | Input / trigger | Output / state | Exception / guard | Source FR |
 |---|---|---|---|---|---|
 | SF-M03-011-01 | Show the published history of an item. | Route, checkpoint or visit point opened | List of published versions in plain language | Visible to both roles | FR-M03-007, 018 |
-| SF-M03-011-02 | Restore an earlier published version as a new draft. | "Khôi phục bản đã xuất bản trước đó" | New draft that must pass review | Blocked while a draft exists; current rules apply at publication | FR-M03-007 |
+| SF-M03-011-02 | Restore an earlier published version as a new draft. | "Khôi phục bản đã xuất bản trước đó" | New draft that must pass review | Blocked while a draft exists; refused with MSG-RESTORE-BLOCKED when the old content breaks a limit in force now; current rules also apply at publication | FR-M03-007 |
 | SF-M03-011-03 | Discard a pending draft. | "Bỏ thay đổi" | Draft `DA_BO`; published version untouched | Either role; audited | FR-M03-007 |
 | SF-M03-011-04 | Append an audit line for every administrative action. | Any action or provisioning outcome | Actor, time, object, before/after, result, reason where required, self-published flag | Append-only; no credential or token values | FR-M03-018 |
 | SF-M03-011-05 | Show the system-wide audit log to Reviewers. | Reviewer opens the log | Plain-language log | Reviewer only | FR-M03-018 |

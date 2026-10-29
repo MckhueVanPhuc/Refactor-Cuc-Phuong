@@ -50,7 +50,7 @@ Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html)
 | 20 | E-SCR-M01-003-20 | Action: Quay lại | Button | Thoát quyết định offline, về màn trước | Conditional | Không chọn ngầm lựa chọn nào |
 | 21 | E-SCR-M01-003-21 | Download progress | Panel | Tiến độ tải; không có nút hủy | Conditional | MVP không có Cancel download (§4.4) |
 | 22 | E-SCR-M01-003-22 | Scan hint line | Text | Một dòng: không có mạng thì check-in bằng nút Quét trong ứng dụng vì camera điện thoại có thể không mở được ứng dụng khi không có mạng | Conditional | Hiện ở quyết định offline và khi package sẵn sàng (US-M01-03 mục 5) |
-| 23 | E-SCR-M01-003-23 | Action: Start | Button | Tạo `SelectedRouteContext v3` rồi mở M02 | Yes | Online: nguồn xác nhận route và snapshot hợp lệ; offline: cần package `SAN_SANG`, nếu không bị chặn (US-M01-04) |
+| 23 | E-SCR-M01-003-23 | Action: Start | Button | Tạo `SelectedRouteContext v3` rồi mở M02; không nhận Start lặp khi một Start đang chạy (FR-M01-012) | Yes | Online: nguồn xác nhận route và snapshot hợp lệ; offline: cần package `SAN_SANG`, nếu không bị chặn (US-M01-04) |
 | 24 | E-SCR-M01-003-24 | Start blocked message | Text | Lý do Start bị chặn: không có nguồn lẫn package sẵn sàng, tuyến không khả dụng/revoked | Conditional | Không thay context cũ khi thất bại (FR-M01-012) |
 | 25 | E-SCR-M01-003-25 | Route unavailable state | Panel | Tuyến không còn `HOAT_DONG` sau làm mới nguồn | Conditional | Chặn Start mới; context hiện tại đánh dấu `REVOKED` (BR-M01-011) |
 | 26 | E-SCR-M01-003-26 | Action: Tài nguyên offline | Link | Mở SCR-M01-004 | Yes | None |
