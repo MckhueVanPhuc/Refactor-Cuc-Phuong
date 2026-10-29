@@ -8,7 +8,7 @@
 | Version | 3.2 |
 | Status | MVP implementation baseline — aligned to M03 v3.7 and M02 v3.3 |
 | Supersedes | 3.1 (previous repository baseline: 2.0) |
-| Last updated | 2026-10-28 |
+| Last updated | 2026-10-29 |
 | Primary consumers | Visitor web app, M02 |
 | Upstream system | M03 |
 
@@ -246,7 +246,7 @@ stateDiagram-v2
 | FR-M01-009 | View/Download/Delete | Show route/version/readiness and when the essential texts were saved; require confirmation for delete. | Repeated action must not create concurrent work. |
 | FR-M01-010 | Packaged route opened online | Compare versions and prepare a newer candidate without hiding old package; independently refresh the saved essential texts after a successful source read. | Preserve old ready package as outdated; keep the old essential texts and their saved time if the refresh fails. |
 | FR-M01-011 | Start selected | Online: validate current route/snapshot. Offline: require ready package and use its manifest. | Block Start when neither source nor ready package can supply a manifest. |
-| FR-M01-012 | Start validation succeeds | Generate new UUID handoff, set `expiresAt` to `authorizedAt` plus 24 hours and atomically write complete v3 context. | Keep previous context unchanged on failure. |
+| FR-M01-012 | Start validation succeeds | Generate new UUID handoff, set `expiresAt` to `authorizedAt` plus 24 hours and atomically write complete v3 context. | Keep previous context unchanged on failure. A repeated Start while one is in progress creates no second context. |
 | FR-M01-013 | Shared value changes | Publish language independently; expose only ready active package; expose complete context only. | Never expose staging/partial values. |
 | FR-M01-014 | Package becomes ready, or a source read succeeds | Keep the essential route texts (name, starting point, participation requirements, safety warning) with the time they were saved; when shown from the saved copy, state when they were saved and that they may not be the latest. | If the saved texts are missing, open the route with the information available and make no claim that it is current. |
 
@@ -437,13 +437,13 @@ The handoff contains journey metadata only. Offline text/images remain in `Offli
 
 #### Existing Edge Cases
 
-- Browser reports online but source request fails: treat source as unavailable.
+- Browser reports online but source request fails or times out (`SOURCE_REQUEST_TIMEOUT_SECONDS`, provisional: 8 seconds): treat source as unavailable.
 - Package is ready but outdated: allow use and display warning when known.
 - Route closes while device is offline: local package may still start; field safety is handled outside the app.
 - Route has no offline-required checkpoint and no offline route map: no package required for online Start.
 - Declared image is missing (a QR resource image or the offline route map): package cannot become ready.
 - No image is declared: package may still become ready.
-- Storage failure: discard candidate and preserve existing ready package.
+- Storage failure: discard candidate and preserve existing ready package; the visitor is told that the download did not complete and may try again.
 - Browser data deleted: local preference/context/package may be lost.
 - Size estimate absent: Download stays available and the screen says the size is not available.
 - Essential texts cannot be refreshed: keep the previous texts and their saved time.
@@ -574,7 +574,7 @@ Exact layout, component design and navigation polish are separate UI design conc
 - UI translations and app shell must be locally available for offline language switching. Once a browser has opened the app, the cached app shell also serves the public QR link page `/q/{qrIdentifier}` without network (M02 BR-M02-025).
 - Business package data must support atomic candidate-to-active publication.
 - Declared offline images (QR images and the offline route map) require actual local bytes, not only remote URLs.
-- Source availability is proven by a successful request, not a browser online flag alone.
+- Source availability is proven by a successful request, not a browser online flag alone. A source request that gets no answer within `SOURCE_REQUEST_TIMEOUT_SECONDS` (provisional: 8 seconds, applied to catalog, route-detail and Start reads) counts as a failed request. The value is provisional and must be validated on real devices in the field; the project owner is responsible for that validation before the first real release.
 - Guest access to M03 data is read-only and enforced server-side.
 
 Specific browser storage, table/index and API choices belong to technical design.
@@ -601,6 +601,8 @@ Specific browser storage, table/index and API choices belong to technical design
 - Physical API paths and error codes.
 - Browser storage schema, quotas and cleanup implementation.
 - Telemetry/observability implementation.
+- Download progress detail (for example a percentage), the display format of the size estimate (unit, rounding) and the fixed wording of notices; the screen shows at least the package state `DANG_TAI` while downloading (FR-M01-009).
+- Performance targets (catalog open time, Start time); the MVP specification sets none.
 
 None of these may redefine the business contracts or state transitions above.
 
@@ -658,6 +660,7 @@ M03 v3.5, v3.6 and v3.7 change no contract consumed by M01. M03 v3.6 prints QR c
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.2 (clarification 3) | 2026-10-29 | Review-checklist decisions: new provisional `SOURCE_REQUEST_TIMEOUT_SECONDS` = 8 for source requests (§5.4, §9.3); a repeated Start creates no second context (FR-M01-012); a storage failure tells the visitor the download did not complete (§5.4); progress detail, size display format, notice wording and performance targets are deferred design work (§10.2). No contract change. |
 | 3.2 (clarification 2) | 2026-10-28 | §5.3 Published Route input: the range of `distanceKm` (at most 100, one decimal place) and `durationMin` (at most 1440) and distinct tag values mirror M03 v3.7 (clarification 3). The M01 consumer behavior and the contract shape are unchanged. |
 | 3.2 (clarification) | 2026-10-28 | §6.1, §6.2, §11.1: OfflineRouteMap and RouteEssentials are stated as values embedded in `OfflinePackage`, not entities; the ER no longer draws them (matches §6.4; Entity Dictionary HC-005). Clarification only; no behavior or contract change. |
 | 3.2 (editorial) | 2026-10-28 | References updated to M03 v3.7 and M02 v3.3. M03 v3.7 adds the spoken language of audio/video in the M03 → M02 live content contract; Published Route and JourneySnapshot are unchanged and audio/video never enters a snapshot, so M01 behavior and contracts do not change. |
