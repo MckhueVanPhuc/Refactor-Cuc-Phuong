@@ -7,7 +7,7 @@
 | Module | `M03` |
 | Actor | Quản lý |
 | Priority | Must |
-| Mockup | Chưa có |
+| Mockup | [mockup-SCR-M03-006.html](../../html/mockup-SCR-M03-006.html) (HTML tĩnh, chỉ để xem tham khảo, không phải thiết kế chính thức; chưa sign-off UX) |
 | Status | Draft — đồng bộ [Spec M03 v3.7](../../../docs/spec/spec-M03.md) |
 
 Nguồn hành vi/contract: [Spec M03](../../../docs/spec/spec-M03.md) (US-M03-05, BR-M03-A01, A03, A04, K01 đến K05; `AdminAccount` §6.4; thông báo §5.6). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Chỉ Quản lý dùng màn này; hai vai trò cố định là Quản lý và Nhân viên nội dung.
@@ -22,7 +22,7 @@ Các Type/pattern trong inventory và §8 là đề xuất trình bày; control 
 
 ## 2. Mockup
 
-Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ngược business rule.
+Mockup HTML tĩnh: [mockup-SCR-M03-006.html](../../html/mockup-SCR-M03-006.html). Không dùng mockup để suy ngược business rule.
 
 ## 3. Element inventory
 

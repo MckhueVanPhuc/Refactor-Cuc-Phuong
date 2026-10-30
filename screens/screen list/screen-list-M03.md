@@ -4,7 +4,7 @@
 
 - Baseline: [Spec M03 v3.7](../../docs/spec/spec-M03.md), [Function List M03](../../docs/function%20list/function-list-M03.md).
 - Release priority: [MVP Scope](../../MVP-Scope.md). Priority dưới đây theo function scope; không thay requirement trong spec.
-- Cập nhật: 2026-10-28. Status: screen inventory và screen specification (Draft) đồng bộ baseline v3.7; chỉ có mockup tĩnh cho SCR-M03-001, 002, 003, 004 và 008 (screens/html/); chưa có route implementation.
+- Cập nhật: 2026-10-30. Status: screen inventory và screen specification (Draft) đồng bộ baseline v3.7; có mockup tĩnh cho cả 10 màn SCR-M03-000…009 (screens/html/, kèm demo tương tác trong screens/html/interactive/); chưa có route implementation.
 - Quy ước chung: [Screen index](README.md). Mọi màn bắt buộc cho administrative journey nằm trực tiếp trong danh mục M03 này.
 - Giữ ID cũ để truy vết; cách gộp screen là quyết định UI decomposition, không giả định spec yêu cầu đúng số trang này.
 

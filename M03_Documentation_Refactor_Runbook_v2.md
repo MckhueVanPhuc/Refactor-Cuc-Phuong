@@ -4,14 +4,14 @@
 
 | Thuộc tính | Giá trị |
 | --- | --- |
-| Repository | MckhueVanPhuc/Cuc-Phuong-Dbiz-Team-H |
+| Repository | MckhueVanPhuc/Refactor-Cuc-Phuong (baseline lịch sử bên dưới thuộc repository tiền thân MckhueVanPhuc/Cuc-Phuong-Dbiz-Team-H) |
 | Historical reference baseline | main @ tree SHA d37ce709376ef5ed3cb2b730d9687871ec05108d |
 | Operational baseline | Target branch + starting commit SHA do người thực thi xác nhận tại H0/P0; không tự suy từ historical reference |
 | Ngày lập runbook | 19/10/2026 |
-| Phạm vi | Refactor tài liệu; không sửa application code hoặc tests |
+| Phạm vi | Refactor tài liệu (P0–P11): không sửa application code, migration hay test trong change set tài liệu. Viết code là giai đoạn triển khai riêng sau P11 (§13) |
 | Trọng tâm | Spec-M03 → M01/M02 → Scope/Function → Architecture → Screen → Data/Database (S1→S4→DAC→review→physical) → Complete & Validate Implementation Documentation → Final audit |
 | Hosting & test data (hard rule) | Đúng một Vercel Project + một Supabase Cloud Project (Shared Backend); không seed, không reset, không destructive test trên Shared Backend; dữ liệu chỉ dùng để test, synthetic và chạy local — xem §1.3 |
-| Cập nhật V2 | 2026-10-28: đồng bộ với environment.md (Single Cloud Application Environment) và AGENTS.md §2 (bộ tài liệu V2 kết thúc ở Physical Schema) |
+| Cập nhật V2 | 2026-10-28: đồng bộ với environment.md (Single Cloud Application Environment) và AGENTS.md §2 (bộ tài liệu V2 kết thúc ở Physical Schema). 2026-10-30: P10 (I1–I5) và P11 đã thực thi cho `specs/001–003`; repo mở phạm vi code (`src/`, `specs/`, CI) và backend M03 chỉ trên stack Supabase local (CHG-M03-2026-10-30-01); thêm §13 (giai đoạn triển khai) và Phụ lục E (trạng thái thực thi) |
 
 | Nguyên tắc cốt lõi: Spec canonical phải được sửa trước. Mọi artifact dẫn xuất chỉ được đồng bộ sau khi ý nghĩa của Spec-M03 và ảnh hưởng liên module đã được chốt. Không dùng downstream document để “suy ngược” requirement mới vào spec. |
 | --- |
@@ -22,7 +22,7 @@ Nguồn lập runbook: AGENTS.md, constitution, README/docs index, Spec M01–M0
 
 Mục tiêu của tài liệu này là biến việc “sửa Spec-M03” thành một quy trình refactor có kiểm soát, có traceability và có điểm dừng rõ ràng. Nó không giả định rằng mọi thay đổi ở M03 đều kéo theo mọi file; thay vào đó, mỗi thay đổi được phân loại rồi lan truyền theo dependency thực tế.
 
-| Luồng chuẩn: Change brief → Clarify → sửa Spec-M03 → kiểm tra nội bộ M03 → phân tích contract và đồng bộ Spec-M01/M02 khi cần → MVP/Function → Architecture → Screen → Data/Database, trong đó DAC được hoàn tất sau S4 và phải pass cùng logical model trước physical design → hoàn tất và validate implementation documentation của cả M01/M02/M03 bằng các Spec-Kit gate bắt buộc → repo-wide audit. |
+| Luồng chuẩn: Change brief → Clarify → sửa Spec-M03 → kiểm tra nội bộ M03 → phân tích contract và đồng bộ Spec-M01/M02 khi cần → MVP/Function → Architecture → Screen → Data/Database, trong đó DAC được hoàn tất sau S4 và phải pass cùng logical model trước physical design → hoàn tất và validate implementation documentation của cả M01/M02/M03 bằng các Spec-Kit gate bắt buộc → repo-wide audit; sau đó là giai đoạn triển khai code riêng (§13). |
 | --- |
 
 | Mức | Khi nào dùng | Kết quả mong đợi |
@@ -35,7 +35,7 @@ Mục tiêu của tài liệu này là biến việc “sửa Spec-M03” thành
 
 **Bổ sung bắt buộc trong workflow dữ liệu:** repository cần một cross-project Data Acceptance Criteria catalog tại `data/08-data-acceptance-criteria.md`. Đây là derived validation catalog, không phải nguồn requirement độc lập. Trong các pha canonical-spec phải nhận diện validation constraint và open product decision; sau S4 mới đối chiếu chúng ở field level với logical model để hoàn tất DAC. Chỉ criterion có canonical source mới được coi là accepted; khoảng trống phải ghi `TBD-HUMAN`, và quyết định blocking của changed field phải được giải quyết trong canonical spec trước review gate.
 
-**P10 áp dụng có điều kiện (cập nhật 2026-10-29).** Theo AGENTS.md §2, package `specs/` mới được tạo theo change brief code đã duyệt. Ba package hiện có (`specs/001-m01-route-planning-preparation`, `specs/002-m02-field-quest-experience`, `specs/003-m03-operations-content-administration`) được tạo theo CHG-M01/M02/M03-2026-10-29-01; tên package cũ `00*-m0*-implementation` trong §6.5.1 chỉ là inventory lịch sử, không khôi phục. Phạm vi V2 documentation vẫn kết thúc ở Physical Schema; khi chưa chạy I1–I5 cho một package, report ghi P10 của package đó `NOT STARTED`/`NOT VALIDATED`, không ghi `NOT APPLICABLE`.
+**P10 (cập nhật 2026-10-30).** Theo AGENTS.md §2, package `specs/` mới được tạo theo change brief code đã duyệt. Ba package hiện có (`specs/001-m01-route-planning-preparation`, `specs/002-m02-field-quest-experience`, `specs/003-m03-operations-content-administration`) được tạo theo CHG-M01/M02/M03-2026-10-29-01; tên package cũ `00*-m0*-implementation` trong §6.5.1 chỉ là inventory lịch sử, không khôi phục. Phạm vi V2 documentation vẫn kết thúc ở Physical Schema; P10 đã thực thi cho cả ba package (I1–I4 trước 2026-10-30, I5 và remediation ngày 2026-10-30; trạng thái ở Phụ lục E). Với package chưa chạy I1–I5, report ghi P10 của package đó `NOT STARTED`/`NOT VALIDATED`, không ghi `NOT APPLICABLE`.
 
 # Bản đồ tài liệu
 
@@ -51,7 +51,8 @@ Mục tiêu của tài liệu này là biến việc “sửa Spec-M03” thành
 | 9 | Validation, search/diff/check commands và acceptance gates. |
 | 10–11 | Definition of Done, stable evidence/handoff reports và ví dụ impact. |
 | 12 | Practical execution troubleshooting và safe recovery. |
-| Phụ lục | Danh sách artifact in-scope/out-of-scope và baseline warnings. |
+| 13 | Giai đoạn triển khai code sau P11: điều kiện bắt đầu, thứ tự, quy tắc và validation. |
+| Phụ lục | Danh sách artifact in-scope/out-of-scope, baseline warnings, final audit checklist và trạng thái thực thi (Phụ lục E). |
 
 # 0. Handoff & Execution Preflight
 
@@ -75,7 +76,7 @@ Người bàn giao và người nhận cùng xác nhận bảng sau trong final 
 
 | Required input | Nội dung tối thiểu | Gate |
 | --- | --- | --- |
-| Repository access | URL `MckhueVanPhuc/Cuc-Phuong-Dbiz-Team-H`, quyền read/write cần thiết, authentication method không chứa secret trong report. | Clone/fetch/read target branch được. |
+| Repository access | URL `MckhueVanPhuc/Refactor-Cuc-Phuong`, quyền read/write cần thiết, authentication method không chứa secret trong report. | Clone/fetch/read target branch được. |
 | Approved M03 Change Brief | Change ID, approver, approval reference/date, Current → New, rationale và non-goals. | Thiếu approved brief → `BLOCKED`; không invent intended change. |
 | Impact identifiers | Affected FR/BR/US/FN/SCR/ENT/REL IDs, contracts, fields, rules và expected M01/M02/M03 impact khi áp dụng. | Exact refs resolve hoặc gap được đánh dấu `NEEDS HUMAN DECISION`. |
 | Human decisions | Approved business/product decisions và source location; unresolved decision có owner. | Blocking decision đã ghi vào canonical spec hoặc workflow dừng. |
@@ -187,7 +188,7 @@ if ($LASTEXITCODE -ne 0) { throw "BLOCKED: Spec-Kit prerequisite script is not c
 - `SPECIFY_FEATURE`/branch identity chỉ cung cấp label `BRANCH` hoặc fallback name; **không chứng minh package được chọn đúng**.
 - `check_prerequisites.py --json --paths-only` gọi resolver ở `no_persist` mode nên không tạo/sửa `.specify/feature.json`.
 - `check_prerequisites.py` không có `--paths-only`, `setup_plan.py` và `setup_tasks.py` dùng normal resolver; khi `SPECIFY_FEATURE_DIRECTORY` được set, chúng có thể create/update `.specify/feature.json`.
-- `.specify/feature.json` là machine/operator selection state và được ignore bởi `.gitignore`; nó không phải product documentation.
+- `.specify/feature.json` là machine/operator selection state và được ignore bởi `.specify/.gitignore`; nó không phải product documentation.
 
 Nếu `.specify/feature.json` đã tồn tại trước session, ghi content hash/path/owner và **không overwrite/delete** khi chưa được phép. Preferred recovery cho stale/user-owned config là dùng dedicated approved worktree hoặc xin phép temporary update + exact restore. Nếu file không tồn tại và current operation tạo nó, chỉ cleanup file đó khi cleanup đã được phép và evidence chứng minh nó không pre-exist.
 
@@ -196,7 +197,7 @@ Nếu `.specify/feature.json` đã tồn tại trước session, ghi content has
 Xử lý tuần tự theo thứ tự M01 → M02 → M03. **Working directory:** `$RepoRoot`. **Prerequisite:** H0–H1 PASS và package path tồn tại.
 
 ```powershell
-$Package = 'specs/001-m01-implementation' # đổi tuần tự sang 002 rồi 003
+$Package = 'specs/001-m01-route-planning-preparation' # đổi tuần tự sang specs/002-m02-field-quest-experience rồi specs/003-m03-operations-content-administration
 $env:SPECIFY_FEATURE_DIRECTORY = $Package
 
 $pathJson = & $SpecKitPythonExe @SpecKitPythonPrefixArgs ".specify/scripts/python/check_prerequisites.py" --json --paths-only
@@ -227,7 +228,7 @@ Lặp lại path verification **ngay trước mỗi skill có thể write** (`cl
 ```powershell
 git status --short
 git diff --name-only
-git diff -- "specs/001-m01-implementation"
+git diff -- "specs/001-m01-route-planning-preparation"
 ```
 
 Expected: changed files chỉ nằm trong package đang active và report area được duyệt. Nếu diff ra package khác/excluded path, dừng, bảo toàn worktree, ghi evidence và xin hướng dẫn; không dùng reset/checkout/delete để “sửa nhanh”. Hoàn tất package gate và readiness row trước khi đổi `$Package`.
@@ -265,11 +266,11 @@ Runbook này áp dụng khi thay đổi behavioral/contract baseline của M03 h
 
 - Data/database docs (bộ V2): data/01…06 và **data/08-data-acceptance-criteria.md**. data/07-storage-validation.md, data/schema/field-mapping.md và data/seed/** không thuộc bộ V2 (AGENTS.md §2; chính sách ở §1.3); nếu còn tồn tại như dữ liệu lịch sử V1 thì không sửa và chỉ ghi nhận stale risk.
 
-- Implementation documentation (áp dụng có điều kiện, AGENTS.md §2): specs/001-m01-route-planning-preparation, specs/002-m02-field-quest-experience, specs/003-m03-operations-content-administration và contracts dưới từng module, nhưng chỉ phần tài liệu.
+- Implementation documentation (AGENTS.md §2): specs/001-m01-route-planning-preparation, specs/002-m02-field-quest-experience, specs/003-m03-operations-content-administration và contracts dưới từng module, nhưng chỉ phần tài liệu.
 
 - Entry/index/governance docs: README.md, docs/README.md, AGENTS.md, supabase/README.md chỉ khi trigger tương ứng xảy ra.
 
-- Workflow support: năm `.claude/skills/speckit-{clarify,checklist,plan,tasks,analyze}/SKILL.md` chỉ được sửa khi task explicit nhắm vào portability/execution reliability; `.gitignore` chỉ được cập nhật để bảo vệ machine-local `.specify/feature.json`. Đây không phải phạm vi mặc định của ordinary M03 refactor.
+- Workflow support: năm `.claude/skills/speckit-{clarify,checklist,plan,tasks,analyze}/SKILL.md` chỉ được sửa khi task explicit nhắm vào portability/execution reliability; machine-local `.specify/feature.json` đã được bảo vệ bởi `.specify/.gitignore`. Đây không phải phạm vi mặc định của ordinary M03 refactor.
 
 ## 1.2 Artifact cố định: không sửa trong refactor này
 
@@ -279,7 +280,7 @@ Runbook này áp dụng khi thay đổi behavioral/contract baseline của M03 h
 | Product documentation templates | docs/templates/** | Template không phải downstream product requirement. |
 | Spec-Kit infrastructure | .specify/scripts/**; .specify/templates/** | Không sửa script/template dùng chung nếu chưa chứng minh blocker không thể xử lý bằng runbook/skill instructions và chưa xin approval riêng. |
 | Historical/source | PCCV_DBIZ3_TEAM-H.docx; Stakeholder Interview & Problem Define.pdf | Nguồn/historical artifact; không rewrite theo baseline mới. |
-| Code & tests | tests/**; application handlers; SQL/Edge implementation; migrations | Người dùng yêu cầu không tính code/test trong change set tài liệu này. src/** và specs/** đã mở phạm vi theo AGENTS.md §2, chỉ dùng trong change brief code. |
+| Code & tests | tests/**; application handlers; SQL/Edge implementation; migrations | Không tính code/test trong change set refactor tài liệu (P0–P11). Code là giai đoạn triển khai riêng (§13): `src/**`, `e2e/**`, `.github/workflows/ci.yml` và backend M03 chỉ trên stack Supabase local (`supabase/**`) đã mở phạm vi theo AGENTS.md §2 và CHG-M03-2026-10-30-01; áp lên cloud và deploy vẫn cần change brief riêng. |
 | Prototype/visual code | design-prototypes/**; capture-*.js và generated screenshots | Implementation/prototype; không thuộc refactor tài liệu lần này. |
 
 Ngoại lệ: `supabase/README.md` là tài liệu, không phải code. Chỉ REVIEW nếu thay đổi M03 làm đổi quy trình database/Auth/seed/deployment. Không vì README nằm trong `supabase/` mà mặc định loại bỏ.
@@ -295,7 +296,7 @@ Chính sách này lấy từ [docs/architecture/environment.md](docs/architectur
 | Nơi chạy test | Local Development Workstation hoặc runtime cô lập/ephemeral. Auth/RLS/Storage/Edge cần runtime cô lập; nếu không có thì ghi `NOT RUN`, không chuyển sang Shared Backend. |
 | Shared Backend (cloud) | **Cấm** seed, remote reset, load dữ liệu test hàng loạt và mọi destructive test (Auth/RLS/Storage/Edge/database). Chỉ cho phép smoke check **non-destructive**, có owner, không ghi đè hay xóa dữ liệu thật và không làm lệch report. |
 | Migration | Chỉ apply vào single linked project sau approval riêng; không sửa migration history đã apply; operator kiểm tra project ref trước mọi remote command. |
-| Repository V2 | Documentation-only: không chứa seed script, CSV fixture, migration, Edge Function, test hay cấu hình runtime (AGENTS.md §2). Runbook không yêu cầu tạo chúng. |
+| Repository V2 | Bộ tài liệu V2 là documentation-only: không có seed script hay CSV fixture (`data/seed/` không tồn tại). Từ 2026-10-28/30 repo có thêm code theo AGENTS.md §2: `src/`, `e2e/`, CI và backend M03 chỉ trên stack local (`supabase/config.toml`, `seed.sql` synthetic, migrations, functions, tests, scripts theo CHG-M03-2026-10-30-01). Không phần nào trong số này được chạm Shared Backend. |
 | Boundary evidence | Boundary class trong DAC §5.2 là test case cho giai đoạn implementation sau này, chạy local trên dữ liệu synthetic. Trước khi chạy thật, trạng thái là `PENDING`/`NOT RUN`; không dùng evidence lịch sử V1 cho baseline mới. |
 | Bảo vệ hosting | Mọi lệnh có thể ghi vào cloud (deploy, `db push`, `db reset`, seed, thao tác Storage hàng loạt) phải có phê duyệt riêng của chủ dự án; mặc định đều bị cấm trong runbook này. |
 
@@ -311,7 +312,7 @@ Runbook phân biệt ba lớp tài liệu và không cho phép lớp sau overrid
 | --- | --- | --- |
 | **Layer 1 — Canonical Specifications** | `docs/spec/spec-M01.md`, `docs/spec/spec-M02.md`, `docs/spec/spec-M03.md` | Định nghĩa authoritative business behavior, requirement, rule và module contract. |
 | **Layer 2 — Derived Documentation** | MVP Scope, Function Lists, Architecture, Screen Specs, Data Model, DAC và các data artifact liên quan | Chuyển canonical requirement thành tài liệu có cấu trúc; không tạo thêm business behavior. |
-| **Layer 3 — Implementation Documentation** (áp dụng có điều kiện, AGENTS.md §2) | `specs/001-m01-route-planning-preparation/`, `specs/002-m02-field-quest-experience/`, `specs/003-m03-operations-content-administration/` | Mô tả implementation assumption, application flow, technical contract, plan, data model, quickstart và task; chỉ tạo theo change brief đã duyệt, không thực thi code. |
+| **Layer 3 — Implementation Documentation** (AGENTS.md §2) | `specs/001-m01-route-planning-preparation/`, `specs/002-m02-field-quest-experience/`, `specs/003-m03-operations-content-administration/` | Mô tả implementation assumption, application flow, technical contract, plan, data model, quickstart và task; chỉ tạo theo change brief đã duyệt. Thực thi task/code thuộc giai đoạn triển khai (§13), không thuộc P10. |
 
 | Thứ tự/Owner | Artifact | Quy tắc |
 | --- | --- | --- |
@@ -329,7 +330,7 @@ Runbook phân biệt ba lớp tài liệu và không cho phép lớp sau overrid
 | Producer | Contract / projection | Consumer | Ý nghĩa khi refactor |
 | --- | --- | --- | --- |
 | M03 | Published Route; JourneySnapshot | M01 | Nếu shape/availability/version semantics đổi → Spec-M01 và downstream M01 phải REVIEW. |
-| M01 | LanguagePreference; SelectedRouteContext v2; ready OfflinePackage | M02 | M03 chỉ tác động gián tiếp nếu thay đổi source snapshot làm đổi handoff/package semantics. |
+| M01 | LanguagePreference; SelectedRouteContext v3; ready OfflinePackage | M02 | M03 chỉ tác động gián tiếp nếu thay đổi source snapshot làm đổi handoff/package semantics. |
 | M03 | LiveStationContent + QR lookup result | M02 | Nếu live content/QR semantics đổi → Spec-M02 và M02 contracts/screens phải REVIEW. |
 | M02 | SessionSyncRecord | M03 → canonical SessionRecord | Nếu intake/report payload semantics đổi → Spec-M02 + M03 + data docs phải cùng rebaseline. |
 
@@ -362,7 +363,7 @@ Change Brief phải nhận diện sớm validation constraint và product decisi
 | Loại thay đổi | Ví dụ | Impact mặc định | Điểm kiểm tra |
 | --- | --- | --- | --- |
 | C1 — Wording/clarity | Viết lại câu nhưng không đổi behavior, field, state, contract. | Spec-M03; downstream thường NO CHANGE. | Diff semantics: không đổi acceptance, BR, producer/consumer. |
-| C2 — M03 internal behavior | Đổi maker-checker, lifecycle, validation admin nhưng không đổi public contract. | M03 + Function + Screen/Data tùy rule. | M01/M02 phải chứng minh NO CHANGE. |
+| C2 — M03 internal behavior | Đổi quy tắc review/xuất bản, lifecycle, validation admin nhưng không đổi public contract. | M03 + Function + Screen/Data tùy rule. | M01/M02 phải chứng minh NO CHANGE. |
 | C3 — Cross-module contract | Đổi Published Route, JourneySnapshot, LiveStationContent, QR lookup, SessionSyncRecord semantics. | M03 + M01/M02 + Architecture + Data + implementation contracts. | Producer/consumer shape + versioning + compatibility. |
 | C4 — Domain/data model | Thêm/bỏ field, entity, identity, relationship, retention, cardinality, format, range hoặc length rule. | M03 + full data chain, với DAC sau S4; M01/M02 nếu exposed/copied. | Không nhảy thẳng sang DAC hoặc physical schema; không invent min/max/length khi source chưa có. |
 | C5 — MVP boundary/priority | Must↔Should; thêm/remove capability khỏi MVP. | MVP-Scope + related function list; spec chỉ đổi nếu behavior scope thực sự đổi. | Không dùng priority để xóa requirement. |
@@ -393,8 +394,10 @@ Thứ tự dưới đây là dependency order. Không “song song hóa” nhữ
 | P7 | Sync Architecture | Context/usage/sequence/system config; tech/environment chỉ khi trigger kỹ thuật thực sự có. |
 | P8 | Sync Screen Documentation | Inventory + screen specs cho field/action/state/role/error/coverage bị đổi; không dùng UI suy ngược rule. |
 | P9 | Sync Data/Database Documentation, including DAC after S4 | S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema→Field Mapping→Seed/edge-case evidence→Storage Validation evidence only if executed. Không infer physical choices hoặc hand-edit generated artifacts. V2: theo AGENTS.md §2, active documentation set kết thúc ở Physical Schema; Field Mapping, Seed và Storage Validation không thuộc phạm vi V2. |
-| P10 | Implementation Documentation — **áp dụng có điều kiện** | Theo AGENTS.md §2 và change brief CHG-M01/M02/M03-2026-10-29-01: đã có `spec.md` cho `specs/001`, `002`, `003`; I1–I5 chưa chạy nên P10 `NOT VALIDATED` cho tới khi chạy. §6.5.1 là inventory V1 lịch sử. |
+| P10 | Implementation Documentation | Theo AGENTS.md §2 và change brief CHG-M01/M02/M03-2026-10-29-01: I1–I5 đã thực thi cho `specs/001`, `002`, `003` (I5 và remediation ngày 2026-10-30); readiness cả ba package `READY`. Xem Phụ lục E. |
 | P11 | Repository-wide Final Audit | Search canonical names/IDs/old terms; diff review; validate phase references, version/date/link/coverage; classify remaining stale items. |
+
+Sau P11 (ngoài chuỗi P0–P11) là giai đoạn triển khai code theo `tasks.md` của từng package — xem §13.
 
 ## 5.1 P2 — cách sửa Spec-M03 đúng thứ tự
 
@@ -438,7 +441,7 @@ Thứ tự dưới đây là dependency order. Không “song song hóa” nhữ
 | docs/spec/spec-M01.md | CONDITIONAL | Published Route/JourneySnapshot/availability/start/offline handoff semantics đổi. | Consumer contract + BR/US/FR impacted only. |
 | docs/spec/spec-M02.md | CONDITIONAL | LiveStationContent/QR/frozen journey/SessionSyncRecord semantics đổi. | Producer/consumer + session/content rules. |
 | MVP-Scope.md | CONDITIONAL | Priority, release gate, Won’t, cross-module increment/boundary đổi. | Must/Should/Could/Won’t không làm mất spec behavior. |
-| docs/function list/function-list-M03.md | USUALLY MUST | FR/function/sub-function mapping hoặc M03 responsibility đổi. | FN/SF stable ID + 16 FR coverage hoặc updated count. |
+| docs/function list/function-list-M03.md | USUALLY MUST | FR/function/sub-function mapping hoặc M03 responsibility đổi. | FN/SF stable ID + 18 FR đang dùng (FR-M03-017 retired) hoặc updated count. |
 | function-list-M01/M02.md | CONDITIONAL | Spec-M01/M02 bị đổi. | FN/SF/FR coverage, no new behavior beyond spec. |
 
 ## 6.2 Architecture
@@ -458,13 +461,13 @@ Thứ tự dưới đây là dependency order. Không “song song hóa” nhữ
 | Artifact | Trigger | Hành động |
 | --- | --- | --- |
 | screens/screen list/screen-list-M03.md | Field/action/state/guard/role/navigation/FR mapping của M03 đổi. | Update inventory, descriptions, FR coverage, embedded/background behavior. |
-| screens/screen-spec/M03/000…007 | Screen tương ứng hiển thị/nhập/guard/error state khác. | Chỉ sửa screen impacted; giữ SCR IDs. |
+| screens/screen-spec/M03/000…009 | Screen tương ứng hiển thị/nhập/guard/error state khác. | Chỉ sửa screen impacted; giữ SCR IDs. |
 | screen-list-M01 + screen-spec/M01 | M03 thay đổi public route/snapshot làm UI M01 cần field/state/start behavior mới. | Update affected screen + FR mapping. |
 | screen-list-M02 + screen-spec/M02 | Live QR/content/frozen journey/session sync behavior visible/change state. | Update affected screen + state/error/coverage. |
 | screens/screen list/README.md | Screen counts/coverage/version summary đổi. | Sync index only; không định nghĩa behavior. |
 | screens/html/mockup-SCR-Mxx-nnn.html | Screen spec tương ứng đổi hiển thị/state/guard. | Chỉ sửa mockup của screen impacted; mockup không tạo requirement. |
 
-| Known stale metadata: Ở baseline hiện tại, screen-list-M03 §7 và screen inventory README vẫn nói target screen specs chưa tồn tại, nhưng repository đã có đủ 8 file dưới screens/screen-spec/M03/. Khi chạm nhóm screen docs, nên sửa metadata này; không dùng câu stale đó để kết luận phải tạo file mới. |
+| Known stale metadata (đã xử lý ở baseline V2): screen-list-M03 và screen inventory README không còn nói screen spec chưa tồn tại; repository có đủ 10 file dưới screens/screen-spec/M03/ (000…009). Không dùng metadata cũ để kết luận phải tạo file mới. |
 | --- |
 
 ## 6.4 Data / Database artifacts
@@ -476,7 +479,7 @@ Thứ tự dưới đây là dependency order. Không “song song hóa” nhữ
 | data/03-erd.mmd + 03-erd-preview.md + 03-erd-review.md | Canonical relationship model | Entity/relationship/cardinality/source link đổi. |
 | data/04-data-model.md | Authoritative logical model | Logical field/type/presence/validation/lifecycle/relationship đổi. |
 | data/04-data-model.dbml | Visualization of S4 | S4 structural representation đổi; Markdown thắng nếu conflict. |
-| **data/08-data-acceptance-criteria.md (NEW)** | Cross-project derived field/value acceptance catalog, hoàn tất sau S4 | Tạo trong refactor này. Reconcile canonical rules với logical fields khi field/type/presence/enum/range/length/format/array-size/uniqueness/cross-field rule đổi. Mọi criterion phải có source; thiếu source → `TBD-HUMAN`, không tự chọn số. |
+| **data/08-data-acceptance-criteria.md** (V2: COMPLETE) | Cross-project derived field/value acceptance catalog, hoàn tất sau S4 | Đã tạo và hoàn tất ở V2 (118 criteria, 0 `TBD-HUMAN`). Reconcile canonical rules với logical fields khi field/type/presence/enum/range/length/format/array-size/uniqueness/cross-field rule đổi. Mọi criterion phải có source; thiếu source → `TBD-HUMAN`, không tự chọn số. |
 | data/05-review.md | Logical-model/DAC review gate | S1–S4 hoặc DAC baseline/counts/decisions change; review cả logical model và field-level acceptance coverage trước physical design; ghi conclusion mới, không silent patch. |
 | data/06-physical-schema.md | Physical persistence design | Approved logical model requires storage/schema mapping change. |
 | data/schema/field-mapping.md | Generated logical→physical mapping | Ngoài bộ V2 (§1.3). Nếu tồn tại: artifact lịch sử V1, không sửa; chỉ regenerate khi implementation phase được yêu cầu. |
@@ -485,19 +488,19 @@ Thứ tự dưới đây là dependency order. Không “song song hóa” nhữ
 | data/seed/README.md | Seed package instructions/coverage | Ngoài bộ V2 (§1.3); không viết hướng dẫn seed Shared Backend. |
 | data/07-storage-validation.md | Executed validation evidence | Ngoài bộ V2 (§1.3). Chỉ ghi kết quả mới sau khi validation thực sự chạy trên runtime cô lập; evidence cũ là baseline-specific. |
 
-## 6.5 Implementation documentation under specs/ (áp dụng có điều kiện, theo AGENTS.md §2)
+## 6.5 Implementation documentation under specs/ (theo AGENTS.md §2)
 
-**Cập nhật 2026-10-29:** AGENTS.md §2 cho phép package `specs/` theo change brief code; tên package hiện hành nằm ở đoạn P10 đầu runbook, bảng §6.5.1 bên dưới là inventory V1 lịch sử. Đây là **Layer 3 — Implementation Documentation**, tách biệt với canonical specs (Layer 1) và derived documentation (Layer 2). Sau khi P9 ổn định, P10 bắt buộc xử lý **cả ba package** đến trạng thái complete, internally consistent và implementation-ready, đủ để future coding bắt đầu mà không cần thêm một documentation-generation phase. Existing content đúng phải được giữ; artifact không đổi có thể ghi `NO CHANGE` sau full validation, nhưng `NO CHANGE` không bao giờ thay thế completeness check hoặc che tài liệu thiếu/stale.
+**Cập nhật 2026-10-29:** AGENTS.md §2 cho phép package `specs/` theo change brief code; tên package hiện hành nằm ở đoạn P10 đầu runbook, bảng §6.5.1 bên dưới là inventory active-ref đã xác minh 2026-10-30 (thay inventory V1 lịch sử). Đây là **Layer 3 — Implementation Documentation**, tách biệt với canonical specs (Layer 1) và derived documentation (Layer 2). Sau khi P9 ổn định, P10 bắt buộc xử lý **cả ba package** đến trạng thái complete, internally consistent và implementation-ready, đủ để future coding bắt đầu mà không cần thêm một documentation-generation phase. Existing content đúng phải được giữ; artifact không đổi có thể ghi `NO CHANGE` sau full validation, nhưng `NO CHANGE` không bao giờ thay thế completeness check hoặc che tài liệu thiếu/stale.
 
 ### 6.5.1 Baseline inventory đã xác minh và quy tắc re-inventory
 
-Inventory dưới đây đã được xác minh tại baseline tree SHA của runbook. P10 phải inventory lại active ref trước khi sửa vì file có thể đã đổi; không giả định ba package có cấu trúc giống nhau và không tạo duplicate contract.
+Inventory dưới đây được xác minh trên active ref ngày 2026-10-30 (sau commit 1b0716f). P10 phải inventory lại active ref trước khi sửa vì file có thể đã đổi; không giả định ba package có cấu trúc giống nhau và không tạo duplicate contract.
 
 | Package | Core artifacts hiện có | Contracts hiện có | Artifact bổ sung |
 | --- | --- | --- | --- |
-| `specs/001-m01-implementation/` | `spec.md`, `research.md`, `plan.md`, `data-model.md`, `quickstart.md`, `tasks.md` | `application-flow-contract.md`, `local-persistence-contract.md`, `public-source-contract.md` | Không có validation report riêng trong baseline inventory. |
-| `specs/002-m02-implementation/` | `spec.md`, `research.md`, `plan.md`, `data-model.md`, `quickstart.md`, `tasks.md` | `application-flow-contract.md`, `live-content-contract.md`, `local-persistence-contract.md`, `terminal-sync-contract.md` | Không có validation report riêng trong baseline inventory. |
-| `specs/003-m03-implementation/` | `spec.md`, `research.md`, `plan.md`, `data-model.md`, `quickstart.md`, `tasks.md` | `admin-command-contract.md`, `admin-ui-flow-contract.md`, `auth-account-contract.md`, `media-storage-contract.md`, `publication-public-contract.md`, `session-reporting-contract.md` | `backend-pass5-validation.md`, `backend-pass6-validation.md` là historical evidence. |
+| `specs/001-m01-route-planning-preparation/` | `spec.md`, `research.md`, `plan.md`, `data-model.md`, `quickstart.md`, `tasks.md` | `language-preference-contract.md`, `m03-publication-consumer-contract.md`, `offline-package-contract.md`, `selected-route-context-v3-contract.md`, `visitor-ui-flow-contract.md` | `checklists/requirements-quality.md`. |
+| `specs/002-m02-field-quest-experience/` | `spec.md`, `research.md`, `plan.md`, `data-model.md`, `quickstart.md`, `tasks.md` | `field-ui-flow-contract.md`, `live-qr-lookup-consumer-contract.md`, `m01-shared-data-consumer-contract.md`, `scan-resolution-contract.md`, `session-sync-record-contract.md` | `checklists/requirements-quality.md`. |
+| `specs/003-m03-operations-content-administration/` | `spec.md`, `research.md`, `plan.md`, `data-model.md`, `quickstart.md`, `tasks.md` | `admin-command-contract.md`, `admin-ui-flow-contract.md`, `auth-account-contract.md`, `live-qr-lookup-contract.md`, `media-storage-contract.md`, `publication-public-contract.md`, `session-intake-contract.md` | `checklists/requirements-quality.md`; `change-brief-CHG-M03-2026-10-30-01-backend.md` (APPROVED 2026-10-30). Các file `backend-pass5/6-validation.md` của V1 không còn trong package. |
 
 Nếu active ref có thêm/bớt file, P10 report phải ghi delta so với inventory này. Contract mới chỉ được tạo khi approved upstream specification thực sự cần một interface chưa có owner; ưu tiên hoàn tất contract hiện hữu thay vì nhân bản cùng responsibility.
 
@@ -562,7 +565,7 @@ Technical-only clarification chỉ được ghi trực tiếp ở Layer 3 khi kh
 | I4 — Task Generation | `speckit-tasks` | Mandatory only after I3 stable; produces dependency-ordered, user-story-organized `tasks.md`. Invocation context must explicitly request applicable unit/integration/acceptance-test tasks. Never execute generated tasks. | Task path/count, per-story breakdown, dependency/parallel map, strict-format result, hook result. | Every approved implementation requirement and applicable test area has executable future work; completion markers preserve evidence. |
 | I5 — Cross-Artifact Analysis | `speckit-analyze` | Mandatory read-only analysis after tasks; core capability covers spec/plan/tasks + constitution. Supplement it with P10 matrices for contracts↔DAC, plan↔data model and cross-module compatibility. | Analysis report/metrics plus supplemental matrix and remediation rerun log. | No blocking inconsistency, uncovered requirement, contradictory/obsolete item or constitution violation. |
 
-`speckit-specify` chỉ dùng khi có phê duyệt tạo feature/package mới hoặc actual instruction hỗ trợ existing-package workflow. `speckit-implement` bị cấm trong P10. `speckit-converge` bị loại vì codebase convergence ngoài scope. `speckit-constitution` chỉ dùng khi governance change được explicit approve. Nếu mandatory skill unavailable, incompatible, resolve sai package hoặc không thể chạy, P10 phải ghi `BLOCKED`; manual editing không được giả làm successful skill execution.
+`speckit-specify` chỉ dùng khi có phê duyệt tạo feature/package mới hoặc actual instruction hỗ trợ existing-package workflow. `speckit-implement` bị cấm trong P10 (dùng ở giai đoạn triển khai, §13). `speckit-converge` bị loại khỏi P10 vì codebase convergence ngoài scope tài liệu (dùng được ở §13). `speckit-constitution` chỉ dùng khi governance change được explicit approve. Nếu mandatory skill unavailable, incompatible, resolve sai package hoặc không thể chạy, P10 phải ghi `BLOCKED`; manual editing không được giả làm successful skill execution.
 
 ### 6.5.5 P10 Definition of Done — mandatory acceptance gate
 
@@ -648,7 +651,7 @@ Các con số như 16 canonical entities, 21 relationship IDs, 17 CSV/95 records
 
 ### 7.3.1 Mục đích và vị trí trong repository
 
-Tạo mới **`data/08-data-acceptance-criteria.md`** như một catalog kiểm tra dữ liệu dùng chung cho M01, M02 và M03. Artifact này giải quyết đúng khoảng trống hiện tại: repository đã mô tả type, enum, presence, uniqueness, lifecycle và một số boundary rule, nhưng **chưa có một nơi duy nhất tổng hợp đầy đủ các điều kiện chấp nhận dữ liệu như min/max, max length, blank/null, format, array cardinality và cross-field rule**.
+Artifact **`data/08-data-acceptance-criteria.md`** (đã tạo và hoàn tất ở V2; phần mô tả dưới đây giữ làm quy tắc khi cập nhật) là một catalog kiểm tra dữ liệu dùng chung cho M01, M02 và M03. Artifact này giải quyết đúng khoảng trống hiện tại: repository đã mô tả type, enum, presence, uniqueness, lifecycle và một số boundary rule, nhưng **chưa có một nơi duy nhất tổng hợp đầy đủ các điều kiện chấp nhận dữ liệu như min/max, max length, blank/null, format, array cardinality và cross-field rule**.
 
 `08-data-acceptance-criteria.md` là **derived validation catalog**, không phải nguồn tạo behavior mới. Trong P1–P5 phải nhận diện source-backed rule và unresolved product decision; đến P9, sau khi S4 ổn định, mới hoàn tất coverage ở field level. Thứ tự authority và dependency phải giữ:
 
@@ -697,7 +700,7 @@ Khuyến nghị một dòng cho mỗi field hoặc một rule cross-field. Dùng
 | --- | --- |
 | `DAC ID` | Stable identifier của criterion. |
 | `Module` | M01 / M02 / M03 / CROSS. |
-| `Entity / Contract` | Route, JourneySnapshot, SelectedRouteContext v2, SessionSyncRecord, v.v. |
+| `Entity / Contract` | Route, JourneySnapshot, SelectedRouteContext v3, SessionSyncRecord, v.v. |
 | `Field path / Rule` | Exact path hoặc tên cross-field rule. |
 | `Logical type` | Lấy từ spec/S4; không tự đổi type. |
 | `Presence` | Required / Optional / Conditional. |
@@ -859,8 +862,8 @@ Repository có các skill dưới `.claude/skills`. H0–H2 phải resolve porta
 | speckit-tasks | Tạo dependency-ordered future implementation tasks từ stable spec/plan/design. | P10/I4 cho từng package; invocation phải yêu cầu applicable test coverage; preserve evidence-backed completed history; không execute task. | MANDATORY P10 GATE |
 | speckit-analyze | Read-only cross-check core spec/plan/tasks sau task generation. | P10/I5 cho cả ba package; capture report rồi supplement bằng contract↔DAC, plan↔data-model và cross-module matrices; remediation diễn ra ngoài skill và phải rerun relevant checks. | MANDATORY P10 GATE |
 | speckit-specify | Tạo feature package mới under specs/. | Không dùng để “edit existing canonical M03”. Chỉ dùng nếu change được quản lý như feature package mới. | NOT DEFAULT |
-| speckit-implement | Execute tasks / code implementation. | Cấm trong P10 — tài liệu và task list được hoàn tất để handoff, nhưng code/test không được thực thi. | DO NOT USE |
-| speckit-converge | Compare codebase với spec/plan/tasks và append remaining work. | Không dùng — codebase assessment nằm ngoài scope refactor tài liệu. | DO NOT USE |
+| speckit-implement | Execute tasks / code implementation. | Cấm trong P10: tài liệu và task list được hoàn tất để handoff, code/test không được thực thi. Dùng ở giai đoạn triển khai (§13) sau P11, theo thứ tự phase của `tasks.md` và phạm vi AGENTS.md §2. | P0–P11: DO NOT USE; §13: ALLOWED |
+| speckit-converge | Compare codebase với spec/plan/tasks và append remaining work. | Không dùng trong P0–P11 (codebase assessment ngoài scope refactor tài liệu). Ở giai đoạn triển khai (§13) dùng để so codebase với spec/plan/tasks và append việc còn thiếu vào `tasks.md`. | P0–P11: DO NOT USE; §13: ALLOWED |
 | speckit-constitution | Thay governance principles. | Không dùng cho ordinary M03 change; chỉ khi user explicit sửa constitution. | NO CHANGE |
 
 ## 8.1 Recommended skill sequence
@@ -879,10 +882,11 @@ Repository có các skill dưới `.claude/skills`. H0–H2 phải resolve porta
 | P10/I5 | speckit-analyze + supplemental matrices | Core report + contracts/DAC/data/cross-module validation; blocking findings resolved và checks rerun. |
 | P10 handoff | Completeness matrix + readiness report | Cả ba package `READY`; future implementation entry point rõ; task/code chưa chạy. |
 | P11, trước merge docs | GitHub search/diff + AGENTS validation matrix | Không còn stale canonical names/IDs/versions/links trong in-scope docs; phase/order nhất quán; historical evidence không bị trình bày như validation mới. |
+| §13, triển khai code | speckit-implement (+ speckit-converge khi cần) | Task hoàn tất kèm lệnh đã chạy và kết quả; phần chưa chạy ghi `NOT RUN`; chỉ trong phạm vi AGENTS.md §2 và change brief tương ứng. |
 
 ## 8.2 Prompt gợi ý cho agent khi bắt đầu refactor
 
-| Read-only first. Do not edit code, tests, SQL migrations, Edge Functions/RPCs, runtime configuration, design-decisions, shared scripts/templates or historical evidence. 0) Run H0–H3: verify approved Change Brief, active Git baseline/worktree ownership, portable Python/skill availability, report root and ownership. 1) Before P0 and every Spec-Kit skill, set intended `SPECIFY_FEATURE_DIRECTORY`, run `check_prerequisites.py --json --paths-only`, verify `FEATURE_DIR`/`FEATURE_SPEC`/`IMPL_PLAN`/`TASKS`, and record evidence; branch name is not package selection. 2) Read AGENTS.md/constitution/canonical specs and classify C1–C6. 3) Keep Layer 1 canonical, Layer 2 derived and Layer 3 implementation authority distinct; business/product/contract clarification requires human approval and canonical update before Layer 3 integration. 4) Complete P1–P8 in order. 5) P9 stays S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema and ends there for the V2 set; no seed, remote reset or destructive test on the single Supabase/Vercel Shared Backend (§1.3); never pass blocking `TBD-HUMAN`. 6) P10 theo AGENTS.md §2 và change brief đã duyệt; không tạo package `specs/` ngoài change brief. 7) Báo cáo cuối đặt trong final change report/PR description (§10.2), không tạo thư mục báo cáo; không execute task hoặc claim runtime validation. 8) Preserve stable IDs/ownership/names. 9) End with P11 diff/exclusion audit and explicit handoff verdict; if end-to-end skills were not run, state `END-TO-END SKILL EXECUTION: NOT VALIDATED`. |
+| Read-only first. Do not edit code, tests, SQL migrations, Edge Functions/RPCs, runtime configuration, design-decisions, shared scripts/templates or historical evidence. 0) Run H0–H3: verify approved Change Brief, active Git baseline/worktree ownership, portable Python/skill availability, report root and ownership. 1) Before P0 and every Spec-Kit skill, set intended `SPECIFY_FEATURE_DIRECTORY`, run `check_prerequisites.py --json --paths-only`, verify `FEATURE_DIR`/`FEATURE_SPEC`/`IMPL_PLAN`/`TASKS`, and record evidence; branch name is not package selection. 2) Read AGENTS.md/constitution/canonical specs and classify C1–C6. 3) Keep Layer 1 canonical, Layer 2 derived and Layer 3 implementation authority distinct; business/product/contract clarification requires human approval and canonical update before Layer 3 integration. 4) Complete P1–P8 in order. 5) P9 stays S1→S2→S3→S4→DAC→logical-model/DAC review→Physical Schema and ends there for the V2 set; no seed, remote reset or destructive test on the single Supabase/Vercel Shared Backend (§1.3); never pass blocking `TBD-HUMAN`. 6) P10 theo AGENTS.md §2 và change brief đã duyệt; không tạo package `specs/` ngoài change brief. 7) Báo cáo cuối đặt trong final change report/PR description (§10.2), không tạo thư mục báo cáo; không execute task hoặc claim runtime validation. 8) Preserve stable IDs/ownership/names. 9) End with P11 diff/exclusion audit and explicit handoff verdict; if end-to-end skills were not run, state `END-TO-END SKILL EXECUTION: NOT VALIDATED`. This prompt covers P0–P11 only; code work follows runbook §13. |
 | --- |
 
 # 9. Validation và final audit
@@ -913,7 +917,7 @@ Sau khi sửa, search các tên canonical và ID liên quan để tìm wording c
 
 - FR-M03-, BR-M03-, FN-M03-, SCR-M03-, US-M03-
 
-- Published Route, JourneySnapshot, LiveStationContent, QR lookup, SelectedRouteContext v2, OfflinePackage, SessionSyncRecord, SessionRecord
+- Published Route, JourneySnapshot, LiveStationContent, QR lookup, SelectedRouteContext (mọi version; chỉ v3 hợp lệ), OfflinePackage, SessionSyncRecord, SessionRecord
 
 - CONTENT_STAFF, REVIEWER và các status/lifecycle enum bị thay đổi
 
@@ -955,7 +959,7 @@ Expected: first JSON có đúng `FEATURE_DIR`, `FEATURE_SPEC`, `IMPL_PLAN`, `TAS
 ```powershell
 rg -n "FR-M03-|BR-M03-|FN-M03-|SCR-M03-|US-M03-" docs screens data specs "MVP-Scope.md"
 
-rg -n "Published Route|JourneySnapshot|LiveStationContent|SelectedRouteContext v2|OfflinePackage|SessionSyncRecord|SessionRecord" docs screens data specs "README.md" "MVP-Scope.md" "AGENTS.md"
+rg -n "Published Route|JourneySnapshot|LiveStationContent|SelectedRouteContext v[0-9]|OfflinePackage|SessionSyncRecord|SessionRecord" docs screens data specs "README.md" "MVP-Scope.md" "AGENTS.md"
 ```
 
 Expected: mỗi changed ID/name có consistent source và downstream references. Failure: missing source, stale/renamed contract hoặc unexpected duplicate semantics. Recovery: trace về canonical owner; sửa source-owning artifact trước, không global replace mù.
@@ -965,9 +969,9 @@ Expected: mỗi changed ID/name có consistent source và downstream references.
 ```powershell
 git status --short
 git diff --name-only
-git diff -- "specs/001-m01-implementation"
-git diff -- "specs/002-m02-implementation"
-git diff -- "specs/003-m03-implementation"
+git diff -- "specs/001-m01-route-planning-preparation"
+git diff -- "specs/002-m02-field-quest-experience"
+git diff -- "specs/003-m03-operations-content-administration"
 ```
 
 Expected: writes khớp current package/report scope; user-owned changes vẫn được phân biệt. Failure: skill ghi nhầm package hoặc unrelated path. Recovery: stop, record diff và coordinate owner; chỉ reverse agent-owned hunks bằng reviewed patch sau approval.
@@ -984,6 +988,8 @@ git diff --
 Expected: `git diff --check` exit 0, không conflict marker, reviewer đọc được toàn diff. Failure: whitespace error, unresolved marker hoặc unexpected churn. Recovery: sửa đúng file/hunk thuộc scope; không chạy formatter toàn repository.
 
 ### 9.3.6 Confirm excluded files were not modified
+
+Kiểm tra này áp dụng cho change set refactor tài liệu (P0–P11). Change set code (§13) dùng danh sách path được phép trong change brief tương ứng (ví dụ §4 của CHG-M03-2026-10-30-01) thay cho regex bên dưới.
 
 ```powershell
 $changedFiles = git diff --name-only
@@ -1012,7 +1018,7 @@ Nếu chỉ review qua GitHub connector: dùng repository search cho cùng keywo
 | G4 — Architecture/Screen | Derived flow/context/UI state không có behavior ngoài spec. |
 | G5 — Logical model & Data Acceptance | S1–S4 hoàn tất; DAC được reconcile sau S4, cover changed fields/contracts, không invent limit, không còn blocking `TBD-HUMAN`; cả hai cùng pass review trước physical design. |
 | G6 — Physical/Data evidence | Physical schema chỉ được sync sau G5. Field mapping, seed và Storage Validation ngoài bộ V2 (§1.3): không seed/reset Shared Backend; kết quả validation chỉ được ghi nếu đã thực thi trên runtime cô lập, phần còn lại `NOT RUN`. |
-| G7 — P10 Implementation Readiness | `NOT APPLICABLE` cho V2 (AGENTS.md §2). |
+| G7 — P10 Implementation Readiness | PASS khi 12 điều kiện §6.5.5 có evidence cho cả ba package, mỗi package `READY` và I1–I5 có outcome kiểm chứng được. Trạng thái hiện tại: Phụ lục E. |
 | G8 — Evidence integrity | Không sửa lịch sử để giả PASS; validation mới có date/baseline rõ. |
 | G9 — Repo hygiene, evidence & traceability | Diff chỉ chứa in-scope docs; excluded-file check và git diff --check pass; stable IDs/links/names/source refs resolve; standardized report set complete; actual vs NOT RUN checks được phân biệt. |
 
@@ -1024,7 +1030,7 @@ Nếu chỉ review qua GitHub connector: dùng repository search cho cùng keywo
 | Change brief | Có Current→New, rationale, impact dimensions, non-goals và quyết định đã được người dùng chốt. |
 | Spec baseline | Spec-M03 là nguồn sự thật mới; M01/M02 đã xử lý impact. |
 | Derived docs | MVP/Function/Architecture/Screen và data artifacts đã sync theo trigger; P9 tuân thủ S1→S2→S3→S4→DAC→review→physical→mapping→seed→validation-evidence. |
-| Implementation docs | `NOT APPLICABLE` cho V2 (AGENTS.md §2): không tạo `specs/001–003`. |
+| Implementation docs | Ba package `specs/001–003` complete, I1–I5 có evidence, mỗi package `READY` (§6.5.5, §10.1); task/code chưa thực thi trong change set tài liệu. |
 | Exclusions | Không chạm design-decisions, templates, historical source, code/tests/prototypes. |
 | Data Acceptance | DAC được hoàn tất sau S4; cover field/rule đã đổi; source refs resolve; không có invented max/range; blocking `TBD-HUMAN` đã được human quyết định và ghi vào spec trước review/physical design. |
 | Data gates | Không nhảy stage; generated artifacts không hand-edit; review/evidence không giả mạo. |
@@ -1155,6 +1161,41 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 | Git diff includes unrelated/excluded changes | `git diff --name-only` lists code/test/runtime/other owner files. | Wrong skill target, hook/formatter side effect hoặc pre-existing dirty state. | Distinguish pre-existing vs current writes, stop and coordinate owner; reverse only approved agent-owned hunks with reviewed patch. | Yes. |
 | Execution evidence missing | Command/skill claimed PASS without invocation/output/path record. | Reporting skipped hoặc output lost. | Downgrade to `NOT RUN`/`BLOCKED`; rerun safe check if permitted and capture required evidence fields. | Yes for relevant gate. |
 
+# 13. Giai đoạn triển khai code (sau P11)
+
+Giai đoạn này nằm ngoài chuỗi P0–P11 và chỉ bắt đầu khi P10 và P11 đã PASS (Phụ lục E). Nó thực thi `tasks.md` của từng package. Nguồn quy tắc: AGENTS.md §2 và §6, constitution, `plan.md`/`research.md` của package và change brief code tương ứng. Runbook này không tạo quy tắc mới cho code; mục này chỉ gom các điểm đã có nguồn để giai đoạn code không đi ngược quy trình tài liệu.
+
+## 13.1 Điều kiện bắt đầu
+
+| Điều kiện | Nguồn / evidence |
+| --- | --- |
+| P10 và P11 PASS, mỗi package `READY` | Phụ lục E; final change report (§10.2) |
+| Phạm vi code đã mở | AGENTS.md §2: `src/`, `specs/`, cấu hình Vite, `supabase/config.toml` và `seed.sql` cho local, `.github/workflows/ci.yml` (duyệt 2026-10-30) |
+| Backend M03 | CHG-M03-2026-10-30-01 (APPROVED 2026-10-30): migration, function `api.*`, Edge Function, pgTAP, script operator, E2E local-stack — **chỉ stack Supabase local** |
+| Baseline mới | Lặp H0–H1 trước khi code: đọc branch/SHA/worktree owner; không dùng SHA cũ của runbook |
+
+## 13.2 Thứ tự thực thi
+
+- Tooling, shell và `src/shared/contracts/` dùng chung do M03 Phase 1–2 tạo trước (M03 T002–T055); M01 làm trước M02 vì M01 sở hữu `visitorDb`, `paths.ts` và update coordinator.
+- Giai đoạn A (frontend, adapter giả, contract, cấu hình local) theo từng user story; test viết trước và phải fail trước khi cài đặt.
+- Giai đoạn B của M03 (Phase 13–15) làm song song với UI cùng story; tích hợp thật của M01 (T103–T106) và M02 (T104–T106) chỉ sau khi M03 hoàn tất T197–T198.
+- Phase 16 của M03 (cloud, deploy, domain Production) cần change brief triển khai riêng và phê duyệt cho mọi lệnh tác động cloud (§1.3).
+
+## 13.3 Quy tắc
+
+- Dùng `speckit-implement` cho từng package sau khi verify `FEATURE_DIR` (H2); `speckit-converge` khi cần so codebase với spec/plan/tasks.
+- Chỉ đánh task hoàn tất khi lệnh kiểm chứng đã chạy; phần chưa chạy ghi `NOT RUN`, không tuyên bố PASS (AGENTS.md §6; constitution "Testing & Validation").
+- Giao diện dùng skill `frontend-design`; màu, font, khoảng cách lấy từ token; icon chỉ từ `assets/icons/` (CLAUDE.md).
+- Không sửa spec, architecture hay data docs để khớp code. Phát hiện lệch thì báo là stale hoặc ghi `[NEEDS CLARIFICATION: …]` rồi đi lại quy trình tài liệu (AGENTS.md §4; M03 T165).
+- Dữ liệu test synthetic, chỉ local; không `supabase link`, `db push`, seed hay reset trên Shared Backend (§1.3).
+- Commit, push, PR, cài dependency chỉ khi người dùng yêu cầu hoặc task giao rõ (AGENTS.md §6).
+
+## 13.4 Validation của change set code
+
+- Lệnh theo tasks: `npm run typecheck`, `lint`, `test`, `build`, `e2e`; `supabase db reset` và `supabase test db` chỉ trên stack local. Ghi lệnh, exit code và kết quả vào `validation-report.md` của package (M03 T161–T165, T198).
+- Thay regex ở §9.3.6 bằng danh sách path được phép của change brief; dùng `git diff --check` cho whitespace.
+- Evidence lịch sử không được dùng làm PASS cho code mới (§10.1).
+
 # Phụ lục A — Exact artifact inventory để audit
 
 | Layer | Files / directories |
@@ -1165,14 +1206,16 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 | Screen lists | screens/screen list/README.md; screen-list-M01.md; screen-list-M02.md; screen-list-M03.md |
 | Screen specs | screens/screen-spec/M01/001…004; M02/001…004; M03/000…009 |
 | Screen mockups | screens/html/mockup-SCR-Mxx-nnn.html (HTML tĩnh, nếu đã có) |
-| Data (workflow order) | data/01-entity-dictionary.md; 02-crud-matrix.md; 03-erd.mmd; 03-erd-preview.md; 03-erd-review.md; 04-data-model.md; 04-data-model.dbml; **08-data-acceptance-criteria.md (NEW)**; 05-review.md; 06-physical-schema.md; data/schema/field-mapping.md; 07-storage-validation.md |
+| Data (workflow order) | data/01-entity-dictionary.md; 02-crud-matrix.md; 03-erd.mmd; 03-erd-preview.md; 03-erd-review.md; 04-data-model.md; 04-data-model.dbml; 08-data-acceptance-criteria.md; 05-review.md; 06-physical-schema.md; data/schema/field-mapping.md; 07-storage-validation.md |
 | Seed (V1, ngoài bộ V2) | data/seed/README.md; CSV fixtures; edge-case-register.md; edge-cases.json — nếu còn tồn tại thì chỉ là lịch sử; không sửa, không nạp vào Shared Backend (§1.3) |
-| M01/M02/M03 implementation docs (P10) | Áp dụng có điều kiện (AGENTS.md §2); hiện có `specs/001-m01-route-planning-preparation/spec.md`, `specs/002-m02-field-quest-experience/spec.md`, `specs/003-m03-operations-content-administration/spec.md` |
+| M01/M02/M03 implementation docs (P10) | Theo AGENTS.md §2: `specs/001-m01-route-planning-preparation/`, `specs/002-m02-field-quest-experience/`, `specs/003-m03-operations-content-administration/` (spec, research, plan, data-model, quickstart, contracts/, tasks, checklists/; M03 thêm change brief backend) |
 | Spec-Kit skills (methodology cho P1; P10 khi chạy I1–I5) | .claude/skills/speckit-clarify/SKILL.md; speckit-checklist/SKILL.md; speckit-plan/SKILL.md; speckit-tasks/SKILL.md; speckit-analyze/SKILL.md |
-| Operational handoff | `.gitignore` for machine-local `.specify/feature.json`. |
-| Index/governance | README.md; docs/README.md; AGENTS.md; CLAUDE.md; .specify/memory/constitution.md; docs/design/design-system.md; assets/icons/; .claude/skills/; supabase/README.md (conditional) |
+| Operational handoff | `.specify/.gitignore` cho machine-local `.specify/feature.json`. |
+| Index/governance | README.md; docs/README.md; AGENTS.md; CLAUDE.md; .specify/memory/constitution.md; docs/design/design-system.md; assets/icons/; .claude/skills/; .github/workflows/ci.yml; supabase/README.md (conditional) |
 
 # Phụ lục B — Explicit do-not-touch list
+
+Áp dụng cho change set refactor tài liệu (P0–P11). Code ở giai đoạn triển khai (§13) theo AGENTS.md §2 và change brief tương ứng.
 
 | Không sửa | Scope note |
 | --- | --- |
@@ -1181,11 +1224,11 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 | .specify/scripts/**; .specify/templates/** | Shared Spec-Kit infrastructure; read/validate only. Nếu runbook/skill instruction không thể xử lý blocker, document reason và xin additional approval trước mọi edit. |
 | PCCV_DBIZ3_TEAM-H.docx | Historical/source artifact. |
 | Stakeholder Interview & Problem Define.pdf | Historical/source artifact. |
-| tests/** | Test explicitly excluded (src/** đã mở theo AGENTS.md §2). |
-| supabase migrations/Edge/RPC implementation | Code/DB implementation excluded; README may still be reviewed conditionally. |
+| tests/** | Không thuộc change set tài liệu. Test của code nằm cạnh mã nguồn trong `src/`, ở `e2e/` và `supabase/tests/` theo plan (§13). |
+| supabase migrations/Edge/RPC implementation | Ngoài change set tài liệu. Được viết ở giai đoạn triển khai (§13) chỉ trên stack local theo CHG-M03-2026-10-30-01; README có thể REVIEW có điều kiện. |
 | design-prototypes/**, generated screenshots | Prototype/implementation artifacts excluded. |
 
-# Phụ lục C — Baseline warnings tại tree SHA hiện tại
+# Phụ lục C — Baseline warnings (tree SHA lịch sử; trạng thái cập nhật 2026-10-30)
 
 | Warning | Tác động khi refactor |
 | --- | --- |
@@ -1195,6 +1238,18 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 | Current physical schema maps String identifier/content to PostgreSQL `text` with **no arbitrary length limit**; seed docs (V1) explicitly avoid inventing numeric ranges for version/identity/sequence. | Vì vậy max length/range còn thiếu phải được xem là product decision gap (`TBD-HUMAN`), không được copy một con số “thường dùng” vào DAC. |
 | Historical SHA trong header có thể trùng current `main` tại thời điểm viết nhưng không phải operational truth vĩnh viễn. | H0/P0 luôn capture active target branch và starting commit; report nếu khác historical reference. |
 | Spec-Kit normal resolver có thể create/update `.specify/feature.json`; `--paths-only` không persist. | File là local selection state, phải được ignore, preserve theo ownership và không dùng thay cho explicit H2 verification. |
+
+**Trạng thái 2026-10-30 của từng cảnh báo:**
+
+- Ngày M03 trong `docs/architecture/README.md`: đã xử lý, README ghi baseline M01 v3.2, M02 v3.3, M03 v3.7.
+
+- Metadata screen: đã xử lý ở `screen list/README.md` và `screen-list-M03.md` (không còn nói screen spec chưa tồn tại). Phần tồn dư (Status của `screen-list-M03.md`, `screen list/README.md` và 5 screen spec M03 000, 005, 006, 007, 009 còn nói thiếu mockup trong khi `screens/html/` có mockup SCR-M03-000…009) đã được cập nhật 2026-10-30.
+
+- Liên kết `environment-readiness-report.md`: `docs/README.md` không còn liên kết này.
+
+- Giới hạn độ dài/khoảng giá trị: đã xử lý bằng spec-M03 v3.7 §5.3 và DAC (118 criteria, 0 `TBD-HUMAN`); mọi giá trị số vẫn là provisional.
+
+- `.specify/feature.json`: được ignore bởi `.specify/.gitignore`, không phải `.gitignore` gốc.
 
 # Phụ lục D — Final audit checklist
 
@@ -1232,7 +1287,19 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 
 ☐ 17. README/index/version/date/link summary được sync nếu baseline metadata đổi.
 
-☐ 18–24. P10 theo AGENTS.md §2: ghi `NOT VALIDATED` cho tới khi I1–I5 thực sự chạy; không tạo package `specs/` ngoài change brief.
+☐ 18. Ba package `specs/001–003` được inventory trên active ref; delta so với inventory runbook (§6.5.1) được ghi.
+
+☐ 19. Completeness matrix (§6.5.2) không còn ô `MISSING`/`INCOMPLETE`/`INCONSISTENT`/`OUTDATED`/`UNSUPPORTED`/`BLOCKED`.
+
+☐ 20. I1 `speckit-clarify`: canonical authority guard được áp dụng; quyết định nghiệp vụ vào canonical spec trước khi sync package.
+
+☐ 21. I2 `speckit-checklist`: reviewer đánh giá có evidence; blocking finding đã đóng; `[x]` chỉ là review chất lượng requirement.
+
+☐ 22. I3 `speckit-plan` + I4 `speckit-tasks`: planning set đầy đủ; tasks có test áp dụng; không task nào được thực thi.
+
+☐ 23. I5 `speckit-analyze`: không CRITICAL/HIGH; remediation rồi rerun; có ma trận contracts↔DAC và producer↔consumer.
+
+☐ 24. Readiness `READY`/`NOT READY`/`BLOCKED` cho từng package và handoff verdict theo §10.1; không tạo package `specs/` ngoài change brief.
 
 
 
@@ -1249,3 +1316,28 @@ Không dùng `git reset`, `git checkout --`, delete hoặc overwrite user-owned 
 ☐ 28. Final report liệt kê actual checks/NOT RUN items, readiness, unresolved issues và handoff verdict; nếu chưa test skills end-to-end, ghi `END-TO-END SKILL EXECUTION: NOT VALIDATED`.
 
 **END OF RUNBOOK**
+
+# Phụ lục E — Trạng thái thực thi (cập nhật 2026-10-30)
+
+Baseline: repository `MckhueVanPhuc/Refactor-Cuc-Phuong`, commit `1b0716f` trên `main`. Bảng này ghi trạng thái đã có evidence; không thay thế final change report (§10.2).
+
+| Pha / gate | Trạng thái | Evidence |
+| --- | --- | --- |
+| P0–P9 | Hoàn tất (AGENTS.md §2: bộ tài liệu V2 hoàn tất, kết thúc ở Physical Schema) | Lịch sử git; `data/05-review.md` PASS 2026-10-28 |
+| P10 / I1 `speckit-clarify` | EXECUTED (phiên trước) | Spec-M01/M02/M03 clarification; commit `e2a2edd` |
+| P10 / I2 `speckit-checklist` | EXECUTED (phiên trước) | `specs/*/checklists/requirements-quality.md`; commit `511438c` |
+| P10 / I3 `speckit-plan` | EXECUTED (phiên trước) | `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`; commit `511438c`, `ed62cc1` |
+| P10 / I4 `speckit-tasks` | EXECUTED (phiên trước) | `tasks.md` M01 106, M02 106, M03 209 task; commit `dd95294` |
+| P10 / I5 `speckit-analyze` | EXECUTED 2026-10-30 (hai lần, có remediation) | 0 CRITICAL/HIGH sau remediation; FR/SC/BR được task phủ 100%, DAC 118/118 được trích; commit `1b0716f` |
+| P11 Repository-wide Final Audit | EXECUTED 2026-10-30 | `git diff --check` exit 0; 0 conflict marker; excluded-file check sạch; 698 link tương đối không hỏng; không còn term/ID retired được dùng như active |
+| Change brief backend M03 | APPROVED 2026-10-30 | `specs/003-m03-operations-content-administration/change-brief-CHG-M03-2026-10-30-01-backend.md`; tasks M03 T166–T167 |
+
+| Package | Readiness | Ghi chú |
+| --- | --- | --- |
+| `specs/001-m01-route-planning-preparation` | `READY` | Tích hợp thật (T103–T106) chờ M03 giai đoạn B |
+| `specs/002-m02-field-quest-experience` | `READY` | Tích hợp thật (T104–T106) chờ M03 giai đoạn B |
+| `specs/003-m03-operations-content-administration` | `READY` | Phase 13–15 chỉ trên stack local; Phase 16 (cloud) cần change brief triển khai |
+
+Handoff verdict: `READY WITH PREREQUISITES`. Prerequisite: kiểm chứng end-to-end việc chạy skill; I1–I4 được chứng minh bằng artifact và commit, không bằng log chạy skill trong phiên gần nhất.
+
+END-TO-END SKILL EXECUTION: NOT VALIDATED
