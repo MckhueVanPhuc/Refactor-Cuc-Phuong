@@ -1394,11 +1394,11 @@ The login and credential screens are mandatory M03 entry/support screens even th
 | US-M03-01 Create and publish a route | FR-M03-001, 005, 006, 008 | C01–C17, T01–T09, F01–F04, G01–G03 | SC-M03-001, 002, 015, 022, 030 |
 | US-M03-02 Revise published data | FR-M03-007, 009 | F02–F07, F10, X01–X03, G04–G07 | SC-M03-003, 005, 020, 021, 024, 029 |
 | US-M03-03 Checkpoints and visit points | FR-M03-002, 003, 004 | B01–B05, D01–D12, E01–E17 (E08 retired), F11, F12 | SC-M03-004, 012, 013, 025, 028, 031–034, 036, 037, 039 |
-| US-M03-04 Close and reopen | FR-M03-011, 012 | H01–H09, I01–I06 | SC-M03-006, 017, 019, 023 |
-| US-M03-05 Administrative access | FR-M03-013 | A01–A04, K01–K06 | SC-M03-008 to 011, 040 |
-| US-M03-06 Ingest sessions and report | FR-M03-014, 015, 016 | J01–J08 | SC-M03-007, 035, 038 |
+| US-M03-04 Close and reopen | FR-M03-011, 012 | H01–H09, I01–I06, X04 | SC-M03-006, 017, 019, 023 |
+| US-M03-05 Administrative access | FR-M03-013 | A01–A04, K01–K06, X07 | SC-M03-008 to 011, 040 |
+| US-M03-06 Ingest sessions and report | FR-M03-014, 015, 016 | J01–J08, X05 | SC-M03-007, 035, 038 |
 | US-M03-07 (removed) | FR-M03-017 (removed) | C13 (removed) | SC-M03-018 (removed) |
-| US-M03-08 History, restore and audit | FR-M03-007, 018 | A05, F07–F10 | SC-M03-014, 021 |
+| US-M03-08 History, restore and audit | FR-M03-007, 018 | A05, F07–F10, X06 | SC-M03-014, 021 |
 | US-M03-09 Clear validation feedback | FR-M03-005, 019 | L01–L13 | SC-M03-016, 026 |
 | No user story | FR-M03-010 | G08 | — |
 
@@ -1408,6 +1408,7 @@ BR identifiers in this table omit the `BR-M03-` prefix.
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.7 (clarification 8) | 2026-10-30 | Traceability only: §11.1 maps the shared-rule summaries BR-M03-X04 (US-M03-04), X05 (US-M03-06), X06 (US-M03-08) and X07 (US-M03-05) to the stories that already own the rules they restate (BR-M03-I01–I06, J05–J07, F08, A02/A03). No behavior, contract or data change (user decision 2026-10-30). |
 | 3.7 (clarification 7) | 2026-10-30 | BR-M03-L12 now lists discarding a never-published route, checkpoint or visit point (BR-M03-C01, D09, E10) among the allowed confirmation dialogs, matching the catalog keys MSG-CONFIRM-DISCARD-ROUTE, MSG-CONFIRM-DISCARD-CHECKPOINT and MSG-CONFIRM-DISCARD-QR already in §5.6 and the discard dialogs of SCR-M03-001, 003 and 008 (user decision 2026-10-30, resolving the conflict between BR-M03-L12 and clarification 4). No contract, entity, state or permission change; M01 and M02 unaffected. |
 | 3.7 (clarification 6) | 2026-10-29 | Review-checklist decisions (CHK004–009, 021, 022): an expired invitation leaves the account `INVITATION_PENDING` (BR-M03-K01); in-flight requests at sign-out (BR-M03-K06); an unsaved uploaded file stays unreferenced and is not cleaned up automatically (BR-M03-E14); the serialization set includes the pending-draft list (BR-M03-F05); a restore that breaks a current limit is refused with the new MSG-RESTORE-BLOCKED instead of being reported at publication (BR-M03-F07); "ready" versus "missing for publication" (BR-M03-L03); the project owner validates the provisional limits (§9). No contract change. |
 | 3.7 (clarification 5) | 2026-10-29 | Version references only: the aligned-consumer statements in §11 (v3.5 administrative-UI row) and the Completion checklist name M02 v3.3, matching the header and the M02 specification. No behavior or contract change. |

@@ -17,7 +17,7 @@ description: "Danh sách task triển khai M01 — Route Planning & Preparation"
 >
 > **Vị trí của M01 giữa ba package.** M01 sở hữu phần lớn hạ tầng trình duyệt mà M02 dùng: `src/shared/db/visitorDb.ts` (cả 3 store M02), bề mặt đọc `src/modules/m01/index.ts`, ba schema produce, `src/app/paths.ts`, `src/app/pwa/updateCoordinator.ts` và cấu hình PWA (research R-07, R-14, §4). Nên làm M01 **trước** M02. Tooling gốc dùng chung với [tasks M03](../003-m03-operations-content-administration/tasks.md) Phase 1; package nào chạy trước thì tạo.
 >
-> **Nguồn dữ liệu.** View `api.published_routes`, `api.active_journey_snapshots` và policy đọc Storage thuộc **M03 giai đoạn B (BỊ CHẶN)**. Phase 3–9 chạy với adapter giả (Vitest) và network mock (Playwright); tích hợp thật ở T103–T106.
+> **Nguồn dữ liệu.** View `api.published_routes`, `api.active_journey_snapshots` và policy đọc Storage thuộc **M03 giai đoạn B** (phạm vi local mở 2026-10-30 theo CHG-M03-2026-10-30-01; chưa cài đặt). Phase 3–9 chạy với adapter giả (Vitest) và network mock (Playwright); tích hợp thật ở T103–T106.
 >
 > **Giao diện.** Mọi task dựng màn hình dùng skill `frontend-design`; màu, font, khoảng cách chỉ lấy từ token ([design-system.md](../../docs/design/design-system.md), nhóm `--color-m01-*`); icon chỉ từ `assets/icons/`; hình thức tham chiếu `screens/screen-spec/M01/` và `screens/html/mockup-SCR-M01-*.html` (CLAUDE.md). Chữ hiển thị chỉ lấy từ `src/modules/m01/i18n/`, chép từ bảng copy screen spec.
 
@@ -301,7 +301,7 @@ description: "Danh sách task triển khai M01 — Route Planning & Preparation"
 
 - [ ] T102 Xác nhận bề mặt src/modules/m01/index.ts khớp đúng danh sách mà src/modules/m02/m01Port.ts cần (specs/002-m02-field-quest-experience/tasks.md T016) và `registerBusyCheck` có trong src/app/pwa/updateCoordinator.ts; ghi kết quả vào specs/001-m01-route-planning-preparation/validation-report.md để package 002 chạy T102–T103 của nó
 
-### Với M03 giai đoạn B (⛔ BLOCKED: chờ change brief backend của M03)
+### Với M03 giai đoạn B (chờ M03 Phase 13–15 cài đặt xong; CHG-M03-2026-10-30-01 đã duyệt)
 
 - [ ] T103 Chờ M03 giai đoạn B có view `api.published_routes`, `api.active_journey_snapshots` và policy đọc Storage trên stack local (specs/003-m03-operations-content-administration/tasks.md T184, T172) và fixture local-stack của M03 T198 (e2e/.local-fixture.json); không làm T104–T106 trước đó
 - [ ] T104 Chạy lại T012, T014 với response thật từ view của M03 (T184); view lệch danh sách cột trong src/shared/contracts/publicationRowMapping.ts thì sửa view phía M03, không sửa mapping (mapping theo Physical §3)

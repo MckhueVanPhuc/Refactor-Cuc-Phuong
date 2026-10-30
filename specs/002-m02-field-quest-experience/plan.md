@@ -213,7 +213,7 @@ e2e/m02/                              # Playwright (+ e2e/fixtures/*.y4m); phạ
 
 **Quyết định (2026-10-30, người dùng ủy quyền cho agent quyết; tasks.md T001):**
 
-- **#1:** giữ nguyên — tích hợp thật chờ M03 giai đoạn B (change brief backend).
+- **#1:** giữ nguyên — tích hợp thật chờ M03 giai đoạn B. Cập nhật 2026-10-30: change brief backend CHG-M03-2026-10-30-01 đã duyệt (chỉ stack local); tích hợp thật chờ M03 cài đặt Phase 13–15.
 - **#2:** duyệt — như plan M03: file tooling gốc, `.env.e2e` (giá trị giả an toàn), `e2e/` và fixture `.y4m` thuộc "cấu hình Vite".
 - **#3:** duyệt nối CI (người dùng, 2026-10-30; thay quyết định hoãn trước đó): .github/workflows/ci.yml chạy `npm run ci` và E2E project mock trên mỗi push/PR (tasks M03 T002); job Supabase local thêm khi giai đoạn B mở (tasks M03 T198).
 - **#4:** duyệt `fake-indexeddb` **chỉ làm dev dependency** cho Vitest; không vào bundle. Cùng quyết định áp cho plan M01 Complexity #4 khi package 001 ghi nhận.

@@ -3,9 +3,9 @@
 | Trường | Nội dung |
 |---|---|
 | Change ID | CHG-M03-2026-10-30-01 |
-| Trạng thái | **DRAFT — chờ người dùng duyệt.** Chưa duyệt thì Phase 13–15 của [tasks M03](tasks.md) vẫn BLOCKED (T166). |
-| Người duyệt | _(điền khi duyệt — chủ dự án)_ |
-| Ngày duyệt | _(điền khi duyệt)_ |
+| Trạng thái | **APPROVED** (2026-10-30). Phase 13–15 của [tasks M03](tasks.md) được thực thi trên stack Supabase local theo phạm vi §4 và non-goals §7. |
+| Người duyệt | MckhueVanPhuc (chủ dự án) |
+| Ngày duyệt | 2026-10-30 |
 | Loại thay đổi (runbook §4) | C6 — Runtime/Auth/environment, ở mức **phạm vi code**: không đổi hành vi, contract, entity hay dữ liệu đã đặc tả; chỉ cho phép hiện thực hóa thiết kế đã duyệt |
 | Liên quan | CHG-M03-2026-10-29-01 (package code M03); [plan.md](plan.md) Complexity Tracking #1; [research.md](research.md) R-01; quyết định người dùng 2026-10-30 "soạn change brief backend" |
 

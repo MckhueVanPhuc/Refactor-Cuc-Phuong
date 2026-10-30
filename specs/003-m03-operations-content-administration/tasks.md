@@ -15,7 +15,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 > **Quy tắc dẫn xuất.** File này không tạo requirement. Hành vi lấy từ [spec-M03 v3.7](../../docs/spec/spec-M03.md); quyết định kỹ thuật lấy từ plan/research. Giữ nguyên tên contract (`JourneySnapshot`, `LiveQrLookupResult`, `LiveStationContent`, `SessionSyncRecord`, `SessionRecord`, `Revision`) và mọi ID. Mọi giới hạn số là **provisional** (spec-M03 §5.3).
 >
-> **Hai giai đoạn (research R-01).** Phase 1–12 là **giai đoạn A** (frontend, adapter, contract, cấu hình local), nằm trong phạm vi code hiện tại. Phase 13–15 là **giai đoạn B** (SQL migration, RPC, Edge Function, pgTAP, script cấp Reviewer) và **BỊ CHẶN** cho tới khi có change brief backend (AGENTS.md §2; plan.md Complexity Tracking #1). Không thực thi task giai đoạn B nào trước khi T167 hoàn tất. Phase 16 (kích hoạt môi trường cloud và phát hành) cần thêm một change brief triển khai.
+> **Hai giai đoạn (research R-01).** Phase 1–12 là **giai đoạn A** (frontend, adapter, contract, cấu hình local), nằm trong phạm vi code hiện tại. Phase 13–15 là **giai đoạn B** (SQL migration, RPC, Edge Function, pgTAP, script cấp Reviewer) và được mở phạm vi **chỉ trên stack Supabase local** bởi change brief backend CHG-M03-2026-10-30-01 (APPROVED 2026-10-30; AGENTS.md §2; plan.md Complexity Tracking #1). Phase 16 (kích hoạt môi trường cloud và phát hành) cần thêm một change brief triển khai.
 >
 > **Giao diện.** Mọi task dựng màn hình dùng skill `frontend-design`; màu, font, khoảng cách, bo góc chỉ lấy từ token ([design-system.md](../../docs/design/design-system.md)); icon chỉ từ `assets/icons/`; hình thức tham chiếu `screens/screen-spec/M03/screen-spec-SCR-M03-nnn.md` và `screens/html/mockup-SCR-M03-nnn.html` (CLAUDE.md). Mọi chữ hiển thị đi qua danh mục thông báo (BR-M03-L13).
 
@@ -45,7 +45,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 - [ ] T005 [P] Tạo vite.config.ts: `@vitejs/plugin-react`; `vite-plugin-pwa` kiểu prompt (không tự reload), Workbox **không** runtime-cache Supabase API, Auth, response quản trị hay media đã ký (research R-22; constitution VI); `define.__IS_PRODUCTION_BUILD__ = process.env.VERCEL_ENV === 'production'` (research R-13, fail-safe); khai báo kiểu trong src/vite-env.d.ts; đặt `VITE_APP_VERSION` lúc build từ `version` của package.json khi biến chưa có (src/shared/config/env.ts bắt buộc biến này)
 - [ ] T006 [P] Tạo vitest.config.ts (environment jsdom, setupFiles src/test/setup.ts, include `src/**/*.test.ts?(x)`) và src/test/setup.ts (cleanup Testing Library, polyfill tối thiểu cho jsdom); đặt sẵn biến `VITE_*` giả an toàn cho Vitest qua `test.env`, để src/shared/config/env.ts không làm hỏng mọi test có import nó
 - [ ] T007 [P] Tạo playwright.config.ts: `webServer` là **mảng** cấp cao nhất (Playwright không có webServer theo project), mỗi server một cổng: `npm run dev:fake` (5174) và `npm run dev` (5173, cho các project `*-local-stack`); project `m03` (testDir `e2e/m03`, baseURL `http://localhost:5174`) và `m03-local-stack` (testDir `e2e/m03`, baseURL `http://localhost:5173`, giai đoạn B); project `*-local-stack` chỉ được đưa vào danh sách khi biến môi trường `PW_LOCAL_STACK=1` — mặc định `npm run e2e` (và CI) chỉ chạy project dùng mock; M01/M02 thêm server và project của mình vào cùng file. Tạo e2e/m03/fixtures.ts (đăng nhập giả theo role qua fake auth, dữ liệu synthetic email `*@example.test`). Tạo src/shared/testing/e2eHooks.ts: chỉ khi `import.meta.env.MODE` là `e2e` hoặc `fake` mới gắn `window.__cpqTestHooks` (namespace `m01`/`m02`/`m03` do từng module đăng ký: nạp dữ liệu IndexedDB, tiêm lỗi theo tên), nạp bằng `import()` động trong nhánh MODE để không vào bundle production; gọi từ src/app/App.tsx
-- [ ] T008 [P] Tạo .env.example chỉ chứa tên biến + placeholder: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_APP_VERSION`, `VITE_QR_PUBLIC_BASE_URL` (research R-14); tạo .env.fake chỉ chứa giá trị giả an toàn cho `npm run dev:fake` (`VITE_QR_PUBLIC_BASE_URL=http://localhost:5174`); cập nhật .gitignore cho `.env.local`, `node_modules/`, `dist/`, `test-results/`, `playwright-report/`, `e2e/.local-fixture.json`. Không có secret nào mang tiền tố `VITE_`
+- [ ] T008 [P] Tạo .env.example chỉ chứa tên biến + placeholder: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_APP_VERSION`, `VITE_QR_PUBLIC_BASE_URL` (research R-14); tạo .env.fake chỉ chứa giá trị giả an toàn cho `npm run dev:fake` (`VITE_QR_PUBLIC_BASE_URL=http://localhost:5174`); cập nhật .gitignore cho `.env.local`, `node_modules/`, `dist/`, `test-results/`, `playwright-report/`, `e2e/.local-fixture.json`, và thêm ngoại lệ `!.env.fake`, `!.env.e2e` (.gitignore hiện bỏ qua mọi `.env.*` trừ `.env.example`; thiếu ngoại lệ thì hai file giá trị giả này không được commit và job CI của T002 không có cấu hình). Không có secret nào mang tiền tố `VITE_`
 - [ ] T009 [P] Tạo supabase/config.toml **chỉ cho local**: tắt self sign-up (`[auth] enable_signup = false`), `site_url = "http://localhost:5173"`, `additional_redirect_urls` gồm `/admin/invitation` và `/admin/recovery`, bật Inbucket/Mailpit thay SMTP thật (auth-account §4; quickstart §5); `[api] schemas = ["api"]` để Data API chỉ mở schema `api` (Physical §3, §9) — thiếu dòng này thì mọi đọc và RPC của M01/M02/M03 trên stack local đều lỗi. Không chạy `supabase link`/`db push`
 - [ ] T010 Tạo index.html và src/main.tsx (mount `<App/>`, import src/shared/ui/tokens.css) nếu chưa có package nào tạo trước (plan.md "Source Code")
 
@@ -156,7 +156,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ## Phase 4: User Story 2 - Create and manage checkpoints and visit points — US-M03-03 (Priority: P1)
 
-**Goal**: Thư viện điểm dừng dùng chung, điểm tham quan có QR với nội dung song ngữ, media nhiều tệp, ảnh in QR, xuất bản điểm dừng qua màn review (FR-M03-002, 003, 004; BR-M03-B01–B05, D01–D12, E01–E17, F11, F12)
+**Goal**: Thư viện điểm dừng dùng chung, điểm tham quan có QR với nội dung song ngữ, media nhiều tệp, ảnh in QR, xuất bản điểm dừng qua màn review (FR-M03-002, 003, 004; BR-M03-B01–B05, D01–D12, E01–E17 (E08 đã retire), F11, F12)
 
 **Independent Test**: Quickstart Q6–Q10: tạo điểm dừng `OFFLINE_REQUIRED`/`ONLINE_AVAILABLE`, thêm điểm tham quan, upload nhiều tệp, xuất bản lần đầu, tải ảnh in, thu hồi QR cuối
 
@@ -194,7 +194,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ## Phase 5: User Story 3 - Create and publish a route — US-M03-01 (Priority: P1)
 
-**Goal**: Editor tuyến 4 bước, chọn/sắp xếp điểm dừng đã xuất bản, tự xuất bản qua review; lần đầu atomic với journey version 1 (FR-M03-001, 005, 006, 008; BR-M03-C01–C17, T01–T09, F01–F04, G01–G03)
+**Goal**: Editor tuyến 4 bước, chọn/sắp xếp điểm dừng đã xuất bản, tự xuất bản qua review; lần đầu atomic với journey version 1 (FR-M03-001, 005, 006, 008; BR-M03-C01–C17 (C13 đã retire), T01–T09, F01–F04, G01–G03)
 
 **Independent Test**: Quickstart Q11–Q13: lưu tuyến thiếu nội dung và xem panel; xuất bản tuyến đủ điều kiện; giả lập lỗi xuất bản
 
@@ -375,7 +375,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 - [ ] T160 [P] Rà soát WCAG 2.1 AA (bàn phím, focus, tương phản theo token, nhãn trường, thông báo `aria-live`) trên mọi màn src/modules/m03/** theo design-system §6; sửa chỗ thiếu
 - [ ] T161 [P] Chạy `npm run build`; xác nhận cây `/admin/*` và `qrcode` nằm ở chunk lazy riêng; xác nhận bundle trong dist/ không chứa `APP_BACKEND_SECRET_KEY` hay service key (research R-24; constitution V). Ghi kết quả vào specs/003-m03-operations-content-administration/validation-report.md
-- [ ] T162 Tạo specs/003-m03-operations-content-administration/checklists/br-test-coverage.md: bảng mọi BR-M03 còn hiệu lực (trừ C13, E08 đã retire) → file test giai đoạn A và (để trống, điền ở T200) giai đoạn B; BR nào chưa có test thì thêm test vào story tương ứng trước khi đóng phase; BR hành vi của consumer (BR-M03-I05, I06) ghi package M01/M02 chịu test (constitution "Testing & Validation")
+- [ ] T162 Tạo specs/003-m03-operations-content-administration/checklists/br-test-coverage.md: bảng mọi BR-M03 còn hiệu lực (trừ C13, E08 đã retire) → file test giai đoạn A và (để trống, điền ở T200) giai đoạn B; BR nào chưa có test thì thêm test vào story tương ứng trước khi đóng phase; BR hành vi của consumer (BR-M03-I05, I06) ghi package M01/M02 chịu test; BR chỉ trỏ sang nhóm khác ghi test của nhóm đích: BR-M03-D07 → test nhóm E (T074, T078, T081), BR-M03-D08 → test của H01, H02, H04, H06 và D10 (T130–T133) (constitution "Testing & Validation")
 - [ ] T163 Chạy `npm run ci` (script và workflow CI có từ T002), xác nhận lần chạy CI gần nhất trên nhánh thành công, và `npm run typecheck`, `npm run lint`, `npm run test`, `npm run e2e -- --project=m03`; ghi lệnh, mã thoát và số test vào specs/003-m03-operations-content-administration/validation-report.md; phần không chạy được ghi `NOT RUN` kèm lý do. Không tuyên bố PASS khi chưa chạy (AGENTS.md §6)
 - [ ] T164 Chạy `git diff --check` và kiểm tra link tương đối trong các file đã thêm ở specs/003-m03-operations-content-administration/
 - [ ] T165 Ghi danh sách artifact upstream có nguy cơ stale phát sinh trong lúc code (nếu có) vào specs/003-m03-operations-content-administration/validation-report.md; không tự sửa spec/architecture (AGENTS.md §4)
@@ -384,14 +384,14 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ---
 
-## Phase 13: Giai đoạn B — Nền backend (⛔ BLOCKED: cần change brief backend)
+## Phase 13: Giai đoạn B — Nền backend (mở theo CHG-M03-2026-10-30-01, chỉ stack local)
 
 **Purpose**: Migration bước 1, 2, 5 và helper chung của bước 3–4 (Physical Schema §13; plan.md bước 11, 13)
 
-**⚠️ GATE**: Không làm task nào trong Phase 13–15 trước khi T166–T167 xong
+**Change brief backend**: CHG-M03-2026-10-30-01 — APPROVED 2026-10-30 (chủ dự án). Phạm vi: migration, function và view `api.*`, Edge Function `session-intake`/`admin-accounts`, script cấp Reviewer đầu tiên, pgTAP, seed và E2E local-stack, job CI `local-stack` — **chỉ stack Supabase local**; không `supabase link`, `db push` hay deploy (change brief §4, §7). Phase 13 bắt đầu khi Phase 2 xong; backend từng story ở Phase 14 làm song song với UI cùng story (change brief §8)
 
-- [ ] T166 Chờ người dùng duyệt change brief backend (bản nháp: specs/003-m03-operations-content-administration/change-brief-CHG-M03-2026-10-30-01-backend.md) mở phạm vi SQL migration, RPC, Edge Function, pgTAP và script operator (AGENTS.md §2; plan.md Complexity Tracking #1)
-- [ ] T167 Ghi tham chiếu change brief backend (ID, ngày, phạm vi) vào đầu file specs/003-m03-operations-content-administration/tasks.md (mục này) và vào cột cuối Complexity Tracking #1 của specs/003-m03-operations-content-administration/plan.md
+- [X] T166 Chờ người dùng duyệt change brief backend (bản nháp: specs/003-m03-operations-content-administration/change-brief-CHG-M03-2026-10-30-01-backend.md) mở phạm vi SQL migration, RPC, Edge Function, pgTAP và script operator (AGENTS.md §2; plan.md Complexity Tracking #1)
+- [X] T167 Ghi tham chiếu change brief backend (ID, ngày, phạm vi) vào đầu file specs/003-m03-operations-content-administration/tasks.md (mục này) và vào cột cuối Complexity Tracking #1 của specs/003-m03-operations-content-administration/plan.md
 - [ ] T168 Tạo supabase/migrations/<ts>_m03_01_schema_tables.sql: schema `app`, `api`; `app.new_id()`; `app.limit(name)` với giá trị khớp src/modules/m03/config/limits.ts; 9 bảng đúng cột, kiểu, null, PK/FK/UNIQUE/CHECK của data-model §2 (Physical §5); trigger `BEFORE UPDATE` đặt `updated_at` và yêu cầu `concurrency_revision = old + 1`; trigger từ chối `DELETE`/`TRUNCATE` (DEC-S6-002); các index của Physical §10: `revisions (subject_type, subject_id, status)`, GIN partial trên `content -> 'checkpointList'` cho revision tuyến `NHAP`/`PHAT_HANH`, `qr_codes (checkpoint_id, status)`, `media (owner_type, owner_id)`, `session_records (ended_at, route_id)` và `(route_id, ended_at)`, `audit_records (occurred_at desc)`, `(entity_type, entity_id)`, `(actor_user_id)`; không GIN-index JSON của snapshot; `ALTER DEFAULT PRIVILEGES IN SCHEMA app, api REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC` (Physical §9: function thu hồi EXECUTE khỏi PUBLIC, cấp rõ từng role)
 - [ ] T169 Tạo supabase/migrations/<ts>_m03_02_validation_triggers.sql: `app.revision_content_ok`, `app.snapshot_checkpoints_ok`, `app.visits_ok`; trigger `BEFORE INSERT OR UPDATE OF content` trên revisions (research R-27); trigger tham chiếu đa hình (REL-004/023/024–027); chuyển trạng thái hợp lệ (S4 §8); partial UNIQUE `NHAP`/`PHAT_HANH`; bất biến revision `PHAT_HANH`, snapshot, session, audit; QR: ≥ 1 QR hoạt động cho điểm dừng hoạt động, ≤ `CHECKPOINT_QR_MAX_ITEMS`; trigger cấp câu lệnh chặn 0 Reviewer hoạt động; deferred check snapshot active (DAC-M03-061–067)
 - [ ] T170 Tạo supabase/migrations/<ts>_m03_03a_command_helpers.sql: `app.current_admin()` (`auth.uid()`, `ACTIVE`, `session_id` còn trong `auth.sessions` — research R-15); bộ dựng `CommandResult` jsonb; khung khối ngoài/khối trong ghi audit FAILURE sau rollback (research R-07); `app.lock_connected_set(ids)` với `pg_try_advisory_xact_lock` theo thứ tự id (research R-08); `app.stale_result(...)` trả email + thời điểm người sửa sau cùng (research R-09); mọi function `SECURITY DEFINER`, `search_path = ''`, `REVOKE EXECUTE … FROM PUBLIC` rồi `GRANT EXECUTE` đúng role theo Physical §7, §9 — quy ước áp cho mọi migration tạo function ở Phase 14
@@ -406,7 +406,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ---
 
-## Phase 14: Giai đoạn B — Backend theo user story (⛔ BLOCKED)
+## Phase 14: Giai đoạn B — Backend theo user story
 
 **Purpose**: Command/query/Edge cho từng story (plan.md bước 12–14). Mỗi story backend kiểm chứng độc lập bằng pgTAP của nó
 
@@ -459,7 +459,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ---
 
-## Phase 15: Polish & kiểm chứng giai đoạn B (⛔ BLOCKED)
+## Phase 15: Polish & kiểm chứng giai đoạn B
 
 **Purpose**: Nối adapter thật và chạy toàn bộ kịch bản quickstart trên stack local (plan.md bước 15)
 
@@ -496,7 +496,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 - **Foundational (Phase 2)**: sau Setup — CHẶN mọi user story
 - **User Stories giai đoạn A (Phase 3–11)**: sau Foundational
 - **Polish giai đoạn A (Phase 12)**: sau các story muốn giao
-- **Giai đoạn B (Phase 13–15)**: ⛔ chặn bởi T166–T167 (change brief backend); Phase 13 trước Phase 14; Phase 15 sau Phase 14
+- **Giai đoạn B (Phase 13–15)**: đã mở (T166–T167 xong, CHG-M03-2026-10-30-01); Phase 13 sau Phase 2 (Foundational); Phase 13 trước Phase 14; Phase 15 sau Phase 14
 - **Phase 16 (kích hoạt cloud)**: ⛔ sau Phase 15 và change brief triển khai (T201)
 
 ### User Story Dependencies
@@ -572,7 +572,7 @@ MVP có giá trị nghiệp vụ đầu tiên cho M01 là **US1 + US2 + US3** (t
 1. Setup + Foundational → nền sẵn sàng
 2. US1 → US2 → US3 → US4 → US5 → US6 → US7 → US8 → US9, mỗi story qua checkpoint của nó trên adapter giả
 3. Phase 12 → bằng chứng giai đoạn A
-4. Khi có change brief backend: Phase 13 → Phase 14 theo cùng thứ tự story → Phase 15
+4. Giai đoạn B (change brief backend đã duyệt 2026-10-30): Phase 13 → Phase 14 theo cùng thứ tự story → Phase 15
 5. Khi có change brief triển khai: Phase 16 (vercel.json, Supabase cloud, smoke check, release gate)
 
 ### Parallel Team Strategy

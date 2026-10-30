@@ -32,7 +32,7 @@ ENT ID theo [S1 Entity Dictionary](../../data/01-entity-dictionary.md) baseline 
 
 | Cột | S4 path | Kiểu | Null | Constraint |
 |---|---|---|---|---|
-| `route_id` | `routeId` | text | no | PK; default `app.new_id()`; bất biến |
+| `route_id` | `routeId` | text | no | PK; default `app.new_id()`; bất biến (DAC-M03-001) |
 | `status` | `status` | text | no | CHECK `NHAP`, `HOAT_DONG`, `TAM_DONG`, `LUU_TRU`; chuyển trạng thái theo S4 §8 (DAC-M03-005) |
 | `active_content_version` | `activeContentVersion` | integer | yes | bắt buộc khi `HOAT_DONG`/`TAM_DONG`; FK hoãn `(route_id, active_content_version)` → `app.journey_snapshots`; phải là snapshot cao nhất (DAC-M03-006) |
 | `closure_source` | `closureSource` | text | yes | CHECK `MANUAL`, `AUTO_NO_ACTIVE_CHECKPOINT` |
@@ -40,7 +40,7 @@ ENT ID theo [S1 Entity Dictionary](../../data/01-entity-dictionary.md) baseline 
 | `closed_at` | `closedAt` | timestamptz | yes | |
 | `closed_by_user_id` | `closedByUserId` | text | yes | |
 | `created_by_user_id` | `createdByUserId` | text | no | |
-| `created_at`, `updated_at` | `createdAt`, `updatedAt` | timestamptz | no | |
+| `created_at`, `updated_at` | `createdAt`, `updatedAt` | timestamptz | no | UTC (DAC-M03-017; danh sách đầy đủ các field thời điểm áp dụng nằm ở dòng DAC đó) |
 | `concurrency_revision` | `concurrencyRevision` | integer | no | PT-04 |
 
 CHECK: khi `TAM_DONG`, bốn cột `closure_*`/`closed_*` đều khác null (DAC-M03-007). Nội dung tuyến nằm trong `app.revisions` (`subject_type = ROUTE`). Giá trị suy ra (nhãn thời gian, số điểm dừng, cờ offline, danh sách tên) **không** phải attribute (S4 Route).
@@ -49,8 +49,8 @@ CHECK: khi `TAM_DONG`, bốn cột `closure_*`/`closed_*` đều khác null (DAC
 
 | Cột | S4 path | Kiểu | Null | Constraint |
 |---|---|---|---|---|
-| `checkpoint_id` | `checkpointId` | text | no | PK; default `app.new_id()`; bất biến |
-| `status` | `status` | text | no | CHECK như Route; lưu trữ chỉ khi không tuyến chưa lưu trữ nào liệt kê (BR-M03-D10) |
+| `checkpoint_id` | `checkpointId` | text | no | PK; default `app.new_id()`; bất biến (DAC-M03-001) |
+| `status` | `status` | text | no | CHECK như Route (DAC-M03-009); lưu trữ chỉ khi không tuyến chưa lưu trữ nào liệt kê (BR-M03-D10) |
 | `location_note` | `locationNote` | text | yes | ≤ `NOTE_MAX_CHARS` (DAC-M03-011); nội bộ, lưu cùng form, không qua revision |
 | `closure_reason`, `closed_at`, `closed_by_user_id` | `closureReason`, `closedAt`, `closedByUserId` | text, timestamptz, text | yes | bắt buộc cả ba khi `TAM_DONG` (DAC-M03-008, 010) |
 | `created_by_user_id`, `created_at`, `updated_at`, `concurrency_revision` | như Route | như §5.1 | no | |
@@ -65,7 +65,7 @@ Không có cột route: điểm dừng không thuộc tuyến nào (spec-M03 §6
 | `checkpoint_id` | `checkpointId` | text | no | FK → `app.checkpoints`; bất biến; chỉ insert khi điểm dừng đã lưu chế độ kết nối (DAC-M03-012) |
 | `installation_label` | `installationLabel` | text | yes | ≤ `NOTE_MAX_CHARS` |
 | `status` | `status` | text | no | CHECK `NHAP`, `HOAT_DONG`, `THU_HOI`; `THU_HOI` terminal (DAC-M03-013) |
-| `status_reason` | `statusReason` | text | yes | bắt buộc khi người dùng thu hồi QR đang hoạt động (BR-M03-E09); tùy chọn khi hủy (E10); không cần khi tự thu hồi do lưu trữ điểm dừng (D10); command revoke enforce |
+| `status_reason` | `statusReason` | text | yes | bắt buộc khi người dùng thu hồi QR đang hoạt động (BR-M03-E09); tùy chọn khi hủy (E10); không cần khi tự thu hồi do lưu trữ điểm dừng (D10); command revoke enforce (DAC-M03-014) |
 | `created_by_user_id`, `created_at`, `updated_at`, `concurrency_revision` | như Route | | no | |
 
 Trigger: điểm dừng `HOAT_DONG` giữ ≥ 1 QR `HOAT_DONG` (DAC-M03-015); số QR không `THU_HOI` của một điểm dừng ≤ `CHECKPOINT_QR_MAX_ITEMS` (DAC-M03-089). Link công khai `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` là giá trị suy ra, **không lưu**.
@@ -74,12 +74,12 @@ Trigger: điểm dừng `HOAT_DONG` giữ ≥ 1 QR `HOAT_DONG` (DAC-M03-015); s�
 
 | Cột | S4 path | Kiểu | Null | Constraint |
 |---|---|---|---|---|
-| `revision_id` | `revisionId` | text | no | PK; default `app.new_id()` |
-| `subject_type` | `subjectType` | text | no | CHECK `ROUTE`, `CHECKPOINT`, `QRCODE` |
-| `subject_id` | `subjectId` | text | no | tham chiếu đa hình, trigger kiểm tra; bất biến |
+| `revision_id` | `revisionId` | text | no | PK; default `app.new_id()` (DAC-M03-001) |
+| `subject_type` | `subjectType` | text | no | CHECK `ROUTE`, `CHECKPOINT`, `QRCODE` (DAC-M03-018) |
+| `subject_id` | `subjectId` | text | no | tham chiếu đa hình, trigger kiểm tra; bất biến (DAC-M03-018) |
 | `revision_number` | `revisionNumber` | integer | no | ≥ 1; UNIQUE `(subject_type, subject_id, revision_number)`; +1; không dùng lại (DAC-M03-019) |
 | `status` | `status` | text | no | CHECK `NHAP`, `PHAT_HANH`, `LUU_TRU`, `DA_BO`; partial UNIQUE `(subject_type, subject_id)` where `NHAP`, và where `PHAT_HANH` (DAC-M03-020) |
-| `content` | `content.*` | jsonb | no | trigger gọi `app.revision_content_ok(subject_type, content)` khi chèn hoặc khi `content` đổi (không phải CHECK của bảng); bất biến khi `PHAT_HANH` |
+| `content` | `content.*` | jsonb | no | trigger gọi `app.revision_content_ok(subject_type, content)` khi chèn hoặc khi `content` đổi (không phải CHECK của bảng); bất biến khi `PHAT_HANH` (DAC-M03-018) |
 | `based_on_revision_number` | `basedOnRevisionNumber` | integer | yes | |
 | `created_by_user_id`, `created_at` | | text, timestamptz | no | |
 | `last_edited_by_user_id`, `last_edited_at` | | text, timestamptz | no | dùng cho MSG-STALE và cờ tự xuất bản |
@@ -90,9 +90,9 @@ Hình dạng `content` theo `subject_type` — chép đầy đủ ở S4 §4 Rev
 
 | `subject_type` | Path chính (S4) | Kiểm tra lúc lưu (`app.revision_content_ok`, Physical §5.4.1) | Kiểm tra lúc xuất bản (guard, Physical §8) |
 |---|---|---|---|
-| `ROUTE` | `name`, `shortDescription`, `description`, `startingPoint` (vi/en); `participationRequirements`, `preparation`, `bestTime`, `safetyWarning` (both-or-none); `noSafetyWarningConfirmed`; `distanceKm`, `durationMin`, `difficulty`; `groupTags`, `experienceTags`; `thumbnailMediaId`, `galleryItems[]`, `routeMapMediaId`, `routeMapCaption`, `offlineRouteMapRequired`; `checkpointList[].checkpointId`; `highlights[]` | Độ dài, khoảng giá trị, một chữ số thập phân, enum, tag phân biệt, không `KHO` + `GROUP_GIA_DINH_CO_TRE`/`GROUP_CAN_DE_DANG`, số phần tử, không lặp `checkpointId`, không CR/LF ở trường một dòng (DAC-M03-023–043, 087, 088) | Đủ song ngữ, both-or-none đầy đủ, ≥ 1 điểm dừng hoạt động, quyền media, tick không cảnh báo, trần offline (BR-M03-C04, T04, T05, G10) |
-| `CHECKPOINT` | `checkpointName.vi/.en`, `connectivityMode`, `fieldVerificationConfirmed`, `fieldVerifiedByUserId`, `fieldVerifiedAt` | Độ dài tên, enum mode, xác nhận khi `ONLINE_AVAILABLE` (DAC-M03-045, 047, 048) | ≥ 1 điểm tham quan sẵn sàng, ảnh đọc được cho `OFFLINE_REQUIRED` (BR-M03-D04) |
-| `QRCODE` | `objectName.vi/.en`, `introductionText.vi/.en`, `mediaItems[].mediaId` | Độ dài tên, `QR_INTRO_MIN_CHARS`…`QR_INTRO_MAX_CHARS` khi có, số ảnh/AV (DAC-M03-051–053) | Đủ song ngữ, quyền media, `spokenLanguage` cho AV (BR-M03-E05, E17) |
+| `ROUTE` | `name`, `shortDescription`, `description`, `startingPoint` (vi/en); `participationRequirements`, `preparation`, `bestTime`, `safetyWarning` (both-or-none); `noSafetyWarningConfirmed`; `distanceKm`, `durationMin`, `difficulty`; `groupTags`, `experienceTags`; `thumbnailMediaId`, `galleryItems[]`, `routeMapMediaId`, `routeMapCaption`, `offlineRouteMapRequired`; `checkpointList[].checkpointId`; `highlights[]` | Độ dài, khoảng giá trị, một chữ số thập phân, enum, tag phân biệt, không `KHO` + `GROUP_GIA_DINH_CO_TRE`/`GROUP_CAN_DE_DANG`, số phần tử, không lặp `checkpointId`, không CR/LF ở trường một dòng (DAC-M03-023–043, 087, 088) | Đủ song ngữ, both-or-none đầy đủ, ≥ 1 điểm dừng hoạt động, quyền media, tick không cảnh báo, trần offline (BR-M03-C04, T04, T05, G10; DAC-M03-044) |
+| `CHECKPOINT` | `checkpointName.vi/.en`, `connectivityMode`, `fieldVerificationConfirmed`, `fieldVerifiedByUserId`, `fieldVerifiedAt` | Độ dài tên, enum mode, xác nhận khi `ONLINE_AVAILABLE` (DAC-M03-045, 047, 048); tên vi duy nhất và chặn đổi mode khi còn AV là quy tắc liên dòng bên dưới (DAC-M03-046, 049) | ≥ 1 điểm tham quan sẵn sàng, ảnh đọc được cho `OFFLINE_REQUIRED` (BR-M03-D04; DAC-M03-050) |
+| `QRCODE` | `objectName.vi/.en`, `introductionText.vi/.en`, `mediaItems[].mediaId` | Độ dài tên, `QR_INTRO_MIN_CHARS`…`QR_INTRO_MAX_CHARS` khi có, số ảnh/AV (DAC-M03-051–053) | Đủ song ngữ, quyền media, `spokenLanguage` cho AV (BR-M03-E05, E17; DAC-M03-054) |
 
 Kiểm tra `content` do trigger `BEFORE INSERT OR UPDATE OF content` gọi `app.revision_content_ok`, không phải CHECK của bảng; nhờ đó đổi trạng thái một revision cũ không bị kiểm lại theo giới hạn mới, và lệnh khôi phục bắt lỗi của trigger để trả MSG-RESTORE-BLOCKED (Physical §5.4.1).
 
@@ -102,7 +102,7 @@ Quy tắc liên dòng (media tồn tại và thuộc owner, điểm dừng trong
 
 | Cột | S4 path | Kiểu | Null | Constraint |
 |---|---|---|---|---|
-| `media_id` | `mediaId` | uuid | no | PK; default `gen_random_uuid()` |
+| `media_id` | `mediaId` | uuid | no | PK; default `gen_random_uuid()` (DAC-M03-002) |
 | `owner_type` | `ownerType` | text | no | CHECK `ROUTE`, `CHECKPOINT` |
 | `owner_id` | `ownerId` | text | no | tham chiếu đa hình (REL-004, REL-023); bất biến |
 | `usage` | `usage` | text | no | CHECK `ROUTE_THUMBNAIL`, `ROUTE_GALLERY`, `ROUTE_MAP`, `QR_MEDIA`; ràng buộc type/owner (DAC-M03-055) |
@@ -148,15 +148,15 @@ Không FK tới `auth.users`. Constraint trigger cấp câu lệnh dưới khóa
 
 | Cột | S4 path | Kiểu | Null | Constraint |
 |---|---|---|---|---|
-| `audit_id` | `auditId` | text | no | PK; default `app.new_id()` |
-| `actor_user_id` | `actorUserId` | text | yes | FK → `app.admin_accounts(user_id)`; null khi cấp phía server |
-| `action` | `action` | text | no | văn bản tự do (spec không cố định danh sách) |
-| `entity_type`, `entity_id` | `entityType`, `entityId` | text | no | tham chiếu chung, không FK |
-| `revision` | `revision` | integer | yes | `revisionNumber` liên quan (S1 HC-006) |
-| `reason` | `reason` | text | yes | không rỗng, ≤ `NOTE_MAX_CHARS` khi có |
-| `outcome` | `outcome` | text | no | CHECK `SUCCESS`, `FAILURE` |
-| `self_published` | `selfPublished` | boolean | yes | |
-| `before_state`, `after_state` | `beforeState`, `afterState` | jsonb | yes | không chứa credential/token |
+| `audit_id` | `auditId` | text | no | PK; default `app.new_id()` (DAC-M03-001) |
+| `actor_user_id` | `actorUserId` | text | yes | FK → `app.admin_accounts(user_id)`; null khi cấp phía server (DAC-M03-072) |
+| `action` | `action` | text | no | văn bản tự do (spec không cố định danh sách) (DAC-M03-075) |
+| `entity_type`, `entity_id` | `entityType`, `entityId` | text | no | tham chiếu chung, không FK (DAC-M03-075) |
+| `revision` | `revision` | integer | yes | `revisionNumber` liên quan (S1 HC-006; DAC-M03-074) |
+| `reason` | `reason` | text | yes | không rỗng, ≤ `NOTE_MAX_CHARS` khi có (DAC-M03-073) |
+| `outcome` | `outcome` | text | no | CHECK `SUCCESS`, `FAILURE` (DAC-M03-074) |
+| `self_published` | `selfPublished` | boolean | yes | (DAC-M03-074) |
+| `before_state`, `after_state` | `beforeState`, `afterState` | jsonb | yes | không chứa credential/token (DAC-M03-075) |
 | `occurred_at` | `occurredAt` | timestamptz | no | default `now()` |
 
 Append-only. Plan decision ([research.md](research.md) R-07): command ghi dòng `FAILURE` ở khối ngoài sau khi khối nghiệp vụ rollback. Danh sách giá trị `action` mà plan dùng (văn bản tự do, chỉ để lọc và hiển thị qua bảng tên hiển thị) nằm ở [admin-command-contract.md](contracts/admin-command-contract.md) §5; UI không bao giờ hiện mã action thô.
@@ -165,15 +165,15 @@ Append-only. Plan decision ([research.md](research.md) R-07): command ghi dòng 
 
 | Cột | S4 path | Kiểu | Null | Constraint |
 |---|---|---|---|---|
-| `session_id` | `sessionId` | uuid | no | PK |
-| `route_id` | `routeId` | text | no | FK → `app.routes` |
-| `content_version` | `contentVersion` | integer | no | FK `(route_id, content_version)` → `app.journey_snapshots` |
+| `session_id` | `sessionId` | uuid | no | PK (DAC-M03-076) |
+| `route_id` | `routeId` | text | no | FK → `app.routes` (DAC-M03-077) |
+| `content_version` | `contentVersion` | integer | no | FK `(route_id, content_version)` → `app.journey_snapshots` (DAC-M03-077) |
 | `started_at`, `ended_at` | `startedAt`, `endedAt` | timestamptz | no | CHECK `ended_at >= started_at` (DAC-M03-078) |
-| `status` | `status` | text | no | CHECK `HOAN_TAT`, `BO_DO` |
-| `visited_checkpoints` | `visitedCheckpoints[].*` | jsonb | no | CHECK `app.visits_ok(...)`: mảng (có thể rỗng); `checkpointId` duy nhất; mỗi phần tử đúng bốn khóa `checkpointId`, `checkpointName`, `sequence`, `checkedInAt` |
+| `status` | `status` | text | no | CHECK `HOAN_TAT`, `BO_DO` (DAC-M03-077) |
+| `visited_checkpoints` | `visitedCheckpoints[].*` | jsonb | no | CHECK `app.visits_ok(...)`: mảng (có thể rỗng); `checkpointId` duy nhất; mỗi phần tử đúng bốn khóa `checkpointId`, `checkpointName`, `sequence`, `checkedInAt` (DAC-M03-079) |
 | `ingested_at` | `ingestedAt` | timestamptz | no | default `now()`; không thuộc payload so sánh |
 
-Append-only. Phần tử trong `visited_checkpoints` là giá trị lịch sử, không FK tới điểm dừng live; khớp với snapshot được `api.ingest_session` kiểm tra (Physical §7.2).
+Append-only. Không có field tên hay tài khoản du khách, định danh thiết bị hay GPS (DAC-M03-080). Phần tử trong `visited_checkpoints` là giá trị lịch sử, không FK tới điểm dừng live; khớp với snapshot được `api.ingest_session` kiểm tra (Physical §7.2).
 
 ## 3. Contract / projection (không phải entity lưu riêng)
 
@@ -181,9 +181,9 @@ Physical §2: các giá trị này không lưu như entity. Hình dạng đầy 
 
 | Tên (giữ nguyên) | Loại | Nguồn dữ liệu | Producer → Consumer | Contract file |
 |---|---|---|---|---|
-| Published Route projection | Projection công khai | `api.published_routes` (view) từ `routes` + revision `PHAT_HANH` + media + snapshot active | M03 → M01 | [publication-public-contract.md](contracts/publication-public-contract.md) |
+| Published Route projection | Projection công khai | `api.published_routes` (view) từ `routes` + revision `PHAT_HANH` + media + snapshot active | M03 → M01 | [publication-public-contract.md](contracts/publication-public-contract.md) (DAC-M03-081, 082) |
 | `JourneySnapshot` | Entity được phát hành nguyên dạng | `api.active_journey_snapshots` (view) | M03 → M01 (rồi qua M01 tới M02) | [publication-public-contract.md](contracts/publication-public-contract.md) |
-| `LiveQrLookupResult` với `LiveStationContent` | Transport projection | `api.lookup_qr(...)` từ QR, checkpoint, route, revision `PHAT_HANH`, media | M03 → M02 | [live-qr-lookup-contract.md](contracts/live-qr-lookup-contract.md) |
+| `LiveQrLookupResult` với `LiveStationContent` | Transport projection | `api.lookup_qr(...)` từ QR, checkpoint, route, revision `PHAT_HANH`, media | M03 → M02 | [live-qr-lookup-contract.md](contracts/live-qr-lookup-contract.md) (DAC-M03-083, 084) |
 | `SessionSyncRecord` | Transport contract | Body request tới Edge `session-intake` | M02 → M03; lưu thành `SessionRecord` | [session-intake-contract.md](contracts/session-intake-contract.md) |
 | Current published content | Projection của revision `PHAT_HANH` | `app.revisions` | nội bộ M03 | — (AGENTS.md §5: không phải entity mới) |
 
@@ -202,7 +202,7 @@ Physical §2: các giá trị này không lưu như entity. Hình dạng đầy 
 | RPT-01 (`totalSessionCount`, `completedCount`, `completedRate`, `abandonedCount`, `abandonedRate`, `lastSuccessfulIngestionAt?`) | query trên `app.session_records` | Không; tính theo yêu cầu |
 | RPT-02 (`items[]` theo `(routeId, checkpointId)` với `routeName`, `checkpointName`, `sequence`, `uniqueSessionCount`; `lastSuccessfulIngestionAt?`) | query trên `app.session_records` + `name.vi` của revision `PHAT_HANH` lúc query | Không |
 
-Chi tiết: [admin-command-contract.md](contracts/admin-command-contract.md) §6.
+Chi tiết: [admin-command-contract.md](contracts/admin-command-contract.md) §6. Tiêu chí đầu vào báo cáo (`routeId`, `fromDate`, `toDate`) và đầu ra (số đếm, tỷ lệ): DAC-M03-085, 086.
 
 ## 6. Transient UI state (không lưu, không phải contract)
 

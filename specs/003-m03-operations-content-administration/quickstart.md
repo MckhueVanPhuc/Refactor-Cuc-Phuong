@@ -40,7 +40,7 @@ npm run test             # Vitest: unit + contract + component (adapter giả, f
 npm run build            # vite build
 npm run e2e              # Playwright, chạy trên adapter giả hoặc stack local
 
-# Giai đoạn B — backend local (chỉ khi đã có change brief backend)
+# Giai đoạn B — backend local (change brief backend CHG-M03-2026-10-30-01 đã duyệt; chỉ local)
 supabase start
 supabase db reset        # CHỈ local: replay migration từ đầu; không bao giờ --linked
 supabase test db         # pgTAP: CHECK, trigger, RLS, grant, rollback, khóa tập, Reviewer cuối
@@ -89,7 +89,7 @@ Mỗi kịch bản trỏ tới contract chứa chi tiết. Fixture là dữ li�
 
 ## 6. Giới hạn
 
-- Giai đoạn B bị chặn cho tới khi có change brief backend (AGENTS.md §2; [plan.md](plan.md) Complexity Tracking). Trước đó, Q2–Q5, Q8, Q12–Q17, Q19–Q26 chỉ chạy được trên adapter giả: chúng chứng minh UI và mapping, không chứng minh được giao dịch phía server.
+- Giai đoạn B được mở chỉ trên stack local từ 2026-10-30 (CHG-M03-2026-10-30-01; AGENTS.md §2; [plan.md](plan.md) Complexity Tracking). Cho tới khi Phase 13–15 được cài đặt, Q2–Q5, Q8, Q12–Q17, Q19–Q26 chỉ chạy được trên adapter giả: chúng chứng minh UI và mapping, không chứng minh được giao dịch phía server.
 - Mọi con số giới hạn là **provisional** (spec-M03 §5.3) và cần được kiểm chứng trên thiết bị thật.
 - Smoke check trên cloud (environment.md §10–11) nằm ngoài quickstart này; chỉ được chạy non-destructive, có người chịu trách nhiệm, sau khi phát hành.
 - Không có test camera hay offline ở M03 (M03 là online-only); các phần đó thuộc M01/M02.

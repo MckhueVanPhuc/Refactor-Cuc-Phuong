@@ -1,10 +1,10 @@
 # Feature Specification: M03 — Operations & Content Administration
 
-**Feature Branch**: `003-m03-operations-content-administration` *(định danh thư mục; chưa tạo git branch)*
+**Feature Branch**: `003-m03-operations-content-administration` *(định danh thư mục; git branch cùng tên đã tạo)*
 
 **Created**: 2026-10-29
 
-**Status**: Draft — bản dẫn xuất (Layer 3) từ [docs/spec/spec-M03.md](../../docs/spec/spec-M03.md) v3.7
+**Status**: Draft — bản dẫn xuất (Layer 3) từ [docs/spec/spec-M03.md](../../docs/spec/spec-M03.md) v3.7 (đến clarification 8, 2026-10-30)
 
 **Input**: Change Brief CHG-M03-2026-10-29-01. Nguồn chuẩn: spec-M03 v3.7; ranh giới priority: [MVP-Scope.md](../../MVP-Scope.md) §3.3, §3.4. Consumer: M01 v3.2 (Published Route, `JourneySnapshot`) và M02 v3.3 (`LiveQrLookupResult`, `LiveStationContent`). Producer đầu vào: M02 (`SessionSyncRecord`).
 
@@ -128,6 +128,7 @@ Mọi vấn đề hiện ngay dưới trường liên quan bằng tiếng Việt
 5. **Given** lưu stale, **Then** nêu ai sửa và khi nào, kèm hành động Tải lại.
 6. **Given** "Lưu bản nháp", **Then** lưu mọi thứ trong form (cả hai ngôn ngữ, danh sách media) hoặc không gì; "Đã lưu bản nháp" chỉ hiện khi tất cả được lưu; không autosave (BR-M03-F11).
 7. **Given** mọi màn hình, **Then** không hiện JSON, tên trường, mã trạng thái, mã HTTP hay identifier nội bộ (ngoại lệ: 6 ký tự cuối của mã QR); mọi thông báo lấy từ danh mục §5.6 (BR-M03-L10, L11, L13).
+8. **Given** một trường, **Then** câu gợi ý chỉ có cho danh sách cố định §5.5, mỗi câu một dòng ngắn; hộp xác nhận chỉ có khi đóng, mở lại, lưu trữ, thu hồi, hủy mục chưa từng xuất bản, xuất bản và rời editor còn thay đổi chưa lưu, gồm một câu hậu quả và hai nút (BR-M03-L12; spec-M03 v3.7 clarification 7).
 
 ---
 
@@ -334,7 +335,7 @@ Tất cả là hằng cấu hình **provisional**, phải kiểm chứng trên g
 - Ảnh gallery tối đa 8; quãng đường tối đa 100 km (một chữ số thập phân); thời lượng tối đa 1440 phút; điểm dừng mỗi tuyến tối đa 30; QR mỗi điểm dừng (không `THU_HOI`) tối đa 20; ảnh/QR tối đa 5; tệp audio-video/QR tối đa 3; khoảng báo cáo tối đa 366 ngày.
 - Kích thước tệp: ảnh 2 MB, audio 5 MB, video 30 MB (1 MB = 1 048 576 byte). `OFFLINE_PACKAGE_MAX_MB` = 50. Email tối đa 254 ký tự sau chuẩn hóa. `QR_CODE_DISPLAY_SUFFIX_CHARS` = 6.
 - In mã: sửa lỗi mức `Q`, PNG tối thiểu 1024 px, quiet zone 4 module, rộng tối thiểu in 3 cm. Loại tệp hỗ trợ: JPEG, PNG, WebP; MP3, M4A; MP4.
-- `QR_PUBLIC_BASE_URL` là cấu hình môi trường (xem NEEDS CLARIFICATION bên dưới).
+- `QR_PUBLIC_BASE_URL` là cấu hình môi trường (xem Open clarifications bên dưới).
 
 ### Open clarifications
 
@@ -350,15 +351,15 @@ Tất cả ID bên dưới tồn tại trong [docs/spec/spec-M03.md](../../docs/
 
 | User story | US (spec §) | FR | BR | SC | Function / Priority |
 |---|---|---|---|---|---|
-| Story 1 | US-M03-05 (§3) | FR-M03-013 | A01–A04, K01–K06 | SC-M03-008, 009, 010, 011, 040 | FN-M03-008 / Must |
+| Story 1 | US-M03-05 (§3) | FR-M03-013 | A01–A04, K01–K06, X07 | SC-M03-008, 009, 010, 011, 040 | FN-M03-008 / Must |
 | Story 2 | US-M03-03 (§3) | FR-M03-002, 003, 004 | B01–B05, D01–D12, E01–E17 (E08 retired), F11, F12 | SC-M03-004, 012, 013, 025, 028, 031, 032, 033, 034, 036, 037, 039 | FN-M03-002, 003, 004 / Must; F12 (xem trước) Should |
 | Story 3 | US-M03-01 (§3) | FR-M03-001, 005, 006, 008 | C01–C17, T01–T09, F01–F04, G01–G03 | SC-M03-001, 002, 015, 022, 030 | FN-M03-001, 005, 006 / Must |
 | Story 4 | US-M03-02 (§3) | FR-M03-007, 009 | F02–F07, F10, X01–X03, G04–G07 | SC-M03-003, 005, 020, 021, 024, 029 | FN-M03-005, 006 / Must |
 | Story 5 | US-M03-09 (§3) | FR-M03-005, 019 | L01–L13 | SC-M03-016, 026 | FN-M03-005 / Must |
 | Story 6 | US-M03-04 (§3) | FR-M03-011 | H01–H09 | SC-M03-006, 019, 023 | FN-M03-007 / Must |
-| Story 7 | US-M03-04 mục 7 (§3), flow §4.6 | FR-M03-012 | I01–I06 | SC-M03-017, 023 | FN-M03-009 / Must |
-| Story 8 | US-M03-08 (§3) | FR-M03-007, 018 | A05, F07–F10 | SC-M03-014, 021 | FN-M03-011 / Must; nhật ký toàn hệ thống Should |
-| Story 9 | US-M03-06 (§3) | FR-M03-014, 015, 016 | J01–J08 | SC-M03-007, 035, 038 | FN-M03-010 / Should |
+| Story 7 | US-M03-04 mục 7 (§3), flow §4.6 | FR-M03-012 | I01–I06, X04 | SC-M03-017, 023 | FN-M03-009 / Must |
+| Story 8 | US-M03-08 (§3) | FR-M03-007, 018 | A05, F07–F10, X06 | SC-M03-014, 021 | FN-M03-011 / Must; nhật ký toàn hệ thống Should |
+| Story 9 | US-M03-06 (§3) | FR-M03-014, 015, 016 | J01–J08, X05 | SC-M03-007, 035, 038 | FN-M03-010 / Should |
 | Không có user story | — | FR-M03-010 | G08 | — | FN-M03-006 |
 
 | Mục trong file này | Section nguồn |

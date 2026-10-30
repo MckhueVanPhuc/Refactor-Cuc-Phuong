@@ -1,6 +1,6 @@
 # Implementation Plan: M03 — Operations & Content Administration
 
-**Branch**: `003-m03-operations-content-administration` *(định danh thư mục; chưa tạo git branch, đang ở `main`)* | **Date**: 2026-10-29 | **Spec**: [spec.md](spec.md)
+**Branch**: `003-m03-operations-content-administration` *(định danh thư mục; git branch cùng tên đã tạo)* | **Date**: 2026-10-29 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification [specs/003-m03-operations-content-administration/spec.md](spec.md), bản dẫn xuất từ [spec-M03 v3.7](../../docs/spec/spec-M03.md) (Change Brief CHG-M03-2026-10-29-01).
 
@@ -14,7 +14,7 @@ Cách làm kỹ thuật:
 
 - **Frontend:** SPA React + TypeScript + Vite trong website/PWA dùng chung. M03 là cây route `/admin/*` được bảo vệ, online-only, lazy-load.
 - **Backend:** Supabase. Đọc công khai qua view/RPC trong schema `api`. Command quản trị là RPC `SECURITY DEFINER` có kiểm tra role, chạy một transaction, khóa tập kết nối, ghi đúng một dòng audit. Edge Function dùng cho intake phiên và Auth Admin.
-- **Phân giai đoạn:** Giai đoạn A (frontend, adapter, contract, cấu hình local) nằm trong phạm vi code hiện tại. Giai đoạn B (migration, RPC, Edge, pgTAP) **bị chặn** cho tới khi có change brief backend (AGENTS.md §2; [research.md](research.md) R-01).
+- **Phân giai đoạn:** Giai đoạn A (frontend, adapter, contract, cấu hình local) nằm trong phạm vi code hiện tại. Giai đoạn B (migration, RPC, Edge, pgTAP) được mở **chỉ trên stack local** theo change brief backend CHG-M03-2026-10-30-01, duyệt 2026-10-30 (AGENTS.md §2; [research.md](research.md) R-01).
 
 ## Technical Context
 
@@ -125,7 +125,7 @@ e2e/                                  # Playwright (cần xác nhận phạm vi 
 supabase/
 ├── config.toml                       # chỉ local (trong phạm vi)
 ├── seed.sql                          # synthetic, chỉ local (trong phạm vi)
-├── migrations/                       # GIAI ĐOẠN B — bị chặn (Physical §13 bước 1–5)
+├── migrations/                       # GIAI ĐOẠN B — chỉ local, CHG-M03-2026-10-30-01 (Physical §13 bước 1–5)
 ├── functions/
 │   ├── _shared/                      # GIAI ĐOẠN B: cors.ts, bản sao sessionSyncRecord.ts (Edge chỉ import trong supabase/functions)
 │   ├── session-intake/               # GIAI ĐOẠN B
@@ -197,7 +197,7 @@ Phụ thuộc với package khác: shell `src/app` và cấu hình PWA dùng chu
 | 8 | Editor tuyến (SCR-M03-001, 002) | A | 7 |
 | 9 | Review + xuất bản (SCR-M03-004); hộp thoại vận hành; lịch sử, khôi phục; nhật ký (SCR-M03-009) | A | 7, 8 |
 | 10 | Báo cáo (SCR-M03-005); xem trước như du khách (Should) | A | 5 |
-| 11 | Migration 1–2: schema, `app.new_id`, `app.limit`, 9 bảng, hàm validate, trigger | **B (bị chặn)** | change brief backend |
+| 11 | Migration 1–2: schema, `app.new_id`, `app.limit`, 9 bảng, hàm validate, trigger | **B** | change brief backend (CHG-M03-2026-10-30-01, đã duyệt) |
 | 12 | Migration 3: command function (lưu, xuất bản + snapshot, đóng/mở lại, khôi phục, media, tài khoản, báo cáo) | B | 11 |
 | 13 | Migration 4–5: RLS, grant, view `api`, `lookup_qr`, `ingest_session`; bucket và policy Storage (gồm R-12) | B | 12 |
 | 14 | Edge `session-intake`, `admin-accounts`; script cấp Reviewer đầu tiên | B | 13 |
@@ -243,7 +243,7 @@ M03 là một package theo quyết định của người dùng. Nếu tasks.md 
 
 **Quyết định (2026-10-30, người dùng ủy quyền cho agent quyết; tasks.md T001):**
 
-- **#1:** giữ nguyên — giai đoạn B vẫn bị chặn cho tới khi có change brief backend (AGENTS.md §2). Bản nháp CHG-M03-2026-10-30-01 ([change-brief-CHG-M03-2026-10-30-01-backend.md](change-brief-CHG-M03-2026-10-30-01-backend.md)) đang chờ duyệt.
+- **#1:** đã giải quyết — change brief backend CHG-M03-2026-10-30-01 ([change-brief-CHG-M03-2026-10-30-01-backend.md](change-brief-CHG-M03-2026-10-30-01-backend.md)) được chủ dự án duyệt 2026-10-30 (tasks M03 T166–T167): giai đoạn B mở phạm vi chỉ trên stack Supabase local; cấu hình cloud và deploy vẫn cần change brief triển khai (tasks M03 T201).
 - **#2:** duyệt — các file tooling gốc nêu ở #2 và thư mục `e2e/` được coi là thuộc "cấu hình Vite".
 - **#3:** duyệt nối CI (người dùng, 2026-10-30; thay quyết định hoãn trước đó): .github/workflows/ci.yml chạy `npm run ci` và E2E project mock trên mỗi push/PR (tasks M03 T002); job Supabase local thêm khi giai đoạn B mở (tasks M03 T198).
 - **#4:** giữ thiết kế `SECURITY DEFINER` như đã giải trình.
