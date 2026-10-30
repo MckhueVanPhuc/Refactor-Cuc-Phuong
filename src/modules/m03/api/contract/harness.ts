@@ -16,6 +16,8 @@ export type ContractControls = {
   /** Tạo thẳng chủ sở hữu media để test không phụ thuộc story khác */
   seedRoute(name: string): Promise<string>;
   seedCheckpoint(name: string): Promise<string>;
+  /** Tạo thẳng một AdminAccount (đã nối danh tính nếu `ACTIVE`/`DEACTIVATED`) */
+  seedAccount(account: { email: string; role: AdminRole; status: 'ACTIVE' | 'DEACTIVATED' | 'INVITATION_PENDING' }): Promise<void>;
   /** fakeOnly */
   failNext?(action: string, messageKey?: 'MSG-PUBLISH-FAILED' | 'MSG-CLOSE-FAILED' | 'MSG-GENERIC'): void;
   /** fakeOnly */

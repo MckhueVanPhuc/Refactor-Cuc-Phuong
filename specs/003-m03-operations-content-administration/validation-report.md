@@ -55,3 +55,37 @@ Test viết trước và đã chạy thấy fail (không resolve được module
 ### 1.5 Checkpoint Phase 2
 
 "Nền sẵn sàng" **đạt**: T001–T055 xong và có bằng chứng ở §1.2. Còn mở: D-3 (`NEEDS CLARIFICATION`), các mục `NOT RUN` ở §1.3.
+
+## 2. Đợt 2026-10-31 — Phase 3 US1 Quản lý truy cập (T056–T072)
+
+Branch `feat/m03-us1` tạo từ `feat/m03-setup` @ `32e188c`. Test viết trước và đã chạy thấy fail trước khi cài đặt.
+
+### 2.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | typecheck sạch; lint 193 test pass; test 35 file, 538 pass, 0 `todo` (hai ca STALE/FORBIDDEN của `store.contract` đã thành test thật qua C-19); build xong |
+| `npx playwright install chromium` | 0 | Tải trình duyệt cho E2E local |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | `e2e/m03/auth.spec.ts`: Q1–Q5 pass (5), 1 `fixme` (xem D-10) |
+| Quét `dist/` production tìm adapter giả, mật khẩu synthetic, `example.test`, `__cpqTestHooks` | — | Không có |
+
+Lỗi thật tìm được nhờ E2E và đã sửa: StrictMode chạy effect hai lần làm `AdminServicesProvider` tạo hai store giả (bản Supabase sẽ là hai client); nay dịch vụ được tạo một lần cho mỗi lần tải trang.
+
+### 2.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| `auth/session.ts` (Supabase Auth: đăng nhập, link mời/khôi phục qua `detectSessionInUrl`, `updateUser`) | Giai đoạn B trên stack local; cách nhận diện link trong URL cần kiểm với Supabase CLI thật |
+| `api/adminAccountsEdge.ts` gọi Edge `admin-accounts` thật | Edge Function là giai đoạn B (T195/T196); đã test bảng ánh xạ `result` → messageKey |
+| Q5 phần "RPC bằng access token cũ bị từ chối" ở server | Adapter giả mô phỏng bằng phiên bị xóa; kiểm thật bằng `app.current_admin()` ở pgTAP giai đoạn B |
+
+### 2.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-9 | T071 ghi "khóa/mở khóa với hộp xác nhận", nhưng BR-M03-L12 (spec-M03, canonical) chỉ cho hộp xác nhận khi đóng, mở lại, lưu trữ, thu hồi, hủy mục chưa xuất bản, xuất bản và rời editor; §5.6 cũng không có câu MSG-CONFIRM cho tài khoản | Làm theo spec: không có hộp xác nhận. Đã sửa câu chữ T071 trong tasks.md cho khớp spec (người dùng duyệt 2026-10-31) |
+| D-10 | Q5 phần hộp thoại MSG-UNSAVED-CHANGES khi đăng xuất từ form chưa lưu cần một editor thật | `test.fixme` trong E2E; hành vi đã kiểm ở `auth/useSignOut.test.tsx`; bật lại khi có editor ở US2 |
+| D-11 | Thiết kế đăng xuất: nút "Đăng xuất" điều hướng tới `/admin/login` trước, để guard rời trang của editor hỏi trước; chỉ khi rời đi màn đăng nhập mới hủy request đang bay và `signOut({ scope: 'local' })` | Đáp ứng auth-account §2.6 bước 1–4 |
+| D-12 | Phiên hết hạn (T070): state form cất vào `sessionStorage` (khóa theo form), về đăng nhập với thông báo MSG-SESSION-EXPIRED, đăng nhập xong quay lại trang cũ; `useDraftForm({ restoreKey })` lấy lại và coi là chưa lưu | Editor của các story sau cần truyền `restoreKey` |
+| D-13 | Kết quả thành công của Edge `link` và C-18/C-19 không có câu thông báo riêng trong §5.6; dùng `MSG-SAVED` làm khóa nội bộ nhưng UI không hiển thị (bảng tự cho thấy thay đổi; nhận lời mời thì chuyển màn) | Ghi nhận |
+| D-14 | Adapter giả: tài khoản khóa theo email (tài khoản chờ nhận lời mời chưa có `userId`); thêm auth provider giả với hộp thư (`?fake_token=`) thay Inbucket | Chỉ ảnh hưởng adapter giả |

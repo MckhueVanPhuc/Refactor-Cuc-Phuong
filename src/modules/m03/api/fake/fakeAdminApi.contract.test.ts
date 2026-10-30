@@ -1,4 +1,5 @@
 import { describeAdminApiContract } from '../contract/harness';
+import { accountsContract } from '../contract/accounts.contract';
 import { mediaContract } from '../contract/media.contract';
 import { storeContract } from '../contract/store.contract';
 import { createFakeAdminApi, createFakeControls } from './fakeAdminApi';
@@ -11,6 +12,6 @@ describeAdminApiContract(
     const store = new FakeStore();
     return { api: createFakeAdminApi(store), controls: createFakeControls(store) };
   },
-  { store: storeContract, media: mediaContract },
+  { store: storeContract, media: mediaContract, accounts: accountsContract },
   { fakeOnly: true },
 );

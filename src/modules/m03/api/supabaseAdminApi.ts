@@ -9,7 +9,8 @@ import { rpt01OutputSchema, rpt02OutputSchema } from '../contracts/reportOutputs
 import type { AdminApi } from './AdminApi';
 import { AdminApiError } from './errors';
 import { trackRequest } from './inflight';
-import { ADMIN_ACCOUNTS_FUNCTION, RPC_NAMES, toRpcParams } from './rpcNames';
+import { callAdminAccounts } from './adminAccountsEdge';
+import { RPC_NAMES, toRpcParams } from './rpcNames';
 
 // Thời hạn signed URL cho xem trước của admin (R-12); không cache bằng Workbox
 const SIGNED_URL_SECONDS = 3600;
@@ -52,18 +53,6 @@ export function createSupabaseAdminApi(supabase: SupabaseClient<any, 'api'>): Ad
     };
   }
 
-  async function edge(body: Record<string, unknown>): Promise<CommandResult<null>> {
-    try {
-      const { data, error } = await supabase.functions.invoke(ADMIN_ACCOUNTS_FUNCTION, { body });
-      if (error) throw error;
-      const parsed = anyCommandResult.safeParse(data);
-      if (!parsed.success) throw parsed.error;
-      return parsed.data as CommandResult<null>;
-    } catch (error) {
-      throw AdminApiError.from(error);
-    }
-  }
-
   return {
     saveRouteDraft: command('saveRouteDraft'),
     saveCheckpointDraft: command('saveCheckpointDraft'),
@@ -85,9 +74,9 @@ export function createSupabaseAdminApi(supabase: SupabaseClient<any, 'api'>): Ad
     changeAccountRole: command('changeAccountRole'),
     setAccountStatus: command('setAccountStatus'),
 
-    inviteAccount: (input) => edge({ action: 'invite', ...input }),
-    resendInvitation: (input) => edge({ action: 'resend', ...input }),
-    linkInvitation: () => edge({ action: 'link' }),
+    inviteAccount: (input) => callAdminAccounts(supabase, { action: 'invite', ...input }),
+    resendInvitation: (input) => callAdminAccounts(supabase, { action: 'resend', ...input }),
+    linkInvitation: () => callAdminAccounts(supabase, { action: 'link' }),
 
     getCurrentAdmin: async () => (await query<Out<'getCurrentAdmin'>>('getCurrentAdmin')()) ?? null,
     listRoutes: (filter) => query<Out<'listRoutes'>>('listRoutes')(filter),

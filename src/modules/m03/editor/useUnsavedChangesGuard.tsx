@@ -7,6 +7,16 @@ import { registerUnsavedForm, unregisterUnsavedForm } from '../../../app/pwa/upd
 import { Dialog } from '../../../shared/ui/Dialog';
 import { formatMessage } from '../messages/catalog';
 
+// Bỏ qua lần chặn kế tiếp khi state đã được cất ở nơi khác (phiên hết hạn, auth-account §2.7)
+let bypassNextBlock = false;
+
+export function allowNextNavigation(): void {
+  bypassNextBlock = true;
+  setTimeout(() => {
+    bypassNextBlock = false;
+  }, 0);
+}
+
 export type UnsavedChangesGuard = {
   /** Đang chặn một lần điều hướng, chờ người dùng chọn */
   blocked: boolean;
@@ -18,7 +28,7 @@ export function useUnsavedChangesGuard(formId: string, isDirty: boolean): Unsave
   const blocker = useBlocker(
     useCallback(
       ({ currentLocation, nextLocation }: { currentLocation: { pathname: string }; nextLocation: { pathname: string } }) =>
-        isDirty && currentLocation.pathname !== nextLocation.pathname,
+        !bypassNextBlock && isDirty && currentLocation.pathname !== nextLocation.pathname,
       [isDirty],
     ),
   );

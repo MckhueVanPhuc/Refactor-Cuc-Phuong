@@ -129,26 +129,26 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T056 [P] [US1] Viết test src/modules/m03/auth/LoginPage.test.tsx: không có tài khoản, `INVITATION_PENDING`, `DEACTIVATED` → `signOut({scope:'local'})` + MSG-LOGIN-DENIED; provider lỗi → MSG-LOGIN-FAILED; ACTIVE → `/admin/routes` (BR-M03-A04, K05; SC-M03-009)
-- [ ] T057 [P] [US1] Viết test src/modules/m03/auth/RequireAdmin.test.tsx: chưa đăng nhập → `/admin/login`; `CONTENT_STAFF` mở `/admin/accounts` hoặc `/admin/audit` → MSG-NO-PERMISSION (BR-M03-A02, A03)
-- [ ] T058 [P] [US1] Viết test src/modules/m03/auth/InvitationPage.test.tsx và src/modules/m03/auth/RecoveryPage.test.tsx: link sai/hết hạn → MSG-LINK-INVALID; mật khẩu không khớp → MSG-PASSWORD-MISMATCH; provider từ chối → MSG-PASSWORD-REJECTED; yêu cầu khôi phục luôn MSG-RECOVERY-SENT cho email có và không có; không lệnh gọi nào chạm `AdminAccount` (BR-M03-K01, K02; SC-M03-011)
-- [ ] T059 [P] [US1] Viết test src/modules/m03/accounts/AccountsPage.test.tsx: mời → MSG-INVITE-SENT; mời email đã ACTIVE → MSG-EMAIL-TAKEN; gửi lại không tạo bản sao; đổi role/khóa Reviewer cuối → MSG-LAST-REVIEWER; email sai → MSG-EMAIL-INVALID (BR-M03-K01, K03; SC-M03-008)
-- [ ] T060 [P] [US1] Viết test src/modules/m03/auth/useSignOut.test.tsx: có form chưa lưu → MSG-UNSAVED-CHANGES trước; gọi `abortAll()`; `signOut({scope:'local'})`; về `/admin/login`; không gọi command audit nào (BR-M03-K06; SC-M03-040)
-- [ ] T061 [P] [US1] Viết test hành vi src/modules/m03/api/contract/accounts.contract.ts (harness T043): hai thao tác đồng thời khóa và hạ role Reviewer cuối → cả hai BLOCKED; mỗi thay đổi có một dòng audit; `CONTENT_STAFF` gọi C-18/C-19/Q-14 → FORBIDDEN (BR-M03-K03, A03)
-- [ ] T062 [P] [US1] Viết E2E e2e/m03/auth.spec.ts cho quickstart Q1–Q5 trên project `m03`
+- [X] T056 [P] [US1] Viết test src/modules/m03/auth/LoginPage.test.tsx: không có tài khoản, `INVITATION_PENDING`, `DEACTIVATED` → `signOut({scope:'local'})` + MSG-LOGIN-DENIED; provider lỗi → MSG-LOGIN-FAILED; ACTIVE → `/admin/routes` (BR-M03-A04, K05; SC-M03-009)
+- [X] T057 [P] [US1] Viết test src/modules/m03/auth/RequireAdmin.test.tsx: chưa đăng nhập → `/admin/login`; `CONTENT_STAFF` mở `/admin/accounts` hoặc `/admin/audit` → MSG-NO-PERMISSION (BR-M03-A02, A03)
+- [X] T058 [P] [US1] Viết test src/modules/m03/auth/InvitationPage.test.tsx và src/modules/m03/auth/RecoveryPage.test.tsx: link sai/hết hạn → MSG-LINK-INVALID; mật khẩu không khớp → MSG-PASSWORD-MISMATCH; provider từ chối → MSG-PASSWORD-REJECTED; yêu cầu khôi phục luôn MSG-RECOVERY-SENT cho email có và không có; không lệnh gọi nào chạm `AdminAccount` (BR-M03-K01, K02; SC-M03-011)
+- [X] T059 [P] [US1] Viết test src/modules/m03/accounts/AccountsPage.test.tsx: mời → MSG-INVITE-SENT; mời email đã ACTIVE → MSG-EMAIL-TAKEN; gửi lại không tạo bản sao; đổi role/khóa Reviewer cuối → MSG-LAST-REVIEWER; email sai → MSG-EMAIL-INVALID (BR-M03-K01, K03; SC-M03-008)
+- [X] T060 [P] [US1] Viết test src/modules/m03/auth/useSignOut.test.tsx: có form chưa lưu → MSG-UNSAVED-CHANGES trước; gọi `abortAll()`; `signOut({scope:'local'})`; về `/admin/login`; không gọi command audit nào (BR-M03-K06; SC-M03-040)
+- [X] T061 [P] [US1] Viết test hành vi src/modules/m03/api/contract/accounts.contract.ts (harness T043): hai thao tác đồng thời khóa và hạ role Reviewer cuối → cả hai BLOCKED; mỗi thay đổi có một dòng audit; `CONTENT_STAFF` gọi C-18/C-19/Q-14 → FORBIDDEN (BR-M03-K03, A03)
+- [X] T062 [P] [US1] Viết E2E e2e/m03/auth.spec.ts cho quickstart Q1–Q5 trên project `m03`
 
 ### Implementation for User Story 1
 
-- [ ] T063 [US1] Cài đặt src/modules/m03/api/fake/accounts.ts: Q-01, Q-14, C-18, C-19 và mô phỏng Edge `admin-accounts` (`invite`/`resend`/`link`) theo auth-account §2.2–2.5, guard Reviewer cuối, audit `ACCOUNT_*`
-- [ ] T064 [P] [US1] Cài đặt src/modules/m03/api/adminAccountsEdge.ts: client Edge `admin-accounts` (`supabase.functions.invoke`), ánh xạ HTTP/`result` → messageKey theo auth-account §3; body không bao giờ được hiển thị thô
-- [ ] T065 [US1] Cài đặt src/modules/m03/auth/authService.ts (interface), bản Supabase src/modules/m03/auth/session.ts, bản giả src/modules/m03/auth/fakeAuthService.ts (MODE fake: tài khoản synthetic theo role, link mời và khôi phục giả, token bị từ chối sau đăng xuất — để Q1–Q5 chạy được trên adapter giả) và src/modules/m03/auth/CurrentAdminContext.tsx: bọc `signInWithPassword`, `signOut({scope:'local'})`, `resetPasswordForEmail` (redirect `/admin/recovery`), `updateUser`, `onAuthStateChange`; nạp Q-01 sau đăng nhập; role/status không đọc từ JWT metadata (research R-15)
-- [ ] T066 [US1] Cài đặt src/modules/m03/auth/RequireAdmin.tsx và src/modules/m03/auth/RequireReviewer.tsx (guard route; hiện MSG-NO-PERMISSION cho route chỉ Reviewer)
-- [ ] T067 [P] [US1] Dựng màn SCR-M03-000 src/modules/m03/auth/LoginPage.tsx + LoginPage.module.css theo screen-spec SCR-M03-000 (dùng `frontend-design`)
-- [ ] T068 [P] [US1] Dựng màn SCR-M03-007 src/modules/m03/auth/InvitationPage.tsx và src/modules/m03/auth/RecoveryPage.tsx (+ form yêu cầu khôi phục, `*.module.css`) theo auth-account §2.3–2.4 và screen-spec SCR-M03-007
-- [ ] T069 [US1] Cài đặt src/modules/m03/auth/useSignOut.ts và src/modules/m03/auth/SignOutButton.tsx; gắn nút vào header của src/modules/m03/layout/AdminLayout.tsx (auth-account §2.6)
-- [ ] T070 [US1] Cài đặt src/modules/m03/auth/useSessionExpiry.ts: khi adapter trả MSG-SESSION-EXPIRED, giữ state form, hiện thông báo, đưa về đăng nhập rồi quay lại (auth-account §2.7)
-- [ ] T071 [US1] Dựng màn SCR-M03-006 src/modules/m03/accounts/AccountsPage.tsx + AccountsPage.module.css: danh sách email/role/trạng thái bằng tên hiển thị §5.4; hộp mời (email + role); gửi lại; đổi role; khóa/mở khóa với hộp xác nhận
-- [ ] T072 [US1] Đăng ký `/admin/login`, `/admin/invitation`, `/admin/recovery`, `/admin/accounts` (RequireReviewer) và bọc mọi route còn lại bằng RequireAdmin trong src/modules/m03/routes.tsx
+- [X] T063 [US1] Cài đặt src/modules/m03/api/fake/accounts.ts: Q-01, Q-14, C-18, C-19 và mô phỏng Edge `admin-accounts` (`invite`/`resend`/`link`) theo auth-account §2.2–2.5, guard Reviewer cuối, audit `ACCOUNT_*`
+- [X] T064 [P] [US1] Cài đặt src/modules/m03/api/adminAccountsEdge.ts: client Edge `admin-accounts` (`supabase.functions.invoke`), ánh xạ HTTP/`result` → messageKey theo auth-account §3; body không bao giờ được hiển thị thô
+- [X] T065 [US1] Cài đặt src/modules/m03/auth/authService.ts (interface), bản Supabase src/modules/m03/auth/session.ts, bản giả src/modules/m03/auth/fakeAuthService.ts (MODE fake: tài khoản synthetic theo role, link mời và khôi phục giả, token bị từ chối sau đăng xuất — để Q1–Q5 chạy được trên adapter giả) và src/modules/m03/auth/CurrentAdminContext.tsx: bọc `signInWithPassword`, `signOut({scope:'local'})`, `resetPasswordForEmail` (redirect `/admin/recovery`), `updateUser`, `onAuthStateChange`; nạp Q-01 sau đăng nhập; role/status không đọc từ JWT metadata (research R-15)
+- [X] T066 [US1] Cài đặt src/modules/m03/auth/RequireAdmin.tsx và src/modules/m03/auth/RequireReviewer.tsx (guard route; hiện MSG-NO-PERMISSION cho route chỉ Reviewer)
+- [X] T067 [P] [US1] Dựng màn SCR-M03-000 src/modules/m03/auth/LoginPage.tsx + LoginPage.module.css theo screen-spec SCR-M03-000 (dùng `frontend-design`)
+- [X] T068 [P] [US1] Dựng màn SCR-M03-007 src/modules/m03/auth/InvitationPage.tsx và src/modules/m03/auth/RecoveryPage.tsx (+ form yêu cầu khôi phục, `*.module.css`) theo auth-account §2.3–2.4 và screen-spec SCR-M03-007
+- [X] T069 [US1] Cài đặt src/modules/m03/auth/useSignOut.ts và src/modules/m03/auth/SignOutButton.tsx; gắn nút vào header của src/modules/m03/layout/AdminLayout.tsx (auth-account §2.6)
+- [X] T070 [US1] Cài đặt src/modules/m03/auth/useSessionExpiry.ts: khi adapter trả MSG-SESSION-EXPIRED, giữ state form, hiện thông báo, đưa về đăng nhập rồi quay lại (auth-account §2.7)
+- [X] T071 [US1] Dựng màn SCR-M03-006 src/modules/m03/accounts/AccountsPage.tsx + AccountsPage.module.css: danh sách email/role/trạng thái bằng tên hiển thị §5.4; hộp mời (email + role); gửi lại; đổi role; khóa/mở khóa không có hộp xác nhận (BR-M03-L12 chỉ cho hộp xác nhận khi đóng, mở lại, lưu trữ, thu hồi, hủy, xuất bản và rời editor); chặn Quản lý cuối bằng MSG-LAST-REVIEWER
+- [X] T072 [US1] Đăng ký `/admin/login`, `/admin/invitation`, `/admin/recovery`, `/admin/accounts` (RequireReviewer) và bọc mọi route còn lại bằng RequireAdmin trong src/modules/m03/routes.tsx
 
 **Checkpoint**: US1 chạy độc lập trên adapter giả
 

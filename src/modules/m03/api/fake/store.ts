@@ -12,15 +12,29 @@ import type {
   SpokenLanguage,
 } from '../../contracts/adminDtos';
 import type { CommandResult } from '../../contracts/commandResult';
-import { createFixtureState } from './fixtures';
+import { createFixtureProviderUsers, createFixtureState } from './fixtures';
 
 export type FakeAccount = {
-  userId: string;
+  /** null khi còn `INVITATION_PENDING` (chưa nối danh tính provider) */
+  userId: string | null;
   email: string;
   role: AdminRole;
   status: AccountStatus;
   concurrencyRevision: number;
+  lastChangedByEmail: string;
+  lastChangedAt: string;
 };
+
+/** Người dùng của auth provider giả (Supabase Auth) — không thuộc "database" của M03 */
+export type FakeProviderUser = { userId: string; email: string; password: string };
+
+/** Thư giả do provider gửi (thay Inbucket/Mailpit): link mời hoặc khôi phục */
+export type FakeMail = { email: string; kind: 'invite' | 'recovery'; link: string };
+
+export type AuthEvent = 'SIGNED_IN' | 'SIGNED_OUT';
+
+/** Người gọi một command: tài khoản active, hoặc danh tính provider (Edge `link`) */
+export type FakeActor = { userId: string; email: string; role?: AdminRole };
 
 export type FakeRoute = {
   routeId: string;
@@ -55,6 +69,7 @@ export type FakeMedia = {
 
 /** State "database" — được sao lưu và khôi phục khi command thất bại. Story sau bổ sung bảng của mình. */
 export type FakeState = {
+  /** khóa = email đã chuẩn hóa (BR-M03-K01) */
   accounts: Map<string, FakeAccount>;
   routes: Map<string, FakeRoute>;
   checkpoints: Map<string, FakeCheckpoint>;
@@ -71,8 +86,8 @@ export type FailureKey = 'MSG-PUBLISH-FAILED' | 'MSG-CLOSE-FAILED' | 'MSG-GENERI
 export type CommandSpec = {
   /** giá trị `audit_records.action` (admin-command §5) */
   action: string;
-  /** B = cả hai role; R = chỉ REVIEWER */
-  roles: 'B' | 'R';
+  /** B = cả hai role; R = chỉ REVIEWER; AUTH = mọi danh tính provider (Edge `link` của người được mời) */
+  roles: 'B' | 'R' | 'AUTH';
   subject: { type: FakeAuditRow['subjectType']; id?: string; name?: string };
   /** khóa tập kết nối (research R-08) */
   lockKeys?: { key: string; itemName: string }[];
@@ -81,7 +96,7 @@ export type CommandSpec = {
 };
 
 export type CommandContext = {
-  actor: FakeAccount;
+  actor: FakeActor;
   /** thân command cập nhật khi tạo mới, để dòng audit có id/tên */
   subjectId: string | undefined;
   subjectName: string | undefined;
@@ -96,6 +111,13 @@ export class FakeStore {
   readonly storage = new Map<string, FakeStorageObject>();
   readonly audit: FakeAuditRow[] = [];
   currentUserId: string | null = null;
+  /** Auth provider giả: người dùng, link mời/khôi phục còn hiệu lực, hộp thư */
+  readonly auth = {
+    users: new Map<string, FakeProviderUser>(),
+    linkTokens: new Map<string, { email: string; kind: FakeMail['kind'] }>(),
+    outbox: [] as FakeMail[],
+  };
+  private readonly authListeners = new Set<(event: AuthEvent) => void>();
   private readonly failures = new Map<string, FailureKey>();
   private readonly locks = new Set<string>();
   private readonly clock: () => Date;
@@ -103,6 +125,7 @@ export class FakeStore {
   constructor(state: FakeState = createFixtureState(), clock: () => Date = () => new Date()) {
     this.state = state;
     this.clock = clock;
+    for (const user of createFixtureProviderUsers()) this.auth.users.set(user.email, user);
   }
 
   now(): string {
@@ -119,13 +142,26 @@ export class FakeStore {
     return crypto.randomUUID();
   }
 
+  /** Đặt danh tính provider hiện tại (phiên); null = đã đăng xuất, token cũ không còn dùng được */
   signIn(userId: string | null): void {
     this.currentUserId = userId;
+    for (const listener of this.authListeners) listener(userId ? 'SIGNED_IN' : 'SIGNED_OUT');
+  }
+
+  onAuthChange(listener: (event: AuthEvent) => void): () => void {
+    this.authListeners.add(listener);
+    return () => this.authListeners.delete(listener);
+  }
+
+  providerUser(userId: string | null): FakeProviderUser | undefined {
+    if (!userId) return undefined;
+    return [...this.auth.users.values()].find((user) => user.userId === userId);
   }
 
   /** Tài khoản `ACTIVE` của danh tính hiện tại; role/status không đọc từ token (BR-M03-K05) */
   currentAdmin(): FakeAccount | undefined {
-    const account = this.currentUserId ? this.state.accounts.get(this.currentUserId) : undefined;
+    if (!this.currentUserId) return undefined;
+    const account = [...this.state.accounts.values()].find((a) => a.userId === this.currentUserId);
     return account?.status === 'ACTIVE' ? account : undefined;
   }
 
@@ -144,7 +180,7 @@ export class FakeStore {
   }
 
   run<T>(spec: CommandSpec, body: (context: CommandContext) => CommandResult<T>): CommandResult<T> {
-    const actor = this.currentAdmin();
+    const actor = this.resolveActor(spec.roles);
     const context: CommandContext | undefined = actor && {
       actor,
       subjectId: spec.subject.id,
@@ -174,6 +210,15 @@ export class FakeStore {
       if (succeeded && context?.selfPublished !== undefined) row.selfPublished = context.selfPublished;
       this.audit.push(row);
     }
+  }
+
+  private resolveActor(roles: CommandSpec['roles']): FakeActor | undefined {
+    if (roles !== 'AUTH') {
+      const admin = this.currentAdmin();
+      return admin?.userId ? { userId: admin.userId, email: admin.email, role: admin.role } : undefined;
+    }
+    const user = this.providerUser(this.currentUserId);
+    return user && { userId: user.userId, email: user.email };
   }
 
   private evaluate<T>(

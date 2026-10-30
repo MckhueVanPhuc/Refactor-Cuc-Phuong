@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { AdminApiError } from '../api/errors';
 import type { CommandResult } from '../contracts/commandResult';
+import { stashDraft } from '../auth/useSessionExpiry';
 import { useDraftForm } from './useDraftForm';
 
 type Form = { name: { vi: string; en: string }; media: { mediaId: string; usageRightsConfirmed: boolean }[]; note: string };
@@ -83,6 +84,13 @@ describe('useDraftForm (BR-M03-F11, L06; research R-20)', () => {
       await pending;
     });
     expect(result.current.state.note).toBe('AB');
+    expect(result.current.isDirty).toBe(true);
+  });
+
+  it('lấy lại state đã cất khi phiên hết hạn, coi là chưa lưu (auth-account §2.7)', () => {
+    stashDraft('route:r1', { ...initial, note: 'Gõ trước khi hết phiên' });
+    const { result } = renderHook(() => useDraftForm({ initial, save: vi.fn(), restoreKey: 'route:r1' }));
+    expect(result.current.state.note).toBe('Gõ trước khi hết phiên');
     expect(result.current.isDirty).toBe(true);
   });
 

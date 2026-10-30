@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router';
-import { m03Routes } from './routes';
-
-// Chỉ kiểm cây route và layout; trang placeholder chưa gọi API nào
-function renderAt(path: string) {
-  const router = createMemoryRouter(createRoutesFromElements(m03Routes), { initialEntries: [path] });
-  return render(<RouterProvider router={router} />);
-}
+import { screen, waitFor } from '@testing-library/react';
+import { renderAdmin } from './testing/renderAdmin';
 
 describe('cây /admin/* (admin-ui-flow §1)', () => {
   it.each([
@@ -17,26 +10,28 @@ describe('cây /admin/* (admin-ui-flow §1)', () => {
     ['/admin/review/QR_OBJECT/q1', 'Xem lại & Xuất bản'],
     ['/admin/audit', 'Nhật ký hệ thống'],
   ])('%s → màn "%s" trong layout quản trị', async (path, title) => {
-    renderAt(path);
+    renderAdmin(path, { signedInAs: 'REVIEWER' });
     expect(await screen.findByRole('heading', { level: 1, name: title })).toBeTruthy();
     expect(screen.getByRole('navigation', { name: 'Quản trị' })).toBeTruthy();
   });
 
   it('/admin/login không có layout quản trị', async () => {
-    renderAt('/admin/login');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Đăng nhập quản trị' })).toBeTruthy();
+    renderAdmin('/admin/login');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Đăng nhập' })).toBeTruthy();
     expect(screen.queryByRole('navigation', { name: 'Quản trị' })).toBeNull();
   });
 
   it('/admin chuyển về danh sách tuyến', async () => {
-    renderAt('/admin');
+    const { router } = renderAdmin('/admin', { signedInAs: 'CONTENT_STAFF' });
     expect(await screen.findByRole('heading', { level: 1, name: 'Quản trị tuyến' })).toBeTruthy();
+    await waitFor(() => expect(router.state.location.pathname).toBe('/admin/routes'));
   });
 
-  it('mục chỉ Quản lý ẩn khi chưa biết role', async () => {
-    renderAt('/admin/routes');
+  it('Nhân viên không thấy mục chỉ Quản lý; mục đang chọn có aria-current', async () => {
+    renderAdmin('/admin/routes', { signedInAs: 'CONTENT_STAFF' });
     await screen.findByRole('heading', { level: 1 });
     expect(screen.queryByRole('link', { name: 'Tài khoản' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Nhật ký hệ thống' })).toBeNull();
     expect(screen.getByRole('link', { name: 'Tuyến' }).getAttribute('aria-current')).toBe('page');
   });
 });

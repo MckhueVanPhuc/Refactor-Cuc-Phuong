@@ -1,5 +1,5 @@
 // Hành vi chung của mọi command (admin-command §1, §2, §7): FORBIDDEN, STALE, đúng một dòng audit.
-// Giai đoạn nền chỉ có C-04; story sau bổ sung ca cho command của mình vào đây (STALE: US1 T061 với C-18/C-19).
+// Dùng C-04 và C-19; story sau bổ sung ca cho command của mình vào đây.
 import { expect, it } from 'vitest';
 import type { ContractSuite } from './harness';
 import { syntheticFile } from './harness';
@@ -65,6 +65,25 @@ export const storeContract: ContractSuite = ({ subject, itFakeOnly }) => {
     expect(rows[0]?.result).toBe('FAILURE');
   });
 
-  it.todo('STALE kèm email người sửa và giờ (BR-M03-F06) — thêm ca khi có C-18/C-19 ở US1 (T061)');
-  it.todo('Command chỉ Reviewer gọi bởi Nhân viên → FORBIDDEN (SC-M03-009) — thêm ca khi có C-18/C-19 ở US1 (T061)');
+  it('STALE kèm email người sửa và giờ (BR-M03-F06), có một dòng audit FAILURE', async () => {
+    const { api, controls } = subject();
+    await controls.signInAs('REVIEWER');
+    await controls.seedAccount({ email: 'staff7@example.test', role: 'CONTENT_STAFF', status: 'ACTIVE' });
+    const row = (await api.listAccounts()).find((a) => a.email === 'staff7@example.test')!;
+    const before = (await controls.auditRows()).length;
+    const result = await api.setAccountStatus({
+      email: row.email,
+      status: 'DEACTIVATED',
+      expected: { entity: row.concurrencyRevision + 1 },
+    });
+    expect(result).toMatchObject({ ok: false, reason: 'STALE', messageKey: 'MSG-STALE' });
+    expect((await controls.auditRows()).slice(before).map((r) => r.result)).toEqual(['FAILURE']);
+  });
+
+  it('command chỉ Quản lý gọi bởi Nhân viên → FORBIDDEN (SC-M03-009)', async () => {
+    const { api, controls } = subject();
+    await controls.signInAs('CONTENT_STAFF');
+    const result = await api.setAccountStatus({ email: 'staff@example.test', status: 'DEACTIVATED', expected: { entity: 1 } });
+    expect(result).toEqual({ ok: false, reason: 'FORBIDDEN', messageKey: 'MSG-NO-PERMISSION' });
+  });
 };
