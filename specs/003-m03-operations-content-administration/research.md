@@ -45,13 +45,38 @@ Sau Phase 0 không còn mục `NEEDS CLARIFICATION` mở trong plan. Các điể
 
 ### R-02 — Toolchain và phiên bản
 
-- **Decision (Approved upstream + Plan decision):** Node.js 24 LTS + npm (tech-stack §8). Runtime dependency: `react`, `react-dom`, `react-router` (declarative mode), `@supabase/supabase-js`, `zod`, `qrcode` 1.5.x + `@types/qrcode` (đã kiểm tra 1.5.4 ngày 2026-10-28, tech-stack §3). Dev dependency: `typescript`, `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa` (shell dùng chung), `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`, `@playwright/test`. Supabase CLI cho stack local. M03 không dùng `dexie`, `@zxing/*` (đó là của M01/M02). Phiên bản chính xác được **pin khi task setup chạy cài đặt thật**; lockfile được commit; plan không ghi số phiên bản chưa được cài (tech-stack §13).
+- **Decision (Approved upstream + Plan decision):** Node.js 24 LTS + npm (tech-stack §8). Runtime dependency: `react`, `react-dom`, `react-router` (data mode), `@supabase/supabase-js`, `zod`, `qrcode` 1.5.x + `@types/qrcode` (đã kiểm tra 1.5.4 ngày 2026-10-28, tech-stack §3). Dev dependency: `typescript`, `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa` (shell dùng chung), `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`, `@playwright/test`. Supabase CLI cho stack local. M03 không dùng `dexie`, `@zxing/*` (đó là của M01/M02). Phiên bản chính xác được **pin khi task setup chạy cài đặt thật**; lockfile được commit; plan không ghi số phiên bản chưa được cài (tech-stack §13).
 - **Rationale:** tech-stack.md yêu cầu "pin exact dependency/CLI versions, commit lockfile và chỉ ghi version là verified sau khi cài/chạy thực tế". Lúc plan, không có cài đặt nào (người dùng cấm cài dependency).
 - **Alternatives considered:** Ghi trước một bộ phiên bản — sẽ là phiên bản chưa được kiểm chứng. Thêm React Query/Zustand — bị loại theo tech-stack §3 ("không thêm Redux/Zustand hoặc cache server thứ hai").
 
+- **Phiên bản đã cài (tasks T002–T003, `npm install` 2026-10-30, Node.js v24.15.0, npm 11.12.1; kiểm bằng `npm ls --depth=0`, exit 0):**
+
+  | Gói | Loại | Phiên bản |
+  |---|---|---|
+  | `react`, `react-dom` | runtime | 19.3.1 |
+  | `react-router` | runtime | 8.5.1 |
+  | `@supabase/supabase-js` | runtime | 2.118.0 |
+  | `zod` | runtime | 4.6.7 |
+  | `qrcode` | runtime | 1.5.4 |
+  | `typescript` | dev | 7.0.2 |
+  | `vite` | dev | 8.3.5 |
+  | `@vitejs/plugin-react` | dev | 6.1.2 |
+  | `vite-plugin-pwa` | dev | 2.0.0 |
+  | `vitest` | dev | 5.0.5 |
+  | `jsdom` | dev | 30.1.3 |
+  | `@testing-library/react` | dev | 16.3.3 |
+  | `@testing-library/user-event` | dev | 14.6.8 |
+  | `@testing-library/dom` | dev | 10.4.2 |
+  | `@playwright/test` | dev | 1.64.1 |
+  | `@types/qrcode` | dev | 1.5.6 |
+  | `@types/react`, `@types/react-dom` | dev | 19.3.0 |
+  | `@types/node` | dev | 26.6.6 |
+
+  `@testing-library/dom` (peer bắt buộc của `@testing-library/react` 16), `@types/react`, `@types/react-dom` và `@types/node` (kiểu cho file config) được thêm ngoài danh sách T003, người dùng duyệt 2026-10-30. `npm audit`: 4 lỗi mức thấp trong chuỗi `deepmerge` → `workbox-build` (chỉ lúc build); không áp `npm audit fix --force` vì nó hạ `vite-plugin-pwa` xuống 0.2.1.
+
 ### R-03 — Kiến trúc frontend của M03
 
-- **Decision (Approved upstream):** SPA React + TypeScript build bằng Vite; React Router declarative mode với cây route `/admin/*` được bảo vệ và lazy-load (tech-stack §2–3, system-configuration "Route exposure"). Style dùng CSS Modules + CSS custom properties lấy từ token của [design-system.md](../../docs/design/design-system.md); không hard-code màu hay khoảng cách (CLAUDE.md). Icon chỉ lấy từ `assets/icons/`. UI state tạm dùng React state/context; M03 không có store offline.
+- **Decision (Approved upstream):** SPA React + TypeScript build bằng Vite; React Router data mode với cây route `/admin/*` được bảo vệ và lazy-load (tech-stack §2–3, system-configuration "Route exposure"). Style dùng CSS Modules + CSS custom properties lấy từ token của [design-system.md](../../docs/design/design-system.md); không hard-code màu hay khoảng cách (CLAUDE.md). Icon chỉ lấy từ `assets/icons/`. UI state tạm dùng React state/context; M03 không có store offline.
 - **Plan decision:** M03 là một module trong `src/modules/m03/`. Mỗi màn hình nằm trong thư mục tính năng tương ứng (bảng ở plan.md). App shell dùng chung (`src/app/`) do package nào code trước tạo ra; M03 chỉ đăng ký cây route của nó và một "unsaved-changes registry" để shell hoãn cập nhật service worker (R-22).
 - **Rationale:** Đây là các quyết định đã chốt; M03 là route online-only, được bảo vệ (MVP-Scope §5).
 - **Alternatives considered:** UI framework (MUI…) — tech-stack chọn CSS Modules "trước khi có screen designs"; design system đã có token riêng.

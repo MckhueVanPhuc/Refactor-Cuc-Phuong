@@ -15,3 +15,13 @@ scratch/
 .env
 .env.*
 !.env.example
+!.env.fake
+!.env.e2e
+.env.local
+
+# Node / build / test output
+node_modules/
+dist/
+test-results/
+playwright-report/
+e2e/.local-fixture.json

@@ -1,0 +1,60 @@
+/* Nền trắng, chữ ink; màu semantic chỉ ở vạch trái và tiêu đề để giữ tương phản đọc được */
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m03-border);
+  border-left-width: calc(var(--border-width-thick) * 2);
+  border-radius: var(--radius-sm);
+}
+
+.content {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.title {
+  font-weight: var(--font-weight-semibold);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.info {
+  border-left-color: var(--color-info);
+}
+
+.info .title {
+  color: var(--color-info);
+}
+
+.success {
+  border-left-color: var(--color-success);
+}
+
+.success .title {
+  color: var(--color-success);
+}
+
+.warning {
+  border-left-color: var(--color-warning);
+}
+
+.warning .title {
+  color: var(--color-warning);
+}
+
+.error {
+  border-left-color: var(--color-error);
+}
+
+.error .title {
+  color: var(--color-error);
+}

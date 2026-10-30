@@ -1,0 +1,45 @@
+/* Checkbox và radio: ô chọn cỡ chuẩn, cả dòng là vùng chạm tối thiểu --touch-target */
+.fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  padding: 0;
+  margin-bottom: var(--space-1);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  font-size: var(--font-size-body);
+  cursor: pointer;
+}
+
+.input {
+  flex: none;
+  width: var(--space-5);
+  height: var(--space-5);
+  margin: 0;
+  accent-color: var(--control-accent);
+  cursor: pointer;
+}
+
+.input:disabled,
+.input:disabled + span {
+  color: var(--color-ink-secondary);
+  cursor: not-allowed;
+}
+
+/* Gợi ý và lỗi thẳng hàng với chữ của lựa chọn, không với ô chọn */
+.indented {
+  padding-left: calc(var(--space-5) + var(--space-3));
+}

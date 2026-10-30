@@ -1,0 +1,53 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  text-align: center;
+  border: var(--border-width-thin) solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.primary {
+  color: var(--color-white);
+  background-color: var(--control-accent);
+}
+
+.secondary {
+  color: var(--color-ink);
+  background-color: var(--color-white);
+  border-color: var(--control-border-color);
+}
+
+/* §5.4: lớp phủ trong suốt lên màu nền sẵn có; hover chỉ khi có con trỏ */
+@media (hover: hover) {
+  .primary:not(:disabled):hover {
+    background-image: linear-gradient(var(--overlay-fill-hover), var(--overlay-fill-hover));
+  }
+
+  .secondary:not(:disabled):hover {
+    background-image: linear-gradient(var(--overlay-surface-hover), var(--overlay-surface-hover));
+  }
+}
+
+.primary:not(:disabled):active {
+  background-image: linear-gradient(var(--overlay-fill-pressed), var(--overlay-fill-pressed));
+}
+
+.secondary:not(:disabled):active {
+  background-image: linear-gradient(var(--overlay-surface-pressed), var(--overlay-surface-pressed));
+}
+
+/* Không dùng độ mờ làm tín hiệu duy nhất: nền và chữ đổi sang tông trung tính */
+.button:disabled {
+  color: var(--color-ink-secondary);
+  background-color: var(--color-m03-muted);
+  border-color: var(--color-m03-border);
+  cursor: not-allowed;
+}
