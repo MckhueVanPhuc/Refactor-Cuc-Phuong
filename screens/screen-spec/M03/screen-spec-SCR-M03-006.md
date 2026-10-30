@@ -103,7 +103,7 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | ID | Question | Blocking | Status | Resolution |
 |---|---|---|---|---|
 | OQ-SCR-M03-006-002 | Quy tắc định dạng email hợp lệ | No | Resolved | M03 chỉ chuẩn hóa, kiểm tra độ dài và tính duy nhất; email không hợp lệ được phát hiện khi nhà cung cấp từ chối lời mời và hiện MSG-EMAIL-INVALID. Không đặt thêm quy tắc định dạng riêng. |
-| OQ-SCR-M03-006-003 | Có hộp thoại xác nhận cho đổi vai trò/khóa/mở khóa không | No | Resolved | Không có hộp thoại xác nhận: BR-M03-L12 chỉ cho phép hộp thoại cho đóng, mở lại, lưu trữ, thu hồi, xuất bản và rời trang khi chưa lưu. Việc chặn Quản lý cuối cùng do MSG-LAST-REVIEWER đảm nhận. |
+| OQ-SCR-M03-006-003 | Có hộp thoại xác nhận cho đổi vai trò/khóa/mở khóa không | No | Resolved | Không có hộp thoại xác nhận: BR-M03-L12 chỉ cho phép hộp thoại cho đóng, mở lại, lưu trữ, thu hồi, hủy mục chưa từng xuất bản, xuất bản và rời trang khi chưa lưu (spec-M03 3.7 clarification 7). Việc chặn Quản lý cuối cùng do MSG-LAST-REVIEWER đảm nhận. |
 
 ## Completion checklist
 

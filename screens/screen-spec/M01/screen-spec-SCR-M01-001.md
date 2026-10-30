@@ -58,6 +58,9 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | Danh sách trống | Hiện chưa có tuyến nào để chọn. | No routes are available right now. |
 | Hiển thị dữ liệu đã lưu | Dữ liệu đã lưu, có thể chưa phải bản mới nhất. | Saved data, which may not be the latest. |
 | Không đọc được nguồn, chưa có dữ liệu | Chưa tải được danh sách tuyến. Hãy kiểm tra kết nối và thử lại. | Could not load the routes. Check your connection and try again. |
+| Lời nhắc cập nhật ứng dụng (shell dùng chung cho mọi màn du khách M01/M02; quyết định người dùng 2026-10-30) | Đã có phiên bản mới của ứng dụng. | A new version of the app is available. |
+| Nút áp dụng bản mới | Cập nhật | Update |
+| Nút hoãn | Để sau | Later |
 
 ## 4. States
 

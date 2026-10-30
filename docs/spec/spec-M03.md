@@ -6,7 +6,7 @@
 | Version | 3.7 |
 | Status | MVP implementation baseline — aligned with M01 v3.2 and M02 v3.3 (see §11) |
 | Supersedes | 3.6 (previous repository baseline: 2.0) |
-| Last updated | 2026-10-29 |
+| Last updated | 2026-10-30 |
 | Consumers | M01 route/snapshot; M02 live content/QR lookup |
 | Producer input | M02 terminal anonymous sessions |
 
@@ -844,7 +844,7 @@ Operations that are not publication units: close, reopen, archive, revoke, repri
 | BR-M03-L09 | **Audience.** Every administrative screen is written for park staff, not for machines: everyday Vietnamese, short sentences, the vocabulary of §5.4, no technical vocabulary. |
 | BR-M03-L10 | **No raw data.** The UI never shows JSON or other raw data, field names, code names of states, HTTP status codes, stack traces, internal identifiers, internal URLs, or words such as null/undefined. The only exception is the last six characters of a QR code, shown so that staff can match a printed code with its visit point (BR-M03-E16). Technical details go to server logs only. An unexpected failure shows MSG-GENERIC and loses nothing the user typed. |
 | BR-M03-L11 | **Display names.** Every state, role, mode and result shown to staff uses the display names of §5.4; the code names appear nowhere on screen, in history or in the audit views. |
-| BR-M03-L12 | **Helper text policy.** A hint appears under a field only for the fixed list of §5.5, one short line each. No hint explains how the system works, repeats the field label, or becomes a paragraph or a long tooltip. Confirmation dialogs exist only for closing, reopening, archiving, revoking, publishing and leaving an editor with unsaved changes, and contain one sentence of consequence plus two buttons. |
+| BR-M03-L12 | **Helper text policy.** A hint appears under a field only for the fixed list of §5.5, one short line each. No hint explains how the system works, repeats the field label, or becomes a paragraph or a long tooltip. Confirmation dialogs exist only for closing, reopening, archiving, revoking, discarding a never-published item, publishing and leaving an editor with unsaved changes, and contain one sentence of consequence plus two buttons. |
 | BR-M03-L13 | **Message catalog.** Every blocking condition, warning and notification uses an entry of §5.6 with its fixed wording. The UI selects the entry by `messageKey` and fills the placeholders in braces with plain values (names as shown in the UI, numbers with units, times as hh:mm, dates as dd/mm/yyyy). A missing entry falls back to MSG-GENERIC, never to raw text. |
 
 ### 5.3 Provisional limits
@@ -1408,6 +1408,7 @@ BR identifiers in this table omit the `BR-M03-` prefix.
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.7 (clarification 7) | 2026-10-30 | BR-M03-L12 now lists discarding a never-published route, checkpoint or visit point (BR-M03-C01, D09, E10) among the allowed confirmation dialogs, matching the catalog keys MSG-CONFIRM-DISCARD-ROUTE, MSG-CONFIRM-DISCARD-CHECKPOINT and MSG-CONFIRM-DISCARD-QR already in §5.6 and the discard dialogs of SCR-M03-001, 003 and 008 (user decision 2026-10-30, resolving the conflict between BR-M03-L12 and clarification 4). No contract, entity, state or permission change; M01 and M02 unaffected. |
 | 3.7 (clarification 6) | 2026-10-29 | Review-checklist decisions (CHK004–009, 021, 022): an expired invitation leaves the account `INVITATION_PENDING` (BR-M03-K01); in-flight requests at sign-out (BR-M03-K06); an unsaved uploaded file stays unreferenced and is not cleaned up automatically (BR-M03-E14); the serialization set includes the pending-draft list (BR-M03-F05); a restore that breaks a current limit is refused with the new MSG-RESTORE-BLOCKED instead of being reported at publication (BR-M03-F07); "ready" versus "missing for publication" (BR-M03-L03); the project owner validates the provisional limits (§9). No contract change. |
 | 3.7 (clarification 5) | 2026-10-29 | Version references only: the aligned-consumer statements in §11 (v3.5 administrative-UI row) and the Completion checklist name M02 v3.3, matching the header and the M02 specification. No behavior or contract change. |
 | 3.7 (clarification 4) | 2026-10-28 | Message catalog (§5.6) completed for the administrative screens: sign-in, session and network (MSG-LOGIN-FAILED, MSG-LOGIN-DENIED, MSG-SESSION-EXPIRED, MSG-NETWORK-FAILED), invitation and recovery (MSG-RECOVERY-SENT, MSG-LINK-INVALID, MSG-EMAIL-INVALID, MSG-EMAIL-TAKEN, MSG-INVITE-SENT, MSG-INVITE-RESENT, MSG-INVITE-FAILED), report period (MSG-REPORT-DATES-INVALID) and the one-sentence consequence of every confirmation dialog of BR-M03-L12 (MSG-CONFIRM-*). Also: sign-out for administrators (US-M03-05 item 11, new BR-M03-K06, SC-M03-040, FR-M03-013 text, §8) and the display name of the route in RPT-02 (`items[].routeName`, BR-M03-J07), an additive display field with no change to `SessionRecord`, the M01/M02 contracts or the grouping key. Password messages MSG-PASSWORD-REJECTED and MSG-PASSWORD-MISMATCH; the reopen and revoke confirmations use the vocabulary of §5.4 ("gói tải trước của du khách cần cập nhật") instead of a journey version. |

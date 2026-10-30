@@ -39,7 +39,7 @@ Mọi màn đã đăng nhập có nút đăng xuất ở header ([auth-account-c
 | Rời trang khi có thay đổi chưa lưu → MSG-UNSAVED-CHANGES (ở lại / rời đi) | `useBlocker` + `beforeunload`; đăng ký với registry của shell | F11; R-20, R-22 |
 | Câu gợi ý chỉ theo danh sách §5.5, một dòng | `hints.ts` | L12 |
 | Tên hiển thị trạng thái, role, mode chỉ theo §5.4 | `displayNames.ts` | L11 |
-| Hộp xác nhận chỉ cho: đóng, mở lại, lưu trữ, thu hồi, xuất bản, rời trang có thay đổi chưa lưu; một câu hậu quả (MSG-CONFIRM-*) + hai nút | | L12 |
+| Hộp xác nhận chỉ cho: đóng, mở lại, lưu trữ, thu hồi, hủy mục chưa từng xuất bản, xuất bản, rời trang có thay đổi chưa lưu; một câu hậu quả (MSG-CONFIRM-*) + hai nút | | L12 (spec-M03 3.7 clarification 7) |
 | Thông báo: chọn bằng `messageKey`, điền placeholder bằng giá trị thường; khóa thiếu → MSG-GENERIC | `formatMessage` | L13 |
 
 ## 3. Luồng theo màn
