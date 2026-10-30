@@ -99,6 +99,7 @@ src/
 │   ├── db/visitorDb.ts               # Dexie `cuc-phuong-quest`, version 1 = Physical §11 (R-07)
 │   ├── config/                       # VITE_* + MEDIA_BUCKET (R-06, R-15)
 │   ├── supabase/                     # client factory (publishable key) — từ 003
+│   ├── testing/                      # e2eHooks.ts: cầu nối test E2E, chỉ ở MODE e2e/fake (tasks M03 T007)
 │   └── ui/                           # token CSS từ design-system, component nền, icon từ assets/icons/
 └── modules/
     └── m01/
@@ -106,6 +107,8 @@ src/
         ├── routes.tsx                # 4 route lazy + guard ngôn ngữ
         ├── config/limits.ts          # SOURCE_REQUEST_TIMEOUT_SECONDS = 8 (provisional); hằng kỹ thuật
         ├── i18n/                     # vi.ts, en.ts (bảng copy của screen spec)
+        ├── layout/                   # VisitorLayout (khe LanguageControl)
+        ├── testing/                  # đăng ký hook E2E namespace m01
         ├── api/                      # adapter Data API + Storage có timeout; ánh xạ dòng → contract
         │   └── fake/                 # adapter giả in-memory cho unit/component
         ├── storage/                  # kiểu dòng Dexie, writer, reader, transaction (chỉ M01 ghi)
@@ -213,3 +216,10 @@ playwright.config.ts, .env.example, .env.e2e   # tooling gốc (Complexity #2)
 | 2 | File tooling gốc (`package.json`, lockfile, `tsconfig*.json`, `vitest.config.ts`, `playwright.config.ts`, `.env.example`, `.env.e2e`) và `e2e/` không được AGENTS.md §2 nêu đích danh | Không có chúng thì không build/test được | Giống Complexity #2 của plan M03; **cần** người dùng xác nhận một lần cho cả hai package. `.env.e2e` chỉ chứa giá trị giả an toàn |
 | 3 | Constitution yêu cầu test BR chạy trong CI; repo chưa có CI và CI chưa được mở phạm vi | Test phải chạy tự động khi merge | Thêm CI ngay là mở phạm vi chưa duyệt. **Tạm thời:** `npm run test` / `npm run e2e`; nối CI cần quyết định riêng (giống #3 của M03) |
 | 4 | Dev dependency `fake-indexeddb` chưa có trong tech-stack | Test transaction Dexie (kích hoạt gói, ghi context) trong Vitest; jsdom không có IndexedDB | Vitest browser mode cũng cần dependency mới. **Nếu không duyệt:** chuyển các test này sang Playwright (trình duyệt thật), chậm hơn, không cần dependency |
+
+**Quyết định (2026-10-30, người dùng ủy quyền cho agent quyết; tasks.md T001; giống plan M02, M03):**
+
+- **#1:** giữ nguyên — tích hợp thật chờ M03 giai đoạn B (change brief backend).
+- **#2:** duyệt — file tooling gốc, `.env.e2e` (giá trị giả an toàn) và `e2e/` thuộc "cấu hình Vite".
+- **#3:** duyệt nối CI (người dùng, 2026-10-30; thay quyết định hoãn trước đó): .github/workflows/ci.yml chạy `npm run ci` và E2E project mock trên mỗi push/PR (tasks M03 T002); job Supabase local thêm khi giai đoạn B mở (tasks M03 T198).
+- **#4:** duyệt `fake-indexeddb` **chỉ làm dev dependency** cho Vitest; không vào bundle.

@@ -96,6 +96,7 @@ src/
 │   ├── db/visitorDb.ts               # do 001 khai báo; gồm 3 store M02 (Physical §11)
 │   ├── config/                       # VITE_QR_PUBLIC_BASE_URL, MEDIA_BUCKET
 │   ├── supabase/                     # client dùng chung
+│   ├── testing/                      # e2eHooks.ts: cầu nối test E2E, chỉ ở MODE e2e/fake (tasks M03 T007)
 │   └── ui/                           # token, component nền, icon từ assets/icons/
 └── modules/
     ├── m01/index.ts                  # bề mặt đọc M01 mà M02 dùng (không sửa ở package này)
@@ -103,6 +104,10 @@ src/
         ├── routes.tsx                # 4 route lazy
         ├── config/limits.ts          # LOOKUP_TIMEOUT_SECONDS = 8 (provisional); hằng kỹ thuật
         ├── i18n/                     # vi.ts, en.ts (spec-M02 §5.1 + bảng copy)
+        ├── m01Port.ts                # cổng đọc duy nhất vào src/modules/m01/index.ts (tasks T016)
+        ├── layout/                   # FieldLayout (LanguageControl của M01)
+        ├── testing/                  # fakeM01Port, hook E2E namespace m02
+        ├── pwa/                      # registerBusy: hasRunningSession qua registerBusyCheck
         ├── api/                      # lookup (RPC + timeout), intake (Edge), signed URL; adapter giả
         ├── storage/                  # kiểu dòng, writer/reader 3 store, transaction
         ├── session/                  # vào phiên, tạo/thay, khôi phục, tự đóng, kết thúc (R-06, R-09)
@@ -205,3 +210,10 @@ e2e/m02/                              # Playwright (+ e2e/fixtures/*.y4m); phạ
 | 2 | File tooling gốc và `e2e/` (kèm fixture `.y4m`) | Không có chúng thì không build/test được | Cùng quyết định với Complexity #2 của plan M01/M03 |
 | 3 | Chưa có CI | Constitution yêu cầu test BR chạy trong CI | Cùng quyết định với Complexity #3 của plan M01/M03 |
 | 4 | `fake-indexeddb` chưa có trong tech-stack | Test transaction Dexie trong Vitest | Cùng đề xuất với Complexity #4 của plan M01; không duyệt thì chuyển sang Playwright |
+
+**Quyết định (2026-10-30, người dùng ủy quyền cho agent quyết; tasks.md T001):**
+
+- **#1:** giữ nguyên — tích hợp thật chờ M03 giai đoạn B (change brief backend).
+- **#2:** duyệt — như plan M03: file tooling gốc, `.env.e2e` (giá trị giả an toàn), `e2e/` và fixture `.y4m` thuộc "cấu hình Vite".
+- **#3:** duyệt nối CI (người dùng, 2026-10-30; thay quyết định hoãn trước đó): .github/workflows/ci.yml chạy `npm run ci` và E2E project mock trên mỗi push/PR (tasks M03 T002); job Supabase local thêm khi giai đoạn B mở (tasks M03 T198).
+- **#4:** duyệt `fake-indexeddb` **chỉ làm dev dependency** cho Vitest; không vào bundle. Cùng quyết định áp cho plan M01 Complexity #4 khi package 001 ghi nhận.

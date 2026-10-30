@@ -95,16 +95,20 @@ src/
 │   │   └── sessionSyncRecord.ts
 │   ├── config/                       # đọc + validate VITE_*; IS_PRODUCTION_BUILD (R-13, R-14)
 │   ├── supabase/                     # client factory (publishable key)
+│   ├── testing/                      # e2eHooks.ts: cầu nối test E2E, chỉ ở MODE e2e/fake (tasks M03 T007)
 │   └── ui/                           # token CSS từ design-system, component nền, icon từ assets/icons/
 └── modules/
     └── m03/
         ├── routes.tsx                # cây /admin/* lazy (admin-ui-flow §1)
         ├── api/                      # adapter có kiểu: command, query, Edge; ánh xạ lỗi → messageKey (R-05, R-06)
+        │   ├── contract/             # bộ test hành vi dùng chung cho adapter giả và Supabase (tasks T043, T197)
         │   └── fake/                 # adapter giả in-memory cho test giai đoạn A
         ├── contracts/                # ValidationIssue, PublicationReview, CommandResult
         ├── config/limits.ts          # hằng §5.3 — provisional (R-19)
         ├── messages/                 # catalog.ts (§5.6), displayNames.ts (§5.4), hints.ts (§5.5) (R-18)
         ├── validation/               # kiểm tra lúc lưu + khoảng trống xuất bản (hàm thuần)
+        ├── editor/                   # khung editor dùng chung: form nháp, lỗi trường, panel thiếu, chặn rời trang
+        ├── layout/                   # AdminLayout: header, điều hướng, đăng xuất
         ├── auth/                     # SCR-M03-000, 007; guard; sign-out
         ├── accounts/                 # SCR-M03-006
         ├── route-admin/              # SCR-M03-001, 002
@@ -123,6 +127,7 @@ supabase/
 ├── seed.sql                          # synthetic, chỉ local (trong phạm vi)
 ├── migrations/                       # GIAI ĐOẠN B — bị chặn (Physical §13 bước 1–5)
 ├── functions/
+│   ├── _shared/                      # GIAI ĐOẠN B: cors.ts, bản sao sessionSyncRecord.ts (Edge chỉ import trong supabase/functions)
 │   ├── session-intake/               # GIAI ĐOẠN B
 │   └── admin-accounts/               # GIAI ĐOẠN B
 ├── scripts/provision-initial-reviewer.ts   # GIAI ĐOẠN B, chỉ cho operator (R-16)
@@ -130,6 +135,7 @@ supabase/
 
 package.json, package-lock.json, tsconfig*.json, vite.config.ts, vitest.config.ts,
 playwright.config.ts, .env.example    # tooling gốc (Complexity Tracking #2)
+vercel.json                           # rewrite SPA + header cache — Phase 16, cần change brief triển khai
 ```
 
 **Structure Decision**: Một web app (modular monolith). M03 nằm trọn trong `src/modules/m03/`. Phần dùng chung giữa các module chỉ có `src/shared/contracts` (schema contract), `src/shared/config`, `src/shared/supabase`, `src/shared/ui` và shell `src/app`. M03 không import gì từ `src/modules/m01|m02`, và ngược lại (constitution II). Backend nằm dưới `supabase/`, theo đúng thứ tự migration của Physical Schema §13.
@@ -234,3 +240,10 @@ M03 là một package theo quyết định của người dùng. Nếu tasks.md 
 | 2 | File tooling gốc (`package.json`, lockfile, `tsconfig*.json`, `vitest.config.ts`, `playwright.config.ts`, `.env.example`) và thư mục `e2e/` không được AGENTS.md §2 nêu đích danh | Không có `package.json` thì không có code TypeScript/Vite nào chạy được; Playwright cần config và thư mục spec | Đặt E2E trong `src/` thì trộn test trình duyệt với mã ứng dụng. **Cần:** người dùng xác nhận các file này nằm trong "cấu hình Vite" khi duyệt plan |
 | 3 | Constitution yêu cầu "Every BR-* rule MUST have a corresponding test executable in CI", nhưng repo chưa có CI config và CI không có trong phạm vi được mở | Test phải chạy tự động khi merge | Thêm workflow CI ngay thì mở thêm phạm vi mà chưa có phê duyệt. **Tạm thời:** mọi test chạy được bằng `npm run test` / `supabase test db`; việc nối CI cần một quyết định riêng |
 | 4 | Command dùng `SECURITY DEFINER` thay vì security-invoker mặc định | `authenticated` không có DML trên bảng, nên command cần quyền của owner để giữ invariant giữa nhiều bảng (PT-07) | Security-invoker + DML cho `authenticated` thì RLS phải mã hóa toàn bộ invariant nhiều bảng và mở bề mặt tấn công. Constitution V cho phép definer với ba điều kiện, cả ba đều được áp |
+
+**Quyết định (2026-10-30, người dùng ủy quyền cho agent quyết; tasks.md T001):**
+
+- **#1:** giữ nguyên — giai đoạn B vẫn bị chặn cho tới khi có change brief backend (AGENTS.md §2). Bản nháp CHG-M03-2026-10-30-01 ([change-brief-CHG-M03-2026-10-30-01-backend.md](change-brief-CHG-M03-2026-10-30-01-backend.md)) đang chờ duyệt.
+- **#2:** duyệt — các file tooling gốc nêu ở #2 và thư mục `e2e/` được coi là thuộc "cấu hình Vite".
+- **#3:** duyệt nối CI (người dùng, 2026-10-30; thay quyết định hoãn trước đó): .github/workflows/ci.yml chạy `npm run ci` và E2E project mock trên mỗi push/PR (tasks M03 T002); job Supabase local thêm khi giai đoạn B mở (tasks M03 T198).
+- **#4:** giữ thiết kế `SECURITY DEFINER` như đã giải trình.
