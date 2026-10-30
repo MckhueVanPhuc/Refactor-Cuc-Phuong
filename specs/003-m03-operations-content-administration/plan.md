@@ -20,7 +20,7 @@ Cách làm kỹ thuật:
 
 **Language/Version**: TypeScript (strict) trên Node.js 24 LTS cho toolchain; React cho UI; SQL/PL/pgSQL trên PostgreSQL của Supabase (giai đoạn B); TypeScript trên Deno cho Edge Function (giai đoạn B). Phiên bản dependency chính xác được pin khi task setup cài đặt thật (R-02).
 
-**Primary Dependencies**: `react`, `react-dom`, `react-router` (declarative mode), `@supabase/supabase-js`, `zod`, `qrcode` 1.5.x + `@types/qrcode` (lazy-load); dev: `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa` (shell), `typescript`, `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`, `@playwright/test`; Supabase CLI. Không thêm thư viện state, form hay kéo-thả (R-03, R-20, R-21).
+**Primary Dependencies**: `react`, `react-dom`, `react-router` (data mode), `@supabase/supabase-js`, `zod`, `qrcode` 1.5.x + `@types/qrcode` (lazy-load); dev: `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa` (shell), `typescript`, `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`, `@playwright/test`; Supabase CLI. Không thêm thư viện state, form hay kéo-thả (R-03, R-20, R-21).
 
 **Storage**: Supabase PostgreSQL, schema `app` (9 bảng M03, private) và `api` (view/function được mở cho Data API); Supabase Storage bucket private `quest-media`; Supabase Auth cho danh tính admin. M03 không có lưu trữ trên trình duyệt (online-only; MVP-Scope §5).
 
