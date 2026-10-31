@@ -65,6 +65,9 @@ test('Q3 — khôi phục mật khẩu: cùng một câu cho email có và khôn
   for (const email of [syntheticAccounts.CONTENT_STAFF.email, 'khong-co@example.test']) {
     await page.goto('/admin/login');
     await page.getByRole('link', { name: 'Quên mật khẩu' }).click();
+    // Điều hướng chạy trong transition: trang đăng nhập còn hiện tới khi chunk của trang khôi phục tải xong,
+    // nên phải chờ trang mới trước khi gõ, kẻo gõ vào ô Email của trang đăng nhập
+    await expect(page.getByRole('heading', { level: 1, name: 'Khôi phục mật khẩu' })).toBeVisible();
     await page.getByLabel('Email').fill(email);
     await page.getByRole('button', { name: 'Gửi yêu cầu khôi phục' }).click();
     await expect(page.getByRole('status')).toHaveText(sent);

@@ -33,6 +33,7 @@ import {
   toMediaInfo,
   visitPointsWithAv,
 } from './checkpointData';
+import { commitRebuilds, rebuildRoutes, routesAffectedBy } from './journey';
 import { draftOf, everPublished, expectedFor, publishedOf, revisionsOf, toEditorRevision, touch, writeDraft } from './revisions';
 import type { FakeCheckpoint, FakeQrCode, FakeStore } from './store';
 
@@ -335,7 +336,14 @@ export function createFakeCheckpointsArea(store: FakeStore): CheckpointsArea {
           action: 'QR_REVOKED',
           roles: 'B',
           subject: { type: 'QRCODE', id: qrIdentifier, ...(qr ? { name: qrDisplayName(store, qr) } : {}) },
-          ...(checkpoint ? { lockKeys: [{ key: `checkpoint:${checkpoint.checkpointId}`, itemName: checkpointName(store, checkpoint) }] } : {}),
+          ...(checkpoint
+            ? {
+                lockKeys: [
+                  { key: `checkpoint:${checkpoint.checkpointId}`, itemName: checkpointName(store, checkpoint) },
+                  ...routesAffectedBy(store, checkpoint.checkpointId).map((route) => ({ key: `route:${route.routeId}`, itemName: route.name ?? '' })),
+                ],
+              }
+            : {}),
           ...(qr ? { expected: expectedFor(qr, undefined, expected) } : {}),
           reason,
         },
@@ -351,7 +359,8 @@ export function createFakeCheckpointsArea(store: FakeStore): CheckpointsArea {
           qr.status = 'THU_HOI';
           touch(store, qr, context.actor.email);
           context.changeLines.push('Trạng thái: Đang hoạt động → Đã thu hồi');
-          // Phiên bản hành trình mới cho các tuyến liệt kê điểm dừng: US4 (T119)
+          // Mọi tuyến liệt kê điểm dừng nhận hành trình mới cùng lúc; thu hồi không bị trần chặn (BR-M03-E09, X02, G10)
+          commitRebuilds(store, rebuildRoutes(store, routesAffectedBy(store, checkpoint.checkpointId)));
           return { ok: true, messageKey: 'MSG-SAVED', data: { status: qr.status, concurrencyRevision: qr.concurrencyRevision } };
         },
       );

@@ -1,6 +1,6 @@
 // SCR-M03-002 Biên tập tuyến (tasks T108; Q-03, Q-04, C-01, C-04, C-07; BR-M03-C01–C17, T01–T09, F11, L03).
 // Bốn bước, một state form, một nút "Lưu bản nháp"; panel "Còn thiếu để xuất bản" luôn hiện.
-// Bản nháp chờ của tuyến đã xuất bản (ROUTE_INFORMATION) ở US4 (T122); lịch sử/khôi phục ở US8 (T150).
+// Tuyến đã xuất bản mở bản nháp chờ nếu có, ngược lại bản đã xuất bản (T122); lịch sử/khôi phục ở US8 (T150).
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Banner } from '../../../shared/ui/Banner';
@@ -18,6 +18,7 @@ import { ReasonDialog } from '../editor/ReasonDialog';
 import { useDraftForm } from '../editor/useDraftForm';
 import { useFieldIssues } from '../editor/useFieldIssues';
 import { UnsavedChangesDialog, allowNextNavigation, useUnsavedChangesGuard } from '../editor/useUnsavedChangesGuard';
+import { VersionNote } from '../editor/VersionNote';
 import { formatMessage } from '../messages/catalog';
 import { DISPLAY_NAMES } from '../messages/displayNames';
 import { ADMIN_PATHS } from '../paths';
@@ -100,13 +101,15 @@ function RouteEditorView({ routeId }: { routeId: string | undefined }) {
 
   // Chỉ nạp lại khi đổi tuyến; form.reset/rebase ổn định
   const load = useCallback(
-    async (mode: 'open' | 'refresh') => {
+    async (mode: 'open' | 'refresh' | 'reload') => {
       if (!routeId) return;
       try {
         const loaded = await api.getRouteEditor(routeId);
         setEditor(loaded);
         setLoadError(null);
-        // Mở lần đầu: form theo dữ liệu đã lưu, trừ khi vừa lấy lại chữ chưa lưu (phiên hết hạn, tạo điểm dừng mới)
+        // Mở lần đầu: form theo dữ liệu đã lưu, trừ khi vừa lấy lại chữ chưa lưu (phiên hết hạn, tạo điểm dừng mới).
+        // "Tải lại" sau STALE: nạp bản mới nhất, bỏ chữ đang gõ (BR-M03-F06).
+        if (mode === 'reload') form.reset(fromRouteEditor(loaded));
         if (mode === 'open') {
           if (form.isDirty) form.rebase(fromRouteEditor(loaded));
           else form.reset(fromRouteEditor(loaded));
@@ -140,6 +143,13 @@ function RouteEditorView({ routeId }: { routeId: string | undefined }) {
   const fields = useFieldIssues([...serverIssues, ...clientSaveIssues]);
   const archived = editor?.status === 'LUU_TRU';
   const title = editor ? state.name.vi.trim() || 'Tuyến chưa đặt tên' : 'Tuyến mới';
+  // Lần đầu xuất bản tuyến Nháp; sau đó chỉ xuất bản khi có bản nháp chờ (BR-M03-T06)
+  const publishUnit =
+    editor?.status === 'NHAP'
+      ? 'ROUTE_FIRST_PUBLICATION'
+      : editor?.draft && (editor.status === 'HOAT_DONG' || editor.status === 'TAM_DONG')
+        ? 'ROUTE_INFORMATION'
+        : undefined;
 
   async function onSave(event: FormEvent) {
     event.preventDefault();
@@ -222,11 +232,12 @@ function RouteEditorView({ routeId }: { routeId: string | undefined }) {
               </span>
             </p>
           ) : null}
+          {editor ? <VersionNote hasDraft={Boolean(editor.draft)} hasPublished={Boolean(editor.published)} /> : null}
         </div>
         <div className={layout.headingActions}>
           <Button onClick={() => void navigate(ADMIN_PATHS.routes)}>Quản trị tuyến</Button>
-          {editor?.status === 'NHAP' ? (
-            <Button variant="primary" onClick={() => void navigate(ADMIN_PATHS.review('ROUTE_FIRST_PUBLICATION', editor.routeId))}>
+          {publishUnit && editor ? (
+            <Button variant="primary" onClick={() => void navigate(ADMIN_PATHS.review(publishUnit, editor.routeId))}>
               Xuất bản
             </Button>
           ) : null}
@@ -235,7 +246,7 @@ function RouteEditorView({ routeId }: { routeId: string | undefined }) {
 
       {flash && !form.outcome && !actionOutcome ? <Banner tone="success">{flash}</Banner> : null}
       {flashWarning && !form.outcome && !actionOutcome ? <Banner tone="warning">{flashWarning}</Banner> : null}
-      <CommandOutcome result={actionOutcome ?? form.outcome} transportError={form.transportError ?? loadError} onReload={() => void load('open')} />
+      <CommandOutcome result={actionOutcome ?? form.outcome} transportError={form.transportError ?? loadError} onReload={() => void load('reload')} />
 
       <nav className={styles.steps} aria-label="Các bước">
         {STEPS.map((item, index) => (

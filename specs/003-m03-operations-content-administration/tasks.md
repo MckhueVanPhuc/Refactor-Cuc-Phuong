@@ -236,17 +236,17 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T115 [P] [US4] Viết test src/modules/m03/editor/useDraftForm.stale.test.tsx: STALE hiện MSG-STALE với email và hh:mm, nút "Tải lại", chữ đang gõ còn nguyên, không ghi đè (BR-M03-F06, L05; SC-M03-005)
-- [ ] T116 [P] [US4] Viết test hành vi src/modules/m03/api/contract/publish-revise.contract.ts (harness T043): sửa bản đã xuất bản tạo/tiếp tục đúng một bản nháp chờ, bản công khai không đổi; đổi tên điểm dừng được 2 tuyến liệt kê → cả 2 có version mới cùng lúc, snapshot cũ nguyên; thay đổi không đổi hành trình không tạo version; đổi thứ tự điểm dừng chỉ tạo version cho tuyến đó; bật/tắt hoặc đổi sơ đồ offline tạo version mới, sơ đồ không đánh dấu không vào snapshot; đổi thông tin tuyến khác không tạo version; version liên tục (BR-M03-F06, X02, G03–G05, T06, C15, C16, D06; SC-M03-003, 022, 028, 029)
-- [ ] T117 [P] [US4] Viết test src/modules/m03/publication-review/PublicationReviewPage.revision.test.tsx: `CHECKPOINT_REVISION` liệt kê mọi tuyến bị ảnh hưởng với `createsNewJourneyVersion`, `closesAutomatically`, ghi chú tác động dùng từ vựng §5.4; MSG-REPRINT-MODE-CHANGED khi đổi mode; BUSY → MSG-ROUTE-BUSY không tự thử lại (BR-M03-L07); MSG-OFFLINE-TOO-BIG nêu tên tuyến và ảnh nặng nhất (BR-M03-F05, G10, X03; SC-M03-020)
-- [ ] T118 [P] [US4] Viết E2E e2e/m03/revise.spec.ts cho quickstart Q14–Q17 trên project `m03`
+- [X] T115 [P] [US4] Viết test src/modules/m03/editor/useDraftForm.stale.test.tsx: STALE hiện MSG-STALE với email và hh:mm, nút "Tải lại", chữ đang gõ còn nguyên, không ghi đè (BR-M03-F06, L05; SC-M03-005)
+- [X] T116 [P] [US4] Viết test hành vi src/modules/m03/api/contract/publish-revise.contract.ts (harness T043): sửa bản đã xuất bản tạo/tiếp tục đúng một bản nháp chờ, bản công khai không đổi; đổi tên điểm dừng được 2 tuyến liệt kê → cả 2 có version mới cùng lúc, snapshot cũ nguyên; thay đổi không đổi hành trình không tạo version; đổi thứ tự điểm dừng chỉ tạo version cho tuyến đó; bật/tắt hoặc đổi sơ đồ offline tạo version mới, sơ đồ không đánh dấu không vào snapshot; đổi thông tin tuyến khác không tạo version; version liên tục (BR-M03-F06, X02, G03–G05, T06, C15, C16, D06; SC-M03-003, 022, 028, 029)
+- [X] T117 [P] [US4] Viết test src/modules/m03/publication-review/PublicationReviewPage.revision.test.tsx: `CHECKPOINT_REVISION` liệt kê mọi tuyến bị ảnh hưởng với `createsNewJourneyVersion`, `closesAutomatically`, ghi chú tác động dùng từ vựng §5.4; MSG-REPRINT-MODE-CHANGED khi đổi mode; BUSY → MSG-ROUTE-BUSY không tự thử lại (BR-M03-L07); MSG-OFFLINE-TOO-BIG nêu tên tuyến và ảnh nặng nhất (BR-M03-F05, G10, X03; SC-M03-020)
+- [X] T118 [P] [US4] Viết E2E e2e/m03/revise.spec.ts cho quickstart Q14–Q17 trên project `m03`
 
 ### Implementation for User Story 4
 
-- [ ] T119 [US4] Mở rộng src/modules/m03/api/fake/publish.ts cho `ROUTE_INFORMATION`, `CHECKPOINT_REVISION`, `QR_OBJECT` ở điểm dừng đang hoạt động: tính tuyến bị ảnh hưởng (`HOAT_DONG`/`TAM_DONG` có danh sách đã xuất bản chứa điểm dừng), dựng và so sánh snapshot, chỉ tạo version khi khác, chuyển tất cả cùng lúc; tập kết nối theo research R-08 qua `holdLock` → BUSY
-- [ ] T120 [US4] Mở rộng src/modules/m03/editor/useDraftForm.ts: luồng "Tải lại" sau STALE (nạp lại bản mới nhất sau xác nhận), chỉ báo đang hiện bản nháp hay bản đã xuất bản (MSG-VERSION-DRAFT/PUBLISHED) dùng chung cho ba editor
-- [ ] T121 [US4] Mở rộng src/modules/m03/publication-review/PublicationReviewPage.tsx: bảng tuyến bị ảnh hưởng, hậu quả ("gói tải trước của du khách cần cập nhật", "tuyến sẽ tự đóng tạm"), MSG-AFFECTED-ROUTES (ghi chú tác động), MSG-AV-ONE-LANGUAGE (chỉ cảnh báo), MSG-REPRINT-MODE-CHANGED
-- [ ] T122 [P] [US4] Cập nhật src/modules/m03/route-admin/RouteEditorPage.tsx và src/modules/m03/checkpoint-library/CheckpointEditorPage.tsx để mở bản nháp chờ nếu có, ngược lại bản đã xuất bản; dấu "có bản nháp chờ" ở danh sách
+- [X] T119 [US4] Mở rộng src/modules/m03/api/fake/publish.ts cho `ROUTE_INFORMATION`, `CHECKPOINT_REVISION`, `QR_OBJECT` ở điểm dừng đang hoạt động: tính tuyến bị ảnh hưởng (`HOAT_DONG`/`TAM_DONG` có danh sách đã xuất bản chứa điểm dừng), dựng và so sánh snapshot, chỉ tạo version khi khác, chuyển tất cả cùng lúc; tập kết nối theo research R-08 qua `holdLock` → BUSY
+- [X] T120 [US4] Mở rộng src/modules/m03/editor/useDraftForm.ts: luồng "Tải lại" sau STALE (nạp lại bản mới nhất sau xác nhận), chỉ báo đang hiện bản nháp hay bản đã xuất bản (MSG-VERSION-DRAFT/PUBLISHED) dùng chung cho ba editor
+- [X] T121 [US4] Mở rộng src/modules/m03/publication-review/PublicationReviewPage.tsx: bảng tuyến bị ảnh hưởng, hậu quả ("gói tải trước của du khách cần cập nhật", "tuyến sẽ tự đóng tạm"), MSG-AFFECTED-ROUTES (ghi chú tác động), MSG-AV-ONE-LANGUAGE (chỉ cảnh báo), MSG-REPRINT-MODE-CHANGED
+- [X] T122 [P] [US4] Cập nhật src/modules/m03/route-admin/RouteEditorPage.tsx và src/modules/m03/checkpoint-library/CheckpointEditorPage.tsx để mở bản nháp chờ nếu có, ngược lại bản đã xuất bản; dấu "có bản nháp chờ" ở danh sách
 
 **Checkpoint**: US1–US4 chạy độc lập
 

@@ -3,11 +3,12 @@
 import { registerTestHooks } from '../../../../shared/testing/e2eHooks';
 import { createFakeAuthService } from '../../auth/fakeAuthService';
 import type { AuthService } from '../../auth/authService';
-import type { AdminRole } from '../../contracts/adminDtos';
+import type { AdminRole, RouteContent } from '../../contracts/adminDtos';
 import type { AdminApi } from '../AdminApi';
 import type { ContractControls } from '../contract/harness';
 import { createFakeAccountsArea } from './accounts';
 import { createFakeCheckpointsArea } from './checkpoints';
+import { reviseRoute, seedPublishedCheckpoint, seedPublishedRoute } from './e2eSeed';
 import { FIXTURE_ACCOUNTS, USER_WITHOUT_ACCOUNT } from './fixtures';
 import { publishedRouteOf, activeSnapshotOf } from './journey';
 import { createFakeMediaArea } from './media';
@@ -135,6 +136,17 @@ export function createFakeControls(store: FakeStore): ContractControls {
   };
 }
 
+/** Chạy `run` bằng tài khoản fixture của role cho trước rồi trả lại phiên hiện tại */
+async function asAccount<T>(store: FakeStore, role: AdminRole, run: (api: AdminApi) => Promise<T>): Promise<T> {
+  const previous = store.currentUserId;
+  store.currentUserId = FIXTURE_ACCOUNTS[role].userId;
+  try {
+    return await run(createFakeAdminApi(store));
+  } finally {
+    store.currentUserId = previous;
+  }
+}
+
 /** Những gì M01 đọc được của một tuyến (thay cho view `api.published_routes`, `api.active_journey_snapshots`) */
 function publicationOf(store: FakeStore, routeId: string) {
   const route = store.state.routes.get(routeId);
@@ -155,8 +167,23 @@ export function registerFakeTestHooks(store: FakeStore): void {
     seedCheckpoint: (name: string) => seedCheckpoint(store, name),
     /** Giả lập ảnh không đọc được (BR-M03-D04 điều 4) */
     removeStorageObject: (objectPath: string) => store.storage.delete(objectPath),
-    /** Dòng Published Route và snapshot active của tuyến (quickstart Q12, Q13) */
+    /** Dòng Published Route và snapshot active của tuyến (quickstart Q12, Q13, Q15) */
     readPublication: (routeId: string) => publicationOf(store, routeId),
+    /** Một điểm dừng đã xuất bản và hai tuyến đã xuất bản cùng liệt kê nó (quickstart Q14–Q17) */
+    seedSharedRoutes: (checkpointName: string, routeA: string, routeB: string) =>
+      asAccount(store, 'CONTENT_STAFF', async (api) => {
+        const checkpointId = await seedPublishedCheckpoint(api, checkpointName);
+        const routeIds = [await seedPublishedRoute(api, routeA, [checkpointId]), await seedPublishedRoute(api, routeB, [checkpointId])];
+        return { checkpointId, routeIds };
+      }),
+    /** Một phiên khác (role cho trước) lưu bản nháp chờ của tuyến (quickstart Q14) */
+    reviseRouteAs: (role: AdminRole, routeId: string, change: Partial<RouteContent>) =>
+      asAccount(store, role, (api) => reviseRoute(api, routeId, change)),
+    /** Giả lập dung lượng ghi nhận của media vừa đăng ký (quickstart Q17) */
+    inflateLatestMedia: (sizeBytes: number) => {
+      const latest = [...store.state.media.values()].at(-1);
+      if (latest) latest.fileSizeBytes = sizeBytes;
+    },
     /** Hộp thư giả của provider (thay Inbucket): link mời/khôi phục mới nhất cho email */
     latestMail: (email: string, kind: 'invite' | 'recovery') =>
       [...store.auth.outbox].reverse().find((mail) => mail.email === email && mail.kind === kind)?.link ?? null,

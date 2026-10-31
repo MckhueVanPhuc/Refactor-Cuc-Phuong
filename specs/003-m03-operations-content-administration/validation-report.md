@@ -148,7 +148,7 @@ Branch `feat/m03-us3` tạo từ `feat/m03-us2` @ `9661b4b`. Test viết trướ
 |---|---|
 | Adapter Supabase cho C-01, C-07 (tuyến), Q-02…Q-04, C-05 `ROUTE_FIRST_PUBLICATION`; view `api.published_routes`, `api.active_journey_snapshots` | Giai đoạn B (T183, T184); T197 chạy lại `publish-route.contract.ts` với adapter này, control `readPublication` đọc hai view |
 | Ca `fakeOnly` của `publish-route.contract.ts` (tiêm lỗi, giữ khóa, phóng dung lượng media, đặt thẳng trạng thái điểm dừng) trên stack local | Cần cách tiêm lỗi riêng ở giai đoạn B; đóng điểm dừng thật có ở US6 |
-| Q3 chập chờn một lần (§4.1) | Chưa tìm được nguyên nhân; không tái hiện trong hai lần chạy lại |
+| Q3 chập chờn một lần (§4.1) | Đã tìm ra và sửa ở §5.3 D-42 |
 
 ### 4.3 Lệch và quyết định
 
@@ -169,3 +169,41 @@ Branch `feat/m03-us3` tạo từ `feat/m03-us2` @ `9661b4b`. Test viết trướ
 ### 4.4 Checkpoint Phase 5
 
 "US1–US3 chạy độc lập; có thể tạo điểm dừng → tuyến → xuất bản trên adapter giả" **đạt**: T056–T114 xong; Q1–Q13 pass. Còn mở: các mục `NOT RUN` ở §4.2.
+
+## 5. Đợt 2026-10-31 — Phase 6 US4 Sửa dữ liệu đã xuất bản (T115–T122)
+
+Branch `feat/m03-us4` tạo từ `feat/m03-us3` @ `517a58d`. Test viết trước và đã chạy thấy fail trước khi cài đặt: contract `publish-revise` (T116, 12/14 ca fail; hai ca bản nháp chờ và STALE đã đúng từ US2–US3), component (T115, T117, 6 ca fail).
+
+### 5.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | typecheck sạch; lint 292 test pass; test 830 pass; build xong |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | 18 pass: Q1–Q17. Sau khi sửa Q3 (D-42): 4 lần chạy liên tiếp, mỗi lần dev server khởi động mới, đều 18/18 |
+| Quét `dist/` production tìm adapter giả, `__cpqTestHooks`, `example.test`, mật khẩu synthetic, hook seed E2E | — | Không có |
+| `git diff --check` | 0 | Không lỗi khoảng trắng |
+
+### 5.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Hai lệnh xuất bản chạy thật sự đồng thời (Q16) | Adapter giả chạy tuần tự; BUSY được giả lập bằng `holdLock`. Khóa tập thật (advisory lock) kiểm ở pgTAP T186 |
+| Adapter Supabase cho `ROUTE_INFORMATION`, `CHECKPOINT_REVISION`, `QR_OBJECT` có tuyến bị ảnh hưởng, C-16 dựng lại hành trình | Giai đoạn B (T186); T197 chạy lại `publish-revise.contract.ts` |
+
+### 5.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-35 | Adapter giả: `reviewedConcurrencyRevision` của đơn vị điểm dừng/QR còn cộng `concurrencyRevision` của các tuyến bị ảnh hưởng, để một lần xuất bản tuyến xen giữa cũng làm review cũ thành STALE | Chỉ adapter giả; T186 chốt ở SQL |
+| D-36 | `ROUTE_INFORMATION` của tuyến `HOAT_DONG` mà hành trình mới không còn điểm dừng hoạt động → BLOCKED MSG-ROUTE-LAST-CHECKPOINT (BR-M03-T05); panel editor vẫn hiện MSG-NO-ACTIVE-CHECKPOINT. Tuyến `TAM_DONG` được xuất bản với hành trình rỗng (publication-public §3: chỉ được rỗng khi tuyến không `HOAT_DONG`) | Theo spec |
+| D-37 | T120 "Tải lại sau xác nhận": bấm "Tải lại" trên banner MSG-STALE chính là xác nhận; nạp bản mới nhất và bỏ chữ đang gõ (trước đó chữ vẫn trên màn hình để sao chép). Không thêm hộp thoại vì BR-M03-L12 không cho | Ghi nhận |
+| D-38 | MSG-ROUTE-BUSY của bản sửa điểm dừng gọi điểm dừng bằng tên đang công khai, không phải tên nháp chưa xuất bản | Ghi nhận |
+| D-39 | Câu hậu quả cho từng tuyến trên review (BR-M03-F02 b, X03) không có trong danh mục §5.6: "Gói tải trước của du khách cần cập nhật; các chuyến đang đi không bị thay đổi.", "Hành trình của tuyến không đổi.", "Tuyến sẽ tự đóng tạm." (ví dụ của X03), kèm trạng thái tuyến và dung lượng ước tính; MSG-AFFECTED-ROUTES và MSG-REPRINT-MODE-CHANGED đi qua `impactNotes` | Dùng từ vựng §5.4; không có từ cấm |
+| D-40 | So sánh snapshot (research R-10) trên `checkpoints`, `offlineRouteMap`, `estimatedOfflineSizeBytes`; bỏ `contentVersion`, `previousContentVersion`, `publishedAt` | Ghi nhận |
+| D-41 | Thu hồi QR (C-16) nay dựng lại hành trình cho mọi tuyến liệt kê điểm dừng và chuyển cùng lúc, không bị trần chặn (BR-M03-E09, X02, G10) — phần US2 để lại cho T119. Bảng "Thay đổi" của review tuyến (lần đầu và bản sửa) dùng chung một hàm so sánh nên lần đầu liệt kê đủ các trường | Ghi nhận |
+| D-42 | Q3 (US1) chập chờn ở §4.1 và lần đầu đợt này: RouterProvider chạy điều hướng trong transition, nên khi chunk lazy của trang khôi phục còn đang tải (dev server nguội), trang đăng nhập vẫn hiện và test gõ email vào ô của trang đăng nhập. Sửa test: chờ tiêu đề "Khôi phục mật khẩu" trước khi gõ. Ứng dụng không lỗi | Đã sửa |
+| D-43 | E2E Q14–Q17 dựng sẵn điểm dừng và hai tuyến đã xuất bản qua test hook `seedSharedRoutes`; phiên thứ hai (Q14) qua `reviseRouteAs`; ảnh nặng (Q17) qua `inflateLatestMedia`. Phần sửa, review, xuất bản, STALE, BUSY chạy qua giao diện | Chỉ MODE `fake` |
+
+### 5.4 Checkpoint Phase 6
+
+"US1–US4 chạy độc lập" **đạt** trên adapter giả: T056–T122 xong; Q1–Q17 pass. Còn mở: các mục `NOT RUN` ở §5.2.

@@ -285,10 +285,13 @@ function ReviewView({ unitType, subjectId }: { unitType: PublicationUnitType; su
                 {review.affectedRoutes.map((route) => (
                   <li key={route.routeId} className={styles.route}>
                     <span className={styles.rowLabel}>{route.routeName}</span>
+                    {firstPublication ? null : <span>Trạng thái: {DISPLAY_NAMES.routeStatus[route.routeStatus]}</span>}
                     <span>Gói tải trước ước tính: {formatMegabytes(route.estimatedOfflineSizeBytes)} MB</span>
-                    {route.createsNewJourneyVersion && !firstPublication ? (
+                    {firstPublication ? null : route.createsNewJourneyVersion ? (
                       <span>Gói tải trước của du khách cần cập nhật; các chuyến đang đi không bị thay đổi.</span>
-                    ) : null}
+                    ) : (
+                      <span>Hành trình của tuyến không đổi.</span>
+                    )}
                     {route.closesAutomatically ? <span>Tuyến sẽ tự đóng tạm.</span> : null}
                   </li>
                 ))}

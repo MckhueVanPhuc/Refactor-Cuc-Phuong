@@ -34,6 +34,19 @@ function must<T>(result: { ok: true; data: T } | { ok: false; reason: string }):
   return result.data;
 }
 
+/** Xuất bản lần đầu một tuyến đã seed (cần đủ nội dung và điểm dừng hoạt động) */
+export async function publishSeededRoute(store: FakeStore, routeId: string): Promise<void> {
+  const previousUser = store.currentUserId;
+  store.currentUserId = FIXTURE_ACCOUNTS.CONTENT_STAFF.userId;
+  const api = createFakeAdminApi(store);
+  try {
+    const review = await api.openPublicationReview({ unitType: 'ROUTE_FIRST_PUBLICATION', subjectId: routeId });
+    must(await api.publishUnit({ unitType: 'ROUTE_FIRST_PUBLICATION', subjectId: routeId, reviewedConcurrencyRevision: review.reviewedConcurrencyRevision }));
+  } finally {
+    store.currentUserId = previousUser;
+  }
+}
+
 export async function seedRoute(store: FakeStore, seed: SeedRoute = {}): Promise<{ routeId: string }> {
   const previousUser = store.currentUserId;
   store.currentUserId = FIXTURE_ACCOUNTS.CONTENT_STAFF.userId;

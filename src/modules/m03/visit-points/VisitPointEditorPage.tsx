@@ -35,6 +35,7 @@ import { MissingToPublishPanel } from '../editor/MissingToPublishPanel';
 import { useDraftForm } from '../editor/useDraftForm';
 import { useFieldIssues } from '../editor/useFieldIssues';
 import { UnsavedChangesDialog, allowNextNavigation, useUnsavedChangesGuard } from '../editor/useUnsavedChangesGuard';
+import { VersionNote } from '../editor/VersionNote';
 import { MediaThumbnail } from '../media/MediaThumbnail';
 import { MediaUploader } from '../media/MediaUploader';
 import type { UploadItem } from '../media/useUploadQueue';
@@ -189,7 +190,7 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
   );
 
   const load = useCallback(
-    async (mode: 'open' | 'refresh') => {
+    async (mode: 'open' | 'refresh' | 'reload') => {
       try {
         if (qrIdentifier) {
           const loaded = await api.getVisitPointEditor(qrIdentifier);
@@ -200,6 +201,8 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
             status: loaded.checkpointStatus,
             creationOrder: loaded.creationOrder,
           });
+          // "Tải lại" sau STALE: nạp bản mới nhất, bỏ chữ đang gõ (BR-M03-F06)
+          if (mode === 'reload') form.reset(fromEditor(loaded));
           if (mode === 'open') {
             if (form.isDirty) form.rebase(fromEditor(loaded));
             else form.reset(fromEditor(loaded));
@@ -307,7 +310,6 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
     const counters = { image: 0, av: 0 };
     return state.media.map((item) => mediaLabel(displayName, item, item.type === 'IMAGE' ? counters.image++ : counters.av++));
   })();
-  const version = editor?.draft ? 'MSG-VERSION-DRAFT' : editor?.published ? 'MSG-VERSION-PUBLISHED' : null;
   const canPublish = Boolean(editor?.draft) && editor?.status !== 'THU_HOI' && (checkpoint.status === 'HOAT_DONG' || checkpoint.status === 'TAM_DONG');
 
   function mediaRow(item: MediaEntry) {
@@ -363,7 +365,7 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
               </>
             ) : null}
           </p>
-          {version ? <p className={styles.version}>{formatMessage(version)}</p> : null}
+          {editor ? <VersionNote hasDraft={Boolean(editor.draft)} hasPublished={Boolean(editor.published)} /> : null}
         </div>
         <div className={layout.headingActions}>
           <Button onClick={backToCheckpoint}>Về điểm dừng</Button>
@@ -393,7 +395,7 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
         result={actionOutcome ?? form.outcome}
         transportError={actionError ?? form.transportError ?? loadError}
         {...(form.outcome?.ok && form.outcome.messageKey === 'MSG-QR-CREATED' ? { successValues: { tên: displayName } } : {})}
-        onReload={() => void load('open')}
+        onReload={() => void load('reload')}
       />
 
       {previewOpen ? (

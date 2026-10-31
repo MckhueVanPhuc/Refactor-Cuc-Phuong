@@ -1,5 +1,5 @@
 // SCR-M03-008 editor điểm dừng + danh sách điểm tham quan (tasks T088; Q-06, C-02, C-07;
-// BR-M03-D01–D04, D09, D11, E15, E16, F11). Đóng tạm / Mở lại / Lưu trữ gắn ở US6 (T140); bản nháp chờ ở US4 (T122).
+// BR-M03-D01–D04, D06, D09, D11, E15, E16, F06, F11). Đóng tạm / Mở lại / Lưu trữ gắn ở US6 (T140).
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { Banner } from '../../../shared/ui/Banner';
@@ -22,6 +22,7 @@ import { ReasonDialog } from '../editor/ReasonDialog';
 import { useDraftForm } from '../editor/useDraftForm';
 import { useFieldIssues } from '../editor/useFieldIssues';
 import { UnsavedChangesDialog, allowNextNavigation, useUnsavedChangesGuard } from '../editor/useUnsavedChangesGuard';
+import { VersionNote } from '../editor/VersionNote';
 import { formatMessage } from '../messages/catalog';
 import { DISPLAY_NAMES, readinessLabel } from '../messages/displayNames';
 import { FIELD_LABELS } from '../messages/fieldLabels';
@@ -116,13 +117,15 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
   );
 
   const load = useCallback(
-    async (mode: 'open' | 'refresh') => {
+    async (mode: 'open' | 'refresh' | 'reload') => {
       if (!checkpointId) return;
       try {
         const loaded = await api.getCheckpointEditor(checkpointId);
         setEditor(loaded);
         setLoadError(null);
-        // Mở lần đầu: form theo dữ liệu đã lưu, trừ khi vừa lấy lại chữ chưa lưu sau khi phiên hết hạn
+        // Mở lần đầu: form theo dữ liệu đã lưu, trừ khi vừa lấy lại chữ chưa lưu sau khi phiên hết hạn.
+        // "Tải lại" sau STALE: nạp bản mới nhất, bỏ chữ đang gõ (BR-M03-F06).
+        if (mode === 'reload') form.reset(fromEditor(loaded));
         if (mode === 'open') {
           if (form.isDirty) form.rebase(fromEditor(loaded));
           else form.reset(fromEditor(loaded));
@@ -192,6 +195,13 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
   const readyCount = openVisitPoints.filter((vp) => vp.readiness.ready).length;
   const limitReached = openVisitPoints.length >= CHECKPOINT_QR_MAX_ITEMS;
   const archived = editor?.status === 'LUU_TRU';
+  // Lần đầu xuất bản điểm dừng Nháp; sau đó mỗi lần xuất bản là thông tin điểm dừng (BR-M03-D06)
+  const publishUnit =
+    editor?.status === 'NHAP'
+      ? 'CHECKPOINT_FIRST_PUBLICATION'
+      : editor?.draft && (editor.status === 'HOAT_DONG' || editor.status === 'TAM_DONG')
+        ? 'CHECKPOINT_REVISION'
+        : undefined;
   const title = editor ? state.name.vi.trim() || 'Điểm dừng chưa đặt tên' : 'Điểm dừng mới';
 
   const serverIssues = form.outcome && !form.outcome.ok && form.outcome.reason === 'VALIDATION' ? form.outcome.issues : [];
@@ -221,14 +231,12 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
               <span>{readinessLabel(publishIssues.map((issue) => issue.fieldLabel))}</span>
             </p>
           ) : null}
+          {editor ? <VersionNote hasDraft={Boolean(editor.draft)} hasPublished={Boolean(editor.published)} /> : null}
         </div>
         <div className={layout.headingActions}>
           <Button onClick={() => void navigate(ADMIN_PATHS.checkpoints)}>Thư viện điểm dừng</Button>
-          {editor?.status === 'NHAP' ? (
-            <Button
-              variant="primary"
-              onClick={() => void navigate(ADMIN_PATHS.review('CHECKPOINT_FIRST_PUBLICATION', editor.checkpointId))}
-            >
+          {publishUnit && editor ? (
+            <Button variant="primary" onClick={() => void navigate(ADMIN_PATHS.review(publishUnit, editor.checkpointId))}>
               Xuất bản
             </Button>
           ) : null}
@@ -239,7 +247,7 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
       <CommandOutcome
         result={actionOutcome ?? form.outcome}
         transportError={form.transportError ?? loadError}
-        onReload={() => void load('open')}
+        onReload={() => void load('reload')}
       />
 
       <div className={layout.columns}>

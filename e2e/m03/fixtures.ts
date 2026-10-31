@@ -21,6 +21,7 @@ type M03Hooks = {
   currentAdminEmail?: () => string | null;
   failNext?: (action: string, messageKey?: string) => void;
   readPublication?: (routeId: string) => Publication;
+  [hook: string]: unknown;
 };
 type M03TestWindow = { __cpqTestHooks?: { m03?: M03Hooks } };
 
@@ -62,6 +63,18 @@ export async function currentAdminEmail(page: Page): Promise<string | null> {
 /** Command `action` kế tiếp của adapter giả thất bại với khóa đã chọn (quickstart Q13, Q16, Q20) */
 export async function failNext(page: Page, action: string, messageKey: string): Promise<void> {
   await page.evaluate(([name, key]) => (window as unknown as M03TestWindow).__cpqTestHooks?.m03?.failNext?.(name, key), [action, messageKey] as const);
+}
+
+/** Gọi một test hook bất kỳ của namespace `m03` (đợi kết quả nếu hook trả Promise) */
+export async function m03Hook(page: Page, name: string, args: unknown[] = []): Promise<unknown> {
+  return page.evaluate(
+    async ([hook, hookArgs]) => {
+      const fn = (window as unknown as M03TestWindow).__cpqTestHooks?.m03?.[hook as string];
+      if (typeof fn !== 'function') throw new Error(`Không có test hook ${String(hook)}`);
+      return (fn as (...a: unknown[]) => unknown)(...(hookArgs as unknown[]));
+    },
+    [name, args] as const,
+  );
 }
 
 /** Những gì M01 đọc được của tuyến: dòng Published Route và snapshot active */

@@ -87,6 +87,7 @@ export function CheckpointListPage() {
                     <Link className={layout.rowLink} to={ADMIN_PATHS.checkpoint(row.checkpointId)}>
                       {row.name ?? 'Điểm dừng chưa đặt tên'}
                     </Link>
+                    {row.hasPendingDraft ? <span className={styles.pending}>Có bản nháp chờ</span> : null}
                   </td>
                   <td>
                     <span className={`${layout.status} ${layout[row.status]}`}>{DISPLAY_NAMES.checkpointStatus[row.status]}</span>
