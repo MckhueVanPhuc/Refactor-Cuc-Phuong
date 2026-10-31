@@ -49,8 +49,15 @@ const allowedTypes = (kind: UploadQueueOptions['kind']): MediaType[] => (kind ==
 const formatsFor = (kind: UploadQueueOptions['kind']) =>
   kind === 'IMAGE' ? SUPPORTED_FORMAT_NAMES.IMAGE : `${SUPPORTED_FORMAT_NAMES.AUDIO}, ${SUPPORTED_FORMAT_NAMES.VIDEO}`;
 
+export type PrecheckOptions = Pick<UploadQueueOptions, 'kind' | 'maxCount' | 'ownerName' | 'checkpointMode' | 'checkpointName'>;
+
+/** Kiểm trước ở client (bước 1) cho một tệp chưa có loại đã xác định. Trả câu lý do, hoặc undefined nếu hợp lệ. */
+export function precheckFile(file: File, options: PrecheckOptions, slotTaken: boolean): string | undefined {
+  return precheck(file, mediaTypeOf(file.type), options, slotTaken);
+}
+
 /** Kiểm trước ở client (bước 1). Trả câu lý do, hoặc undefined nếu tệp hợp lệ. */
-function precheck(file: File, type: MediaType | undefined, options: UploadQueueOptions, slotTaken: boolean): string | undefined {
+function precheck(file: File, type: MediaType | undefined, options: PrecheckOptions, slotTaken: boolean): string | undefined {
   if (options.kind === 'AV' && options.checkpointMode === 'OFFLINE_REQUIRED') {
     return formatMessage('MSG-AV-OFFLINE', { tên: options.checkpointName ?? '' });
   }

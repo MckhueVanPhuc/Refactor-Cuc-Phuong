@@ -1,0 +1,15 @@
+.thumb,
+.missing {
+  flex: none;
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--radius-sm);
+}
+
+.thumb {
+  object-fit: cover;
+}
+
+.missing {
+  background: var(--color-m03-border);
+}

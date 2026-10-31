@@ -1,60 +1,10 @@
 // Quickstart Q6–Q10 (US2) trên adapter giả: `npm run dev:fake`, project `m03`.
 // Decode ảnh QR thật bằng @zxing/browser (Q9) là NOT RUN: gói chưa được cài (M02 T003) — xem validation-report.
 import { readFile } from 'node:fs/promises';
-import type { Page } from '@playwright/test';
 import { expect, test } from './fixtures';
+import { addReadyVisitPoint, backToCheckpoint, createCheckpoint, image, publishCheckpoint } from './flows';
 
-const INTRO = 'Cây chò ngàn năm cao hơn bốn mươi mét, thân thẳng, tán rộng.';
-const MODE_FIRST = 'Hãy chọn loại kết nối cho điểm dừng và lưu lại trước khi thêm điểm tham quan.';
 const MB = 1_048_576;
-
-const image = (name: string, size = 2048) => ({ name, mimeType: 'image/jpeg', buffer: Buffer.alloc(size) });
-
-async function createCheckpoint(page: Page, name: string, mode: 'Cần tải trước' | 'Dùng được khi có mạng' = 'Cần tải trước') {
-  await page.getByRole('link', { name: 'Thư viện điểm dừng' }).click();
-  await page.getByRole('button', { name: 'Tạo điểm dừng' }).click();
-  await expect(page.getByRole('button', { name: 'Thêm điểm tham quan' })).toBeDisabled();
-  await expect(page.getByText(MODE_FIRST)).toBeVisible();
-  await page.getByLabel('Tên điểm dừng (tiếng Việt)').fill(name);
-  await page.getByLabel('Tên điểm dừng (tiếng Anh)').fill(`${name} (en)`);
-  await page.getByLabel(mode).check();
-  if (mode === 'Dùng được khi có mạng') await page.getByLabel('Đã khảo sát thực địa, có sóng ổn định').check();
-  await page.getByRole('button', { name: 'Lưu bản nháp' }).click();
-  await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Thêm điểm tham quan' })).toBeEnabled();
-}
-
-/** Thêm điểm tham quan sẵn sàng (tên, giới thiệu song ngữ, một ảnh đã tick quyền); trả "Mã …xxxxxx" */
-async function addReadyVisitPoint(page: Page, name: string) {
-  await page.getByRole('button', { name: 'Thêm điểm tham quan' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Điểm tham quan mới' })).toBeVisible();
-  // Chưa có mã QR trước lần lưu đầu (SC-M03-034)
-  await expect(page.getByText(/^Mã …/)).toHaveCount(0);
-  await page.getByLabel('Tên đối tượng (tiếng Việt)').fill(name);
-  await page.getByLabel('Tên đối tượng (tiếng Anh)').fill(`${name} (en)`);
-  await page.getByLabel('Giới thiệu (tiếng Việt)').fill(INTRO);
-  await page.getByLabel('Giới thiệu (tiếng Anh)').fill(INTRO);
-  await page.getByLabel('Ảnh của điểm tham quan').setInputFiles(image(`${name}.jpg`));
-  await page.getByLabel(`Xác nhận quyền sử dụng — ${name}.jpg`).check();
-  await page.getByRole('button', { name: 'Lưu bản nháp' }).click();
-  await expect(page.getByText(`Đã thêm điểm tham quan "${name}".`)).toBeVisible();
-  await expect(page.getByRole('heading', { level: 1, name: `Đang sửa: ${name}` })).toBeVisible();
-  return (await page.locator('header, h1 + p').getByText(/^Mã …/).first().textContent()) ?? '';
-}
-
-async function backToCheckpoint(page: Page) {
-  await page.getByRole('button', { name: 'Về điểm dừng' }).click();
-}
-
-async function publishCheckpoint(page: Page, name: string) {
-  await page.getByRole('button', { name: 'Xuất bản' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Xem lại & Xuất bản' })).toBeVisible();
-  await page.getByRole('button', { name: 'Xuất bản' }).click();
-  const dialog = page.getByRole('dialog');
-  await expect(dialog.getByRole('heading')).toHaveText(`Xuất bản "${name}": du khách sẽ thấy nội dung mới ngay sau khi xuất bản.`);
-  await dialog.getByRole('button', { name: 'Xuất bản' }).click();
-  await expect(page.getByText('Đã xuất bản. Du khách sẽ thấy nội dung mới.')).toBeVisible();
-}
 
 test('Q6 — điểm dừng "Cần tải trước": hai điểm tham quan có ảnh; âm thanh bị từ chối; danh sách hiện "Mã …xxxxxx"', async ({
   page,

@@ -1,9 +1,10 @@
-// SCR-M03-004 Xem lại & Xuất bản (tasks T093; Q-08, C-05; BR-M03-F01, F02, F12). Bản này phục vụ đơn vị
-// điểm dừng/QR; đơn vị tuyến (thay đổi nhạy cảm, tick an toàn, dung lượng gói tải trước) mở rộng ở T113, T117.
+// SCR-M03-004 Xem lại & Xuất bản (tasks T093, T113; Q-08, C-05; BR-M03-C09, C10, F01, F02, F12, G10).
+// Đơn vị điểm dừng/QR và tuyến; ghi chú tác động của bản sửa (tuyến bị ảnh hưởng khi sửa điểm dừng) ở T117.
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Banner } from '../../../shared/ui/Banner';
 import { Button } from '../../../shared/ui/Button';
+import { Checkbox } from '../../../shared/ui/Checkbox';
 import { Dialog } from '../../../shared/ui/Dialog';
 import { useAdminApi } from '../api/AdminApiProvider';
 import { AdminApiError } from '../api/errors';
@@ -17,6 +18,7 @@ import type { FlashState } from '../editor/flash';
 import { MissingToPublishPanel } from '../editor/MissingToPublishPanel';
 import { formatMessage } from '../messages/catalog';
 import { DISPLAY_NAMES } from '../messages/displayNames';
+import { formatMegabytes } from '../messages/format';
 import { ADMIN_PATHS } from '../paths';
 import { visitPointName } from '../validation/visitPoint';
 import { VisitorPreview } from '../visit-points/preview/VisitorPreview';
@@ -59,9 +61,15 @@ async function loadContext(
         visitPoints: [{ qrIdentifier: subjectId, name }],
       };
     }
-    default:
-      // Đơn vị tuyến: T103/T113 (US3)
-      return { name: '', editorPath: ADMIN_PATHS.route(subjectId), visitPoints: [] };
+    case 'ROUTE_FIRST_PUBLICATION':
+    case 'ROUTE_INFORMATION': {
+      const editor = await api.getRouteEditor(subjectId);
+      return {
+        name: (editor.draft ?? editor.published)?.content.name?.vi ?? '',
+        editorPath: ADMIN_PATHS.route(subjectId),
+        visitPoints: [],
+      };
+    }
   }
 }
 
@@ -123,6 +131,7 @@ function ReviewView({ unitType, subjectId }: { unitType: PublicationUnitType; su
   const [transportError, setTransportError] = useState<AdminApiError | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [noSafetyWarningConfirmed, setNoSafetyWarningConfirmed] = useState(false);
 
   const handleTransport = useCallback(
     (error: unknown) => {
@@ -162,6 +171,7 @@ function ReviewView({ unitType, subjectId }: { unitType: PublicationUnitType; su
         unitType,
         subjectId,
         reviewedConcurrencyRevision: review.reviewedConcurrencyRevision,
+        ...(review.noSafetyWarningConfirmationRequired ? { noSafetyWarningConfirmed } : {}),
       });
       setConfirmOpen(false);
       if (result.ok) {
@@ -183,7 +193,11 @@ function ReviewView({ unitType, subjectId }: { unitType: PublicationUnitType; su
   if (loadError && !review) return <Banner tone="error">{formatMessage(loadError.messageKey)}</Banner>;
   if (!review || !context) return null;
 
-  const blocked = review.blockingIssues.length > 0;
+  // Cảnh báo an toàn trống: phải tick xác nhận mới xuất bản được (BR-M03-C09)
+  const blocked = review.blockingIssues.length > 0 || (review.noSafetyWarningConfirmationRequired && !noSafetyWarningConfirmed);
+  const isSensitive = (change: { fieldLabel: string; after: string }) =>
+    review.sensitiveChanges.some((other) => other.fieldLabel === change.fieldLabel && other.after === change.after);
+  const firstPublication = unitType === 'ROUTE_FIRST_PUBLICATION' || unitType === 'CHECKPOINT_FIRST_PUBLICATION';
   const leftOut = [
     ...review.leftOutCheckpoints.map((item) => formatMessage('MSG-CHECKPOINT-LEFT-OUT', { tên: item.name })),
     ...review.leftOutQrObjects.map((item) =>
@@ -227,7 +241,11 @@ function ReviewView({ unitType, subjectId }: { unitType: PublicationUnitType; su
                   </thead>
                   <tbody>
                     {review.changes.map((change, index) => (
-                      <tr key={`${change.fieldLabel}:${index}`}>
+                      <tr
+                        key={`${change.fieldLabel}:${index}`}
+                        className={isSensitive(change) ? styles.sensitive : undefined}
+                        data-sensitive={isSensitive(change) ? 'true' : undefined}
+                      >
                         <th scope="row" className={styles.rowLabel}>
                           {change.fieldLabel}
                         </th>
@@ -242,6 +260,41 @@ function ReviewView({ unitType, subjectId }: { unitType: PublicationUnitType; su
               <p className={layout.note}>Không có thay đổi nội dung.</p>
             )}
           </section>
+
+          {review.sensitiveChanges.length > 0 ? (
+            <section className={`${layout.section} ${styles.sensitiveSection}`} aria-labelledby="review-sensitive-title">
+              <h2 id="review-sensitive-title" className={layout.sectionTitle}>
+                Thay đổi cần chú ý
+              </h2>
+              <ul className={layout.list}>
+                {review.sensitiveChanges.map((change, index) => (
+                  <li key={`${change.fieldLabel}:${index}`}>
+                    <span className={styles.rowLabel}>{change.fieldLabel}</span>: {change.before || '—'} → {change.after || '—'}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {review.affectedRoutes.length > 0 ? (
+            <section className={layout.section} aria-labelledby="review-routes-title">
+              <h2 id="review-routes-title" className={layout.sectionTitle}>
+                Tuyến bị ảnh hưởng
+              </h2>
+              <ul className={styles.routeList}>
+                {review.affectedRoutes.map((route) => (
+                  <li key={route.routeId} className={styles.route}>
+                    <span className={styles.rowLabel}>{route.routeName}</span>
+                    <span>Gói tải trước ước tính: {formatMegabytes(route.estimatedOfflineSizeBytes)} MB</span>
+                    {route.createsNewJourneyVersion && !firstPublication ? (
+                      <span>Gói tải trước của du khách cần cập nhật; các chuyến đang đi không bị thay đổi.</span>
+                    ) : null}
+                    {route.closesAutomatically ? <span>Tuyến sẽ tự đóng tạm.</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
           {leftOut.length > 0 ? (
             <section className={layout.section} aria-labelledby="review-left-out-title">
@@ -285,6 +338,15 @@ function ReviewView({ unitType, subjectId }: { unitType: PublicationUnitType; su
 
         <aside className={layout.aside}>
           <MissingToPublishPanel issues={review.blockingIssues} />
+          {review.noSafetyWarningConfirmationRequired ? (
+            <div className={layout.section}>
+              <Checkbox
+                label="Tôi xác nhận tuyến không có cảnh báo an toàn cần nêu"
+                checked={noSafetyWarningConfirmed}
+                onChange={setNoSafetyWarningConfirmed}
+              />
+            </div>
+          ) : null}
           <div className={layout.formActions}>
             <Button onClick={() => void navigate(context.editorPath)}>Quay lại sửa</Button>
             <Button variant="primary" disabled={blocked || busy} onClick={() => setConfirmOpen(true)}>

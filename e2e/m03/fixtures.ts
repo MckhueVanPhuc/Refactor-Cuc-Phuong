@@ -15,9 +15,12 @@ export const syntheticAccounts = {
 export const SYNTHETIC_PASSWORD = 'Matkhau-thu-123';
 
 /** Hình dạng `window.__cpqTestHooks.m03` mà E2E dùng (đăng ký ở MODE `fake`, src/modules/m03/api/fake/fakeAdminApi.ts). */
+type Publication = { route: Record<string, unknown> | null; snapshot: Record<string, unknown> | null };
 type M03Hooks = {
   latestMail?: (email: string, kind: 'invite' | 'recovery') => string | null;
   currentAdminEmail?: () => string | null;
+  failNext?: (action: string, messageKey?: string) => void;
+  readPublication?: (routeId: string) => Publication;
 };
 type M03TestWindow = { __cpqTestHooks?: { m03?: M03Hooks } };
 
@@ -54,6 +57,19 @@ export async function latestMail(page: Page, email: string, kind: 'invite' | 're
 
 export async function currentAdminEmail(page: Page): Promise<string | null> {
   return page.evaluate(() => (window as unknown as M03TestWindow).__cpqTestHooks?.m03?.currentAdminEmail?.() ?? null);
+}
+
+/** Command `action` kế tiếp của adapter giả thất bại với khóa đã chọn (quickstart Q13, Q16, Q20) */
+export async function failNext(page: Page, action: string, messageKey: string): Promise<void> {
+  await page.evaluate(([name, key]) => (window as unknown as M03TestWindow).__cpqTestHooks?.m03?.failNext?.(name, key), [action, messageKey] as const);
+}
+
+/** Những gì M01 đọc được của tuyến: dòng Published Route và snapshot active */
+export async function readPublication(page: Page, routeId: string): Promise<Publication> {
+  return page.evaluate(
+    (id) => (window as unknown as M03TestWindow).__cpqTestHooks?.m03?.readPublication?.(id) ?? { route: null, snapshot: null },
+    routeId,
+  );
 }
 
 type M03Fixtures = {

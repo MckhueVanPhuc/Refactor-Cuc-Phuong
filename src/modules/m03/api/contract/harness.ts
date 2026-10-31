@@ -2,7 +2,9 @@
 // Cùng một bộ *.contract.ts chạy với adapter giả (giai đoạn A) và adapter Supabase trên stack local
 // (giai đoạn B), để fake và SQL không lệch nhau. Ca cần tiêm lỗi hoặc giữ khóa đánh dấu `fakeOnly`.
 import { beforeEach, describe, it } from 'vitest';
-import type { AdminRole, AuditRow } from '../../contracts/adminDtos';
+import type { JourneySnapshot } from '../../../../shared/contracts/journeySnapshot';
+import type { PublishedRoute } from '../../../../shared/contracts/publishedRoute';
+import type { AdminRole, AuditRow, CheckpointStatus } from '../../contracts/adminDtos';
 import type { AdminApi } from '../AdminApi';
 
 /** Điều khiển môi trường test; mỗi adapter tự cài (fake: store in-memory; Supabase: stack local). */
@@ -26,6 +28,12 @@ export type ContractControls = {
   queueQrIdentifiers?(ids: string[]): void;
   /** fakeOnly: xóa object khỏi Storage để giả lập ảnh không đọc được (BR-M03-D04 điều 4) */
   removeStorageObject?(objectPath: string): void;
+  /** fakeOnly: đổi dung lượng đã ghi nhận của một media (giả lập gói tải trước vượt trần, BR-M03-G10) */
+  inflateMedia?(mediaId: string, sizeBytes: number): void;
+  /** fakeOnly: đặt thẳng trạng thái điểm dừng (đóng/mở lại thật ở US6) */
+  setCheckpointStatus?(checkpointId: string, status: CheckpointStatus): void;
+  /** Những gì M01 đọc được của một tuyến: dòng Published Route và snapshot active (publication-public §2–§3) */
+  readPublication(routeId: string): Promise<{ route: PublishedRoute | null; snapshot: JourneySnapshot | null }>;
 };
 
 export type ContractSubject = { api: AdminApi; controls: ContractControls };

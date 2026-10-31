@@ -323,7 +323,8 @@ export function createFakeCheckpointsArea(store: FakeStore): CheckpointsArea {
     async discardUnpublished(input) {
       if (input.subjectType === 'CHECKPOINT') return discardCheckpoint(input);
       if (input.subjectType === 'QRCODE') return discardVisitPoint(input);
-      throw new Error('Adapter giả chưa có discardUnpublished cho tuyến: khu vực routes — T102 (US3)');
+      // Tuyến do khu vực routes xử lý (fakeAdminApi ghép hai nhánh)
+      throw new Error('discardUnpublished cho tuyến thuộc khu vực routes');
     },
 
     async revokeVisitPoint({ qrIdentifier, reason, expected }) {

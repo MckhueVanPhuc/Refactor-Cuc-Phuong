@@ -8,18 +8,22 @@ export type Flash = { messageKey: MessageKey; values?: Record<string, string | n
 
 export type FlashState = {
   flash?: Flash;
+  /** câu cảnh báo đi kèm (ví dụ MSG-UPLOAD-SUMMARY khi có ảnh không tải được ở lần lưu đầu) */
+  warning?: Flash;
   /** điểm tham quan vừa lưu, tô sáng trong danh sách của điểm dừng (BR-M03-E16) */
   highlightQr?: string;
 };
 
-/** Câu thông báo mang sang, đọc một lần lúc mở trang */
-export function useFlash(): [string | null, () => void] {
+const render = (flash: Flash | undefined) => (flash ? formatMessageFromServer(flash.messageKey, flash.values) : null);
+
+/** Câu thông báo (và cảnh báo đi kèm, nếu có) mang sang, đọc một lần lúc mở trang */
+export function useFlash(): [string | null, () => void, string | null] {
   const location = useLocation();
-  const [message, setMessage] = useState(() => {
-    const flash = (location.state as FlashState | null)?.flash;
-    return flash ? formatMessageFromServer(flash.messageKey, flash.values) : null;
+  const [messages, setMessages] = useState(() => {
+    const state = location.state as FlashState | null;
+    return { message: render(state?.flash), warning: render(state?.warning) };
   });
-  return [message, () => setMessage(null)];
+  return [messages.message, () => setMessages({ message: null, warning: null }), messages.warning];
 }
 
 export function useHighlightedQr(): string | undefined {

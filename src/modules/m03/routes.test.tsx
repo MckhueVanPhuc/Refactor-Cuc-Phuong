@@ -5,7 +5,7 @@ import { renderAdmin } from './testing/renderAdmin';
 describe('cây /admin/* (admin-ui-flow §1)', () => {
   it.each([
     ['/admin/routes', 'Quản trị tuyến'],
-    ['/admin/routes/abc', 'Biên tập tuyến'],
+    ['/admin/routes/new', 'Tuyến mới'],
     ['/admin/checkpoints', 'Thư viện điểm dừng'],
     ['/admin/checkpoints/new', 'Điểm dừng mới'],
     ['/admin/audit', 'Nhật ký hệ thống'],

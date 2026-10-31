@@ -31,6 +31,7 @@ export function createFixtureState(): FakeState {
     checkpoints: new Map(),
     qrCodes: new Map(),
     revisions: new Map(),
+    snapshots: new Map(),
     media: new Map(),
   };
 }

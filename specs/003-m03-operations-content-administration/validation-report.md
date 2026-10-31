@@ -128,3 +128,44 @@ Branch `feat/m03-us2` tạo từ `feat/m03-us1` @ `070768a`. Test viết trướ
 ### 3.4 Checkpoint Phase 4
 
 "US1 và US2 chạy độc lập" **đạt** trên adapter giả: T056–T094 xong; Q1–Q10 pass. Còn mở: các mục `NOT RUN` ở §3.2.
+
+## 4. Đợt 2026-10-31 — Phase 5 US3 Tạo và xuất bản tuyến (T095–T114)
+
+Branch `feat/m03-us3` tạo từ `feat/m03-us2` @ `9661b4b`. Test viết trước và đã chạy thấy fail trước khi cài đặt: validation (T095–T097, không resolve được module), contract `publish-route` (T100, 16 ca fail vì khu vực routes còn `pending`), component (T098–T099, không resolve được module màn).
+
+### 4.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | typecheck sạch; lint 284 test pass; test 798 pass; build xong (sau D-25) |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | 14 pass: Q1–Q5 (6), Q6–Q10 (5), Q11–Q13 (3); Q12/Q13 chọn ảnh đại diện trước lần lưu đầu (D-25). Lần chạy đầu Q3 (US1, không đổi ở đợt này) fail một lần vì không thấy banner `role=status` khi dev server còn nguội; hai lần chạy lại đều 14/14 pass |
+| Quét `dist/` production tìm adapter giả, `__cpqTestHooks`, `example.test`, mật khẩu synthetic, helper seed | — | Không có |
+| `git diff --check` | 0 | Không lỗi khoảng trắng |
+
+### 4.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Adapter Supabase cho C-01, C-07 (tuyến), Q-02…Q-04, C-05 `ROUTE_FIRST_PUBLICATION`; view `api.published_routes`, `api.active_journey_snapshots` | Giai đoạn B (T183, T184); T197 chạy lại `publish-route.contract.ts` với adapter này, control `readPublication` đọc hai view |
+| Ca `fakeOnly` của `publish-route.contract.ts` (tiêm lỗi, giữ khóa, phóng dung lượng media, đặt thẳng trạng thái điểm dừng) trên stack local | Cần cách tiêm lỗi riêng ở giai đoạn B; đóng điểm dừng thật có ở US6 |
+| Q3 chập chờn một lần (§4.1) | Chưa tìm được nguyên nhân; không tái hiện trong hai lần chạy lại |
+
+### 4.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-24 | Contract nội bộ (plan decision): C-01 thêm `mediaSettings[] {mediaId, usageRightsConfirmed}` vì BR-M03-F11 yêu cầu lần lưu ghi cả tick quyền từng ảnh mà input C-01 chưa có chỗ; `ContractControls.readPublication` đọc dòng Published Route và snapshot active (bản Supabase đọc hai view) | **Đã giải quyết 2026-10-31** — người dùng chọn giữ tick quyền từng tệp đúng spec-M03 §6.3, §8 ("confirmed file by file") và SF-M03-004-10; phương án một tick chung bị bỏ vì trái spec. Giữ `mediaSettings` trong C-01 |
+| D-25 | Ảnh của tuyến phải thuộc một tuyến đã tồn tại (C-04), mà `routeId` chỉ có từ lần lưu đầu (BR-M03-B01) | **Đã giải quyết 2026-10-31** — người dùng chọn cách 1: trên form tuyến mới, ảnh chọn được ngay, kiểm trước ở client và giữ trên form; một lần "Lưu bản nháp" chạy C-01 tạo tuyến → tải + C-04 từng ảnh → C-01 lưu lại kèm ảnh (`route-admin/firstSave.ts`). Lần lưu đầu có hai dòng audit `ROUTE_DRAFT_SAVED`; ảnh lỗi không chặn ảnh khác, tuyến vẫn được tạo và MSG-UPLOAD-SUMMARY nêu tệp lỗi. Không đổi contract hay tài liệu. Ảnh chọn trước khi phiên hết hạn không giữ được nội dung tệp qua `sessionStorage`, nên được báo là chưa tải được |
+| D-26 | Thiếu tick "không có cảnh báo an toàn": trên editor là một dòng MSG-SAFETY-CONFIRM ở panel; trên review là ô tick riêng (không nằm trong `blockingIssues`); C-05 không có tick → BLOCKED MSG-SAFETY-CONFIRM. Tick được lưu vào nội dung khi xuất bản (BR-M03-C09) | Ghi nhận |
+| D-27 | Gói tải trước vượt trần ở review là một dòng MSG-OFFLINE-TOO-BIG trong `blockingIssues`; C-05 trả BLOCKED MSG-OFFLINE-TOO-BIG với `values` (tên tuyến, số MB, tối đa, ba ảnh nặng nhất "{điểm tham quan} – ảnh {n} ({x} MB)") | Ghi nhận |
+| D-28 | `leftOutCheckpoints[].reason` dùng tên trạng thái ("Đang tạm đóng", "Chưa xuất bản", "Đã lưu trữ"); review hiện MSG-CHECKPOINT-LEFT-OUT | Ghi nhận |
+| D-29 | Trường một dòng (tên, mô tả ngắn, chú thích, điểm nổi bật) bỏ CR/LF khi gõ và khi lưu thay vì báo lỗi — §5.6 không có câu cho CR/LF; nhãn trong một nhóm được khử trùng lặp khi lưu; quá `ROUTE_HIGHLIGHTS_MAX_ITEMS` điểm nổi bật bị chặn ở UI (nút thêm tắt), server trả FAILED | Ghi nhận |
+| D-30 | `durationMin` kiểm > 0 và ≤ 1440 nhưng không kiểm số lẻ (MSG-NUMBER-DECIMALS chỉ nói "1 chữ số"); ô nhập là số | Ghi nhận |
+| D-31 | Adapter giả: điểm dừng mới thêm vào danh sách phải `HOAT_DONG` (BR-M03-T01), điểm dừng đã có trong bản nháp/bản xuất bản thì giữ được dù đã đóng | Theo spec |
+| D-32 | "Tạo điểm dừng mới" ở bước 4 cất state form (khóa của editor) rồi mở SCR-M03-008; mở lại editor tuyến thì lấy lại state | Theo T112 |
+| D-33 | Ngoài phạm vi US3, để lại cho story sau: nút "Xuất bản" của tuyến chỉ hiện khi `NHAP` (`ROUTE_INFORMATION` ở US4 T119/T122); Đóng tạm / Mở lại / Lưu trữ (US6 T140); lịch sử/khôi phục (US8 T150) | Theo tasks |
+| D-34 | Helper E2E dùng chung tách ra `e2e/m03/flows.ts` (tạo và xuất bản điểm dừng); `MediaThumbnail` tách ra `media/` để editor tuyến và điểm tham quan dùng chung | Tái cấu trúc nhỏ |
+
+### 4.4 Checkpoint Phase 5
+
+"US1–US3 chạy độc lập; có thể tạo điểm dừng → tuyến → xuất bản trên adapter giả" **đạt**: T056–T114 xong; Q1–Q13 pass. Còn mở: các mục `NOT RUN` ở §4.2.

@@ -1,0 +1,161 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.group:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+.pickerHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.groupLabel {
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+}
+
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.error {
+  font-size: var(--font-size-meta);
+  color: var(--color-error);
+}
+
+.imageList,
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.imageItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-m03-muted);
+  border-radius: var(--radius-sm);
+}
+
+.imageBody {
+  display: flex;
+  flex: 1 1 16rem;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.imageName {
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.highlight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-m03-muted);
+  border-radius: var(--radius-sm);
+}
+
+.highlightHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+}
+
+.derived {
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+/* Danh sách điểm dừng của tuyến: số thứ tự là vị trí trong tuyến (BR-M03-T02) */
+.order {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: stop;
+}
+
+.stop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m03-border);
+  border-radius: var(--radius-sm);
+  counter-increment: stop;
+  cursor: grab;
+}
+
+.stop::before {
+  content: counter(stop);
+  min-width: 1.5rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m03-accent);
+}
+
+.stop[data-dragging='true'] {
+  opacity: 0.5;
+}
+
+.stopName {
+  flex: 1 1 10rem;
+  min-width: 0;
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.stopMeta {
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+/* Điểm dừng không hoạt động giữ vị trí nhưng không vào hành trình */
+.inactive {
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-warning);
+}
+
+.stopActions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+@media (max-width: 48rem) {
+  .numbers {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

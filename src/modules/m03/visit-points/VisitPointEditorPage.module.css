@@ -58,19 +58,3 @@
   font-weight: var(--font-weight-semibold);
   overflow-wrap: anywhere;
 }
-
-.thumb,
-.thumbMissing {
-  flex: none;
-  width: 4rem;
-  height: 4rem;
-  border-radius: var(--radius-sm);
-}
-
-.thumb {
-  object-fit: cover;
-}
-
-.thumbMissing {
-  background: var(--color-m03-border);
-}

@@ -19,6 +19,8 @@ const LoginPage = lazyNamed(() => import('./auth/LoginPage'), 'LoginPage');
 const InvitationPage = lazyNamed(() => import('./auth/InvitationPage'), 'InvitationPage');
 const RecoveryPage = lazyNamed(() => import('./auth/RecoveryPage'), 'RecoveryPage');
 const AccountsPage = lazyNamed(() => import('./accounts/AccountsPage'), 'AccountsPage');
+const RouteListPage = lazyNamed(() => import('./route-admin/RouteListPage'), 'RouteListPage');
+const RouteEditorPage = lazyNamed(() => import('./route-admin/RouteEditorPage'), 'RouteEditorPage');
 const CheckpointListPage = lazyNamed(() => import('./checkpoint-library/CheckpointListPage'), 'CheckpointListPage');
 const CheckpointEditorPage = lazyNamed(() => import('./checkpoint-library/CheckpointEditorPage'), 'CheckpointEditorPage');
 const VisitPointEditorPage = lazyNamed(() => import('./visit-points/VisitPointEditorPage'), 'VisitPointEditorPage');
@@ -64,9 +66,9 @@ export function createM03Routes(services?: AdminServices) {
       <Route path="recovery" element={<Lazy><RecoveryPage /></Lazy>} />
       <Route element={<RequireAdmin />}>
         <Route element={<AdminShell />}>
-          <Route path="routes" element={placeholder('Quản trị tuyến')} />
-          <Route path="routes/new" element={placeholder('Biên tập tuyến')} />
-          <Route path="routes/:routeId" element={placeholder('Biên tập tuyến')} />
+          <Route path="routes" element={<Lazy><RouteListPage /></Lazy>} />
+          <Route path="routes/new" element={<Lazy><RouteEditorPage /></Lazy>} />
+          <Route path="routes/:routeId" element={<Lazy><RouteEditorPage /></Lazy>} />
           <Route path="checkpoints" element={<Lazy><CheckpointListPage /></Lazy>} />
           <Route path="checkpoints/new" element={<Lazy><CheckpointEditorPage /></Lazy>} />
           <Route path="checkpoints/:checkpointId" element={<Lazy><CheckpointEditorPage /></Lazy>} />

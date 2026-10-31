@@ -35,8 +35,8 @@ import { MissingToPublishPanel } from '../editor/MissingToPublishPanel';
 import { useDraftForm } from '../editor/useDraftForm';
 import { useFieldIssues } from '../editor/useFieldIssues';
 import { UnsavedChangesDialog, allowNextNavigation, useUnsavedChangesGuard } from '../editor/useUnsavedChangesGuard';
+import { MediaThumbnail } from '../media/MediaThumbnail';
 import { MediaUploader } from '../media/MediaUploader';
-import { useMediaUrl } from '../media/signedUrl';
 import type { UploadItem } from '../media/useUploadQueue';
 import { formatMessage, formatMessageFromServer } from '../messages/catalog';
 import { DISPLAY_NAMES, readinessLabel } from '../messages/displayNames';
@@ -136,12 +136,6 @@ export function VisitPointEditorPage() {
       qrIdentifier={qrIdentifier === NEW_ID ? undefined : qrIdentifier}
     />
   );
-}
-
-function Thumbnail({ sourceRef }: { sourceRef: string }) {
-  const { url, failed } = useMediaUrl(useAdminApi(), sourceRef);
-  if (failed) return <span className={styles.thumbMissing} aria-hidden="true" />;
-  return url ? <img className={styles.thumb} src={url} alt="" /> : <span className={styles.thumbMissing} aria-hidden="true" />;
 }
 
 function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: string; qrIdentifier: string | undefined }) {
@@ -321,7 +315,7 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
     const label = labels[index] ?? '';
     return (
       <li key={item.mediaId} className={styles.mediaItem}>
-        {item.type === 'IMAGE' ? <Thumbnail sourceRef={item.sourceRef} /> : null}
+        {item.type === 'IMAGE' ? <MediaThumbnail sourceRef={item.sourceRef} /> : null}
         <div className={styles.mediaBody}>
           <p className={styles.mediaName}>{label}</p>
           <Checkbox

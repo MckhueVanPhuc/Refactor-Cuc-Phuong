@@ -6,6 +6,7 @@ import type {
   AdminRole,
   AuditRow,
   CheckpointContent,
+  ClosureSource,
   CheckpointStatus,
   MediaType,
   MediaUsage,
@@ -18,6 +19,7 @@ import type {
   SubjectType,
 } from '../../contracts/adminDtos';
 import type { CommandResult } from '../../contracts/commandResult';
+import type { JourneySnapshot } from '../../../../shared/contracts/journeySnapshot';
 import { createFixtureProviderUsers, createFixtureState } from './fixtures';
 
 export type FakeAccount = {
@@ -44,8 +46,13 @@ export type FakeActor = { userId: string; email: string; role?: AdminRole };
 
 export type FakeRoute = {
   routeId: string;
+  /** tên vi của bản nháp nếu có, ngược lại bản đã xuất bản (để hiển thị và ghi audit) */
   name?: string;
   status: RouteStatus;
+  closureReason?: string;
+  closureSource?: ClosureSource;
+  /** version của snapshot đang active; vắng khi chưa từng xuất bản (BR-M03-G03) */
+  activeContentVersion?: number;
   concurrencyRevision: number;
   lastEditedByEmail: string;
   lastEditedAt: string;
@@ -116,6 +123,8 @@ export type FakeState = {
   qrCodes: Map<string, FakeQrCode>;
   /** khóa = revisionId; một bảng cho tuyến, điểm dừng và QR (spec-M03 §6.3) */
   revisions: Map<string, FakeRevision>;
+  /** khóa = `{routeId}:{contentVersion}`; bất biến sau khi tạo (BR-M03-G01) */
+  snapshots: Map<string, JourneySnapshot>;
   media: Map<string, FakeMedia>;
 };
 

@@ -113,7 +113,13 @@ export type ExpectedRevisions = {
 // ---------- Command C-01…C-19 ----------
 
 /** C-01 */
-export type SaveRouteDraftInput = { routeId?: string; expected?: ExpectedRevisions; content: RouteContent };
+export type SaveRouteDraftInput = {
+  routeId?: string;
+  expected?: ExpectedRevisions;
+  content: RouteContent;
+  /** tick quyền sử dụng từng ảnh của tuyến, lưu cùng lần lưu (BR-M03-F11, C14) */
+  mediaSettings?: { mediaId: string; usageRightsConfirmed: boolean }[];
+};
 export type SaveRouteDraftData = { routeId: string; revisionNumber: number; concurrencyRevision: number };
 
 /** C-02 */
