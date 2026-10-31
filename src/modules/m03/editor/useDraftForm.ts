@@ -55,7 +55,12 @@ export function useDraftForm<S, D>({ initial, save, restoreKey }: DraftFormOptio
     setTransportError(null);
   }, []);
 
+  /** Đổi mốc "đã lưu" mà giữ nguyên chữ đang có (lấy lại state sau khi phiên hết hạn rồi mới nạp server) */
+  const rebase = useCallback((next: S) => {
+    setSaved(next);
+  }, []);
+
   const isDirty = useMemo(() => !sameState(state, saved), [state, saved]);
 
-  return { state, update, isDirty, saving, outcome, transportError, saveDraft, reset };
+  return { state, update, isDirty, saving, outcome, transportError, saveDraft, reset, rebase };
 }

@@ -5,11 +5,17 @@ import type {
   AccountStatus,
   AdminRole,
   AuditRow,
+  CheckpointContent,
   CheckpointStatus,
   MediaType,
   MediaUsage,
+  QrContent,
+  QrStatus,
+  RevisionStatus,
+  RouteContent,
   RouteStatus,
   SpokenLanguage,
+  SubjectType,
 } from '../../contracts/adminDtos';
 import type { CommandResult } from '../../contracts/commandResult';
 import { createFixtureProviderUsers, createFixtureState } from './fixtures';
@@ -47,11 +53,44 @@ export type FakeRoute = {
 
 export type FakeCheckpoint = {
   checkpointId: string;
+  /** tên vi của bản nháp nếu có, ngược lại bản đã xuất bản (để hiển thị và ghi audit) */
   name?: string;
   status: CheckpointStatus;
+  /** ghi chú nội bộ, lưu cùng form, không qua xuất bản (BR-M03-D11) */
+  locationNote?: string;
+  closureReason?: string;
   concurrencyRevision: number;
   lastEditedByEmail: string;
   lastEditedAt: string;
+};
+
+export type FakeQrCode = {
+  qrIdentifier: string;
+  /** không bao giờ đổi (BR-M03-E12) */
+  checkpointId: string;
+  status: QrStatus;
+  /** thứ tự tạo trong điểm dừng, cho "Điểm tham quan chưa đặt tên {số}" */
+  creationOrder: number;
+  installationLabel?: string;
+  concurrencyRevision: number;
+  lastEditedByEmail: string;
+  lastEditedAt: string;
+};
+
+export type FakeRevision = {
+  revisionId: string;
+  subjectType: SubjectType;
+  subjectId: string;
+  revisionNumber: number;
+  status: RevisionStatus;
+  content: RouteContent | CheckpointContent | QrContent;
+  basedOnRevisionNumber?: number;
+  lastEditedByEmail: string;
+  lastEditedAt: string;
+  publishedByEmail?: string;
+  publishedAt?: string;
+  selfPublished?: boolean;
+  concurrencyRevision: number;
 };
 
 export type FakeMedia = {
@@ -73,6 +112,10 @@ export type FakeState = {
   accounts: Map<string, FakeAccount>;
   routes: Map<string, FakeRoute>;
   checkpoints: Map<string, FakeCheckpoint>;
+  /** khóa = qrIdentifier */
+  qrCodes: Map<string, FakeQrCode>;
+  /** khóa = revisionId; một bảng cho tuyến, điểm dừng và QR (spec-M03 §6.3) */
+  revisions: Map<string, FakeRevision>;
   media: Map<string, FakeMedia>;
 };
 
@@ -118,6 +161,8 @@ export class FakeStore {
     outbox: [] as FakeMail[],
   };
   private readonly authListeners = new Set<(event: AuthEvent) => void>();
+  /** Test: identifier QR kế tiếp lấy từ đây trước khi sinh ngẫu nhiên (giả lập va chạm) */
+  readonly queuedQrIdentifiers: string[] = [];
   private readonly failures = new Map<string, FailureKey>();
   private readonly locks = new Set<string>();
   private readonly clock: () => Date;

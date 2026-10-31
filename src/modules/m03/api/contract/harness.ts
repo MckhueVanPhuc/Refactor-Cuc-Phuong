@@ -22,6 +22,10 @@ export type ContractControls = {
   failNext?(action: string, messageKey?: 'MSG-PUBLISH-FAILED' | 'MSG-CLOSE-FAILED' | 'MSG-GENERIC'): void;
   /** fakeOnly */
   holdLock?(key: string): void;
+  /** fakeOnly: identifier QR kế tiếp được "sinh" lấy từ danh sách này (giả lập va chạm, BR-M03-B03) */
+  queueQrIdentifiers?(ids: string[]): void;
+  /** fakeOnly: xóa object khỏi Storage để giả lập ảnh không đọc được (BR-M03-D04 điều 4) */
+  removeStorageObject?(objectPath: string): void;
 };
 
 export type ContractSubject = { api: AdminApi; controls: ContractControls };

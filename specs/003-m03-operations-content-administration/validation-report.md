@@ -45,7 +45,7 @@ Test viết trước và đã chạy thấy fail (không resolve được module
 |---|---|---|
 | D-1 | Router: `useBlocker` (T050, R-20) và `errorElement` (T046) chỉ chạy trong data router (đã xác minh trên react-router 8.5.1), trong khi tech-stack chọn declarative mode | **Đã giải quyết 2026-10-31** — người dùng chọn chuyển sang data mode (`createBrowserRouter(createRoutesFromElements(...))` + `RouterProvider`). Đồng bộ: tech-stack §3, §14; plan.md và research.md của 001, 002, 003; mô tả T018. Code: `src/app/router.tsx`, `src/app/App.tsx`; T050 cài bằng `useBlocker` |
 | D-2 | T046: lỗi tải chunk | Đã chuyển sang `errorElement` (`RouteErrorPage`: chunk lỗi → MSG-NETWORK-FAILED, lỗi khác → MSG-GENERIC); bỏ `ChunkErrorBoundary` |
-| D-3 | Phía server không điền được `{tên tệp}` trong MSG-FILE-TYPE / MSG-FILE-TOO-BIG (và MSG-RIGHTS-NOT-CONFIRMED, MSG-AV-LANGUAGE-MISSING, MSG-IMAGE-NOT-READABLE sau này): Physical §5.5 `app.media` không lưu tên tệp gốc, object name là UUID. Client kiểm trước với tên thật; adapter giả tạm dùng "tệp vừa tải lên". | `[NEEDS CLARIFICATION: thêm tên tệp gốc vào Media (spec-M03 §6.3 → S4 → Physical) hay chấp nhận câu không có tên tệp ở server]` |
+| D-3 | Phía server không điền được `{tên tệp}` trong MSG-FILE-TYPE / MSG-FILE-TOO-BIG (và MSG-RIGHTS-NOT-CONFIRMED, MSG-AV-LANGUAGE-MISSING, MSG-IMAGE-NOT-READABLE sau này): Physical §5.5 `app.media` không lưu tên tệp gốc, object name là UUID. Client kiểm trước với tên thật; adapter giả tạm dùng "tệp vừa tải lên". | **Đã giải quyết 2026-10-31** — người dùng chọn (b): chấp nhận câu phía server không có tên tệp gốc; client kiểm trước với tên thật. Không đổi spec, S4 hay Physical. Cách điền thay thế ở §3.3 D-16 |
 | D-4 | T044: phần AuthService của `AdminApiProvider` để T065 (interface AuthService được định nghĩa ở T065) | Ghi nhận |
 | D-5 | `store.contract.ts`: ca STALE và FORBIDDEN theo role là `it.todo` vì giai đoạn nền chưa có command nào có `expected` hoặc chỉ dành cho Quản lý; thêm ở US1 (T061, với C-18/C-19). FORBIDDEN cho danh tính không có tài khoản đã kiểm qua C-04 | Ghi nhận |
 | D-6 | Contract nội bộ M03: tên trường `leftOutCheckpoints[] {name, reason}`, `leftOutQrObjects[] {name, missing}` và hình dạng DTO query trong `adminDtos.ts` do plan quyết (spec chỉ nêu nội dung) | Plan decision; T197 đối chiếu với migration |
@@ -54,7 +54,7 @@ Test viết trước và đã chạy thấy fail (không resolve được module
 
 ### 1.5 Checkpoint Phase 2
 
-"Nền sẵn sàng" **đạt**: T001–T055 xong và có bằng chứng ở §1.2. Còn mở: D-3 (`NEEDS CLARIFICATION`), các mục `NOT RUN` ở §1.3.
+"Nền sẵn sàng" **đạt**: T001–T055 xong và có bằng chứng ở §1.2. Còn mở: các mục `NOT RUN` ở §1.3 (D-3 đã giải quyết 2026-10-31).
 
 ## 2. Đợt 2026-10-31 — Phase 3 US1 Quản lý truy cập (T056–T072)
 
@@ -89,3 +89,42 @@ Lỗi thật tìm được nhờ E2E và đã sửa: StrictMode chạy effect ha
 | D-12 | Phiên hết hạn (T070): state form cất vào `sessionStorage` (khóa theo form), về đăng nhập với thông báo MSG-SESSION-EXPIRED, đăng nhập xong quay lại trang cũ; `useDraftForm({ restoreKey })` lấy lại và coi là chưa lưu | Editor của các story sau cần truyền `restoreKey` |
 | D-13 | Kết quả thành công của Edge `link` và C-18/C-19 không có câu thông báo riêng trong §5.6; dùng `MSG-SAVED` làm khóa nội bộ nhưng UI không hiển thị (bảng tự cho thấy thay đổi; nhận lời mời thì chuyển màn) | Ghi nhận |
 | D-14 | Adapter giả: tài khoản khóa theo email (tài khoản chờ nhận lời mời chưa có `userId`); thêm auth provider giả với hộp thư (`?fake_token=`) thay Inbucket | Chỉ ảnh hưởng adapter giả |
+
+## 3. Đợt 2026-10-31 — Phase 4 US2 Điểm dừng và điểm tham quan (T073–T094)
+
+Branch `feat/m03-us2` tạo từ `feat/m03-us1` @ `070768a`. Test viết trước và đã chạy thấy fail trước khi cài đặt: validation (T073–T074, không resolve được module), contract `checkpoints` (T081, 24 ca fail vì khu vực còn `pending`), component (T075–T080, 31 ca fail).
+
+### 3.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | typecheck sạch; lint 241 test pass; test 43 file, 675 pass; build xong. Chạy liền 3 lần đều pass sau khi sửa test chập chờn (§3.3 D-23) |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | 11 pass: `auth.spec.ts` Q1–Q5 (6, gồm ca Q5 đăng xuất từ editor chưa lưu trước là `fixme`, D-10) và `checkpoints.spec.ts` Q6–Q10 (5). Chạy lại lần hai: 11 pass |
+| Quét `dist/` production tìm adapter giả, `__cpqTestHooks`, `example.test`, mật khẩu synthetic, helper seed | — | Không có |
+| `git diff --check` | 0 | Không lỗi khoảng trắng |
+
+### 3.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Q9: decode ảnh QR thật ra đúng link bằng `@zxing/browser` | Gói chưa được cài (M02 T003). E2E đã kiểm SVG có đủ các dòng chữ và PNG rộng ≥ 1024 px (đọc IHDR); unit test kiểm chuỗi truyền vào `qrcode`, mức `Q`, lề 4 module |
+| Adapter Supabase cho C-02, C-03, C-05, C-07, C-16, C-17, Q-05…Q-08 | Giai đoạn B (T181, T183); T197 chạy lại `checkpoints.contract.ts` với adapter này |
+| Ca `fakeOnly` của `checkpoints.contract.ts` (va chạm identifier, ảnh không đọc được) trên stack local | Cần cách tiêm lỗi riêng ở giai đoạn B |
+
+### 3.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-15 | Giới thiệu có chữ nhưng ngắn hơn `QR_INTRO_MIN_CHARS`: DAC-M03-052 chỉ nói "incomplete blocks publication", §5.6 không có câu riêng. Dùng MSG-MISSING-FIELD với `{tên ô}` = "Giới thiệu (tiếng Việt) (ít nhất 30 ký tự)", mức BLOCKS_PUBLISH | Ghi nhận; không thêm khóa mới vào danh mục |
+| D-16 | Theo D-3 (b), câu phía server cần `{tên tệp}` (MSG-IMAGE-NOT-READABLE, MSG-RIGHTS-NOT-CONFIRMED, MSG-AV-LANGUAGE-MISSING) điền nhãn thay thế "{điểm tham quan} – ảnh {n}" / "– âm thanh/video {n}"; editor dùng tên tệp gốc khi tệp vừa tải trong phiên. MSG-FILE-TYPE / MSG-FILE-TOO-BIG phía server giữ "tệp vừa tải lên" | Ghi nhận |
+| D-17 | Contract nội bộ (plan decision): thêm `VisitPointEditor.checkpointStatus` (Q-07) để editor biết khi nào xuất bản riêng `QR_OBJECT`; `ExpectedRevisions` nhận `undefined`; nhãn `FIELD_LABELS.CHECKPOINT.visitPoints` = "Danh sách điểm tham quan" cho khoảng trống "ít nhất một điểm tham quan sẵn sàng"; lý do thiếu/quá dài ở C-07, C-16 trả BLOCKED MSG-MISSING-FIELD / MSG-LIMIT-TEXT với "Lý do" | T197 đối chiếu với migration |
+| D-18 | "In lại" (C-17) chỉ ghi audit, không có câu thông báo (§5.6 không có câu cho ghi nhận in lại) — giống D-13 | Ghi nhận |
+| D-19 | Adapter giả: `reviewedConcurrencyRevision` của đơn vị = tổng `concurrencyRevision` của thực thể và bản nháp trong đơn vị (điểm dừng lần đầu gồm mọi điểm tham quan Nháp), nên mọi lần lưu trong đơn vị sau khi mở review đều thành STALE | Chỉ adapter giả; T183 chốt cách tính ở SQL |
+| D-20 | MSG-AV-ONE-LANGUAGE (chỉ cảnh báo) đi qua `PublicationReview.impactNotes` vì contract không có trường riêng | Ghi nhận |
+| D-21 | Ngoài phạm vi US2 và để lại cho story sau: nút "Xuất bản" trên editor điểm dừng chỉ hiện khi `NHAP` (`CHECKPOINT_REVISION` ở US4 T119/T122); thu hồi QR chưa dựng phiên bản hành trình mới cho tuyến liệt kê điểm dừng (US4 T119); C-07 cho tuyến báo khu vực chưa cài (T102); Đóng tạm / Mở lại / Lưu trữ (US6 T140); `affectedRoutes` trên review (T113, T117) | Theo tasks |
+| D-22 | Một CSS dùng chung `editor/EditorLayout.module.css` cho bố cục danh sách/editor/review; `.module.css` riêng của từng màn chỉ chứa phần riêng | Hình thức, giá trị lấy từ token |
+| D-23 | Ca đầu tiên của `VisitPointEditorPage.test.tsx` thỉnh thoảng fail khi chạy cả bộ (chunk lazy nạp chậm hơn thời gian chờ 1 s của `findBy*`). Sửa: các file test UI mới nạp sẵn module màn trong `beforeAll` | Đã sửa; 3 lần `npm run ci` liên tiếp pass |
+
+### 3.4 Checkpoint Phase 4
+
+"US1 và US2 chạy độc lập" **đạt** trên adapter giả: T056–T094 xong; Q1–Q10 pass. Còn mở: các mục `NOT RUN` ở §3.2.

@@ -12,8 +12,8 @@ import type { AdminApi } from '../AdminApi';
 import { AdminApiError } from '../errors';
 import type { FakeStore } from './store';
 
-// Schema chưa lưu tên tệp gốc, nên phía server không điền được {tên tệp}; UI kiểm trước với tên thật (bước 1).
-// [NEEDS CLARIFICATION: tên tệp trong thông báo phía server — xem validation-report.md]
+// Hệ thống không lưu tên tệp gốc, nên câu phía server không có tên tệp; UI kiểm trước với tên thật (bước 1).
+// Người dùng chọn phương án này 2026-10-31 (validation-report D-3).
 const SERVER_FILE_NAME = 'tệp vừa tải lên';
 
 /** Trường trên editor nhận media theo usage (để focus và lấy nhãn) */

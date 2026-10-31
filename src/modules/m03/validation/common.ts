@@ -108,6 +108,27 @@ export function checkBilingual(
   ];
 }
 
+/**
+ * Song ngữ bắt buộc khi xuất bản: thiếu cả hai → MSG-MISSING-FIELD (nhãn gốc, trỏ ô tiếng Việt);
+ * thiếu một → MSG-MISSING-LANGUAGE như `checkBilingual`.
+ */
+export function checkRequiredBilingual(
+  input: Target & { fieldKey: string; value: { vi?: string; en?: string } | undefined },
+): ValidationIssue[] {
+  if (!isBlank(input.value?.vi) || !isBlank(input.value?.en)) return checkBilingual(input);
+  const labels: Record<string, string> = FIELD_LABELS[input.itemType];
+  const baseLabel = labels[input.fieldKey];
+  if (baseLabel === undefined) throw new Error(`Chưa có nhãn cho trường ${input.itemType}.${input.fieldKey}`);
+  const issue = makeIssue({
+    ...input,
+    fieldKey: `${input.fieldKey}.vi`,
+    severity: 'BLOCKS_PUBLISH',
+    messageKey: 'MSG-MISSING-FIELD',
+    values: { 'tên ô': baseLabel },
+  });
+  return [{ ...issue, fieldLabel: baseLabel }];
+}
+
 const decimalPlaces = (value: number) => {
   const [, fraction = ''] = String(value).split('.');
   return fraction.length;

@@ -1,0 +1,217 @@
+/* Bố cục chung của màn danh sách và editor M03 (SCR-M03-003, 004, 008): đầu trang, cột form, cột panel bên phải */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--font-size-page-heading);
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+.headingActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
+  align-items: start;
+  gap: var(--space-5);
+}
+
+.main,
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* Panel bên phải bám theo khi cuộn form dài */
+.aside {
+  position: sticky;
+  top: var(--space-4);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m03-border);
+  border-radius: var(--radius-md);
+}
+
+.sectionHeading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-body);
+}
+
+/* Hai ngôn ngữ của một trường đứng cạnh nhau trên màn rộng */
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.note {
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+.empty {
+  padding: var(--space-4) 0;
+  color: var(--color-ink-secondary);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m03-border);
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-meta);
+}
+
+.table th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink-secondary);
+  background: var(--color-m03-muted);
+  border-bottom: var(--border-width-thin) solid var(--color-m03-border);
+}
+
+.table td {
+  padding: var(--space-2) var(--space-4);
+  vertical-align: middle;
+  border-bottom: var(--border-width-thin) solid var(--color-m03-border);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Mục vừa lưu (BR-M03-E16): vạch accent bên trái, không chỉ dựa vào màu nền */
+.table tr[aria-current='true'] td {
+  background: var(--color-m03-muted);
+}
+
+.table tr[aria-current='true'] td:first-child {
+  box-shadow: inset var(--border-width-thick) 0 0 var(--color-m03-accent);
+}
+
+.rowLink {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m03-accent);
+  overflow-wrap: anywhere;
+}
+
+.rowLink:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Trạng thái luôn bằng chữ; màu chỉ đi kèm */
+.status {
+  font-weight: var(--font-weight-semibold);
+}
+
+.HOAT_DONG {
+  color: var(--color-success);
+}
+
+.NHAP,
+.TAM_DONG {
+  color: var(--color-warning);
+}
+
+.LUU_TRU,
+.THU_HOI {
+  color: var(--color-ink-secondary);
+}
+
+.ready {
+  color: var(--color-success);
+}
+
+.notReady {
+  color: var(--color-ink-secondary);
+}
+
+.code {
+  white-space: nowrap;
+}
+
+@media (max-width: 64rem) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aside {
+    position: static;
+  }
+}
+
+@media (max-width: 48rem) {
+  .title {
+    font-size: var(--font-size-page-heading-mobile);
+  }
+
+  .pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

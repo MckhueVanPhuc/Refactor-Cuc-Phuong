@@ -6,8 +6,8 @@ describe('cây /admin/* (admin-ui-flow §1)', () => {
   it.each([
     ['/admin/routes', 'Quản trị tuyến'],
     ['/admin/routes/abc', 'Biên tập tuyến'],
-    ['/admin/checkpoints/c1/visit-points/new', 'Điểm tham quan (QR) & Nội dung'],
-    ['/admin/review/QR_OBJECT/q1', 'Xem lại & Xuất bản'],
+    ['/admin/checkpoints', 'Thư viện điểm dừng'],
+    ['/admin/checkpoints/new', 'Điểm dừng mới'],
     ['/admin/audit', 'Nhật ký hệ thống'],
   ])('%s → màn "%s" trong layout quản trị', async (path, title) => {
     renderAdmin(path, { signedInAs: 'REVIEWER' });

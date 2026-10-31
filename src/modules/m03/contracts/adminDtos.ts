@@ -105,9 +105,9 @@ export type Reason = string;
 
 export type ExpectedRevisions = {
   /** concurrencyRevision của thực thể (Route/Checkpoint/QRCode) */
-  entity?: number;
+  entity?: number | undefined;
   /** concurrencyRevision của revision nháp đang sửa, nếu có */
-  draft?: number;
+  draft?: number | undefined;
 };
 
 // ---------- Command C-01…C-19 ----------
@@ -290,6 +290,8 @@ export type VisitPointEditor = {
   checkpointId: string;
   checkpointName?: string;
   checkpointMode?: ConnectivityMode;
+  /** điểm dừng chưa xuất bản thì điểm tham quan đi cùng lần xuất bản đầu của điểm dừng (BR-M03-D05, E13) */
+  checkpointStatus: CheckpointStatus;
   status: QrStatus;
   creationOrder: number;
   installationLabel?: string;

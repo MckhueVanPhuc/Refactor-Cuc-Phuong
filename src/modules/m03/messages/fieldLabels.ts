@@ -34,6 +34,7 @@ export const FIELD_LABELS = {
     connectivityMode: 'Loại kết nối',
     fieldVerificationConfirmed: 'Đã khảo sát thực địa, có sóng ổn định',
     locationNote: 'Ghi chú vị trí',
+    visitPoints: 'Danh sách điểm tham quan',
   },
   QRCODE: {
     objectName: 'Tên đối tượng',

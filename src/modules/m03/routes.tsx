@@ -19,6 +19,13 @@ const LoginPage = lazyNamed(() => import('./auth/LoginPage'), 'LoginPage');
 const InvitationPage = lazyNamed(() => import('./auth/InvitationPage'), 'InvitationPage');
 const RecoveryPage = lazyNamed(() => import('./auth/RecoveryPage'), 'RecoveryPage');
 const AccountsPage = lazyNamed(() => import('./accounts/AccountsPage'), 'AccountsPage');
+const CheckpointListPage = lazyNamed(() => import('./checkpoint-library/CheckpointListPage'), 'CheckpointListPage');
+const CheckpointEditorPage = lazyNamed(() => import('./checkpoint-library/CheckpointEditorPage'), 'CheckpointEditorPage');
+const VisitPointEditorPage = lazyNamed(() => import('./visit-points/VisitPointEditorPage'), 'VisitPointEditorPage');
+const PublicationReviewPage = lazyNamed(
+  () => import('./publication-review/PublicationReviewPage'),
+  'PublicationReviewPage',
+);
 
 function Lazy({ children }: { children: ReactNode }) {
   return <Suspense fallback={null}>{children}</Suspense>;
@@ -60,18 +67,15 @@ export function createM03Routes(services?: AdminServices) {
           <Route path="routes" element={placeholder('Quản trị tuyến')} />
           <Route path="routes/new" element={placeholder('Biên tập tuyến')} />
           <Route path="routes/:routeId" element={placeholder('Biên tập tuyến')} />
-          <Route path="checkpoints" element={placeholder('Thư viện điểm dừng')} />
-          <Route path="checkpoints/new" element={placeholder('Thư viện điểm dừng')} />
-          <Route path="checkpoints/:checkpointId" element={placeholder('Thư viện điểm dừng')} />
-          <Route
-            path="checkpoints/:checkpointId/visit-points/new"
-            element={placeholder('Điểm tham quan (QR) & Nội dung')}
-          />
+          <Route path="checkpoints" element={<Lazy><CheckpointListPage /></Lazy>} />
+          <Route path="checkpoints/new" element={<Lazy><CheckpointEditorPage /></Lazy>} />
+          <Route path="checkpoints/:checkpointId" element={<Lazy><CheckpointEditorPage /></Lazy>} />
+          <Route path="checkpoints/:checkpointId/visit-points/new" element={<Lazy><VisitPointEditorPage /></Lazy>} />
           <Route
             path="checkpoints/:checkpointId/visit-points/:qrIdentifier"
-            element={placeholder('Điểm tham quan (QR) & Nội dung')}
+            element={<Lazy><VisitPointEditorPage /></Lazy>}
           />
-          <Route path="review/:unitType/:subjectId" element={placeholder('Xem lại & Xuất bản')} />
+          <Route path="review/:unitType/:subjectId" element={<Lazy><PublicationReviewPage /></Lazy>} />
           <Route path="reports" element={placeholder('Báo cáo vận hành')} />
           <Route element={<RequireReviewer />}>
             <Route path="accounts" element={<Lazy><AccountsPage /></Lazy>} />

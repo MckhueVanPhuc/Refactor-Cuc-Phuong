@@ -29,6 +29,8 @@ export function createFixtureState(): FakeState {
     accounts,
     routes: new Map(),
     checkpoints: new Map(),
+    qrCodes: new Map(),
+    revisions: new Map(),
     media: new Map(),
   };
 }

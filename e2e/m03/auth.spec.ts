@@ -12,6 +12,7 @@ import {
 
 const DENIED = 'Tài khoản này chưa được phép vào hệ thống. Hãy nhờ quản lý.';
 const LAST_REVIEWER = 'Không thể khóa hoặc hạ quyền người quản lý cuối cùng.';
+const UNSAVED = 'Bạn có thay đổi chưa lưu. Rời trang sẽ mất các thay đổi này.';
 
 test('Q1 — không có tài khoản và tài khoản đã khóa bị từ chối; tài khoản active vào được', async ({ page }) => {
   await page.goto('/admin/login');
@@ -97,6 +98,20 @@ test('Q5 — đăng xuất: về đăng nhập, phiên cũ không còn dùng đ�
   await expect(page).toHaveURL(/\/admin\/login$/);
 });
 
-// Hộp thoại MSG-UNSAVED-CHANGES khi đăng xuất từ form chưa lưu cần một editor thật (US2 trở đi);
-// hành vi đã được kiểm ở src/modules/m03/auth/useSignOut.test.tsx.
-test.fixme('Q5 — đăng xuất từ editor có thay đổi chưa lưu hiện MSG-UNSAVED-CHANGES', async () => {});
+test('Q5 — đăng xuất từ editor có thay đổi chưa lưu hiện MSG-UNSAVED-CHANGES', async ({ page, signInAs }) => {
+  await signInAs('CONTENT_STAFF');
+  await page.getByRole('link', { name: 'Thư viện điểm dừng' }).click();
+  await page.getByRole('button', { name: 'Tạo điểm dừng' }).click();
+  await page.getByLabel('Tên điểm dừng (tiếng Việt)').fill('Hang chưa lưu');
+  await page.getByRole('button', { name: 'Đăng xuất' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('heading')).toHaveText(UNSAVED);
+  await dialog.getByRole('button', { name: 'Ở lại' }).click();
+  await expect(page).toHaveURL(/\/admin\/checkpoints\/new$/);
+  await expect(page.getByLabel('Tên điểm dừng (tiếng Việt)')).toHaveValue('Hang chưa lưu');
+
+  await page.getByRole('button', { name: 'Đăng xuất' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Rời đi' }).click();
+  await expect(page).toHaveURL(/\/admin\/login$/);
+  expect(await currentAdminEmail(page)).toBeNull();
+});

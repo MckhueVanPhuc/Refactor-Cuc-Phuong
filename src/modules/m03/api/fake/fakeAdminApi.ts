@@ -7,8 +7,10 @@ import type { AdminRole } from '../../contracts/adminDtos';
 import type { AdminApi } from '../AdminApi';
 import type { ContractControls } from '../contract/harness';
 import { createFakeAccountsArea } from './accounts';
+import { createFakeCheckpointsArea } from './checkpoints';
 import { FIXTURE_ACCOUNTS, USER_WITHOUT_ACCOUNT } from './fixtures';
 import { createFakeMediaArea } from './media';
+import { createFakePublishArea } from './publish';
 import { FakeStore, type FailureKey } from './store';
 
 export { FakeStore };
@@ -17,17 +19,6 @@ type ApiMethod = keyof AdminApi;
 
 /** Khu vực chưa cài → task sẽ cài nó */
 const PENDING_AREAS: Record<string, readonly ApiMethod[]> = {
-  'checkpoints — T083 (US2)': [
-    'saveCheckpointDraft',
-    'saveVisitPointDraft',
-    'discardUnpublished',
-    'revokeVisitPoint',
-    'recordReprint',
-    'listCheckpoints',
-    'getCheckpointEditor',
-    'getVisitPointEditor',
-  ],
-  'publish — T084, T103, T119': ['publishUnit', 'openPublicationReview'],
   'routes — T102 (US3)': ['saveRouteDraft', 'listRoutes', 'getRouteEditor', 'listSelectableCheckpoints'],
   'operations — T135 (US6)': [
     'closeRoute',
@@ -43,7 +34,10 @@ const PENDING_AREAS: Record<string, readonly ApiMethod[]> = {
   'reports — T157 (US9)': ['reportRpt01', 'reportRpt02'],
 };
 
-type ImplementedArea = ReturnType<typeof createFakeMediaArea> & ReturnType<typeof createFakeAccountsArea>;
+type ImplementedArea = ReturnType<typeof createFakeMediaArea> &
+  ReturnType<typeof createFakeAccountsArea> &
+  ReturnType<typeof createFakeCheckpointsArea> &
+  ReturnType<typeof createFakePublishArea>;
 
 function pendingArea(): Omit<AdminApi, keyof ImplementedArea> {
   const entries = Object.entries(PENDING_AREAS).flatMap(([area, methods]) =>
@@ -56,7 +50,13 @@ function pendingArea(): Omit<AdminApi, keyof ImplementedArea> {
 }
 
 export function createFakeAdminApi(store: FakeStore = new FakeStore()): AdminApi {
-  return { ...pendingArea(), ...createFakeMediaArea(store), ...createFakeAccountsArea(store) };
+  return {
+    ...pendingArea(),
+    ...createFakeMediaArea(store),
+    ...createFakeAccountsArea(store),
+    ...createFakeCheckpointsArea(store),
+    ...createFakePublishArea(store),
+  };
 }
 
 /** AdminApi và AuthService giả dùng chung một store (một "backend" giả) */
@@ -114,6 +114,8 @@ export function createFakeControls(store: FakeStore): ContractControls {
     },
     failNext: (action, messageKey) => store.failNext(action, messageKey),
     holdLock: (key) => store.holdLock(key),
+    queueQrIdentifiers: (ids) => store.queuedQrIdentifiers.push(...ids),
+    removeStorageObject: (objectPath) => store.storage.delete(objectPath),
   };
 }
 
@@ -126,6 +128,8 @@ export function registerFakeTestHooks(store: FakeStore): void {
     releaseLock: (key: string) => store.releaseLock(key),
     seedRoute: (name: string) => seedRoute(store, name),
     seedCheckpoint: (name: string) => seedCheckpoint(store, name),
+    /** Giả lập ảnh không đọc được (BR-M03-D04 điều 4) */
+    removeStorageObject: (objectPath: string) => store.storage.delete(objectPath),
     /** Hộp thư giả của provider (thay Inbucket): link mời/khôi phục mới nhất cho email */
     latestMail: (email: string, kind: 'invite' | 'recovery') =>
       [...store.auth.outbox].reverse().find((mail) => mail.email === email && mail.kind === kind)?.link ?? null,
