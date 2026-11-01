@@ -96,7 +96,8 @@ test('Q5 — đăng xuất: về đăng nhập, phiên cũ không còn dùng đ�
   expect(await currentAdminEmail(page)).toBe(syntheticAccounts.CONTENT_STAFF.email);
   await page.getByRole('button', { name: 'Đăng xuất' }).click();
   await expect(page).toHaveURL(/\/admin\/login$/);
-  expect(await currentAdminEmail(page)).toBeNull();
+  // LoginPage hoàn tất đăng xuất sau khi điều hướng, nên chờ phiên bị xóa thay vì đọc ngay
+  await expect.poll(() => currentAdminEmail(page)).toBeNull();
   await spaNavigate(page, '/admin/checkpoints');
   await expect(page).toHaveURL(/\/admin\/login$/);
 });
@@ -116,5 +117,6 @@ test('Q5 — đăng xuất từ editor có thay đổi chưa lưu hiện MSG-UNS
   await page.getByRole('button', { name: 'Đăng xuất' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Rời đi' }).click();
   await expect(page).toHaveURL(/\/admin\/login$/);
-  expect(await currentAdminEmail(page)).toBeNull();
+  // LoginPage hoàn tất đăng xuất sau khi điều hướng, nên chờ phiên bị xóa thay vì đọc ngay
+  await expect.poll(() => currentAdminEmail(page)).toBeNull();
 });
