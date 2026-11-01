@@ -443,8 +443,8 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### US7 backend
 
-- [ ] T190 [US7] Tạo supabase/migrations/<ts>_m03_04c_lookup_qr.sql: `api.lookup_qr(p_qr_identifier text, p_route_id text default null)` `STABLE`, `SECURITY DEFINER` (`anon` không có quyền trên bảng `app`), `search_path = ''`, chỉ đọc, trả một `jsonb` đúng shape `LiveQrLookupResult` (key `camelCase`, trường vắng thì không có key), thứ tự đánh giá I02, chỉ nội dung `PHAT_HANH`, `mediaResources` rỗng khi `OFFLINE_REQUIRED`, lỗi không kết luận được thì raise; `EXECUTE` cho `anon`, `authenticated`
-- [ ] T191 [US7] Viết pgTAP supabase/tests/m03_us7_lookup.test.sql theo src/shared/contracts/liveQrLookup.cases.ts (bảng sự thật 6 bước, có/không `routeId`, bản nháp không lộ, đếm dòng trước/sau = không ghi) và E2E e2e/m03/lookup.local.spec.ts gọi RPC trên stack local, parse bằng Zod (quickstart Q22; BR-M03-I01–I04, X04; SC-M03-012, 017, 023)
+- [X] T190 [US7] Tạo supabase/migrations/<ts>_m03_04c_lookup_qr.sql: `api.lookup_qr(p_qr_identifier text, p_route_id text default null)` `STABLE`, `SECURITY DEFINER` (`anon` không có quyền trên bảng `app`), `search_path = ''`, chỉ đọc, trả một `jsonb` đúng shape `LiveQrLookupResult` (key `camelCase`, trường vắng thì không có key), thứ tự đánh giá I02, chỉ nội dung `PHAT_HANH`, `mediaResources` rỗng khi `OFFLINE_REQUIRED`, lỗi không kết luận được thì raise; `EXECUTE` cho `anon`, `authenticated`
+- [X] T191 [US7] Viết pgTAP supabase/tests/m03_us7_lookup.test.sql theo src/shared/contracts/liveQrLookup.cases.ts (bảng sự thật 6 bước, có/không `routeId`, bản nháp không lộ, đếm dòng trước/sau = không ghi) và E2E e2e/m03/lookup.local.spec.ts gọi RPC trên stack local, parse bằng Zod (quickstart Q22; BR-M03-I01–I04, X04; SC-M03-012, 017, 023)
 
 ### US8 backend
 

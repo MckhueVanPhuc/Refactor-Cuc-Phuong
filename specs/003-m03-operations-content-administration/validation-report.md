@@ -663,3 +663,30 @@ Branch `feat/m03-b-us6` tạo từ `feat/m03-b-us5` @ `f056599`. Chỉ stack loc
 | D-112 | `app.audit` (migration 3a) ghi `occurred_at = clock_timestamp()` thay vì mặc định `now()` của bảng: các dòng của một transaction (đóng điểm dừng rồi từng tuyến tự đóng) giữ đúng thứ tự cho lịch sử và nhật ký. pgTAP T189 phát hiện thứ tự ngẫu nhiên khi dùng `now()` | Đã sửa |
 | D-113 | Thứ tự trong C-10: tính tuyến sẽ tự đóng trên snapshot active trước khi đóng, đóng điểm dừng, dựng lại mọi tuyến bị ảnh hưởng (không bị trần chặn), rồi mới đóng các tuyến tự đóng — như adapter giả. Lỗi bất kỳ → MSG-CLOSE-FAILED | Ghi nhận |
 | D-114 | Mở lại tuyến không dựng lại hành trình: hành trình của tuyến đóng vẫn được dựng lại mỗi khi điểm dừng của nó đổi (tuyến `TAM_DONG` thuộc tuyến bị ảnh hưởng, BR-M03-X02), nên version active đã đúng lúc mở lại | Ghi nhận |
+
+## 19. Đợt 2026-11-02 — Phase 14 US7 backend (T190–T191)
+
+Branch `feat/m03-b-us7` tạo từ `feat/m03-b-us6` @ `bec5a7a`. Chỉ stack local.
+
+### 19.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 11 file, 562/562 pass; `m03_us7_lookup` 28 ca: 23 ca của `LIVE_QR_LOOKUP_CASES` (6 bước BR-M03-I02, có/không `routeId`, tuyến không liệt kê điểm dừng vẫn VALID, trim identifier, phân biệt hoa/thường, QR thứ hai có nội dung riêng, điểm dừng cần tải trước không có âm thanh/video) gọi bằng role `anon`; `anon` và `authenticated` được EXECUTE; hàm `STABLE` + `SECURITY DEFINER`; bốn lần tra cứu không ghi dòng nào (kể cả audit); bản nháp không lộ; nội dung đã xuất bản không đọc được → lỗi `22000`, không phải INVALID |
+| `PW_LOCAL_STACK=1 npx playwright test e2e/m03/lookup.local.spec.ts --project=m03-local-stack` | 0 | 23/23 pass: chính bảng TypeScript, dựng thế giới bằng `test_support.lookup_world` qua `psql`, gọi RPC bằng publishable key, body qua `liveQrLookupResultSchema`, bằng `expected`; dọn bằng `test_support.reset_m03()` |
+| `npx playwright test e2e/m03/lookup.local.spec.ts --project=m03` | 0 | 23 skipped: spec chỉ chạy ở project local-stack |
+| `npm run ci` | 0 | typecheck (gồm `e2e/`) sạch; test 1124/1124; build xong |
+
+### 19.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Toàn bộ project `m03-local-stack` (các spec giao diện chạy với adapter Supabase) | T198 |
+
+### 19.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-115 | `test_support.lookup_world` (seed.sql, chỉ local, chỉ gọi khi test) dựng thẳng bằng SQL với `replica` thế giới của bảng sự thật — cần cả trạng thái không đi qua lệnh được (QR không tồn tại, nội dung có âm thanh ở điểm dừng cần tải trước). Ngoại lệ có chủ đích của quy tắc "không chèn nội dung bằng SQL tay" ở đầu seed.sql, ghi ngay tại hàm | Ghi nhận |
+| D-116 | `test_support.reset_m03()` (T176) xóa `auth.users` khi đang `replica` nên khóa ngoại không cascade sang `auth.identities`; seed lại bị trùng khóa. E2E T191 phát hiện. Sửa: chỉ `replica` cho bảng `app` và `storage.objects`, xóa `auth.users` với trigger bật | Đã sửa |
+| D-117 | `.env.local` (đã gitignore) tạo theo quickstart §2 với URL và publishable key của stack local; spec E2E đọc `VITE_SUPABASE_URL`/`VITE_SUPABASE_PUBLISHABLE_KEY` từ môi trường, nếu không có thì từ file này | Chỉ local |
