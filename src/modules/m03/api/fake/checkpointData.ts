@@ -42,8 +42,11 @@ export function qrCodesOf(store: FakeStore, checkpointId: string): FakeQrCode[] 
     .sort((a, b) => a.creationOrder - b.creationOrder);
 }
 
-export function qrContent(store: FakeStore, qr: FakeQrCode, source: 'current' | 'draft' = 'current'): QrContent {
+export type ContentSource = 'current' | 'draft' | 'published';
+
+export function qrContent(store: FakeStore, qr: FakeQrCode, source: ContentSource = 'current'): QrContent {
   if (source === 'draft') return (draftOf(store, 'QRCODE', qr.qrIdentifier)?.content as QrContent | undefined) ?? {};
+  if (source === 'published') return (publishedOf(store, 'QRCODE', qr.qrIdentifier)?.content as QrContent | undefined) ?? {};
   return currentContent<QrContent>(store, 'QRCODE', qr.qrIdentifier) ?? {};
 }
 
@@ -77,7 +80,7 @@ export function qrCheckInput(
   store: FakeStore,
   qr: FakeQrCode,
   checkpoint: FakeCheckpoint,
-  source: 'current' | 'draft' = 'current',
+  source: ContentSource = 'current',
 ): VisitPointCheckInput {
   const content = qrContent(store, qr, source);
   return {
@@ -101,7 +104,7 @@ export function qrIssues(
   store: FakeStore,
   qr: FakeQrCode,
   checkpoint: FakeCheckpoint,
-  source: 'current' | 'draft' = 'current',
+  source: ContentSource = 'current',
 ): ValidationIssue[] {
   const input = qrCheckInput(store, qr, checkpoint, source);
   return [...visitPointSaveIssues(input), ...visitPointPublishIssues(input)];

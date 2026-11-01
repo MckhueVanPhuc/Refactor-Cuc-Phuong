@@ -154,6 +154,11 @@ export type CommandContext = {
   subjectName: string | undefined;
   changeLines: string[];
   selfPublished?: boolean;
+  /**
+   * Kết quả kèm theo có dòng audit riêng, ghi sau dòng của command và chỉ khi command thành công
+   * (tuyến tự đóng tạm, BR-M03-H02; admin-command §5 "Giá trị audit_records.action")
+   */
+  followUpAudit: { action: string; subject: { type: FakeAuditRow['subjectType']; id: string; name: string }; changeLines: string[] }[];
 };
 
 const ID_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -240,6 +245,7 @@ export class FakeStore {
       subjectId: spec.subject.id,
       subjectName: spec.subject.name,
       changeLines: [],
+      followUpAudit: [],
     };
     let result: CommandResult<T> | undefined;
     try {
@@ -263,6 +269,19 @@ export class FakeStore {
       if (spec.reason !== undefined) row.reason = spec.reason;
       if (succeeded && context?.selfPublished !== undefined) row.selfPublished = context.selfPublished;
       this.audit.push(row);
+      for (const followUp of succeeded ? (context?.followUpAudit ?? []) : []) {
+        this.audit.push({
+          auditId: this.newId(),
+          action: followUp.action,
+          result: 'SUCCESS',
+          actorEmail: row.actorEmail,
+          occurredAt: row.occurredAt,
+          subjectType: followUp.subject.type,
+          subjectId: followUp.subject.id,
+          subjectName: followUp.subject.name,
+          changeLines: followUp.changeLines,
+        });
+      }
     }
   }
 

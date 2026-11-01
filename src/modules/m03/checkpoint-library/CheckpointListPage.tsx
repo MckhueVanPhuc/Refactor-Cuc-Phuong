@@ -1,5 +1,5 @@
-// SCR-M03-008 Thư viện điểm dừng — danh sách (tasks T087; Q-05; SF-M03-002-11).
-// Đóng tạm / Mở lại / Lưu trữ gắn ở US6 (T140).
+// SCR-M03-008 Thư viện điểm dừng — danh sách (tasks T087, T140; Q-05; SF-M03-002-11).
+// Đóng tạm (C-10), Mở lại (C-13, Quản lý), Lưu trữ (C-15, Quản lý) trên từng dòng.
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Banner } from '../../../shared/ui/Banner';
@@ -13,6 +13,7 @@ import type { CheckpointListRow, CheckpointStatus } from '../contracts/adminDtos
 import layout from '../editor/EditorLayout.module.css';
 import { formatMessage } from '../messages/catalog';
 import { DISPLAY_NAMES, readinessLabel } from '../messages/displayNames';
+import { OperationActions, OperationDialogs, useOperationLauncher } from '../operations/OperationLauncher';
 import { ADMIN_PATHS } from '../paths';
 import styles from './CheckpointListPage.module.css';
 
@@ -31,6 +32,7 @@ export function CheckpointListPage() {
   const [status, setStatus] = useState<StatusFilter>('ALL');
   const [rows, setRows] = useState<CheckpointListRow[] | null>(null);
   const [error, setError] = useState<AdminApiError | null>(null);
+  const operations = useOperationLauncher();
 
   const load = useCallback(async () => {
     try {
@@ -62,6 +64,7 @@ export function CheckpointListPage() {
       </div>
 
       {error ? <Banner tone="error">{formatMessage(error.messageKey)}</Banner> : null}
+      <OperationDialogs launcher={operations} onChanged={() => void load()} />
       {rows && rows.length === 0 ? (
         <p className={layout.empty}>
           {search || status !== 'ALL' ? 'Không có điểm dừng nào khớp.' : 'Chưa có điểm dừng nào. Bấm "Tạo điểm dừng" để bắt đầu.'}
@@ -78,6 +81,9 @@ export function CheckpointListPage() {
                 <th scope="col">Điểm tham quan</th>
                 <th scope="col">Tuyến đang dùng</th>
                 <th scope="col">Sẵn sàng</th>
+                <th scope="col">
+                  <span className="visually-hidden">Thao tác</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -96,6 +102,15 @@ export function CheckpointListPage() {
                   <td>{row.visitPointCount}</td>
                   <td>{row.routesUsing.length > 0 ? row.routesUsing.map((route) => route.routeName).join(', ') : 'Chưa có'}</td>
                   <td className={row.readiness.ready ? layout.ready : layout.notReady}>{readinessLabel(row.readiness.missing)}</td>
+                  <td>
+                    <div className={layout.rowActions}>
+                      <OperationActions
+                        status={row.status}
+                        subject={{ type: 'CHECKPOINT', id: row.checkpointId, name: row.name ?? 'Điểm dừng chưa đặt tên' }}
+                        launcher={operations}
+                      />
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
