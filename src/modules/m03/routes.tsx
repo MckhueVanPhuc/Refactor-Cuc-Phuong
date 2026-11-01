@@ -24,6 +24,7 @@ const RouteEditorPage = lazyNamed(() => import('./route-admin/RouteEditorPage'),
 const CheckpointListPage = lazyNamed(() => import('./checkpoint-library/CheckpointListPage'), 'CheckpointListPage');
 const CheckpointEditorPage = lazyNamed(() => import('./checkpoint-library/CheckpointEditorPage'), 'CheckpointEditorPage');
 const VisitPointEditorPage = lazyNamed(() => import('./visit-points/VisitPointEditorPage'), 'VisitPointEditorPage');
+const AuditLogPage = lazyNamed(() => import('./history/AuditLogPage'), 'AuditLogPage');
 const PublicationReviewPage = lazyNamed(
   () => import('./publication-review/PublicationReviewPage'),
   'PublicationReviewPage',
@@ -81,7 +82,7 @@ export function createM03Routes(services?: AdminServices) {
           <Route path="reports" element={placeholder('Báo cáo vận hành')} />
           <Route element={<RequireReviewer />}>
             <Route path="accounts" element={<Lazy><AccountsPage /></Lazy>} />
-            <Route path="audit" element={placeholder('Nhật ký hệ thống')} />
+            <Route path="audit" element={<Lazy><AuditLogPage /></Lazy>} />
           </Route>
         </Route>
       </Route>

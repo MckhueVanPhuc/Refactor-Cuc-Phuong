@@ -50,7 +50,7 @@ test('Q19 — đóng điểm dừng hoạt động cuối của tuyến A, tuy�
   const before = await readPublication(page, routeIds[1]);
 
   await closeCheckpoint(page, checkpointId);
-  await expect(page.getByText('Trạng thái: Tạm đóng')).toBeVisible();
+  await expect(page.getByText('Trạng thái: Tạm đóng', { exact: true })).toBeVisible();
 
   const routeA = await readPublication(page, routeIds[0]);
   const routeB = await readPublication(page, routeIds[1]);
@@ -75,21 +75,21 @@ test('Q20 — đóng điểm dừng lỗi: MSG-CLOSE-FAILED + "Đóng tạm các
   await closeCheckpoint(page, checkpointId);
   const alert = page.getByRole('alert');
   await expect(alert).toContainText('Chưa đóng được điểm dừng, mọi thứ vẫn như cũ.');
-  await expect(page.getByText('Trạng thái: Đang hoạt động')).toBeVisible();
+  await expect(page.getByText('Trạng thái: Đang hoạt động', { exact: true })).toBeVisible();
   expect((await readPublication(page, routeIds[0])).route?.status).toBe('HOAT_DONG');
 
   await alert.getByRole('button', { name: 'Đóng tạm các tuyến liên quan' }).click();
   await expect(page.getByText('Chưa đóng được điểm dừng')).toHaveCount(0);
   await expect.poll(async () => (await readPublication(page, routeIds[0])).route?.status).toBe('TAM_DONG');
   expect((await readPublication(page, routeIds[1])).route?.status).toBe('TAM_DONG');
-  await expect(page.getByText('Trạng thái: Đang hoạt động')).toBeVisible();
+  await expect(page.getByText('Trạng thái: Đang hoạt động', { exact: true })).toBeVisible();
 });
 
 test('Q21 — Quản lý mở lại điểm dừng: tuyến đã tự đóng vẫn đóng; Nhân viên nội dung không có thao tác mở lại', async ({ page, signInAs }) => {
   await signInAs('CONTENT_STAFF');
   const { checkpointId, routeIds } = await scenario(page);
   await closeCheckpoint(page, checkpointId);
-  await expect(page.getByText('Trạng thái: Tạm đóng')).toBeVisible();
+  await expect(page.getByText('Trạng thái: Tạm đóng', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Mở lại', exact: true })).toHaveCount(0);
 
   await signOutAndSignInAs(page, 'REVIEWER');
@@ -101,7 +101,7 @@ test('Q21 — Quản lý mở lại điểm dừng: tuyến đã tự đóng v�
   );
   await dialog.getByLabel('Ghi chú xác nhận an toàn').fill('Đã kiểm tra lại đường đi');
   await dialog.getByRole('button', { name: 'Mở lại', exact: true }).click();
-  await expect(page.getByText('Trạng thái: Đang hoạt động')).toBeVisible();
+  await expect(page.getByText('Trạng thái: Đang hoạt động', { exact: true })).toBeVisible();
 
   expect((await readPublication(page, routeIds[0])).route?.status).toBe('TAM_DONG');
   const routeB = await readPublication(page, routeIds[1]);

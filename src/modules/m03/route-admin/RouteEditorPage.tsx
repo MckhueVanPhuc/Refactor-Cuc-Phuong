@@ -20,6 +20,8 @@ import { useDraftForm } from '../editor/useDraftForm';
 import { useFieldIssues } from '../editor/useFieldIssues';
 import { UnsavedChangesDialog, allowNextNavigation, useUnsavedChangesGuard } from '../editor/useUnsavedChangesGuard';
 import { VersionNote } from '../editor/VersionNote';
+import { DiscardDraftButton } from '../history/DiscardDraftButton';
+import { ItemHistoryPanel } from '../history/ItemHistoryPanel';
 import { formatMessage } from '../messages/catalog';
 import { DISPLAY_NAMES } from '../messages/displayNames';
 import { ADMIN_PATHS } from '../paths';
@@ -209,6 +211,16 @@ function RouteEditorView({ routeId }: { routeId: string | undefined }) {
     }
   }
 
+  /** Khôi phục / bỏ thay đổi xong: nạp bản mới nhất vào form; không thành công thì hiện thông báo (BR-M03-F07, F10) */
+  function onHistoryResult(result: CommandResult<unknown>) {
+    if (!result.ok) {
+      setActionOutcome(result);
+      return;
+    }
+    setActionOutcome(null);
+    void load('reload');
+  }
+
   /** "Tạo điểm dừng mới": cất state form để quay lại tiếp tục (BR-M03-T01) */
   function onCreateCheckpoint() {
     if (form.isDirty) stashDraft(restoreKey, state);
@@ -279,12 +291,31 @@ function RouteEditorView({ routeId }: { routeId: string | undefined }) {
                   Hủy tuyến
                 </Button>
               ) : null}
+              {editor?.draft && editor.published ? (
+                <DiscardDraftButton
+                  subjectType="ROUTE"
+                  subjectId={editor.routeId}
+                  expected={{ entity: editor.concurrencyRevision, draft: editor.draft.concurrencyRevision }}
+                  onResult={onHistoryResult}
+                  onTransportError={(error) => setLoadError(handleTransport(error))}
+                />
+              ) : null}
             </div>
           )}
         </form>
 
         <aside className={layout.aside}>
           <MissingToPublishPanel issues={publishIssues} onNavigate={(issue) => setStep(stepOf(issue.targetFieldKey))} />
+          {editor ? (
+            <ItemHistoryPanel
+              subjectType="ROUTE"
+              subjectId={editor.routeId}
+              version={`${editor.concurrencyRevision}:${editor.draft?.revisionNumber ?? ''}`}
+              restoreDisabled={form.isDirty || archived}
+              onRestoreResult={onHistoryResult}
+              onTransportError={(error) => setLoadError(handleTransport(error))}
+            />
+          ) : null}
         </aside>
       </div>
 

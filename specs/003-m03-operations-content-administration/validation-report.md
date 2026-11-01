@@ -324,3 +324,43 @@ Làm tiếp trên `feat/m03-us6` (chưa commit; file của Phase 9 tách riêng:
 ### 8.4 Checkpoint Phase 9
 
 "Schema và oracle lookup sẵn sàng cho M02 và giai đoạn B" **đạt**: T141–T142 xong. Còn mở: các mục `NOT RUN` ở §8.2.
+
+## 9. Đợt 2026-11-01 — Phase 10 US8 Lịch sử, khôi phục và nhật ký (T143–T151)
+
+Branch `feat/m03-us8` tạo từ `feat/m03-us7` @ `58cb2c2`. Test viết trước và đã chạy thấy fail trước khi cài đặt:
+
+- T146 `api/contract/history.contract.ts` (9 ca) và `audit.contract.ts`: 13 ca fail — khu vực history còn `pending`, dòng audit xuất bản chưa có trước/sau, thao tác trên điểm dừng chưa nêu tuyến. 20 ca "command thất bại vẫn ghi đúng một dòng" đã qua sẵn từ US1–US6.
+- T143–T145 (component): 6 ca fail (chưa có panel, nút) và một file không resolve được `./AuditLogPage`.
+- T147 `e2e/m03/history.spec.ts`: 2/2 fail.
+- `messages/format.test.ts` (đọc ngày dd/mm/yyyy, D-63): 2 ca fail trước khi có hàm.
+
+### 9.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | typecheck sạch; lint 339 pass; test 1023/1023 pass; build xong |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | 25 pass: Q1–Q24. Lần đầu 5 fail: Q12, Q18 hết giờ khi dev server còn nguội (chạy lại đều pass); Q21 vì `getByText('Trạng thái: …')` khớp thêm dòng nhật ký mới (D-64); Q23, Q24 do chính test mới (bấm "Xuất bản" trước khi màn xem lại hiện; regex sai thứ tự cột). Đã sửa test, ứng dụng không lỗi |
+| `git diff --check` | 0 | Không lỗi khoảng trắng |
+
+### 9.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Adapter Supabase cho C-06, C-08, Q-10, Q-11; `beforeState`/`afterState` thật trong `audit_records` | Giai đoạn B (T192–T193); T197 chạy lại `history.contract.ts`, `audit.contract.ts` |
+| Ca `fakeOnly` khôi phục bản vi phạm giới hạn trên stack local | Cần cách sửa dữ liệu riêng ở giai đoạn B |
+
+### 9.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-61 | Chỉ bản **Bản cũ** (`LUU_TRU`, từng xuất bản) có nút khôi phục; bản đang xuất bản thì không (BR-M03-F07 "earlier published revision"). Khôi phục và "Bỏ thay đổi" không có hộp xác nhận (BR-M03-L12 không liệt kê). Nút khôi phục tắt khi form còn thay đổi chưa lưu, vì khôi phục nạp bản nháp mới vào form và sẽ thay chữ đang gõ. "Bỏ thay đổi" chỉ có với mục đã xuất bản và đang có bản nháp chờ; mục chưa từng xuất bản dùng "Hủy" | Ghi nhận |
+| D-62 | Khôi phục kiểm giới hạn hiện hành bằng đúng hàm kiểm tra lúc lưu bản nháp (`routeSaveIssues`, `checkpointSaveIssues` + trùng tên, `visitPointSaveIssues`); "danh sách chỗ cần sửa" của MSG-RESTORE-BLOCKED là các nhãn trường. Danh mục không có câu báo thành công cho khôi phục/bỏ thay đổi (như D-50): form nạp bản mới và VersionNote đổi | Ghi nhận |
+| D-63 | Lọc ngày trên nhật ký nhập dd/mm/yyyy (cùng định dạng ngày hiển thị khắp M03 và với báo cáo T152), không dùng ô `type="date"` vì `TextField` dùng chung (`src/shared/ui`) chưa có kiểu đó. Hàm `parseDisplayDate` và `vietnamDayStartUtc` thêm vào `messages/format.ts`; "Đến ngày" tính hết ngày (mốc 00:00 hôm sau, giờ Việt Nam). Ngày gõ chưa xong/sai dạng thì chưa lọc theo ngày đó | Hình thức |
+| D-64 | Ba E2E cũ (`checkpoints.spec.ts`, `routes.spec.ts`, `operations.spec.ts`) đổi `getByText('Trạng thái: …')` sang `exact: true`, vì panel lịch sử nay hiện các dòng "Trạng thái: … → …" trên cùng màn | Đã sửa test |
+| D-65 | Dòng audit `PUBLISHED` nay ghi các dòng trước/sau của màn xem lại ("{nhãn}: {trước} → {sau}", BR-M03-F08) và, với điểm dừng/điểm tham quan, "Tuyến bị ảnh hưởng: …" (BR-M03-X06); thu hồi QR cũng nêu tuyến. Dòng lưu bản nháp trên adapter giả chưa có trước/sau từng trường; giai đoạn B lưu `beforeState`/`afterState` trong `audit_records` (Physical §5.8) | Ghi nhận |
+| D-66 | Tên hiển thị của mọi giá trị `action` (admin-command §5) ở `history/auditFormat.ts`; test đọc danh sách từ contract để không sót. Giá trị lạ hiện "Thao tác quản trị". Nhật ký trang 50 dòng (`AUDIT_PAGE_SIZE`, lựa chọn kỹ thuật). Cột "Mở mục liên quan" (E-SCR-M03-009-08) chưa có vì `AuditRow` không mang id mục (id nội bộ không hiện, BR-M03-L10) | Ghi nhận; E-08 để giai đoạn B nếu cần |
+| D-67 | Tách helper dựng dữ liệu của bộ test hợp đồng ra `api/contract/builders.ts` (dùng cho history, audit); `operations.contract.ts` giữ nguyên | Tái cấu trúc nhỏ |
+
+### 9.4 Checkpoint Phase 10
+
+"US1–US8 chạy độc lập" **đạt** trên adapter giả: T056–T151 xong; Q1–Q24 pass. Còn mở: các mục `NOT RUN` ở §9.2.

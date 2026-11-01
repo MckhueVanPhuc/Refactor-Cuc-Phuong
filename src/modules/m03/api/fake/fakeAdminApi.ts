@@ -11,6 +11,7 @@ import { createFakeCheckpointsArea } from './checkpoints';
 import { reviseRoute, seedPublishedCheckpoint, seedPublishedRoute } from './e2eSeed';
 import { FIXTURE_ACCOUNTS, USER_WITHOUT_ACCOUNT } from './fixtures';
 import { publishedRouteOf, activeSnapshotOf } from './journey';
+import { createFakeHistoryArea } from './history';
 import { createFakeMediaArea } from './media';
 import { createFakeOperationsArea } from './operations';
 import { createFakePublishArea } from './publish';
@@ -23,7 +24,6 @@ type ApiMethod = keyof AdminApi;
 
 /** Khu vực chưa cài → task sẽ cài nó */
 const PENDING_AREAS: Record<string, readonly ApiMethod[]> = {
-  'history — T148 (US8)': ['discardDraft', 'restoreRevision', 'getItemHistory', 'listAuditLog'],
   'reports — T157 (US9)': ['reportRpt01', 'reportRpt02'],
 };
 
@@ -32,6 +32,7 @@ type ImplementedArea = ReturnType<typeof createFakeMediaArea> &
   ReturnType<typeof createFakeCheckpointsArea> &
   ReturnType<typeof createFakePublishArea> &
   ReturnType<typeof createFakeOperationsArea> &
+  ReturnType<typeof createFakeHistoryArea> &
   Omit<ReturnType<typeof createFakeRoutesArea>, 'discardRoute'>;
 
 function pendingArea(): Omit<AdminApi, keyof ImplementedArea> {
@@ -55,6 +56,7 @@ export function createFakeAdminApi(store: FakeStore = new FakeStore()): AdminApi
     ...routes,
     ...createFakePublishArea(store),
     ...createFakeOperationsArea(store),
+    ...createFakeHistoryArea(store),
     // C-07 dùng chung cho tuyến, điểm dừng và QR
     discardUnpublished: (input) => (input.subjectType === 'ROUTE' ? discardRoute(input) : checkpoints.discardUnpublished(input)),
   };
@@ -120,6 +122,12 @@ export function createFakeControls(store: FakeStore): ContractControls {
     inflateMedia: (mediaId, sizeBytes) => {
       const media = store.state.media.get(mediaId);
       if (media) media.fileSizeBytes = sizeBytes;
+    },
+    tamperRevisionContent: (subjectType, subjectId, revisionNumber, patch) => {
+      const revision = [...store.state.revisions.values()].find(
+        (rev) => rev.subjectType === subjectType && rev.subjectId === subjectId && rev.revisionNumber === revisionNumber,
+      );
+      if (revision) revision.content = { ...revision.content, ...patch };
     },
     setCheckpointStatus: (checkpointId, status) => {
       const checkpoint = store.state.checkpoints.get(checkpointId);

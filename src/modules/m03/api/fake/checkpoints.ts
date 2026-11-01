@@ -11,6 +11,7 @@ import type {
   VisitPointListRow,
 } from '../../contracts/adminDtos';
 import type { CommandResult } from '../../contracts/commandResult';
+import { affectedRoutesLine } from '../../history/auditFormat';
 import type { MessageKey } from '../../messages/catalog';
 import { checkpointNameTaken, checkpointSaveIssues, modeHasAvIssues, normalizeCheckpointName } from '../../validation/checkpoint';
 import { trimmedLength } from '../../validation/common';
@@ -360,7 +361,9 @@ export function createFakeCheckpointsArea(store: FakeStore): CheckpointsArea {
           touch(store, qr, context.actor.email);
           context.changeLines.push('Trạng thái: Đang hoạt động → Đã thu hồi');
           // Mọi tuyến liệt kê điểm dừng nhận hành trình mới cùng lúc; thu hồi không bị trần chặn (BR-M03-E09, X02, G10)
-          commitRebuilds(store, rebuildRoutes(store, routesAffectedBy(store, checkpoint.checkpointId)));
+          const affected = routesAffectedBy(store, checkpoint.checkpointId);
+          commitRebuilds(store, rebuildRoutes(store, affected));
+          if (affected.length > 0) context.changeLines.push(affectedRoutesLine(affected.map((route) => route.name ?? '')));
           return { ok: true, messageKey: 'MSG-SAVED', data: { status: qr.status, concurrencyRevision: qr.concurrencyRevision } };
         },
       );

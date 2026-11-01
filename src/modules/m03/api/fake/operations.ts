@@ -10,6 +10,7 @@ import type {
   StatusChangeData,
 } from '../../contracts/adminDtos';
 import type { CommandResult } from '../../contracts/commandResult';
+import { affectedRoutesLine } from '../../history/auditFormat';
 import { formatMessage } from '../../messages/catalog';
 import { DISPLAY_NAMES } from '../../messages/displayNames';
 import { formatMegabytes } from '../../messages/format';
@@ -118,7 +119,7 @@ export function createFakeOperationsArea(store: FakeStore): OperationsArea {
 
   /** Dòng audit nêu các tuyến bị ảnh hưởng (BR-M03-X06) */
   function affectedLine(context: CommandContext, affected: readonly FakeRoute[]): void {
-    if (affected.length > 0) context.changeLines.push(`Tuyến bị ảnh hưởng: ${affected.map(routeNameOf).join(', ')}`);
+    if (affected.length > 0) context.changeLines.push(affectedRoutesLine(affected.map(routeNameOf)));
   }
 
   function closeRouteAs(route: FakeRoute, source: 'MANUAL' | 'AUTO_NO_ACTIVE_CHECKPOINT', reason: string, actorEmail: string): void {

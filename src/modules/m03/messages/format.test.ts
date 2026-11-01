@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatBytes, formatDate, formatMegabytes, formatTime, qrSuffix } from './format';
+import { formatBytes, formatDate, formatMegabytes, formatTime, parseDisplayDate, qrSuffix, vietnamDayStartUtc } from './format';
 
 // Kết quả không phụ thuộc múi giờ của máy: mọi hàm cố định Asia/Ho_Chi_Minh (environment.md §8; research R-17)
 describe('định dạng hiển thị', () => {
@@ -23,6 +23,21 @@ describe('định dạng hiển thị', () => {
     expect(formatMegabytes(1_572_864)).toBe('1,5');
     expect(formatMegabytes(52_428_800 + 1)).toBe('50');
     expect(formatBytes(3_145_728)).toBe('3 MB');
+  });
+
+  it('parseDisplayDate: dd/mm/yyyy → YYYY-MM-DD; ngày không có thật hoặc sai dạng → null', () => {
+    expect(parseDisplayDate('05/03/2026')).toBe('2026-03-05');
+    expect(parseDisplayDate(' 1/3/2026 ')).toBe('2026-03-01');
+    expect(parseDisplayDate('29/02/2028')).toBe('2028-02-29');
+    expect(parseDisplayDate('29/02/2027')).toBeNull();
+    expect(parseDisplayDate('31/04/2026')).toBeNull();
+    expect(parseDisplayDate('2026-03-05')).toBeNull();
+    expect(parseDisplayDate('')).toBeNull();
+  });
+
+  it('vietnamDayStartUtc: 00:00 giờ Việt Nam của ngày YYYY-MM-DD, dạng UTC', () => {
+    expect(vietnamDayStartUtc('2026-11-01')).toBe('2026-10-31T17:00:00.000Z');
+    expect(vietnamDayStartUtc('2026-11-01', 1)).toBe('2026-11-01T17:00:00.000Z');
   });
 
   it('qrSuffix lấy 6 ký tự cuối', () => {

@@ -328,18 +328,18 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 8 ⚠️
 
-- [ ] T143 [P] [US8] Viết test src/modules/m03/history/ItemHistoryPanel.test.tsx: danh sách revision đã xuất bản (số, email người, thời gian, dấu "tự xuất bản"); trước/sau render dạng "{nhãn}: {trước} → {sau}", không JSON (BR-M03-F09, L10)
-- [ ] T144 [P] [US8] Viết test src/modules/m03/history/RestoreAndDiscard.test.tsx: khôi phục tạo bản nháp `basedOnRevisionNumber`; đã có bản nháp → MSG-DRAFT-EXISTS; vi phạm giới hạn hiện hành → MSG-RESTORE-BLOCKED kèm chỗ cần sửa, không tạo gì; "Bỏ thay đổi" → `DA_BO`, bản xuất bản không đổi (BR-M03-F07, F10; SC-M03-021)
-- [ ] T145 [P] [US8] Viết test src/modules/m03/history/AuditLogPage.test.tsx: chỉ Reviewer; lọc thời gian/người/loại mục; Thành công/Không thành công; tên hành động hiển thị; dấu tự xuất bản không thành dòng thứ hai (BR-M03-F08, F09, A03)
-- [ ] T146 [P] [US8] Viết test hành vi src/modules/m03/api/contract/audit.contract.ts (harness T043): mọi command fake (C-01…C-19, invite/resend/link) ghi đúng một dòng audit kể cả khi thất bại; xuất bản bản nháp của chính mình có `selfPublished = true`; không có mật khẩu/token trong `beforeState`/`afterState`; mọi thao tác trên điểm dừng ghi audit nêu tên các tuyến bị ảnh hưởng (BR-M03-F08, A05, X06; SC-M03-014)
-- [ ] T147 [P] [US8] Viết E2E e2e/m03/history.spec.ts cho quickstart Q23–Q24 trên project `m03`
+- [X] T143 [P] [US8] Viết test src/modules/m03/history/ItemHistoryPanel.test.tsx: danh sách revision đã xuất bản (số, email người, thời gian, dấu "tự xuất bản"); trước/sau render dạng "{nhãn}: {trước} → {sau}", không JSON (BR-M03-F09, L10)
+- [X] T144 [P] [US8] Viết test src/modules/m03/history/RestoreAndDiscard.test.tsx: khôi phục tạo bản nháp `basedOnRevisionNumber`; đã có bản nháp → MSG-DRAFT-EXISTS; vi phạm giới hạn hiện hành → MSG-RESTORE-BLOCKED kèm chỗ cần sửa, không tạo gì; "Bỏ thay đổi" → `DA_BO`, bản xuất bản không đổi (BR-M03-F07, F10; SC-M03-021)
+- [X] T145 [P] [US8] Viết test src/modules/m03/history/AuditLogPage.test.tsx: chỉ Reviewer; lọc thời gian/người/loại mục; Thành công/Không thành công; tên hành động hiển thị; dấu tự xuất bản không thành dòng thứ hai (BR-M03-F08, F09, A03)
+- [X] T146 [P] [US8] Viết test hành vi src/modules/m03/api/contract/audit.contract.ts (harness T043): mọi command fake (C-01…C-19, invite/resend/link) ghi đúng một dòng audit kể cả khi thất bại; xuất bản bản nháp của chính mình có `selfPublished = true`; không có mật khẩu/token trong `beforeState`/`afterState`; mọi thao tác trên điểm dừng ghi audit nêu tên các tuyến bị ảnh hưởng (BR-M03-F08, A05, X06; SC-M03-014)
+- [X] T147 [P] [US8] Viết E2E e2e/m03/history.spec.ts cho quickstart Q23–Q24 trên project `m03`
 
 ### Implementation for User Story 8
 
-- [ ] T148 [US8] Cài đặt src/modules/m03/api/fake/history.ts: C-06, C-08 (kiểm giới hạn hiện hành của src/modules/m03/config/limits.ts), Q-10, Q-11 (phân trang, lọc)
-- [ ] T149 [P] [US8] Cài đặt src/modules/m03/history/auditFormat.ts: ánh xạ giá trị `action` của admin-command §5 → tên hiển thị; render trước/sau bằng src/modules/m03/messages/fieldLabels.ts và displayNames.ts
-- [ ] T150 [P] [US8] Cài đặt src/modules/m03/history/ItemHistoryPanel.tsx, src/modules/m03/history/RestoreButton.tsx, src/modules/m03/history/DiscardDraftButton.tsx; gắn vào RouteEditorPage.tsx, CheckpointEditorPage.tsx, VisitPointEditorPage.tsx
-- [ ] T151 [US8] Dựng SCR-M03-009 src/modules/m03/history/AuditLogPage.tsx + `.module.css` (Should) và đăng ký `/admin/audit` (RequireReviewer) trong src/modules/m03/routes.tsx
+- [X] T148 [US8] Cài đặt src/modules/m03/api/fake/history.ts: C-06, C-08 (kiểm giới hạn hiện hành của src/modules/m03/config/limits.ts), Q-10, Q-11 (phân trang, lọc)
+- [X] T149 [P] [US8] Cài đặt src/modules/m03/history/auditFormat.ts: ánh xạ giá trị `action` của admin-command §5 → tên hiển thị; render trước/sau bằng src/modules/m03/messages/fieldLabels.ts và displayNames.ts
+- [X] T150 [P] [US8] Cài đặt src/modules/m03/history/ItemHistoryPanel.tsx, src/modules/m03/history/RestoreButton.tsx, src/modules/m03/history/DiscardDraftButton.tsx; gắn vào RouteEditorPage.tsx, CheckpointEditorPage.tsx, VisitPointEditorPage.tsx
+- [X] T151 [US8] Dựng SCR-M03-009 src/modules/m03/history/AuditLogPage.tsx + `.module.css` (Should) và đăng ký `/admin/audit` (RequireReviewer) trong src/modules/m03/routes.tsx
 
 **Checkpoint**: US1–US8 chạy độc lập
 
