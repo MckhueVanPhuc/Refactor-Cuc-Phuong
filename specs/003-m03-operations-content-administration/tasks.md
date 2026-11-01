@@ -310,11 +310,11 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 7 ⚠️
 
-- [ ] T141 [P] [US7] Viết test src/shared/contracts/liveQrLookup.cases.test.ts: mọi output kỳ vọng trong bảng sự thật qua Zod của src/shared/contracts/liveQrLookup.ts; ca `OFFLINE_REQUIRED` có `mediaResources` rỗng; hai QR của cùng điểm dừng có nội dung khác nhau (BR-M03-I02, I03, E01; SC-M03-012, 017, 023)
+- [X] T141 [P] [US7] Viết test src/shared/contracts/liveQrLookup.cases.test.ts: mọi output kỳ vọng trong bảng sự thật qua Zod của src/shared/contracts/liveQrLookup.ts; ca `OFFLINE_REQUIRED` có `mediaResources` rỗng; hai QR của cùng điểm dừng có nội dung khác nhau (BR-M03-I02, I03, E01; SC-M03-012, 017, 023)
 
 ### Implementation for User Story 7
 
-- [ ] T142 [US7] Tạo src/shared/contracts/liveQrLookup.cases.ts: các ca synthetic (trạng thái QR/điểm dừng/tuyến, có/không `routeId`, `qrIdentifier` rỗng sau trim) → `outcome`/`closedScope` kỳ vọng theo live-qr-lookup §3; ghi chú: dùng làm oracle cho pgTAP/E2E giai đoạn B và cho test consumer của M02
+- [X] T142 [US7] Tạo src/shared/contracts/liveQrLookup.cases.ts: các ca synthetic (trạng thái QR/điểm dừng/tuyến, có/không `routeId`, `qrIdentifier` rỗng sau trim) → `outcome`/`closedScope` kỳ vọng theo live-qr-lookup §3; ghi chú: dùng làm oracle cho pgTAP/E2E giai đoạn B và cho test consumer của M02
 
 **Checkpoint**: Schema và oracle lookup sẵn sàng cho M02 và giai đoạn B
 
