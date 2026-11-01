@@ -66,6 +66,17 @@ export function reasonProblem(reason: string | undefined, required: boolean, lab
 
 const optionalText = (value: string | undefined) => (value?.trim() ? value.trim() : undefined);
 
+/** So nội dung revision không phụ thuộc thứ tự khóa */
+function sameContent(a: unknown, b: unknown): boolean {
+  const stable = (value: unknown): unknown =>
+    Array.isArray(value)
+      ? value.map(stable)
+      : value && typeof value === 'object'
+        ? Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined).sort(([x], [y]) => x.localeCompare(y)).map(([k, v]) => [k, stable(v)]))
+        : value;
+  return JSON.stringify(stable(a)) === JSON.stringify(stable(b));
+}
+
 export function createFakeCheckpointsArea(store: FakeStore): CheckpointsArea {
   const checkpoints = () => store.state.checkpoints;
   const qrCodes = () => store.state.qrCodes;
@@ -210,7 +221,10 @@ export function createFakeCheckpointsArea(store: FakeStore): CheckpointsArea {
           const note = optionalText(locationNote);
           if (note) checkpoint.locationNote = note;
           else delete checkpoint.locationNote;
-          const revision = writeDraft(store, 'CHECKPOINT', id, stored, context.actor.email);
+          // Chỉ đổi ghi chú vị trí của mục đã xuất bản: ghi chú không qua xuất bản, nên không tạo bản nháp chờ (BR-M03-D11)
+          const published = existing && !draft ? publishedOf(store, 'CHECKPOINT', id) : undefined;
+          const noteOnly = published !== undefined && sameContent(stored, published.content);
+          const revision = noteOnly ? published : writeDraft(store, 'CHECKPOINT', id, stored, context.actor.email);
           const name = checkpointName(store, checkpoint);
           if (name) checkpoint.name = name;
           context.subjectId = id;

@@ -1,0 +1,84 @@
+/* Hai ô ngày, chọn tuyến và nút Áp dụng trên một hàng khi đủ rộng, xếp chồng khi hẹp */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: var(--space-3) var(--space-4);
+  align-items: end;
+}
+
+.apply {
+  display: flex;
+}
+
+/* Lỗi khoảng ngày: chữ màu lỗi như lỗi dưới trường, không phải banner */
+.inputError {
+  font-size: var(--font-size-meta);
+  color: var(--color-error);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  border-bottom: var(--border-width-thin) solid var(--color-m03-border);
+}
+
+.tab {
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
+  font: inherit;
+  color: var(--color-ink-secondary);
+  background: none;
+  border: 0;
+  border-bottom: var(--border-width-thick) solid transparent;
+  cursor: pointer;
+}
+
+.tab[aria-selected='true'] {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m03-accent);
+  border-bottom-color: var(--color-m03-accent);
+}
+
+.tab:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Ba số của RPT-01: nhãn trên, số lớn dưới */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.stat dt {
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+.value {
+  margin: 0;
+  font-size: var(--font-size-page-heading-mobile);
+  font-weight: var(--font-weight-semibold);
+}
+
+.rate {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-ink-secondary);
+}
+
+@media (max-width: 48rem) {
+  .filters,
+  .stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

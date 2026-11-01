@@ -353,17 +353,17 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 9 ⚠️
 
-- [ ] T152 [P] [US9] Viết test src/modules/m03/reports/reportInput.test.ts: mặc định 30 ngày lịch kết thúc hôm nay tại `Asia/Ho_Chi_Minh`; chỉ một ngày → MSG-REPORT-DATES-INVALID; `fromDate > toDate` bị từ chối; khoảng > 366 ngày → MSG-REPORT-SPAN; nhập dd/mm/yyyy → `YYYY-MM-DD` (BR-M03-J05; research R-17)
-- [ ] T153 [P] [US9] Viết test src/modules/m03/reports/ReportsPage.test.tsx: ghi chú một dòng MSG-REPORT-UPDATED hoặc MSG-REPORT-NO-DATA-YET, MSG-REPORT-SCOPE, MSG-REPORT-VISIT-MEANING dưới RPT-02; không có phiên → MSG-REPORT-EMPTY; chỉ lỗi tải dùng kiểu cảnh báo với MSG-GENERIC; "Chuyến đi", "Hoàn thành"/"Bỏ dở"; RPT-02 có tên tuyến (BR-M03-J06–J08; SC-M03-035)
-- [ ] T154 [P] [US9] Viết test src/shared/contracts/sessionSyncRecord.cases.test.ts: các ca intake kỳ vọng qua/không qua Zod đúng như bảng (BR-M03-J01–J03; SC-M03-007, 038)
-- [ ] T155 [P] [US9] Viết E2E e2e/m03/reports.spec.ts cho quickstart Q26 trên project `m03`
+- [X] T152 [P] [US9] Viết test src/modules/m03/reports/reportInput.test.ts: mặc định 30 ngày lịch kết thúc hôm nay tại `Asia/Ho_Chi_Minh`; chỉ một ngày → MSG-REPORT-DATES-INVALID; `fromDate > toDate` bị từ chối; khoảng > 366 ngày → MSG-REPORT-SPAN; nhập dd/mm/yyyy → `YYYY-MM-DD` (BR-M03-J05; research R-17)
+- [X] T153 [P] [US9] Viết test src/modules/m03/reports/ReportsPage.test.tsx: ghi chú một dòng MSG-REPORT-UPDATED hoặc MSG-REPORT-NO-DATA-YET, MSG-REPORT-SCOPE, MSG-REPORT-VISIT-MEANING dưới RPT-02; không có phiên → MSG-REPORT-EMPTY; chỉ lỗi tải dùng kiểu cảnh báo với MSG-GENERIC; "Chuyến đi", "Hoàn thành"/"Bỏ dở"; RPT-02 có tên tuyến (BR-M03-J06–J08; SC-M03-035)
+- [X] T154 [P] [US9] Viết test src/shared/contracts/sessionSyncRecord.cases.test.ts: các ca intake kỳ vọng qua/không qua Zod đúng như bảng (BR-M03-J01–J03; SC-M03-007, 038)
+- [X] T155 [P] [US9] Viết E2E e2e/m03/reports.spec.ts cho quickstart Q26 trên project `m03`
 
 ### Implementation for User Story 9
 
-- [ ] T156 [US9] Tạo src/shared/contracts/sessionSyncRecord.cases.ts: ca synthetic `ACCEPTED`, `IDENTICAL` (đổi thứ tự visits và khóa), `CONFLICT`, `INVALID` (sai `sequence`, sai tên, khóa `deviceId`, `DANG_DIEN_RA`, tuyến/version không có) làm oracle cho giai đoạn B
-- [ ] T157 [US9] Cài đặt src/modules/m03/api/fake/reports.ts: Q-12, Q-13 trên `SessionRecord` synthetic; lọc `endedAt` theo `[fromDate 00:00, toDate+1 00:00)` giờ `Asia/Ho_Chi_Minh`; RPT-02 đếm `sessionId` phân biệt theo `(routeId, checkpointId)` (admin-command §6)
-- [ ] T158 [P] [US9] Cài đặt src/modules/m03/reports/reportInput.ts cho T152 qua
-- [ ] T159 [US9] Dựng SCR-M03-005 src/modules/m03/reports/ReportsPage.tsx + `.module.css`: lọc tuyến (tùy chọn) và khoảng ngày, bảng RPT-01, bảng RPT-02, ghi chú một dòng; không biểu đồ/export/real-time; đăng ký `/admin/reports` trong src/modules/m03/routes.tsx
+- [X] T156 [US9] Tạo src/shared/contracts/sessionSyncRecord.cases.ts: ca synthetic `ACCEPTED`, `IDENTICAL` (đổi thứ tự visits và khóa), `CONFLICT`, `INVALID` (sai `sequence`, sai tên, khóa `deviceId`, `DANG_DIEN_RA`, tuyến/version không có) làm oracle cho giai đoạn B
+- [X] T157 [US9] Cài đặt src/modules/m03/api/fake/reports.ts: Q-12, Q-13 trên `SessionRecord` synthetic; lọc `endedAt` theo `[fromDate 00:00, toDate+1 00:00)` giờ `Asia/Ho_Chi_Minh`; RPT-02 đếm `sessionId` phân biệt theo `(routeId, checkpointId)` (admin-command §6)
+- [X] T158 [P] [US9] Cài đặt src/modules/m03/reports/reportInput.ts cho T152 qua
+- [X] T159 [US9] Dựng SCR-M03-005 src/modules/m03/reports/ReportsPage.tsx + `.module.css`: lọc tuyến (tùy chọn) và khoảng ngày, bảng RPT-01, bảng RPT-02, ghi chú một dòng; không biểu đồ/export/real-time; đăng ký `/admin/reports` trong src/modules/m03/routes.tsx
 
 **Checkpoint**: Mọi user story của giai đoạn A chạy độc lập trên adapter giả
 
@@ -373,12 +373,12 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 **Purpose**: Việc xuyên story và bằng chứng cho giai đoạn A
 
-- [ ] T160 [P] Rà soát WCAG 2.1 AA (bàn phím, focus, tương phản theo token, nhãn trường, thông báo `aria-live`) trên mọi màn src/modules/m03/** theo design-system §6; sửa chỗ thiếu
-- [ ] T161 [P] Chạy `npm run build`; xác nhận cây `/admin/*` và `qrcode` nằm ở chunk lazy riêng; xác nhận bundle trong dist/ không chứa `APP_BACKEND_SECRET_KEY` hay service key (research R-24; constitution V). Ghi kết quả vào specs/003-m03-operations-content-administration/validation-report.md
-- [ ] T162 Tạo specs/003-m03-operations-content-administration/checklists/br-test-coverage.md: bảng mọi BR-M03 còn hiệu lực (trừ C13, E08 đã retire) → file test giai đoạn A và (để trống, điền ở T200) giai đoạn B; BR nào chưa có test thì thêm test vào story tương ứng trước khi đóng phase; BR hành vi của consumer (BR-M03-I05, I06) ghi package M01/M02 chịu test; BR chỉ trỏ sang nhóm khác ghi test của nhóm đích: BR-M03-D07 → test nhóm E (T074, T078, T081), BR-M03-D08 → test của H01, H02, H04, H06 và D10 (T130–T133) (constitution "Testing & Validation")
-- [ ] T163 Chạy `npm run ci` (script và workflow CI có từ T002), xác nhận lần chạy CI gần nhất trên nhánh thành công, và `npm run typecheck`, `npm run lint`, `npm run test`, `npm run e2e -- --project=m03`; ghi lệnh, mã thoát và số test vào specs/003-m03-operations-content-administration/validation-report.md; phần không chạy được ghi `NOT RUN` kèm lý do. Không tuyên bố PASS khi chưa chạy (AGENTS.md §6)
-- [ ] T164 Chạy `git diff --check` và kiểm tra link tương đối trong các file đã thêm ở specs/003-m03-operations-content-administration/
-- [ ] T165 Ghi danh sách artifact upstream có nguy cơ stale phát sinh trong lúc code (nếu có) vào specs/003-m03-operations-content-administration/validation-report.md; không tự sửa spec/architecture (AGENTS.md §4)
+- [X] T160 [P] Rà soát WCAG 2.1 AA (bàn phím, focus, tương phản theo token, nhãn trường, thông báo `aria-live`) trên mọi màn src/modules/m03/** theo design-system §6; sửa chỗ thiếu
+- [X] T161 [P] Chạy `npm run build`; xác nhận cây `/admin/*` và `qrcode` nằm ở chunk lazy riêng; xác nhận bundle trong dist/ không chứa `APP_BACKEND_SECRET_KEY` hay service key (research R-24; constitution V). Ghi kết quả vào specs/003-m03-operations-content-administration/validation-report.md
+- [X] T162 Tạo specs/003-m03-operations-content-administration/checklists/br-test-coverage.md: bảng mọi BR-M03 còn hiệu lực (trừ C13, E08 đã retire) → file test giai đoạn A và (để trống, điền ở T200) giai đoạn B; BR nào chưa có test thì thêm test vào story tương ứng trước khi đóng phase; BR hành vi của consumer (BR-M03-I05, I06) ghi package M01/M02 chịu test; BR chỉ trỏ sang nhóm khác ghi test của nhóm đích: BR-M03-D07 → test nhóm E (T074, T078, T081), BR-M03-D08 → test của H01, H02, H04, H06 và D10 (T130–T133) (constitution "Testing & Validation")
+- [X] T163 Chạy `npm run ci` (script và workflow CI có từ T002), xác nhận lần chạy CI gần nhất trên nhánh thành công, và `npm run typecheck`, `npm run lint`, `npm run test`, `npm run e2e -- --project=m03`; ghi lệnh, mã thoát và số test vào specs/003-m03-operations-content-administration/validation-report.md; phần không chạy được ghi `NOT RUN` kèm lý do. Không tuyên bố PASS khi chưa chạy (AGENTS.md §6)
+- [X] T164 Chạy `git diff --check` và kiểm tra link tương đối trong các file đã thêm ở specs/003-m03-operations-content-administration/
+- [X] T165 Ghi danh sách artifact upstream có nguy cơ stale phát sinh trong lúc code (nếu có) vào specs/003-m03-operations-content-administration/validation-report.md; không tự sửa spec/architecture (AGENTS.md §4)
 
 **Checkpoint**: Giai đoạn A hoàn tất. Dừng lại; giai đoạn B chỉ bắt đầu khi T167 xong
 

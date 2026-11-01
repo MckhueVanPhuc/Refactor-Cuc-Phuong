@@ -64,7 +64,9 @@ describe('SCR-M03-004 — bản sửa điểm dừng (BR-M03-F05, G10, L07, X02,
   });
 
   it('bản sửa không đổi hành trình → mỗi tuyến nêu "Hành trình của tuyến không đổi.", không có ghi chú cập nhật (BR-M03-G05)', async () => {
-    await setup({});
+    // Bản nháp khác nội dung (khoảng trắng thừa) nhưng hành trình như cũ vì snapshot cắt khoảng trắng. Lưu lại nội dung
+    // giống hệt bản đang xuất bản không còn tạo bản nháp (BR-M03-D11; validation-report D-73)
+    await setup({ checkpointName: { vi: 'Hang Con Moong ', en: 'Hang Con Moong (en)' } });
     const affected = within(screen.getByRole('region', { name: 'Tuyến bị ảnh hưởng' }));
     expect(affected.getAllByText('Hành trình của tuyến không đổi.')).toHaveLength(2);
     expect(screen.queryByText(/^Thay đổi này ảnh hưởng/)).toBeNull();

@@ -364,3 +364,82 @@ Branch `feat/m03-us8` tạo từ `feat/m03-us7` @ `58cb2c2`. Test viết trướ
 ### 9.4 Checkpoint Phase 10
 
 "US1–US8 chạy độc lập" **đạt** trên adapter giả: T056–T151 xong; Q1–Q24 pass. Còn mở: các mục `NOT RUN` ở §9.2.
+
+## 10. Đợt 2026-11-01 — Phase 11 US9 Nhận phiên và báo cáo (T152–T159)
+
+Branch `feat/m03-us9` tạo từ `feat/m03-us8` @ `f58b743`. Intake thật (`session-intake`, `api.ingest_session`) thuộc giai đoạn B (T194–T196); giai đoạn A chốt bảng ca intake làm oracle và chạy báo cáo trên `SessionRecord` synthetic. Test viết trước và đã chạy thấy fail trước khi cài đặt: T152, T154, T153 không resolve được module; `reports.contract.ts` 4/4 fail (khu vực reports còn `pending`); T155 fail vì chưa có hook `seedSessions`.
+
+### 10.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | typecheck sạch; lint 347 pass; test 1073/1073 pass; build xong |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | 26 pass: Q1–Q24, Q26 |
+| `git diff --check` | 0 | Không lỗi khoảng trắng |
+
+### 10.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Q25: POST tới `session-intake` theo bảng `sessionSyncRecord.cases.ts`; chỉ một dòng `session_records` | Giai đoạn B (T194–T196) |
+| Adapter Supabase cho Q-12, Q-13 (lọc `ended_at` theo múi giờ ở SQL) | Giai đoạn B; T197 chạy lại `reports.contract.ts` (ca `fakeOnly` cần nạp `SessionRecord` theo cách khác) |
+
+### 10.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-68 | `SessionRecord` synthetic nằm trong bảng mới `sessionRecords` của store giả, nạp bằng điều khiển `seedSessionRecords` (fakeOnly) và hook E2E `seedSessions`. Không ghi qua command vì intake không phải thao tác quản trị và không ghi audit (session-intake §2) | Chỉ adapter giả |
+| D-69 | Bảng ca intake chạy **theo thứ tự** trên một snapshot cho trước (`SESSION_INTAKE_SNAPSHOT`): ca IDENTICAL/CONFLICT dùng lại `sessionId` đã ACCEPTED trước đó. 19 ca: 3 ACCEPTED (gồm tuyến Tạm đóng, BR-M03-J04), 2 IDENTICAL (gồm đảo thứ tự visits và khóa, BR-M03-J03), 2 CONFLICT, 5 INVALID qua Zod nhưng lệch snapshot/dữ liệu (BR-M03-J02), 7 INVALID không qua Zod (khóa lạ ở gốc và phần tử, `DANG_DIEN_RA`, thời gian, lượt ghé lặp, `sessionId` không phải UUID) | Ghi nhận |
+| D-70 | Màn báo cáo điền sẵn hai ô ngày bằng 30 ngày mặc định (dd/mm/yyyy, giờ Việt Nam) và nạp báo cáo khi mở; "Áp dụng" tắt khi khoảng ngày sai, câu MSG-REPORT-DATES-INVALID / MSG-REPORT-SPAN hiện dưới bộ lọc bằng chữ màu lỗi (không phải banner). Lỗi tải dùng banner `error` (role `alert`) như các màn M03 khác — screen spec gọi là "kiểu cảnh báo". Tỷ lệ hiện dạng phần trăm `vi-VN`, tối đa một chữ số thập phân. Bộ lọc tuyến liệt kê các tuyến đã từng xuất bản | Hình thức |
+| D-71 | Q-12/Q-13 trên adapter giả từ chối khoảng ngày sai bằng lỗi MSG-GENERIC (client không bao giờ gửi khoảng sai; contract không có kết quả lỗi riêng cho query). RPT-02 sắp theo tên tuyến rồi thứ tự điểm dừng (lựa chọn trình bày) | Ghi nhận |
+| D-72 | Mọi khu vực của adapter giả đã cài: bỏ cơ chế `pending` trong `fakeAdminApi.ts` (kiểu `AdminApi` bảo đảm đủ phương thức); bỏ `layout/PlaceholderPage` vì không còn màn nào dùng (T046 đã hết vai trò) | Dọn mã |
+
+### 10.4 Checkpoint Phase 11
+
+"Mọi user story của giai đoạn A chạy độc lập trên adapter giả" **đạt**: T056–T159 xong; Q1–Q24, Q26 pass. Còn mở: các mục `NOT RUN` ở §10.2.
+
+## 11. Đợt 2026-11-01 — Phase 12 Polish và kiểm chứng giai đoạn A (T160–T165)
+
+Branch `feat/m03-polish-a` tạo từ `feat/m03-us9` @ `9e9b88e`.
+
+### 11.1 Lệnh kiểm chứng (T163)
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` (`typecheck` + `lint` + `test` + `build`) | 0 | 3 lần liên tiếp: typecheck sạch; lint 348 pass; test 1120/1120 pass; build xong. Lần đầu đợt này 1116/1120: 3 ca hết giờ khi chạy song song và 1 hồi quy thật do D-73 (đã sửa) — xem D-74 |
+| `npm run e2e -- --project=m03` | 0 | 26 pass: Q1–Q24, Q26 |
+| CI trên GitHub (`verify`, `e2e`) của các nhánh đã push | 0 | PR #4 (`feat/m03-us5`), #5 (`feat/m03-us6`), #6 (`feat/m03-us7`): mọi job pass. Nhánh `feat/m03-us8`, `feat/m03-us9`, `feat/m03-polish-a` chưa push nên chưa có lần chạy CI |
+| `npm run build` + kiểm chunk (T161) | 0 | Entry chỉ tải sẵn runtime. Mọi trang `/admin/*`, adapter RPC, `supabase-js` (214 KB), schema (92 KB) nạp lazy; `qrcode` ở chunk riêng (`browser-*.js`). Khung quản trị nhẹ (layout, ngữ cảnh đăng nhập, danh mục thông báo) nằm trong entry — D-75 |
+| Quét `dist/` tìm `APP_BACKEND_SECRET_KEY`, `service_role`, `SUPABASE_SERVICE`, `sb_secret_` (T161) | — | Không có khóa nào. Một chỗ khớp `sb_secret_` là code nhận diện tiền tố khóa của chính `supabase-js`, không phải giá trị |
+| Tương phản token (T160) — `src/modules/m03/layout/contrast.test.ts` | 0 | Mọi màu chữ M03 trên mọi nền sáng ≥ 4.5:1 (thấp nhất: `--color-error` trên `--color-m03-active` 4.78:1); chữ trắng trên accent 7.50:1; viền ô nhập ≥ 3:1 (thấp nhất 3.09:1) |
+| `git diff --check`; kiểm link tương đối các file đã sửa trong `specs/003`, spec-M03, SCR-M03-008 (T164) | 0 | Không lỗi khoảng trắng; không link hỏng (link `screen%20list` có từ trước, file tồn tại) |
+
+### 11.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Đo WCAG bằng công cụ tự động (axe) và kiểm bằng trình đọc màn hình thật | Không có dependency cho axe (không cài thêm); cần người kiểm thủ công. T160 dựa trên rà mã, test vai trò/nhãn của Testing Library và test tương phản |
+| CI GitHub cho `feat/m03-us8`, `feat/m03-us9`, `feat/m03-polish-a` | Chưa push |
+
+### 11.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-73 | T162 thêm test cho mọi BR trước đó chưa có test (`checklists/br-test-coverage.md`). Hai test lộ lỗi của adapter giả, đã sửa: (1) mời hoặc đổi sang vai trò ngoài `REVIEWER`/`CONTENT_STAFF` được chấp nhận (BR-M03-A01) → nay FAILED, không tạo hay đổi gì; (2) chỉ đổi ghi chú vị trí của điểm dừng đã xuất bản lại tạo bản nháp chờ (BR-M03-D11) → nay lưu ghi chú mà không tạo bản nháp khi nội dung giống hệt bản đang xuất bản. Hệ quả: `PublicationReviewPage.revision.test.tsx` ca G05 trước dựng "bản sửa không đổi hành trình" bằng bản nháp giống hệt; đổi sang bản nháp chỉ khác khoảng trắng thừa (hành trình như cũ vì snapshot cắt khoảng trắng) | Đã sửa |
+| D-74 | Bộ test tăng 871 → 1120 ca, phần lớn dựng màn; với `maxWorkers: 6` vẫn còn ca hết giờ khi chạy song song. Thay cho vá từng file (D-46, D-59): `testTimeout: 15_000` (`vitest.config.ts`) và `configure({ asyncUtilTimeout: 3_000 })` (`src/test/setup.ts`). Chỉ ca sai mới chờ lâu hơn; `npm run ci` 3 lần liên tiếp pass | Đã sửa |
+| D-75 | R-24 "lazy-load cây `/admin/*`": các trang và phần nặng đã lazy, nhưng `src/app/router.tsx` import `m03Routes` tĩnh nên khung quản trị nằm trong entry (344 KB, chủ yếu là React/React Router). Hiện chưa có route du khách nên chưa ảnh hưởng; khi M01 thêm route du khách và cấu hình precache (M01 T007, T032) nên tách khung `/admin` thành chunk lazy (route `lazy` của React Router). Không refactor router dùng chung ở đợt này | Ghi nhận; chuyển cho M01 T007/T032 |
+| D-76 | T160 rà WCAG 2.1 AA trên `src/modules/m03/**`: focus ring dùng chung (`global.css :focus-visible`), vùng chạm theo `--touch-target` (44 px) ở nút, ô nhập, lựa chọn, dòng panel, tab mới; bảng có `aria-label`; tab báo cáo có `role="tablist"`/`tab`/`tabpanel`, phím mũi tên; nhãn nút khôi phục chứa chữ hiển thị (WCAG 2.5.3); thông báo lỗi dùng `role="alert"`, thông báo khác `role="status"`. Sửa: câu sai khoảng ngày của báo cáo nay có `role="status"` để trình đọc màn hình đọc được khi nó xuất hiện (WCAG 4.1.3) | Đã sửa |
+
+### 11.4 Artifact upstream có nguy cơ stale (T165; không tự sửa spec/architecture)
+
+| Artifact | Điểm | Đề xuất |
+|---|---|---|
+| `contracts/admin-command-contract.md` §5 (C-09, C-14, C-15) | Ghi "BLOCKED nếu không `HOAT_DONG`/`TAM_DONG`" nhưng §5.6 không có khóa cho trường hợp này. Thực tế giao diện chỉ gặp khi hai phiên thao tác chồng nhau và nay được báo bằng MSG-STALE (D-51) | Ghi rõ trong contract: sai trạng thái nguồn do thao tác đồng thời → STALE; còn lại FAILED MSG-GENERIC |
+| `screens/screen-spec/M03/screen-spec-SCR-M03-009.md` E-08 "Mở mục liên quan" | `AuditRow` (admin-command Q-11) không mang id mục vì id nội bộ không được hiện (BR-M03-L10), nên chưa dựng được link (D-66) | Quyết định khi viết Q-11 ở giai đoạn B: thêm id mục vào dòng trả về (chỉ dùng để dựng link, không hiện) hoặc bỏ E-08 khỏi screen spec |
+| `research.md` R-24 | "Lazy-load cây `/admin/*`" mới đúng một phần (D-75) | Cập nhật khi M01 tách khung `/admin` |
+| `screens/screen-spec/M03/screen-spec-SCR-M03-005.md` E-15, `SCR-M03-009` §4 "Spinner" | Màn chỉ đánh dấu `aria-busy` khi đang tải; chưa có spinner (design-system không có component spinner) | Bổ sung spinner vào design-system nếu cần, hoặc ghi "đang tải" không cần spinner |
+| `docs/spec/spec-M03.md` | Đã sửa đúng quy trình ở đợt US6 (v3.7 clarification 9, MSG-CLOSE-NO-ROUTES) và đồng bộ SCR-M03-008, `admin-ui-flow-contract.md`. `MVP-Scope.md`, `docs/function list/`, `data/` không nhắc khóa này | Không cần sửa |
+
+### 11.5 Checkpoint Phase 12
+
+"Giai đoạn A hoàn tất" **đạt**: T001–T165 xong trên adapter giả; Q1–Q24, Q26 pass; mọi BR-M03 còn hiệu lực đã có test hoặc ghi rõ nơi chịu test. Dừng tại đây theo tasks.md: giai đoạn B (Phase 13–15, cần Docker cho stack Supabase local) chuyển cho người làm backend. Còn mở: các mục `NOT RUN` ở §11.2 và §6.2–§10.2, artifact §11.4.

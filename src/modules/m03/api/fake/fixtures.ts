@@ -33,6 +33,7 @@ export function createFixtureState(): FakeState {
     revisions: new Map(),
     snapshots: new Map(),
     media: new Map(),
+    sessionRecords: new Map(),
   };
 }
 

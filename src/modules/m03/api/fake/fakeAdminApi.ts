@@ -1,5 +1,5 @@
-// Adapter giả của AdminApi (tasks T044): ghép các module fake theo khu vực. Khu vực nào chưa được story
-// cài đặt thì báo rõ task sẽ cài; story thay phần `pending` bằng module thật của mình.
+// Adapter giả của AdminApi (tasks T044): ghép các module fake theo khu vực. Mọi khu vực đã cài (US1–US9, T157);
+// kiểu trả về `AdminApi` bảo đảm không thiếu phương thức nào.
 import { registerTestHooks } from '../../../../shared/testing/e2eHooks';
 import { createFakeAuthService } from '../../auth/fakeAuthService';
 import type { AuthService } from '../../auth/authService';
@@ -15,41 +15,16 @@ import { createFakeHistoryArea } from './history';
 import { createFakeMediaArea } from './media';
 import { createFakeOperationsArea } from './operations';
 import { createFakePublishArea } from './publish';
+import { createFakeReportsArea } from './reports';
 import { createFakeRoutesArea } from './routes';
 import { FakeStore, type FailureKey } from './store';
 
 export { FakeStore };
 
-type ApiMethod = keyof AdminApi;
-
-/** Khu vực chưa cài → task sẽ cài nó */
-const PENDING_AREAS: Record<string, readonly ApiMethod[]> = {
-  'reports — T157 (US9)': ['reportRpt01', 'reportRpt02'],
-};
-
-type ImplementedArea = ReturnType<typeof createFakeMediaArea> &
-  ReturnType<typeof createFakeAccountsArea> &
-  ReturnType<typeof createFakeCheckpointsArea> &
-  ReturnType<typeof createFakePublishArea> &
-  ReturnType<typeof createFakeOperationsArea> &
-  ReturnType<typeof createFakeHistoryArea> &
-  Omit<ReturnType<typeof createFakeRoutesArea>, 'discardRoute'>;
-
-function pendingArea(): Omit<AdminApi, keyof ImplementedArea> {
-  const entries = Object.entries(PENDING_AREAS).flatMap(([area, methods]) =>
-    methods.map((method) => [
-      method,
-      () => Promise.reject(new Error(`Adapter giả chưa có ${method}: khu vực ${area}`)),
-    ]),
-  );
-  return Object.fromEntries(entries) as Omit<AdminApi, keyof ImplementedArea>;
-}
-
 export function createFakeAdminApi(store: FakeStore = new FakeStore()): AdminApi {
   const checkpoints = createFakeCheckpointsArea(store);
   const { discardRoute, ...routes } = createFakeRoutesArea(store);
   return {
-    ...pendingArea(),
     ...createFakeMediaArea(store),
     ...createFakeAccountsArea(store),
     ...checkpoints,
@@ -57,6 +32,7 @@ export function createFakeAdminApi(store: FakeStore = new FakeStore()): AdminApi
     ...createFakePublishArea(store),
     ...createFakeOperationsArea(store),
     ...createFakeHistoryArea(store),
+    ...createFakeReportsArea(store),
     // C-07 dùng chung cho tuyến, điểm dừng và QR
     discardUnpublished: (input) => (input.subjectType === 'ROUTE' ? discardRoute(input) : checkpoints.discardUnpublished(input)),
   };
@@ -123,6 +99,9 @@ export function createFakeControls(store: FakeStore): ContractControls {
       const media = store.state.media.get(mediaId);
       if (media) media.fileSizeBytes = sizeBytes;
     },
+    seedSessionRecords: (records) => {
+      for (const record of records) store.state.sessionRecords.set(record.sessionId, structuredClone(record));
+    },
     tamperRevisionContent: (subjectType, subjectId, revisionNumber, patch) => {
       const revision = [...store.state.revisions.values()].find(
         (rev) => rev.subjectType === subjectType && rev.subjectId === subjectId && rev.revisionNumber === revisionNumber,
@@ -188,6 +167,28 @@ export function registerFakeTestHooks(store: FakeStore): void {
         ];
         return { checkpointId, otherCheckpointId, routeIds };
       }),
+    /** Quickstart Q26: chuyến đi synthetic của tuyến đã xuất bản, kết thúc `daysAgo` ngày trước, ghé điểm dừng đầu của hành trình */
+    seedSessions: (routeId: string, sessions: { daysAgo: number; status: 'HOAN_TAT' | 'BO_DO' }[]) => {
+      const route = store.state.routes.get(routeId);
+      const snapshot = route && activeSnapshotOf(store, route);
+      if (!snapshot) throw new Error('tuyến chưa xuất bản');
+      const stop = snapshot.checkpoints[0];
+      for (const { daysAgo, status } of sessions) {
+        const endedAt = new Date(Date.parse(store.now()) - daysAgo * 86_400_000).toISOString();
+        const startedAt = new Date(Date.parse(endedAt) - 3_600_000).toISOString();
+        const sessionId = store.newUuid();
+        store.state.sessionRecords.set(sessionId, {
+          sessionId,
+          routeId,
+          contentVersion: snapshot.contentVersion,
+          startedAt,
+          endedAt,
+          status,
+          visitedCheckpoints: stop ? [{ checkpointId: stop.checkpointId, checkpointName: stop.checkpointName.vi, sequence: stop.sequence, checkedInAt: startedAt }] : [],
+          ingestedAt: endedAt,
+        });
+      }
+    },
     /** Một phiên khác (role cho trước) lưu bản nháp chờ của tuyến (quickstart Q14) */
     reviseRouteAs: (role: AdminRole, routeId: string, change: Partial<RouteContent>) =>
       asAccount(store, role, (api) => reviseRoute(api, routeId, change)),

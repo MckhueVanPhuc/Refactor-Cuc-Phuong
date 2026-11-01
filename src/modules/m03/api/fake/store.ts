@@ -20,6 +20,7 @@ import type {
 } from '../../contracts/adminDtos';
 import type { CommandResult } from '../../contracts/commandResult';
 import type { JourneySnapshot } from '../../../../shared/contracts/journeySnapshot';
+import type { SessionSyncRecord } from '../../../../shared/contracts/sessionSyncRecord';
 import { createFixtureProviderUsers, createFixtureState } from './fixtures';
 
 export type FakeAccount = {
@@ -126,7 +127,12 @@ export type FakeState = {
   /** khóa = `{routeId}:{contentVersion}`; bất biến sau khi tạo (BR-M03-G01) */
   snapshots: Map<string, JourneySnapshot>;
   media: Map<string, FakeMedia>;
+  /** khóa = sessionId; append-only, không sửa, không xóa (session-intake §4) */
+  sessionRecords: Map<string, FakeSessionRecord>;
 };
+
+/** SessionRecord: các trường đã nhận của SessionSyncRecord + thời điểm nhận (data-model §2.9) */
+export type FakeSessionRecord = SessionSyncRecord & { ingestedAt: string };
 
 /** Object Storage — không chung transaction với database (media-storage-contract §0) */
 export type FakeStorageObject = { size: number; mimetype: string; blob: Blob };
