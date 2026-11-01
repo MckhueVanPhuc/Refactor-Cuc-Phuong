@@ -1,7 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderAdmin } from '../testing/renderAdmin';
+
+// Nạp sẵn chunk lazy của màn để ca đầu tiên không phụ thuộc thời gian nạp module (validation-report D-23)
+beforeAll(() => import('./AccountsPage'));
 
 async function openAccounts() {
   const view = renderAdmin('/admin/accounts', { signedInAs: 'REVIEWER' });

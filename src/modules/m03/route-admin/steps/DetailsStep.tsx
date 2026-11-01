@@ -32,7 +32,7 @@ const imageOf = (item: UploadItem): RouteImage | null =>
     ? { mediaId: item.mediaId, sourceRef: item.sourceRef, usageRightsConfirmed: false, fileName: item.fileName }
     : null;
 
-export function DetailsStep({ form, update, errorFor, readOnly, api, routeId }: StepProps & UploadProps) {
+export function DetailsStep({ form, update, errorFor, readOnly, api, routeId, savedMediaIds }: StepProps & UploadProps) {
   const labels = FIELD_LABELS.ROUTE;
   const [mapTickCleared, setMapTickCleared] = useState(false);
   const text = (
@@ -80,6 +80,7 @@ export function DetailsStep({ form, update, errorFor, readOnly, api, routeId }: 
             maxCount={ROUTE_GALLERY_MAX_IMAGES}
             remaining={ROUTE_GALLERY_MAX_IMAGES - form.gallery.length}
             ownerName={form.name.vi.trim()}
+            savedMediaIds={savedMediaIds}
             onUploaded={(item) => {
               const image = imageOf(item);
               if (image) update((current) => ({ ...current, gallery: [...current.gallery, { image, caption: EMPTY_PAIR }] }));
@@ -147,6 +148,7 @@ export function DetailsStep({ form, update, errorFor, readOnly, api, routeId }: 
             maxCount={1}
             remaining={form.routeMap ? 0 : 1}
             ownerName={form.name.vi.trim()}
+            savedMediaIds={savedMediaIds}
             onUploaded={(item) => {
               const image = imageOf(item);
               if (image) {

@@ -11,6 +11,7 @@ import { stashDraft, useSessionExpiry } from '../auth/useSessionExpiry';
 import type { RouteEditor } from '../contracts/adminDtos';
 import type { CommandResult } from '../contracts/commandResult';
 import { CommandOutcome } from '../editor/CommandOutcome';
+import { confirmation } from '../editor/confirmations';
 import layout from '../editor/EditorLayout.module.css';
 import { useFlash, type FlashState } from '../editor/flash';
 import { MissingToPublishPanel } from '../editor/MissingToPublishPanel';
@@ -218,7 +219,7 @@ function RouteEditorView({ routeId }: { routeId: string | undefined }) {
   if (loadError && !editor) return <Banner tone="error">{formatMessage(loadError.messageKey)}</Banner>;
   if (routeId && !editor) return null;
 
-  const stepProps = { form: state, update, errorFor: fields.errorFor, readOnly: archived, api, routeId };
+  const stepProps = { form: state, update, errorFor: fields.errorFor, readOnly: archived, api, routeId, savedMediaIds: savedMediaOf(editor) };
 
   return (
     <div className={layout.page}>
@@ -289,9 +290,7 @@ function RouteEditorView({ routeId }: { routeId: string | undefined }) {
 
       <ReasonDialog
         open={discardOpen}
-        title={formatMessage('MSG-CONFIRM-DISCARD-ROUTE', { tên: state.name.vi.trim() || title })}
-        safeLabel="Không hủy"
-        confirmLabel="Hủy tuyến"
+        {...confirmation('DISCARD_ROUTE', { tên: state.name.vi.trim() || title })}
         reasonRequired
         busy={busy}
         onCancel={() => setDiscardOpen(false)}
@@ -304,6 +303,13 @@ function RouteEditorView({ routeId }: { routeId: string | undefined }) {
 
 function serverIssuesOf(result: CommandResult<unknown> | null) {
   return result && !result.ok && result.reason === 'VALIDATION' ? result.issues : [];
+}
+
+/** Media mà bản đã lưu (bản nháp, hoặc bản xuất bản khi không có nháp) tham chiếu */
+function savedMediaOf(editor: RouteEditor | null): Set<string> {
+  const content = (editor?.draft ?? editor?.published)?.content;
+  const ids = [content?.thumbnailMediaId, ...(content?.galleryItems ?? []).map((item) => item.mediaId), content?.routeMapMediaId];
+  return new Set(ids.filter((id): id is string => Boolean(id)));
 }
 
 export default RouteEditorPage;

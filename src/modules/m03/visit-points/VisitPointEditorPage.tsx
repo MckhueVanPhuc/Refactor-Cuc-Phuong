@@ -256,6 +256,11 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
   );
   const serverIssues = form.outcome && !form.outcome.ok && form.outcome.reason === 'VALIDATION' ? form.outcome.issues : [];
   const fields = useFieldIssues([...serverIssues, ...clientSaveIssues]);
+  // Media của bản đã lưu (bản nháp, hoặc bản xuất bản khi không có nháp): đã thuộc bản nháp, không còn "chưa lưu"
+  const savedMediaIds = useMemo(
+    () => new Set((editor?.draft ?? editor?.published)?.content.mediaItems?.map((item) => item.mediaId) ?? []),
+    [editor],
+  );
 
   const updateMedia = (index: number, change: Partial<MediaEntry>) =>
     update((current) => ({
@@ -463,6 +468,7 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
                   remaining={QR_MAX_IMAGES - images.length}
                   ownerName={displayName}
                   onUploaded={onUploaded}
+                  savedMediaIds={savedMediaIds}
                 />
               )}
               {fields.errorFor('images') ? <p className={styles.error}>Lỗi: {fields.errorFor('images')}</p> : null}
@@ -487,6 +493,7 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
                     checkpointMode={mode}
                     checkpointName={checkpoint.name}
                     onUploaded={onUploaded}
+                    savedMediaIds={savedMediaIds}
                   />
                 )}
                 {fields.errorFor('avFiles') ? <p className={styles.error}>Lỗi: {fields.errorFor('avFiles')}</p> : null}

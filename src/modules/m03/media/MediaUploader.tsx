@@ -12,10 +12,12 @@ export type MediaUploaderProps = UploadQueueOptions & {
   hint?: string;
   /** Báo tệp vừa đăng ký xong để editor đưa vào state form (chưa lưu) */
   onUploaded?: (item: UploadItem) => void;
+  /** Media đã nằm trong bản đã lưu; tệp thuộc tập này không còn dòng MSG-UPLOADED-NOT-SAVED (BR-M03-E14) */
+  savedMediaIds?: ReadonlySet<string>;
 };
 
 /** Chọn nhiều tệp; trạng thái từng tệp "Đang tải" / "Đã tải" / "Không tải được" (BR-M03-E14). */
-export function MediaUploader({ label, hint, onUploaded, ...options }: MediaUploaderProps) {
+export function MediaUploader({ label, hint, onUploaded, savedMediaIds, ...options }: MediaUploaderProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const queue = useUploadQueue(options);
@@ -61,7 +63,7 @@ export function MediaUploader({ label, hint, onUploaded, ...options }: MediaUplo
               <span className={styles.fileName}>{item.fileName}</span>
               <span className={`${styles.state} ${styles[item.state]}`}>{DISPLAY_NAMES.uploadState[item.state]}</span>
               {item.state === 'failed' && item.message ? <p className={styles.reason}>{item.message}</p> : null}
-              {item.state === 'uploaded' ? (
+              {item.state === 'uploaded' && !(item.mediaId && savedMediaIds?.has(item.mediaId)) ? (
                 <p className={styles.note}>{formatMessage('MSG-UPLOADED-NOT-SAVED')}</p>
               ) : null}
             </li>

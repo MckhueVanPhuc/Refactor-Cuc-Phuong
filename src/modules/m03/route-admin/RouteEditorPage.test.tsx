@@ -41,7 +41,7 @@ describe('SCR-M03-002 biên tập tuyến (BR-M03-B01, C01, C03, C07, C08, C16, 
     await userEvent.click(screen.getByRole('button', { name: 'Lưu bản nháp' }));
     await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/admin\/routes\/[A-Za-z0-9]+$/));
     expect(await screen.findByText(formatMessage('MSG-SAVED'))).toBeTruthy();
-    const keys = screen.getAllByRole('textbox').map((input) => input.getAttribute('data-field-key') ?? '');
+    const keys = (await screen.findAllByRole('textbox')).map((input) => input.getAttribute('data-field-key') ?? '');
     expect(keys.some((key) => /routeId|identifier/i.test(key))).toBe(false);
   });
 
@@ -59,7 +59,7 @@ describe('SCR-M03-002 biên tập tuyến (BR-M03-B01, C01, C03, C07, C08, C16, 
     const [route] = [...store.state.routes.values()];
     const media = [...store.state.media.values()];
     expect(media).toEqual([expect.objectContaining({ ownerId: route!.routeId, usage: 'ROUTE_THUMBNAIL', usageRightsConfirmed: true })]);
-    expect(within(screen.getByRole('region', { name: 'Còn thiếu để xuất bản' })).queryByText('Còn thiếu: Ảnh đại diện.')).toBeNull();
+    expect(within(await screen.findByRole('region', { name: 'Còn thiếu để xuất bản' })).queryByText('Còn thiếu: Ảnh đại diện.')).toBeNull();
   });
 
   it('tuyến mới: ảnh sai định dạng hoặc quá cỡ bị từ chối ngay khi chọn', async () => {

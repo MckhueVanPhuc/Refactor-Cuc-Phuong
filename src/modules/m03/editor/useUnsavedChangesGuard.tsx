@@ -5,7 +5,7 @@ import { useCallback, useEffect } from 'react';
 import { useBlocker } from 'react-router';
 import { registerUnsavedForm, unregisterUnsavedForm } from '../../../app/pwa/updateCoordinator';
 import { Dialog } from '../../../shared/ui/Dialog';
-import { formatMessage } from '../messages/catalog';
+import { confirmation } from './confirmations';
 
 // Bỏ qua lần chặn kế tiếp khi state đã được cất ở nơi khác (phiên hết hạn, auth-account §2.7)
 let bypassNextBlock = false;
@@ -62,9 +62,7 @@ export function UnsavedChangesDialog({ guard }: { guard: UnsavedChangesGuard }) 
   return (
     <Dialog
       open={guard.blocked}
-      title={formatMessage('MSG-UNSAVED-CHANGES')}
-      safeLabel="Ở lại"
-      confirmLabel="Rời đi"
+      {...confirmation('UNSAVED_CHANGES')}
       onSafe={guard.stay}
       onConfirm={guard.leave}
     />

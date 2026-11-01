@@ -260,16 +260,16 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 5 ⚠️
 
-- [ ] T123 [P] [US5] Viết E2E e2e/m03/forbidden-words.spec.ts (quickstart Q18): duyệt mọi màn `/admin/*` với dữ liệu fake, quét DOM tìm từ cấm của src/modules/m03/messages/displayNames.ts, mã enum, `null`, `undefined`, `{`, mã HTTP, id nội bộ (trừ 6 ký tự cuối mã QR) (BR-M03-L09, L10, L11; SC-M03-026)
-- [ ] T124 [P] [US5] Viết test src/modules/m03/editor/serverIssueMapping.test.tsx: issue `VALIDATION` từ server rơi đúng trường ở cả ba editor; issue chặn xuất bản phát hiện được khi lưu hiện ngay; lưu lỗi giữ state (BR-M03-L02, L04, L06; SC-M03-016)
-- [ ] T125 [P] [US5] Viết test src/modules/m03/editor/noAutosave.test.tsx: không có command nào nếu không bấm "Lưu bản nháp"; MSG-SAVED chỉ sau khi cả form và media được lưu (BR-M03-F11; SC-M03-033)
-- [ ] T126 [P] [US5] Viết test src/modules/m03/editor/confirmations.test.ts: mỗi hộp xác nhận dùng đúng khóa §5.6 + hai nút: MSG-CONFIRM-CLOSE-ROUTE, MSG-CONFIRM-REOPEN-ROUTE, MSG-CONFIRM-ARCHIVE-ROUTE, MSG-CONFIRM-DISCARD-ROUTE, MSG-CONFIRM-REOPEN-CHECKPOINT, MSG-CONFIRM-ARCHIVE-CHECKPOINT, MSG-CONFIRM-DISCARD-CHECKPOINT, MSG-CONFIRM-REVOKE-QR, MSG-CONFIRM-DISCARD-QR, MSG-CONFIRM-PUBLISH, MSG-UNSAVED-CHANGES; đóng điểm dừng dùng MSG-CLOSE-AFFECTS-ROUTES và MSG-CLOSE-ROUTE-AUTO; không có hộp xác nhận nào ngoài danh sách (BR-M03-L12; spec-M03 3.7 clarification 7 thêm Hủy mục chưa từng xuất bản)
+- [X] T123 [P] [US5] Viết E2E e2e/m03/forbidden-words.spec.ts (quickstart Q18): duyệt mọi màn `/admin/*` với dữ liệu fake, quét DOM tìm từ cấm của src/modules/m03/messages/displayNames.ts, mã enum, `null`, `undefined`, `{`, mã HTTP, id nội bộ (trừ 6 ký tự cuối mã QR) (BR-M03-L09, L10, L11; SC-M03-026)
+- [X] T124 [P] [US5] Viết test src/modules/m03/editor/serverIssueMapping.test.tsx: issue `VALIDATION` từ server rơi đúng trường ở cả ba editor; issue chặn xuất bản phát hiện được khi lưu hiện ngay; lưu lỗi giữ state (BR-M03-L02, L04, L06; SC-M03-016)
+- [X] T125 [P] [US5] Viết test src/modules/m03/editor/noAutosave.test.tsx: không có command nào nếu không bấm "Lưu bản nháp"; MSG-SAVED chỉ sau khi cả form và media được lưu (BR-M03-F11; SC-M03-033)
+- [X] T126 [P] [US5] Viết test src/modules/m03/editor/confirmations.test.ts: mỗi hộp xác nhận dùng đúng khóa §5.6 + hai nút: MSG-CONFIRM-CLOSE-ROUTE, MSG-CONFIRM-REOPEN-ROUTE, MSG-CONFIRM-ARCHIVE-ROUTE, MSG-CONFIRM-DISCARD-ROUTE, MSG-CONFIRM-REOPEN-CHECKPOINT, MSG-CONFIRM-ARCHIVE-CHECKPOINT, MSG-CONFIRM-DISCARD-CHECKPOINT, MSG-CONFIRM-REVOKE-QR, MSG-CONFIRM-DISCARD-QR, MSG-CONFIRM-PUBLISH, MSG-UNSAVED-CHANGES; đóng điểm dừng dùng MSG-CLOSE-AFFECTS-ROUTES và MSG-CLOSE-ROUTE-AUTO; không có hộp xác nhận nào ngoài danh sách (BR-M03-L12; spec-M03 3.7 clarification 7 thêm Hủy mục chưa từng xuất bản)
 
 ### Implementation for User Story 5
 
-- [ ] T127 [US5] Cài đặt src/modules/m03/editor/confirmations.ts (danh sách khép kín loại xác nhận → messageKey) và chuyển mọi hộp xác nhận hiện có trong src/modules/m03/** sang dùng nó
-- [ ] T128 [US5] Rà soát src/modules/m03/** để mọi chữ thông báo đi qua src/modules/m03/messages/Message.tsx và mọi trạng thái/role/mode đi qua src/modules/m03/messages/displayNames.ts; sửa chỗ còn render giá trị thô cho T123 qua
-- [ ] T129 [US5] Bổ sung `fieldLabel` còn thiếu trong src/modules/m03/messages/fieldLabels.ts cho mọi `targetFieldKey` mà validation client và server trả về (test so khớp trong src/modules/m03/messages/fieldLabels.test.ts)
+- [X] T127 [US5] Cài đặt src/modules/m03/editor/confirmations.ts (danh sách khép kín loại xác nhận → messageKey) và chuyển mọi hộp xác nhận hiện có trong src/modules/m03/** sang dùng nó
+- [X] T128 [US5] Rà soát src/modules/m03/** để mọi chữ thông báo đi qua src/modules/m03/messages/Message.tsx và mọi trạng thái/role/mode đi qua src/modules/m03/messages/displayNames.ts; sửa chỗ còn render giá trị thô cho T123 qua
+- [X] T129 [US5] Bổ sung `fieldLabel` còn thiếu trong src/modules/m03/messages/fieldLabels.ts cho mọi `targetFieldKey` mà validation client và server trả về (test so khớp trong src/modules/m03/messages/fieldLabels.test.ts)
 
 **Checkpoint**: US1–US5 chạy độc lập
 

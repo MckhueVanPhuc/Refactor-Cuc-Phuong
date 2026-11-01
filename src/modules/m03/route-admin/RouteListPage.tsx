@@ -12,6 +12,7 @@ import { useSessionExpiry } from '../auth/useSessionExpiry';
 import type { RouteListRow, RouteStatus } from '../contracts/adminDtos';
 import type { CommandResult } from '../contracts/commandResult';
 import { CommandOutcome } from '../editor/CommandOutcome';
+import { confirmation } from '../editor/confirmations';
 import layout from '../editor/EditorLayout.module.css';
 import { ReasonDialog } from '../editor/ReasonDialog';
 import { formatMessage } from '../messages/catalog';
@@ -149,9 +150,7 @@ export function RouteListPage() {
 
       <ReasonDialog
         open={discarding !== null}
-        title={formatMessage('MSG-CONFIRM-DISCARD-ROUTE', { tên: discarding?.name ?? 'Tuyến chưa đặt tên' })}
-        safeLabel="Không hủy"
-        confirmLabel="Hủy tuyến"
+        {...confirmation('DISCARD_ROUTE', { tên: discarding?.name ?? 'Tuyến chưa đặt tên' })}
         reasonRequired
         busy={busy}
         onCancel={() => setDiscarding(null)}

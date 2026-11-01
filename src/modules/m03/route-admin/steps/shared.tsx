@@ -19,7 +19,12 @@ export type StepProps = {
 };
 
 /** Bước có ảnh: tuyến đã lưu thì tải ngay; tuyến mới thì giữ tệp trên form, tải ở lần lưu đầu (D-25) */
-export type UploadProps = { api: AdminApi; routeId: string | undefined };
+export type UploadProps = {
+  api: AdminApi;
+  routeId: string | undefined;
+  /** Media của bản đã lưu, để ảnh đã lưu không còn dòng "chưa lưu vào bản nháp" (BR-M03-E14) */
+  savedMediaIds: ReadonlySet<string>;
+};
 
 const LANGUAGES = [
   { key: 'vi', name: 'tiếng Việt' },

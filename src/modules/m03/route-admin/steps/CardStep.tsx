@@ -12,7 +12,7 @@ import styles from './steps.module.css';
 
 const DIFFICULTY_OPTIONS = (Object.entries(DISPLAY_NAMES.difficulty) as [Difficulty, string][]).map(([value, label]) => ({ value, label }));
 
-export function CardStep({ form, update, errorFor, readOnly, api, routeId }: StepProps & UploadProps) {
+export function CardStep({ form, update, errorFor, readOnly, api, routeId, savedMediaIds }: StepProps & UploadProps) {
   const labels = FIELD_LABELS.ROUTE;
   return (
     <>
@@ -28,6 +28,7 @@ export function CardStep({ form, update, errorFor, readOnly, api, routeId }: Ste
             maxCount={1}
             remaining={form.thumbnail ? 0 : 1}
             ownerName={form.name.vi.trim()}
+            savedMediaIds={savedMediaIds}
             onUploaded={(item) => {
               if (!item.mediaId || !item.sourceRef) return;
               const image = { mediaId: item.mediaId, sourceRef: item.sourceRef, usageRightsConfirmed: false, fileName: item.fileName };
