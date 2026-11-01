@@ -26,10 +26,10 @@ select set_eq(
   $$select p.proname::text from pg_proc p where p.pronamespace = 'app'::regnamespace
       and has_function_privilege('authenticated', p.oid, 'EXECUTE')$$,
   array['current_admin', 'media_object_is_public'], 'authenticated executes only the same two app functions');
-select is(
-  (select count(*)::int from pg_proc p where p.pronamespace = 'app'::regnamespace
-     and has_function_privilege('service_role', p.oid, 'EXECUTE')),
-  0, 'service_role executes no app function');
+select set_eq(
+  $$select p.proname::text from pg_proc p where p.pronamespace = 'app'::regnamespace
+      and has_function_privilege('service_role', p.oid, 'EXECUTE')$$,
+  array['provision_initial_reviewer'], 'service_role executes only the operator procedure in app (R-16)');
 select ok(not has_schema_privilege('anon', 'test_support', 'USAGE')
   and not has_schema_privilege('authenticated', 'test_support', 'USAGE'), 'test_support is closed to API roles');
 select ok(

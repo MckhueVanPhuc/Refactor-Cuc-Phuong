@@ -3,16 +3,16 @@
 --
 -- Command pattern (R-07): each `api.*` command is SECURITY DEFINER with `search_path = ''` and
 --
---   v_actor := app.require_admin('B' | 'R');            -- FORBIDDEN is a rejection like any other
 --   begin                                                -- inner block = savepoint
+--     v_actor := app.require_admin('B' | 'R');          -- FORBIDDEN is a rejection like any other
 --     ... app.expect_revision(...), app.lock_connected_set(...), business writes ...
 --     perform app.audit(v_actor.user_id, '<ACTION>', ..., 'SUCCESS', ...);
 --     return app.cr_ok('<MSG-…>', <data>);
 --   exception when others then                          -- business writes are rolled back here
 --     v_result := app.result_from_error(sqlstate, sqlerrm, '<MSG-PUBLISH-FAILED | MSG-GENERIC>');
---     perform app.audit(v_actor.user_id, '<ACTION>', ..., 'FAILURE', ...);
---     return v_result;
 --   end;
+--   perform app.audit(auth.uid()::text, '<ACTION>', ..., 'FAILURE', ...);   -- a caller without account → null
+--   return v_result;
 --
 -- so every call writes exactly one audit line, also on failure (BR-M03-F08), and returns a CommandResult.
 

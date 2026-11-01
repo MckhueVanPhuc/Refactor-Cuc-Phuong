@@ -66,7 +66,7 @@ Bất kỳ RPC nào trả lỗi xác thực → MSG-SESSION-EXPIRED. Form giữ 
 
 ### 2.8 Cấp Reviewer đầu tiên (giai đoạn B, chỉ phía server)
 
-Script cho operator ([research.md](../research.md) R-16), không có màn hình, route hay endpoint công khai. Script chỉ chạy khi `app.admin_accounts` rỗng; idempotent theo email chuẩn hóa; tạo `REVIEWER` `INVITATION_PENDING`, gửi lời mời qua Auth Admin, ghi audit `INITIAL_REVIEWER_PROVISIONED` với `actorUserId` để trống (BR-M03-K04, SC-M03-010). Sau lần truy cập đầu, Reviewer đầu tiên mời ít nhất một Reviewer dự phòng (BR-M03-K03). Đây là thủ tục vận hành, không phải tính năng của hệ thống.
+Thủ tục hai bước cho operator ([research.md](../research.md) R-16), không có màn hình, route hay endpoint công khai. (1) Trong SQL editor: `select app.provision_initial_reviewer('<email>')` — chỉ có tác dụng khi `app.admin_accounts` rỗng; idempotent theo email chuẩn hóa; tạo `REVIEWER` `INVITATION_PENDING`, ghi audit `INITIAL_REVIEWER_PROVISIONED` với `actorUserId` để trống. (2) Script operator gửi lời mời cho đúng email đó qua Auth Admin (BR-M03-K04, SC-M03-010). Sau lần truy cập đầu, Reviewer đầu tiên mời ít nhất một Reviewer dự phòng (BR-M03-K03). Đây là thủ tục vận hành, không phải tính năng của hệ thống.
 
 ## 3. Response của Edge `admin-accounts`
 

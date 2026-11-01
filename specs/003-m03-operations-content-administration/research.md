@@ -173,9 +173,9 @@ Sau Phase 0 không còn mục `NEEDS CLARIFICATION` mở trong plan. Các điể
 
 ### R-16 — Cấp Reviewer đầu tiên
 
-- **Decision (Plan decision, giai đoạn B):** Đây là một script cho operator, chạy từ máy của operator, không deploy và không có trong bundle. Script đọc `APP_BACKEND_SECRET_KEY` từ biến môi trường của shell, gọi Auth Admin `inviteUserByEmail`, rồi gọi function DB `app.provision_initial_reviewer(email)` (không có trong schema `api`; `EXECUTE` chỉ cấp cho role của operator/`service_role`). Function chỉ tạo một `REVIEWER` `INVITATION_PENDING` khi `app.admin_accounts` rỗng, idempotent với cùng email đã chuẩn hóa, và ghi audit với `actorUserId` để trống. Không có trang, route hay Edge endpoint nào cho thao tác này (BR-M03-K04, SC-M03-010).
+- **Decision (Plan decision, giai đoạn B; sửa 2026-11-01, validation-report D-88):** Thủ tục hai bước cho operator, không deploy và không có trong bundle. (1) Operator chạy `select app.provision_initial_reviewer('<email>')` bằng SQL editor của project (local: `psql` trong container DB) — function không có trong schema `api` nên Data API không gọi được, kể cả bằng secret key. (2) Script đọc `APP_BACKEND_SECRET_KEY` từ biến môi trường của shell và chỉ gọi Auth Admin `inviteUserByEmail` cho đúng email đó. Function chỉ tạo một `REVIEWER` `INVITATION_PENDING` khi `app.admin_accounts` rỗng, idempotent với cùng email đã chuẩn hóa, và ghi audit với `actorUserId` để trống. Không có trang, route hay Edge endpoint nào cho thao tác này (BR-M03-K04, SC-M03-010).
 - **Rationale:** "unavailable from the browser or public API". Edge Function là một endpoint HTTP công khai, nên không dùng.
-- **Alternatives considered:** Edge Function bảo vệ bằng secret header — vẫn là API công khai. Chèn tay bằng SQL — không gửi được lời mời qua provider.
+- **Alternatives considered:** Edge Function bảo vệ bằng secret header — vẫn là API công khai. Chỉ chèn tay bằng SQL — không gửi được lời mời qua provider (nên cần bước 2). Bọc function trong `api` chỉ cấp `service_role` — nằm trên bề mặt API công khai. Script tự chạy `psql` — operator phải giữ thêm chuỗi kết nối DB và cài `psql`.
 
 ### R-17 — Báo cáo
 

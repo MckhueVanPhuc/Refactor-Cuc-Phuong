@@ -484,3 +484,36 @@ Branch `feat/m03-b-foundation` tạo từ `feat/m03-polish-a` @ `73d84d0`. Chỉ
 ### 12.4 Checkpoint Phase 13
 
 "`supabase db reset` local áp được migration 1, 2, 3a, 4a, 5 và pgTAP nền chạy" **đạt**. Tiếp theo: Phase 14 theo từng story, bắt đầu US1 trên branch `feat/m03-b-us1`.
+
+## 13. Đợt 2026-11-01 — Phase 14 US1 backend (T177–T180)
+
+Branch `feat/m03-b-us1` tạo từ `feat/m03-b-foundation` @ `16b390f`. Chỉ stack local.
+
+### 13.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` | 0 | Áp sạch migration 01–05 và 3b `m03_03b_accounts` |
+| `supabase test db` | 0 | 5 file, 256/256 pass; `m03_us1_accounts` 59 ca: quyền EXECUTE từng function, Q-01, Q-14 (Nhân viên → 42501), C-18/C-19 của Nhân viên → FORBIDDEN có audit FAILURE và không đổi gì, Reviewer cuối (hạ role, khóa) → BLOCKED MSG-LAST-REVIEWER, STALE, mỗi command một dòng audit có trước/sau, vai trò lạ → FAILED, mời/gửi lại/nối, cấp Reviewer đầu tiên chỉ khi rỗng và lần hai là no-op |
+| `supabase functions serve admin-accounts --env-file supabase/functions/.env` + script HTTP ngoài repo | 0 | 25/25 mục: preflight 204 + CORS; thiếu JWT, JWT rác, phiên đã đăng xuất → 401; Nhân viên mời → 403; mời → SENT, mời lại/gửi lại → RESENT, một tài khoản duy nhất; 409 EMAIL_TAKEN; 400 INVALID_EMAIL; thư mời trong Mailpit, link mở `/admin/invitation` với phiên của người được mời; nối → LINKED, `ACTIVE` đúng role; email không có lời mời / nối lần hai → 422; không body nào chứa user id hay token; đúng một dòng audit mỗi lần gọi; đăng ký công khai → 422 |
+| Thủ tục cấp Reviewer đầu tiên trên môi trường trống (script ngoài repo; xóa tài khoản bằng `replica`, sau đó `db reset`) | 0 | 11/11 mục: script thiếu tham số → exit 2; bước 1 `CREATED`, lặp lại `ALREADY_PROVISIONED`; bước 2 `provision-initial-reviewer.ts` gửi lời mời, không in secret; link mở `/admin/invitation`; người nhận nối qua Edge → Reviewer `ACTIVE`; audit `INITIAL_REVIEWER_PROVISIONED` (actor trống) rồi `ACCOUNT_LINKED`; đã có tài khoản → `NOT_EMPTY` |
+| `supabase db reset` + `supabase test db` + `npm run ci` sau cùng | 0 | 256/256 pgTAP; CI: test 1123/1123, build xong |
+
+### 13.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| `supabase/functions/admin-accounts/index.test.ts` (Deno) | Không cài Deno (quyết định giai đoạn B #7). Hành vi cùng các ca đó đã kiểm trực tiếp qua `functions serve` (§13.1) |
+| Reviewer cuối với hai phiên DB thật song song | pgTAP chạy một phiên; khóa bảng `share row exclusive` tuần tự hóa hai lệnh. Ca song song có trong bộ contract dùng chung, chạy với adapter Supabase ở T197 |
+
+### 13.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-87 | Chú thích mẫu command ở migration 3a đặt `app.require_admin` ngoài khối trong; như vậy FORBIDDEN thành lỗi HTTP thay vì `CommandResult` và không có audit FAILURE. Sửa chú thích: gọi trong khối, audit FAILURE ghi `auth.uid()` sau khi khối rollback (người không có tài khoản → null) | Đã sửa |
+| D-88 | R-16/T177/T179: `app.provision_initial_reviewer` "không có trong schema `api`", script chỉ đọc `APP_BACKEND_SECRET_KEY`. Nhưng Data API chỉ mở schema `api`, nên script dùng secret key qua REST không gọi được function trong `app`. Người dùng chọn: hai bước — operator chạy `select app.provision_initial_reviewer(…)` trong SQL editor, rồi script chỉ gửi lời mời. Đã sửa R-16, T179, T207, auth-account §2.8 | Đã quyết định 2026-11-01 |
+| D-89 | Edge mời/gửi lại gồm 3 lời gọi service_role: `api.prepare_invitation` (kiểm actor là Reviewer active, chuẩn hóa/kiểm email, giữ đúng một `INVITATION_PENDING`; không audit), Auth Admin `inviteUserByEmail`, rồi `api.record_account_event` (đúng một dòng audit). `api.link_invitation` nối và audit trong một lời gọi. Cả ba chỉ `service_role` | Ghi nhận |
+| D-90 | STALE của tài khoản: bảng không có cột người sửa cuối, nên `editorEmail` lấy từ actor của dòng audit SUCCESS mới nhất của tài khoản (`app.account_last_editor`) | Ghi nhận |
+| D-91 | `api.list_accounts` của người không phải Reviewer ném `42501` (query không trả `CommandResult`); adapter ánh xạ sang MSG-NO-PERMISSION như contract dùng chung đòi | Theo contract |
+| D-92 | Gửi lại cho tài khoản không ở `INVITATION_PENDING` → HTTP 400 `{ result: 'FAILED' }` (auth-account §3 không có mã riêng); client ánh xạ sang FAILED MSG-GENERIC như adapter giả | Ghi nhận |
+| D-93 | `inviteUserByEmail` bị provider từ chối với người dùng Auth đã xác nhận email (ví dụ đã từng có tài khoản rồi bị xóa) → 502 INVITE_FAILED. Hiếm ở MVP; không xử lý thêm | Ghi nhận |

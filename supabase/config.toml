@@ -45,3 +45,7 @@ enable_signup = false
 # bằng email ("Email logins are disabled"); việc chặn đăng ký công khai do `[auth] enable_signup = false` ở trên lo
 enable_signup = true
 enable_confirmations = false
+
+# Function tự xác minh JWT người gọi; publishable key không phải JWT (tasks M03 T178; auth-account §2.2)
+[functions.admin-accounts]
+verify_jwt = false
