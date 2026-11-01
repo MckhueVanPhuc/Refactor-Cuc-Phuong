@@ -339,4 +339,18 @@ export const publishReviseContract: ContractSuite = ({ subject, itFakeOnly }) =>
     expect((await snapshotOf(routeB)).contentVersion).toBe(1);
     expect((await api().getCheckpointEditor(checkpointId)).draft).toBeDefined();
   });
+
+  it('thêm, bỏ, đổi thứ tự điểm dừng là sửa bản nháp; chỉ có hiệu lực khi xuất bản (BR-M03-T03)', async () => {
+    await subject().controls.signInAs('CONTENT_STAFF');
+    const a = await publishedCheckpoint('Hang Con Moong');
+    const b = await publishedCheckpoint('Động Người Xưa');
+    const c = await publishedCheckpoint('Cây chò');
+    const routeId = await publishedRoute('Tuyến A', [a.checkpointId, b.checkpointId]);
+    const before = await snapshotOf(routeId);
+    await editRoute(routeId, (content) => ({ ...content, checkpointList: [{ checkpointId: c.checkpointId }, { checkpointId: a.checkpointId }] }));
+    expect(await snapshotOf(routeId)).toEqual(before);
+    expect((await subject().controls.readPublication(routeId)).route?.checkpointCount).toBe(2);
+    await publish('ROUTE_INFORMATION', routeId);
+    expect((await snapshotOf(routeId)).checkpoints.map((item) => item.checkpointId)).toEqual([c.checkpointId, a.checkpointId]);
+  });
 };

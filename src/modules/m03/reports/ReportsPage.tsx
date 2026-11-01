@@ -123,7 +123,8 @@ export function ReportsPage() {
         </div>
       </div>
       {!dates.ok ? (
-        <p className={styles.inputError}>
+        // Hiện khi gõ: thông báo lịch sự cho trình đọc màn hình, không phải banner (WCAG 4.1.3; BR-M03-J08)
+        <p className={styles.inputError} role="status">
           {dates.messageKey === 'MSG-REPORT-SPAN'
             ? formatMessage('MSG-REPORT-SPAN', { 'tối đa': REPORT_MAX_SPAN_DAYS })
             : formatMessage('MSG-REPORT-DATES-INVALID')}

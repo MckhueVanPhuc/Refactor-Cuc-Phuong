@@ -420,4 +420,49 @@ export const checkpointsContract: ContractSuite = ({ subject, itFakeOnly }) => {
     await subject().controls.signInWithoutAccount();
     expect(await api().saveCheckpointDraft({ content: {} })).toMatchObject({ ok: false, reason: 'FORBIDDEN' });
   });
+
+  it('điểm tham quan không chuyển được sang điểm dừng khác (BR-M03-E12)', async () => {
+    await signIn();
+    const first = await createCheckpoint('Hang Con Moong', 'OFFLINE_REQUIRED');
+    const other = await createCheckpoint('Động Người Xưa', 'OFFLINE_REQUIRED');
+    const { qrIdentifier } = await addReadyVisitPoint(first);
+    const editor = await api().getVisitPointEditor(qrIdentifier);
+    const moved = await saveVisitPoint({
+      checkpointId: other,
+      qrIdentifier,
+      expected: { entity: editor.concurrencyRevision, draft: editor.draft?.concurrencyRevision },
+      content: editor.draft!.content,
+    });
+    expect(moved.ok).toBe(false);
+    expect((await api().getVisitPointEditor(qrIdentifier)).checkpointId).toBe(first);
+    expect((await api().getCheckpointEditor(other)).visitPoints).toEqual([]);
+  });
+
+  it('ghi chú vị trí lưu cùng form, không cần xuất bản, không tạo bản nháp chờ hay version; có kiểm stale (BR-M03-D11)', async () => {
+    await signIn();
+    const checkpointId = await createCheckpoint('Hang Con Moong', 'OFFLINE_REQUIRED');
+    await addReadyVisitPoint(checkpointId);
+    expect((await publishCheckpoint(checkpointId)).ok).toBe(true);
+    const editor = await api().getCheckpointEditor(checkpointId);
+    const saved = await api().saveCheckpointDraft({
+      checkpointId,
+      expected: { entity: editor.concurrencyRevision },
+      content: editor.published!.content,
+      locationNote: 'Cạnh nhà chờ số 2',
+    });
+    expect(saved.ok).toBe(true);
+    const after = await api().getCheckpointEditor(checkpointId);
+    expect(after.locationNote).toBe('Cạnh nhà chờ số 2');
+    expect(after.draft).toBeUndefined();
+    expect((await api().listCheckpoints({})).find((row) => row.checkpointId === checkpointId)?.hasPendingDraft).toBe(false);
+
+    const stale = await api().saveCheckpointDraft({
+      checkpointId,
+      expected: { entity: editor.concurrencyRevision },
+      content: editor.published!.content,
+      locationNote: 'Ghi đè',
+    });
+    expect(stale).toMatchObject({ ok: false, reason: 'STALE' });
+    expect((await api().getCheckpointEditor(checkpointId)).locationNote).toBe('Cạnh nhà chờ số 2');
+  });
 };

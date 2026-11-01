@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { FIXTURE_ACCOUNTS } from './fixtures';
 import { FakeStore } from './store';
@@ -130,5 +132,24 @@ describe('FakeStore.run', () => {
     const ids = new Set(Array.from({ length: 200 }, () => store.newId()));
     expect(ids.size).toBe(200);
     for (const id of ids) expect(id).toMatch(/^[A-Za-z0-9]{20}$/);
+  });
+});
+
+describe('không xóa vật lý bản ghi nào (BR-M03-D12, G08)', () => {
+  // Quét mã của adapter giả: không có lệnh xóa hay làm rỗng bảng "database" nào. Hủy, lưu trữ, thu hồi, bỏ thay đổi
+  // đều là đổi trạng thái; snapshot không bao giờ bị xóa nên mọi version cũ luôn còn (BR-M03-G08).
+  // Ở giai đoạn B, pgTAP kiểm cùng điều này bằng trigger chặn DELETE (T200).
+  const fakeDir = join(process.cwd(), 'src', 'modules', 'm03', 'api', 'fake');
+  const sources = readdirSync(fakeDir).filter((name) => name.endsWith('.ts') && !name.endsWith('.test.ts'));
+  const TABLES = ['accounts', 'routes', 'checkpoints', 'qrCodes', 'revisions', 'snapshots', 'media', 'sessionRecords'];
+
+  it.each(TABLES)('bảng %s không bị xóa dòng hay làm rỗng', (table) => {
+    const pattern = new RegExp(String.raw`\b${table}(\(\))?\.(delete|clear)\(`);
+    const offenders = sources.filter((name) => pattern.test(readFileSync(join(fakeDir, name), 'utf8')));
+    expect(offenders).toEqual([]);
+  });
+
+  it('bảng quét đúng mọi bảng của FakeState', () => {
+    expect(Object.keys(new FakeStore().state).sort()).toEqual([...TABLES].sort());
   });
 });

@@ -50,8 +50,12 @@ export function createFakeAccountsArea(store: FakeStore): AccountsArea {
     account.lastChangedAt = store.now();
   }
 
+  /** Đúng hai vai trò cố định; không có vai trò tùy chỉnh (BR-M03-A01) */
+  const isRole = (role: string): role is AdminRole => role === 'REVIEWER' || role === 'CONTENT_STAFF';
+
   function invite(email: string, role: AdminRole, action: 'ACCOUNT_INVITED' | 'ACCOUNT_INVITE_RESENT') {
     return store.run({ action, roles: 'R', subject: { type: 'ACCOUNT', name: email } }, (context): CommandResult<null> => {
+      if (!isRole(role)) return failed;
       if (!isValidEmail(email)) return { ok: false, reason: 'BLOCKED', messageKey: 'MSG-EMAIL-INVALID', values: {} };
       const existing = accounts().get(email);
       if (existing && existing.status !== 'INVITATION_PENDING') {
@@ -101,7 +105,7 @@ export function createFakeAccountsArea(store: FakeStore): AccountsArea {
         },
         (context): CommandResult<{ status: string; concurrencyRevision: number }> => {
           const account = accounts().get(key);
-          if (!account) return failed;
+          if (!account || !isRole(role)) return failed;
           if (removesLastReviewer(account, { role, status: account.status })) return lastReviewer;
           context.changeLines.push(`Vai trò: ${DISPLAY_NAMES.role[account.role]} → ${DISPLAY_NAMES.role[role]}`);
           account.role = role;
