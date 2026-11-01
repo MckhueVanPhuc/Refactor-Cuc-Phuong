@@ -637,3 +637,29 @@ Branch `feat/m03-b-us5` tạo từ `feat/m03-b-us4` @ `04beaf2`. Chỉ stack loc
 | # | Mục | Trạng thái |
 |---|---|---|
 | D-111 | Issue của `register_media` với file QR_MEDIA có `targetItemType = 'CHECKPOINT'` (chủ media) nhưng `targetFieldKey` là `images`/`avFiles`, hai khóa chỉ có nhãn dưới QRCODE; `fieldLabel` của issue được đặt sẵn ("Ảnh của điểm tham quan"/"Âm thanh/video"). Adapter giả làm y như vậy; UI hiện câu này ở hàng đợi tải lên, không dùng khóa để focus. pgTAP ghi đây là ngoại lệ duy nhất | Người dùng chọn giữ nguyên (2026-11-02) |
+
+## 18. Đợt 2026-11-02 — Phase 14 US6 backend (T188–T189)
+
+Branch `feat/m03-b-us6` tạo từ `feat/m03-b-us5` @ `f056599`. Chỉ stack local.
+
+### 18.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 10 file, 534/534 pass; `m03_us6_operations` 52 ca: quyền; Q-09 đóng điểm dừng nêu mọi tuyến và tuyến sẽ tự đóng; đóng điểm dừng cần lý do, STALE, đóng → TAM_DONG đủ lý do/người/lúc, tuyến chỉ có nó tự đóng `AUTO_NO_ACTIVE_CHECKPOINT`, tuyến kia version mới cùng transaction với `sequence` có khoảng trống (mục còn lại của §15.2), một dòng audit cho điểm dừng nêu tuyến bị ảnh hưởng và một dòng riêng cho mỗi tuyến tự đóng; Nhân viên mở lại/lưu trữ → FORBIDDEN, Q-09 mở lại → 42501; mở lại điểm dừng cần ghi chú an toàn, các tuyến có lại điểm dừng nhưng tuyến tự đóng không tự mở lại, xóa trường đóng; mở lại tuyến; đóng tuyến cần lý do, đóng thủ công không tạo version, M01 thấy TAM_DONG; tuyến không còn điểm dừng hoạt động không mở lại được (MSG-NO-ACTIVE-CHECKPOINT, Q-09 nêu lý do); lưu trữ tuyến chỉ khi đóng, điểm dừng không đổi; lưu trữ điểm dừng còn tuyến dùng → MSG-CHECKPOINT-IN-USE nêu tên, điểm dừng đang hoạt động không lưu trữ được; "đóng các tuyến liên quan" đóng tuyến, điểm dừng vẫn hoạt động, một dòng audit nêu tuyến; lưu trữ điểm dừng → QR thu hồi, không version mới; ảnh không đọc được → Q-09 liệt kê, MSG-REOPEN-BLOCKED; hành trình không dựng lại được khi đóng → FAILED MSG-CLOSE-FAILED, không đổi gì, có audit FAILURE, rồi lệnh dự phòng đóng được tuyến |
+| `npm run ci` | 0 | test 1124/1124, build xong |
+
+### 18.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| BUSY khi đóng/mở lại | Cùng `app.lock_connected_set`; đã kiểm hai phiên ở T186 |
+| Mở lại vượt trần `OFFLINE_PACKAGE_MAX_MB` | Như §15.2; dùng chung `app.rebuild_impact` |
+
+### 18.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-112 | `app.audit` (migration 3a) ghi `occurred_at = clock_timestamp()` thay vì mặc định `now()` của bảng: các dòng của một transaction (đóng điểm dừng rồi từng tuyến tự đóng) giữ đúng thứ tự cho lịch sử và nhật ký. pgTAP T189 phát hiện thứ tự ngẫu nhiên khi dùng `now()` | Đã sửa |
+| D-113 | Thứ tự trong C-10: tính tuyến sẽ tự đóng trên snapshot active trước khi đóng, đóng điểm dừng, dựng lại mọi tuyến bị ảnh hưởng (không bị trần chặn), rồi mới đóng các tuyến tự đóng — như adapter giả. Lỗi bất kỳ → MSG-CLOSE-FAILED | Ghi nhận |
+| D-114 | Mở lại tuyến không dựng lại hành trình: hành trình của tuyến đóng vẫn được dựng lại mỗi khi điểm dừng của nó đổi (tuyến `TAM_DONG` thuộc tuyến bị ảnh hưởng, BR-M03-X02), nên version active đã đúng lúc mở lại | Ghi nhận |

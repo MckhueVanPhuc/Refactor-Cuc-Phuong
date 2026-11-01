@@ -419,13 +419,14 @@ language plpgsql
 set search_path = ''
 as $$
 begin
+  -- clock_timestamp: several lines of one transaction (a closed checkpoint, then each route it closed) keep their order
   insert into app.audit_records (
-    actor_user_id, action, entity_type, entity_id, revision, reason, outcome, self_published, before_state, after_state)
+    actor_user_id, action, entity_type, entity_id, revision, reason, outcome, self_published, before_state, after_state, occurred_at)
   values (
     -- an actor without an account (refused caller) is recorded as server-side: the FK allows only account ids
     (select a.user_id from app.admin_accounts a where a.user_id = p_actor_user_id),
     p_action, p_entity_type, coalesce(p_entity_id, ''), p_revision,
     case when app.reason_ok(btrim(p_reason)) then btrim(p_reason) end,
-    p_outcome, p_self_published, p_before, p_after);
+    p_outcome, p_self_published, p_before, p_after, clock_timestamp());
 end;
 $$;

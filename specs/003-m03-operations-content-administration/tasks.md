@@ -438,8 +438,8 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### US6 backend
 
-- [ ] T188 [US6] Tạo supabase/migrations/<ts>_m03_03f_operations.sql: `api.close_route`, `api.close_checkpoint` (snapshot thay thế, tự đóng `AUTO_NO_ACTIVE_CHECKPOINT` có audit riêng, miễn trần), `api.close_routes_listing_checkpoint`, `api.reopen_route`, `api.reopen_checkpoint` (kiểm tra H06, trần), `api.archive_route`, `api.archive_checkpoint` (thu hồi QR, MSG-CHECKPOINT-IN-USE), `api.get_operation_impact`
-- [ ] T189 [US6] Viết pgTAP supabase/tests/m03_us6_operations.test.sql: đóng điểm dừng atomic với mọi snapshot; lỗi → không đổi gì, MSG-CLOSE-FAILED; tuyến không bao giờ tự mở lại; trần không chặn đóng/thu hồi; `CONTENT_STAFF` gọi C-12…C-15 → FORBIDDEN; mỗi thao tác trên điểm dừng ghi audit nêu tên tuyến (BR-M03-H01–H09, D10, X06, X07; SC-M03-006, 019, 031)
+- [X] T188 [US6] Tạo supabase/migrations/<ts>_m03_03f_operations.sql: `api.close_route`, `api.close_checkpoint` (snapshot thay thế, tự đóng `AUTO_NO_ACTIVE_CHECKPOINT` có audit riêng, miễn trần), `api.close_routes_listing_checkpoint`, `api.reopen_route`, `api.reopen_checkpoint` (kiểm tra H06, trần), `api.archive_route`, `api.archive_checkpoint` (thu hồi QR, MSG-CHECKPOINT-IN-USE), `api.get_operation_impact`
+- [X] T189 [US6] Viết pgTAP supabase/tests/m03_us6_operations.test.sql: đóng điểm dừng atomic với mọi snapshot; lỗi → không đổi gì, MSG-CLOSE-FAILED; tuyến không bao giờ tự mở lại; trần không chặn đóng/thu hồi; `CONTENT_STAFF` gọi C-12…C-15 → FORBIDDEN; mỗi thao tác trên điểm dừng ghi audit nêu tên tuyến (BR-M03-H01–H09, D10, X06, X07; SC-M03-006, 019, 031)
 
 ### US7 backend
 
