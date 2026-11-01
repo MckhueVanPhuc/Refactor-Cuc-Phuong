@@ -24,6 +24,8 @@ import { useDraftForm } from '../editor/useDraftForm';
 import { useFieldIssues } from '../editor/useFieldIssues';
 import { UnsavedChangesDialog, allowNextNavigation, useUnsavedChangesGuard } from '../editor/useUnsavedChangesGuard';
 import { VersionNote } from '../editor/VersionNote';
+import { DiscardDraftButton } from '../history/DiscardDraftButton';
+import { ItemHistoryPanel } from '../history/ItemHistoryPanel';
 import { formatMessage } from '../messages/catalog';
 import { DISPLAY_NAMES, readinessLabel } from '../messages/displayNames';
 import { FIELD_LABELS } from '../messages/fieldLabels';
@@ -165,6 +167,16 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
       return;
     }
     await load('refresh');
+  }
+
+  /** Khôi phục / bỏ thay đổi xong: nạp bản mới nhất vào form; không thành công thì hiện thông báo (BR-M03-F07, F10) */
+  function onHistoryResult(result: CommandResult<unknown>) {
+    if (!result.ok) {
+      setActionOutcome(result);
+      return;
+    }
+    setActionOutcome(null);
+    void load('reload');
   }
 
   async function onDiscard(reason: string | undefined) {
@@ -328,6 +340,15 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
                     Hủy điểm dừng
                   </Button>
                 ) : null}
+                {editor?.draft && editor.published ? (
+                  <DiscardDraftButton
+                    subjectType="CHECKPOINT"
+                    subjectId={editor.checkpointId}
+                    expected={{ entity: editor.concurrencyRevision, draft: editor.draft.concurrencyRevision }}
+                    onResult={onHistoryResult}
+                    onTransportError={(error) => setLoadError(handleTransport(error))}
+                  />
+                ) : null}
               </div>
             )}
           </form>
@@ -384,6 +405,16 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
 
         <aside className={layout.aside}>
           <MissingToPublishPanel issues={publishIssues} />
+          {editor ? (
+            <ItemHistoryPanel
+              subjectType="CHECKPOINT"
+              subjectId={editor.checkpointId}
+              version={`${editor.concurrencyRevision}:${editor.draft?.revisionNumber ?? ''}`}
+              restoreDisabled={form.isDirty || archived}
+              onRestoreResult={onHistoryResult}
+              onTransportError={(error) => setLoadError(handleTransport(error))}
+            />
+          ) : null}
           {editor ? (
             <section className={layout.section} aria-labelledby="routes-using-title">
               <h2 id="routes-using-title" className={layout.sectionTitle}>

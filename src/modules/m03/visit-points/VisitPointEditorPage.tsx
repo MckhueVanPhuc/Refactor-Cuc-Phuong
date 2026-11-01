@@ -36,6 +36,8 @@ import { useDraftForm } from '../editor/useDraftForm';
 import { useFieldIssues } from '../editor/useFieldIssues';
 import { UnsavedChangesDialog, allowNextNavigation, useUnsavedChangesGuard } from '../editor/useUnsavedChangesGuard';
 import { VersionNote } from '../editor/VersionNote';
+import { DiscardDraftButton } from '../history/DiscardDraftButton';
+import { ItemHistoryPanel } from '../history/ItemHistoryPanel';
 import { MediaThumbnail } from '../media/MediaThumbnail';
 import { MediaUploader } from '../media/MediaUploader';
 import type { UploadItem } from '../media/useUploadQueue';
@@ -301,6 +303,17 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
     await load('refresh');
   }
 
+  /** Khôi phục / bỏ thay đổi xong: nạp bản mới nhất vào form; không thành công thì hiện thông báo (BR-M03-F07, F10) */
+  function onHistoryResult(result: CommandResult<unknown>) {
+    setActionError(null);
+    if (!result.ok) {
+      setActionOutcome(result);
+      return;
+    }
+    setActionOutcome(null);
+    void load('reload');
+  }
+
   const backToCheckpoint = () => {
     const highlight: FlashState = qrIdentifier ? { highlightQr: qrIdentifier } : {};
     void navigate(ADMIN_PATHS.checkpoint(checkpointId), { state: highlight });
@@ -516,6 +529,15 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
                 <Button type="submit" variant="primary" disabled={form.saving || !mode || (!editor && isEmpty(state))}>
                   Lưu bản nháp
                 </Button>
+                {editor?.draft && editor.published ? (
+                  <DiscardDraftButton
+                    subjectType="QRCODE"
+                    subjectId={editor.qrIdentifier}
+                    expected={{ entity: editor.concurrencyRevision, draft: editor.draft.concurrencyRevision }}
+                    onResult={onHistoryResult}
+                    onTransportError={(error) => setActionError(handleTransport(error))}
+                  />
+                ) : null}
               </div>
             )}
           </form>
@@ -537,6 +559,16 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
                 allowNextNavigation();
                 void navigate(ADMIN_PATHS.checkpoint(checkpointId));
               }}
+            />
+          ) : null}
+          {editor ? (
+            <ItemHistoryPanel
+              subjectType="QRCODE"
+              subjectId={editor.qrIdentifier}
+              version={`${editor.concurrencyRevision}:${editor.draft?.revisionNumber ?? ''}`}
+              restoreDisabled={form.isDirty || readOnly}
+              onRestoreResult={onHistoryResult}
+              onTransportError={(error) => setActionError(handleTransport(error))}
             />
           ) : null}
         </aside>

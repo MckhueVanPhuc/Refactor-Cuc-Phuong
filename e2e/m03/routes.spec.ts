@@ -80,7 +80,7 @@ test('Q12 — xuất bản tuyến đủ điều kiện, cảnh báo an toàn tr
   await publish.click();
   await page.getByRole('dialog').getByRole('button', { name: 'Xuất bản' }).click();
   await expect(page.getByText(PUBLISHED)).toBeVisible();
-  await expect(page.getByText('Trạng thái: Đang hoạt động')).toBeVisible();
+  await expect(page.getByText('Trạng thái: Đang hoạt động', { exact: true })).toBeVisible();
 
   const { route, snapshot } = await readPublication(page, routeId);
   expect(route).toMatchObject({ status: 'HOAT_DONG', timeTags: ['TIME_VUA'], activeContentVersion: 1, checkpointCount: 1 });

@@ -61,7 +61,7 @@ test('Q8 — xuất bản điểm dừng lần đầu khi một điểm tham qua
   await page.getByRole('button', { name: 'Xuất bản' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Xuất bản' }).click();
   await expect(page.getByText('Đã xuất bản. Du khách sẽ thấy nội dung mới.')).toBeVisible();
-  await expect(page.getByText('Trạng thái: Đang hoạt động')).toBeVisible();
+  await expect(page.getByText('Trạng thái: Đang hoạt động', { exact: true })).toBeVisible();
   const table = page.getByRole('table', { name: 'Điểm tham quan' });
   await expect(table.getByRole('row', { name: /Cây chò/ })).toContainText('Đang hoạt động');
   await expect(table.getByRole('row', { name: /Đá vôi/ })).toContainText('Nháp');
@@ -102,5 +102,5 @@ test('Q10 — thu hồi QR hoạt động cuối của điểm dừng hoạt đ�
   await expect(page.getByRole('alert')).toHaveText(
     'Không thể thu hồi mã QR cuối cùng của điểm dừng đang hoạt động. Hãy thêm mã QR khác hoặc đóng tạm điểm dừng trước.',
   );
-  await expect(page.getByText('Trạng thái: Đang hoạt động')).toBeVisible();
+  await expect(page.getByText('Trạng thái: Đang hoạt động', { exact: true })).toBeVisible();
 });

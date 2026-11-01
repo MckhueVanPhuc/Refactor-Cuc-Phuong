@@ -82,7 +82,11 @@ export function qrCheckInput(
   checkpoint: FakeCheckpoint,
   source: ContentSource = 'current',
 ): VisitPointCheckInput {
-  const content = qrContent(store, qr, source);
+  return qrCheckInputFor(store, qr, checkpoint, qrContent(store, qr, source));
+}
+
+/** Đầu vào kiểm tra cho một nội dung cho trước của QR (ví dụ bản cũ cần khôi phục, BR-M03-F07) */
+export function qrCheckInputFor(store: FakeStore, qr: FakeQrCode, checkpoint: FakeCheckpoint, content: QrContent): VisitPointCheckInput {
   return {
     qrIdentifier: qr.qrIdentifier,
     displayName: visitPointName(content.objectName?.vi, qr.creationOrder),

@@ -1,0 +1,38 @@
+/* Bốn ô lọc trên một hàng khi đủ rộng, xếp chồng khi hẹp */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-4);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.wrap {
+  overflow-wrap: anywhere;
+}
+
+/* Dấu "tự xuất bản" luôn bằng chữ, nằm trên chính dòng xuất bản */
+.badge {
+  display: inline-block;
+  margin-left: var(--space-2);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-warning);
+}
+
+.failure {
+  color: var(--color-error);
+}
+
+.pager {
+  display: flex;
+  gap: var(--space-2);
+}
+
+@media (max-width: 48rem) {
+  .filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
