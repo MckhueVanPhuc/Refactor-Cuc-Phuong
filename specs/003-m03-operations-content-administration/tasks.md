@@ -434,7 +434,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### US5 backend
 
-- [ ] T187 [US5] Viết pgTAP supabase/tests/m03_us5_messages.test.sql: mọi nhánh từ chối của command trả `messageKey` có trong danh mục §5.6 (danh sách chép từ src/modules/m03/messages/catalog.ts) và `ValidationIssue` có `targetFieldKey` được src/modules/m03/messages/fieldLabels.ts biết; không có text lỗi Postgres nào lọt ra `CommandResult` (BR-M03-L08, L10, L13)
+- [X] T187 [US5] Viết pgTAP supabase/tests/m03_us5_messages.test.sql: mọi nhánh từ chối của command trả `messageKey` có trong danh mục §5.6 (danh sách chép từ src/modules/m03/messages/catalog.ts) và `ValidationIssue` có `targetFieldKey` được src/modules/m03/messages/fieldLabels.ts biết; không có text lỗi Postgres nào lọt ra `CommandResult` (BR-M03-L08, L10, L13)
 
 ### US6 backend
 

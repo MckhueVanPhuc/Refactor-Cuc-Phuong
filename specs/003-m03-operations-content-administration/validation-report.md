@@ -613,3 +613,27 @@ Branch `feat/m03-b-us4` tạo từ `feat/m03-b-us3` @ `8267460`. Chỉ stack loc
 | D-105 | `ROUTE_INFORMATION` và `CHECKPOINT_REVISION` có ở migration 3e. Lõi của 3d được đổi tên thành `app.publication_unit_first`; `app.publication_unit` mới chỉ chia việc theo loại đơn vị, nên `api.publish_unit`/`api.open_publication_review` không phải viết lại | Đã xong |
 | D-109 | `CHECKPOINT_REVISION` đổi sang "Cần tải trước" kiểm ảnh trong nội dung *đã xuất bản* của mọi điểm tham quan đang hoạt động (`app.unreadable_published_images`), như adapter giả | Ghi nhận |
 | D-110 | pgTAP BUSY: khóa advisory giữ tới hết transaction, nên phiên test không được dùng lại khóa của thực thể đã xuất bản trước đó (lần chạy đầu bị treo vì phiên `dblink` chờ khóa của phiên test — đã ngắt và viết lại). Phiên thứ hai dùng `pg_try_advisory_xact_lock`, không bao giờ chờ. Mật khẩu `dblink` là mặc định công khai của stack local | Ghi nhận |
+
+## 17. Đợt 2026-11-02 — Phase 14 US5 backend (T187)
+
+Branch `feat/m03-b-us5` tạo từ `feat/m03-b-us4` @ `04beaf2`. Chỉ stack local; không có migration mới.
+
+### 17.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 9 file, 482/482 pass; `m03_us5_messages` 49 ca. 29 nhánh từ chối của command US1–US4 (FORBIDDEN ×2, STALE ×2, BLOCKED ×8, VALIDATION ×11, FAILED ×6 — gồm nội dung sai hình dạng bị trigger từ chối, `expected` không phải số, đơn vị không tồn tại, object không có, snapshot không dựng được) mỗi nhánh đúng `reason` + `messageKey`; issue gom từ editor (điểm tham quan, điểm dừng, tuyến), review (điểm dừng, điểm tham quan) và guard xuất bản tuyến. Quy tắc chung: mọi khóa có trong danh mục §5.6; FAILED chỉ PUBLISH/CLOSE/GENERIC; STALE có email và thời điểm UTC; câu BLOCKED và câu issue điền đủ placeholder; `values` và câu không chứa id hay identifier QR; không chữ lỗi PostgreSQL nào (error, violates, constraint, relation, SQLSTATE, tên schema…) lọt vào `CommandResult`; VALIDATION luôn có issue và lấy khóa của issue đầu; issue đủ đúng 7 trường, severity hợp lệ, nhãn tiếng Việt khác khóa nội bộ, `targetFieldKey` có nhãn (kể cả khóa phần tử danh sách có chỉ số và ngôn ngữ) |
+| `npm run ci` | 0 | test 1124/1124, build xong |
+
+### 17.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Nhánh từ chối của command US6–US9 (đóng, mở lại, lưu trữ, khôi phục, bỏ bản nháp, báo cáo, nhận phiên) | Chưa có command; mỗi story thêm nhánh của mình vào pgTAP riêng và theo cùng quy tắc |
+| BUSY trong bộ này | Đã kiểm với hai phiên ở T186 |
+
+### 17.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-111 | Issue của `register_media` với file QR_MEDIA có `targetItemType = 'CHECKPOINT'` (chủ media) nhưng `targetFieldKey` là `images`/`avFiles`, hai khóa chỉ có nhãn dưới QRCODE; `fieldLabel` của issue được đặt sẵn ("Ảnh của điểm tham quan"/"Âm thanh/video"). Adapter giả làm y như vậy; UI hiện câu này ở hàng đợi tải lên, không dùng khóa để focus. pgTAP ghi đây là ngoại lệ duy nhất | Người dùng chọn giữ nguyên (2026-11-02) |
