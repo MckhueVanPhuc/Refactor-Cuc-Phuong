@@ -364,3 +364,36 @@ Branch `feat/m03-us8` tạo từ `feat/m03-us7` @ `58cb2c2`. Test viết trướ
 ### 9.4 Checkpoint Phase 10
 
 "US1–US8 chạy độc lập" **đạt** trên adapter giả: T056–T151 xong; Q1–Q24 pass. Còn mở: các mục `NOT RUN` ở §9.2.
+
+## 10. Đợt 2026-11-01 — Phase 11 US9 Nhận phiên và báo cáo (T152–T159)
+
+Branch `feat/m03-us9` tạo từ `feat/m03-us8` @ `f58b743`. Intake thật (`session-intake`, `api.ingest_session`) thuộc giai đoạn B (T194–T196); giai đoạn A chốt bảng ca intake làm oracle và chạy báo cáo trên `SessionRecord` synthetic. Test viết trước và đã chạy thấy fail trước khi cài đặt: T152, T154, T153 không resolve được module; `reports.contract.ts` 4/4 fail (khu vực reports còn `pending`); T155 fail vì chưa có hook `seedSessions`.
+
+### 10.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | typecheck sạch; lint 347 pass; test 1073/1073 pass; build xong |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | 26 pass: Q1–Q24, Q26 |
+| `git diff --check` | 0 | Không lỗi khoảng trắng |
+
+### 10.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Q25: POST tới `session-intake` theo bảng `sessionSyncRecord.cases.ts`; chỉ một dòng `session_records` | Giai đoạn B (T194–T196) |
+| Adapter Supabase cho Q-12, Q-13 (lọc `ended_at` theo múi giờ ở SQL) | Giai đoạn B; T197 chạy lại `reports.contract.ts` (ca `fakeOnly` cần nạp `SessionRecord` theo cách khác) |
+
+### 10.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-68 | `SessionRecord` synthetic nằm trong bảng mới `sessionRecords` của store giả, nạp bằng điều khiển `seedSessionRecords` (fakeOnly) và hook E2E `seedSessions`. Không ghi qua command vì intake không phải thao tác quản trị và không ghi audit (session-intake §2) | Chỉ adapter giả |
+| D-69 | Bảng ca intake chạy **theo thứ tự** trên một snapshot cho trước (`SESSION_INTAKE_SNAPSHOT`): ca IDENTICAL/CONFLICT dùng lại `sessionId` đã ACCEPTED trước đó. 19 ca: 3 ACCEPTED (gồm tuyến Tạm đóng, BR-M03-J04), 2 IDENTICAL (gồm đảo thứ tự visits và khóa, BR-M03-J03), 2 CONFLICT, 5 INVALID qua Zod nhưng lệch snapshot/dữ liệu (BR-M03-J02), 7 INVALID không qua Zod (khóa lạ ở gốc và phần tử, `DANG_DIEN_RA`, thời gian, lượt ghé lặp, `sessionId` không phải UUID) | Ghi nhận |
+| D-70 | Màn báo cáo điền sẵn hai ô ngày bằng 30 ngày mặc định (dd/mm/yyyy, giờ Việt Nam) và nạp báo cáo khi mở; "Áp dụng" tắt khi khoảng ngày sai, câu MSG-REPORT-DATES-INVALID / MSG-REPORT-SPAN hiện dưới bộ lọc bằng chữ màu lỗi (không phải banner). Lỗi tải dùng banner `error` (role `alert`) như các màn M03 khác — screen spec gọi là "kiểu cảnh báo". Tỷ lệ hiện dạng phần trăm `vi-VN`, tối đa một chữ số thập phân. Bộ lọc tuyến liệt kê các tuyến đã từng xuất bản | Hình thức |
+| D-71 | Q-12/Q-13 trên adapter giả từ chối khoảng ngày sai bằng lỗi MSG-GENERIC (client không bao giờ gửi khoảng sai; contract không có kết quả lỗi riêng cho query). RPT-02 sắp theo tên tuyến rồi thứ tự điểm dừng (lựa chọn trình bày) | Ghi nhận |
+| D-72 | Mọi khu vực của adapter giả đã cài: bỏ cơ chế `pending` trong `fakeAdminApi.ts` (kiểu `AdminApi` bảo đảm đủ phương thức); bỏ `layout/PlaceholderPage` vì không còn màn nào dùng (T046 đã hết vai trò) | Dọn mã |
+
+### 10.4 Checkpoint Phase 11
+
+"Mọi user story của giai đoạn A chạy độc lập trên adapter giả" **đạt**: T056–T159 xong; Q1–Q24, Q26 pass. Còn mở: các mục `NOT RUN` ở §10.2.

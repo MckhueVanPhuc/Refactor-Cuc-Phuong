@@ -4,6 +4,7 @@
 import { beforeEach, describe, it } from 'vitest';
 import type { JourneySnapshot } from '../../../../shared/contracts/journeySnapshot';
 import type { PublishedRoute } from '../../../../shared/contracts/publishedRoute';
+import type { SessionSyncRecord } from '../../../../shared/contracts/sessionSyncRecord';
 import type { AdminRole, AuditRow, CheckpointStatus } from '../../contracts/adminDtos';
 import type { AdminApi } from '../AdminApi';
 
@@ -30,6 +31,8 @@ export type ContractControls = {
   removeStorageObject?(objectPath: string): void;
   /** fakeOnly: đổi dung lượng đã ghi nhận của một media (giả lập gói tải trước vượt trần, BR-M03-G10) */
   inflateMedia?(mediaId: string, sizeBytes: number): void;
+  /** fakeOnly: nạp thẳng SessionRecord synthetic (intake thật ở giai đoạn B, T194–T196) */
+  seedSessionRecords?(records: (SessionSyncRecord & { ingestedAt: string })[]): void;
   /** fakeOnly: sửa thẳng nội dung một bản đã xuất bản (giả lập giới hạn bị siết sau đó, BR-M03-F07) */
   tamperRevisionContent?(subjectType: 'ROUTE' | 'CHECKPOINT' | 'QRCODE', subjectId: string, revisionNumber: number, patch: Record<string, unknown>): void;
   /** fakeOnly: đặt thẳng trạng thái điểm dừng (đóng/mở lại thật ở US6) */

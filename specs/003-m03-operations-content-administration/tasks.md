@@ -353,17 +353,17 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 9 ⚠️
 
-- [ ] T152 [P] [US9] Viết test src/modules/m03/reports/reportInput.test.ts: mặc định 30 ngày lịch kết thúc hôm nay tại `Asia/Ho_Chi_Minh`; chỉ một ngày → MSG-REPORT-DATES-INVALID; `fromDate > toDate` bị từ chối; khoảng > 366 ngày → MSG-REPORT-SPAN; nhập dd/mm/yyyy → `YYYY-MM-DD` (BR-M03-J05; research R-17)
-- [ ] T153 [P] [US9] Viết test src/modules/m03/reports/ReportsPage.test.tsx: ghi chú một dòng MSG-REPORT-UPDATED hoặc MSG-REPORT-NO-DATA-YET, MSG-REPORT-SCOPE, MSG-REPORT-VISIT-MEANING dưới RPT-02; không có phiên → MSG-REPORT-EMPTY; chỉ lỗi tải dùng kiểu cảnh báo với MSG-GENERIC; "Chuyến đi", "Hoàn thành"/"Bỏ dở"; RPT-02 có tên tuyến (BR-M03-J06–J08; SC-M03-035)
-- [ ] T154 [P] [US9] Viết test src/shared/contracts/sessionSyncRecord.cases.test.ts: các ca intake kỳ vọng qua/không qua Zod đúng như bảng (BR-M03-J01–J03; SC-M03-007, 038)
-- [ ] T155 [P] [US9] Viết E2E e2e/m03/reports.spec.ts cho quickstart Q26 trên project `m03`
+- [X] T152 [P] [US9] Viết test src/modules/m03/reports/reportInput.test.ts: mặc định 30 ngày lịch kết thúc hôm nay tại `Asia/Ho_Chi_Minh`; chỉ một ngày → MSG-REPORT-DATES-INVALID; `fromDate > toDate` bị từ chối; khoảng > 366 ngày → MSG-REPORT-SPAN; nhập dd/mm/yyyy → `YYYY-MM-DD` (BR-M03-J05; research R-17)
+- [X] T153 [P] [US9] Viết test src/modules/m03/reports/ReportsPage.test.tsx: ghi chú một dòng MSG-REPORT-UPDATED hoặc MSG-REPORT-NO-DATA-YET, MSG-REPORT-SCOPE, MSG-REPORT-VISIT-MEANING dưới RPT-02; không có phiên → MSG-REPORT-EMPTY; chỉ lỗi tải dùng kiểu cảnh báo với MSG-GENERIC; "Chuyến đi", "Hoàn thành"/"Bỏ dở"; RPT-02 có tên tuyến (BR-M03-J06–J08; SC-M03-035)
+- [X] T154 [P] [US9] Viết test src/shared/contracts/sessionSyncRecord.cases.test.ts: các ca intake kỳ vọng qua/không qua Zod đúng như bảng (BR-M03-J01–J03; SC-M03-007, 038)
+- [X] T155 [P] [US9] Viết E2E e2e/m03/reports.spec.ts cho quickstart Q26 trên project `m03`
 
 ### Implementation for User Story 9
 
-- [ ] T156 [US9] Tạo src/shared/contracts/sessionSyncRecord.cases.ts: ca synthetic `ACCEPTED`, `IDENTICAL` (đổi thứ tự visits và khóa), `CONFLICT`, `INVALID` (sai `sequence`, sai tên, khóa `deviceId`, `DANG_DIEN_RA`, tuyến/version không có) làm oracle cho giai đoạn B
-- [ ] T157 [US9] Cài đặt src/modules/m03/api/fake/reports.ts: Q-12, Q-13 trên `SessionRecord` synthetic; lọc `endedAt` theo `[fromDate 00:00, toDate+1 00:00)` giờ `Asia/Ho_Chi_Minh`; RPT-02 đếm `sessionId` phân biệt theo `(routeId, checkpointId)` (admin-command §6)
-- [ ] T158 [P] [US9] Cài đặt src/modules/m03/reports/reportInput.ts cho T152 qua
-- [ ] T159 [US9] Dựng SCR-M03-005 src/modules/m03/reports/ReportsPage.tsx + `.module.css`: lọc tuyến (tùy chọn) và khoảng ngày, bảng RPT-01, bảng RPT-02, ghi chú một dòng; không biểu đồ/export/real-time; đăng ký `/admin/reports` trong src/modules/m03/routes.tsx
+- [X] T156 [US9] Tạo src/shared/contracts/sessionSyncRecord.cases.ts: ca synthetic `ACCEPTED`, `IDENTICAL` (đổi thứ tự visits và khóa), `CONFLICT`, `INVALID` (sai `sequence`, sai tên, khóa `deviceId`, `DANG_DIEN_RA`, tuyến/version không có) làm oracle cho giai đoạn B
+- [X] T157 [US9] Cài đặt src/modules/m03/api/fake/reports.ts: Q-12, Q-13 trên `SessionRecord` synthetic; lọc `endedAt` theo `[fromDate 00:00, toDate+1 00:00)` giờ `Asia/Ho_Chi_Minh`; RPT-02 đếm `sessionId` phân biệt theo `(routeId, checkpointId)` (admin-command §6)
+- [X] T158 [P] [US9] Cài đặt src/modules/m03/reports/reportInput.ts cho T152 qua
+- [X] T159 [US9] Dựng SCR-M03-005 src/modules/m03/reports/ReportsPage.tsx + `.module.css`: lọc tuyến (tùy chọn) và khoảng ngày, bảng RPT-01, bảng RPT-02, ghi chú một dòng; không biểu đồ/export/real-time; đăng ký `/admin/reports` trong src/modules/m03/routes.tsx
 
 **Checkpoint**: Mọi user story của giai đoạn A chạy độc lập trên adapter giả
 
