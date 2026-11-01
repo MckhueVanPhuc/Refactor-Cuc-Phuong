@@ -49,3 +49,9 @@ enable_confirmations = false
 # Function tự xác minh JWT người gọi; publishable key không phải JWT (tasks M03 T178; auth-account §2.2)
 [functions.admin-accounts]
 verify_jwt = false
+
+# Edge nhận phiên của du khách: gọi bằng publishable key, không phải JWT; bật verify sẽ làm mọi bản ghi bị 401
+# (tasks M03 T195; session-intake-contract §1). Import map ánh xạ `zod` cho bản sao schema ở functions/_shared
+[functions.session-intake]
+verify_jwt = false
+import_map = "./functions/deno.json"

@@ -159,6 +159,51 @@ begin
 end;
 $$;
 
+-- Snapshot của bảng intake (src/shared/contracts/sessionSyncRecord.cases.ts SESSION_INTAKE_SNAPSHOT; tasks T196, Q25):
+-- tuyến Rt1a2b3c4d5e6f7g8h9 với version 1 và 2, version 2 có hai điểm dừng. Xóa phiên đã nhận của tuyến đó để chạy lại
+-- bảng từ đầu; `p_route_status` đặt trạng thái tuyến (ca "tuyến đang tạm đóng vẫn nhận"). Cùng ngoại lệ như lookup_world.
+create function test_support.intake_world(p_route_status text default 'HOAT_DONG') returns void
+language plpgsql
+set search_path = ''
+as $$
+declare
+  c_route constant text := 'Rt1a2b3c4d5e6f7g8h9';
+  c_by constant text := 'seed-intake';
+begin
+  set local session_replication_role = replica;
+  delete from app.session_records where route_id = c_route;
+  delete from app.journey_snapshots where route_id = c_route;
+  delete from app.revisions where subject_id = c_route;
+  delete from app.routes where route_id = c_route;
+  insert into app.routes (route_id, status, active_content_version, closure_source, closure_reason, closed_at, closed_by_user_id,
+                          created_by_user_id)
+  values (c_route, p_route_status, 2, 'MANUAL', 'Thử', now(), c_by, c_by);
+  insert into app.revisions (subject_type, subject_id, revision_number, status, content, created_by_user_id, last_edited_by_user_id,
+                             published_by_user_id, published_at, self_published)
+  values ('ROUTE', c_route, 1, 'PHAT_HANH', '{"name": {"vi": "Đường mòn tiền sử", "en": "Prehistoric trail"},
+    "noSafetyWarningConfirmed": true, "offlineRouteMapRequired": false}', c_by, c_by, c_by, now(), true);
+  insert into app.journey_snapshots (route_id, content_version, previous_content_version, checkpoints) values
+    (c_route, 1, null, '[{"checkpointId": "Cp1a2b3c4d5e6f7g8h9", "sequence": 1, "checkpointName": {"vi": "Hang Con Moong", "en": "Con Moong Cave"},
+       "connectivityMode": "ONLINE_AVAILABLE", "qrIdentifiers": ["QrIntake000000001"]}]'),
+    (c_route, 2, 1, '[{"checkpointId": "Cp1a2b3c4d5e6f7g8h9", "sequence": 1, "checkpointName": {"vi": "Hang Con Moong", "en": "Con Moong Cave"},
+       "connectivityMode": "ONLINE_AVAILABLE", "qrIdentifiers": ["QrIntake000000001"]},
+      {"checkpointId": "Cp9z8y7x6w5v4u3t2s1", "sequence": 2, "checkpointName": {"vi": "Động Người Xưa", "en": "Ancient People Cave"},
+       "connectivityMode": "ONLINE_AVAILABLE", "qrIdentifiers": ["QrIntake000000002"]}]');
+  set local session_replication_role = origin;
+end;
+$$;
+
+create function test_support.intake_route_status(p_status text) returns void
+language plpgsql
+set search_path = ''
+as $$
+begin
+  set local session_replication_role = replica;
+  update app.routes set status = p_status where route_id = 'Rt1a2b3c4d5e6f7g8h9';
+  set local session_replication_role = origin;
+end;
+$$;
+
 revoke all on all functions in schema test_support from public, anon, authenticated, service_role;
 
 select test_support.seed_m03();

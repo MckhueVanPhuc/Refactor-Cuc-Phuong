@@ -717,3 +717,33 @@ Branch `feat/m03-b-us8` tạo từ `feat/m03-b-us7` @ `81cd700`. Chỉ stack loc
 | D-118 | Quyết định giai đoạn B #5: `admin-command-contract.md` Q-11 sửa trước (mỗi dòng kèm `subjectId` chỉ để dựng link, không hiển thị), rồi `AuditRow.subjectId?` (adminDtos.ts), adapter giả trả `subjectId` ở Q-11, SQL như vậy. Mục §11.4 về SCR-M03-009 E-08 đã có dữ liệu để dựng link | Đã xong phía backend/contract |
 | D-119 | `subjectName` của dòng audit là tên **hiện tại** của mục (tính lúc đọc), không phải tên lúc ghi như adapter giả; tên cũ vẫn thấy trong dòng trước/sau | Ghi nhận |
 | D-120 | Khôi phục tuyến có danh sách cũ chứa điểm dừng nay không còn hoạt động: trigger tham chiếu từ chối → FAILED MSG-GENERIC (adapter giả không kiểm). Hiếm ở MVP | Ghi nhận |
+
+## 21. Đợt 2026-11-02 — Phase 14 US9 backend (T194–T196)
+
+Branch `feat/m03-b-us9` tạo từ `feat/m03-b-us8` @ `a38e2fd`. Chỉ stack local. Phase 14 (T177–T196) hoàn tất.
+
+### 21.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 13 file, 649/649 pass; `m03_us9_ingest_reports` 41 ca: chỉ `service_role` chạy `api.ingest_session`, `anon` gọi thẳng → 42501, báo cáo chỉ cho admin; nhận lần đầu → ACCEPTED, gửi lại giống hệt / đổi thứ tự lượt ghé và khóa / cùng thời điểm viết khác → IDENTICAL, khác nội dung → CONFLICT, một dòng, bản đầu nguyên; offset khác UTC → INVALID; phiên bỏ dở không lượt ghé; tuyến TAM_DONG và LUU_TRU vẫn nhận; phiên của version cũ kiểm theo version đó; 14 bản ghi không hợp lệ (lệch sequence/tên/điểm dừng với snapshot, tuyến/version không có, khóa lạ ở gốc và lượt ghé, trạng thái DANG_DIEN_RA, endedAt < startedAt, ghé trùng, giờ ngoài phiên, sessionId không phải UUID, version không nguyên, không phải object) → INVALID, không lưu gì; RPT-01 đếm theo `ended_at` trong kỳ với tỷ lệ trên tổng, `lastSuccessfulIngestionAt` UTC, 17:30 UTC 31/10 tính vào 01/11 giờ Việt Nam, lọc theo tuyến; RPT-02 đếm phiên phân biệt theo (tuyến, điểm dừng), điểm dừng chung hai tuyến đếm riêng; 367 ngày → MSG-REPORT-SPAN, 366 ngày nhận; một ngày lẻ / from > to → MSG-REPORT-DATES-INVALID; mặc định 30 ngày; không ghi audit |
+| `supabase functions serve --env-file supabase/functions/.env` + `PW_LOCAL_STACK=1 npx playwright test e2e/m03/intake.local.spec.ts --project=m03-local-stack` | 0 | 22/22 pass: 19 ca của `SESSION_INTAKE_CASES` theo thứ tự qua Edge thật (publishable key, không JWT), đúng `result` và HTTP (200/409/422); body > 64 KiB → 413; GET → 405; du khách gọi thẳng RPC → bị từ chối. Import map `zod` (`supabase/functions/deno.json`) chạy được trên edge-runtime |
+| `npx playwright test e2e/m03/intake.local.spec.ts --project=m03` | 0 | 22 skipped |
+| `npm run ci` | 0 | test 1128/1128 (thêm `sessionSyncRecord.parity.test.ts`: bản sao `_shared/sessionSyncRecord.ts` và `_shared/common.ts` giống hệt nguồn ngoài dòng import), build xong |
+
+### 21.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| `supabase/functions/session-intake/index.test.ts` (Deno) | Không cài Deno (quyết định giai đoạn B #7); các bước của handler đã chạy qua Edge thật ở E2E |
+| Hai lần gửi cùng `sessionId` đồng thời | Chèn bằng `on conflict (session_id) do nothing` rồi so sánh; chưa thử hai phiên thật |
+
+### 21.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-121 | `api.ingest_session` báo bản ghi không hợp lệ bằng SQLSTATE `22023` (thông điệp `INVALID_SESSION_RECORD`); Edge ánh xạ mã này sang 422 INVALID, lỗi khác sang 500 (M02 giữ PENDING). Physical §7.2 chỉ nói "raises a validation error" | Ghi nhận |
+| D-122 | Edge cần cả `_shared/common.ts` (schema import `./common`), và Deno cần đuôi `.ts`: test parity so hai file sau khi bỏ dòng `import`, thay vì "ngoài dòng import zod" như T195 ghi | Ghi nhận |
+| D-123 | DB kiểm lại timestamp phải là UTC (`Z` hoặc `±00:00`) như Zod `utcDateTime`; offset khác bị từ chối ở cả hai lớp | Theo contract |
+| D-124 | Báo cáo từ chối khoảng ngày sai bằng lỗi `22023` có thông điệp là khóa (MSG-REPORT-DATES-INVALID / MSG-REPORT-SPAN); adapter hiện ánh xạ mọi lỗi query sang MSG-GENERIC, UI đã chặn khoảng sai trước khi gọi (R-17) | Ghi nhận; T197 xem có cần ánh xạ khóa không |
+| D-125 | Tỷ lệ RPT-01 trả `double precision` (JSON `0.8`), không phải `numeric` | Ghi nhận |
