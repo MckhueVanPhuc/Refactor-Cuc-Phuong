@@ -207,3 +207,47 @@ Branch `feat/m03-us4` tạo từ `feat/m03-us3` @ `517a58d`. Test viết trướ
 ### 5.4 Checkpoint Phase 6
 
 "US1–US4 chạy độc lập" **đạt** trên adapter giả: T056–T122 xong; Q1–Q17 pass. Còn mở: các mục `NOT RUN` ở §5.2.
+
+## 6. Đợt 2026-11-01 — Phase 7 US5 Phản hồi validation rõ ràng (T123–T129)
+
+Branch `feat/m03-us5` tạo từ `main` @ `8022f11` (đã merge PR #3, US1–US4). Phần lớn hành vi đã có từ Phase 2; story này kiểm chứng xuyên màn hình. Test viết trước và đã chạy trước khi cài đặt:
+
+- T126 `editor/confirmations.test.ts`: fail (không resolve được `./confirmations`) → qua sau T127.
+- T125 `editor/noAutosave.test.tsx`: 1 ca fail — lỗi thật D-44 → qua sau khi sửa. Gỡ bản sửa thì 2 ca fail (đã thử lại).
+- T124 `editor/serverIssueMapping.test.tsx`, T123 `e2e/m03/forbidden-words.spec.ts`, phần mới của `messages/fieldLabels.test.ts` (T129): qua ngay vì hành vi đã có. Để chắc test không chạy suông, đã thử phá có chủ đích: bỏ issue server khỏi editor tuyến → T124 fail; đổi sai loại mục trong bảng nguồn issue → T129 fail; T123 có thêm ca kiểm bộ quy tắc quét trên mẫu vi phạm biết trước.
+
+### 6.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run typecheck` | 0 | sạch |
+| `npm run lint` | 0 | 296 test pass |
+| `npm run test` (mặc định của Vitest, máy 20 luồng) | 1 | 868–870/871 pass; 1–4 ca fail mỗi lần, mỗi lần một file khác, đều do chờ quá lâu (`findBy*` 1 s hoặc 5 s): D-46. Cùng lệnh trên `main` @ `8022f11` (chưa có thay đổi đợt này): 826/830, 4 ca fail cùng kiểu |
+| `npx vitest run --maxWorkers=6` | 0 | 871/871 pass, hai lần liên tiếp (~54 s mỗi lần) |
+| `npm run ci` sau khi đặt `maxWorkers: 6` trong `vitest.config.ts` (D-46) | 0 | 3 lần liên tiếp: typecheck sạch; lint 296 pass; test 871/871 pass; build xong |
+| `npm run build` | 0 | xong |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | 20 pass: Q1–Q17 và Q18 (2 ca: kiểm bộ quét, quét mọi màn) |
+| Quét `dist/` production tìm `__cpqTestHooks`, `example.test`, mật khẩu synthetic, hook seed E2E, adapter giả | — | Không có |
+| `git diff --check` (gồm file mới) | 0 | Không lỗi khoảng trắng |
+
+### 6.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| CI trên GitHub cho nhánh này | Chưa push |
+| Issue `VALIDATION` thật từ server cho ba editor | T124 giả lập kết quả của C-01/C-02/C-03; adapter Supabase ở giai đoạn B (T197) |
+
+### 6.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-44 | Lỗi có từ US2–US3: ảnh vừa tải mang dòng MSG-UPLOADED-NOT-SAVED **cả sau khi** bản nháp đã lưu thành công (BR-M03-E14: chỉ "until then"). Sửa: `MediaUploader` nhận `savedMediaIds` (media mà bản nháp, hoặc bản xuất bản khi không có nháp, đang tham chiếu); editor điểm tham quan và ba ô ảnh của editor tuyến truyền vào | Đã sửa; T125 phủ cả hai editor |
+| D-45 | `editor/confirmations.ts`: danh sách khép kín 12 loại xác nhận → khóa §5.6 + hai nhãn nút. Đóng điểm dừng không có khóa MSG-CONFIRM-*: dùng MSG-CLOSE-AFFECTS-ROUTES và `autoCloseSentence` (MSG-CLOSE-ROUTE-AUTO). Nhãn nút không có trong spec/screen spec: giữ nhãn đã dùng từ US2–US4; đóng/mở lại/lưu trữ dùng tên hành động của SCR-M03-001/008 ("Đóng tạm", "Mở lại", "Lưu trữ") với nút an toàn "Không đóng"/"Không mở lại"/"Không lưu trữ" theo mẫu "Không hủy". Bảy hộp hiện có đã chuyển sang `confirmation()`; test quét mã nguồn chặn hộp mới tự dựng | Hình thức; US6 dùng cho T136–T139 |
+| D-46 | Vitest chập chờn khi chạy cả bộ với số worker mặc định trên máy 20 luồng: mỗi file một jsdom, quá tải làm chunk lazy và render chậm hơn thời gian chờ. Có từ trước đợt này (xem `main` ở §6.1). Đã áp cách của D-23 cho `routes.test.tsx`, `accounts/AccountsPage.test.tsx` (nạp sẵn chunk) và hai ca đầu `RouteEditorPage.test.tsx` (`findBy*` sau điều hướng); hai file test mới đặt timeout 15 s. Chưa hết hẳn. Người dùng duyệt 2026-11-01: đặt `maxWorkers: 6` trong `vitest.config.ts` | Đã sửa; `npm run ci` 3 lần liên tiếp exit 0 |
+| D-47 | T128: không còn chỗ render mã thô; câu chữ cố định còn lại là nhãn màn hình theo screen spec (trạng thái rỗng, dòng hậu quả trên review D-39), không phải thông báo của danh mục §5.6. Thông báo đi qua `formatMessage` (cùng hàm `Message.tsx` dùng) vì tiêu đề hộp thoại và prop `error` cần chuỗi; không viết lại sang `<Message>` | Ghi nhận |
+| D-48 | T129: mọi `targetFieldKey` của validation dùng chung và phần kiểm riêng của adapter giả đều đã có nhãn; không thêm nhãn mới. `makeIssue` vẫn ném lỗi khi thiếu nhãn | Ghi nhận |
+| D-49 | Q18 import `DISPLAY_NAMES`, `NEVER_SHOWN_WORDS` từ `src/modules/m03/messages/displayNames.ts` để danh sách từ cấm và mã enum có một nguồn; mã ngôn ngữ `vi`/`en` không quét (là nội dung). Điều hướng bằng `spaNavigate` làm React Router in cảnh báo `useBlocker` trên POP trong log dev server; không ảnh hưởng kết quả | Ghi nhận |
+
+### 6.4 Checkpoint Phase 7
+
+"US1–US5 chạy độc lập" **đạt** trên adapter giả: T056–T129 xong; Q1–Q18 pass. Còn mở: các mục `NOT RUN` ở §6.2.

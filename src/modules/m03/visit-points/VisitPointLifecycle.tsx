@@ -5,9 +5,9 @@ import { Button } from '../../../shared/ui/Button';
 import { useAdminApi } from '../api/AdminApiProvider';
 import type { VisitPointEditor } from '../contracts/adminDtos';
 import type { CommandResult } from '../contracts/commandResult';
+import { confirmation } from '../editor/confirmations';
 import layout from '../editor/EditorLayout.module.css';
 import { ReasonDialog } from '../editor/ReasonDialog';
-import { formatMessage } from '../messages/catalog';
 import { QrPrintPanel } from './qr-print/QrPrintPanel';
 
 export type VisitPointLifecycleProps = {
@@ -73,9 +73,7 @@ export function VisitPointLifecycle({ editor, displayName, onOutcome, onTranspor
 
       <ReasonDialog
         open={dialog === 'revoke'}
-        title={formatMessage('MSG-CONFIRM-REVOKE-QR', { tên: displayName })}
-        safeLabel="Không thu hồi"
-        confirmLabel="Thu hồi"
+        {...confirmation('REVOKE_QR', { tên: displayName })}
         reasonRequired
         busy={busy}
         onCancel={() => setDialog(null)}
@@ -88,9 +86,7 @@ export function VisitPointLifecycle({ editor, displayName, onOutcome, onTranspor
       />
       <ReasonDialog
         open={dialog === 'discard'}
-        title={formatMessage('MSG-CONFIRM-DISCARD-QR', { tên: displayName })}
-        safeLabel="Không hủy"
-        confirmLabel="Hủy điểm tham quan"
+        {...confirmation('DISCARD_QR', { tên: displayName })}
         reasonRequired={false}
         busy={busy}
         onCancel={() => setDialog(null)}

@@ -9,6 +9,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['src/test/setup.ts'],
+    // Mỗi file test một jsdom: trên máy nhiều luồng, số worker mặc định làm chunk lazy và render chậm hơn
+    // thời gian chờ của test (validation-report D-46). Máy ít nhân hơn (CI) không bị ảnh hưởng.
+    maxWorkers: 6,
     include: ['src/**/*.test.ts?(x)'],
     // Giá trị giả an toàn để src/shared/config/env.ts không làm hỏng test có import nó
     env: {

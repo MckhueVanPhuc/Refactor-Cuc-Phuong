@@ -1,6 +1,18 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import { renderAdmin } from './testing/renderAdmin';
+
+// Nạp sẵn chunk lazy của các màn để ca đầu tiên không phụ thuộc thời gian nạp module (validation-report D-23)
+beforeAll(() =>
+  Promise.all([
+    import('./layout/PlaceholderPage'),
+    import('./auth/LoginPage'),
+    import('./route-admin/RouteListPage'),
+    import('./route-admin/RouteEditorPage'),
+    import('./checkpoint-library/CheckpointListPage'),
+    import('./checkpoint-library/CheckpointEditorPage'),
+  ]),
+);
 
 describe('cây /admin/* (admin-ui-flow §1)', () => {
   it.each([

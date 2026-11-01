@@ -13,6 +13,7 @@ import type { VisitPointEditor } from '../contracts/adminDtos';
 import type { CommandResult } from '../contracts/commandResult';
 import { publicationUnitType, type PublicationReview, type PublicationUnitType } from '../contracts/publicationReview';
 import { CommandOutcome } from '../editor/CommandOutcome';
+import { confirmation } from '../editor/confirmations';
 import layout from '../editor/EditorLayout.module.css';
 import type { FlashState } from '../editor/flash';
 import { MissingToPublishPanel } from '../editor/MissingToPublishPanel';
@@ -361,9 +362,7 @@ function ReviewView({ unitType, subjectId }: { unitType: PublicationUnitType; su
 
       <Dialog
         open={confirmOpen}
-        title={formatMessage('MSG-CONFIRM-PUBLISH', { 'tên mục': context.name })}
-        safeLabel="Quay lại"
-        confirmLabel="Xuất bản"
+        {...confirmation('PUBLISH', { 'tên mục': context.name })}
         confirmDisabled={busy}
         onSafe={() => setConfirmOpen(false)}
         onConfirm={() => void publish()}

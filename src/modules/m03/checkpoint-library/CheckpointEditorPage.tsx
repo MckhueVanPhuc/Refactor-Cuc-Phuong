@@ -15,6 +15,7 @@ import { CHECKPOINT_QR_MAX_ITEMS, NAME_MAX_CHARS, NOTE_MAX_CHARS } from '../conf
 import type { CheckpointContent, CheckpointEditor, ConnectivityMode } from '../contracts/adminDtos';
 import type { CommandResult } from '../contracts/commandResult';
 import { CommandOutcome } from '../editor/CommandOutcome';
+import { confirmation } from '../editor/confirmations';
 import layout from '../editor/EditorLayout.module.css';
 import { useFlash, useHighlightedQr, type FlashState } from '../editor/flash';
 import { MissingToPublishPanel } from '../editor/MissingToPublishPanel';
@@ -395,9 +396,7 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
 
       <ReasonDialog
         open={discardOpen}
-        title={formatMessage('MSG-CONFIRM-DISCARD-CHECKPOINT', { tên: state.name.vi.trim() || title })}
-        safeLabel="Không hủy"
-        confirmLabel="Hủy điểm dừng"
+        {...confirmation('DISCARD_CHECKPOINT', { tên: state.name.vi.trim() || title })}
         reasonRequired
         busy={busy}
         onCancel={() => setDiscardOpen(false)}
