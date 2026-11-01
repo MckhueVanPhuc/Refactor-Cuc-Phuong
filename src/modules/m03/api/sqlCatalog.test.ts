@@ -47,7 +47,10 @@ describe('Danh mục SQL khớp TypeScript (T170)', () => {
     for (const [, kind, code, name] of rows) {
       (sql[unescape(kind)] ??= {})[unescape(code)] = unescape(name);
     }
-    expect(Object.keys(sql).sort()).toEqual(['connectivityMode', 'difficulty', 'experienceTag', 'groupTag']);
+    expect(Object.keys(sql).sort()).toEqual([
+      'accountStatus', 'checkpointStatus', 'closureSource', 'connectivityMode', 'difficulty', 'experienceTag', 'groupTag',
+      'qrStatus', 'revisionStatus', 'role', 'routeStatus',
+    ]);
     for (const [kind, names] of Object.entries(sql)) {
       expect(names).toEqual(DISPLAY_NAMES[kind as keyof typeof DISPLAY_NAMES]);
     }

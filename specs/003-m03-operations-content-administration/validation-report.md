@@ -690,3 +690,30 @@ Branch `feat/m03-b-us7` tạo từ `feat/m03-b-us6` @ `bec5a7a`. Chỉ stack loc
 | D-115 | `test_support.lookup_world` (seed.sql, chỉ local, chỉ gọi khi test) dựng thẳng bằng SQL với `replica` thế giới của bảng sự thật — cần cả trạng thái không đi qua lệnh được (QR không tồn tại, nội dung có âm thanh ở điểm dừng cần tải trước). Ngoại lệ có chủ đích của quy tắc "không chèn nội dung bằng SQL tay" ở đầu seed.sql, ghi ngay tại hàm | Ghi nhận |
 | D-116 | `test_support.reset_m03()` (T176) xóa `auth.users` khi đang `replica` nên khóa ngoại không cascade sang `auth.identities`; seed lại bị trùng khóa. E2E T191 phát hiện. Sửa: chỉ `replica` cho bảng `app` và `storage.objects`, xóa `auth.users` với trigger bật | Đã sửa |
 | D-117 | `.env.local` (đã gitignore) tạo theo quickstart §2 với URL và publishable key của stack local; spec E2E đọc `VITE_SUPABASE_URL`/`VITE_SUPABASE_PUBLISHABLE_KEY` từ môi trường, nếu không có thì từ file này | Chỉ local |
+
+## 20. Đợt 2026-11-02 — Phase 14 US8 backend (T192–T193)
+
+Branch `feat/m03-b-us8` tạo từ `feat/m03-b-us7` @ `81cd700`. Chỉ stack local.
+
+### 20.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 12 file, 608/608 pass; `m03_us8_history` 46 ca: quyền; Q-10 liệt kê bản đã xuất bản mới nhất trước kèm người xuất bản và cờ tự xuất bản (Nhân viên tự xuất bản = có cờ, Quản lý xuất bản bản nháp của người khác = không), không có nội dung, dòng audit không có id; dòng xuất bản "Quãng đường (km): 4,5 → 6"; xuất bản bản sửa điểm dừng, xuất bản điểm tham quan, thu hồi QR, đóng, mở lại điểm dừng đều nêu cả hai tuyến bị ảnh hưởng; tuyến tự đóng nói lý do; C-06 STALE, bỏ bản nháp → `DA_BO`, không xóa gì, bản công khai không đổi, lịch sử không liệt kê bản đã bỏ, không còn bản nháp → FAILED; C-08 khôi phục bản 1 → bản nháp dựa trên bản 1 mang đúng nội dung, lần hai MSG-DRAFT-EXISTS, bản đang xuất bản/số không có → FAILED, nội dung cũ vi phạm giới hạn hiện hành → MSG-RESTORE-BLOCKED nêu chỗ cần sửa, không tạo gì, đúng một dòng audit, khôi phục điểm dừng; Q-11 Nhân viên → 42501, mới nhất trước, có `subjectId`, lọc người (không phân biệt hoa/thường), loại mục, thời gian, trang 50 dòng với `hasMore`, hai trang không lặp; không dòng thay đổi nào có JSON, id hay mã; đổi vai trò đọc bằng chữ thường |
+| `npm run ci` | 0 | test 1124/1124 (`sqlCatalog.test.ts` kiểm thêm tên trạng thái, vai trò, nguồn đóng), build xong |
+
+### 20.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Link "Mở mục liên quan" trên SCR-M03-009 (E-08) dùng `subjectId` | Việc của UI; backend và kiểu `AuditRow` đã có trường này |
+
+### 20.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-106 | Dòng audit hiển thị bằng `app.audit_change_lines`: dòng trước/sau của xuất bản ("—" cho ô trống), trạng thái/vai trò bằng tên hiển thị §5.4, nguồn đóng, dòng riêng (bỏ bản nháp, khôi phục), "Tuyến bị ảnh hưởng: …" cho mọi thao tác trên điểm dừng/điểm tham quan | Đã xong |
+| D-107 | `api.revoke_visit_point` được viết lại ở migration 3g: dòng audit ghi các tuyến bị ảnh hưởng | Đã xong |
+| D-118 | Quyết định giai đoạn B #5: `admin-command-contract.md` Q-11 sửa trước (mỗi dòng kèm `subjectId` chỉ để dựng link, không hiển thị), rồi `AuditRow.subjectId?` (adminDtos.ts), adapter giả trả `subjectId` ở Q-11, SQL như vậy. Mục §11.4 về SCR-M03-009 E-08 đã có dữ liệu để dựng link | Đã xong phía backend/contract |
+| D-119 | `subjectName` của dòng audit là tên **hiện tại** của mục (tính lúc đọc), không phải tên lúc ghi như adapter giả; tên cũ vẫn thấy trong dòng trước/sau | Ghi nhận |
+| D-120 | Khôi phục tuyến có danh sách cũ chứa điểm dừng nay không còn hoạt động: trigger tham chiếu từ chối → FAILED MSG-GENERIC (adapter giả không kiểm). Hiếm ở MVP | Ghi nhận |

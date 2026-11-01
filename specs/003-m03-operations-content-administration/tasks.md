@@ -448,8 +448,8 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### US8 backend
 
-- [ ] T192 [US8] Tạo supabase/migrations/<ts>_m03_03g_history.sql: `api.discard_draft`, `api.restore_revision` (savepoint, bắt lỗi trigger → MSG-RESTORE-BLOCKED, MSG-DRAFT-EXISTS), `api.get_item_history`, `api.list_audit_log` (chỉ Reviewer, phân trang, lọc)
-- [ ] T193 [US8] Viết pgTAP supabase/tests/m03_us8_history.test.sql: mỗi command đúng một dòng audit kể cả thất bại; tự xuất bản có cờ; audit thao tác điểm dừng nêu tên tuyến bị ảnh hưởng (BR-M03-X06); khôi phục chặn khi có bản nháp; khôi phục bản vi phạm giới hạn đã siết → không tạo gì; lịch sử không bị xóa (BR-M03-F07–F10; SC-M03-014, 021)
+- [X] T192 [US8] Tạo supabase/migrations/<ts>_m03_03g_history.sql: `api.discard_draft`, `api.restore_revision` (savepoint, bắt lỗi trigger → MSG-RESTORE-BLOCKED, MSG-DRAFT-EXISTS), `api.get_item_history`, `api.list_audit_log` (chỉ Reviewer, phân trang, lọc)
+- [X] T193 [US8] Viết pgTAP supabase/tests/m03_us8_history.test.sql: mỗi command đúng một dòng audit kể cả thất bại; tự xuất bản có cờ; audit thao tác điểm dừng nêu tên tuyến bị ảnh hưởng (BR-M03-X06); khôi phục chặn khi có bản nháp; khôi phục bản vi phạm giới hạn đã siết → không tạo gì; lịch sử không bị xóa (BR-M03-F07–F10; SC-M03-014, 021)
 
 ### US9 backend
 
