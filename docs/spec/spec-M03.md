@@ -6,7 +6,7 @@
 | Version | 3.7 |
 | Status | MVP implementation baseline — aligned with M01 v3.2 and M02 v3.3 (see §11) |
 | Supersedes | 3.6 (previous repository baseline: 2.0) |
-| Last updated | 2026-10-30 |
+| Last updated | 2026-11-01 |
 | Consumers | M01 route/snapshot; M02 live content/QR lookup |
 | Producer input | M02 terminal anonymous sessions |
 
@@ -782,7 +782,7 @@ Operations that are not publication units: close, reopen, archive, revoke, repri
 
 | ID | Rule |
 |---|---|
-| BR-M03-H01 | Closing a route or a checkpoint: either role; reason required; no review; effective when complete. Only `HOAT_DONG` items can be closed. The confirmation dialog states the consequence; for a checkpoint it names every route that lists it and the routes that will close automatically (MSG-CLOSE-AFFECTS-ROUTES, MSG-CLOSE-ROUTE-AUTO). |
+| BR-M03-H01 | Closing a route or a checkpoint: either role; reason required; no review; effective when complete. Only `HOAT_DONG` items can be closed. The confirmation dialog states the consequence; for a checkpoint it names every route that lists it and the routes that will close automatically (MSG-CLOSE-AFFECTS-ROUTES, MSG-CLOSE-ROUTE-AUTO), or, when no route lists it, says so (MSG-CLOSE-NO-ROUTES). |
 | BR-M03-H02 | **Closing a checkpoint.** It leaves the journey of every route that lists it (`HOAT_DONG` or `TAM_DONG`). New journey versions for all those routes are created in the same atomic operation as the checkpoint's state change (BR-M03-X02). Its visit points become "closed" in live lookup. Each `HOAT_DONG` route left with no active checkpoint becomes `TAM_DONG` automatically, with an audit line (`closureSource = AUTO_NO_ACTIVE_CHECKPOINT`); other routes keep their state. |
 | BR-M03-H03 | **Closing a route.** The public state becomes `TAM_DONG` immediately. No new journey version is needed and the active version is unchanged. M01 removes the route from new choices and, when online, issues no new trip start for it. |
 | BR-M03-H04 | If closing a checkpoint does not complete (for example a snapshot cannot be built), the system shows a clear error, leaves every state unchanged, and the user must retry; it never reports false success. The error message (MSG-CLOSE-FAILED) offers "Đóng tạm các tuyến liên quan", which closes directly the routes that list the checkpoint (this needs no snapshot); the checkpoint itself stays active. |
@@ -1010,6 +1010,7 @@ Fixed Vietnamese wording; `{...}` marks a placeholder filled with a plain value.
 | MSG-LAST-QR | Revoking the last active QR | Không thể thu hồi mã QR cuối cùng của điểm dừng đang hoạt động. Hãy thêm mã QR khác hoặc đóng tạm điểm dừng trước. |
 | MSG-CHECKPOINT-IN-USE | Archiving a checkpoint still listed | Chưa thể lưu trữ điểm dừng này vì tuyến {danh sách} vẫn có trong danh sách. Hãy bỏ điểm dừng khỏi các tuyến đó trước. |
 | MSG-CLOSE-AFFECTS-ROUTES | Closing dialog for a checkpoint | Điểm dừng này có trong {số} tuyến: {danh sách}. |
+| MSG-CLOSE-NO-ROUTES | Closing dialog for a checkpoint that no route lists | Điểm dừng này chưa có trong tuyến nào. Người quét mã QR tại đây sẽ thấy điểm dừng đang tạm đóng. |
 | MSG-CLOSE-ROUTE-AUTO | Closing dialog when routes would run out of active checkpoints | Các tuyến sau sẽ tự đóng tạm vì hết điểm dừng hoạt động: {danh sách}. |
 | MSG-CLOSE-FAILED | Closing did not complete | Chưa đóng được điểm dừng, mọi thứ vẫn như cũ. Hãy thử lại. Nếu khẩn cấp, bạn có thể bấm "Đóng tạm các tuyến liên quan". |
 | MSG-REOPEN-BLOCKED | Reopen checks failed | Chưa mở lại được. Cần xử lý trước: {danh sách}. |
@@ -1408,6 +1409,7 @@ BR identifiers in this table omit the `BR-M03-` prefix.
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.7 (clarification 9) | 2026-11-01 | Closing a checkpoint that no route lists: the closing dialog states the consequence with the new MSG-CLOSE-NO-ROUTES instead of MSG-CLOSE-AFFECTS-ROUTES with an empty list (BR-M03-H01, §5.6) (user decision 2026-11-01). Wording only; no contract, entity, state or permission change; M01 and M02 unaffected. |
 | 3.7 (clarification 8) | 2026-10-30 | Traceability only: §11.1 maps the shared-rule summaries BR-M03-X04 (US-M03-04), X05 (US-M03-06), X06 (US-M03-08) and X07 (US-M03-05) to the stories that already own the rules they restate (BR-M03-I01–I06, J05–J07, F08, A02/A03). No behavior, contract or data change (user decision 2026-10-30). |
 | 3.7 (clarification 7) | 2026-10-30 | BR-M03-L12 now lists discarding a never-published route, checkpoint or visit point (BR-M03-C01, D09, E10) among the allowed confirmation dialogs, matching the catalog keys MSG-CONFIRM-DISCARD-ROUTE, MSG-CONFIRM-DISCARD-CHECKPOINT and MSG-CONFIRM-DISCARD-QR already in §5.6 and the discard dialogs of SCR-M03-001, 003 and 008 (user decision 2026-10-30, resolving the conflict between BR-M03-L12 and clarification 4). No contract, entity, state or permission change; M01 and M02 unaffected. |
 | 3.7 (clarification 6) | 2026-10-29 | Review-checklist decisions (CHK004–009, 021, 022): an expired invitation leaves the account `INVITATION_PENDING` (BR-M03-K01); in-flight requests at sign-out (BR-M03-K06); an unsaved uploaded file stays unreferenced and is not cleaned up automatically (BR-M03-E14); the serialization set includes the pending-draft list (BR-M03-F05); a restore that breaks a current limit is refused with the new MSG-RESTORE-BLOCKED instead of being reported at publication (BR-M03-F07); "ready" versus "missing for publication" (BR-M03-L03); the project owner validates the provisional limits (§9). No contract change. |

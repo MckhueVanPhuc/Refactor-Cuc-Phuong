@@ -283,20 +283,20 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 6 ⚠️
 
-- [ ] T130 [P] [US6] Viết test src/modules/m03/operations/CloseDialog.test.tsx: lý do bắt buộc ≤ `NOTE_MAX_CHARS`; hiện MSG-CLOSE-AFFECTS-ROUTES và MSG-CLOSE-ROUTE-AUTO từ Q-09; FAILED → MSG-CLOSE-FAILED + nút "Đóng tạm các tuyến liên quan" gọi C-11; không bao giờ báo thành công giả (BR-M03-H01, H04)
-- [ ] T131 [P] [US6] Viết test src/modules/m03/operations/ReopenDialog.test.tsx: chỉ Reviewer; ghi chú an toàn bắt buộc; MSG-REOPEN-BLOCKED kèm danh sách cần sửa; MSG-OFFLINE-TOO-BIG; Nhân viên → MSG-NO-PERMISSION (BR-M03-H06, H07, A03, G10)
-- [ ] T132 [P] [US6] Viết test src/modules/m03/operations/ArchiveDialog.test.tsx: lưu trữ tuyến chỉ khi `TAM_DONG`, terminal, không đổi điểm dừng nó liệt kê (BR-M03-T07); lưu trữ điểm dừng bị MSG-CHECKPOINT-IN-USE nêu tên tuyến (BR-M03-H09, D10; SC-M03-031)
-- [ ] T133 [P] [US6] Viết test hành vi src/modules/m03/api/contract/operations.contract.ts (harness T043): đóng điểm dừng hoạt động cuối của tuyến A và được tuyến B liệt kê → A `TAM_DONG` `AUTO_NO_ACTIVE_CHECKPOINT` có audit riêng, B có version mới, không bị trần chặn; mở lại điểm dừng không mở lại tuyến đã tự đóng; đóng tuyến không tạo version (BR-M03-H02, H03, H07, T05, G10; SC-M03-006, 019)
-- [ ] T134 [P] [US6] Viết E2E e2e/m03/operations.spec.ts cho quickstart Q19–Q21 trên project `m03`
+- [X] T130 [P] [US6] Viết test src/modules/m03/operations/CloseDialog.test.tsx: lý do bắt buộc ≤ `NOTE_MAX_CHARS`; hiện MSG-CLOSE-AFFECTS-ROUTES và MSG-CLOSE-ROUTE-AUTO từ Q-09; FAILED → MSG-CLOSE-FAILED + nút "Đóng tạm các tuyến liên quan" gọi C-11; không bao giờ báo thành công giả (BR-M03-H01, H04)
+- [X] T131 [P] [US6] Viết test src/modules/m03/operations/ReopenDialog.test.tsx: chỉ Reviewer; ghi chú an toàn bắt buộc; MSG-REOPEN-BLOCKED kèm danh sách cần sửa; MSG-OFFLINE-TOO-BIG; Nhân viên → MSG-NO-PERMISSION (BR-M03-H06, H07, A03, G10)
+- [X] T132 [P] [US6] Viết test src/modules/m03/operations/ArchiveDialog.test.tsx: lưu trữ tuyến chỉ khi `TAM_DONG`, terminal, không đổi điểm dừng nó liệt kê (BR-M03-T07); lưu trữ điểm dừng bị MSG-CHECKPOINT-IN-USE nêu tên tuyến (BR-M03-H09, D10; SC-M03-031)
+- [X] T133 [P] [US6] Viết test hành vi src/modules/m03/api/contract/operations.contract.ts (harness T043): đóng điểm dừng hoạt động cuối của tuyến A và được tuyến B liệt kê → A `TAM_DONG` `AUTO_NO_ACTIVE_CHECKPOINT` có audit riêng, B có version mới, không bị trần chặn; mở lại điểm dừng không mở lại tuyến đã tự đóng; đóng tuyến không tạo version (BR-M03-H02, H03, H07, T05, G10; SC-M03-006, 019)
+- [X] T134 [P] [US6] Viết E2E e2e/m03/operations.spec.ts cho quickstart Q19–Q21 trên project `m03`
 
 ### Implementation for User Story 6
 
-- [ ] T135 [US6] Cài đặt src/modules/m03/api/fake/operations.ts: C-09…C-15 và Q-09 theo admin-command §5 và data-model §8 (khóa tập, snapshot thay thế, tự đóng, lưu trữ điểm dừng thu hồi QR)
-- [ ] T136 [P] [US6] Cài đặt src/modules/m03/operations/useOperationImpact.ts (Q-09) và src/modules/m03/operations/OperationDialog.tsx (khung chung: câu hậu quả, ô lý do/ghi chú, hai nút)
-- [ ] T137 [P] [US6] Cài đặt src/modules/m03/operations/CloseDialog.tsx (C-09/C-10, lối thoát C-11)
-- [ ] T138 [P] [US6] Cài đặt src/modules/m03/operations/ReopenDialog.tsx (C-12/C-13, kết quả kiểm tra kỹ thuật)
-- [ ] T139 [P] [US6] Cài đặt src/modules/m03/operations/ArchiveDialog.tsx (C-14/C-15)
-- [ ] T140 [US6] Gắn hộp thoại vào src/modules/m03/route-admin/RouteListPage.tsx (Đóng tạm, Mở lại (R), Lưu trữ (R)) và src/modules/m03/checkpoint-library/CheckpointEditorPage.tsx + CheckpointListPage.tsx (Đóng tạm, Mở lại (R), Lưu trữ (R)); ẩn nút theo role chỉ là tiện ích
+- [X] T135 [US6] Cài đặt src/modules/m03/api/fake/operations.ts: C-09…C-15 và Q-09 theo admin-command §5 và data-model §8 (khóa tập, snapshot thay thế, tự đóng, lưu trữ điểm dừng thu hồi QR)
+- [X] T136 [P] [US6] Cài đặt src/modules/m03/operations/useOperationImpact.ts (Q-09) và src/modules/m03/operations/OperationDialog.tsx (khung chung: câu hậu quả, ô lý do/ghi chú, hai nút)
+- [X] T137 [P] [US6] Cài đặt src/modules/m03/operations/CloseDialog.tsx (C-09/C-10, lối thoát C-11)
+- [X] T138 [P] [US6] Cài đặt src/modules/m03/operations/ReopenDialog.tsx (C-12/C-13, kết quả kiểm tra kỹ thuật)
+- [X] T139 [P] [US6] Cài đặt src/modules/m03/operations/ArchiveDialog.tsx (C-14/C-15)
+- [X] T140 [US6] Gắn hộp thoại vào src/modules/m03/route-admin/RouteListPage.tsx (Đóng tạm, Mở lại (R), Lưu trữ (R)) và src/modules/m03/checkpoint-library/CheckpointEditorPage.tsx + CheckpointListPage.tsx (Đóng tạm, Mở lại (R), Lưu trữ (R)); ẩn nút theo role chỉ là tiện ích
 
 **Checkpoint**: US1–US6 chạy độc lập
 

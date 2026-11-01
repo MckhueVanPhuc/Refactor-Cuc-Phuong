@@ -69,7 +69,7 @@ Hiển thị `PublicationReview`: so sánh trước/sau; tô sáng thay đổi n
 
 ### Hộp thoại đóng / mở lại / lưu trữ (SCR-M03-001, 008)
 
-Q-09 cung cấp: các tuyến liệt kê (MSG-CLOSE-AFFECTS-ROUTES), các tuyến sẽ tự đóng (MSG-CLOSE-ROUTE-AUTO), kết quả kiểm tra kỹ thuật khi mở lại. Lý do (đóng, lưu trữ) hoặc ghi chú an toàn (mở lại) bắt buộc, ≤ `NOTE_MAX_CHARS`. Khi C-10 trả `FAILED`: MSG-CLOSE-FAILED kèm nút "Đóng tạm các tuyến liên quan" (C-11) (BR-M03-H04). Không bao giờ báo thành công giả.
+Q-09 cung cấp: các tuyến liệt kê (MSG-CLOSE-AFFECTS-ROUTES; không có tuyến nào thì MSG-CLOSE-NO-ROUTES), các tuyến sẽ tự đóng (MSG-CLOSE-ROUTE-AUTO), kết quả kiểm tra kỹ thuật khi mở lại. Lý do (đóng, lưu trữ) hoặc ghi chú an toàn (mở lại) bắt buộc, ≤ `NOTE_MAX_CHARS`. Khi C-10 trả `FAILED`: MSG-CLOSE-FAILED kèm nút "Đóng tạm các tuyến liên quan" (C-11) (BR-M03-H04). Không bao giờ báo thành công giả.
 
 ### SCR-M03-005 Báo cáo vận hành
 

@@ -52,13 +52,13 @@ type CheckpointsArea = Pick<
 const failed: CommandResult<never> = { ok: false, reason: 'FAILED', messageKey: 'MSG-GENERIC' };
 
 /** Lý do / ghi chú: không rỗng sau trim khi bắt buộc, ≤ NOTE_MAX_CHARS (admin-command §1) */
-function reasonProblem(reason: string | undefined, required: boolean): CommandResult<never> | undefined {
+export function reasonProblem(reason: string | undefined, required: boolean, label = 'Lý do'): CommandResult<never> | undefined {
   const length = trimmedLength(reason ?? '');
   if (required && length === 0) {
-    return { ok: false, reason: 'BLOCKED', messageKey: 'MSG-MISSING-FIELD', values: { 'tên ô': 'Lý do' } };
+    return { ok: false, reason: 'BLOCKED', messageKey: 'MSG-MISSING-FIELD', values: { 'tên ô': label } };
   }
   if (length > NOTE_MAX_CHARS) {
-    return { ok: false, reason: 'BLOCKED', messageKey: 'MSG-LIMIT-TEXT', values: { 'Tên ô': 'Lý do', 'tối đa': NOTE_MAX_CHARS, số: length } };
+    return { ok: false, reason: 'BLOCKED', messageKey: 'MSG-LIMIT-TEXT', values: { 'Tên ô': label, 'tối đa': NOTE_MAX_CHARS, số: length } };
   }
   return undefined;
 }

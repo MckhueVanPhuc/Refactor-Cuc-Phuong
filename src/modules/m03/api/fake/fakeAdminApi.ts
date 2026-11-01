@@ -12,6 +12,7 @@ import { reviseRoute, seedPublishedCheckpoint, seedPublishedRoute } from './e2eS
 import { FIXTURE_ACCOUNTS, USER_WITHOUT_ACCOUNT } from './fixtures';
 import { publishedRouteOf, activeSnapshotOf } from './journey';
 import { createFakeMediaArea } from './media';
+import { createFakeOperationsArea } from './operations';
 import { createFakePublishArea } from './publish';
 import { createFakeRoutesArea } from './routes';
 import { FakeStore, type FailureKey } from './store';
@@ -22,16 +23,6 @@ type ApiMethod = keyof AdminApi;
 
 /** Khu vực chưa cài → task sẽ cài nó */
 const PENDING_AREAS: Record<string, readonly ApiMethod[]> = {
-  'operations — T135 (US6)': [
-    'closeRoute',
-    'closeCheckpoint',
-    'closeRoutesListingCheckpoint',
-    'reopenRoute',
-    'reopenCheckpoint',
-    'archiveRoute',
-    'archiveCheckpoint',
-    'getOperationImpact',
-  ],
   'history — T148 (US8)': ['discardDraft', 'restoreRevision', 'getItemHistory', 'listAuditLog'],
   'reports — T157 (US9)': ['reportRpt01', 'reportRpt02'],
 };
@@ -40,6 +31,7 @@ type ImplementedArea = ReturnType<typeof createFakeMediaArea> &
   ReturnType<typeof createFakeAccountsArea> &
   ReturnType<typeof createFakeCheckpointsArea> &
   ReturnType<typeof createFakePublishArea> &
+  ReturnType<typeof createFakeOperationsArea> &
   Omit<ReturnType<typeof createFakeRoutesArea>, 'discardRoute'>;
 
 function pendingArea(): Omit<AdminApi, keyof ImplementedArea> {
@@ -62,6 +54,7 @@ export function createFakeAdminApi(store: FakeStore = new FakeStore()): AdminApi
     ...checkpoints,
     ...routes,
     ...createFakePublishArea(store),
+    ...createFakeOperationsArea(store),
     // C-07 dùng chung cho tuyến, điểm dừng và QR
     discardUnpublished: (input) => (input.subjectType === 'ROUTE' ? discardRoute(input) : checkpoints.discardUnpublished(input)),
   };
@@ -175,6 +168,17 @@ export function registerFakeTestHooks(store: FakeStore): void {
         const checkpointId = await seedPublishedCheckpoint(api, checkpointName);
         const routeIds = [await seedPublishedRoute(api, routeA, [checkpointId]), await seedPublishedRoute(api, routeB, [checkpointId])];
         return { checkpointId, routeIds };
+      }),
+    /** Quickstart Q19–Q21: điểm dừng đầu là điểm dừng duy nhất của tuyến A; tuyến B liệt kê cả hai điểm dừng */
+    seedCloseScenario: (checkpointName: string, otherCheckpointName: string, routeA: string, routeB: string) =>
+      asAccount(store, 'CONTENT_STAFF', async (api) => {
+        const checkpointId = await seedPublishedCheckpoint(api, checkpointName);
+        const otherCheckpointId = await seedPublishedCheckpoint(api, otherCheckpointName);
+        const routeIds = [
+          await seedPublishedRoute(api, routeA, [checkpointId]),
+          await seedPublishedRoute(api, routeB, [checkpointId, otherCheckpointId]),
+        ];
+        return { checkpointId, otherCheckpointId, routeIds };
       }),
     /** Một phiên khác (role cho trước) lưu bản nháp chờ của tuyến (quickstart Q14) */
     reviseRouteAs: (role: AdminRole, routeId: string, change: Partial<RouteContent>) =>

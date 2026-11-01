@@ -4,7 +4,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { formatMessage, MESSAGE_KEYS } from '../messages/catalog';
-import { CONFIRMATION_KINDS, CONFIRMATIONS, confirmation } from './confirmations';
+import { closeCheckpointConfirmation, CONFIRMATION_KINDS, CONFIRMATIONS, confirmation } from './confirmations';
 
 const EXPECTED_KEYS = {
   CLOSE_ROUTE: 'MSG-CONFIRM-CLOSE-ROUTE',
@@ -34,7 +34,15 @@ describe('danh sách hộp xác nhận (BR-M03-L12)', () => {
     expect(CONFIRMATIONS.CLOSE_CHECKPOINT).toMatchObject({
       messageKey: 'MSG-CLOSE-AFFECTS-ROUTES',
       autoCloseMessageKey: 'MSG-CLOSE-ROUTE-AUTO',
+      noRoutesMessageKey: 'MSG-CLOSE-NO-ROUTES',
     });
+  });
+
+  it('đóng điểm dừng không có tuyến nào liệt kê → MSG-CLOSE-NO-ROUTES (spec-M03 3.7 clarification 9)', () => {
+    expect(closeCheckpointConfirmation([]).title).toBe(formatMessage('MSG-CLOSE-NO-ROUTES'));
+    expect(closeCheckpointConfirmation(['Tuyến A', 'Tuyến B']).title).toBe(
+      formatMessage('MSG-CLOSE-AFFECTS-ROUTES', { số: 2, 'danh sách': 'Tuyến A, Tuyến B' }),
+    );
   });
 
   it('mỗi hộp có đúng hai nút: nút an toàn và nút xác nhận, chữ khác nhau và không rỗng', () => {
@@ -77,7 +85,7 @@ const rel = (file: string) => relative(m03Dir, file).split(sep).join('/');
 const sources = walk(m03Dir).filter((file) => /\.tsx?$/.test(file) && !/\.test\.tsx?$/.test(file) && !file.includes(`${sep}testing${sep}`));
 
 /** Khung hộp thoại dùng chung: nhận title/nhãn nút từ nơi gọi */
-const DIALOG_WRAPPERS = new Set(['editor/ReasonDialog.tsx']);
+const DIALOG_WRAPPERS = new Set(['editor/ReasonDialog.tsx', 'operations/OperationDialog.tsx']);
 
 /** Mỗi phần tử `<Dialog …>` / `<ReasonDialog …>` từ thẻ mở tới dòng đóng thẻ (`/>` hoặc `>`) */
 function dialogElements(source: string): string[] {
@@ -102,8 +110,14 @@ describe('không có hộp xác nhận nào ngoài danh sách (BR-M03-L12)', () 
     expect(offenders).toEqual([]);
   });
 
-  it('khóa MSG-CONFIRM-*, MSG-UNSAVED-CHANGES, MSG-CLOSE-AFFECTS-ROUTES, MSG-CLOSE-ROUTE-AUTO chỉ được chọn trong confirmations.ts', () => {
-    const pattern = /formatMessage(?:FromServer)?\(\s*'(MSG-CONFIRM-[A-Z-]+|MSG-UNSAVED-CHANGES|MSG-CLOSE-AFFECTS-ROUTES|MSG-CLOSE-ROUTE-AUTO)'/;
+  it('mọi nơi dùng <OperationDialog> (đóng, mở lại, lưu trữ) lấy câu hậu quả từ confirmation()', () => {
+    const users = sources.filter((file) => /<OperationDialog\b/.test(readFileSync(file, 'utf8')));
+    expect(users.length).toBeGreaterThanOrEqual(3);
+    expect(users.filter((file) => !readFileSync(file, 'utf8').includes('confirmation(')).map(rel)).toEqual([]);
+  });
+
+  it('khóa MSG-CONFIRM-*, MSG-UNSAVED-CHANGES, MSG-CLOSE-AFFECTS-ROUTES, MSG-CLOSE-NO-ROUTES, MSG-CLOSE-ROUTE-AUTO chỉ được chọn trong confirmations.ts', () => {
+    const pattern = /formatMessage(?:FromServer)?\(\s*'(MSG-CONFIRM-[A-Z-]+|MSG-UNSAVED-CHANGES|MSG-CLOSE-AFFECTS-ROUTES|MSG-CLOSE-NO-ROUTES|MSG-CLOSE-ROUTE-AUTO)'/;
     const offenders = sources.filter((file) => rel(file) !== 'editor/confirmations.ts' && pattern.test(readFileSync(file, 'utf8'))).map(rel);
     expect(offenders).toEqual([]);
   });

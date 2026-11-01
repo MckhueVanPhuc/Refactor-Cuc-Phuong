@@ -251,3 +251,47 @@ Branch `feat/m03-us5` tạo từ `main` @ `8022f11` (đã merge PR #3, US1–US4
 ### 6.4 Checkpoint Phase 7
 
 "US1–US5 chạy độc lập" **đạt** trên adapter giả: T056–T129 xong; Q1–Q18 pass. Còn mở: các mục `NOT RUN` ở §6.2.
+
+## 7. Đợt 2026-11-01 — Phase 8 US6 Đóng và mở lại (T130–T140)
+
+Branch `feat/m03-us6` tạo từ `feat/m03-us5` @ `3958031` (PR #4 chưa merge; US6 dùng `editor/confirmations.ts` của US5). Test viết trước và đã chạy thấy fail trước khi cài đặt:
+
+- T133 `api/contract/operations.contract.ts`: 15/15 ca fail, lý do "Adapter giả chưa có …: khu vực operations — T135".
+- T130–T132 `operations/{Close,Reopen,Archive}Dialog.test.tsx`: 5 ca fail (không có nút "Đóng tạm", adapter chưa có) và một file không resolve được `./ReopenDialog`.
+- T134 `e2e/m03/operations.spec.ts`: 3/3 fail vì chưa có test hook `seedCloseScenario`.
+
+### 7.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | 2 lần liên tiếp: typecheck sạch; lint 316 pass; test 916/916 pass; build xong. Sau khi sửa D-51, D-55: 919/919 pass |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | 23 pass: Q1–Q21. Lần chạy đầu Q21 fail do chính test (`getByRole('button', { name: 'Mở lại' })` khớp cả "Không mở lại"); sửa test bằng `exact: true` |
+| Quét `dist/` production tìm `__cpqTestHooks`, `seedCloseScenario`, `example.test`, mật khẩu synthetic, adapter giả | — | Không có |
+| `git diff --check` (gồm file mới) | 0 | Không lỗi khoảng trắng |
+
+### 7.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Adapter Supabase cho C-09…C-15, Q-09; khóa tập thật, transaction đóng điểm dừng + snapshot | Giai đoạn B (T188); T197 chạy lại `operations.contract.ts` với adapter này |
+| Ca `fakeOnly` của `operations.contract.ts` (trần dung lượng khi đóng/mở lại, BUSY, MSG-CLOSE-FAILED, ảnh không đọc được) trên stack local | Cần cách tiêm lỗi riêng ở giai đoạn B |
+| CI trên GitHub cho nhánh này | Chưa push |
+
+### 7.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-50 | Danh mục §5.6 không có câu báo thành công cho đóng tạm / mở lại / lưu trữ. Adapter giả trả `messageKey: 'MSG-SAVED'` như C-16 (US2); UI không hiện câu đó mà nạp lại để trạng thái mới ("Tạm đóng", "Đang hoạt động", "Đã lưu trữ") tự nói lên kết quả. Chỉ kết quả không thành công hiện banner | Ghi nhận; giai đoạn B chọn `messageKey` thành công khi viết RPC |
+| D-51 | Mục đổi trạng thái trong lúc hộp thoại đang mở (ví dụ người khác vừa đóng tuyến): trước đây danh sách đọc `concurrencyRevision` ngay trước khi gửi nên chỉ nhận FAILED MSG-GENERIC. **Đã quyết 2026-11-01** (người dùng ủy quyền): hộp thoại đọc phiên bản lúc **mở** (`useExpectedRevision`); mọi lần đổi trạng thái đều tăng phiên bản nên lần gửi bị STALE và hiện MSG-STALE kèm "Tải lại" (BR-M03-F06, L05). Không thêm khóa §5.6, không đổi contract. FAILED MSG-GENERIC chỉ còn cho ca không lường trước | Đã sửa; `CloseDialog.test.tsx` phủ |
+| D-52 | Tuyến tự đóng khi đóng điểm dừng có dòng audit riêng `ROUTE_AUTO_CLOSED` (BR-M03-H02; admin-command §5), ghi sau dòng `CHECKPOINT_CLOSED` và chỉ khi command thành công: `store.run` có thêm `followUpAudit`. Dòng của C-10, C-11, C-13 nêu "Tuyến bị ảnh hưởng: …" (BR-M03-X06) | Ghi nhận |
+| D-53 | Kiểm tra kỹ thuật khi mở lại (Q-09, C-12, C-13) chạy trên dữ liệu **đã xuất bản**: điểm dừng — ít nhất một điểm tham quan đang hoạt động, tên và nội dung các điểm tham quan đủ hai ngôn ngữ, xác nhận khảo sát còn hiệu lực với "Dùng được khi có mạng", ảnh "Cần tải trước" còn trong Storage; tuyến — các trường bắt buộc (cùng hàm `routePublishIssues`) và ít nhất một điểm dừng hoạt động. Danh sách cần sửa là các câu §5.6 đã điền, nối vào MSG-REOPEN-BLOCKED. Không có điểm dừng hoạt động → C-12 trả BLOCKED MSG-NO-ACTIVE-CHECKPOINT (contract), Q-09 vẫn đưa câu đó vào `reopenBlockers` để hộp thoại hiện. Trần dung lượng chỉ kiểm khi gửi C-13 (MSG-OFFLINE-TOO-BIG), không nằm trong `reopenBlockers` | Ghi nhận |
+| D-54 | Q-09 với `REOPEN_*` do Nhân viên nội dung gọi → lỗi MSG-NO-PERMISSION (admin-command Q-09 "mở lại: R"). Q21 E2E kiểm Nhân viên không thấy nút "Mở lại"/"Lưu trữ"; FORBIDDEN khi vẫn gửi được kiểm ở `ReopenDialog.test.tsx` và contract | Theo contract |
+| D-55 | Hộp thoại đóng điểm dừng không có khóa MSG-CONFIRM-*: tiêu đề là MSG-CLOSE-AFFECTS-ROUTES, câu phụ MSG-CLOSE-ROUTE-AUTO khi có tuyến sẽ tự đóng (D-45). Điểm dừng không có tuyến nào liệt kê: **đã quyết 2026-11-01** (người dùng chọn phương án A) — khóa mới MSG-CLOSE-NO-ROUTES "Điểm dừng này chưa có trong tuyến nào. Người quét mã QR tại đây sẽ thấy điểm dừng đang tạm đóng." Sửa spec trước: spec-M03 v3.7 clarification 9 (BR-M03-H01, §5.6); đồng bộ screen spec SCR-M03-008 E-16, contract `admin-ui-flow-contract.md`, `catalogText.ts`, `catalog.test.ts`. Script sinh `catalogText.ts` không có trong repo nên dòng mới được thêm tay đúng định dạng và thứ tự bảng §5.6; mockup SCR-M03-008 minh họa ca có 2 tuyến nên không đổi | Đã sửa |
+| D-56 | Đóng/mở lại/lưu trữ từ **danh sách** đọc `concurrencyRevision` mới nhất ngay trước khi gửi (như "Hủy" của US3); từ editor điểm dừng thì gửi bản đang có trên màn, nên STALE nếu người khác vừa sửa. "Đóng tạm các tuyến liên quan" gửi lại đúng lý do đã nhập | Ghi nhận |
+| D-57 | `OperationDialog` (khung chung) được thêm vào danh sách khung của test quét hộp xác nhận (D-45); thêm luật: mọi nơi dùng `<OperationDialog>` phải lấy câu từ `confirmation()`. CSS mới chỉ dùng token (`--space-*`, `--color-error`, `--color-ink-secondary`); `.rowActions` đặt trong `EditorLayout.module.css` cho hai danh sách | Hình thức |
+| D-58 | Editor tuyến (SCR-M03-002) chưa có nút Đóng tạm/Mở lại/Lưu trữ: T140 chỉ giao danh sách tuyến, editor và danh sách điểm dừng | Theo tasks |
+
+### 7.4 Checkpoint Phase 8
+
+"US1–US6 chạy độc lập" **đạt** trên adapter giả: T056–T140 xong; Q1–Q21 pass. Còn mở: các mục `NOT RUN` ở §7.2.
+

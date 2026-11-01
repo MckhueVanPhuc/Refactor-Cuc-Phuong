@@ -1,0 +1,14 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.line {
+  color: var(--color-ink-secondary);
+}
+
+/* Câu chặn mở lại: cùng màu với lỗi dưới trường (FieldError) */
+.blocked {
+  color: var(--color-error);
+}

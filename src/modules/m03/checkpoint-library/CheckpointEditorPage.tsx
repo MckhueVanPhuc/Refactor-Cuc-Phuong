@@ -1,5 +1,5 @@
-// SCR-M03-008 editor điểm dừng + danh sách điểm tham quan (tasks T088; Q-06, C-02, C-07;
-// BR-M03-D01–D04, D06, D09, D11, E15, E16, F06, F11). Đóng tạm / Mở lại / Lưu trữ gắn ở US6 (T140).
+// SCR-M03-008 editor điểm dừng + danh sách điểm tham quan (tasks T088, T140; Q-06, C-02, C-07, C-10, C-13, C-15;
+// BR-M03-D01–D04, D06, D09–D11, E15, E16, F06, F11, H01–H06). Đóng tạm / Mở lại (Quản lý) / Lưu trữ (Quản lý).
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { Banner } from '../../../shared/ui/Banner';
@@ -28,6 +28,7 @@ import { formatMessage } from '../messages/catalog';
 import { DISPLAY_NAMES, readinessLabel } from '../messages/displayNames';
 import { FIELD_LABELS } from '../messages/fieldLabels';
 import { qrSuffix } from '../messages/format';
+import { OperationActions, OperationDialogs, useOperationLauncher } from '../operations/OperationLauncher';
 import { ADMIN_PATHS } from '../paths';
 import { checkpointPublishIssues, checkpointSaveIssues } from '../validation/checkpoint';
 import { stripLineBreaks } from '../validation/common';
@@ -87,6 +88,7 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
   const [discardOpen, setDiscardOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [actionOutcome, setActionOutcome] = useState<CommandResult<unknown> | null>(null);
+  const operations = useOperationLauncher();
   const restoreKey = `checkpoint:${checkpointId ?? NEW_ID}`;
   const lastSave = useRef<CommandResult<{ checkpointId: string }> | null>(null);
 
@@ -236,6 +238,14 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
         </div>
         <div className={layout.headingActions}>
           <Button onClick={() => void navigate(ADMIN_PATHS.checkpoints)}>Thư viện điểm dừng</Button>
+          {editor ? (
+            <OperationActions
+              status={editor.status}
+              subject={{ type: 'CHECKPOINT', id: editor.checkpointId, name: title, concurrencyRevision: editor.concurrencyRevision }}
+              launcher={operations}
+              disabled={busy}
+            />
+          ) : null}
           {publishUnit && editor ? (
             <Button variant="primary" onClick={() => void navigate(ADMIN_PATHS.review(publishUnit, editor.checkpointId))}>
               Xuất bản
@@ -250,6 +260,7 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
         transportError={form.transportError ?? loadError}
         onReload={() => void load('reload')}
       />
+      <OperationDialogs launcher={operations} onChanged={() => void load('refresh')} />
 
       <div className={layout.columns}>
         <div className={layout.main}>

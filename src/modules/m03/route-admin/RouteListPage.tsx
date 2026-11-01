@@ -1,5 +1,5 @@
-// SCR-M03-001 Quản trị tuyến (tasks T107; Q-02, C-07): tìm/lọc, tên vi (bản nháp nếu có), trạng thái, dấu
-// "có bản nháp chờ", lần sửa cuối; Hủy tuyến chưa từng xuất bản. Đóng tạm / Mở lại / Lưu trữ gắn ở US6 (T140).
+// SCR-M03-001 Quản trị tuyến (tasks T107, T140; Q-02, C-07, C-09, C-12, C-14): tìm/lọc, tên vi (bản nháp nếu có),
+// trạng thái, dấu "có bản nháp chờ", lần sửa cuối; Hủy tuyến chưa từng xuất bản; Đóng tạm / Mở lại / Lưu trữ.
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Banner } from '../../../shared/ui/Banner';
@@ -18,6 +18,7 @@ import { ReasonDialog } from '../editor/ReasonDialog';
 import { formatMessage } from '../messages/catalog';
 import { DISPLAY_NAMES } from '../messages/displayNames';
 import { formatDate, formatTime } from '../messages/format';
+import { OperationActions, OperationDialogs, useOperationLauncher } from '../operations/OperationLauncher';
 import { ADMIN_PATHS } from '../paths';
 import styles from './RouteListPage.module.css';
 
@@ -39,6 +40,7 @@ export function RouteListPage() {
   const [discarding, setDiscarding] = useState<RouteListRow | null>(null);
   const [busy, setBusy] = useState(false);
   const [outcome, setOutcome] = useState<CommandResult<unknown> | null>(null);
+  const operations = useOperationLauncher();
 
   const handleTransport = useCallback(
     (caught: unknown) => {
@@ -101,6 +103,7 @@ export function RouteListPage() {
 
       {error ? <Banner tone="error">{formatMessage(error.messageKey)}</Banner> : null}
       <CommandOutcome result={outcome} onReload={() => void load()} />
+      <OperationDialogs launcher={operations} onChanged={() => void load()} />
       {rows && rows.length === 0 ? (
         <p className={layout.empty}>
           {search || status !== 'ALL' ? 'Không có tuyến nào khớp.' : 'Chưa có tuyến nào. Bấm "Tạo tuyến" để bắt đầu.'}
@@ -135,11 +138,20 @@ export function RouteListPage() {
                     {formatDate(row.lastEditedAt)} {formatTime(row.lastEditedAt)} — {row.lastEditedByEmail}
                   </td>
                   <td>
+                    <div className={layout.rowActions}>
                     {row.status === 'NHAP' ? (
                       <Button onClick={() => setDiscarding(row)} disabled={busy}>
                         Hủy
                       </Button>
-                    ) : null}
+                    ) : (
+                      <OperationActions
+                        status={row.status}
+                        subject={{ type: 'ROUTE', id: row.routeId, name: row.name ?? 'Tuyến chưa đặt tên' }}
+                        launcher={operations}
+                        disabled={busy}
+                      />
+                    )}
+                    </div>
                   </td>
                 </tr>
               ))}
