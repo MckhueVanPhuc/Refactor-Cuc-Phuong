@@ -21,7 +21,7 @@ Cách làm kỹ thuật:
 
 **Language/Version**: TypeScript (strict) trên Node.js 24 LTS cho toolchain; React cho UI. Không có SQL hay Edge Function trong package này. Phiên bản dependency pin khi task setup cài thật (R-02).
 
-**Primary Dependencies**: `react`, `react-dom`, `react-router` (declarative mode), `@supabase/supabase-js`, `zod`, `dexie`, `@zxing/browser` + `@zxing/library`; dev: `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa`, `typescript`, `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`, `@playwright/test`. Dev `fake-indexeddb` theo đề xuất chung của plan M01 (Complexity #4). Browser API: IndexedDB, `getUserMedia`, Web Locks, `crypto.randomUUID`, Page Visibility. Không thêm thư viện state, i18n, media player.
+**Primary Dependencies**: `react`, `react-dom`, `react-router` (data mode), `@supabase/supabase-js`, `zod`, `dexie`, `@zxing/browser` + `@zxing/library`; dev: `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa`, `typescript`, `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`, `@playwright/test`. Dev `fake-indexeddb` theo đề xuất chung của plan M01 (Complexity #4). Browser API: IndexedDB, `getUserMedia`, Web Locks, `crypto.randomUUID`, Page Visibility. Không thêm thư viện state, i18n, media player.
 
 **Storage**: IndexedDB qua Dexie — `playSessions`, `checkpointVisits`, `pendingSyncItems` (Physical §11). Đọc chỉ-đọc dữ liệu M01 qua hàm của M01. Không lưu kết quả lookup. Không có lưu trữ backend của M02 ([data-model.md](data-model.md)).
 

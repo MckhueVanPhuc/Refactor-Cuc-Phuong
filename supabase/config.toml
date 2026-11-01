@@ -1,0 +1,41 @@
+# Cấu hình Supabase CHỈ cho stack local (`supabase start`). Không chạy `supabase link` / `db push`.
+# Cài đặt cloud thuộc giai đoạn kích hoạt (environment.md §10; tasks M03 Phase 16).
+project_id = "cuc-phuong-quest-local"
+
+[api]
+enabled = true
+port = 54321
+# Data API chỉ mở schema `api` (Physical §3, §9); thiếu dòng này mọi đọc và RPC của M01/M02/M03 đều lỗi
+schemas = ["api"]
+extra_search_path = ["api", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[studio]
+enabled = true
+port = 54323
+
+# Email local thay SMTP thật (quickstart §5; auth-account §4)
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = [
+  "http://localhost:5173/admin/invitation",
+  "http://localhost:5173/admin/recovery",
+]
+# Không có đăng ký công khai: tài khoản chỉ được tạo qua lời mời (auth-account §4)
+enable_signup = false
+
+[auth.email]
+enable_signup = false
+enable_confirmations = false

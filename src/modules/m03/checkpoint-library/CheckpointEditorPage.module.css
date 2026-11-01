@@ -1,0 +1,6 @@
+/* Vùng nhận focus khi bấm dòng "Loại kết nối" ở panel "Còn thiếu để xuất bản" */
+.focusTarget:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}

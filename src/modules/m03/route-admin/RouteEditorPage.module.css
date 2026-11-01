@@ -1,0 +1,30 @@
+/* Điều hướng bốn bước: các bước là một trình tự nên có số; bước đang mở có vạch accent dưới */
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  border-bottom: var(--border-width-thin) solid var(--color-m03-border);
+}
+
+.step {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  font: inherit;
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink-secondary);
+  background: none;
+  border: 0;
+  border-bottom: var(--border-width-thick) solid transparent;
+  cursor: pointer;
+}
+
+.step[aria-current='step'] {
+  color: var(--color-m03-accent);
+  border-bottom-color: var(--color-m03-accent);
+}
+
+.step:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}

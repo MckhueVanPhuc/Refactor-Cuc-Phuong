@@ -1,0 +1,90 @@
+.uploader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+}
+
+.hint {
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: var(--border-width-thin) solid var(--color-m03-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+}
+
+.item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+}
+
+.item + .item {
+  border-top: var(--border-width-thin) solid var(--color-m03-border);
+}
+
+.fileName {
+  overflow-wrap: anywhere;
+}
+
+/* Trạng thái luôn bằng chữ; màu chỉ đi kèm */
+.state {
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.uploading {
+  color: var(--color-ink-secondary);
+}
+
+.uploaded {
+  color: var(--color-success);
+}
+
+.failed {
+  color: var(--color-error);
+}
+
+.reason,
+.note {
+  grid-column: 1 / -1;
+  font-size: var(--font-size-meta);
+}
+
+.reason {
+  color: var(--color-error);
+}
+
+.note {
+  color: var(--color-ink-secondary);
+}
+
+.summary:empty {
+  display: none;
+}
+
+.summary {
+  font-size: var(--font-size-meta);
+}

@@ -1,0 +1,74 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink);
+}
+
+.hint {
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+/* Ô nhập dùng chung cho TextField, TextArea, Select */
+.control {
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--control-border-color);
+  border-radius: var(--radius-sm);
+}
+
+.control::placeholder {
+  color: var(--color-ink-secondary);
+}
+
+/* Lỗi: viền đổi màu và dày thêm bằng bóng trong, không đổi kích thước; luôn kèm chữ bên dưới */
+.control[aria-invalid='true'] {
+  border-color: var(--color-error);
+  box-shadow: inset 0 0 0 var(--border-width-thin) var(--color-error);
+}
+
+.control:disabled {
+  color: var(--color-ink-secondary);
+  background: var(--color-m03-muted);
+  cursor: not-allowed;
+}
+
+.textarea {
+  min-height: calc(var(--touch-target) * 3);
+  resize: vertical;
+}
+
+.footer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.error {
+  font-size: var(--font-size-meta);
+  color: var(--color-error);
+}
+
+.counter {
+  margin-left: auto;
+  font-size: var(--font-size-meta);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-secondary);
+  white-space: nowrap;
+}
+
+.counterOver {
+  color: var(--color-error);
+}

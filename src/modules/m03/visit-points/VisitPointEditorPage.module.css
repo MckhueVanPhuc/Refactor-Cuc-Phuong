@@ -1,0 +1,55 @@
+.mediaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.mediaGroup:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+.groupLabel {
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+}
+
+.error {
+  font-size: var(--font-size-meta);
+  color: var(--color-error);
+}
+
+.mediaList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Một tệp đã tải: ảnh nhỏ, tên, tick quyền (và ngôn ngữ nói với âm thanh/video), nút bỏ */
+.mediaItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-m03-muted);
+  border-radius: var(--radius-sm);
+}
+
+.mediaBody {
+  display: flex;
+  flex: 1 1 16rem;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.mediaName {
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}

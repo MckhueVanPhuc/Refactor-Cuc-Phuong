@@ -42,7 +42,7 @@ Sau Phase 0 không còn mục `NEEDS CLARIFICATION` mở. Điểm phối hợp �
 
 ### R-02 — Toolchain và dependency
 
-- **Decision (Approved upstream + Plan decision):** như M01 (Node.js 24 LTS, React, React Router declarative, supabase-js, Zod, Dexie, Vite, `vite-plugin-pwa`, Vitest, Testing Library, jsdom, Playwright) cộng `@zxing/browser` + `@zxing/library` cho decode QR (tech-stack §3, chỉ M02). Không thêm thư viện state, i18n, media player. Phiên bản pin khi task setup cài thật (tech-stack §13). `fake-indexeddb` (dev) dùng chung đề xuất của plan M01 Complexity #4.
+- **Decision (Approved upstream + Plan decision):** như M01 (Node.js 24 LTS, React, React Router data mode, supabase-js, Zod, Dexie, Vite, `vite-plugin-pwa`, Vitest, Testing Library, jsdom, Playwright) cộng `@zxing/browser` + `@zxing/library` cho decode QR (tech-stack §3, chỉ M02). Không thêm thư viện state, i18n, media player. Phiên bản pin khi task setup cài thật (tech-stack §13). `fake-indexeddb` (dev) dùng chung đề xuất của plan M01 Complexity #4.
 - **Alternatives considered:** Chỉ dùng `BarcodeDetector` của trình duyệt — tech-stack loại vì không có trên mọi trình duyệt (iOS Safari).
 
 ### R-03 — Kiến trúc frontend và path

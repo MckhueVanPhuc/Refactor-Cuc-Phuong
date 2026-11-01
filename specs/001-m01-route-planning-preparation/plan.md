@@ -22,7 +22,7 @@ Cách làm kỹ thuật:
 
 **Language/Version**: TypeScript (strict) trên Node.js 24 LTS cho toolchain; React cho UI. Không có SQL hay Edge Function trong package này. Phiên bản dependency chính xác được pin khi task setup cài đặt thật (R-02).
 
-**Primary Dependencies**: `react`, `react-dom`, `react-router` (declarative mode), `@supabase/supabase-js`, `zod`, `dexie`; dev: `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa`, `typescript`, `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`, `@playwright/test`. Đề xuất dev `fake-indexeddb` (cần duyệt, Complexity #4). Browser API: IndexedDB, Cache Storage, Web Locks, `crypto.randomUUID`, `navigator.storage`. Không thêm thư viện state, i18n, form (R-02, R-12).
+**Primary Dependencies**: `react`, `react-dom`, `react-router` (data mode), `@supabase/supabase-js`, `zod`, `dexie`; dev: `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa`, `typescript`, `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`, `@playwright/test`. Đề xuất dev `fake-indexeddb` (cần duyệt, Complexity #4). Browser API: IndexedDB, Cache Storage, Web Locks, `crypto.randomUUID`, `navigator.storage`. Không thêm thư viện state, i18n, form (R-02, R-12).
 
 **Storage**: IndexedDB qua Dexie — 4 store entity M01 (`languagePreference`, `selectedRouteContext`, `offlinePackages`, `offlineResources`) + 3 store kỹ thuật (`activePackages`, `packageCandidates`, `imageBytes`); Cache Storage chỉ cho app shell và i18n. Không có lưu trữ backend của M01 ([data-model.md](data-model.md)).
 

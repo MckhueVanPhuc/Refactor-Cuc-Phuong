@@ -1,0 +1,22 @@
+/* Tìm theo tên và lọc trạng thái: một hàng trên màn rộng, xếp chồng khi hẹp */
+.filters {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--space-3) var(--space-4);
+  max-width: 48rem;
+}
+
+/* Dấu "có bản nháp chờ" luôn bằng chữ */
+.pending {
+  display: inline-block;
+  margin-left: var(--space-2);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-warning);
+}
+
+@media (max-width: 48rem) {
+  .filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

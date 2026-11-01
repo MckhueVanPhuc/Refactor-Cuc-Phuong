@@ -1,0 +1,126 @@
+/*
+ * Design token dùng chung — nguồn: docs/design/design-system.md §2.2, §3, §4, §5.3, §5.4.
+ * Đây là nơi DUY NHẤT được chứa literal màu và px (tokens.lint.test.ts kiểm tra).
+ * Không có dark theme toàn hệ thống (§2.3).
+ */
+:root {
+  /* §2.2 — màu dùng chung */
+  --color-paper: #f8f5f0;
+  --color-white: #ffffff;
+  --color-ink: #1c1c1a;
+  --color-ink-secondary: #5c5a54;
+
+  /* §2.2 — M01 discovery */
+  --color-m01-forest: #2d5016;
+  --color-m01-deep: #163c2d;
+  --color-m01-ink: #1c2922;
+  --color-m01-secondary: #596457;
+  --color-m01-line: #dbdfd4;
+  --color-m01-amber: #e8c97a;
+
+  /* §2.2 — M02 scanner */
+  --color-m02-scanner-bg: #0f1a0a;
+  --color-m02-scanner-surface: #1a2b0f;
+  --color-m02-scanner-text: #f0ede6;
+  --color-m02-scanner-secondary: #b8bdb2;
+  --color-m02-scanner-success: #5dd879;
+  --color-m02-scanner-warning: #f0b84b;
+  --color-m02-scanner-error: #f06060;
+
+  /* §2.2 — M03 workspace */
+  --color-m03-muted: #f0ede6;
+  --color-m03-border: #e0dad0;
+  --color-m03-control-border: #8b857b;
+  --color-m03-accent: #5c4a8a;
+  --color-m03-active: #eeeaf4;
+
+  /* §2.2 — semantic nền sáng */
+  --color-success: #2d6b3f;
+  --color-warning: #895411;
+  --color-error: #b83a3a;
+  --color-info: #2b5fa6;
+
+  /*
+   * Màu điều khiển theo bề mặt. Mặc định là M03 (workspace quản trị); bề mặt khác ghi đè trong
+   * layout của mình, ví dụ M01: --control-accent: var(--color-m01-forest);
+   * --control-border-color: var(--color-m01-secondary); --focus-ring-color: var(--color-m01-forest) (§5.3).
+   */
+  --control-accent: var(--color-m03-accent);
+  --control-border-color: var(--color-m03-control-border);
+  --focus-ring-color: var(--color-m03-accent);
+
+  /* §5.4 — lớp phủ hover/pressed */
+  --overlay-fill-hover: rgba(0, 0, 0, 0.12);
+  --overlay-fill-pressed: rgba(0, 0, 0, 0.2);
+  --overlay-surface-hover: rgba(0, 0, 0, 0.04);
+  --overlay-surface-pressed: rgba(0, 0, 0, 0.08);
+  --overlay-scanner-hover: rgba(255, 255, 255, 0.08);
+  --overlay-scanner-pressed: rgba(255, 255, 255, 0.14);
+
+  /* §3 — typography */
+  --font-sans: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Times New Roman", Georgia, serif;
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --line-height-body: 1.5;
+  --line-height-heading: 1.25;
+  /* Cỡ chữ theo vai trò (§3 chưa đặt tên token; tên do triển khai đặt, giá trị giữ nguyên) */
+  --font-size-meta: 14px;
+  --font-size-body: 16px;
+  --font-size-row-title: 16px;
+  --font-size-m01-route-title: 22px;
+  --font-size-page-heading-mobile: 24px;
+  --font-size-page-heading: 28px;
+
+  /* §4.1 — spacing (không có --space-7) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* §4.2 — bo góc và đổ bóng */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.16);
+  --shadow-bottom-nav: 0 -2px 8px rgba(0, 0, 0, 0.06);
+
+  /* §4 — viền và vùng chạm (giá trị của tài liệu; tên do triển khai đặt) */
+  --border-width-thin: 1px;
+  --border-width-thick: 2px;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --touch-target: 44px;
+  --touch-target-m01-primary: 48px;
+  /* §5.1 — sidebar M03 khoảng 200–220px */
+  --m03-sidebar-width: 212px;
+
+  /* §4.3 — chuyển động */
+  --duration-page: 250ms;
+  --duration-expand: 200ms;
+  --duration-pulse: 1200ms;
+  --duration-toast-enter: 300ms;
+  --duration-toast-exit: 200ms;
+  --duration-scanner-frame: 1000ms;
+  --duration-dialog: 250ms;
+  --ease-out: ease-out;
+  --ease-in: ease-in;
+  --ease-in-out: ease-in-out;
+}
+
+/* §4.3 — tôn trọng prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-page: 0ms;
+    --duration-expand: 0ms;
+    --duration-pulse: 0ms;
+    --duration-toast-enter: 0ms;
+    --duration-toast-exit: 0ms;
+    --duration-scanner-frame: 0ms;
+    --duration-dialog: 0ms;
+  }
+}

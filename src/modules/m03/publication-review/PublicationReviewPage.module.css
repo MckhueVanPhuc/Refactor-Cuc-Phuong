@@ -1,0 +1,56 @@
+.rowLabel {
+  font-weight: var(--font-weight-semibold);
+  text-align: left;
+}
+
+/* Giá trị trước/sau có thể dài (giới thiệu): giữ xuống dòng của tác giả */
+.value {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Thay đổi nhạy cảm (BR-M03-C10): vạch cảnh báo bên trái và chữ đậm, không chỉ dựa vào màu */
+.sensitive td,
+.sensitive th {
+  background: var(--color-m03-muted);
+}
+
+.sensitive th {
+  box-shadow: inset var(--border-width-thick) 0 0 var(--color-warning);
+}
+
+.sensitiveSection {
+  border-left: var(--border-width-thick) solid var(--color-warning);
+}
+
+.routeList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.route {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-meta);
+}
+
+.previewList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.previewItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}

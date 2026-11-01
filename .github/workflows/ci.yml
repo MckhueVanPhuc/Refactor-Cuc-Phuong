@@ -1,0 +1,36 @@
+# CI cho Cúc Phương Quest (tasks M03 T002; người dùng duyệt nối CI 2026-10-30, plan.md Complexity #3).
+# Chỉ dùng giá trị giả trong .env.fake / .env.e2e; không secret thật, không gọi Shared Backend.
+# Job Supabase local được thêm ở T198.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run ci
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Chỉ các project dùng mock; project *-local-stack cần PW_LOCAL_STACK=1 (T007)
+      - run: npm run e2e

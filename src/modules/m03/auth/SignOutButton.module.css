@@ -1,0 +1,27 @@
+.user {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+/* Email trên, vai trò dưới — vai trò luôn bằng chữ, không chỉ bằng màu */
+.identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 0;
+  line-height: var(--line-height-heading);
+}
+
+.email {
+  font-size: var(--font-size-meta);
+  overflow-wrap: anywhere;
+}
+
+.role {
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m03-accent);
+}

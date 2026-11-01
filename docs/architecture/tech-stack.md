@@ -34,7 +34,7 @@ Các lựa chọn frontend bổ sung hiện hành (**Selected — not implemente
 
 | Technology | Responsibility | Used by | Why selected | Status |
 |---|---|---|---|---|
-| React Router, declarative mode | Client-side routes và lazy route loading | M01–M03 | Phù hợp SPA; không cần framework server/SSR | Selected — not implemented |
+| React Router, data mode (`createBrowserRouter` + `RouterProvider`; route khai báo bằng JSX qua `createRoutesFromElements`) | Client-side routes, lazy route loading, `errorElement`, chặn rời trang bằng `useBlocker` | M01–M03 | Phù hợp SPA; không cần framework server/SSR. Data mode thay declarative mode (quyết định 2026-10-31) vì `useBlocker` và `errorElement` chỉ có ở data router, cần cho chặn rời form chưa lưu của M03 (BR-M03-F11) | Selected — not implemented |
 | CSS Modules + CSS custom properties | Scoped styles và shared design tokens | M01–M03 | Tránh thêm UI framework trước khi có screen designs | Selected — not implemented |
 | React state/hooks/context | UI state tạm thời, language/session view | M01–M03 | Dexie sở hữu persistent state theo target design; không thêm Redux/Zustand hoặc cache server thứ hai | Selected — not implemented |
 | `@supabase/supabase-js` | Auth, Data API, Storage và function calls | M01–M03 | Một SDK cho platform đã chọn | Selected — not implemented |
@@ -185,7 +185,7 @@ Các technology choices ở §§2–8 là **Selected**. Repository hiện không
 ## 14. Official References
 
 - [Node.js releases](https://nodejs.org/en/about/previous-releases): chọn nhánh LTS cho toolchain.
-- [React Router declarative mode](https://reactrouter.com/start/declarative/installation), [ZXing browser](https://github.com/zxing-js/browser): routing và scanner adapters.
+- [React Router data mode](https://reactrouter.com/start/data/installation), [ZXing browser](https://github.com/zxing-js/browser): routing và scanner adapters.
 - [Vite PWA update prompt](https://vite-pwa-org.netlify.app/guide/prompt-for-update): cơ chế update có kiểm soát.
 - [Supabase database functions](https://supabase.com/docs/guides/database/functions), [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security): data transactions và authorization boundary.
 - [Supabase CLI local development](https://supabase.com/docs/guides/local-development/cli/getting-started): local stack và hosted-project linking.

@@ -1,0 +1,9 @@
+.title {
+  font-size: var(--font-size-page-heading);
+}
+
+@media (max-width: 48rem) {
+  .title {
+    font-size: var(--font-size-page-heading-mobile);
+  }
+}

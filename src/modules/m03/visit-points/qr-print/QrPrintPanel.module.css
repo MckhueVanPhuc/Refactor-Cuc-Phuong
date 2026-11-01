@@ -1,0 +1,31 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m03-border);
+  border-radius: var(--radius-md);
+}
+
+.title {
+  font-size: var(--font-size-body);
+}
+
+/* 6 ký tự cuối giống hệt chữ trên tem, để đối chiếu tại thực địa */
+.code {
+  font-size: var(--font-size-row-title);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+}
+
+.note {
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

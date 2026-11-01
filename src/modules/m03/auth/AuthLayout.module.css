@@ -1,0 +1,85 @@
+.page {
+  --control-accent: var(--color-m03-accent);
+  --control-border-color: var(--color-m03-control-border);
+  --focus-ring-color: var(--color-m03-accent);
+
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-8) var(--space-4);
+  background: var(--color-paper);
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 26rem;
+  padding-top: 8vh;
+}
+
+.brand {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink-secondary);
+}
+
+/* Điểm nhấn duy nhất: vạch accent ở mép trên thẻ */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m03-border);
+  border-top: calc(var(--border-width-thick) * 2) solid var(--color-m03-accent);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.title {
+  font-size: var(--font-size-page-heading-mobile);
+}
+
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Dùng chung cho form của các màn xác thực */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.actions > button {
+  width: 100%;
+}
+
+.link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  font-size: var(--font-size-meta);
+  color: var(--color-m03-accent);
+  text-underline-offset: var(--space-1);
+}
+
+@media (max-width: 30rem) {
+  .column {
+    padding-top: 0;
+  }
+
+  .card {
+    padding: var(--space-5) var(--space-4);
+  }
+}

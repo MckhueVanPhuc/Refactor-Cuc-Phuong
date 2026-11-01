@@ -42,14 +42,14 @@ Sau Phase 0 không còn mục `NEEDS CLARIFICATION` mở trong plan. Các điể
 
 ### R-02 — Toolchain và dependency
 
-- **Decision (Approved upstream + Plan decision):** Node.js 24 LTS + npm (tech-stack §8). Runtime dependency M01 dùng: `react`, `react-dom`, `react-router` (declarative mode), `@supabase/supabase-js`, `zod`, `dexie` (tech-stack §3–§4). Dev: `typescript`, `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa` (Workbox `generateSW`), `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`, `@playwright/test` — giống M03 (R-02 của M03). M01 không dùng `qrcode`, `@zxing/*`. Không thêm thư viện state, i18n, form hay `dexie-react-hooks`: hook đọc dữ liệu dùng `liveQuery` có sẵn trong `dexie` + `useSyncExternalStore` của React. Phiên bản chính xác được **pin khi task setup cài đặt thật**; lockfile được commit; plan không ghi số phiên bản chưa cài (tech-stack §13). Dev dependency `fake-indexeddb` xem R-16 (cần duyệt).
+- **Decision (Approved upstream + Plan decision):** Node.js 24 LTS + npm (tech-stack §8). Runtime dependency M01 dùng: `react`, `react-dom`, `react-router` (data mode), `@supabase/supabase-js`, `zod`, `dexie` (tech-stack §3–§4). Dev: `typescript`, `vite`, `@vitejs/plugin-react`, `vite-plugin-pwa` (Workbox `generateSW`), `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`, `@playwright/test` — giống M03 (R-02 của M03). M01 không dùng `qrcode`, `@zxing/*`. Không thêm thư viện state, i18n, form hay `dexie-react-hooks`: hook đọc dữ liệu dùng `liveQuery` có sẵn trong `dexie` + `useSyncExternalStore` của React. Phiên bản chính xác được **pin khi task setup cài đặt thật**; lockfile được commit; plan không ghi số phiên bản chưa cài (tech-stack §13). Dev dependency `fake-indexeddb` xem R-16 (cần duyệt).
 - **Rationale:** tech-stack §3 "không thêm Redux/Zustand hoặc cache server thứ hai"; tech-stack §13 "chỉ ghi version là verified sau khi cài/chạy thực tế"; người dùng cấm cài dependency ở bước plan.
 - **Alternatives considered:** `dexie-react-hooks` (`useLiveQuery`) — tiện nhưng là dependency chưa có trong tech-stack; `liveQuery` của Dexie core làm được việc tương đương. `i18next` — tech-stack không chọn; hai từ điển có kiểu là đủ cho hai ngôn ngữ cố định.
 
 ### R-03 — Kiến trúc frontend của M01
 
 - **Decision (Approved upstream: tech-stack §2–§3; Plan decision về đường dẫn và cấu trúc):**
-  - SPA React + TypeScript, React Router declarative mode. M01 là các route công khai, lazy-load theo màn hình:
+  - SPA React + TypeScript, React Router data mode. M01 là các route công khai, lazy-load theo màn hình:
 
     | Path | Màn hình | Ghi chú |
     |---|---|---|
