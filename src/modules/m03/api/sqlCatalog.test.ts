@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { MESSAGE_CATALOG } from '../messages/catalogText';
+import { DISPLAY_NAMES } from '../messages/displayNames';
 import { FIELD_LABELS } from '../messages/fieldLabels';
 
-// Bản sao danh mục thông báo và nhãn trường trong SQL (app.message_template, app.field_label_base) phải trùng
-// từng chữ với nguồn TypeScript (T170; BR-M03-L04, L13). Lấy định nghĩa mới nhất qua mọi migration.
+// Bản sao danh mục thông báo, nhãn trường và tên hiển thị trong SQL (app.message_template, app.field_label_base,
+// app.display_name) phải trùng từng chữ với nguồn TypeScript (T170, T183; BR-M03-L04, L13). Lấy định nghĩa mới nhất qua mọi migration.
 const migrations = import.meta.glob<string>('../../../../supabase/migrations/*.sql', {
   query: '?raw',
   import: 'default',
@@ -38,5 +39,17 @@ describe('Danh mục SQL khớp TypeScript (T170)', () => {
       (sql[unescape(itemType)] ??= {})[unescape(fieldKey)] = unescape(label);
     }
     expect(sql).toEqual(FIELD_LABELS);
+  });
+
+  it('app.display_name có đúng tên hiển thị của các nhóm nó chứa (DISPLAY_NAMES)', () => {
+    const rows = [...latestBody('display_name').matchAll(new RegExp(`\\(${literal}, ${literal}, ${literal}\\)`, 'g'))];
+    const sql: Record<string, Record<string, string>> = {};
+    for (const [, kind, code, name] of rows) {
+      (sql[unescape(kind)] ??= {})[unescape(code)] = unescape(name);
+    }
+    expect(Object.keys(sql).sort()).toEqual(['connectivityMode', 'difficulty', 'experienceTag', 'groupTag']);
+    for (const [kind, names] of Object.entries(sql)) {
+      expect(names).toEqual(DISPLAY_NAMES[kind as keyof typeof DISPLAY_NAMES]);
+    }
   });
 });

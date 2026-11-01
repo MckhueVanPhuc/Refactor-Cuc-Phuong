@@ -550,3 +550,39 @@ Branch `feat/m03-b-us2` tạo từ `feat/m03-b-us1` @ `ab7285b`. Chỉ stack loc
 | D-98 | `register_media` còn từ chối (FAILED) object nằm ngoài `uploads/{ownerType}/{ownerId}/` và object đã đăng ký — media-storage-contract §1 nêu thư mục nhưng không nói rõ kiểm ở bước đăng ký | Ghi nhận |
 | D-99 | Query (Q-05–Q-07) từ chối người không phải admin bằng `42501` (adapter → MSG-NO-PERMISSION) và id không tồn tại bằng `P0002` (→ MSG-GENERIC); adapter giả ném MSG-SESSION-EXPIRED khi không có admin | Ghi nhận; T197 xem lại nếu contract dùng chung đòi khác |
 | D-100 | Quy tắc issue của điểm dừng/điểm tham quan được viết lại trong SQL (`app.check_*`, `app.checkpoint_*_issues`, `app.visit_point_*_issues`, `app.qr_issues`, `app.readiness`) cùng khóa trường, nhãn và câu như `validation/*.ts`, vì R-26 yêu cầu readiness tính phía server trên dữ liệu đã lưu. Hai nơi phải sửa cùng nhau | Ghi nhận; rủi ro lệch nêu ở §14.2 |
+
+## 15. Đợt 2026-11-02 — Phase 14 US3 backend (T183–T185)
+
+Branch `feat/m03-b-us3` tạo từ `feat/m03-b-us2` @ `5f7549c`. Chỉ stack local.
+
+### 15.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` | 0 | Áp sạch tới 3d `m03_03d_routes_publish` và 4b `m03_04b_public_views` |
+| `supabase test db` | 0 | 7 file, 400/400 pass; `m03_us3_publish` 66 ca: quyền hàm và view; xuất bản điểm dừng lần đầu (điểm tham quan chưa đủ giữ Nháp, review liệt kê thiếu gì, tự xuất bản có cờ); C-01 tuyến (MSG-TAG-CONFLICT, MSG-NUMBER-DECIMALS, MSG-CHECKPOINT-DUPLICATE, điểm dừng chưa hoạt động bị từ chối, lần lưu đầu không có ảnh, bỏ tick và chú thích sơ đồ khi không có sơ đồ, mỗi lần từ chối có audit); Q-02/Q-03/Q-04; review tuyến (đòi tick an toàn, ước tính chỉ ảnh + chữ offline, changes bằng chữ thường); BLOCKED MSG-SAFETY-CONFIRM không đổi gì; STALE; xuất bản → `HOAT_DONG` + version 1 atomic, tick lưu vào nội dung, điểm dừng không bị đụng; cột hai view đúng khóa contract, dòng Published Route đầy đủ với giá trị suy ra; `anon` đọc view, không đọc bảng; tuyến nháp vắng; thiếu nội dung → VALIDATION; QR_OBJECT ở điểm dừng đang hoạt động → version 2, version 1 giữ nguyên, mở review không ghi gì; thu hồi QR → version 3 cùng transaction (D-94); STALE sau khi sửa; ảnh không còn trong Storage → MSG-IMAGE-NOT-READABLE; snapshot không dựng được → FAILED MSG-PUBLISH-FAILED, không đổi gì, một dòng audit FAILURE |
+| Vitest tạm trên stack local (đã xóa sau khi chạy) | 0 | Tải ảnh lên Storage thật, xuất bản điểm dừng và tuyến (có sơ đồ offline, cảnh báo an toàn) qua PostgREST; `PublicationReview` qua `publicationReviewSchema`; `anon` đọc hai view, đổi tên cột sang camelCase rồi qua `publishedRouteSchema` và `journeySnapshotSchema`; du khách ký được URL ảnh đã xuất bản |
+| `npm run ci` | 0 | test 1124/1124 (thêm ca `app.display_name` ở `sqlCatalog.test.ts`), build xong |
+
+### 15.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| BUSY khi hai thao tác giữ tập kết nối giao nhau | Cần hai phiên; T186 |
+| Vượt trần `OFFLINE_PACKAGE_MAX_MB` | Cần > 25 ảnh 2 MB; ca `fakeOnly` ở contract. Code dựng issue/BLOCKED dùng chung với QR_OBJECT; chưa có pgTAP riêng |
+| `sequence` có khoảng trống khi điểm dừng trong danh sách không hoạt động | Cần đóng điểm dừng (US6, T188); `build_journey` đã giữ vị trí trong danh sách |
+| Chạy bộ contract dùng chung với adapter Supabase | T197 |
+
+### 15.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-94 | Thu hồi QR dựng hành trình mới cho mọi tuyến liệt kê điểm dừng: migration 3d thay hàm tạm bằng `app.commit_rebuilds(app.rebuild_routes(...))`, không bị trần chặn | Đã xong; pgTAP T185 kiểm |
+| D-101 | Q-08 dùng chung lõi `app.publication_unit` với C-05 để guard chạy lại đúng như review (BR-M03-F02). Review cần thấy hành trình "sau khi xuất bản" (QR_OBJECT), nên lõi ghi trong một khối con rồi ném SQLSTATE riêng để rollback; không có gì được commit hay lộ ra (BR-M03-G09; R-10 "dựng thử trong transaction chỉ đọc") | Ghi nhận |
+| D-102 | View công khai chỉ dùng hàm có sẵn của Postgres: PostgreSQL kiểm quyền EXECUTE của hàm trong view theo người đọc (`anon`), mà hàm `app.*` không cấp cho `anon` | Ghi nhận |
+| D-103 | `changes`/`sensitiveChanges`, ghi chú tác động, MSG-OFFLINE-TOO-BIG và tên hiển thị (độ khó, nhãn, loại kết nối — `app.display_name`, có test đồng bộ) được viết lại trong SQL như adapter giả | Ghi nhận; cùng rủi ro lệch như D-100 |
+| D-104 | Lưu tuyến phía server: chuẩn hóa như `normalizeRouteContent` (một dòng, nhãn phân biệt, bỏ tick sơ đồ khi không có sơ đồ, bỏ tick "không có cảnh báo" khi có cảnh báo) và bỏ luôn `routeMapCaption` khi không có sơ đồ (D-81); lần lưu đầu có ảnh → FAILED (D-25) | Ghi nhận |
+| D-105 | `ROUTE_INFORMATION` và `CHECKPOINT_REVISION` chưa có: `publish_unit` trả FAILED, review lỗi `P0002` cho tới migration 3e (T186) | Chuyển cho T186 |
+| D-106 | Dòng audit `PUBLISHED` giữ `after_state = {changes, affectedRoutes}`; dòng "{nhãn}: {trước} → {sau}" và tên tuyến bị ảnh hưởng do Q-10/Q-11 dựng (T192) | Chuyển cho T192 |
+| D-107 | Audit của C-16 (migration 3c) chưa nêu tên các tuyến bị ảnh hưởng (BR-M03-X06) | Chuyển cho T192/T193 |
+| D-108 | Physical §5.6 nói "a deferred check re-verifies the route's new active snapshot against the live sources at commit". Trigger hoãn hiện chỉ kiểm version active là version cao nhất; thành phần hành trình được kiểm khi dựng trong lệnh. Không thêm kiểm lại lúc commit cho MVP | Người dùng chấp nhận cho MVP (2026-11-02) |
