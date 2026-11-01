@@ -443,3 +443,44 @@ Branch `feat/m03-polish-a` tạo từ `feat/m03-us9` @ `9e9b88e`.
 ### 11.5 Checkpoint Phase 12
 
 "Giai đoạn A hoàn tất" **đạt**: T001–T165 xong trên adapter giả; Q1–Q24, Q26 pass; mọi BR-M03 còn hiệu lực đã có test hoặc ghi rõ nơi chịu test. Dừng tại đây theo tasks.md: giai đoạn B (Phase 13–15, cần Docker cho stack Supabase local) chuyển cho người làm backend. Còn mở: các mục `NOT RUN` ở §11.2 và §6.2–§10.2, artifact §11.4.
+
+## 12. Đợt 2026-11-01 — Phase 13 Giai đoạn B, nền backend (T168–T176)
+
+Branch `feat/m03-b-foundation` tạo từ `feat/m03-polish-a` @ `73d84d0`. Chỉ stack Supabase local (Supabase CLI 2.122.0, Postgres 17, Docker Desktop trên WSL2); không `supabase link`, `db push` hay deploy (CHG-M03-2026-10-30-01 §4, §7).
+
+### 12.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` | 0 | Áp sạch migration 01, 02, 03a, 04a, 05 và `seed.sql` trên DB trống |
+| `supabase start` | 0 | Mọi dịch vụ khỏe (hết lỗi 503 do thiếu schema `api`) |
+| `supabase test db` | 0 | 4 file, 197/197 pass: `m03_01_schema` 53, `m03_02_triggers` 66, `m03_03_access` 44, `m03_04_helpers` 34 |
+| Đăng nhập tài khoản seed qua GoTrue local + gọi `app.current_admin()` bằng claims của JWT thật (script ngoài repo) | 0 | staff, reviewer: HTTP 200, nhận đúng tài khoản; locked, noaccount: rỗng; token sau đăng xuất (204): rỗng; đăng ký công khai: 422 `signup_disabled` |
+| `npm run ci` | 0 | typecheck sạch; lint pass; test 1123/1123 (thêm `src/modules/m03/api/sqlCatalog.test.ts`); build xong |
+
+### 12.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Đường BUSY của `app.lock_connected_set` | Cần hai phiên DB song song; để cho contract test trên stack thật (T186) |
+| `function_privs_are` trên `api.*` (command, query, `api.lookup_qr`, `api.ingest_session`) | Các hàm này chưa có; thêm vào pgTAP cùng migration 4b–4d của từng story (T191, T196). T175 hiện kiểm: role API chỉ EXECUTE được `app.current_admin` và `app.media_object_is_public`; `service_role` không EXECUTE hàm `app` nào |
+| Contract test adapter Supabase (`supabaseAdminApi.contract.local.test.ts`) | Dựng cùng command đầu tiên ở Phase 14; `test_support.reset_m03()` đã có trong `seed.sql` |
+
+### 12.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-77 | T168 ghi `ALTER DEFAULT PRIVILEGES IN SCHEMA app, api REVOKE EXECUTE … FROM PUBLIC`. Lệnh theo schema không thu hồi được quyền EXECUTE mặc định toàn cục của PUBLIC, nên hàm tạo sau migration 04a (`app.media_object_is_public`) vẫn cho PUBLIC chạy — T175 phát hiện. Sửa: `ALTER DEFAULT PRIVILEGES FOR ROLE postgres REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC` (toàn cục cho role chạy migration) và `revoke … from public` tường minh ở migration 05. Đúng ý Physical §9 | Đã sửa; câu chữ T168 đã cập nhật |
+| D-78 | Giới thiệu điểm tham quan dưới `QR_INTRO_MIN_CHARS`: trigger chấp nhận khi lưu, chỉ chặn ở xuất bản (DAC-M03-052) | Theo DAC |
+| D-79 | Điểm nổi bật chỉ có một ngôn ngữ được lưu nháp (BR-M03-C06); thiếu ngôn ngữ chỉ chặn xuất bản | Theo spec |
+| D-80 | `shortDescription` giữ xuống dòng; trường một dòng chỉ gồm tên, chú thích ảnh, điểm nổi bật (DAC-M03-087, 088) | Theo DAC |
+| D-81 | `routeMapCaption` khi không có sơ đồ bị trigger từ chối (DAC-M03-038). Lệnh lưu (Phase 14) phải bỏ chú thích khi gỡ sơ đồ, giống adapter giả | Chuyển cho T180 |
+| D-82 | Danh mục thông báo (87 khóa) và nhãn trường (34 dòng) nằm trong SQL dạng `VALUES` (`app.message_template`, `app.field_label_base`), sinh từ `catalogText.ts`/`fieldLabels.ts`. `sqlCatalog.test.ts` so từng chữ với định nghĩa mới nhất qua mọi migration; đổi câu chữ thì sửa TypeScript trước rồi thêm migration | Đã có test |
+| D-83 | T170 gọi bộ dựng STALE là `app.stale_result`; code dùng họ `app.cr_*` (`cr_ok`, `cr_validation`, `cr_busy`, `cr_forbidden`, `cr_blocked`, `cr_failed`, `cr_stale`). Chỉ `app.current_admin` và `app.media_object_is_public` là `SECURITY DEFINER`; helper thuần (`render_message`, `cr_*`, …) chạy trong command `SECURITY DEFINER` gọi chúng và không cấp EXECUTE cho role API nào | Ghi nhận |
+| D-84 | `supabase/config.toml`: ở CLI, `[auth.email] enable_signup = false` tắt luôn đăng nhập email ("Email logins are disabled"). Đặt `true` ở `[auth.email]`; đăng ký công khai vẫn bị chặn bởi `[auth] enable_signup = false` (đã kiểm: 422 `signup_disabled`). `[inbucket]` đổi tên thành `[local_smtp]`; tắt `[analytics]` (container `vector` khởi động lại liên tục trên Docker Desktop Windows) | Đã sửa |
+| D-85 | Trigger chặn `DELETE` là cấp dòng (bảng rỗng không kích hoạt); `TRUNCATE` chặn cấp câu lệnh. pgTAP tạo dòng trước khi thử xóa | Ghi nhận |
+| D-86 | `seed.sql` thêm schema `test_support` (đóng với mọi role API): `seed_m03()` tạo 4 người dùng Auth `*@example.test` (reviewer, staff, locked, noaccount) và 3 tài khoản đi đúng vòng đời; `reset_m03()` xóa dữ liệu M03 với `session_replication_role = replica`, chỉ gọi qua `psql` trong container | Chỉ local |
+
+### 12.4 Checkpoint Phase 13
+
+"`supabase db reset` local áp được migration 1, 2, 3a, 4a, 5 và pgTAP nền chạy" **đạt**. Tiếp theo: Phase 14 theo từng story, bắt đầu US1 trên branch `feat/m03-b-us1`.
