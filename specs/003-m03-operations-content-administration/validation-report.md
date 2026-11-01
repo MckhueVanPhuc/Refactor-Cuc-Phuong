@@ -586,3 +586,30 @@ Branch `feat/m03-b-us3` tạo từ `feat/m03-b-us2` @ `5f7549c`. Chỉ stack loc
 | D-106 | Dòng audit `PUBLISHED` giữ `after_state = {changes, affectedRoutes}`; dòng "{nhãn}: {trước} → {sau}" và tên tuyến bị ảnh hưởng do Q-10/Q-11 dựng (T192) | Chuyển cho T192 |
 | D-107 | Audit của C-16 (migration 3c) chưa nêu tên các tuyến bị ảnh hưởng (BR-M03-X06) | Chuyển cho T192/T193 |
 | D-108 | Physical §5.6 nói "a deferred check re-verifies the route's new active snapshot against the live sources at commit". Trigger hoãn hiện chỉ kiểm version active là version cao nhất; thành phần hành trình được kiểm khi dựng trong lệnh. Không thêm kiểm lại lúc commit cho MVP | Người dùng chấp nhận cho MVP (2026-11-02) |
+
+## 16. Đợt 2026-11-02 — Phase 14 US4 backend (T186)
+
+Branch `feat/m03-b-us4` tạo từ `feat/m03-b-us3` @ `8267460`. Chỉ stack local.
+
+### 16.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` | 0 | Áp sạch tới 3e `m03_03e_publish_revisions` |
+| `supabase test db` | 0 | 8 file, 433/433 pass; `m03_us4_revise` 33 ca: sửa tuyến đã xuất bản là một bản nháp chờ, lần sửa sau tiếp tục bản đó, bản công khai không đổi, danh sách đánh dấu bản nháp chờ; STALE không ghi đè; đổi thông tin khác → không version, bản cũ thành `LUU_TRU`; đổi thứ tự → version mới chỉ cho tuyến đó, theo thứ tự mới; sơ đồ không đánh dấu → không version, bật tick → version mới có sơ đồ, tick là thay đổi nhạy cảm; đổi tên điểm dừng chung hai tuyến → review nêu cả hai, mở review không ghi gì, hai tuyến nhận version cùng lúc, version cũ giữ tên cũ; đổi mode → MSG-REPRINT-MODE-CHANGED; nội dung điểm tham quan ở điểm dừng có mạng → không version, ở điểm dừng cần tải trước → version cho mọi tuyến liệt kê, mang nội dung mới; bỏ điểm dừng hoạt động cuối → BLOCKED MSG-ROUTE-LAST-CHECKPOINT, hành trình công khai không đổi; phiên thứ hai (`dblink`) giữ khóa của tập giao nhau → BUSY nêu tên, không đổi gì, một dòng audit FAILURE; tập rời nhau vẫn chạy; nhả khóa thì chạy được |
+| `npm run ci` | 0 | test 1124/1124, build xong |
+
+### 16.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Vượt trần `OFFLINE_PACKAGE_MAX_MB` khi sửa | Như §15.2; code dùng chung `app.size_block` |
+| Snapshot dựng lỗi giữa chừng khi có nhiều tuyến | Đã kiểm một tuyến ở T185; nhiều tuyến dùng chung `app.commit_rebuilds` trong một transaction |
+
+### 16.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-105 | `ROUTE_INFORMATION` và `CHECKPOINT_REVISION` có ở migration 3e. Lõi của 3d được đổi tên thành `app.publication_unit_first`; `app.publication_unit` mới chỉ chia việc theo loại đơn vị, nên `api.publish_unit`/`api.open_publication_review` không phải viết lại | Đã xong |
+| D-109 | `CHECKPOINT_REVISION` đổi sang "Cần tải trước" kiểm ảnh trong nội dung *đã xuất bản* của mọi điểm tham quan đang hoạt động (`app.unreadable_published_images`), như adapter giả | Ghi nhận |
+| D-110 | pgTAP BUSY: khóa advisory giữ tới hết transaction, nên phiên test không được dùng lại khóa của thực thể đã xuất bản trước đó (lần chạy đầu bị treo vì phiên `dblink` chờ khóa của phiên test — đã ngắt và viết lại). Phiên thứ hai dùng `pg_try_advisory_xact_lock`, không bao giờ chờ. Mật khẩu `dblink` là mặc định công khai của stack local | Ghi nhận |

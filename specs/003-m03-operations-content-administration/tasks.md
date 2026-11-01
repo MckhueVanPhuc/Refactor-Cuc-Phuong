@@ -430,7 +430,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### US4 backend
 
-- [ ] T186 [US4] Mở rộng bằng migration mới supabase/migrations/<ts>_m03_03e_publish_revisions.sql: `api.publish_unit` cho `ROUTE_INFORMATION`, `CHECKPOINT_REVISION` và QR ở điểm dừng đang hoạt động: tuyến bị ảnh hưởng, khóa tập kết nối, version liên tục chỉ khi snapshot khác, trần `OFFLINE_PACKAGE_MAX_MB`; viết pgTAP supabase/tests/m03_us4_revise.test.sql: stale không ghi đè; hai tập giao nhau → một BUSY, tập rời nhau → cả hai chạy; 2 tuyến chung điểm dừng nhận version cùng lúc; không đổi hành trình → không version (BR-M03-F05, F06, G03–G05, G10, X02; SC-M03-003, 005, 020, 029)
+- [X] T186 [US4] Mở rộng bằng migration mới supabase/migrations/<ts>_m03_03e_publish_revisions.sql: `api.publish_unit` cho `ROUTE_INFORMATION`, `CHECKPOINT_REVISION` và QR ở điểm dừng đang hoạt động: tuyến bị ảnh hưởng, khóa tập kết nối, version liên tục chỉ khi snapshot khác, trần `OFFLINE_PACKAGE_MAX_MB`; viết pgTAP supabase/tests/m03_us4_revise.test.sql: stale không ghi đè; hai tập giao nhau → một BUSY, tập rời nhau → cả hai chạy; 2 tuyến chung điểm dừng nhận version cùng lúc; không đổi hành trình → không version (BR-M03-F05, F06, G03–G05, G10, X02; SC-M03-003, 005, 020, 029)
 
 ### US5 backend
 
