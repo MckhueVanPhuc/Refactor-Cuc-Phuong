@@ -135,4 +135,16 @@ export const accountsContract: ContractSuite = ({ subject }) => {
     const me = (await api().getCurrentAdmin())!;
     expect(await api().resendInvitation({ email: me.email })).toMatchObject({ ok: false });
   });
+
+  it('chỉ có hai vai trò cố định: mời hoặc đổi sang vai trò khác bị từ chối, không tạo hay đổi gì (BR-M03-A01)', async () => {
+    await controls().signInAs('REVIEWER');
+    const before = await api().listAccounts();
+    const invite = await api().inviteAccount({ email: 'vaitro-la@example.test', role: 'ADMIN' as never });
+    expect(invite.ok).toBe(false);
+    expect(await account('vaitro-la@example.test')).toBeUndefined();
+    const staff = before.find((row) => row.role === 'CONTENT_STAFF')!;
+    const changed = await api().changeAccountRole({ email: staff.email, role: 'OWNER' as never, expected: { entity: staff.concurrencyRevision } });
+    expect(changed.ok).toBe(false);
+    expect((await account(staff.email))?.role).toBe('CONTENT_STAFF');
+  });
 };

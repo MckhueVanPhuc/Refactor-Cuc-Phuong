@@ -270,7 +270,7 @@ export const publishRouteContract: ContractSuite = ({ subject, itFakeOnly }) => 
     expect(journeySnapshotSchema.parse(snapshot).checkpoints[0]?.qrIdentifiers).toEqual([checkpoint.qrIdentifier]);
   });
 
-  itFakeOnly('lỗi giữa chừng → FAILED MSG-PUBLISH-FAILED, không để lại trạng thái nửa vời, có audit FAILURE (Q13; BR-M03-F03)', async () => {
+  itFakeOnly('lỗi giữa chừng → FAILED MSG-PUBLISH-FAILED, không để lại trạng thái nửa vời, có audit FAILURE (Q13; BR-M03-F03, G09: ứng viên đang dựng không bao giờ lộ ra)', async () => {
     await signIn();
     const checkpoint = await publishedCheckpoint('Hang Con Moong');
     const routeId = await completeRoute([checkpoint.checkpointId]);

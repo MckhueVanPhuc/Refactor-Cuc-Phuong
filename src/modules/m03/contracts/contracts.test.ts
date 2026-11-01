@@ -42,9 +42,11 @@ describe('CommandResult (admin-command §2)', () => {
     expect(parse({ ok: true, messageKey: 'MSG-SAVED', data: {} }).success).toBe(false);
   });
 
-  it('VALIDATION kèm issues', () => {
+  it('VALIDATION kèm issues; issue phải đúng hình dạng ValidationIssue, không có hình dạng nào khác (BR-M03-L08)', () => {
     expect(parse({ ok: false, reason: 'VALIDATION', messageKey: 'MSG-LIMIT-TEXT', issues: [issue] }).success).toBe(true);
     expect(parse({ ok: false, reason: 'VALIDATION', messageKey: 'MSG-LIMIT-TEXT' }).success).toBe(false);
+    expect(parse({ ok: false, reason: 'VALIDATION', messageKey: 'MSG-LIMIT-TEXT', issues: [{ field: 'name', error: 'quá dài' }] }).success).toBe(false);
+    expect(parse({ ok: false, reason: 'VALIDATION', messageKey: 'MSG-LIMIT-TEXT', issues: [{ ...issue, debug: 'x' }] }).success).toBe(false);
   });
 
   it('STALE: chỉ MSG-STALE, có email người sửa và thời điểm UTC', () => {
