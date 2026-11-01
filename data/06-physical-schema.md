@@ -139,7 +139,7 @@ The function checks shape only. Rules that need other rows (the referenced media
 | `owner_id` | `ownerId` | text | no | polymorphic reference to `routes` or `checkpoints`, checked by trigger (REL-004, REL-023); immutable |
 | `usage` | `usage` | text | no | CHECK in `ROUTE_THUMBNAIL`, `ROUTE_GALLERY`, `ROUTE_MAP`, `QR_MEDIA`; route usages need `type = IMAGE` and `owner_type = ROUTE`; `QR_MEDIA` needs `owner_type = CHECKPOINT` (DAC-M03-055) |
 | `type` | `type` | text | no | CHECK in `IMAGE`, `AUDIO`, `VIDEO` |
-| `spoken_language` | `spokenLanguage` | text | yes | CHECK in `vi`, `en`, `NONE`; non-null exactly when `type` is `AUDIO` or `VIDEO` (DAC-M03-059) |
+| `spoken_language` | `spokenLanguage` | text | yes | CHECK in `vi`, `en`, `NONE`; null when `type` is `IMAGE`. For `AUDIO`/`VIDEO` it may be null in a draft (visit point not ready, MSG-AV-LANGUAGE-MISSING) and is required by the publication guard (§8; DAC-M03-059) |
 | `source_ref` | `sourceRef` | text | no | bucket-relative object path; not identity; not reused for a different object |
 | `mime_type` | `mimeType` | text | no | CHECK: `image/jpeg`, `image/png`, `image/webp` for `IMAGE`; `audio/mpeg`, `audio/mp4` for `AUDIO`; `video/mp4` for `VIDEO` (DAC-M03-056, 057) |
 | `file_size_bytes` | `fileSizeBytes` | integer | no | CHECK > 0 and ≤ `IMAGE_MAX_MB`, `AUDIO_MAX_MB` or `VIDEO_MAX_MB` × 1 048 576 by type (DAC-M03-058) |

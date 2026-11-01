@@ -419,8 +419,8 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### US2 backend
 
-- [ ] T181 [US2] Tạo supabase/migrations/<ts>_m03_03c_checkpoints_visit_points.sql: `api.save_checkpoint_draft` (khóa tên chuẩn hóa — Physical §14 O-1), `api.save_visit_point_draft` (sinh `qrIdentifier` ≥ 16 ký tự từ nguồn ngẫu nhiên an toàn, tự sinh lại khi va chạm), `api.register_media` (xác minh `storage.objects`, `metadata.size`, `mimetype`), `api.discard_unpublished`, `api.revoke_visit_point`, `api.record_reprint`, `api.list_checkpoints`, `api.get_checkpoint_editor`, `api.get_visit_point_editor`
-- [ ] T182 [US2] Viết pgTAP supabase/tests/m03_us2_checkpoints.test.sql: tên trùng không phân biệt hoa/thường; MSG-MODE-HAS-AV; AV ở điểm dừng offline bị từ chối; QR không có trước lần lưu đầu; MSG-LIMIT-QR; MSG-LAST-QR; `register_media` từ chối object không tồn tại/sai MIME/quá cỡ; lưu một lần all-or-nothing; hủy điểm dừng chưa xuất bản thu hồi QR `NHAP`; xuất bản điểm dừng `OFFLINE_REQUIRED` có ảnh không đọc được bị chặn (BR-M03-D02, D03, D04, D09, E02, E04, E09, E14, F11)
+- [X] T181 [US2] Tạo supabase/migrations/<ts>_m03_03c_checkpoints_visit_points.sql: `api.save_checkpoint_draft` (khóa tên chuẩn hóa — Physical §14 O-1), `api.save_visit_point_draft` (sinh `qrIdentifier` ≥ 16 ký tự từ nguồn ngẫu nhiên an toàn, tự sinh lại khi va chạm), `api.register_media` (xác minh `storage.objects`, `metadata.size`, `mimetype`), `api.discard_unpublished`, `api.revoke_visit_point`, `api.record_reprint`, `api.list_checkpoints`, `api.get_checkpoint_editor`, `api.get_visit_point_editor`
+- [X] T182 [US2] Viết pgTAP supabase/tests/m03_us2_checkpoints.test.sql: tên trùng không phân biệt hoa/thường; MSG-MODE-HAS-AV; AV ở điểm dừng offline bị từ chối; QR không có trước lần lưu đầu; MSG-LIMIT-QR; MSG-LAST-QR; `register_media` từ chối object không tồn tại/sai MIME/quá cỡ; lưu một lần all-or-nothing; hủy điểm dừng chưa xuất bản thu hồi QR `NHAP`; xuất bản điểm dừng `OFFLINE_REQUIRED` có ảnh không đọc được bị chặn (BR-M03-D02, D03, D04, D09, E02, E04, E09, E14, F11)
 
 ### US3 backend
 

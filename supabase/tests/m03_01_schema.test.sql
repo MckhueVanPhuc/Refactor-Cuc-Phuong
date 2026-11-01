@@ -58,9 +58,9 @@ select throws_ok($$insert into app.media (owner_type, owner_id, usage, type, sou
   values ('ROUTE', 'r1', 'ROUTE_MAP', 'IMAGE', 'p', 'image/png', 2097153, 'u1')$$, '23514', null, 'image above IMAGE_MAX_MB (DAC-M03-058)');
 select lives_ok($$insert into app.media (owner_type, owner_id, usage, type, source_ref, mime_type, file_size_bytes, created_by_user_id)
   values ('ROUTE', 'r1', 'ROUTE_MAP', 'IMAGE', 'p2', 'image/png', 2097152, 'u1')$$, 'image of exactly IMAGE_MAX_MB is accepted');
-select throws_ok($$insert into app.media (owner_type, owner_id, usage, type, source_ref, mime_type, file_size_bytes, created_by_user_id)
-  values ('CHECKPOINT', 'c1', 'QR_MEDIA', 'AUDIO', 'p', 'audio/mpeg', 10, 'u1')$$, '23514', null,
-  'audio/video needs a spoken language (DAC-M03-059)');
+select throws_ok($$insert into app.media (owner_type, owner_id, usage, type, spoken_language, source_ref, mime_type, file_size_bytes, created_by_user_id)
+  values ('CHECKPOINT', 'c1', 'QR_MEDIA', 'IMAGE', 'vi', 'p', 'image/png', 10, 'u1')$$, '23514', null,
+  'an image never has a spoken language; audio/video may lack one until publication (DAC-M03-059, D-95)');
 select throws_ok($$update app.media set usage_rights_confirmed = true, concurrency_revision = 2 where source_ref = 'uploads/ROUTE/r1/a'$$,
   '23514', null, 'confirmed rights need who and when');
 select throws_ok($$insert into app.admin_accounts (email, role) values ('  B@Example.test', 'REVIEWER')$$,

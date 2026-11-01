@@ -517,3 +517,36 @@ Branch `feat/m03-b-us1` tạo từ `feat/m03-b-foundation` @ `16b390f`. Chỉ st
 | D-91 | `api.list_accounts` của người không phải Reviewer ném `42501` (query không trả `CommandResult`); adapter ánh xạ sang MSG-NO-PERMISSION như contract dùng chung đòi | Theo contract |
 | D-92 | Gửi lại cho tài khoản không ở `INVITATION_PENDING` → HTTP 400 `{ result: 'FAILED' }` (auth-account §3 không có mã riêng); client ánh xạ sang FAILED MSG-GENERIC như adapter giả | Ghi nhận |
 | D-93 | `inviteUserByEmail` bị provider từ chối với người dùng Auth đã xác nhận email (ví dụ đã từng có tài khoản rồi bị xóa) → 502 INVITE_FAILED. Hiếm ở MVP; không xử lý thêm | Ghi nhận |
+
+## 14. Đợt 2026-11-01 — Phase 14 US2 backend (T181–T182)
+
+Branch `feat/m03-b-us2` tạo từ `feat/m03-b-us1` @ `ab7285b`. Chỉ stack local.
+
+### 14.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` | 0 | Áp sạch migration 01–05, 3b, 3c `m03_03c_checkpoints_visit_points` |
+| `supabase test db` | 0 | 6 file, 334/334 pass; `m03_us2_checkpoints` 78 ca: quyền; FORBIDDEN cho danh tính không có tài khoản; C-02 tạo nháp, mode không mặc định, tên trùng (hoa/thường, khoảng trắng), MSG-ONLINE-NOT-VERIFIED, câu MSG-LIMIT-TEXT đủ nhãn và số, người/thời điểm khảo sát do M03 ghi, STALE (cả khi bản nháp người khác vừa tạo); C-03 MSG-MODE-REQUIRED-FIRST không tạo QR, QR + identifier ≥ 16 + bản nháp 1 cùng lúc, tick quyền theo từng tệp, MSG-AV-OFFLINE, MSG-MODE-HAS-AV, issue/readiness trên dữ liệu đã lưu, lưu lỗi thì không đổi gì (kể cả tick quyền) và đúng một dòng audit, media của điểm dừng khác, QR không chuyển điểm dừng; C-04 object không tồn tại / ngoài thư mục owner / usage sai owner / đăng ký lần hai → FAILED, MSG-FILE-TYPE, MSG-FILE-TOO-BIG (biên đúng mức tối đa nhận), MIME/kích thước lấy từ Storage; MSG-LIMIT-QR, hủy QR nháp rồi thêm lại; C-07 điểm dừng cần lý do, QR nháp → THU_HOI, tên dùng lại được, đã xuất bản thì không hủy; ghi chú vị trí không tạo bản nháp; C-16 chỉ QR hoạt động, MSG-LAST-QR, cần lý do, audit giữ lý do; C-17 một dòng audit, không đổi gì; Q-05/Q-06/Q-07 |
+| Kịch bản HTTP (`scratch/check_us2_http.mjs`, ngoài git) với `supabase-js` của repo | 0 | 12/12: C-02/C-03/C-04/Q-05/Q-07 qua PostgREST với JWT thật; tải ảnh lên Storage qua policy, ghi đè và tải ngoài `uploads/` bị từ chối; `register_media` đọc được `metadata.mimetype`/`size` của Storage thật; admin ký URL ảnh nháp, du khách không ký được; anon gọi query quản trị bị từ chối |
+| `npm run ci` | 0 | test 1123/1123, build xong |
+
+### 14.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| T182 "xuất bản điểm dừng `OFFLINE_REQUIRED` có ảnh không đọc được bị chặn" | Cần `api.publish_unit` (T183); chuyển sang pgTAP T185 |
+| Hai lần lưu cùng tên điểm dừng chạy song song thật | pgTAP một phiên; khóa advisory theo tên chuẩn hóa tuần tự hóa (Physical §14 O-1). Ca song song chạy ở T197 |
+| So khớp tự động quy tắc issue SQL ↔ `src/modules/m03/validation/*` | Chưa có test parity riêng (chỉ câu chữ/nhãn qua `sqlCatalog.test.ts`). Bộ contract dùng chung ở T197 so hành vi hai adapter |
+
+### 14.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-94 | C-16 thu hồi QR phải dựng hành trình mới cho mọi tuyến liệt kê điểm dừng (BR-M03-X02). Chưa có code dựng snapshot (T183), nên `app.rebuild_after_visit_point_change` tạm thời từ chối khi có tuyến đã xuất bản liệt kê điểm dừng (không thể xảy ra trước US3). Migration 3d/3e phải `create or replace` hàm này | Chuyển cho T183/T186 |
+| D-95 | Migration 01 đặt CHECK `media_spoken_language` = "non-null đúng khi AUDIO/VIDEO" theo câu chữ Physical §5. Nhưng DAC-M03-059 ("Missing value: visit point not ready, MSG-AV-LANGUAGE-MISSING"), Physical §8 (guard xuất bản kiểm ngôn ngữ nói) và UI (đăng ký AV trước, chọn ngôn ngữ khi lưu) cho thấy thiếu ngôn ngữ chỉ chặn xuất bản. Migration 3c nới CHECK thành "ảnh không có ngôn ngữ nói"; pgTAP T173 đổi theo | Người dùng chọn giữ cách nới (2026-11-02); đã sửa câu chữ Physical §5 dòng `spoken_language` |
+| D-96 | `qr_codes` không có cột thứ tự tạo; `creationOrder` = thứ tự theo `created_at` (lệnh tạo ghi `clock_timestamp()`), tính cả QR đã thu hồi như adapter giả | Ghi nhận |
+| D-97 | Bảng thực thể không có cột người sửa cuối; `editorEmail` của STALE trên thực thể lấy từ actor dòng audit SUCCESS mới nhất (`app.entity_last_editor`), trên bản nháp lấy `revisions.last_edited_by_user_id` | Ghi nhận |
+| D-98 | `register_media` còn từ chối (FAILED) object nằm ngoài `uploads/{ownerType}/{ownerId}/` và object đã đăng ký — media-storage-contract §1 nêu thư mục nhưng không nói rõ kiểm ở bước đăng ký | Ghi nhận |
+| D-99 | Query (Q-05–Q-07) từ chối người không phải admin bằng `42501` (adapter → MSG-NO-PERMISSION) và id không tồn tại bằng `P0002` (→ MSG-GENERIC); adapter giả ném MSG-SESSION-EXPIRED khi không có admin | Ghi nhận; T197 xem lại nếu contract dùng chung đòi khác |
+| D-100 | Quy tắc issue của điểm dừng/điểm tham quan được viết lại trong SQL (`app.check_*`, `app.checkpoint_*_issues`, `app.visit_point_*_issues`, `app.qr_issues`, `app.readiness`) cùng khóa trường, nhãn và câu như `validation/*.ts`, vì R-26 yêu cầu readiness tính phía server trên dữ liệu đã lưu. Hai nơi phải sửa cùng nhau | Ghi nhận; rủi ro lệch nêu ở §14.2 |
