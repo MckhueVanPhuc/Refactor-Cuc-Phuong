@@ -295,3 +295,32 @@ Branch `feat/m03-us6` tạo từ `feat/m03-us5` @ `3958031` (PR #4 chưa merge; 
 
 "US1–US6 chạy độc lập" **đạt** trên adapter giả: T056–T140 xong; Q1–Q21 pass. Còn mở: các mục `NOT RUN` ở §7.2.
 
+## 8. Đợt 2026-11-01 — Phase 9 US7 Tra cứu QR trực tiếp (T141–T142)
+
+Làm tiếp trên `feat/m03-us6` (chưa commit; file của Phase 9 tách riêng: `src/shared/contracts/liveQrLookup.cases.ts` và `.cases.test.ts`). Giai đoạn A chỉ chốt schema (T022/T026, đã có) và bảng sự thật làm oracle; producer thật `api.lookup_qr` thuộc giai đoạn B (T190–T191). Test viết trước: T141 fail vì không resolve được `./liveQrLookup.cases`, qua sau T142.
+
+### 8.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx vitest run src/shared/contracts/liveQrLookup.cases.test.ts` | 0 | 31 pass |
+| `npm run ci` | 0 | typecheck sạch; lint 318 pass; test 952/952 pass; build xong. Lần chạy trước đó 951/952: ca đầu `CheckpointEditorPage.test.tsx` không thấy tiêu đề trong 1 s (D-59); hai lần `npx vitest run` ngay sau đều 952/952 |
+| `git diff --check` | 0 | Không lỗi khoảng trắng |
+
+### 8.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| `api.lookup_qr` chạy theo bảng sự thật (Q22), lỗi DB là error không phải `INVALID`, lookup không ghi dòng nào | Giai đoạn B (T190–T191) |
+| Test consumer của M02 dùng bảng này | Package 002 chưa cài đặt |
+
+### 8.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-59 | Thêm cách của D-46 cho `checkpoint-library/CheckpointEditorPage.test.tsx`: hai helper mở trang chờ tiêu đề tối đa 5 s | Đã sửa |
+| D-60 | Bảng sự thật có 23 ca, mỗi ca ghi bước của BR-M03-I02 quyết định kết quả; phủ thứ tự ưu tiên (QR hỏng thắng mọi thứ; điểm dừng Nháp/Đã lưu trữ thắng tuyến; tuyến Nháp thắng điểm dừng đóng; tuyến đóng thắng điểm dừng đóng), có và không có `routeId`, tuyến không liệt kê điểm dừng (vẫn `VALID`, BR-M03-I01), identifier có khoảng trắng hai đầu (khớp sau trim), rỗng sau trim và khác hoa/thường (`INVALID`, BR-M03-B02), hai QR cùng điểm dừng (SC-M03-012), điểm dừng cần tải trước (`mediaResources` rỗng). Bảng chỉ ghi kết quả, không cài lại luật | Ghi nhận |
+
+### 8.4 Checkpoint Phase 9
+
+"Schema và oracle lookup sẵn sàng cho M02 và giai đoạn B" **đạt**: T141–T142 xong. Còn mở: các mục `NOT RUN` ở §8.2.

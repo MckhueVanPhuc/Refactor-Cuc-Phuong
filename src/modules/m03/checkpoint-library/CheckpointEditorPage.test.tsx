@@ -11,15 +11,18 @@ beforeAll(() => Promise.all([import('./CheckpointEditorPage'), import('./Checkpo
 
 const MODE_FIRST = formatMessage('MSG-MODE-REQUIRED-FIRST');
 
+// Khi cả bộ test chạy song song, màn có thể hiện chậm hơn mặc định 1 s của findBy* (validation-report D-46)
+const PAGE_OPEN_WAIT = { timeout: 5_000 };
+
 async function openNew() {
   const view = renderAdmin('/admin/checkpoints/new', { signedInAs: 'CONTENT_STAFF' });
-  await screen.findByRole('heading', { level: 1, name: 'Điểm dừng mới' });
+  await screen.findByRole('heading', { level: 1, name: 'Điểm dừng mới' }, PAGE_OPEN_WAIT);
   return view;
 }
 
 async function openExisting(store: FakeStore, checkpointId: string, name: string) {
   const view = renderAdmin(`/admin/checkpoints/${checkpointId}`, { store, signedInAs: 'CONTENT_STAFF' });
-  await screen.findByRole('heading', { level: 1, name });
+  await screen.findByRole('heading', { level: 1, name }, PAGE_OPEN_WAIT);
   return view;
 }
 
