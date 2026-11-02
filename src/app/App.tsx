@@ -9,6 +9,7 @@ export function App() {
     // Cầu nối test E2E chỉ ở MODE e2e/fake; import() động trong nhánh này để không vào bundle production
     if (import.meta.env.MODE === 'e2e' || import.meta.env.MODE === 'fake') {
       void import('../shared/testing/e2eHooks').then((hooks) => hooks.installTestHooks());
+      void import('../modules/m01/testing/e2eHooks').then((hooks) => hooks.registerM01TestHooks());
     }
     void import('./pwa/registerServiceWorker').then((sw) => sw.registerServiceWorker());
   }, []);

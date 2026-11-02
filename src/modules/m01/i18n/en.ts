@@ -1,0 +1,107 @@
+// Chữ tiếng Anh của M01 (research R-12). Câu chép nguyên văn bảng copy của screen spec SCR-M01-001…004.
+// Nhóm `nav`, `screenTitle`, `language.groupLabel`: nguồn chỉ có tiếng Việt; bản tiếng Anh do agent đề xuất, chủ dự án duyệt 2026-11-02
+// (validation-report DV-13).
+import type { M01Messages } from './vi';
+
+export const en: M01Messages = {
+  // Đề xuất của agent, chủ dự án duyệt 2026-11-02 — DV-13
+  nav: {
+    catalog: 'Routes',
+    recommend: 'Route suggestions',
+    offline: 'Offline downloads',
+  },
+  screenTitle: {
+    catalog: 'Routes',
+    recommend: 'Route suggestions',
+    routeDetail: 'Route details & preparation',
+    offline: 'Offline downloads',
+  },
+  language: {
+    groupLabel: 'Language',
+    chooseTitle: 'Choose your language (Tiếng Việt / English)',
+  },
+
+  catalog: {
+    offlineNeeded: 'Download first',
+    stats: ({ n, km, min }) => `${n} stops · ${km} km · ${min} min`,
+    empty: 'No routes are available right now.',
+    stale: 'Saved data, which may not be the latest.',
+    sourceUnavailable: 'Could not load the routes. Check your connection and try again.',
+  },
+  update: {
+    available: 'A new version of the app is available.',
+    apply: 'Update',
+    later: 'Later',
+  },
+
+  labels: {
+    difficulty: { NHE: 'Easy', TRUNG_BINH: 'Moderate', KHO: 'Hard' },
+    timeTag: {
+      TIME_NGAN: 'Short (up to 90 min)',
+      TIME_VUA: 'Medium (90–180 min)',
+      TIME_DAI: 'Long (over 180 min)',
+    },
+    groupTag: {
+      GROUP_CA_NHAN_NGUOI_LON: 'Individuals and adults',
+      GROUP_GIA_DINH_CO_TRE: 'Family with young children',
+      GROUP_CAN_DE_DANG: 'Need an easy route',
+    },
+    experienceTag: {
+      INTEREST_THIEN_NHIEN_CHUP_ANH: 'Nature and photography',
+      INTEREST_TIM_HIEU: 'Learning',
+      INTEREST_KHAM_PHA: 'Exploration',
+    },
+  },
+
+  recommend: {
+    submit: 'Show matching routes',
+    noMatch: 'No route matches your choices. You can change them or see all routes.',
+    changeChoices: 'Change choices',
+    seeAllRoutes: 'See all routes',
+    sourceUnavailable: 'Could not load the routes. Check your connection and try again.',
+    groupTitle: { time: 'Time', group: 'Who is going', experience: 'Experience' },
+  },
+
+  routeDetail: {
+    start: 'Start',
+    offlineDecisionTitle: 'Download this route first',
+    stopsMayLackContent: ({ list }) => `Some stops may have no content unless you download first: ${list}.`,
+    estimatedSize: ({ n }) => `Estimated size: about ${n} MB.`,
+    sizeUnavailable: 'Size not available.',
+    scanHint:
+      'Without a network, scan codes with the Scan button in the app, because the phone camera may not be able to open the app.',
+    download: 'Download',
+    continueWithoutDownload: 'Continue without download',
+    goBack: 'Go back',
+    savedAt: ({ time }) => `Saved on ${time}; this may not be the latest information.`,
+    outdated: 'This download is out of date but still usable.',
+    incomplete: 'The download is not complete. Please try again.',
+    startBlockedOffline: 'Cannot start: you are offline and this route has not been downloaded.',
+    startFailed: 'Could not start. Please try again.',
+    routeUnavailable: 'This route is not available for new trips right now.',
+    sourceErrorUsingSaved: 'Could not load the latest information. Showing saved information.',
+  },
+
+  offline: {
+    status: {
+      notDownloaded: 'Not downloaded',
+      downloading: 'Downloading',
+      readyCurrent: 'Ready – up to date',
+      readyOutdated: 'Ready – newer version available',
+      incomplete: 'Incomplete',
+    },
+    essentialsSavedAt: ({ time }) => `Route information saved on ${time}`,
+    hasOfflineRouteMap: 'Includes offline route map',
+    updateFailed: 'Could not update. The downloaded version is still in use.',
+    storageError:
+      'Could not save data on this device, so the download did not finish. Your earlier download is not affected. You can try again.',
+    deleteConfirm: ({ name }) => `Delete the download for "${name}"? A trip in progress is not affected.`,
+    deleteConfirmAction: 'Delete',
+    deleteKeepAction: 'Keep',
+    empty: 'You have not downloaded any route.',
+    outdatedWarning: 'This download is out of date but still usable.',
+    unreadable: 'This download cannot be read',
+    downloadAgain: 'Download again',
+    delete: 'Delete',
+  },
+};

@@ -1,0 +1,13 @@
+/* Tiêu đề màn M01: serif theo hướng discovery đã duyệt (design-system §3) */
+.title {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-page-heading-mobile);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-m01-deep);
+}
+
+@media (min-width: 48em) {
+  .title {
+    font-size: var(--font-size-page-heading);
+  }
+}

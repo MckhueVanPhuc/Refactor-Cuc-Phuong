@@ -61,3 +61,48 @@ Mười hai đề xuất DV-01…DV-12 được người dùng duyệt 2026-11-0
 ### 1.5 Checkpoint Phase 1
 
 Phase 1 **đạt**: T001–T007 xong, bằng chứng ở §1.2. Còn mở: các mục `NOT RUN` ở §1.3.
+
+## 2. Đợt 2026-11-02 — Phase 2 Foundational (T008–T033)
+
+Branch `feat/m01-foundation`, làm tiếp từ `feat/m01-setup` @ `e20ae44` trong lúc PR #12 (Phase 1) chờ merge; rebase lên `main` sau khi #12 merge rồi mới mở PR vào `main` (DV-12, không xếp chồng PR).
+
+Test viết trước và đã chạy thấy fail (không resolve được module, hoặc ca mới fail) trước khi cài đặt ở mỗi nhóm: T009, T010, T014, T015–T017, T022, T023, T025, T027, T028, T030, T031, T032. Ngoại lệ: T012 qua ngay vì hai schema producer đã có từ M03 (T013); T021 viết test và hằng cùng lúc, không chạy test trước.
+
+### 2.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` (`typecheck` → `lint` → `test` → `build`) | 0 | typecheck sạch; lint 414 pass; test 84 file pass + 1 skipped, 1388 pass, 133 skipped (ca stack local của M03); build precache 36 mục, gồm `m01-catalog`, `m01-layout`, `m01-recommendation`, `m01-route-detail`, `m01-offline-package`; không có chunk `m03-*` nào trong `dist/sw.js` |
+| `npm run e2e` | 0 | 26 pass, 46 skipped (spec `*.local` của M03); project `m01` chưa có spec |
+| `npx playwright test --project=m01` với spec smoke tạm `e2e/m01/tmp-smoke.spec.ts` (đã xóa sau khi chạy) | 0 | 1 pass trên bản build MODE e2e: `/` hiện "Danh mục tuyến", liên kết "Tài nguyên offline" mở `/offline`; service worker đã đăng ký; hook `m01.seedPackage`/`seedContext` ghi vào IndexedDB thật: `offlinePackages` 1, `offlineResources` 3, `imageBytes` 5 (4 ảnh QR + sơ đồ offline), `activePackages` 1, `selectedRouteContext` 1 |
+| Quét `dist/` production tìm `__cpqTestHooks`, `seedPackage`, `failNextActivation`, `registerM01TestHooks`, `fake://quest-media`, `example.test` | — | Không có |
+| `git diff --check` | 0 | Không lỗi khoảng trắng |
+
+### 2.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| `sourceClient`/`mediaClient` gọi view `api.*` và Storage thật | Phase 11 (T103–T105) trên stack Supabase local |
+| E2E M01 (V1–V26) | Spec bắt đầu từ US1 (T038) |
+| Job CI trên GitHub | Chưa push |
+
+### 2.3 Lệch so với tasks và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-06 | T009: `registerBusyCheck(fn: () => boolean \| Promise<boolean>)`; `applyUpdate` chờ mọi hàm, hàm ném lỗi hoặc reject → bận. `registerPackageOperation()` giữ lock shared `cpq:busy`, trả hàm nhả (gọi lại không tác dụng); không có Web Locks thì đếm trong tab. `registerUnsavedForm` giữ nguyên hành vi (D-02) | Áp dụng |
+| DV-07 | T018–T020: ba schema M01 không vào barrel `contracts/index.ts`; import trực tiếp từ file | Áp dụng |
+| DV-08 | T014: cột lấy từ migration `04b` và khớp: 25 cột `published_routes`, 8 cột `active_journey_snapshots`. Cột Required null hoặc cột lạ ngoài danh sách được để nguyên nên schema strict từ chối dòng (báo view lệch thay vì lặng lẽ bỏ qua). Không sửa `supabase/` | Áp dụng |
+| DV-09 | T029: client du khách singleton lười `src/modules/m01/api/visitorSupabase.ts` qua factory dùng chung; adapter nhận Data API/Storage qua tham số cho test | Áp dụng |
+| DV-10 | T031: `src/app/App.tsx` nạp `modules/m01/testing/e2eHooks` bằng `import()` động trong nhánh MODE `e2e`/`fake`; hook gồm `seedContext`, `seedPackage`, `failNextActivation`. Byte ảnh do hook sinh trong trình duyệt (PNG 1×1 synthetic) vì Playwright chỉ truyền JSON. `fakeSource.ts` chỉ dùng cho Vitest | Áp dụng |
+| DV-13 | T022: bảng copy screen spec chỉ có câu cho các tình huống. Tên màn và nhãn điều hướng chỉ có tiếng Việt (screen-list-M01: "Danh mục tuyến", "Gợi ý tuyến", "Chi tiết tuyến & Chuẩn bị", "Quản lý tài nguyên offline"; mockup SCR-M01-003: "Ngôn ngữ"; element E-SCR-M01-001-16: "Tài nguyên offline"). Tiếng Anh do agent đề xuất: "Routes", "Route suggestions", "Route details & preparation", "Offline downloads", "Language". Nằm riêng trong nhóm `nav`, `screenTitle`, `language.groupLabel` của `src/modules/m01/i18n/` | Chủ dự án duyệt 2026-11-02 |
+| DV-14 | `fake-indexeddb` trong jsdom không clone được `Blob` của jsdom (đọc lại thành object rỗng; đã thử). Test M01 tạo byte bằng `Blob` của `node:buffer` (clone đúng). Code thật không dùng `instanceof Blob`, chỉ kiểm `size`/`type` | Áp dụng |
+| DV-15 | T030: signed URL thời hạn 3600 giây, cùng giá trị xem trước của M03 (research M03 R-12); hằng kỹ thuật trong `mediaClient.ts`. Tải byte dùng `cache: 'no-store'` để không đi qua cache HTTP. Thời hạn 60 s tính cho cả request lẫn đọc body | Áp dụng |
+| DV-16 | Thêm `src/shared/contracts/journeyManifest.ts` (tasks không nêu): manifest dùng chung của `SelectedRouteContext v3.routeJourneyManifest` và `OfflinePackage.manifest` (spec-M01 §5.3 nói hai manifest là cùng một bản chiếu). `sequence`, `contentVersion` của manifest chỉ kiểm Integer, không kiểm > 0 (contract chỉ ghi Integer) | Áp dụng |
+| DV-17 | T025, T031: thêm file ngoài danh sách task: `storage/tables.ts` (bảng có kiểu, chỉ `storage/` dùng), `storage/testSeed.ts` và `storage/faultInjection.ts` (nạp dữ liệu và tiêm lỗi cho hook E2E/test; nằm trong `storage/` vì chỉ thư mục này được ghi store M01), `testing/packageFixture.ts`, `testing/pngBytes.ts`. `visitorDb.ts` chỉ khai báo store; mỗi module lấy bảng có kiểu bằng `visitorDb.table<Row, Key>()` để `src/shared` không import ngược từ `src/modules` | Áp dụng |
+| DV-18 | T029: `fetchCatalog` bỏ dòng không qua schema và vẫn là nguồn khả dụng; `fetchRoute`/`fetchActiveSnapshot`: không có dòng → `OK` với `null`, dòng không qua schema → `UNAVAILABLE`. Adapter chọn đúng danh sách cột (không `*`). Hiệu ứng `onSourceRead` chạy sau mỗi lần đọc tuyến thành công (danh mục và một tuyến; không chạy cho snapshot) và được chờ xong trước khi trả kết quả; lỗi của hiệu ứng không làm hỏng lần đọc | Áp dụng |
+| DV-19 | T032–T033: bốn trang là placeholder chỉ có tiêu đề; ngôn ngữ tạm cố định `vi` qua `useM01Messages()` cho tới US1 (T040–T042). Layout có vùng thông báo `role="status"` mà màn đặt nội dung vào qua `SourceNotice` (portal). Chưa có `errorElement` cho route M01 (màn thật thêm ở story tương ứng). Không có skip link vì chưa có câu chữ nguồn | Áp dụng |
+
+### 2.4 Checkpoint Phase 2
+
+"Nền sẵn sàng" **đạt**: T008–T033 xong, bằng chứng ở §2.1. M02 đã có `visitorDb`, `paths.ts`, `updateCoordinator` (`registerBusyCheck`, `registerPackageOperation`) và hàm đọc qua `src/modules/m01/index.ts`. Còn mở: các mục `NOT RUN` ở §2.2.

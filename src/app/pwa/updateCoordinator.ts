@@ -17,17 +17,38 @@ export interface LockManagerLike {
 
 export type ApplyUpdateResult = 'applied' | 'deferred' | 'none';
 
+/** Điều kiện bận lưu bền (M01 R-14, D-02); hàm ném lỗi hoặc reject được coi là bận. */
+export type BusyCheck = () => boolean | Promise<boolean>;
+
 export type UpdateCoordinator = ReturnType<typeof createUpdateCoordinator>;
 
 export function createUpdateCoordinator({ locks }: { locks: LockManagerLike | undefined }) {
   let pendingApply: (() => void | Promise<void>) | null = null;
   const listeners = new Set<(available: boolean) => void>();
-  const busyChecks = new Set<() => boolean>();
+  const busyChecks = new Set<BusyCheck>();
   // id form → hàm nhả lock shared
   const unsavedForms = new Map<string, () => void>();
+  // Số thao tác gói M01 đang chạy trong tab này (chỉ dùng khi không có Web Locks API)
+  let packageOperations = 0;
 
   function notify(available: boolean) {
     for (const listener of listeners) listener(available);
+  }
+
+  /** Giữ lock shared `cpq:busy` tới khi gọi hàm trả về. */
+  function holdBusyLock(): () => void {
+    if (!locks) return () => {};
+    let release: () => void = () => {};
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    void locks.request(BUSY_LOCK, { mode: 'shared' }, () => held);
+    return release;
+  }
+
+  async function anyBusyCheck(): Promise<boolean> {
+    const results = await Promise.allSettled([...busyChecks].map(async (check) => check()));
+    return results.some((result) => result.status === 'rejected' || result.value);
   }
 
   return {
@@ -47,7 +68,7 @@ export function createUpdateCoordinator({ locks }: { locks: LockManagerLike | un
     },
 
     /** Module đăng ký điều kiện bận trong tab này (ví dụ M02 `hasRunningSession`). */
-    registerBusyCheck(check: () => boolean): () => void {
+    registerBusyCheck(check: BusyCheck): () => void {
       busyChecks.add(check);
       return () => busyChecks.delete(check);
     },
@@ -55,16 +76,20 @@ export function createUpdateCoordinator({ locks }: { locks: LockManagerLike | un
     /** M03: giữ lock shared `cpq:busy` khi form `id` còn thay đổi chưa lưu. */
     registerUnsavedForm(id: string): void {
       if (unsavedForms.has(id)) return;
-      if (!locks) {
-        unsavedForms.set(id, () => {});
-        return;
-      }
-      let release: () => void = () => {};
-      const held = new Promise<void>((resolve) => {
-        release = resolve;
-      });
-      unsavedForms.set(id, release);
-      void locks.request(BUSY_LOCK, { mode: 'shared' }, () => held);
+      unsavedForms.set(id, holdBusyLock());
+    },
+
+    /** M01: giữ lock shared `cpq:busy` suốt một thao tác gói; gọi hàm trả về khi xong (gọi lại không có tác dụng). */
+    registerPackageOperation(): () => void {
+      packageOperations += 1;
+      const releaseLock = holdBusyLock();
+      let released = false;
+      return () => {
+        if (released) return;
+        released = true;
+        packageOperations -= 1;
+        releaseLock();
+      };
     },
 
     unregisterUnsavedForm(id: string): void {
@@ -76,7 +101,7 @@ export function createUpdateCoordinator({ locks }: { locks: LockManagerLike | un
     async applyUpdate(): Promise<ApplyUpdateResult> {
       const apply = pendingApply;
       if (!apply) return 'none';
-      if ([...busyChecks].some((check) => check())) return 'deferred';
+      if (await anyBusyCheck()) return 'deferred';
 
       const run = async (): Promise<ApplyUpdateResult> => {
         pendingApply = null;
@@ -85,8 +110,8 @@ export function createUpdateCoordinator({ locks }: { locks: LockManagerLike | un
         return 'applied';
       };
 
-      // Không có Web Locks API: chỉ biết form chưa lưu của chính tab này
-      if (!locks) return unsavedForms.size > 0 ? 'deferred' : run();
+      // Không có Web Locks API: chỉ biết form chưa lưu và thao tác gói của chính tab này
+      if (!locks) return unsavedForms.size > 0 || packageOperations > 0 ? 'deferred' : run();
 
       return locks.request(BUSY_LOCK, { mode: 'exclusive', ifAvailable: true }, (lock) =>
         lock ? run() : ('deferred' as const),
@@ -106,6 +131,7 @@ function browserLocks(): LockManagerLike | undefined {
 
 export const updateCoordinator = createUpdateCoordinator({ locks: browserLocks() });
 
-export const registerBusyCheck = (check: () => boolean) => updateCoordinator.registerBusyCheck(check);
+export const registerBusyCheck = (check: BusyCheck) => updateCoordinator.registerBusyCheck(check);
+export const registerPackageOperation = () => updateCoordinator.registerPackageOperation();
 export const registerUnsavedForm = (id: string) => updateCoordinator.registerUnsavedForm(id);
 export const unregisterUnsavedForm = (id: string) => updateCoordinator.unregisterUnsavedForm(id);
