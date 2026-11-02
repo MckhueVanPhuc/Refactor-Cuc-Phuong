@@ -101,6 +101,8 @@ export const MESSAGE_CATALOG = {
   "MSG-CHECKPOINT-IN-USE": "Chưa thể lưu trữ điểm dừng này vì tuyến {danh sách} vẫn có trong danh sách. Hãy bỏ điểm dừng khỏi các tuyến đó trước.",
   // Closing dialog for a checkpoint
   "MSG-CLOSE-AFFECTS-ROUTES": "Điểm dừng này có trong {số} tuyến: {danh sách}.",
+  // Closing dialog for a checkpoint that no route lists
+  "MSG-CLOSE-NO-ROUTES": "Điểm dừng này chưa có trong tuyến nào. Người quét mã QR tại đây sẽ thấy điểm dừng đang tạm đóng.",
   // Closing dialog when routes would run out of active checkpoints
   "MSG-CLOSE-ROUTE-AUTO": "Các tuyến sau sẽ tự đóng tạm vì hết điểm dừng hoạt động: {danh sách}.",
   // Closing did not complete

@@ -20,6 +20,7 @@ import type {
 } from '../../contracts/adminDtos';
 import type { CommandResult } from '../../contracts/commandResult';
 import type { JourneySnapshot } from '../../../../shared/contracts/journeySnapshot';
+import type { SessionSyncRecord } from '../../../../shared/contracts/sessionSyncRecord';
 import { createFixtureProviderUsers, createFixtureState } from './fixtures';
 
 export type FakeAccount = {
@@ -126,7 +127,12 @@ export type FakeState = {
   /** khóa = `{routeId}:{contentVersion}`; bất biến sau khi tạo (BR-M03-G01) */
   snapshots: Map<string, JourneySnapshot>;
   media: Map<string, FakeMedia>;
+  /** khóa = sessionId; append-only, không sửa, không xóa (session-intake §4) */
+  sessionRecords: Map<string, FakeSessionRecord>;
 };
+
+/** SessionRecord: các trường đã nhận của SessionSyncRecord + thời điểm nhận (data-model §2.9) */
+export type FakeSessionRecord = SessionSyncRecord & { ingestedAt: string };
 
 /** Object Storage — không chung transaction với database (media-storage-contract §0) */
 export type FakeStorageObject = { size: number; mimetype: string; blob: Blob };
@@ -154,6 +160,11 @@ export type CommandContext = {
   subjectName: string | undefined;
   changeLines: string[];
   selfPublished?: boolean;
+  /**
+   * Kết quả kèm theo có dòng audit riêng, ghi sau dòng của command và chỉ khi command thành công
+   * (tuyến tự đóng tạm, BR-M03-H02; admin-command §5 "Giá trị audit_records.action")
+   */
+  followUpAudit: { action: string; subject: { type: FakeAuditRow['subjectType']; id: string; name: string }; changeLines: string[] }[];
 };
 
 const ID_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -240,6 +251,7 @@ export class FakeStore {
       subjectId: spec.subject.id,
       subjectName: spec.subject.name,
       changeLines: [],
+      followUpAudit: [],
     };
     let result: CommandResult<T> | undefined;
     try {
@@ -263,6 +275,19 @@ export class FakeStore {
       if (spec.reason !== undefined) row.reason = spec.reason;
       if (succeeded && context?.selfPublished !== undefined) row.selfPublished = context.selfPublished;
       this.audit.push(row);
+      for (const followUp of succeeded ? (context?.followUpAudit ?? []) : []) {
+        this.audit.push({
+          auditId: this.newId(),
+          action: followUp.action,
+          result: 'SUCCESS',
+          actorEmail: row.actorEmail,
+          occurredAt: row.occurredAt,
+          subjectType: followUp.subject.type,
+          subjectId: followUp.subject.id,
+          subjectName: followUp.subject.name,
+          changeLines: followUp.changeLines,
+        });
+      }
     }
   }
 

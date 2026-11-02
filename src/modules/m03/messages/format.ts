@@ -37,6 +37,26 @@ export function formatTime(value: string | Date): string {
   return `${part(timeParts, date, 'hour')}:${part(timeParts, date, 'minute')}`;
 }
 
+/** Ngày nhân viên gõ dạng dd/mm/yyyy (như ngày hiện trên màn) → `YYYY-MM-DD`; sai dạng hoặc không có thật → null */
+export function parseDisplayDate(text: string): string | null {
+  const match = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(text.trim());
+  if (!match) return null;
+  const [day, month, year] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+// Việt Nam không đổi giờ theo mùa: UTC+7 quanh năm
+const VIETNAM_OFFSET = '+07:00';
+
+/** 00:00 giờ Việt Nam của ngày `YYYY-MM-DD` cộng `addDays` ngày, dạng UTC ISO 8601 (mốc lọc theo ngày lịch) */
+export function vietnamDayStartUtc(isoDate: string, addDays = 0): string {
+  const start = new Date(`${isoDate}T00:00:00${VIETNAM_OFFSET}`);
+  start.setUTCDate(start.getUTCDate() + addDays);
+  return start.toISOString();
+}
+
 /** Số MB (1 MB = 1 048 576 byte), tối đa một chữ số thập phân, không kèm đơn vị — cho placeholder "{số} MB". */
 export function formatMegabytes(bytes: number): string {
   return megabytes.format(bytes / BYTES_PER_MB);

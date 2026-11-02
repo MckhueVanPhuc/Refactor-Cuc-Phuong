@@ -13,6 +13,7 @@ import type {
 import type { CommandResult } from '../../contracts/commandResult';
 import type { FieldChange, PublicationReview, PublicationUnitType } from '../../contracts/publicationReview';
 import type { ValidationIssue } from '../../contracts/validationIssue';
+import { affectedRoutesLine, changeLine } from '../../history/auditFormat';
 import { formatMessage, type MessageKey } from '../../messages/catalog';
 import { DISPLAY_NAMES } from '../../messages/displayNames';
 import { FIELD_LABELS, fieldLabel } from '../../messages/fieldLabels';
@@ -516,6 +517,11 @@ export function createFakePublishArea(store: FakeStore): PublishArea {
         if (rejected) return rejected;
         const { publishedRevisionNumber, selfPublished, newJourneyVersions } = unit.apply(context.actor.email);
         context.selfPublished = selfPublished;
+        // Dòng audit ghi nội dung trước/sau và, với điểm dừng/điểm tham quan, các tuyến bị ảnh hưởng (BR-M03-F08, X06)
+        context.changeLines.push(...unit.review.changes.map(changeLine));
+        if (subjectType !== 'ROUTE' && unit.review.affectedRoutes.length > 0) {
+          context.changeLines.push(affectedRoutesLine(unit.review.affectedRoutes.map((route) => route.routeName)));
+        }
         return { ok: true, messageKey: 'MSG-PUBLISHED', data: { publishedRevisionNumber, newJourneyVersions } };
       });
     },

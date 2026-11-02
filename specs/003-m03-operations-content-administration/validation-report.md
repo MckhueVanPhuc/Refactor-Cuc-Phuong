@@ -251,3 +251,195 @@ Branch `feat/m03-us5` tạo từ `main` @ `8022f11` (đã merge PR #3, US1–US4
 ### 6.4 Checkpoint Phase 7
 
 "US1–US5 chạy độc lập" **đạt** trên adapter giả: T056–T129 xong; Q1–Q18 pass. Còn mở: các mục `NOT RUN` ở §6.2.
+
+## 7. Đợt 2026-11-01 — Phase 8 US6 Đóng và mở lại (T130–T140)
+
+Branch `feat/m03-us6` tạo từ `feat/m03-us5` @ `3958031` (PR #4 chưa merge; US6 dùng `editor/confirmations.ts` của US5). Test viết trước và đã chạy thấy fail trước khi cài đặt:
+
+- T133 `api/contract/operations.contract.ts`: 15/15 ca fail, lý do "Adapter giả chưa có …: khu vực operations — T135".
+- T130–T132 `operations/{Close,Reopen,Archive}Dialog.test.tsx`: 5 ca fail (không có nút "Đóng tạm", adapter chưa có) và một file không resolve được `./ReopenDialog`.
+- T134 `e2e/m03/operations.spec.ts`: 3/3 fail vì chưa có test hook `seedCloseScenario`.
+
+### 7.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | 2 lần liên tiếp: typecheck sạch; lint 316 pass; test 916/916 pass; build xong. Sau khi sửa D-51, D-55: 919/919 pass |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | 23 pass: Q1–Q21. Lần chạy đầu Q21 fail do chính test (`getByRole('button', { name: 'Mở lại' })` khớp cả "Không mở lại"); sửa test bằng `exact: true` |
+| Quét `dist/` production tìm `__cpqTestHooks`, `seedCloseScenario`, `example.test`, mật khẩu synthetic, adapter giả | — | Không có |
+| `git diff --check` (gồm file mới) | 0 | Không lỗi khoảng trắng |
+
+### 7.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Adapter Supabase cho C-09…C-15, Q-09; khóa tập thật, transaction đóng điểm dừng + snapshot | Giai đoạn B (T188); T197 chạy lại `operations.contract.ts` với adapter này |
+| Ca `fakeOnly` của `operations.contract.ts` (trần dung lượng khi đóng/mở lại, BUSY, MSG-CLOSE-FAILED, ảnh không đọc được) trên stack local | Cần cách tiêm lỗi riêng ở giai đoạn B |
+| CI trên GitHub cho nhánh này | Chưa push |
+
+### 7.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-50 | Danh mục §5.6 không có câu báo thành công cho đóng tạm / mở lại / lưu trữ. Adapter giả trả `messageKey: 'MSG-SAVED'` như C-16 (US2); UI không hiện câu đó mà nạp lại để trạng thái mới ("Tạm đóng", "Đang hoạt động", "Đã lưu trữ") tự nói lên kết quả. Chỉ kết quả không thành công hiện banner | Ghi nhận; giai đoạn B chọn `messageKey` thành công khi viết RPC |
+| D-51 | Mục đổi trạng thái trong lúc hộp thoại đang mở (ví dụ người khác vừa đóng tuyến): trước đây danh sách đọc `concurrencyRevision` ngay trước khi gửi nên chỉ nhận FAILED MSG-GENERIC. **Đã quyết 2026-11-01** (người dùng ủy quyền): hộp thoại đọc phiên bản lúc **mở** (`useExpectedRevision`); mọi lần đổi trạng thái đều tăng phiên bản nên lần gửi bị STALE và hiện MSG-STALE kèm "Tải lại" (BR-M03-F06, L05). Không thêm khóa §5.6, không đổi contract. FAILED MSG-GENERIC chỉ còn cho ca không lường trước | Đã sửa; `CloseDialog.test.tsx` phủ |
+| D-52 | Tuyến tự đóng khi đóng điểm dừng có dòng audit riêng `ROUTE_AUTO_CLOSED` (BR-M03-H02; admin-command §5), ghi sau dòng `CHECKPOINT_CLOSED` và chỉ khi command thành công: `store.run` có thêm `followUpAudit`. Dòng của C-10, C-11, C-13 nêu "Tuyến bị ảnh hưởng: …" (BR-M03-X06) | Ghi nhận |
+| D-53 | Kiểm tra kỹ thuật khi mở lại (Q-09, C-12, C-13) chạy trên dữ liệu **đã xuất bản**: điểm dừng — ít nhất một điểm tham quan đang hoạt động, tên và nội dung các điểm tham quan đủ hai ngôn ngữ, xác nhận khảo sát còn hiệu lực với "Dùng được khi có mạng", ảnh "Cần tải trước" còn trong Storage; tuyến — các trường bắt buộc (cùng hàm `routePublishIssues`) và ít nhất một điểm dừng hoạt động. Danh sách cần sửa là các câu §5.6 đã điền, nối vào MSG-REOPEN-BLOCKED. Không có điểm dừng hoạt động → C-12 trả BLOCKED MSG-NO-ACTIVE-CHECKPOINT (contract), Q-09 vẫn đưa câu đó vào `reopenBlockers` để hộp thoại hiện. Trần dung lượng chỉ kiểm khi gửi C-13 (MSG-OFFLINE-TOO-BIG), không nằm trong `reopenBlockers` | Ghi nhận |
+| D-54 | Q-09 với `REOPEN_*` do Nhân viên nội dung gọi → lỗi MSG-NO-PERMISSION (admin-command Q-09 "mở lại: R"). Q21 E2E kiểm Nhân viên không thấy nút "Mở lại"/"Lưu trữ"; FORBIDDEN khi vẫn gửi được kiểm ở `ReopenDialog.test.tsx` và contract | Theo contract |
+| D-55 | Hộp thoại đóng điểm dừng không có khóa MSG-CONFIRM-*: tiêu đề là MSG-CLOSE-AFFECTS-ROUTES, câu phụ MSG-CLOSE-ROUTE-AUTO khi có tuyến sẽ tự đóng (D-45). Điểm dừng không có tuyến nào liệt kê: **đã quyết 2026-11-01** (người dùng chọn phương án A) — khóa mới MSG-CLOSE-NO-ROUTES "Điểm dừng này chưa có trong tuyến nào. Người quét mã QR tại đây sẽ thấy điểm dừng đang tạm đóng." Sửa spec trước: spec-M03 v3.7 clarification 9 (BR-M03-H01, §5.6); đồng bộ screen spec SCR-M03-008 E-16, contract `admin-ui-flow-contract.md`, `catalogText.ts`, `catalog.test.ts`. Script sinh `catalogText.ts` không có trong repo nên dòng mới được thêm tay đúng định dạng và thứ tự bảng §5.6; mockup SCR-M03-008 minh họa ca có 2 tuyến nên không đổi | Đã sửa |
+| D-56 | Đóng/mở lại/lưu trữ từ **danh sách** đọc `concurrencyRevision` mới nhất ngay trước khi gửi (như "Hủy" của US3); từ editor điểm dừng thì gửi bản đang có trên màn, nên STALE nếu người khác vừa sửa. "Đóng tạm các tuyến liên quan" gửi lại đúng lý do đã nhập | Ghi nhận |
+| D-57 | `OperationDialog` (khung chung) được thêm vào danh sách khung của test quét hộp xác nhận (D-45); thêm luật: mọi nơi dùng `<OperationDialog>` phải lấy câu từ `confirmation()`. CSS mới chỉ dùng token (`--space-*`, `--color-error`, `--color-ink-secondary`); `.rowActions` đặt trong `EditorLayout.module.css` cho hai danh sách | Hình thức |
+| D-58 | Editor tuyến (SCR-M03-002) chưa có nút Đóng tạm/Mở lại/Lưu trữ: T140 chỉ giao danh sách tuyến, editor và danh sách điểm dừng | Theo tasks |
+
+### 7.4 Checkpoint Phase 8
+
+"US1–US6 chạy độc lập" **đạt** trên adapter giả: T056–T140 xong; Q1–Q21 pass. Còn mở: các mục `NOT RUN` ở §7.2.
+
+## 8. Đợt 2026-11-01 — Phase 9 US7 Tra cứu QR trực tiếp (T141–T142)
+
+Làm tiếp trên `feat/m03-us6` (chưa commit; file của Phase 9 tách riêng: `src/shared/contracts/liveQrLookup.cases.ts` và `.cases.test.ts`). Giai đoạn A chỉ chốt schema (T022/T026, đã có) và bảng sự thật làm oracle; producer thật `api.lookup_qr` thuộc giai đoạn B (T190–T191). Test viết trước: T141 fail vì không resolve được `./liveQrLookup.cases`, qua sau T142.
+
+### 8.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx vitest run src/shared/contracts/liveQrLookup.cases.test.ts` | 0 | 31 pass |
+| `npm run ci` | 0 | typecheck sạch; lint 318 pass; test 952/952 pass; build xong. Lần chạy trước đó 951/952: ca đầu `CheckpointEditorPage.test.tsx` không thấy tiêu đề trong 1 s (D-59); hai lần `npx vitest run` ngay sau đều 952/952 |
+| `git diff --check` | 0 | Không lỗi khoảng trắng |
+
+### 8.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| `api.lookup_qr` chạy theo bảng sự thật (Q22), lỗi DB là error không phải `INVALID`, lookup không ghi dòng nào | Giai đoạn B (T190–T191) |
+| Test consumer của M02 dùng bảng này | Package 002 chưa cài đặt |
+
+### 8.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-59 | Thêm cách của D-46 cho `checkpoint-library/CheckpointEditorPage.test.tsx`: hai helper mở trang chờ tiêu đề tối đa 5 s | Đã sửa |
+| D-60 | Bảng sự thật có 23 ca, mỗi ca ghi bước của BR-M03-I02 quyết định kết quả; phủ thứ tự ưu tiên (QR hỏng thắng mọi thứ; điểm dừng Nháp/Đã lưu trữ thắng tuyến; tuyến Nháp thắng điểm dừng đóng; tuyến đóng thắng điểm dừng đóng), có và không có `routeId`, tuyến không liệt kê điểm dừng (vẫn `VALID`, BR-M03-I01), identifier có khoảng trắng hai đầu (khớp sau trim), rỗng sau trim và khác hoa/thường (`INVALID`, BR-M03-B02), hai QR cùng điểm dừng (SC-M03-012), điểm dừng cần tải trước (`mediaResources` rỗng). Bảng chỉ ghi kết quả, không cài lại luật | Ghi nhận |
+
+### 8.4 Checkpoint Phase 9
+
+"Schema và oracle lookup sẵn sàng cho M02 và giai đoạn B" **đạt**: T141–T142 xong. Còn mở: các mục `NOT RUN` ở §8.2.
+
+## 9. Đợt 2026-11-01 — Phase 10 US8 Lịch sử, khôi phục và nhật ký (T143–T151)
+
+Branch `feat/m03-us8` tạo từ `feat/m03-us7` @ `58cb2c2`. Test viết trước và đã chạy thấy fail trước khi cài đặt:
+
+- T146 `api/contract/history.contract.ts` (9 ca) và `audit.contract.ts`: 13 ca fail — khu vực history còn `pending`, dòng audit xuất bản chưa có trước/sau, thao tác trên điểm dừng chưa nêu tuyến. 20 ca "command thất bại vẫn ghi đúng một dòng" đã qua sẵn từ US1–US6.
+- T143–T145 (component): 6 ca fail (chưa có panel, nút) và một file không resolve được `./AuditLogPage`.
+- T147 `e2e/m03/history.spec.ts`: 2/2 fail.
+- `messages/format.test.ts` (đọc ngày dd/mm/yyyy, D-63): 2 ca fail trước khi có hàm.
+
+### 9.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | typecheck sạch; lint 339 pass; test 1023/1023 pass; build xong |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | 25 pass: Q1–Q24. Lần đầu 5 fail: Q12, Q18 hết giờ khi dev server còn nguội (chạy lại đều pass); Q21 vì `getByText('Trạng thái: …')` khớp thêm dòng nhật ký mới (D-64); Q23, Q24 do chính test mới (bấm "Xuất bản" trước khi màn xem lại hiện; regex sai thứ tự cột). Đã sửa test, ứng dụng không lỗi |
+| `git diff --check` | 0 | Không lỗi khoảng trắng |
+
+### 9.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Adapter Supabase cho C-06, C-08, Q-10, Q-11; `beforeState`/`afterState` thật trong `audit_records` | Giai đoạn B (T192–T193); T197 chạy lại `history.contract.ts`, `audit.contract.ts` |
+| Ca `fakeOnly` khôi phục bản vi phạm giới hạn trên stack local | Cần cách sửa dữ liệu riêng ở giai đoạn B |
+
+### 9.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-61 | Chỉ bản **Bản cũ** (`LUU_TRU`, từng xuất bản) có nút khôi phục; bản đang xuất bản thì không (BR-M03-F07 "earlier published revision"). Khôi phục và "Bỏ thay đổi" không có hộp xác nhận (BR-M03-L12 không liệt kê). Nút khôi phục tắt khi form còn thay đổi chưa lưu, vì khôi phục nạp bản nháp mới vào form và sẽ thay chữ đang gõ. "Bỏ thay đổi" chỉ có với mục đã xuất bản và đang có bản nháp chờ; mục chưa từng xuất bản dùng "Hủy" | Ghi nhận |
+| D-62 | Khôi phục kiểm giới hạn hiện hành bằng đúng hàm kiểm tra lúc lưu bản nháp (`routeSaveIssues`, `checkpointSaveIssues` + trùng tên, `visitPointSaveIssues`); "danh sách chỗ cần sửa" của MSG-RESTORE-BLOCKED là các nhãn trường. Danh mục không có câu báo thành công cho khôi phục/bỏ thay đổi (như D-50): form nạp bản mới và VersionNote đổi | Ghi nhận |
+| D-63 | Lọc ngày trên nhật ký nhập dd/mm/yyyy (cùng định dạng ngày hiển thị khắp M03 và với báo cáo T152), không dùng ô `type="date"` vì `TextField` dùng chung (`src/shared/ui`) chưa có kiểu đó. Hàm `parseDisplayDate` và `vietnamDayStartUtc` thêm vào `messages/format.ts`; "Đến ngày" tính hết ngày (mốc 00:00 hôm sau, giờ Việt Nam). Ngày gõ chưa xong/sai dạng thì chưa lọc theo ngày đó | Hình thức |
+| D-64 | Ba E2E cũ (`checkpoints.spec.ts`, `routes.spec.ts`, `operations.spec.ts`) đổi `getByText('Trạng thái: …')` sang `exact: true`, vì panel lịch sử nay hiện các dòng "Trạng thái: … → …" trên cùng màn | Đã sửa test |
+| D-65 | Dòng audit `PUBLISHED` nay ghi các dòng trước/sau của màn xem lại ("{nhãn}: {trước} → {sau}", BR-M03-F08) và, với điểm dừng/điểm tham quan, "Tuyến bị ảnh hưởng: …" (BR-M03-X06); thu hồi QR cũng nêu tuyến. Dòng lưu bản nháp trên adapter giả chưa có trước/sau từng trường; giai đoạn B lưu `beforeState`/`afterState` trong `audit_records` (Physical §5.8) | Ghi nhận |
+| D-66 | Tên hiển thị của mọi giá trị `action` (admin-command §5) ở `history/auditFormat.ts`; test đọc danh sách từ contract để không sót. Giá trị lạ hiện "Thao tác quản trị". Nhật ký trang 50 dòng (`AUDIT_PAGE_SIZE`, lựa chọn kỹ thuật). Cột "Mở mục liên quan" (E-SCR-M03-009-08) chưa có vì `AuditRow` không mang id mục (id nội bộ không hiện, BR-M03-L10) | Ghi nhận; E-08 để giai đoạn B nếu cần |
+| D-67 | Tách helper dựng dữ liệu của bộ test hợp đồng ra `api/contract/builders.ts` (dùng cho history, audit); `operations.contract.ts` giữ nguyên | Tái cấu trúc nhỏ |
+
+### 9.4 Checkpoint Phase 10
+
+"US1–US8 chạy độc lập" **đạt** trên adapter giả: T056–T151 xong; Q1–Q24 pass. Còn mở: các mục `NOT RUN` ở §9.2.
+
+## 10. Đợt 2026-11-01 — Phase 11 US9 Nhận phiên và báo cáo (T152–T159)
+
+Branch `feat/m03-us9` tạo từ `feat/m03-us8` @ `f58b743`. Intake thật (`session-intake`, `api.ingest_session`) thuộc giai đoạn B (T194–T196); giai đoạn A chốt bảng ca intake làm oracle và chạy báo cáo trên `SessionRecord` synthetic. Test viết trước và đã chạy thấy fail trước khi cài đặt: T152, T154, T153 không resolve được module; `reports.contract.ts` 4/4 fail (khu vực reports còn `pending`); T155 fail vì chưa có hook `seedSessions`.
+
+### 10.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | typecheck sạch; lint 347 pass; test 1073/1073 pass; build xong |
+| `npm run e2e` (project `m03`, `dev:fake`) | 0 | 26 pass: Q1–Q24, Q26 |
+| `git diff --check` | 0 | Không lỗi khoảng trắng |
+
+### 10.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Q25: POST tới `session-intake` theo bảng `sessionSyncRecord.cases.ts`; chỉ một dòng `session_records` | Giai đoạn B (T194–T196) |
+| Adapter Supabase cho Q-12, Q-13 (lọc `ended_at` theo múi giờ ở SQL) | Giai đoạn B; T197 chạy lại `reports.contract.ts` (ca `fakeOnly` cần nạp `SessionRecord` theo cách khác) |
+
+### 10.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-68 | `SessionRecord` synthetic nằm trong bảng mới `sessionRecords` của store giả, nạp bằng điều khiển `seedSessionRecords` (fakeOnly) và hook E2E `seedSessions`. Không ghi qua command vì intake không phải thao tác quản trị và không ghi audit (session-intake §2) | Chỉ adapter giả |
+| D-69 | Bảng ca intake chạy **theo thứ tự** trên một snapshot cho trước (`SESSION_INTAKE_SNAPSHOT`): ca IDENTICAL/CONFLICT dùng lại `sessionId` đã ACCEPTED trước đó. 19 ca: 3 ACCEPTED (gồm tuyến Tạm đóng, BR-M03-J04), 2 IDENTICAL (gồm đảo thứ tự visits và khóa, BR-M03-J03), 2 CONFLICT, 5 INVALID qua Zod nhưng lệch snapshot/dữ liệu (BR-M03-J02), 7 INVALID không qua Zod (khóa lạ ở gốc và phần tử, `DANG_DIEN_RA`, thời gian, lượt ghé lặp, `sessionId` không phải UUID) | Ghi nhận |
+| D-70 | Màn báo cáo điền sẵn hai ô ngày bằng 30 ngày mặc định (dd/mm/yyyy, giờ Việt Nam) và nạp báo cáo khi mở; "Áp dụng" tắt khi khoảng ngày sai, câu MSG-REPORT-DATES-INVALID / MSG-REPORT-SPAN hiện dưới bộ lọc bằng chữ màu lỗi (không phải banner). Lỗi tải dùng banner `error` (role `alert`) như các màn M03 khác — screen spec gọi là "kiểu cảnh báo". Tỷ lệ hiện dạng phần trăm `vi-VN`, tối đa một chữ số thập phân. Bộ lọc tuyến liệt kê các tuyến đã từng xuất bản | Hình thức |
+| D-71 | Q-12/Q-13 trên adapter giả từ chối khoảng ngày sai bằng lỗi MSG-GENERIC (client không bao giờ gửi khoảng sai; contract không có kết quả lỗi riêng cho query). RPT-02 sắp theo tên tuyến rồi thứ tự điểm dừng (lựa chọn trình bày) | Ghi nhận |
+| D-72 | Mọi khu vực của adapter giả đã cài: bỏ cơ chế `pending` trong `fakeAdminApi.ts` (kiểu `AdminApi` bảo đảm đủ phương thức); bỏ `layout/PlaceholderPage` vì không còn màn nào dùng (T046 đã hết vai trò) | Dọn mã |
+
+### 10.4 Checkpoint Phase 11
+
+"Mọi user story của giai đoạn A chạy độc lập trên adapter giả" **đạt**: T056–T159 xong; Q1–Q24, Q26 pass. Còn mở: các mục `NOT RUN` ở §10.2.
+
+## 11. Đợt 2026-11-01 — Phase 12 Polish và kiểm chứng giai đoạn A (T160–T165)
+
+Branch `feat/m03-polish-a` tạo từ `feat/m03-us9` @ `9e9b88e`.
+
+### 11.1 Lệnh kiểm chứng (T163)
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` (`typecheck` + `lint` + `test` + `build`) | 0 | 3 lần liên tiếp: typecheck sạch; lint 348 pass; test 1120/1120 pass; build xong. Lần đầu đợt này 1116/1120: 3 ca hết giờ khi chạy song song và 1 hồi quy thật do D-73 (đã sửa) — xem D-74 |
+| `npm run e2e -- --project=m03` | 0 | 26 pass: Q1–Q24, Q26 |
+| CI trên GitHub (`verify`, `e2e`) của các nhánh đã push | 0 | PR #4 (`feat/m03-us5`), #5 (`feat/m03-us6`), #6 (`feat/m03-us7`): mọi job pass. Nhánh `feat/m03-us8`, `feat/m03-us9`, `feat/m03-polish-a` chưa push nên chưa có lần chạy CI |
+| `npm run build` + kiểm chunk (T161) | 0 | Entry chỉ tải sẵn runtime. Mọi trang `/admin/*`, adapter RPC, `supabase-js` (214 KB), schema (92 KB) nạp lazy; `qrcode` ở chunk riêng (`browser-*.js`). Khung quản trị nhẹ (layout, ngữ cảnh đăng nhập, danh mục thông báo) nằm trong entry — D-75 |
+| Quét `dist/` tìm `APP_BACKEND_SECRET_KEY`, `service_role`, `SUPABASE_SERVICE`, `sb_secret_` (T161) | — | Không có khóa nào. Một chỗ khớp `sb_secret_` là code nhận diện tiền tố khóa của chính `supabase-js`, không phải giá trị |
+| Tương phản token (T160) — `src/modules/m03/layout/contrast.test.ts` | 0 | Mọi màu chữ M03 trên mọi nền sáng ≥ 4.5:1 (thấp nhất: `--color-error` trên `--color-m03-active` 4.78:1); chữ trắng trên accent 7.50:1; viền ô nhập ≥ 3:1 (thấp nhất 3.09:1) |
+| `git diff --check`; kiểm link tương đối các file đã sửa trong `specs/003`, spec-M03, SCR-M03-008 (T164) | 0 | Không lỗi khoảng trắng; không link hỏng (link `screen%20list` có từ trước, file tồn tại) |
+
+### 11.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Đo WCAG bằng công cụ tự động (axe) và kiểm bằng trình đọc màn hình thật | Không có dependency cho axe (không cài thêm); cần người kiểm thủ công. T160 dựa trên rà mã, test vai trò/nhãn của Testing Library và test tương phản |
+| CI GitHub cho `feat/m03-us8`, `feat/m03-us9`, `feat/m03-polish-a` | Chưa push |
+
+### 11.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-73 | T162 thêm test cho mọi BR trước đó chưa có test (`checklists/br-test-coverage.md`). Hai test lộ lỗi của adapter giả, đã sửa: (1) mời hoặc đổi sang vai trò ngoài `REVIEWER`/`CONTENT_STAFF` được chấp nhận (BR-M03-A01) → nay FAILED, không tạo hay đổi gì; (2) chỉ đổi ghi chú vị trí của điểm dừng đã xuất bản lại tạo bản nháp chờ (BR-M03-D11) → nay lưu ghi chú mà không tạo bản nháp khi nội dung giống hệt bản đang xuất bản. Hệ quả: `PublicationReviewPage.revision.test.tsx` ca G05 trước dựng "bản sửa không đổi hành trình" bằng bản nháp giống hệt; đổi sang bản nháp chỉ khác khoảng trắng thừa (hành trình như cũ vì snapshot cắt khoảng trắng) | Đã sửa |
+| D-74 | Bộ test tăng 871 → 1120 ca, phần lớn dựng màn; với `maxWorkers: 6` vẫn còn ca hết giờ khi chạy song song. Thay cho vá từng file (D-46, D-59): `testTimeout: 15_000` (`vitest.config.ts`) và `configure({ asyncUtilTimeout: 3_000 })` (`src/test/setup.ts`). Chỉ ca sai mới chờ lâu hơn; `npm run ci` 3 lần liên tiếp pass | Đã sửa |
+| D-75 | R-24 "lazy-load cây `/admin/*`": các trang và phần nặng đã lazy, nhưng `src/app/router.tsx` import `m03Routes` tĩnh nên khung quản trị nằm trong entry (344 KB, chủ yếu là React/React Router). Hiện chưa có route du khách nên chưa ảnh hưởng; khi M01 thêm route du khách và cấu hình precache (M01 T007, T032) nên tách khung `/admin` thành chunk lazy (route `lazy` của React Router). Không refactor router dùng chung ở đợt này | Ghi nhận; chuyển cho M01 T007/T032 |
+| D-76 | T160 rà WCAG 2.1 AA trên `src/modules/m03/**`: focus ring dùng chung (`global.css :focus-visible`), vùng chạm theo `--touch-target` (44 px) ở nút, ô nhập, lựa chọn, dòng panel, tab mới; bảng có `aria-label`; tab báo cáo có `role="tablist"`/`tab`/`tabpanel`, phím mũi tên; nhãn nút khôi phục chứa chữ hiển thị (WCAG 2.5.3); thông báo lỗi dùng `role="alert"`, thông báo khác `role="status"`. Sửa: câu sai khoảng ngày của báo cáo nay có `role="status"` để trình đọc màn hình đọc được khi nó xuất hiện (WCAG 4.1.3) | Đã sửa |
+
+### 11.4 Artifact upstream có nguy cơ stale (T165; không tự sửa spec/architecture)
+
+| Artifact | Điểm | Đề xuất |
+|---|---|---|
+| `contracts/admin-command-contract.md` §5 (C-09, C-14, C-15) | Ghi "BLOCKED nếu không `HOAT_DONG`/`TAM_DONG`" nhưng §5.6 không có khóa cho trường hợp này. Thực tế giao diện chỉ gặp khi hai phiên thao tác chồng nhau và nay được báo bằng MSG-STALE (D-51) | Ghi rõ trong contract: sai trạng thái nguồn do thao tác đồng thời → STALE; còn lại FAILED MSG-GENERIC |
+| `screens/screen-spec/M03/screen-spec-SCR-M03-009.md` E-08 "Mở mục liên quan" | `AuditRow` (admin-command Q-11) không mang id mục vì id nội bộ không được hiện (BR-M03-L10), nên chưa dựng được link (D-66) | Quyết định khi viết Q-11 ở giai đoạn B: thêm id mục vào dòng trả về (chỉ dùng để dựng link, không hiện) hoặc bỏ E-08 khỏi screen spec |
+| `research.md` R-24 | "Lazy-load cây `/admin/*`" mới đúng một phần (D-75) | Cập nhật khi M01 tách khung `/admin` |
+| `screens/screen-spec/M03/screen-spec-SCR-M03-005.md` E-15, `SCR-M03-009` §4 "Spinner" | Màn chỉ đánh dấu `aria-busy` khi đang tải; chưa có spinner (design-system không có component spinner) | Bổ sung spinner vào design-system nếu cần, hoặc ghi "đang tải" không cần spinner |
+| `docs/spec/spec-M03.md` | Đã sửa đúng quy trình ở đợt US6 (v3.7 clarification 9, MSG-CLOSE-NO-ROUTES) và đồng bộ SCR-M03-008, `admin-ui-flow-contract.md`. `MVP-Scope.md`, `docs/function list/`, `data/` không nhắc khóa này | Không cần sửa |
+
+### 11.5 Checkpoint Phase 12
+
+"Giai đoạn A hoàn tất" **đạt**: T001–T165 xong trên adapter giả; Q1–Q24, Q26 pass; mọi BR-M03 còn hiệu lực đã có test hoặc ghi rõ nơi chịu test. Dừng tại đây theo tasks.md: giai đoạn B (Phase 13–15, cần Docker cho stack Supabase local) chuyển cho người làm backend. Còn mở: các mục `NOT RUN` ở §11.2 và §6.2–§10.2, artifact §11.4.

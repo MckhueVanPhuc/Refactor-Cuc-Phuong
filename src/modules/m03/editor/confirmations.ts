@@ -8,6 +8,8 @@ type ConfirmationSpec = {
   messageKey: MessageKey;
   /** Chỉ đóng điểm dừng: câu nêu các tuyến sẽ tự đóng tạm, hiện khi có tuyến như vậy */
   autoCloseMessageKey?: MessageKey;
+  /** Chỉ đóng điểm dừng: câu hậu quả khi không tuyến nào liệt kê nó (spec-M03 3.7 clarification 9) */
+  noRoutesMessageKey?: MessageKey;
   /** Nút an toàn: focus ban đầu, phím Esc */
   safeLabel: string;
   confirmLabel: string;
@@ -21,6 +23,7 @@ export const CONFIRMATIONS = {
   CLOSE_CHECKPOINT: {
     messageKey: 'MSG-CLOSE-AFFECTS-ROUTES',
     autoCloseMessageKey: 'MSG-CLOSE-ROUTE-AUTO',
+    noRoutesMessageKey: 'MSG-CLOSE-NO-ROUTES',
     safeLabel: 'Không đóng',
     confirmLabel: 'Đóng tạm',
   },
@@ -53,6 +56,16 @@ export function confirmation<K extends ConfirmationKind>(
     safeLabel: spec.safeLabel,
     confirmLabel: spec.confirmLabel,
   };
+}
+
+/** Hộp đóng điểm dừng: nêu các tuyến liệt kê nó, hoặc MSG-CLOSE-NO-ROUTES khi không có tuyến nào (BR-M03-H01) */
+export function closeCheckpointConfirmation(routeNames: readonly string[]): ConfirmationProps {
+  const spec = CONFIRMATIONS.CLOSE_CHECKPOINT;
+  const title =
+    routeNames.length === 0
+      ? formatMessage(spec.noRoutesMessageKey)
+      : formatMessage(spec.messageKey, { số: routeNames.length, 'danh sách': routeNames.join(', ') });
+  return { title, safeLabel: spec.safeLabel, confirmLabel: spec.confirmLabel };
 }
 
 /** Câu "các tuyến sẽ tự đóng tạm" của hộp đóng điểm dừng (MSG-CLOSE-ROUTE-AUTO) */

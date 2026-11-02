@@ -283,20 +283,20 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 6 ⚠️
 
-- [ ] T130 [P] [US6] Viết test src/modules/m03/operations/CloseDialog.test.tsx: lý do bắt buộc ≤ `NOTE_MAX_CHARS`; hiện MSG-CLOSE-AFFECTS-ROUTES và MSG-CLOSE-ROUTE-AUTO từ Q-09; FAILED → MSG-CLOSE-FAILED + nút "Đóng tạm các tuyến liên quan" gọi C-11; không bao giờ báo thành công giả (BR-M03-H01, H04)
-- [ ] T131 [P] [US6] Viết test src/modules/m03/operations/ReopenDialog.test.tsx: chỉ Reviewer; ghi chú an toàn bắt buộc; MSG-REOPEN-BLOCKED kèm danh sách cần sửa; MSG-OFFLINE-TOO-BIG; Nhân viên → MSG-NO-PERMISSION (BR-M03-H06, H07, A03, G10)
-- [ ] T132 [P] [US6] Viết test src/modules/m03/operations/ArchiveDialog.test.tsx: lưu trữ tuyến chỉ khi `TAM_DONG`, terminal, không đổi điểm dừng nó liệt kê (BR-M03-T07); lưu trữ điểm dừng bị MSG-CHECKPOINT-IN-USE nêu tên tuyến (BR-M03-H09, D10; SC-M03-031)
-- [ ] T133 [P] [US6] Viết test hành vi src/modules/m03/api/contract/operations.contract.ts (harness T043): đóng điểm dừng hoạt động cuối của tuyến A và được tuyến B liệt kê → A `TAM_DONG` `AUTO_NO_ACTIVE_CHECKPOINT` có audit riêng, B có version mới, không bị trần chặn; mở lại điểm dừng không mở lại tuyến đã tự đóng; đóng tuyến không tạo version (BR-M03-H02, H03, H07, T05, G10; SC-M03-006, 019)
-- [ ] T134 [P] [US6] Viết E2E e2e/m03/operations.spec.ts cho quickstart Q19–Q21 trên project `m03`
+- [X] T130 [P] [US6] Viết test src/modules/m03/operations/CloseDialog.test.tsx: lý do bắt buộc ≤ `NOTE_MAX_CHARS`; hiện MSG-CLOSE-AFFECTS-ROUTES và MSG-CLOSE-ROUTE-AUTO từ Q-09; FAILED → MSG-CLOSE-FAILED + nút "Đóng tạm các tuyến liên quan" gọi C-11; không bao giờ báo thành công giả (BR-M03-H01, H04)
+- [X] T131 [P] [US6] Viết test src/modules/m03/operations/ReopenDialog.test.tsx: chỉ Reviewer; ghi chú an toàn bắt buộc; MSG-REOPEN-BLOCKED kèm danh sách cần sửa; MSG-OFFLINE-TOO-BIG; Nhân viên → MSG-NO-PERMISSION (BR-M03-H06, H07, A03, G10)
+- [X] T132 [P] [US6] Viết test src/modules/m03/operations/ArchiveDialog.test.tsx: lưu trữ tuyến chỉ khi `TAM_DONG`, terminal, không đổi điểm dừng nó liệt kê (BR-M03-T07); lưu trữ điểm dừng bị MSG-CHECKPOINT-IN-USE nêu tên tuyến (BR-M03-H09, D10; SC-M03-031)
+- [X] T133 [P] [US6] Viết test hành vi src/modules/m03/api/contract/operations.contract.ts (harness T043): đóng điểm dừng hoạt động cuối của tuyến A và được tuyến B liệt kê → A `TAM_DONG` `AUTO_NO_ACTIVE_CHECKPOINT` có audit riêng, B có version mới, không bị trần chặn; mở lại điểm dừng không mở lại tuyến đã tự đóng; đóng tuyến không tạo version (BR-M03-H02, H03, H07, T05, G10; SC-M03-006, 019)
+- [X] T134 [P] [US6] Viết E2E e2e/m03/operations.spec.ts cho quickstart Q19–Q21 trên project `m03`
 
 ### Implementation for User Story 6
 
-- [ ] T135 [US6] Cài đặt src/modules/m03/api/fake/operations.ts: C-09…C-15 và Q-09 theo admin-command §5 và data-model §8 (khóa tập, snapshot thay thế, tự đóng, lưu trữ điểm dừng thu hồi QR)
-- [ ] T136 [P] [US6] Cài đặt src/modules/m03/operations/useOperationImpact.ts (Q-09) và src/modules/m03/operations/OperationDialog.tsx (khung chung: câu hậu quả, ô lý do/ghi chú, hai nút)
-- [ ] T137 [P] [US6] Cài đặt src/modules/m03/operations/CloseDialog.tsx (C-09/C-10, lối thoát C-11)
-- [ ] T138 [P] [US6] Cài đặt src/modules/m03/operations/ReopenDialog.tsx (C-12/C-13, kết quả kiểm tra kỹ thuật)
-- [ ] T139 [P] [US6] Cài đặt src/modules/m03/operations/ArchiveDialog.tsx (C-14/C-15)
-- [ ] T140 [US6] Gắn hộp thoại vào src/modules/m03/route-admin/RouteListPage.tsx (Đóng tạm, Mở lại (R), Lưu trữ (R)) và src/modules/m03/checkpoint-library/CheckpointEditorPage.tsx + CheckpointListPage.tsx (Đóng tạm, Mở lại (R), Lưu trữ (R)); ẩn nút theo role chỉ là tiện ích
+- [X] T135 [US6] Cài đặt src/modules/m03/api/fake/operations.ts: C-09…C-15 và Q-09 theo admin-command §5 và data-model §8 (khóa tập, snapshot thay thế, tự đóng, lưu trữ điểm dừng thu hồi QR)
+- [X] T136 [P] [US6] Cài đặt src/modules/m03/operations/useOperationImpact.ts (Q-09) và src/modules/m03/operations/OperationDialog.tsx (khung chung: câu hậu quả, ô lý do/ghi chú, hai nút)
+- [X] T137 [P] [US6] Cài đặt src/modules/m03/operations/CloseDialog.tsx (C-09/C-10, lối thoát C-11)
+- [X] T138 [P] [US6] Cài đặt src/modules/m03/operations/ReopenDialog.tsx (C-12/C-13, kết quả kiểm tra kỹ thuật)
+- [X] T139 [P] [US6] Cài đặt src/modules/m03/operations/ArchiveDialog.tsx (C-14/C-15)
+- [X] T140 [US6] Gắn hộp thoại vào src/modules/m03/route-admin/RouteListPage.tsx (Đóng tạm, Mở lại (R), Lưu trữ (R)) và src/modules/m03/checkpoint-library/CheckpointEditorPage.tsx + CheckpointListPage.tsx (Đóng tạm, Mở lại (R), Lưu trữ (R)); ẩn nút theo role chỉ là tiện ích
 
 **Checkpoint**: US1–US6 chạy độc lập
 
@@ -310,11 +310,11 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 7 ⚠️
 
-- [ ] T141 [P] [US7] Viết test src/shared/contracts/liveQrLookup.cases.test.ts: mọi output kỳ vọng trong bảng sự thật qua Zod của src/shared/contracts/liveQrLookup.ts; ca `OFFLINE_REQUIRED` có `mediaResources` rỗng; hai QR của cùng điểm dừng có nội dung khác nhau (BR-M03-I02, I03, E01; SC-M03-012, 017, 023)
+- [X] T141 [P] [US7] Viết test src/shared/contracts/liveQrLookup.cases.test.ts: mọi output kỳ vọng trong bảng sự thật qua Zod của src/shared/contracts/liveQrLookup.ts; ca `OFFLINE_REQUIRED` có `mediaResources` rỗng; hai QR của cùng điểm dừng có nội dung khác nhau (BR-M03-I02, I03, E01; SC-M03-012, 017, 023)
 
 ### Implementation for User Story 7
 
-- [ ] T142 [US7] Tạo src/shared/contracts/liveQrLookup.cases.ts: các ca synthetic (trạng thái QR/điểm dừng/tuyến, có/không `routeId`, `qrIdentifier` rỗng sau trim) → `outcome`/`closedScope` kỳ vọng theo live-qr-lookup §3; ghi chú: dùng làm oracle cho pgTAP/E2E giai đoạn B và cho test consumer của M02
+- [X] T142 [US7] Tạo src/shared/contracts/liveQrLookup.cases.ts: các ca synthetic (trạng thái QR/điểm dừng/tuyến, có/không `routeId`, `qrIdentifier` rỗng sau trim) → `outcome`/`closedScope` kỳ vọng theo live-qr-lookup §3; ghi chú: dùng làm oracle cho pgTAP/E2E giai đoạn B và cho test consumer của M02
 
 **Checkpoint**: Schema và oracle lookup sẵn sàng cho M02 và giai đoạn B
 
@@ -328,18 +328,18 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 8 ⚠️
 
-- [ ] T143 [P] [US8] Viết test src/modules/m03/history/ItemHistoryPanel.test.tsx: danh sách revision đã xuất bản (số, email người, thời gian, dấu "tự xuất bản"); trước/sau render dạng "{nhãn}: {trước} → {sau}", không JSON (BR-M03-F09, L10)
-- [ ] T144 [P] [US8] Viết test src/modules/m03/history/RestoreAndDiscard.test.tsx: khôi phục tạo bản nháp `basedOnRevisionNumber`; đã có bản nháp → MSG-DRAFT-EXISTS; vi phạm giới hạn hiện hành → MSG-RESTORE-BLOCKED kèm chỗ cần sửa, không tạo gì; "Bỏ thay đổi" → `DA_BO`, bản xuất bản không đổi (BR-M03-F07, F10; SC-M03-021)
-- [ ] T145 [P] [US8] Viết test src/modules/m03/history/AuditLogPage.test.tsx: chỉ Reviewer; lọc thời gian/người/loại mục; Thành công/Không thành công; tên hành động hiển thị; dấu tự xuất bản không thành dòng thứ hai (BR-M03-F08, F09, A03)
-- [ ] T146 [P] [US8] Viết test hành vi src/modules/m03/api/contract/audit.contract.ts (harness T043): mọi command fake (C-01…C-19, invite/resend/link) ghi đúng một dòng audit kể cả khi thất bại; xuất bản bản nháp của chính mình có `selfPublished = true`; không có mật khẩu/token trong `beforeState`/`afterState`; mọi thao tác trên điểm dừng ghi audit nêu tên các tuyến bị ảnh hưởng (BR-M03-F08, A05, X06; SC-M03-014)
-- [ ] T147 [P] [US8] Viết E2E e2e/m03/history.spec.ts cho quickstart Q23–Q24 trên project `m03`
+- [X] T143 [P] [US8] Viết test src/modules/m03/history/ItemHistoryPanel.test.tsx: danh sách revision đã xuất bản (số, email người, thời gian, dấu "tự xuất bản"); trước/sau render dạng "{nhãn}: {trước} → {sau}", không JSON (BR-M03-F09, L10)
+- [X] T144 [P] [US8] Viết test src/modules/m03/history/RestoreAndDiscard.test.tsx: khôi phục tạo bản nháp `basedOnRevisionNumber`; đã có bản nháp → MSG-DRAFT-EXISTS; vi phạm giới hạn hiện hành → MSG-RESTORE-BLOCKED kèm chỗ cần sửa, không tạo gì; "Bỏ thay đổi" → `DA_BO`, bản xuất bản không đổi (BR-M03-F07, F10; SC-M03-021)
+- [X] T145 [P] [US8] Viết test src/modules/m03/history/AuditLogPage.test.tsx: chỉ Reviewer; lọc thời gian/người/loại mục; Thành công/Không thành công; tên hành động hiển thị; dấu tự xuất bản không thành dòng thứ hai (BR-M03-F08, F09, A03)
+- [X] T146 [P] [US8] Viết test hành vi src/modules/m03/api/contract/audit.contract.ts (harness T043): mọi command fake (C-01…C-19, invite/resend/link) ghi đúng một dòng audit kể cả khi thất bại; xuất bản bản nháp của chính mình có `selfPublished = true`; không có mật khẩu/token trong `beforeState`/`afterState`; mọi thao tác trên điểm dừng ghi audit nêu tên các tuyến bị ảnh hưởng (BR-M03-F08, A05, X06; SC-M03-014)
+- [X] T147 [P] [US8] Viết E2E e2e/m03/history.spec.ts cho quickstart Q23–Q24 trên project `m03`
 
 ### Implementation for User Story 8
 
-- [ ] T148 [US8] Cài đặt src/modules/m03/api/fake/history.ts: C-06, C-08 (kiểm giới hạn hiện hành của src/modules/m03/config/limits.ts), Q-10, Q-11 (phân trang, lọc)
-- [ ] T149 [P] [US8] Cài đặt src/modules/m03/history/auditFormat.ts: ánh xạ giá trị `action` của admin-command §5 → tên hiển thị; render trước/sau bằng src/modules/m03/messages/fieldLabels.ts và displayNames.ts
-- [ ] T150 [P] [US8] Cài đặt src/modules/m03/history/ItemHistoryPanel.tsx, src/modules/m03/history/RestoreButton.tsx, src/modules/m03/history/DiscardDraftButton.tsx; gắn vào RouteEditorPage.tsx, CheckpointEditorPage.tsx, VisitPointEditorPage.tsx
-- [ ] T151 [US8] Dựng SCR-M03-009 src/modules/m03/history/AuditLogPage.tsx + `.module.css` (Should) và đăng ký `/admin/audit` (RequireReviewer) trong src/modules/m03/routes.tsx
+- [X] T148 [US8] Cài đặt src/modules/m03/api/fake/history.ts: C-06, C-08 (kiểm giới hạn hiện hành của src/modules/m03/config/limits.ts), Q-10, Q-11 (phân trang, lọc)
+- [X] T149 [P] [US8] Cài đặt src/modules/m03/history/auditFormat.ts: ánh xạ giá trị `action` của admin-command §5 → tên hiển thị; render trước/sau bằng src/modules/m03/messages/fieldLabels.ts và displayNames.ts
+- [X] T150 [P] [US8] Cài đặt src/modules/m03/history/ItemHistoryPanel.tsx, src/modules/m03/history/RestoreButton.tsx, src/modules/m03/history/DiscardDraftButton.tsx; gắn vào RouteEditorPage.tsx, CheckpointEditorPage.tsx, VisitPointEditorPage.tsx
+- [X] T151 [US8] Dựng SCR-M03-009 src/modules/m03/history/AuditLogPage.tsx + `.module.css` (Should) và đăng ký `/admin/audit` (RequireReviewer) trong src/modules/m03/routes.tsx
 
 **Checkpoint**: US1–US8 chạy độc lập
 
@@ -353,17 +353,17 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ### Tests for User Story 9 ⚠️
 
-- [ ] T152 [P] [US9] Viết test src/modules/m03/reports/reportInput.test.ts: mặc định 30 ngày lịch kết thúc hôm nay tại `Asia/Ho_Chi_Minh`; chỉ một ngày → MSG-REPORT-DATES-INVALID; `fromDate > toDate` bị từ chối; khoảng > 366 ngày → MSG-REPORT-SPAN; nhập dd/mm/yyyy → `YYYY-MM-DD` (BR-M03-J05; research R-17)
-- [ ] T153 [P] [US9] Viết test src/modules/m03/reports/ReportsPage.test.tsx: ghi chú một dòng MSG-REPORT-UPDATED hoặc MSG-REPORT-NO-DATA-YET, MSG-REPORT-SCOPE, MSG-REPORT-VISIT-MEANING dưới RPT-02; không có phiên → MSG-REPORT-EMPTY; chỉ lỗi tải dùng kiểu cảnh báo với MSG-GENERIC; "Chuyến đi", "Hoàn thành"/"Bỏ dở"; RPT-02 có tên tuyến (BR-M03-J06–J08; SC-M03-035)
-- [ ] T154 [P] [US9] Viết test src/shared/contracts/sessionSyncRecord.cases.test.ts: các ca intake kỳ vọng qua/không qua Zod đúng như bảng (BR-M03-J01–J03; SC-M03-007, 038)
-- [ ] T155 [P] [US9] Viết E2E e2e/m03/reports.spec.ts cho quickstart Q26 trên project `m03`
+- [X] T152 [P] [US9] Viết test src/modules/m03/reports/reportInput.test.ts: mặc định 30 ngày lịch kết thúc hôm nay tại `Asia/Ho_Chi_Minh`; chỉ một ngày → MSG-REPORT-DATES-INVALID; `fromDate > toDate` bị từ chối; khoảng > 366 ngày → MSG-REPORT-SPAN; nhập dd/mm/yyyy → `YYYY-MM-DD` (BR-M03-J05; research R-17)
+- [X] T153 [P] [US9] Viết test src/modules/m03/reports/ReportsPage.test.tsx: ghi chú một dòng MSG-REPORT-UPDATED hoặc MSG-REPORT-NO-DATA-YET, MSG-REPORT-SCOPE, MSG-REPORT-VISIT-MEANING dưới RPT-02; không có phiên → MSG-REPORT-EMPTY; chỉ lỗi tải dùng kiểu cảnh báo với MSG-GENERIC; "Chuyến đi", "Hoàn thành"/"Bỏ dở"; RPT-02 có tên tuyến (BR-M03-J06–J08; SC-M03-035)
+- [X] T154 [P] [US9] Viết test src/shared/contracts/sessionSyncRecord.cases.test.ts: các ca intake kỳ vọng qua/không qua Zod đúng như bảng (BR-M03-J01–J03; SC-M03-007, 038)
+- [X] T155 [P] [US9] Viết E2E e2e/m03/reports.spec.ts cho quickstart Q26 trên project `m03`
 
 ### Implementation for User Story 9
 
-- [ ] T156 [US9] Tạo src/shared/contracts/sessionSyncRecord.cases.ts: ca synthetic `ACCEPTED`, `IDENTICAL` (đổi thứ tự visits và khóa), `CONFLICT`, `INVALID` (sai `sequence`, sai tên, khóa `deviceId`, `DANG_DIEN_RA`, tuyến/version không có) làm oracle cho giai đoạn B
-- [ ] T157 [US9] Cài đặt src/modules/m03/api/fake/reports.ts: Q-12, Q-13 trên `SessionRecord` synthetic; lọc `endedAt` theo `[fromDate 00:00, toDate+1 00:00)` giờ `Asia/Ho_Chi_Minh`; RPT-02 đếm `sessionId` phân biệt theo `(routeId, checkpointId)` (admin-command §6)
-- [ ] T158 [P] [US9] Cài đặt src/modules/m03/reports/reportInput.ts cho T152 qua
-- [ ] T159 [US9] Dựng SCR-M03-005 src/modules/m03/reports/ReportsPage.tsx + `.module.css`: lọc tuyến (tùy chọn) và khoảng ngày, bảng RPT-01, bảng RPT-02, ghi chú một dòng; không biểu đồ/export/real-time; đăng ký `/admin/reports` trong src/modules/m03/routes.tsx
+- [X] T156 [US9] Tạo src/shared/contracts/sessionSyncRecord.cases.ts: ca synthetic `ACCEPTED`, `IDENTICAL` (đổi thứ tự visits và khóa), `CONFLICT`, `INVALID` (sai `sequence`, sai tên, khóa `deviceId`, `DANG_DIEN_RA`, tuyến/version không có) làm oracle cho giai đoạn B
+- [X] T157 [US9] Cài đặt src/modules/m03/api/fake/reports.ts: Q-12, Q-13 trên `SessionRecord` synthetic; lọc `endedAt` theo `[fromDate 00:00, toDate+1 00:00)` giờ `Asia/Ho_Chi_Minh`; RPT-02 đếm `sessionId` phân biệt theo `(routeId, checkpointId)` (admin-command §6)
+- [X] T158 [P] [US9] Cài đặt src/modules/m03/reports/reportInput.ts cho T152 qua
+- [X] T159 [US9] Dựng SCR-M03-005 src/modules/m03/reports/ReportsPage.tsx + `.module.css`: lọc tuyến (tùy chọn) và khoảng ngày, bảng RPT-01, bảng RPT-02, ghi chú một dòng; không biểu đồ/export/real-time; đăng ký `/admin/reports` trong src/modules/m03/routes.tsx
 
 **Checkpoint**: Mọi user story của giai đoạn A chạy độc lập trên adapter giả
 
@@ -373,12 +373,12 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 **Purpose**: Việc xuyên story và bằng chứng cho giai đoạn A
 
-- [ ] T160 [P] Rà soát WCAG 2.1 AA (bàn phím, focus, tương phản theo token, nhãn trường, thông báo `aria-live`) trên mọi màn src/modules/m03/** theo design-system §6; sửa chỗ thiếu
-- [ ] T161 [P] Chạy `npm run build`; xác nhận cây `/admin/*` và `qrcode` nằm ở chunk lazy riêng; xác nhận bundle trong dist/ không chứa `APP_BACKEND_SECRET_KEY` hay service key (research R-24; constitution V). Ghi kết quả vào specs/003-m03-operations-content-administration/validation-report.md
-- [ ] T162 Tạo specs/003-m03-operations-content-administration/checklists/br-test-coverage.md: bảng mọi BR-M03 còn hiệu lực (trừ C13, E08 đã retire) → file test giai đoạn A và (để trống, điền ở T200) giai đoạn B; BR nào chưa có test thì thêm test vào story tương ứng trước khi đóng phase; BR hành vi của consumer (BR-M03-I05, I06) ghi package M01/M02 chịu test; BR chỉ trỏ sang nhóm khác ghi test của nhóm đích: BR-M03-D07 → test nhóm E (T074, T078, T081), BR-M03-D08 → test của H01, H02, H04, H06 và D10 (T130–T133) (constitution "Testing & Validation")
-- [ ] T163 Chạy `npm run ci` (script và workflow CI có từ T002), xác nhận lần chạy CI gần nhất trên nhánh thành công, và `npm run typecheck`, `npm run lint`, `npm run test`, `npm run e2e -- --project=m03`; ghi lệnh, mã thoát và số test vào specs/003-m03-operations-content-administration/validation-report.md; phần không chạy được ghi `NOT RUN` kèm lý do. Không tuyên bố PASS khi chưa chạy (AGENTS.md §6)
-- [ ] T164 Chạy `git diff --check` và kiểm tra link tương đối trong các file đã thêm ở specs/003-m03-operations-content-administration/
-- [ ] T165 Ghi danh sách artifact upstream có nguy cơ stale phát sinh trong lúc code (nếu có) vào specs/003-m03-operations-content-administration/validation-report.md; không tự sửa spec/architecture (AGENTS.md §4)
+- [X] T160 [P] Rà soát WCAG 2.1 AA (bàn phím, focus, tương phản theo token, nhãn trường, thông báo `aria-live`) trên mọi màn src/modules/m03/** theo design-system §6; sửa chỗ thiếu
+- [X] T161 [P] Chạy `npm run build`; xác nhận cây `/admin/*` và `qrcode` nằm ở chunk lazy riêng; xác nhận bundle trong dist/ không chứa `APP_BACKEND_SECRET_KEY` hay service key (research R-24; constitution V). Ghi kết quả vào specs/003-m03-operations-content-administration/validation-report.md
+- [X] T162 Tạo specs/003-m03-operations-content-administration/checklists/br-test-coverage.md: bảng mọi BR-M03 còn hiệu lực (trừ C13, E08 đã retire) → file test giai đoạn A và (để trống, điền ở T200) giai đoạn B; BR nào chưa có test thì thêm test vào story tương ứng trước khi đóng phase; BR hành vi của consumer (BR-M03-I05, I06) ghi package M01/M02 chịu test; BR chỉ trỏ sang nhóm khác ghi test của nhóm đích: BR-M03-D07 → test nhóm E (T074, T078, T081), BR-M03-D08 → test của H01, H02, H04, H06 và D10 (T130–T133) (constitution "Testing & Validation")
+- [X] T163 Chạy `npm run ci` (script và workflow CI có từ T002), xác nhận lần chạy CI gần nhất trên nhánh thành công, và `npm run typecheck`, `npm run lint`, `npm run test`, `npm run e2e -- --project=m03`; ghi lệnh, mã thoát và số test vào specs/003-m03-operations-content-administration/validation-report.md; phần không chạy được ghi `NOT RUN` kèm lý do. Không tuyên bố PASS khi chưa chạy (AGENTS.md §6)
+- [X] T164 Chạy `git diff --check` và kiểm tra link tương đối trong các file đã thêm ở specs/003-m03-operations-content-administration/
+- [X] T165 Ghi danh sách artifact upstream có nguy cơ stale phát sinh trong lúc code (nếu có) vào specs/003-m03-operations-content-administration/validation-report.md; không tự sửa spec/architecture (AGENTS.md §4)
 
 **Checkpoint**: Giai đoạn A hoàn tất. Dừng lại; giai đoạn B chỉ bắt đầu khi T167 xong
 

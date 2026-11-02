@@ -12,6 +12,8 @@ export default defineConfig({
     // Mỗi file test một jsdom: trên máy nhiều luồng, số worker mặc định làm chunk lazy và render chậm hơn
     // thời gian chờ của test (validation-report D-46). Máy ít nhân hơn (CI) không bị ảnh hưởng.
     maxWorkers: 6,
+    // Test dựng cả màn và gõ phím; khi cả bộ chạy song song, một ca có thể vượt mặc định 5 s (validation-report D-74)
+    testTimeout: 15_000,
     include: ['src/**/*.test.ts?(x)'],
     // Giá trị giả an toàn để src/shared/config/env.ts không làm hỏng test có import nó
     env: {

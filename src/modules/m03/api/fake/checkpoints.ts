@@ -11,6 +11,7 @@ import type {
   VisitPointListRow,
 } from '../../contracts/adminDtos';
 import type { CommandResult } from '../../contracts/commandResult';
+import { affectedRoutesLine } from '../../history/auditFormat';
 import type { MessageKey } from '../../messages/catalog';
 import { checkpointNameTaken, checkpointSaveIssues, modeHasAvIssues, normalizeCheckpointName } from '../../validation/checkpoint';
 import { trimmedLength } from '../../validation/common';
@@ -52,18 +53,29 @@ type CheckpointsArea = Pick<
 const failed: CommandResult<never> = { ok: false, reason: 'FAILED', messageKey: 'MSG-GENERIC' };
 
 /** Lý do / ghi chú: không rỗng sau trim khi bắt buộc, ≤ NOTE_MAX_CHARS (admin-command §1) */
-function reasonProblem(reason: string | undefined, required: boolean): CommandResult<never> | undefined {
+export function reasonProblem(reason: string | undefined, required: boolean, label = 'Lý do'): CommandResult<never> | undefined {
   const length = trimmedLength(reason ?? '');
   if (required && length === 0) {
-    return { ok: false, reason: 'BLOCKED', messageKey: 'MSG-MISSING-FIELD', values: { 'tên ô': 'Lý do' } };
+    return { ok: false, reason: 'BLOCKED', messageKey: 'MSG-MISSING-FIELD', values: { 'tên ô': label } };
   }
   if (length > NOTE_MAX_CHARS) {
-    return { ok: false, reason: 'BLOCKED', messageKey: 'MSG-LIMIT-TEXT', values: { 'Tên ô': 'Lý do', 'tối đa': NOTE_MAX_CHARS, số: length } };
+    return { ok: false, reason: 'BLOCKED', messageKey: 'MSG-LIMIT-TEXT', values: { 'Tên ô': label, 'tối đa': NOTE_MAX_CHARS, số: length } };
   }
   return undefined;
 }
 
 const optionalText = (value: string | undefined) => (value?.trim() ? value.trim() : undefined);
+
+/** So nội dung revision không phụ thuộc thứ tự khóa */
+function sameContent(a: unknown, b: unknown): boolean {
+  const stable = (value: unknown): unknown =>
+    Array.isArray(value)
+      ? value.map(stable)
+      : value && typeof value === 'object'
+        ? Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined).sort(([x], [y]) => x.localeCompare(y)).map(([k, v]) => [k, stable(v)]))
+        : value;
+  return JSON.stringify(stable(a)) === JSON.stringify(stable(b));
+}
 
 export function createFakeCheckpointsArea(store: FakeStore): CheckpointsArea {
   const checkpoints = () => store.state.checkpoints;
@@ -209,7 +221,10 @@ export function createFakeCheckpointsArea(store: FakeStore): CheckpointsArea {
           const note = optionalText(locationNote);
           if (note) checkpoint.locationNote = note;
           else delete checkpoint.locationNote;
-          const revision = writeDraft(store, 'CHECKPOINT', id, stored, context.actor.email);
+          // Chỉ đổi ghi chú vị trí của mục đã xuất bản: ghi chú không qua xuất bản, nên không tạo bản nháp chờ (BR-M03-D11)
+          const published = existing && !draft ? publishedOf(store, 'CHECKPOINT', id) : undefined;
+          const noteOnly = published !== undefined && sameContent(stored, published.content);
+          const revision = noteOnly ? published : writeDraft(store, 'CHECKPOINT', id, stored, context.actor.email);
           const name = checkpointName(store, checkpoint);
           if (name) checkpoint.name = name;
           context.subjectId = id;
@@ -360,7 +375,9 @@ export function createFakeCheckpointsArea(store: FakeStore): CheckpointsArea {
           touch(store, qr, context.actor.email);
           context.changeLines.push('Trạng thái: Đang hoạt động → Đã thu hồi');
           // Mọi tuyến liệt kê điểm dừng nhận hành trình mới cùng lúc; thu hồi không bị trần chặn (BR-M03-E09, X02, G10)
-          commitRebuilds(store, rebuildRoutes(store, routesAffectedBy(store, checkpoint.checkpointId)));
+          const affected = routesAffectedBy(store, checkpoint.checkpointId);
+          commitRebuilds(store, rebuildRoutes(store, affected));
+          if (affected.length > 0) context.changeLines.push(affectedRoutesLine(affected.map((route) => route.name ?? '')));
           return { ok: true, messageKey: 'MSG-SAVED', data: { status: qr.status, concurrencyRevision: qr.concurrencyRevision } };
         },
       );

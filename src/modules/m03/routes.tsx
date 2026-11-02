@@ -1,4 +1,4 @@
-// Cây `/admin/*` của M03 (admin-ui-flow-contract §1). Mỗi màn nạp lazy; story thay trang placeholder bằng màn thật.
+// Cây `/admin/*` của M03 (admin-ui-flow-contract §1). Mỗi màn nạp lazy.
 // `errorElement` bắt lỗi tải chunk (M03 chỉ online → MSG-NETWORK-FAILED) — shell dùng data router (tech-stack §3).
 import { lazy, Suspense, type ComponentType, type ReactNode } from 'react';
 import { Navigate, Outlet, Route } from 'react-router';
@@ -14,7 +14,6 @@ function lazyNamed<M, K extends keyof M>(load: () => Promise<M>, name: K) {
   return lazy(async () => ({ default: (await load())[name] as ComponentType }));
 }
 
-const PlaceholderPage = lazy(() => import('./layout/PlaceholderPage'));
 const LoginPage = lazyNamed(() => import('./auth/LoginPage'), 'LoginPage');
 const InvitationPage = lazyNamed(() => import('./auth/InvitationPage'), 'InvitationPage');
 const RecoveryPage = lazyNamed(() => import('./auth/RecoveryPage'), 'RecoveryPage');
@@ -24,6 +23,8 @@ const RouteEditorPage = lazyNamed(() => import('./route-admin/RouteEditorPage'),
 const CheckpointListPage = lazyNamed(() => import('./checkpoint-library/CheckpointListPage'), 'CheckpointListPage');
 const CheckpointEditorPage = lazyNamed(() => import('./checkpoint-library/CheckpointEditorPage'), 'CheckpointEditorPage');
 const VisitPointEditorPage = lazyNamed(() => import('./visit-points/VisitPointEditorPage'), 'VisitPointEditorPage');
+const ReportsPage = lazyNamed(() => import('./reports/ReportsPage'), 'ReportsPage');
+const AuditLogPage = lazyNamed(() => import('./history/AuditLogPage'), 'AuditLogPage');
 const PublicationReviewPage = lazyNamed(
   () => import('./publication-review/PublicationReviewPage'),
   'PublicationReviewPage',
@@ -32,12 +33,6 @@ const PublicationReviewPage = lazyNamed(
 function Lazy({ children }: { children: ReactNode }) {
   return <Suspense fallback={null}>{children}</Suspense>;
 }
-
-const placeholder = (title: string) => (
-  <Lazy>
-    <PlaceholderPage title={title} />
-  </Lazy>
-);
 
 function AdminRoot({ services }: { services: AdminServices | undefined }) {
   return (
@@ -78,10 +73,10 @@ export function createM03Routes(services?: AdminServices) {
             element={<Lazy><VisitPointEditorPage /></Lazy>}
           />
           <Route path="review/:unitType/:subjectId" element={<Lazy><PublicationReviewPage /></Lazy>} />
-          <Route path="reports" element={placeholder('Báo cáo vận hành')} />
+          <Route path="reports" element={<Lazy><ReportsPage /></Lazy>} />
           <Route element={<RequireReviewer />}>
             <Route path="accounts" element={<Lazy><AccountsPage /></Lazy>} />
-            <Route path="audit" element={placeholder('Nhật ký hệ thống')} />
+            <Route path="audit" element={<Lazy><AuditLogPage /></Lazy>} />
           </Route>
         </Route>
       </Route>
