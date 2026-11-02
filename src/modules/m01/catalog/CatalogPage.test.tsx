@@ -94,4 +94,16 @@ describe('CatalogPage', () => {
     expect(await screen.findByText('Dữ liệu đã lưu, có thể chưa phải bản mới nhất.')).toBeTruthy();
     expect(screen.getByRole('link', { name: /Tuyến thử Ao Hồ/ })).toBeTruthy();
   });
+
+  it('Route removed: làm mới thấy A TAM_DONG → A biến mất khỏi danh sách (US-M01-05)', async () => {
+    const fake = createFakeSource();
+    const { router } = await renderM01('/', { fake });
+    await screen.findByRole('link', { name: /Tuyến thử Bách Thảo/ });
+    fake.controls.setRouteStatus('route-a', 'TAM_DONG');
+    await router.navigate('/offline');
+    await screen.findByRole('heading', { level: 1, name: 'Quản lý tài nguyên offline' });
+    await router.navigate('/');
+    await screen.findByRole('link', { name: /Tuyến thử Ao Hồ/ });
+    await vi.waitFor(() => expect(screen.queryByRole('link', { name: /Tuyến thử Bách Thảo/ })).toBeNull());
+  });
 });

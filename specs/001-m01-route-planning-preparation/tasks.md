@@ -210,15 +210,15 @@ description: "Danh sách task triển khai M01 — Route Planning & Preparation"
 
 ### Tests for User Story 5 ⚠️
 
-- [ ] T066 [P] [US5] Viết test src/modules/m01/storage/revokeContext.test.ts: chỉ context hiện tại có `routeId` đó và `AUTHORIZED` thành `REVOKED`, các trường khác giữ nguyên; context tuyến khác không đổi; một transaction (BR-M01-011; DAC-M01-006)
-- [ ] T067 [P] [US5] Viết test src/modules/m01/start/revocationEffect.test.ts: mọi lần đọc nguồn thành công (danh mục, chi tiết, Start) thấy `TAM_DONG`/`LUU_TRU` đều kích hoạt thu hồi; gói của tuyến còn nguyên; ba store M02 không đổi (BR-M01-010, 011; US-M01-05 mục 2–3)
-- [ ] T068 [P] [US5] Viết E2E e2e/m01/route-unavailable.spec.ts cho quickstart V22 (kiểm tuyến biến mất, Start bị chặn, context `REVOKED`, store M02 không đổi)
+- [X] T066 [P] [US5] Viết test src/modules/m01/storage/revokeContext.test.ts: chỉ context hiện tại có `routeId` đó và `AUTHORIZED` thành `REVOKED`, các trường khác giữ nguyên; context tuyến khác không đổi; một transaction (BR-M01-011; DAC-M01-006)
+- [X] T067 [P] [US5] Viết test src/modules/m01/start/revocationEffect.test.ts: mọi lần đọc nguồn thành công (danh mục, chi tiết, Start) thấy `TAM_DONG`/`LUU_TRU` đều kích hoạt thu hồi; gói của tuyến còn nguyên; ba store M02 không đổi (BR-M01-010, 011; US-M01-05 mục 2–3)
+- [X] T068 [P] [US5] Viết E2E e2e/m01/route-unavailable.spec.ts cho quickstart V22 (kiểm tuyến biến mất, Start bị chặn, context `REVOKED`, store M02 không đổi)
 
 ### Implementation for User Story 5
 
-- [ ] T069 [P] [US5] Cài đặt src/modules/m01/storage/revokeContext.ts cho T066 qua
-- [ ] T070 [US5] Cài đặt src/modules/m01/start/revocationEffect.ts và đăng ký vào src/modules/m01/api/onSourceRead.ts cho T067 qua
-- [ ] T071 [US5] Thêm trạng thái "Route removed" vào src/modules/m01/catalog/CatalogPage.tsx và "tuyến không còn khả dụng" (chặn Start) vào src/modules/m01/route-detail/RouteDetailPage.tsx
+- [X] T069 [P] [US5] Cài đặt src/modules/m01/storage/revokeContext.ts cho T066 qua
+- [X] T070 [US5] Cài đặt src/modules/m01/start/revocationEffect.ts và đăng ký vào src/modules/m01/api/onSourceRead.ts cho T067 qua
+- [X] T071 [US5] Thêm trạng thái "Route removed" vào src/modules/m01/catalog/CatalogPage.tsx và "tuyến không còn khả dụng" (chặn Start) vào src/modules/m01/route-detail/RouteDetailPage.tsx
 
 **Checkpoint**: US1–US5 chạy độc lập
 

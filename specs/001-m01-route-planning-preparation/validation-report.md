@@ -247,3 +247,33 @@ Branch `feat/m01-us4`, tách từ `feat/m01-us3` (PR #13–#16 chờ merge; DV-2
 ### 6.4 Checkpoint US4
 
 US4 **đạt** trên network mock: V17–V21 pass. M02 nhận được handoff v3 thật qua `readSelectedRouteContext()`.
+
+## 7. Đợt 2026-11-03 — Phase 7 US5 Tuyến không còn khả dụng (T066–T071)
+
+Branch `feat/m01-us5`, tách từ `feat/m01-us4` (PR #13–#17 chờ merge; DV-20). Test T066–T067 viết trước và đã chạy thấy fail (không resolve được module) trước khi cài đặt.
+
+### 7.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` (lần 1) | 1 | typecheck: `e2e/m01/route-unavailable.spec.ts` destructure mảng có thể `undefined` (`noUncheckedIndexedAccess`); đã sửa |
+| `npm run ci` | 0 | typecheck sạch; lint 470 pass; test 99 file pass + 1 skipped, 1551 pass, 133 skipped; build precache 41 mục |
+| `npm run e2e` (trước sửa kiểu ở trên, logic test không đổi) | 0 | 40 pass, 47 skipped; `m01` thêm V22 pass |
+| Quét `dist/` production tìm hook test, `fake://` | — | Không có |
+
+### 7.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| V22 trên stack Supabase local | Phase 11 (T105) |
+
+### 7.3 Lệch so với tasks và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-38 | T070: hiệu ứng đọc nguồn của M01 đăng ký một lần khi M01 được nạp (`routes.tsx` gọi `registerM01SourceEffects()` trong `api/sourceEffects.ts`, có đếm tham chiếu). US6 thêm `OUTDATED` và làm mới chữ cốt lõi vào cùng danh sách | Áp dụng |
+| DV-39 | T071: "Route removed" của danh mục là việc tuyến biến mất sau lần làm mới thành công (lọc `HOAT_DONG`); không có câu copy riêng nên không thêm thông báo. Màn chi tiết đã có trạng thái "Tuyến này hiện không nhận chuyến mới." và không có nút "Bắt đầu" từ US3/US4 | Áp dụng |
+
+### 7.4 Checkpoint US5
+
+US5 **đạt** trên network mock: V22 pass (tuyến biến mất, Start bị chặn, context `REVOKED`, gói và store M02 không đổi).

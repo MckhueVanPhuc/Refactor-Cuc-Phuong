@@ -3,8 +3,12 @@
 // Bốn route qua LanguageGate (US-M01-01 mục 1); route của M02 không qua gate (BR-M02-024).
 import { lazy, Suspense, type ComponentType, type ReactNode } from 'react';
 import { Route } from 'react-router';
+import { registerM01SourceEffects } from './api/sourceEffects';
 import { LanguageGate } from './language/LanguageGate';
 import { VisitorLayout } from './layout/VisitorLayout';
+
+// Thu hồi context, OUTDATED, làm mới chữ cốt lõi sau mỗi lần đọc nguồn thành công (research R-10, R-11)
+registerM01SourceEffects();
 
 function lazyNamed<M, K extends keyof M>(load: () => Promise<M>, name: K) {
   return lazy(async () => ({ default: (await load())[name] as ComponentType }));
