@@ -184,19 +184,19 @@ description: "Danh sách task triển khai M01 — Route Planning & Preparation"
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T056 [P] [US4] Viết test src/modules/m01/start/buildContext.test.ts: `contractVersion = 3`; `handoffId` từ `crypto.randomUUID()`, mới mỗi lần; `authorizedAt` ISO-8601 UTC; `expiresAt = authorizedAt + 86 400 000 ms`; `AUTHORIZED`; `routeJourneyManifest` là bản sao giá trị của snapshot (online) hoặc `manifest` gói (offline); không có `resources`/text/ảnh; qua schema (SC-M01-005; DAC-M01-002–007; BR-M01-009, 015)
-- [ ] T057 [P] [US4] Viết test src/modules/m01/start/chooseStartPath.test.ts: online + `HOAT_DONG` + snapshot hợp lệ → đường online; `snapshot.contentVersion ≠ activeContentVersion` → đọc lại một lần rồi coi là không khả dụng; nguồn không khả dụng → gói `SAN_SANG` (`CURRENT` và `OUTDATED`) → đường offline; không có gói → chặn; tuyến `TAM_DONG`/`LUU_TRU` → chặn; tuyến không cần gói Start online không cần gói (BR-M01-008, 011; FR-M01-011; SC-M01-006, 010)
-- [ ] T058 [P] [US4] Viết test src/modules/m01/storage/contextWriter.test.ts: một transaction `put` vào slot `current`, thay context trước; transaction abort → context trước nguyên vẹn; unique index `handoffId` (FR-M01-012; DAC-M01-003)
-- [ ] T059 [P] [US4] Viết test src/modules/m01/start/startRoute.test.ts: lock `cpq:m01:start` `ifAvailable` → lần bấm thứ hai (cùng tab và hai tab) không tạo context thứ hai; điều hướng `PATHS.m02SessionEntry` chỉ sau commit; Start lỗi không điều hướng; M01 không bao giờ đổi `authorizationStatus` vì thời gian (FR-M01-012, 013; BR-M01-010, 015)
-- [ ] T060 [P] [US4] Viết E2E e2e/m01/start.spec.ts cho quickstart V17–V21 (V19 nạp gói A `OUTDATED` qua `window.__cpqTestHooks.m01.seedPackage`)
+- [X] T056 [P] [US4] Viết test src/modules/m01/start/buildContext.test.ts: `contractVersion = 3`; `handoffId` từ `crypto.randomUUID()`, mới mỗi lần; `authorizedAt` ISO-8601 UTC; `expiresAt = authorizedAt + 86 400 000 ms`; `AUTHORIZED`; `routeJourneyManifest` là bản sao giá trị của snapshot (online) hoặc `manifest` gói (offline); không có `resources`/text/ảnh; qua schema (SC-M01-005; DAC-M01-002–007; BR-M01-009, 015)
+- [X] T057 [P] [US4] Viết test src/modules/m01/start/chooseStartPath.test.ts: online + `HOAT_DONG` + snapshot hợp lệ → đường online; `snapshot.contentVersion ≠ activeContentVersion` → đọc lại một lần rồi coi là không khả dụng; nguồn không khả dụng → gói `SAN_SANG` (`CURRENT` và `OUTDATED`) → đường offline; không có gói → chặn; tuyến `TAM_DONG`/`LUU_TRU` → chặn; tuyến không cần gói Start online không cần gói (BR-M01-008, 011; FR-M01-011; SC-M01-006, 010)
+- [X] T058 [P] [US4] Viết test src/modules/m01/storage/contextWriter.test.ts: một transaction `put` vào slot `current`, thay context trước; transaction abort → context trước nguyên vẹn; unique index `handoffId` (FR-M01-012; DAC-M01-003)
+- [X] T059 [P] [US4] Viết test src/modules/m01/start/startRoute.test.ts: lock `cpq:m01:start` `ifAvailable` → lần bấm thứ hai (cùng tab và hai tab) không tạo context thứ hai; điều hướng `PATHS.m02SessionEntry` chỉ sau commit; Start lỗi không điều hướng; M01 không bao giờ đổi `authorizationStatus` vì thời gian (FR-M01-012, 013; BR-M01-010, 015)
+- [X] T060 [P] [US4] Viết E2E e2e/m01/start.spec.ts cho quickstart V17–V21 (V19 nạp gói A `OUTDATED` qua `window.__cpqTestHooks.m01.seedPackage`)
 
 ### Implementation for User Story 4
 
-- [ ] T061 [P] [US4] Cài đặt src/modules/m01/start/buildContext.ts cho T056 qua
-- [ ] T062 [P] [US4] Cài đặt src/modules/m01/start/chooseStartPath.ts cho T057 qua
-- [ ] T063 [P] [US4] Cài đặt src/modules/m01/storage/contextWriter.ts cho T058 qua
-- [ ] T064 [US4] Cài đặt src/modules/m01/start/startRoute.ts (lock, chọn đường, dựng, validate, ghi, điều hướng) cho T059 qua (research R-11)
-- [ ] T065 [US4] Gắn nút "Bắt đầu" vào src/modules/m01/route-detail/RouteDetailPage.tsx (tắt trong lúc chạy; thông báo chặn khi không có nguồn lẫn gói). Nhánh "tuyến cần gói mà chưa có gói `SAN_SANG`" gọi hook `requestOfflineDecision` mà US6 cài (T096); trước khi có US6, hook mặc định đi thẳng Start theo điều kiện của chooseStartPath
+- [X] T061 [P] [US4] Cài đặt src/modules/m01/start/buildContext.ts cho T056 qua
+- [X] T062 [P] [US4] Cài đặt src/modules/m01/start/chooseStartPath.ts cho T057 qua
+- [X] T063 [P] [US4] Cài đặt src/modules/m01/storage/contextWriter.ts cho T058 qua
+- [X] T064 [US4] Cài đặt src/modules/m01/start/startRoute.ts (lock, chọn đường, dựng, validate, ghi, điều hướng) cho T059 qua (research R-11)
+- [X] T065 [US4] Gắn nút "Bắt đầu" vào src/modules/m01/route-detail/RouteDetailPage.tsx (tắt trong lúc chạy; thông báo chặn khi không có nguồn lẫn gói). Nhánh "tuyến cần gói mà chưa có gói `SAN_SANG`" gọi hook `requestOfflineDecision` mà US6 cài (T096); trước khi có US6, hook mặc định đi thẳng Start theo điều kiện của chooseStartPath
 
 **Checkpoint**: US1–US4 chạy độc lập; M02 nhận được handoff thật
 

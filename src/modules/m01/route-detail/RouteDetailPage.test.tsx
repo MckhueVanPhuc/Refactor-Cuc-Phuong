@@ -108,3 +108,47 @@ describe('RouteDetailPage', () => {
     expect(screen.getByRole('note', { name: 'Safety warning' })).toBeTruthy();
   });
 });
+
+describe('RouteDetailPage — Bắt đầu (US4, T065)', () => {
+  it('Start B online → ghi context v3 rồi điều hướng /trip', async () => {
+    const { router } = await renderM01('/routes/route-b');
+    const start = await screen.findByRole('button', { name: 'Bắt đầu' });
+    start.click();
+    await vi.waitFor(() => expect(router.state.location.pathname).toBe('/trip'));
+    const read = await (await import('../storage/readers')).readSelectedRouteContext();
+    expect(read.kind === 'OK' && read.value.routeId).toBe('route-b');
+  });
+
+  it('offline, không có gói → chặn Start với lý do, không điều hướng', async () => {
+    const fake = createFakeSource();
+    fake.controls.setUnavailable(true);
+    const { router } = await renderM01('/routes/route-a', { fake });
+    (await screen.findByRole('button', { name: 'Bắt đầu' })).click();
+    expect(
+      await screen.findByText('Chưa bắt đầu được vì không có mạng và tuyến này chưa được tải trước.'),
+    ).toBeTruthy();
+    expect(router.state.location.pathname).toBe('/routes/route-a');
+  });
+
+  it('offline, gói A OUTDATED → cảnh báo gói cũ; Start dùng manifest của gói', async () => {
+    const { routes, snapshots } = publicationFixture();
+    await seedReadyPackage(
+      packageFromPublication(routes.A, snapshots.A, { versionStatus: 'OUTDATED' }),
+      () => new NodeBlob([new Uint8Array([1])], { type: 'image/png' }) as unknown as Blob,
+    );
+    const fake = createFakeSource();
+    fake.controls.setUnavailable(true);
+    const { router } = await renderM01('/routes/route-a', { fake });
+    expect(await screen.findByText('Gói tải trước này đã cũ nhưng vẫn dùng được.')).toBeTruthy();
+    (await screen.findByRole('button', { name: 'Bắt đầu' })).click();
+    await vi.waitFor(() => expect(router.state.location.pathname).toBe('/trip'));
+  });
+
+  it('tuyến không còn khả dụng → không có nút Bắt đầu', async () => {
+    const fake = createFakeSource();
+    fake.controls.setRouteStatus('route-a', 'LUU_TRU');
+    await renderM01('/routes/route-a', { fake });
+    await screen.findByText('Tuyến này hiện không nhận chuyến mới.');
+    expect(screen.queryByRole('button', { name: 'Bắt đầu' })).toBeNull();
+  });
+});

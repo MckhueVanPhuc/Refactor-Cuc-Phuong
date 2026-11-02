@@ -213,3 +213,37 @@ Branch `feat/m01-us3`, tách từ `feat/m01-us2` (PR #13, #14, #15 chờ merge; 
 ### 5.4 Checkpoint US3
 
 US3 **đạt** trên network mock: V8 và chi tiết A offline có gói (SC-M01-008) pass.
+
+## 6. Đợt 2026-11-03 — Phase 6 US4 Bắt đầu tuyến (T056–T065)
+
+Branch `feat/m01-us4`, tách từ `feat/m01-us3` (PR #13–#16 chờ merge; DV-20). Test T056–T059 và ca Start của `RouteDetailPage.test.tsx` viết trước và đã chạy thấy fail trước khi cài đặt.
+
+### 6.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` (lần 1, 2) | 1 / 1 | lần 1: typecheck báo kiểu Web Lock giả trong `startRoute.test.ts`; lần 2: lint bắt "48px" trong comment `StartPanel.module.css`. Đã sửa cả hai |
+| `npm run ci` | 0 | typecheck sạch; lint 465 pass; test 97 file pass + 1 skipped, 1535 pass, 133 skipped; build precache 41 mục |
+| `npm run e2e` (trước hai sửa đổi trên, chỉ khác kiểu trong test và comment CSS) | 0 | 39 pass, 47 skipped; `m01`: V1, V3–V8, SC-M01-008, V17–V21 pass, V2 `fixme` |
+| Quét `dist/` production tìm hook test (`failNextContextWrite`…), `fake://` | — | Không có |
+
+### 6.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Màn M02 sau khi điều hướng `/trip` | Package 002 chưa có; E2E chỉ kiểm URL và context đã commit |
+| Hai tab thật bấm Start cùng lúc | Unit test với Web Lock giả dùng chung; E2E kiểm double-click cùng tab |
+| V17 trên stack Supabase local | Phase 11 (T105) |
+
+### 6.3 Lệch so với tasks và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-34 | T062: "đọc lại một lần" đọc lại cả dòng tuyến lẫn snapshot (dòng tuyến có thể đã đổi version). Không có snapshot active → coi như nguồn không khả dụng và thử đường offline. Tuyến không có dòng → chặn như tuyến không còn khả dụng | Áp dụng |
+| DV-35 | T064: ngoài Web Lock `cpq:m01:start` còn mutex trong tab (luôn bật), nên trình duyệt không có Web Locks vẫn bỏ qua lần bấm lặp trong cùng tab (research R-09). `createStartRoute` nhận nguồn, lock và đồng hồ qua tham số để test | Áp dụng |
+| DV-36 | T058, T060: thêm tiêm lỗi `failNextContextWrite` (ném sau `put`, trong transaction) và hook E2E cùng tên cho V21 | Áp dụng |
+| DV-37 | T065: nút "Bắt đầu" hiện ở mọi trạng thái trừ "tuyến không còn khả dụng"; đường đi do `chooseStartPath` quyết định. Gói `SAN_SANG + OUTDATED` → câu "Gói tải trước này đã cũ nhưng vẫn dùng được." trong vùng thông báo (V19 "cảnh báo cũ hiện"). Hook `requestOfflineDecision` mặc định đi thẳng Start (`offlineDecision.ts`); US6 thay bằng dialog. Hàm chiếu manifest chuyển sang `start/manifest.ts` (code thật dùng; helper test gọi lại) | Áp dụng |
+
+### 6.4 Checkpoint US4
+
+US4 **đạt** trên network mock: V17–V21 pass. M02 nhận được handoff v3 thật qua `readSelectedRouteContext()`.

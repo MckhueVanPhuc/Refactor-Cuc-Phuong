@@ -4,20 +4,10 @@ import type { JourneySnapshot } from '../../../shared/contracts/journeySnapshot'
 import type { OfflinePackage } from '../../../shared/contracts/offlinePackage';
 import type { PublishedRoute } from '../../../shared/contracts/publishedRoute';
 import type { SelectedRouteContextV3 } from '../../../shared/contracts/selectedRouteContext';
+import { manifestFromSnapshot } from '../start/manifest';
 
-export function manifestOf(snapshot: JourneySnapshot): OfflinePackage['manifest'] {
-  return {
-    routeId: snapshot.routeId,
-    contentVersion: snapshot.contentVersion,
-    checkpoints: snapshot.checkpoints.map(({ checkpointId, sequence, checkpointName, connectivityMode, qrIdentifiers }) => ({
-      checkpointId,
-      sequence,
-      checkpointName,
-      connectivityMode,
-      qrIdentifiers,
-    })),
-  };
-}
+/** Manifest của snapshot (cùng hàm với code Start/tải gói). */
+export const manifestOf = (snapshot: JourneySnapshot): OfflinePackage['manifest'] => manifestFromSnapshot(snapshot);
 
 export function packageFromPublication(
   route: PublishedRoute,

@@ -1,0 +1,38 @@
+/* Vùng Start của SCR-M01-003: CTA chính M01 (--touch-target-m01-primary), nền forest chữ paper (design-system §5.3) */
+.panel {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.start {
+  min-height: var(--touch-target-m01-primary);
+  padding: 0 var(--space-6);
+  font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
+  color: var(--color-paper);
+  background: var(--color-m01-forest);
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.start:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 100vmax var(--overlay-fill-hover);
+}
+
+.start:active:not(:disabled) {
+  box-shadow: inset 0 0 0 100vmax var(--overlay-fill-pressed);
+}
+
+/* Đang chạy: giữ nhãn, đổi con trỏ; không dùng độ mờ làm tín hiệu duy nhất (§5.3) */
+.start:disabled {
+  cursor: progress;
+}
+
+.error {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-meta);
+  color: var(--color-error);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-error);
+  border-radius: var(--radius-md);
+}

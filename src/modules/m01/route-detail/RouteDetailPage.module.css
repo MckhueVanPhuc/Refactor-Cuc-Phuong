@@ -190,3 +190,7 @@
 .message {
   color: var(--color-m01-secondary);
 }
+
+.startArea {
+  margin-bottom: var(--space-6);
+}

@@ -12,3 +12,16 @@ export function consumeActivationFailure(): boolean {
   failNext = false;
   return value;
 }
+
+let failNextContext = false;
+
+/** Lần ghi context kế tiếp thất bại trong transaction (quickstart V21; tasks T058, T060). */
+export function failNextContextWrite(): void {
+  failNextContext = true;
+}
+
+export function consumeContextWriteFailure(): boolean {
+  const value = failNextContext;
+  failNextContext = false;
+  return value;
+}

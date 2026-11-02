@@ -1,6 +1,6 @@
 // SCR-M01-003 Chi tiết tuyến & Chuẩn bị (FR-M01-003, 014; US-M01-06; visitor-ui-flow §2). Online: đủ trường bắt
 // buộc, ẩn trường tùy chọn vắng; offline có gói: chữ cốt lõi đã lưu kèm thời điểm lưu, ảnh không lưu → placeholder.
-// Vùng nút "Bắt đầu" (US4) và trạng thái gói (US6) gắn vào sau.
+// Nút "Bắt đầu" (US4); trạng thái gói và dialog quyết định offline (US6) gắn vào sau.
 import { useId } from 'react';
 import { Link, useParams } from 'react-router';
 import { PATHS } from '../../../app/paths';
@@ -12,6 +12,8 @@ import { SourceNotice } from '../layout/VisitorLayout';
 import { usePackageImageUrl } from '../media/usePackageImageUrl';
 import { useSignedUrls } from '../media/useSignedUrls';
 import { onlineDetailView, savedDetailView, type DetailView } from './detailView';
+import { continueWithoutDecision } from './offlineDecision';
+import { StartPanel } from './StartPanel';
 import styles from './RouteDetailPage.module.css';
 import { useRouteDetail } from './useRouteDetail';
 
@@ -161,6 +163,9 @@ export function RouteDetailPage() {
       ? (data.route?.name[language] ?? data.pkg?.routeEssentials.name[language])
       : undefined;
   const title = view?.name ?? unavailableName ?? messages.screenTitle.routeDetail;
+  const pkg = data.status === 'online' || data.status === 'saved' ? data.pkg : null;
+  // Start có ở mọi trạng thái trừ tuyến đã đóng; đường online/offline do chooseStartPath quyết định
+  const canStart = data.status !== 'loading' && data.status !== 'routeUnavailable';
 
   return (
     <>
@@ -172,10 +177,11 @@ export function RouteDetailPage() {
         {view?.needsPackage && <span className={styles.heroChip}>{messages.catalog.offlineNeeded}</span>}
       </div>
 
-      {(data.status === 'saved' || data.status === 'localView') && (
+      {(data.status === 'saved' || data.status === 'localView' || pkg?.versionStatus === 'OUTDATED') && (
         <SourceNotice>
           <div className={styles.notices}>
-            <p className={styles.notice}>{messages.routeDetail.sourceErrorUsingSaved}</p>
+            {pkg?.versionStatus === 'OUTDATED' && <p className={styles.notice}>{messages.routeDetail.outdated}</p>}
+            {data.status !== 'online' && <p className={styles.notice}>{messages.routeDetail.sourceErrorUsingSaved}</p>}
             {view?.capturedAt && (
               <p className={styles.notice}>
                 {messages.routeDetail.savedAt({ time: formatCapturedAt(view.capturedAt, language) })}
@@ -188,6 +194,15 @@ export function RouteDetailPage() {
       {data.status === 'loading' && <div className={styles.coverPlaceholder} aria-busy="true" />}
       {data.status === 'sourceUnavailable' && <p className={styles.message}>{messages.catalog.sourceUnavailable}</p>}
       {data.status === 'routeUnavailable' && <p className={styles.notice}>{messages.routeDetail.routeUnavailable}</p>}
+      {canStart && (
+        <div className={styles.startArea}>
+          <StartPanel
+            routeId={routeId}
+            needsDecision={Boolean(view?.needsPackage) && !pkg}
+            requestOfflineDecision={continueWithoutDecision}
+          />
+        </div>
+      )}
       {view && <DetailBody view={view} />}
     </>
   );

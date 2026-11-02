@@ -4,7 +4,7 @@
 import type { OfflinePackage } from '../../../shared/contracts/offlinePackage';
 import type { SelectedRouteContextV3 } from '../../../shared/contracts/selectedRouteContext';
 import { registerTestHooks } from '../../../shared/testing/e2eHooks';
-import { failNextActivation } from '../storage/faultInjection';
+import { failNextActivation, failNextContextWrite } from '../storage/faultInjection';
 import { seedContext, seedReadyPackage } from '../storage/testSeed';
 import { pngBytes } from './pngBytes';
 
@@ -13,5 +13,6 @@ export function registerM01TestHooks(): void {
     seedContext: (context: SelectedRouteContextV3) => seedContext(context),
     seedPackage: (pkg: OfflinePackage) => seedReadyPackage(pkg, () => new Blob([pngBytes()], { type: 'image/png' })),
     failNextActivation: () => failNextActivation(),
+    failNextContextWrite: () => failNextContextWrite(),
   });
 }
