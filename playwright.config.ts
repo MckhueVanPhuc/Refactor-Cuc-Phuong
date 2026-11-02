@@ -10,12 +10,23 @@ const mockProjects: Project[] = [
     testDir: 'e2e/m03',
     use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:5174' },
   },
+  // M01 chạy trên bản build MODE e2e (có service worker); Data API và Storage giả bằng page.route() (research M01 R-16)
+  {
+    name: 'm01',
+    testDir: 'e2e/m01',
+    use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:4173', serviceWorkers: 'allow' },
+  },
 ];
 
 const localStackProjects: Project[] = [
   {
     name: 'm03-local-stack',
     testDir: 'e2e/m03',
+    use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:5173' },
+  },
+  {
+    name: 'm01-local-stack',
+    testDir: 'e2e/m01',
     use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:5173' },
   },
 ];
@@ -33,6 +44,13 @@ export default defineConfig({
       command: 'npm run dev:fake',
       url: 'http://localhost:5174',
       reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: 'npm run preview:e2e',
+      url: 'http://localhost:4173',
+      reuseExistingServer: !process.env.CI,
+      // Gồm thời gian build trước khi preview
+      timeout: 180_000,
     },
     ...(localStack
       ? [{ command: 'npm run dev', url: 'http://localhost:5173', reuseExistingServer: !process.env.CI }]
