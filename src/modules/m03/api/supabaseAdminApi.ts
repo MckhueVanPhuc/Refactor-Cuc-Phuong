@@ -2,7 +2,7 @@
 // Chạy thật chỉ ở giai đoạn B trên stack local (CHG-M03-2026-10-30-01); T197 kiểm bằng bộ contract dùng chung.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
-import { MEDIA_BUCKET } from '../../../shared/config/env';
+import { MEDIA_BUCKET } from '../../../shared/config/storage';
 import { commandResultSchema, type CommandResult } from '../contracts/commandResult';
 import { publicationReviewSchema } from '../contracts/publicationReview';
 import { rpt01OutputSchema, rpt02OutputSchema } from '../contracts/reportOutputs';

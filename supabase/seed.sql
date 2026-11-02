@@ -204,6 +204,77 @@ begin
 end;
 $$;
 
+-- Fixture hiệu năng (tasks T199; research R-24): 30 điểm dừng "Cần tải trước", mỗi điểm 20 điểm tham quan đã xuất bản
+-- có một ảnh 50 KB (object có trong Storage), và 10 tuyến cùng liệt kê cả 30 điểm dừng — một thay đổi ở điểm dừng đầu
+-- dựng lại 10 hành trình × 30 điểm dừng × 20 điểm tham quan. Dựng thẳng bằng SQL (như lookup_world), hành trình
+-- version 1 dựng bằng chính app.build_journey / app.commit_snapshot.
+create function test_support.perf_world() returns void
+language plpgsql
+set search_path = ''
+as $$
+declare
+  c_by constant text := '00000000-0000-4000-8000-000000000002';
+  v_checkpoint text;
+  v_qr text;
+  v_media uuid;
+  v_route text;
+  v_content jsonb;
+  c integer;
+  q integer;
+  r integer;
+begin
+  set local session_replication_role = replica;
+  for c in 1..30 loop
+    v_checkpoint := 'PerfCheckpoint' || lpad(c::text, 3, '0');
+    insert into app.checkpoints (checkpoint_id, status, created_by_user_id) values (v_checkpoint, 'HOAT_DONG', c_by);
+    insert into app.revisions (subject_type, subject_id, revision_number, status, content, created_by_user_id, last_edited_by_user_id,
+                               published_by_user_id, published_at, self_published)
+    values ('CHECKPOINT', v_checkpoint, 1, 'PHAT_HANH', jsonb_build_object(
+      'checkpointName', jsonb_build_object('vi', 'Điểm hiệu năng ' || c, 'en', 'Perf checkpoint ' || c),
+      'connectivityMode', 'OFFLINE_REQUIRED'), c_by, c_by, c_by, now(), true);
+    for q in 1..20 loop
+      v_qr := 'PerfQr' || lpad(c::text, 3, '0') || lpad(q::text, 3, '0') || 'AbCdEf';
+      v_media := gen_random_uuid();
+      insert into app.qr_codes (qr_identifier, checkpoint_id, status, created_by_user_id, created_at)
+      values (v_qr, v_checkpoint, 'HOAT_DONG', c_by, clock_timestamp());
+      insert into storage.objects (bucket_id, name, metadata)
+      values ('quest-media', 'uploads/CHECKPOINT/' || v_checkpoint || '/' || q, '{"mimetype": "image/jpeg", "size": 50000}');
+      insert into app.media (media_id, owner_type, owner_id, usage, type, source_ref, mime_type, file_size_bytes,
+                             usage_rights_confirmed, usage_rights_confirmed_by_user_id, usage_rights_confirmed_at, created_by_user_id)
+      values (v_media, 'CHECKPOINT', v_checkpoint, 'QR_MEDIA', 'IMAGE', 'uploads/CHECKPOINT/' || v_checkpoint || '/' || q,
+              'image/jpeg', 50000, true, c_by, now(), c_by);
+      insert into app.revisions (subject_type, subject_id, revision_number, status, content, created_by_user_id, last_edited_by_user_id,
+                                 published_by_user_id, published_at, self_published)
+      values ('QRCODE', v_qr, 1, 'PHAT_HANH', jsonb_build_object(
+        'objectName', jsonb_build_object('vi', 'Vật ' || c || '-' || q, 'en', 'Object ' || c || '-' || q),
+        'introductionText', jsonb_build_object('vi', rpad('Giới thiệu vật ' || c || '-' || q, 120, '.'),
+                                               'en', rpad('About object ' || c || '-' || q, 120, '.')),
+        'mediaItems', jsonb_build_array(jsonb_build_object('mediaId', v_media))), c_by, c_by, c_by, now(), true);
+    end loop;
+  end loop;
+  set local session_replication_role = origin;
+
+  for r in 1..10 loop
+    v_route := 'PerfRoute' || lpad(r::text, 3, '0');
+    v_content := jsonb_build_object(
+      'name', jsonb_build_object('vi', 'Tuyến hiệu năng ' || r, 'en', 'Perf route ' || r),
+      'noSafetyWarningConfirmed', true, 'offlineRouteMapRequired', false,
+      'checkpointList', (select jsonb_agg(jsonb_build_object('checkpointId', 'PerfCheckpoint' || lpad(c2::text, 3, '0')) order by c2)
+                         from generate_series(1, 30) c2));
+    insert into app.routes (route_id, created_by_user_id) values (v_route, c_by);
+    set local session_replication_role = replica;
+    insert into app.revisions (subject_type, subject_id, revision_number, status, content, created_by_user_id, last_edited_by_user_id,
+                               published_by_user_id, published_at, self_published)
+    values ('ROUTE', v_route, 1, 'PHAT_HANH', v_content, c_by, c_by, c_by, now(), true);
+    set local session_replication_role = origin;
+    perform app.commit_snapshot(v_route, app.build_journey(v_route, v_content) -> 'candidate', true);
+  end loop;
+  -- Thống kê như khi chạy ổn định: ngay sau khi nạp hàng loạt, autovacuum chưa kịp ANALYZE nên planner ước 1 dòng
+  -- và chọn plan lồng nhau (đo nguội: validation-report D-127)
+  analyze app.checkpoints, app.qr_codes, app.revisions, app.media, app.routes, app.journey_snapshots;
+end;
+$$;
+
 revoke all on all functions in schema test_support from public, anon, authenticated, service_role;
 
 select test_support.seed_m03();

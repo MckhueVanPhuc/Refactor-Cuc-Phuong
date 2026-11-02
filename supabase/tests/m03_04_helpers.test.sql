@@ -46,7 +46,7 @@ select is(app.cr_blocked('MSG-X', '{}', '[]') -> 'issues', '[]', 'BLOCKED may ca
 select is(app.cr_failed('MSG-SAVED') ->> 'messageKey', 'MSG-GENERIC', 'FAILED uses only PUBLISH/CLOSE/GENERIC');
 select is(app.cr_failed('MSG-PUBLISH-FAILED') ->> 'messageKey', 'MSG-PUBLISH-FAILED', 'FAILED keeps MSG-PUBLISH-FAILED');
 select is(app.cr_stale('00000000-0000-4000-8000-000000000002', '2026-10-31 08:05:00+07') -> 'stale',
-  '{"editorEmail": "staff@example.test", "editedAt": "2026-10-31T01:05:00.000Z"}', 'STALE names the last editor (R-09)');
+  '{"editorEmail": "staff@example.test", "editedAt": "2026-10-31T01:05:00.000Z"}', 'STALE names the last editor and when (R-09; BR-M03-L05)');
 select is(app.cr_stale('gone', now()) -> 'stale' ->> 'editorEmail', 'quản trị viên', 'STALE without an account names no one');
 
 -- ---- reject / result_from_error (R-07) ---------------------------------------------------------------------------

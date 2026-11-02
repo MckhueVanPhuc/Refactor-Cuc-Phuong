@@ -112,7 +112,7 @@ select is(pg_temp.publish('ROUTE_INFORMATION', :'ra') #>> '{data,newJourneyVersi
 select is((select offline_route_map ->> 'sourceRef' from api.active_journey_snapshots where route_id = :'ra'),
   'uploads/ROUTE/' || :'ra' || '/map', 'the map is in the snapshot');
 
--- ---- checkpoint revision: every listing route at once (BR-M03-X02, X03, B05) -----------------------------------
+-- ---- checkpoint revision: every listing route at once (BR-M03-D06, X02, X03, B05) -----------------------------------
 select api.save_checkpoint_draft(:'c1', pg_temp.expected('CHECKPOINT', :'c1'),
   '{"checkpointName": {"vi": "Hang Con Moong mới", "en": "New Con Moong Cave"}, "connectivityMode": "OFFLINE_REQUIRED"}') ->> 'ok' as renamed \gset
 select is((select jsonb_agg(r ->> 'routeName' || ':' || (r ->> 'createsNewJourneyVersion') order by r ->> 'routeName')
@@ -169,7 +169,7 @@ select is((select v from extensions.dblink('other',
   format('select pg_try_advisory_xact_lock(hashtextextended(%L, 0))::text', 'checkpoint:' || :'c_busy')) as t(v text)), 'true',
   'another session holds the lock of "Động bận"');
 select is(pg_temp.publish('CHECKPOINT_FIRST_PUBLICATION', :'c_busy'), app.cr_busy('Động bận'),
-  'an operation on an intersecting set → BUSY naming the item, no retry');
+  'an operation on an intersecting set → BUSY naming the item, no retry (BR-M03-L07)');
 select ok((select outcome = 'FAILURE' and status = 'NHAP' from app.audit_records a, app.checkpoints c
   where a.action = 'PUBLISHED' and a.entity_id = :'c_busy' and c.checkpoint_id = :'c_busy' order by a.occurred_at desc limit 1),
   '... nothing changed, one FAILURE audit line');

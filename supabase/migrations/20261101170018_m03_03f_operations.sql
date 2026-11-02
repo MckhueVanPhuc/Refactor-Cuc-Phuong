@@ -36,7 +36,7 @@ create function app.auto_closing_routes(p_checkpoint_id text) returns text[]
 language sql stable
 set search_path = ''
 as $$
-  select coalesce(array_agg(r.route_id order by r.route_id), '{}')
+  select coalesce(array_agg(r.route_id order by app.route_name(r.route_id), r.route_id), '{}')
   from app.affected_routes(p_checkpoint_id) r
   join app.journey_snapshots s on s.route_id = r.route_id and s.content_version = r.active_content_version
   where r.status = 'HOAT_DONG'
@@ -118,11 +118,14 @@ begin
     v_actor := app.require_admin('B');
     perform app.lock_connected_set(jsonb_build_array(jsonb_build_object('key', 'route:' || p_route_id, 'name', app.route_name(p_route_id))));
     select * into v_route from app.routes where route_id = p_route_id for update;
-    if v_route.status is distinct from 'HOAT_DONG' then
+    if v_route.route_id is null then
       perform app.reject(app.cr_failed());
     end if;
     perform app.expect_revision((p_expected ->> 'entity')::integer, v_route.concurrency_revision,
       app.entity_last_editor('ROUTE', p_route_id), v_route.updated_at);
+    if v_route.status <> 'HOAT_DONG' then
+      perform app.reject(app.cr_failed());
+    end if;
     v_problem := app.reason_problem(p_reason, true);
     if v_problem is not null then
       perform app.reject(v_problem);
@@ -155,11 +158,14 @@ begin
     v_actor := app.require_admin('R');
     perform app.lock_connected_set(jsonb_build_array(jsonb_build_object('key', 'route:' || p_route_id, 'name', app.route_name(p_route_id))));
     select * into v_route from app.routes where route_id = p_route_id for update;
-    if v_route.status is distinct from 'TAM_DONG' then
+    if v_route.route_id is null then
       perform app.reject(app.cr_failed());
     end if;
     perform app.expect_revision((p_expected ->> 'entity')::integer, v_route.concurrency_revision,
       app.entity_last_editor('ROUTE', p_route_id), v_route.updated_at);
+    if v_route.status <> 'TAM_DONG' then
+      perform app.reject(app.cr_failed());
+    end if;
     v_problem := app.reason_problem(p_safety_note, true, 'Ghi chú xác nhận an toàn');
     if v_problem is not null then
       perform app.reject(v_problem);
@@ -203,11 +209,14 @@ begin
     perform app.lock_connected_set(jsonb_build_array(jsonb_build_object('key', 'route:' || p_route_id, 'name', app.route_name(p_route_id))));
     select * into v_route from app.routes where route_id = p_route_id for update;
     -- only a closed route; terminal; its checkpoints do not change (BR-M03-H09, T07)
-    if v_route.status is distinct from 'TAM_DONG' then
+    if v_route.route_id is null then
       perform app.reject(app.cr_failed());
     end if;
     perform app.expect_revision((p_expected ->> 'entity')::integer, v_route.concurrency_revision,
       app.entity_last_editor('ROUTE', p_route_id), v_route.updated_at);
+    if v_route.status <> 'TAM_DONG' then
+      perform app.reject(app.cr_failed());
+    end if;
     v_problem := app.reason_problem(p_reason, true);
     if v_problem is not null then
       perform app.reject(v_problem);
@@ -245,16 +254,19 @@ begin
     v_actor := app.require_admin('B');
     perform app.lock_connected_set(app.checkpoint_lock_items(p_checkpoint_id));
     select * into v_checkpoint from app.checkpoints where checkpoint_id = p_checkpoint_id for update;
-    if v_checkpoint.status is distinct from 'HOAT_DONG' then
+    if v_checkpoint.checkpoint_id is null then
       perform app.reject(app.cr_failed());
     end if;
     perform app.expect_revision((p_expected ->> 'entity')::integer, v_checkpoint.concurrency_revision,
       app.entity_last_editor('CHECKPOINT', p_checkpoint_id), v_checkpoint.updated_at);
+    if v_checkpoint.status <> 'HOAT_DONG' then
+      perform app.reject(app.cr_failed());
+    end if;
     v_problem := app.reason_problem(p_reason, true);
     if v_problem is not null then
       perform app.reject(v_problem);
     end if;
-    select coalesce(array_agg(r.route_id order by r.route_id), '{}') into v_affected from app.affected_routes(p_checkpoint_id) r;
+    select coalesce(array_agg(r.route_id order by app.route_name(r.route_id), r.route_id), '{}') into v_affected from app.affected_routes(p_checkpoint_id) r;
     v_auto := app.auto_closing_routes(p_checkpoint_id);
     update app.checkpoints
     set status = 'TAM_DONG', closure_reason = app.trim_text(p_reason), closed_at = now(), closed_by_user_id = v_actor.user_id,
@@ -267,7 +279,7 @@ begin
     end loop;
     perform app.audit(v_actor.user_id, 'CHECKPOINT_CLOSED', 'CHECKPOINT', p_checkpoint_id, 'SUCCESS', p_reason, null, null,
       '{"status": "HOAT_DONG"}', jsonb_build_object('status', 'TAM_DONG',
-        'affectedRoutes', (select coalesce(jsonb_agg(app.route_name(r) order by r), '[]') from unnest(v_affected) r)));
+        'affectedRoutes', (select coalesce(jsonb_agg(app.route_name(r) order by app.route_name(r), r), '[]') from unnest(v_affected) r)));
     -- each automatic route closure has its own audit line (BR-M03-H02 "with an audit line")
     foreach v_route in array v_auto loop
       perform app.audit(v_actor.user_id, 'ROUTE_AUTO_CLOSED', 'ROUTE', v_route, 'SUCCESS', p_reason, null, null,
@@ -301,7 +313,7 @@ begin
     if not exists (select 1 from app.checkpoints where checkpoint_id = p_checkpoint_id) then
       perform app.reject(app.cr_failed());
     end if;
-    select coalesce(array_agg(r.route_id order by r.route_id), '{}') into v_targets
+    select coalesce(array_agg(r.route_id order by app.route_name(r.route_id), r.route_id), '{}') into v_targets
     from app.affected_routes(p_checkpoint_id) r where r.status = 'HOAT_DONG';
     perform app.lock_connected_set(coalesce((select jsonb_agg(jsonb_build_object('key', 'route:' || r, 'name', app.route_name(r)))
                                              from unnest(v_targets) r), '[]'));
@@ -313,7 +325,7 @@ begin
       perform app.close_route_row(v_route, 'MANUAL', p_reason, v_actor.user_id);
     end loop;
     perform app.audit(v_actor.user_id, 'RELATED_ROUTES_CLOSED', 'CHECKPOINT', p_checkpoint_id, 'SUCCESS', p_reason, null, null, null,
-      jsonb_build_object('affectedRoutes', (select coalesce(jsonb_agg(app.route_name(r) order by r), '[]') from unnest(v_targets) r)));
+      jsonb_build_object('affectedRoutes', (select coalesce(jsonb_agg(app.route_name(r) order by app.route_name(r), r), '[]') from unnest(v_targets) r)));
     return app.cr_ok('MSG-SAVED', jsonb_build_object('closedRoutes', app.route_refs(v_targets)));
   exception when others then
     v_result := app.result_from_error(sqlstate, sqlerrm);
@@ -341,11 +353,14 @@ begin
     v_actor := app.require_admin('R');
     perform app.lock_connected_set(app.checkpoint_lock_items(p_checkpoint_id));
     select * into v_checkpoint from app.checkpoints where checkpoint_id = p_checkpoint_id for update;
-    if v_checkpoint.status is distinct from 'TAM_DONG' then
+    if v_checkpoint.checkpoint_id is null then
       perform app.reject(app.cr_failed());
     end if;
     perform app.expect_revision((p_expected ->> 'entity')::integer, v_checkpoint.concurrency_revision,
       app.entity_last_editor('CHECKPOINT', p_checkpoint_id), v_checkpoint.updated_at);
+    if v_checkpoint.status <> 'TAM_DONG' then
+      perform app.reject(app.cr_failed());
+    end if;
     v_problem := app.reason_problem(p_safety_note, true, 'Ghi chú xác nhận an toàn');
     if v_problem is not null then
       perform app.reject(v_problem);
@@ -354,7 +369,7 @@ begin
     if cardinality(v_blockers) > 0 then
       perform app.reject(app.reopen_blocked(v_blockers));
     end if;
-    select coalesce(array_agg(r.route_id order by r.route_id), '{}') into v_affected from app.affected_routes(p_checkpoint_id) r;
+    select coalesce(array_agg(r.route_id order by app.route_name(r.route_id), r.route_id), '{}') into v_affected from app.affected_routes(p_checkpoint_id) r;
     update app.checkpoints
     set status = 'HOAT_DONG', closure_reason = null, closed_at = null, closed_by_user_id = null,
         concurrency_revision = concurrency_revision + 1
@@ -368,7 +383,7 @@ begin
     perform app.commit_rebuilds(v_rebuilds);
     perform app.audit(v_actor.user_id, 'CHECKPOINT_REOPENED', 'CHECKPOINT', p_checkpoint_id, 'SUCCESS', p_safety_note, null, null,
       '{"status": "TAM_DONG"}', jsonb_build_object('status', 'HOAT_DONG',
-        'affectedRoutes', (select coalesce(jsonb_agg(app.route_name(r) order by r), '[]') from unnest(v_affected) r)));
+        'affectedRoutes', (select coalesce(jsonb_agg(app.route_name(r) order by app.route_name(r), r), '[]') from unnest(v_affected) r)));
     return app.cr_ok('MSG-SAVED', jsonb_build_object('status', 'HOAT_DONG', 'concurrencyRevision', v_checkpoint.concurrency_revision + 1));
   exception when others then
     v_result := app.result_from_error(sqlstate, sqlerrm);
@@ -394,11 +409,14 @@ begin
     perform app.lock_connected_set(jsonb_build_array(jsonb_build_object('key', 'checkpoint:' || p_checkpoint_id,
       'name', app.checkpoint_name(p_checkpoint_id))));
     select * into v_checkpoint from app.checkpoints where checkpoint_id = p_checkpoint_id for update;
-    if v_checkpoint.status is distinct from 'TAM_DONG' then
+    if v_checkpoint.checkpoint_id is null then
       perform app.reject(app.cr_failed());
     end if;
     perform app.expect_revision((p_expected ->> 'entity')::integer, v_checkpoint.concurrency_revision,
       app.entity_last_editor('CHECKPOINT', p_checkpoint_id), v_checkpoint.updated_at);
+    if v_checkpoint.status <> 'TAM_DONG' then
+      perform app.reject(app.cr_failed());
+    end if;
     v_problem := app.reason_problem(p_reason, true);
     if v_problem is not null then
       perform app.reject(v_problem);
@@ -459,7 +477,7 @@ begin
      or not exists (select 1 from app.checkpoints where checkpoint_id = p_subject_id) then
     raise exception 'not found' using errcode = 'no_data_found';
   end if;
-  select coalesce(array_agg(r.route_id order by r.route_id), '{}') into v_affected from app.affected_routes(p_subject_id) r;
+  select coalesce(array_agg(r.route_id order by app.route_name(r.route_id), r.route_id), '{}') into v_affected from app.affected_routes(p_subject_id) r;
   return jsonb_build_object(
     'affectedRoutes', app.route_refs(v_affected),
     'autoClosingRoutes', case when p_operation = 'CLOSE_CHECKPOINT' then app.route_refs(app.auto_closing_routes(p_subject_id)) else '[]'::jsonb end,

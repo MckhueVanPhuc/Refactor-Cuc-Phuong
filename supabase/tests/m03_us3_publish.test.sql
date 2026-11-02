@@ -61,7 +61,7 @@ select api.save_checkpoint_draft(p_content => '{"checkpointName": {"vi": "Rừng
 
 -- ---- C-01 save route (BR-M03-C03, C12, C16, T01) ------------------------------------------------------------------
 select api.save_route_draft(p_content => '{"name": {"vi": "Đường mòn"}}') as r_first \gset
-select is(:'r_first'::jsonb ->> 'messageKey', 'MSG-SAVED', 'an almost empty route saves (BR-M03-C03)');
+select is(:'r_first'::jsonb ->> 'messageKey', 'MSG-SAVED', 'an almost empty route saves: required fields wait for publication (BR-M03-C02, C03)');
 select :'r_first'::jsonb #>> '{data,routeId}' as r1 \gset
 select is(api.get_route_editor(:'r1') ->> 'status', 'NHAP', 'the first save creates a NHAP route');
 select is(api.save_route_draft(:'r1', '{"entity": 1, "draft": 1}', '{"difficulty": "KHO", "groupTags": ["GROUP_GIA_DINH_CO_TRE"]}') -> 'issues' -> 0 ->> 'message',
@@ -70,7 +70,7 @@ select is(api.save_route_draft(:'r1', '{"entity": 1, "draft": 1}', '{"distanceKm
   'MSG-NUMBER-DECIMALS', 'distance has one decimal at most');
 select is(api.save_route_draft(:'r1', '{"entity": 1, "draft": 1}', jsonb_build_object('checkpointList', jsonb_build_array(
   jsonb_build_object('checkpointId', :'c1'), jsonb_build_object('checkpointId', :'c1')))) -> 'issues' -> 0 ->> 'message',
-  'Điểm dừng "Hang Con Moong" đã có trong danh sách của tuyến.', 'a checkpoint twice → MSG-CHECKPOINT-DUPLICATE');
+  'Điểm dừng "Hang Con Moong" đã có trong danh sách của tuyến.', 'a checkpoint twice → MSG-CHECKPOINT-DUPLICATE (BR-M03-T09)');
 select is(api.save_route_draft(:'r1', '{"entity": 1, "draft": 1}', jsonb_build_object('checkpointList', jsonb_build_array(
   jsonb_build_object('checkpointId', :'c2')))) ->> 'reason', 'FAILED', 'a checkpoint that is not active cannot be added (BR-M03-T01)');
 select is(api.save_route_draft(p_content => jsonb_build_object('thumbnailMediaId', gen_random_uuid())) ->> 'reason', 'FAILED',
@@ -156,7 +156,7 @@ select is((select to_jsonb(p) - 'route_id' from api.published_routes p where rou
 select is((select checkpoints -> 0 -> 'offlineResources' -> 0 -> 'staticImages' from api.active_journey_snapshots where route_id = :'r1'),
   jsonb_build_array('uploads/CHECKPOINT/' || :'c1' || '/Cây chò'), 'the snapshot carries the offline images of the visit point');
 select is((select checkpoints -> 0 -> 'qrIdentifiers' from api.active_journey_snapshots where route_id = :'r1'), jsonb_build_array(:'q1'),
-  'only active identifiers: the draft visit point is not in the journey');
+  'only active identifiers: the draft visit point is not in the journey (BR-M03-X01)');
 
 select api.save_route_draft(p_content => '{"name": {"vi": "Chưa xuất bản"}}') #>> '{data,routeId}' as r2 \gset
 set local role anon;

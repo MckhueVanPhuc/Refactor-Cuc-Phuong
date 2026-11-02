@@ -2,7 +2,7 @@
 -- research R-27; DAC-M03-005, 006, 009, 012, 013, 015, 020, 023–053, 061–066, 079, 087–089; BR-M03-K03, D10).
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(66);
+select plan(69);
 
 -- ---- app.revision_content_problems: save-time shape and limits (DAC-M03-023–053, 087, 088) ------------------
 create function pg_temp.route(p_extra jsonb) returns jsonb language sql as $$
@@ -41,7 +41,7 @@ select is(pg_temp.problems('ROUTE', pg_temp.route('{"difficulty": "TRUNG_BINH", 
   'family tag with another difficulty is fine');
 select is(pg_temp.problems('ROUTE', pg_temp.route(jsonb_build_object('galleryItems',
   (select jsonb_agg(jsonb_build_object('mediaId', gen_random_uuid())) from generate_series(1, 9))))), '{galleryItems}',
-  'gallery above ROUTE_GALLERY_MAX_IMAGES (DAC-M03-037)');
+  'gallery above ROUTE_GALLERY_MAX_IMAGES (DAC-M03-037; BR-M03-C14)');
 select is(pg_temp.problems('ROUTE', pg_temp.route(jsonb_build_object('galleryItems', jsonb_build_array(
   jsonb_build_object('mediaId', gen_random_uuid(), 'caption', jsonb_build_object('vi', E'a\nb')))))), '{galleryCaption.0.vi}',
   'gallery caption is single-line (DAC-M03-038)');
@@ -50,10 +50,10 @@ select is(pg_temp.problems('ROUTE', pg_temp.route('{"routeMapCaption": {"vi": "S
 select is(pg_temp.problems('ROUTE', '{"noSafetyWarningConfirmed": false, "offlineRouteMapRequired": true}'), '{offlineRouteMapRequired}',
   'offline map tick only with a route map (DAC-M03-040)');
 select is(pg_temp.problems('ROUTE', pg_temp.route('{"checkpointList": [{"checkpointId": "c"}, {"checkpointId": "c"}]}')), '{checkpointList}',
-  'a checkpoint appears once in a list (DAC-M03-041)');
+  'a checkpoint appears once in a list (DAC-M03-041; BR-M03-T09)');
 select is(pg_temp.problems('ROUTE', pg_temp.route(jsonb_build_object('checkpointList',
   (select jsonb_agg(jsonb_build_object('checkpointId', 'c' || i)) from generate_series(1, 31) as i)))), '{checkpointList}',
-  'list above ROUTE_CHECKPOINTS_MAX_ITEMS');
+  'list above ROUTE_CHECKPOINTS_MAX_ITEMS (BR-M03-T09)');
 select is(pg_temp.problems('ROUTE', pg_temp.route(jsonb_build_object('highlights',
   (select jsonb_agg(jsonb_build_object('vi', 'x', 'en', 'y')) from generate_series(1, 6))))), '{highlights}',
   'highlights above ROUTE_HIGHLIGHTS_MAX_ITEMS (DAC-M03-043)');
@@ -183,6 +183,19 @@ select throws_ok($$insert into app.journey_snapshots (route_id, content_version,
   values ('r3', 1, '[{"checkpointId": "a", "sequence": 1, "checkpointName": {"vi": "A", "en": "A"}, "connectivityMode": "ONLINE_AVAILABLE", "qrIdentifiers": ["q1"]},
                      {"checkpointId": "b", "sequence": 1, "checkpointName": {"vi": "B", "en": "B"}, "connectivityMode": "ONLINE_AVAILABLE", "qrIdentifiers": ["q2"]}]')$$,
   '23514', null, 'sequences are unique within a snapshot (DAC-M03-063)');
+select throws_ok($$insert into app.journey_snapshots (route_id, content_version, checkpoints)
+  values ('r3', 1, '[{"checkpointId": "c1", "sequence": 1, "checkpointName": {"vi": "Hang"},
+    "connectivityMode": "ONLINE_AVAILABLE", "qrIdentifiers": ["Qr00000000000001"]}]')$$,
+  '23514', null, 'a checkpoint name missing a language is refused, not passed as null (DAC-M03-064)');
+select throws_ok($$insert into app.journey_snapshots (route_id, content_version, checkpoints)
+  values ('r3', 1, '[{"checkpointId": "c1", "sequence": 1, "checkpointName": {"vi": "Hang", "en": "Cave"},
+    "connectivityMode": "OFFLINE_REQUIRED", "qrIdentifiers": ["Qr00000000000001"],
+    "offlineResources": [{"qrIdentifier": "Qr00000000000001", "objectName": {"vi": "Đá", "en": "Rock"},
+      "localizedContent": {"vi": {"introductionText": "Giới thiệu"}}, "staticImages": []}]}]')$$,
+  '23514', null, 'an offline resource missing the English introduction is refused (DAC-M03-065)');
+select throws_ok($$insert into app.journey_snapshots (route_id, content_version, checkpoints, offline_route_map)
+  values ('r3', 1, '[]', '{"sourceRef": "uploads/ROUTE/r3/map.jpg", "caption": {"vi": "Bản đồ"}}')$$,
+  '23514', null, 'a route map caption missing a language is refused (DAC-M03-066)');
 savepoint latest;
 insert into app.journey_snapshots (route_id, content_version, checkpoints) values ('r3', 1, '[]');
 select throws_ok($$set constraints all immediate$$, '23514', null,

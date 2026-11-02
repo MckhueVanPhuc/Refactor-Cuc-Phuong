@@ -2,7 +2,7 @@
 -- H01–H09, T05, T07, X02, X06; SC-M03-006, 009, 019, 031). Staff …02 builds and closes, Reviewer …01 reopens and archives.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(52);
+select plan(55);
 
 insert into auth.sessions (id, user_id) values
   ('10000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001'),
@@ -70,8 +70,8 @@ from unnest(array['api.close_route(text, text, jsonb)', 'api.reopen_route(text, 
 
 -- ---- close a checkpoint (BR-M03-H01, H02, T05, X02, X03, X06; SC-M03-006) ---------------------------------------
 select is(api.get_operation_impact('CLOSE_CHECKPOINT', :'c1') - 'reopenBlockers', jsonb_build_object(
-  'affectedRoutes', jsonb_build_array(jsonb_build_object('routeId', least(:'ra', :'rb'), 'routeName', case when :'ra' < :'rb' then 'Đường A' else 'Đường B' end),
-                                      jsonb_build_object('routeId', greatest(:'ra', :'rb'), 'routeName', case when :'ra' < :'rb' then 'Đường B' else 'Đường A' end)),
+  'affectedRoutes', jsonb_build_array(jsonb_build_object('routeId', :'ra', 'routeName', 'Đường A'),
+                                      jsonb_build_object('routeId', :'rb', 'routeName', 'Đường B')),
   'autoClosingRoutes', jsonb_build_array(jsonb_build_object('routeId', :'ra', 'routeName', 'Đường A'))),
   'Q-09 names every listing route and the one that will close by itself');
 select is(api.close_checkpoint(:'c1', '  ', pg_temp.rev('checkpoint', :'c1')), app.cr_blocked('MSG-MISSING-FIELD', '{"tên ô": "Lý do"}'), 'a reason is required');
@@ -83,12 +83,12 @@ select ok((select status = 'TAM_DONG' and closure_reason = 'Sạt lở' and clos
   from app.checkpoints where checkpoint_id = :'c1'), 'the checkpoint is TAM_DONG with reason, who and when');
 select is(pg_temp.state(:'ra'), 'TAM_DONG:AUTO_NO_ACTIVE_CHECKPOINT:v2', 'route A: closed automatically, with a journey without the checkpoint');
 select is(pg_temp.state(:'rb'), 'HOAT_DONG:-:v2', 'route B stays active and gets version 2 in the same transaction');
-select is(pg_temp.journey(:'rb'), '[2]', 'the remaining checkpoint keeps its list position: sequence may have gaps (BR-M03-G02)');
+select is(pg_temp.journey(:'rb'), '[2]', 'the remaining checkpoint keeps its list position: sequence may have gaps (BR-M03-G02, T02)');
 select is((select jsonb_agg(action order by occurred_at, audit_id) from app.audit_records where outcome = 'SUCCESS'
   and action in ('CHECKPOINT_CLOSED', 'ROUTE_AUTO_CLOSED')), '["CHECKPOINT_CLOSED", "ROUTE_AUTO_CLOSED"]',
   'one line for the checkpoint and its own line for the automatic route closure');
 select is((select after_state -> 'affectedRoutes' from app.audit_records where action = 'CHECKPOINT_CLOSED' and outcome = 'SUCCESS'),
-  (select jsonb_agg(app.route_name(r) order by r) from unnest(array[:'ra', :'rb']) r), 'the checkpoint line names the affected routes (BR-M03-X06)');
+  '["Đường A", "Đường B"]', 'the checkpoint line names the affected routes by name order (BR-M03-X06)');
 select is(api.close_checkpoint(:'c1', 'Lần nữa', pg_temp.rev('checkpoint', :'c1')) ->> 'reason', 'FAILED', 'only an active checkpoint closes');
 
 -- ---- roles (BR-M03-A03; SC-M03-009) --------------------------------------------------------------------------------
@@ -118,6 +118,11 @@ select is(api.close_route(:'ra', 'Bảo trì', pg_temp.rev('route', :'ra')) #>> 
 select is(pg_temp.state(:'ra'), 'TAM_DONG:MANUAL:v3', 'manual closure, no new version (BR-M03-H03)');
 select is((select status from api.published_routes where route_id = :'ra'), 'TAM_DONG', 'M01 sees the route closed');
 select is(api.close_route(:'ra', 'Lần nữa', pg_temp.rev('route', :'ra')) ->> 'reason', 'FAILED', 'only an active route closes');
+-- a closed route can still be edited and published; publication does not reopen it (BR-M03-H08)
+select is(api.save_route_draft(:'ra', pg_temp.rev('route', :'ra'), jsonb_set((app.published_of('ROUTE', :'ra')).content, '{shortDescription}',
+  '{"vi": "Ngắn, đang tạm đóng", "en": "Short, closed"}')) ->> 'ok', 'true', 'a closed route can still be edited');
+select is(pg_temp.publish('ROUTE_INFORMATION', :'ra') ->> 'ok', 'true', '... and published');
+select is(pg_temp.state(:'ra'), 'TAM_DONG:MANUAL:v3', 'publication does not reopen it (BR-M03-H08)');
 
 -- a closed route whose journey has no active checkpoint cannot reopen (BR-M03-H07)
 select is(api.close_checkpoint(:'c1', 'Sạt lở lần hai', pg_temp.rev('checkpoint', :'c1')) -> 'data', '{"autoClosedRoutes": []}',

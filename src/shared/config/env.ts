@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-/** Bucket media công khai, dùng chung M01 (R-06), M02 (R-16), M03. */
-export const MEDIA_BUCKET = 'quest-media';
+export { MEDIA_BUCKET } from './storage';
 
 /** `true` chỉ khi build Production trên Vercel (research R-13); mọi build khác là bản thử. */
 export const IS_PRODUCTION_BUILD: boolean = __IS_PRODUCTION_BUILD__;

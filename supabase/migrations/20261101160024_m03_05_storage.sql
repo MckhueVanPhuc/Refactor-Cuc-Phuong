@@ -2,12 +2,13 @@
 -- media-storage-contract §1, §4; research R-11, R-12; constitution IV, V).
 -- Objects live under uploads/{ownerType}/{ownerId}/{uploadKey}; no client may overwrite or delete an object.
 
-insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+-- No MIME list on the bucket: register_media checks `metadata.mimetype` and answers MSG-FILE-TYPE (media-storage §1
+-- step 4); a bucket-level refusal would surface as an upload failure instead (validation-report D-126)
+insert into storage.buckets (id, name, public, file_size_limit)
 values (
   'quest-media', 'quest-media', false,
   -- the largest per-type limit (VIDEO_MAX_MB); the exact limit per type is checked by register_media (C-04)
-  30 * 1048576,
-  array['image/jpeg', 'image/png', 'image/webp', 'audio/mpeg', 'audio/mp4', 'video/mp4']
+  30 * 1048576
 )
 on conflict (id) do nothing;
 

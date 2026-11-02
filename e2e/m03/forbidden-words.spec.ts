@@ -4,7 +4,7 @@
 // mã QR (BR-M03-L09, L10, L11; SC-M03-026).
 import type { Page } from '@playwright/test';
 import { DISPLAY_NAMES, NEVER_SHOWN_WORDS } from '../../src/modules/m03/messages/displayNames';
-import { expect, failNext, m03Hook, spaNavigate, test, waitForHooks } from './fixtures';
+import { expect, failNext, isLocalStack, m03Hook, spaNavigate, test, waitForHooks } from './fixtures';
 
 /** Mã enum: mọi khóa của bảng tên hiển thị dạng HOA_CO_GACH (mã ngôn ngữ `vi`/`en` là nội dung, không quét) */
 const ENUM_CODES = [
@@ -123,9 +123,11 @@ test('Q18 — mọi màn /admin/* không có từ cấm, mã thô hay id nội b
     await scan(page, `editor tuyến — ${step.source}`, ids, findings);
   }
 
-  // Thông báo lỗi khi lưu thất bại cũng là chữ cho nhân viên
+  // Thông báo lỗi khi lưu thất bại cũng là chữ cho nhân viên. Adapter giả: tiêm lỗi; stack thật: một phiên khác vừa
+  // lưu bản nháp này nên lần lưu của trang nhận MSG-STALE thật từ server
   await page.getByRole('button', { name: /Thẻ tuyến/ }).click();
-  await failNext(page, 'ROUTE_DRAFT_SAVED', 'MSG-GENERIC');
+  if (isLocalStack()) await m03Hook(page, 'reviseRouteAs', ['CONTENT_STAFF', routeIds[0], { distanceKm: 8 }]);
+  else await failNext(page, 'ROUTE_DRAFT_SAVED', 'MSG-GENERIC');
   await page.getByLabel('Quãng đường (km)').fill('7');
   await page.getByRole('button', { name: 'Lưu bản nháp' }).click();
   await expect(page.getByRole('alert')).toBeVisible();

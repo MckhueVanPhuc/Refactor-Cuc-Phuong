@@ -747,3 +747,58 @@ Branch `feat/m03-b-us9` tạo từ `feat/m03-b-us8` @ `a38e2fd`. Chỉ stack loc
 | D-123 | DB kiểm lại timestamp phải là UTC (`Z` hoặc `±00:00`) như Zod `utcDateTime`; offset khác bị từ chối ở cả hai lớp | Theo contract |
 | D-124 | Báo cáo từ chối khoảng ngày sai bằng lỗi `22023` có thông điệp là khóa (MSG-REPORT-DATES-INVALID / MSG-REPORT-SPAN); adapter hiện ánh xạ mọi lỗi query sang MSG-GENERIC, UI đã chặn khoảng sai trước khi gọi (R-17) | Ghi nhận; T197 xem có cần ánh xạ khóa không |
 | D-125 | Tỷ lệ RPT-01 trả `double precision` (JSON `0.8`), không phải `numeric` | Ghi nhận |
+
+## 22. Đợt 2026-11-02 — Phase 15 kiểm chứng giai đoạn B (T197–T200)
+
+Branch `feat/m03-b-verify` tạo từ `feat/m03-b-us9` @ `6bf556e`. Chỉ stack local (Supabase CLI 2.122.0, Docker Desktop trên Windows); không link, không `db push`, không deploy. Phase 16 vẫn ⛔ (T201).
+
+### 22.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 13 file, 655/655 pass (thêm 3 ca snapshot thiếu một ngôn ngữ — D-128 — và 3 ca H08 — D-133) |
+| Đối chiếu `src/modules/m03/api/rpcNames.ts` với schema `api` | — | 33/33 tên có function; chú thích đổi thành "tên đã chốt" (T197) |
+| `M03_LOCAL_STACK=1 npx vitest run src/modules/m03/api/supabaseAdminApi.contract.local.test.ts` | 0 | 114 pass, 19 skipped (ca `itFakeOnly`): toàn bộ `src/modules/m03/api/contract/*.contract.ts` chạy với adapter Supabase, đăng nhập tài khoản seed, reset bằng `test_support.reset_m03()` trước mỗi ca (T197) |
+| `supabase functions serve --env-file supabase/functions/.env` + `PW_LOCAL_STACK=1 npx playwright test --project=m03-local-stack --workers=1` | 0 | 68 pass, 4 skipped trên 72 ca (Q1–Q26, lookup, intake, perf): Q13, Q20 cần `failNext`, Q16 cần `holdLock`, Q17 cần `inflateLatestMedia` — chỉ có ở adapter giả (T198) |
+| `npx playwright test` (project mock) | 0 | 26 pass, 46 skipped (spec `*.local.spec.ts` và ca chỉ chạy ở stack local) |
+| `PW_LOCAL_STACK=1 npx playwright test e2e/m03/perf.local.spec.ts --project=m03-local-stack` | 0 | Đạt mọi mục tiêu R-24, xem §22.2 (T199) |
+| `npm run ci` | 0 | lint 352 pass; test 1130 pass, 133 skipped; build xong |
+| `git diff --check` | 0 | Không lỗi khoảng trắng (T200) |
+
+### 22.2 Hiệu năng (T199)
+
+Fixture `test_support.perf_world()`: 30 điểm dừng "Cần tải trước", mỗi điểm 20 điểm tham quan có một ảnh 50 KB, 10 tuyến cùng liệt kê cả 30 điểm. Mỗi thao tác chạy 10 lần trên `PerfCheckpoint001` (dựng lại 10 hành trình), lookup 100 lần; đo RPC qua supabase-js gồm HTTP local. Kết quả ghi ở `test-results/m03-perf.json` (không commit).
+
+| Thao tác | Mục tiêu p95 | Lần đầu | Sau D-127 |
+|---|---|---|---|
+| `open_publication_review` (CHECKPOINT_REVISION) | — | Hết `statement_timeout` 8 s của `authenticated` | 0,73 s |
+| `publish_unit` (CHECKPOINT_REVISION) | ≤ 5 s | Không đo được | 1,06 s |
+| `close_checkpoint` | ≤ 5 s | Không đo được | 1,25 s |
+| `reopen_checkpoint` | ≤ 5 s | Không đo được | 1,31 s |
+| `api.lookup_qr` | ≤ 300 ms | — | 10 ms |
+
+Đo nguội (ngay sau khi nạp, trước khi autovacuum ANALYZE): review ≈ 3,4 s, publish ≈ 3,7 s p95, vẫn dưới 5 s. Số đo của máy dev, không phải của môi trường cloud.
+
+### 22.3 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| `e2e/local-stack/global-setup.ts`, project `m01-local-stack` và `m02-local-stack` | Quyết định giai đoạn B #4: T198 chỉ làm phần M03 (hook phía Node trong `e2e/m03/localStack.ts`); BR-M03-I05, I06 ghi `NOT RUN` trong checklist BR |
+| Job CI `local-stack` trên runner GitHub | Chưa push; job chỉ chạy khi push vào `main` hoặc `workflow_dispatch` (quyết định giai đoạn B #6). Các bước đã chạy tay trên máy local theo đúng thứ tự trong `.github/workflows/ci.yml` |
+| Test Deno `supabase/functions/*/index.test.ts` | Không cài Deno (quyết định giai đoạn B #7); handler đã chạy qua Edge thật ở E2E |
+| Ca cần tiêm lỗi hoặc giữ khóa ở stack local (19 ca `itFakeOnly`; E2E Q13, Q16, Q17, Q20) | Hook chỉ có ở adapter giả; BUSY kiểm bằng dblink trong `m03_us4_revise`, rollback khi lỗi bằng khối con và SQLSTATE `CPQRV` trong pgTAP Phase 14 |
+| SMTP thật | Chỉ Mailpit của stack local |
+
+### 22.4 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-124 | Adapter không ánh xạ khóa lỗi báo cáo (MSG-REPORT-DATES-INVALID / MSG-REPORT-SPAN) | Đóng: UI chặn khoảng ngày sai trước khi gọi (`reportInput.ts`); lỗi server chỉ là lớp phòng thủ, hiện MSG-GENERIC |
+| D-126 | Bucket `quest-media` có `allowed_mime_types` nên Storage từ chối tệp sai loại ngay lúc upload, trước khi `register_media` kịp trả MSG-FILE-TYPE như media-storage §1 bước 4 (contract test media lệch) | Bỏ danh sách MIME khỏi bucket; `register_media` kiểm `metadata.mimetype` như contract |
+| D-127 | T199 lần đầu: review hết thời gian chờ. Ba nguyên nhân: `app.build_journey` nối jsonb trong vòng lặp (bình phương, 543 ms/tuyến); 7 hàm SQL nhỏ có `set search_path` nên planner không inline được, bị gọi hàng chục nghìn lần (`trim_text`, `is_blank`, `complete_bilingual`, `visit_point_name`, `text_len`, `non_empty_text`, `bilingual_complete`); `rebuild_routes` gọi `build_journey` hai lần mỗi tuyến vì subquery lateral bị kéo lên | `build_journey` viết lại set-based, cho kết quả giống hệt bản cũ trên cả 10 tuyến của fixture; 7 hàm trên bỏ mệnh đề `SET` (hàm invoker thuần túy, chỉ dùng tên đủ schema; `search_path` cố định vẫn bắt buộc với `SECURITY DEFINER` — plan §V; linter Supabase `function_search_path_mutable` sẽ cảnh báo 7 hàm này, chấp nhận); `bilingual_complete` bỏ subquery; `offset 0` trong `rebuild_routes`; `perf_world()` chạy ANALYZE ở cuối để đo trạng thái ổn định |
+| D-128 | `app.non_empty_text(NULL)` và `app.bilingual_complete` trả NULL thay vì false: trong CHECK, NULL được coi là đạt, nên snapshot có tên thiếu `en`, resource thiếu `introductionText` hay caption sơ đồ thiếu một ngôn ngữ vẫn lọt qua `snapshot_checkpoints_ok` / `offline_route_map_ok` (lỗi tiềm ẩn từ Phase 14; `build_journey` chưa bao giờ sinh ra dạng này) | Sửa: luôn trả true/false; thêm 3 ca pgTAP trong `m03_02_triggers` |
+| D-129 | Lệnh lưu và đổi trạng thái kiểm trạng thái hay nghiệp vụ trước STALE, còn adapter giả và contract kiểm STALE trước (contract test lệch) | SQL theo thứ tự của `store.run`: mục phải tồn tại → STALE → trạng thái và nghiệp vụ (03b, 03c, 03d, 03f, 03g) |
+| D-130 | Review của tuyến chưa có tên tiếng Việt trả `routeName` rỗng, vi phạm `PublicationReview.routeName` (`z.string().min(1)`); adapter giả cũng trả rỗng nhưng không parse Zod | SQL và adapter giả dùng `Tuyến chưa đặt tên` (chuỗi đã có ở `fake/reports.ts`) cho review, chặn dung lượng và tên khóa BUSY; spec không quy định câu chữ — muốn câu khác thì sửa spec trước |
+| D-131 | Tuyến bị ảnh hưởng trong review và ghi chú tác động sắp theo id ở SQL, theo tên ở adapter giả | SQL sắp theo `app.route_name` rồi id, như adapter giả |
+| D-132 | T198 viết `e2e/local-stack/global-setup.ts` dùng chung M01/M02/M03 | Chỉ phần M03 (quyết định #4): project `m03-local-stack` dùng hook phía Node (`e2e/m03/localStack.ts`) dựng dữ liệu bằng chính adapter Supabase, Mailpit và psql; reset trước mỗi ca; Q4 và Q18 rẽ nhánh theo project; `MEDIA_BUCKET` tách sang `src/shared/config/storage.ts` để code Node import được mà không cần hằng Vite |
+| D-133 | T200: 11 BR có assertion pgTAP kiểm đúng hành vi nhưng chưa trích ID (C02, C14, T02, T09, D06, X01, E03, E16, H05, L05, L07); K02 chỉ được kiểm ở E2E Q3; H08 chưa có test xuất bản tuyến đang tạm đóng | Gắn ID vào assertion; thêm chú thích BR-M03-K02 cho Q3; thêm 3 ca H08 vào `m03_us6_operations`. Checklist BR: 121 BR có test giai đoạn B trích đúng ID, 3 hàng trỏ dùng test của nhóm đích, 8 BR chỉ giao diện, 2 BR consumer `NOT RUN` |

@@ -71,7 +71,7 @@ begin
       || coalesce((select jsonb_agg(jsonb_build_object('key', 'checkpoint:' || k, 'name', app.checkpoint_name(k))) from unnest(v_listed) k), '[]'));
   end if;
   v_revision := v_route.concurrency_revision + v_draft.concurrency_revision + v_parts;
-  v_name := coalesce(app.trim_text(v_after #>> '{name,vi}'), '');
+  v_name := coalesce(nullif(app.trim_text(v_after #>> '{name,vi}'), ''), 'Tuyến chưa đặt tên');
   v_journey := app.build_journey(p_subject_id, v_after);
   v_changed := (v_journey -> 'candidate') is distinct from app.active_journey(p_subject_id);
   -- the "no warning" tick is on the review; a lost last active checkpoint is its own BLOCKED (BR-M03-C09, T05)
@@ -158,7 +158,7 @@ begin
   v_after := v_draft.content;
   select coalesce(array_agg(q.qr_identifier order by q.created_at, q.qr_identifier), '{}') into v_active
   from app.qr_codes q where q.checkpoint_id = p_subject_id and q.status = 'HOAT_DONG';
-  select coalesce(array_agg(r.route_id order by r.route_id), '{}'), coalesce(sum(r.concurrency_revision), 0)
+  select coalesce(array_agg(r.route_id order by app.route_name(r.route_id), r.route_id), '{}'), coalesce(sum(r.concurrency_revision), 0)
     into v_routes, v_parts
   from app.affected_routes(p_subject_id) r;
   -- MSG-ROUTE-BUSY names the checkpoint by its public name, not the draft one

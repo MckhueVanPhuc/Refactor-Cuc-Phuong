@@ -95,15 +95,18 @@ begin
     v_actor := app.require_admin('R');
     lock table app.admin_accounts in share row exclusive mode;
     select * into v_account from app.admin_accounts where email = v_email;
+    if v_account.email is null then
+      perform app.reject(app.cr_failed());
+    end if;
+    -- STALE first, then the request itself (same order as every command)
+    perform app.expect_revision((p_expected ->> 'entity')::integer, v_account.concurrency_revision,
+      app.account_last_editor(v_email), v_account.updated_at);
     -- only the two fixed roles exist (BR-M03-A01); a pending invitation is neither locked nor unlocked here
-    if v_account.email is null
-      or (v_field = 'role' and coalesce(p_role in ('REVIEWER', 'CONTENT_STAFF'), false) is false)
+    if (v_field = 'role' and coalesce(p_role in ('REVIEWER', 'CONTENT_STAFF'), false) is false)
       or (v_field = 'status' and (coalesce(p_status in ('ACTIVE', 'DEACTIVATED'), false) is false
                                   or v_account.status = 'INVITATION_PENDING')) then
       perform app.reject(app.cr_failed());
     end if;
-    perform app.expect_revision((p_expected ->> 'entity')::integer, v_account.concurrency_revision,
-      app.account_last_editor(v_email), v_account.updated_at);
     if app.removes_last_reviewer(v_account, coalesce(p_role, v_account.role), coalesce(p_status, v_account.status)) then
       perform app.reject(app.cr_blocked('MSG-LAST-REVIEWER'));
     end if;

@@ -113,7 +113,7 @@ select api.save_visit_point_draft(:'c2', p_content => jsonb_build_object('object
   'mediaItems', jsonb_build_array(jsonb_build_object('mediaId', :'aud2')))) -> 'data' ->> 'qrIdentifier' as q2 \gset
 select is((select jsonb_agg(i ->> 'messageKey' || ' ' || (i ->> 'targetFieldKey')) from jsonb_array_elements(api.get_visit_point_editor(:'q2') -> 'issues') i),
   '["MSG-MISSING-LANGUAGE objectName.en", "MSG-MISSING-FIELD introductionText.vi", "MSG-MISSING-FIELD introductionText.en", "MSG-RIGHTS-NOT-CONFIRMED usageRights.0", "MSG-AV-LANGUAGE-MISSING spokenLanguage.0"]',
-  'Q-07 issues: missing language, short introduction, rights, spoken language');
+  'Q-07 issues: missing language, short introduction (BR-M03-E03), rights, spoken language');
 select is(api.get_visit_point_editor(:'q2') -> 'issues' -> 3 ->> 'message',
   'Hãy xác nhận quyền sử dụng cho "Tiếng chim – âm thanh/video 1" trước khi xuất bản.', 'a file is named by visit point and position (D-3)');
 select is(api.get_visit_point_editor(:'q2') #> '{readiness,missing}',
@@ -179,7 +179,7 @@ select is(api.discard_unpublished('QRCODE', :'q3first', p_expected => '{"entity"
 select is(api.save_visit_point_draft(:'c3', p_content => '{}') ->> 'ok', 'true', 'then one can be added again');
 select is(api.get_checkpoint_editor(:'c3') #>> '{visitPoints,20,creationOrder}', '21', 'creation order counts the discarded one too');
 select is((api.get_checkpoint_editor(:'c3') #> '{visitPoints,0}') - 'qrIdentifier' - 'readiness',
-  '{"status": "THU_HOI", "creationOrder": 1}', 'an unnamed visit point has no name key; the UI shows "chưa đặt tên {số}"');
+  '{"status": "THU_HOI", "creationOrder": 1}', 'an unnamed visit point has no name key; the UI shows "chưa đặt tên {số}" (BR-M03-E16)');
 
 -- ---- C-07 for a checkpoint (BR-M03-D09) -------------------------------------------------------------------------
 select is(api.discard_unpublished('CHECKPOINT', :'c3', p_expected => jsonb_build_object('entity', (api.get_checkpoint_editor(:'c3') ->> 'concurrencyRevision')::int)),

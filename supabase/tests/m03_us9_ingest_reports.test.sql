@@ -50,7 +50,7 @@ select is((select count(*)::int || '/' || max(status) from app.session_records w
 select is(pg_temp.ingest(pg_temp.record('6f1c2a3b-4d5e-4f60-8a71-b2c3d4e5f602', '{"status": "BO_DO", "visitedCheckpoints": []}')), 'ACCEPTED',
   'an abandoned session without visits is accepted');
 
--- ---- a closed or archived route still receives (BR-M03-J04) -----------------------------------------------------
+-- ---- a closed or archived route still receives: closing never interrupts a running session (BR-M03-J04, H05) --------
 select test_support.intake_route_status('TAM_DONG');
 select is(pg_temp.ingest(pg_temp.record('6f1c2a3b-4d5e-4f60-8a71-b2c3d4e5f603')), 'ACCEPTED', 'a closed route still receives');
 select test_support.intake_route_status('LUU_TRU');

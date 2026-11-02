@@ -31,10 +31,11 @@ as $$
     and (p_value #>> '{}') ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
 $$;
 
+-- false, never null, for a missing value: a null would let `not app.non_empty_text(...)` pass a check.
+-- No SET clause, so it can be inlined (see app.text_len)
 create function app.non_empty_text(p_value jsonb) returns boolean
 language sql immutable parallel safe
-set search_path = ''
-as $$ select jsonb_typeof(p_value) = 'string' and app.text_len(p_value #>> '{}') > 0 $$;
+as $$ select coalesce(jsonb_typeof(p_value) = 'string' and app.text_len(p_value #>> '{}') > 0, false) $$;
 
 -- Field keys (targetFieldKey form) of a bilingual object that break the shape or the limit
 create function app.bilingual_problems(p_object jsonb, p_key text, p_max integer, p_single_line boolean)
@@ -311,13 +312,13 @@ create trigger revisions_content_ok before insert or update of content on app.re
 -- Snapshot and session shapes (§5.6, §5.9)
 -- ---------------------------------------------------------------------------
 
+-- false, never null, for a missing value; no SET clause and no subquery, so it can be inlined (see app.text_len)
 create function app.bilingual_complete(p_value jsonb) returns boolean
 language sql immutable parallel safe
-set search_path = ''
 as $$
-  select jsonb_typeof(p_value) = 'object'
+  select coalesce(jsonb_typeof(p_value) = 'object'
     and app.non_empty_text(p_value -> 'vi') and app.non_empty_text(p_value -> 'en')
-    and not exists (select 1 from jsonb_object_keys(p_value) as k(key) where k.key not in ('vi', 'en'))
+    and p_value - 'vi' - 'en' = '{}'::jsonb, false)
 $$;
 
 -- DAC-M03-063–065: unique ids and sequences; non-empty names; active identifiers; one offline resource per

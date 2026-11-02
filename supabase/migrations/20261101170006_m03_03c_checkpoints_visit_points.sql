@@ -29,15 +29,16 @@ language sql immutable
 set search_path = ''
 as $$ select case when p_value is null or p_value = 'null'::jsonb then '{}'::jsonb else jsonb_build_object(p_key, p_value) end $$;
 
+-- No SET clause: a pure invoker helper with qualified names only, so the planner can inline it (a SET blocks inlining;
+-- validation-report D-127). Fixed search_path stays mandatory for SECURITY DEFINER functions (plan §V).
 create function app.trim_text(p_value text) returns text
 language sql immutable
-set search_path = ''
 as $$ select btrim(p_value, E' \t\r\n') $$;
 
 -- Present and not blank: a non-empty string after trim, a non-empty array, any other value
+-- No SET clause, so it can be inlined (see app.trim_text)
 create function app.is_blank(p_value jsonb) returns boolean
 language sql immutable
-set search_path = ''
 as $$
   select p_value is null or p_value = 'null'::jsonb
     or (jsonb_typeof(p_value) = 'string' and app.trim_text(p_value #>> '{}') = '')
@@ -305,9 +306,9 @@ as $$
   where o.qr_identifier = p_qr_identifier
 $$;
 
+-- No SET clause, so it can be inlined (see app.trim_text)
 create function app.visit_point_name(p_name text, p_order integer) returns text
 language sql immutable
-set search_path = ''
 as $$ select coalesce(nullif(app.trim_text(p_name), ''), 'Điểm tham quan chưa đặt tên ' || p_order) $$;
 
 create function app.qr_display_name(p_qr_identifier text) returns text
@@ -525,12 +526,15 @@ begin
     v_actor := app.require_admin('B');
     if p_checkpoint_id is not null then
       select * into v_checkpoint from app.checkpoints where checkpoint_id = p_checkpoint_id for update;
-      if v_checkpoint.checkpoint_id is null or v_checkpoint.status = 'LUU_TRU' then
+      if v_checkpoint.checkpoint_id is null then
         perform app.reject(app.cr_failed());
       end if;
       v_draft := app.draft_of('CHECKPOINT', p_checkpoint_id);
       perform app.expect_entity(p_expected, 'CHECKPOINT', p_checkpoint_id, v_checkpoint.concurrency_revision,
         v_checkpoint.updated_at, v_draft);
+      if v_checkpoint.status = 'LUU_TRU' then
+        perform app.reject(app.cr_failed());
+      end if;
     end if;
     v_id := coalesce(v_checkpoint.checkpoint_id, app.new_id());
 
@@ -615,17 +619,23 @@ begin
   begin
     v_actor := app.require_admin('B');
     select * into v_checkpoint from app.checkpoints where checkpoint_id = p_checkpoint_id for update;
-    if v_checkpoint.checkpoint_id is null or v_checkpoint.status = 'LUU_TRU' then
+    if v_checkpoint.checkpoint_id is null then
       perform app.reject(app.cr_failed());
     end if;
     if p_qr_identifier is not null then
       select * into v_qr from app.qr_codes where qr_identifier = p_qr_identifier for update;
-      -- a visit point never moves to another checkpoint (BR-M03-E12)
-      if v_qr.qr_identifier is null or v_qr.checkpoint_id <> p_checkpoint_id or v_qr.status = 'THU_HOI' then
+      if v_qr.qr_identifier is null then
         perform app.reject(app.cr_failed());
       end if;
       perform app.expect_entity(p_expected, 'QRCODE', p_qr_identifier, v_qr.concurrency_revision, v_qr.updated_at,
         app.draft_of('QRCODE', p_qr_identifier));
+      -- a visit point never moves to another checkpoint (BR-M03-E12)
+      if v_qr.checkpoint_id <> p_checkpoint_id or v_qr.status = 'THU_HOI' then
+        perform app.reject(app.cr_failed());
+      end if;
+    end if;
+    if v_checkpoint.status = 'LUU_TRU' then
+      perform app.reject(app.cr_failed());
     end if;
 
     v_mode := app.checkpoint_saved_mode(p_checkpoint_id);
@@ -809,11 +819,14 @@ begin
       select status, concurrency_revision, updated_at into v_status, v_revision, v_updated_at
       from app.qr_codes where qr_identifier = p_subject_id for update;
     end if;
-    if v_status is distinct from 'NHAP' or app.ever_published(p_subject_type, p_subject_id) then
+    if v_revision is null then
       perform app.reject(app.cr_failed());
     end if;
     perform app.expect_revision((p_expected ->> 'entity')::integer, v_revision,
       app.entity_last_editor(p_subject_type, p_subject_id), v_updated_at);
+    if v_status <> 'NHAP' or app.ever_published(p_subject_type, p_subject_id) then
+      perform app.reject(app.cr_failed());
+    end if;
     -- the reason is required for routes and checkpoints, optional for a visit point (BR-M03-E10)
     v_problem := app.reason_problem(p_reason, p_subject_type <> 'QRCODE');
     if v_problem is not null then
@@ -888,11 +901,11 @@ begin
                    from app.routes_listing(v_qr.checkpoint_id) as r), '[]'));
     select * into v_qr from app.qr_codes where qr_identifier = p_qr_identifier for update;
     select * into v_checkpoint from app.checkpoints where checkpoint_id = v_qr.checkpoint_id for update;
+    perform app.expect_revision((p_expected ->> 'entity')::integer, v_qr.concurrency_revision,
+      app.entity_last_editor('QRCODE', p_qr_identifier), v_qr.updated_at);
     if v_qr.status <> 'HOAT_DONG' then
       perform app.reject(app.cr_failed());
     end if;
-    perform app.expect_revision((p_expected ->> 'entity')::integer, v_qr.concurrency_revision,
-      app.entity_last_editor('QRCODE', p_qr_identifier), v_qr.updated_at);
     v_problem := app.reason_problem(p_reason, true);
     if v_problem is not null then
       perform app.reject(v_problem);

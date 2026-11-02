@@ -39,9 +39,9 @@ set search_path = ''
 as $$ select not app.is_blank(p_value -> 'vi') or not app.is_blank(p_value -> 'en') $$;
 
 -- Both languages after trim, or null (an optional bilingual value is published only when complete)
+-- No SET clause, so it can be inlined (see app.trim_text)
 create function app.complete_bilingual(p_value jsonb) returns jsonb
 language sql immutable
-set search_path = ''
 as $$
   select case when app.is_blank(p_value -> 'vi') or app.is_blank(p_value -> 'en') then null
     else jsonb_build_object('vi', app.trim_text(p_value ->> 'vi'), 'en', app.trim_text(p_value ->> 'en')) end
@@ -334,11 +334,14 @@ begin
     v_actor := app.require_admin('B');
     if p_route_id is not null then
       select * into v_route from app.routes where route_id = p_route_id for update;
-      if v_route.route_id is null or v_route.status = 'LUU_TRU' then
+      if v_route.route_id is null then
         perform app.reject(app.cr_failed());
       end if;
       perform app.expect_entity(p_expected, 'ROUTE', p_route_id, v_route.concurrency_revision, v_route.updated_at,
         app.draft_of('ROUTE', p_route_id));
+      if v_route.status = 'LUU_TRU' then
+        perform app.reject(app.cr_failed());
+      end if;
     end if;
     v_id := coalesce(v_route.route_id, app.new_id());
 
@@ -492,82 +495,100 @@ $$;
 
 -- Journey of a route from the given route content and the *published* content of its checkpoints and visit
 -- points as they are now: {candidate, leftOut, sizeBytes, heaviestImages}. The candidate has no version number.
+-- Set-based (one statement, no loop, no growing jsonb): a change at a checkpoint listed by 10 routes of 30 checkpoints
+-- with 20 visit points each rebuilds within the R-24 target (validation-report D-127).
 create function app.build_journey(p_route_id text, p_content jsonb) returns jsonb
 language plpgsql stable
 set search_path = ''
 as $$
 declare
-  v_entries jsonb := '[]';
-  v_left jsonb := '[]';
-  v_images jsonb := '[]';
-  v_text_bytes bigint := 0;
-  v_item record;
-  v_checkpoint app.checkpoints;
-  v_published jsonb;
-  v_mode text;
-  v_entry jsonb;
-  v_resources jsonb;
-  v_qr record;
-  v_qr_content jsonb;
-  v_object_name jsonb;
-  v_intro jsonb;
-  v_display text;
-  v_static jsonb;
-  v_entry_images jsonb;
+  v_entries jsonb;
+  v_left jsonb;
+  v_images jsonb;
+  v_text_bytes bigint;
   v_map app.media;
   v_candidate jsonb;
   v_size bigint;
 begin
-  for v_item in select c ->> 'checkpointId' as id, n::integer as n
-                from jsonb_array_elements(coalesce(p_content -> 'checkpointList', '[]')) with ordinality x(c, n) order by n loop
-    select * into v_checkpoint from app.checkpoints where checkpoint_id = v_item.id;
-    v_published := (app.published_of('CHECKPOINT', v_item.id)).content;
+  with list as (
+    select c ->> 'checkpointId' as id, n::integer as seq
+    from jsonb_array_elements(coalesce(p_content -> 'checkpointList', '[]')) with ordinality x(c, n)
+  ),
+  cp as (
+    select l.id, l.seq, k.status, pub.content as pc, coalesce(pub.content ->> 'connectivityMode', 'OFFLINE_REQUIRED') as mode,
+           (k.status = 'HOAT_DONG' and pub.content is not null) as in_journey
+    from list l
+    left join app.checkpoints k on k.checkpoint_id = l.id
+    left join app.revisions pub on pub.subject_type = 'CHECKPOINT' and pub.subject_id = l.id and pub.status = 'PHAT_HANH'
+  ),
+  -- creation order counts every visit point of the checkpoint, revoked ones included ("chưa đặt tên {số}")
+  qr as (
+    select q.checkpoint_id, q.qr_identifier, q.status, q.created_at,
+           row_number() over (partition by q.checkpoint_id order by q.created_at, q.qr_identifier)::integer as creation_order
+    from app.qr_codes q
+    where q.checkpoint_id in (select id from cp where in_journey)
+  ),
+  qa as (
+    select qr.checkpoint_id, qr.qr_identifier, qr.created_at, qr.creation_order, coalesce(r.content, '{}'::jsonb) as qc,
+           coalesce(app.complete_bilingual(r.content -> 'objectName'), '{"vi": "", "en": ""}'::jsonb) as obj,
+           coalesce(app.complete_bilingual(r.content -> 'introductionText'), '{"vi": "", "en": ""}'::jsonb) as intro
+    from qr
+    left join app.revisions r on r.subject_type = 'QRCODE' and r.subject_id = qr.qr_identifier and r.status = 'PHAT_HANH'
+    where qr.status = 'HOAT_DONG'
+  ),
+  -- static images of OFFLINE_REQUIRED checkpoints only; audio/video never count (BR-M03-G10)
+  img as (
+    select qa.qr_identifier, cp.seq, qa.created_at, i.n, m.source_ref, m.file_size_bytes,
+           app.visit_point_name(qa.obj ->> 'vi', qa.creation_order) || ' – ảnh '
+             || row_number() over (partition by qa.qr_identifier order by i.n) as label
+    from qa
+    join cp on cp.id = qa.checkpoint_id and cp.mode = 'OFFLINE_REQUIRED'
+    cross join lateral jsonb_array_elements(coalesce(qa.qc -> 'mediaItems', '[]')) with ordinality i(e, n)
+    join app.media m on m.media_id::text = i.e ->> 'mediaId' and m.type = 'IMAGE'
+  ),
+  -- aggregated once per visit point and per checkpoint (no correlated subquery over every row)
+  img_by_qr as (
+    select img.qr_identifier, jsonb_agg(img.source_ref order by img.n) as images from img group by img.qr_identifier
+  ),
+  per_checkpoint as (
+    select qa.checkpoint_id,
+           jsonb_agg(qa.qr_identifier order by qa.created_at, qa.qr_identifier) as qr_identifiers,
+           jsonb_agg(jsonb_build_object(
+               'qrIdentifier', qa.qr_identifier,
+               'objectName', qa.obj,
+               'localizedContent', jsonb_build_object('vi', jsonb_build_object('introductionText', qa.intro ->> 'vi'),
+                                                      'en', jsonb_build_object('introductionText', qa.intro ->> 'en')),
+               'staticImages', coalesce(b.images, '[]'::jsonb))
+             order by qa.created_at, qa.qr_identifier) as resources
+    from qa left join img_by_qr b on b.qr_identifier = qa.qr_identifier
+    group by qa.checkpoint_id
+  )
+  select
+    (select coalesce(jsonb_agg(
+        jsonb_build_object(
+          'checkpointId', cp.id,
+          'sequence', cp.seq,
+          'checkpointName', coalesce(app.complete_bilingual(cp.pc -> 'checkpointName'),
+                                     jsonb_build_object('vi', app.checkpoint_name(cp.id), 'en', app.checkpoint_name(cp.id))),
+          'connectivityMode', cp.mode,
+          'qrIdentifiers', coalesce(pc.qr_identifiers, '[]'::jsonb))
+        || case when cp.mode = 'OFFLINE_REQUIRED' then jsonb_build_object('offlineResources', coalesce(pc.resources, '[]'::jsonb))
+           else '{}'::jsonb end
+        order by cp.seq), '[]'::jsonb)
+     from cp left join per_checkpoint pc on pc.checkpoint_id = cp.id
+     where cp.in_journey),
     -- not active: left out of the journey; sequence keeps the list position, so gaps are allowed (BR-M03-G02, T02)
-    if v_checkpoint.checkpoint_id is null or v_checkpoint.status <> 'HOAT_DONG' or v_published is null then
-      v_left := v_left || jsonb_build_array(jsonb_build_object(
-        'name', coalesce(nullif(app.trim_text(v_published #>> '{checkpointName,vi}'), ''), app.checkpoint_name(v_item.id)),
-        'reason', case coalesce(v_checkpoint.status, 'LUU_TRU') when 'TAM_DONG' then 'Đang tạm đóng' when 'NHAP' then 'Chưa xuất bản'
-                    when 'LUU_TRU' then 'Đã lưu trữ' else 'Đang tạm đóng' end));
-      continue;
-    end if;
-    v_mode := coalesce(v_published ->> 'connectivityMode', 'OFFLINE_REQUIRED');
-    v_entry := jsonb_build_object(
-      'checkpointId', v_item.id,
-      'sequence', v_item.n,
-      'checkpointName', coalesce(app.complete_bilingual(v_published -> 'checkpointName'),
-                                 jsonb_build_object('vi', app.checkpoint_name(v_item.id), 'en', app.checkpoint_name(v_item.id))),
-      'connectivityMode', v_mode,
-      'qrIdentifiers', coalesce((select jsonb_agg(q.qr_identifier order by q.created_at, q.qr_identifier)
-                                 from app.qr_codes q where q.checkpoint_id = v_item.id and q.status = 'HOAT_DONG'), '[]'));
-    if v_mode = 'OFFLINE_REQUIRED' then
-      v_resources := '[]';
-      for v_qr in select q.qr_identifier from app.qr_codes q
-                  where q.checkpoint_id = v_item.id and q.status = 'HOAT_DONG' order by q.created_at, q.qr_identifier loop
-        v_qr_content := coalesce((app.published_of('QRCODE', v_qr.qr_identifier)).content, '{}');
-        v_object_name := coalesce(app.complete_bilingual(v_qr_content -> 'objectName'), '{"vi": "", "en": ""}');
-        v_intro := coalesce(app.complete_bilingual(v_qr_content -> 'introductionText'), '{"vi": "", "en": ""}');
-        v_text_bytes := v_text_bytes + octet_length(convert_to(
-          (v_object_name ->> 'vi') || (v_object_name ->> 'en') || (v_intro ->> 'vi') || (v_intro ->> 'en'), 'UTF8'));
-        v_display := app.visit_point_name(v_object_name ->> 'vi', app.qr_creation_order(v_qr.qr_identifier));
-        select coalesce(jsonb_agg(i.source_ref order by i.n), '[]'),
-               coalesce(jsonb_agg(jsonb_build_object('sourceRef', i.source_ref, 'size', i.file_size_bytes,
-                 'label', v_display || ' – ảnh ' || i.k) order by i.n), '[]')
-          into v_static, v_entry_images
-        from (select mm.source_ref, mm.file_size_bytes, x.n, row_number() over (order by x.n) as k
-              from jsonb_array_elements(coalesce(v_qr_content -> 'mediaItems', '[]')) with ordinality x(e, n)
-              join app.media mm on mm.media_id::text = x.e ->> 'mediaId' and mm.type = 'IMAGE') i;
-        v_images := v_images || v_entry_images;
-        v_resources := v_resources || jsonb_build_array(jsonb_build_object(
-          'qrIdentifier', v_qr.qr_identifier,
-          'objectName', v_object_name,
-          'localizedContent', jsonb_build_object('vi', jsonb_build_object('introductionText', v_intro ->> 'vi'),
-                                                 'en', jsonb_build_object('introductionText', v_intro ->> 'en')),
-          'staticImages', v_static));
-      end loop;
-      v_entry := v_entry || jsonb_build_object('offlineResources', v_resources);
-    end if;
-    v_entries := v_entries || jsonb_build_array(v_entry);
-  end loop;
+    (select coalesce(jsonb_agg(jsonb_build_object(
+        'name', coalesce(nullif(app.trim_text(cp.pc #>> '{checkpointName,vi}'), ''), app.checkpoint_name(cp.id)),
+        'reason', case coalesce(cp.status, 'LUU_TRU') when 'TAM_DONG' then 'Đang tạm đóng' when 'NHAP' then 'Chưa xuất bản'
+                    when 'LUU_TRU' then 'Đã lưu trữ' else 'Đang tạm đóng' end) order by cp.seq), '[]'::jsonb)
+     from cp where not coalesce(cp.in_journey, false)),
+    (select coalesce(jsonb_agg(jsonb_build_object('sourceRef', img.source_ref, 'size', img.file_size_bytes, 'label', img.label)
+                               order by img.seq, img.created_at, img.qr_identifier, img.n), '[]'::jsonb)
+     from img),
+    (select coalesce(sum(octet_length(convert_to((qa.obj ->> 'vi') || (qa.obj ->> 'en') || (qa.intro ->> 'vi') || (qa.intro ->> 'en'), 'UTF8'))), 0)
+     from qa join cp on cp.id = qa.checkpoint_id and cp.mode = 'OFFLINE_REQUIRED')
+  into v_entries, v_left, v_images, v_text_bytes;
 
   v_candidate := jsonb_build_object('checkpoints', v_entries);
   -- the route map enters the journey only when marked for offline use (BR-M03-C16)
@@ -580,7 +601,7 @@ begin
         'label', app.field_label('ROUTE', 'routeMapMediaId')));
     end if;
   end if;
-  -- distinct images + offline text; audio/video never count (BR-M03-G10)
+  -- distinct images + offline text
   select coalesce(sum((d.img ->> 'size')::bigint), 0) + v_text_bytes into v_size
   from (select distinct on (i ->> 'sourceRef') i as img from jsonb_array_elements(v_images) i) d;
   v_candidate := v_candidate || jsonb_build_object('estimatedOfflineSizeBytes', v_size);
@@ -647,7 +668,7 @@ as $$
       cross join lateral jsonb_array_elements(coalesce(v.content -> 'checkpointList', '[]')) c
       where v.subject_type = 'ROUTE' and v.subject_id = r.route_id and v.status = 'PHAT_HANH'
         and c ->> 'checkpointId' = p_checkpoint_id)
-  order by r.route_id
+  order by app.route_name(r.route_id), r.route_id
 $$;
 
 -- Rebuild every affected route from its published content and the data as it is now:
@@ -661,9 +682,10 @@ as $$
       'routeName', coalesce(app.trim_text((app.published_of('ROUTE', r.route_id)).content #>> '{name,vi}'), ''),
       'routeStatus', r.status,
       'changed', (b.build -> 'candidate') is distinct from app.active_journey(r.route_id),
-      'build', b.build) order by r.route_id), '[]')
+      'build', b.build) order by app.route_name(r.route_id), r.route_id), '[]')
   from app.affected_routes(p_checkpoint_id) r
-  cross join lateral (select app.build_journey(r.route_id, (app.published_of('ROUTE', r.route_id)).content) as build) b
+  -- offset 0 keeps the subquery from being pulled up: build_journey runs once per route, not once per use of b.build
+  cross join lateral (select app.build_journey(r.route_id, (app.published_of('ROUTE', r.route_id)).content) as build offset 0) b
 $$;
 
 -- Switch every changed route to its new snapshot, together (BR-M03-G06, X02): [{routeId, contentVersion}]
@@ -1001,7 +1023,7 @@ begin
        or v_checkpoint.status is null or v_checkpoint.status not in ('HOAT_DONG', 'TAM_DONG') then
       raise exception 'publication unit not found' using errcode = 'no_data_found';
     end if;
-    select coalesce(array_agg(r.route_id order by r.route_id), '{}'), coalesce(sum(r.concurrency_revision), 0)
+    select coalesce(array_agg(r.route_id order by app.route_name(r.route_id), r.route_id), '{}'), coalesce(sum(r.concurrency_revision), 0)
       into v_routes, v_parts
     from app.affected_routes(v_checkpoint.checkpoint_id) r;
     if p_publish then
@@ -1057,7 +1079,8 @@ begin
     -- connected set: the route and every checkpoint of its list (BR-M03-F05; R-08)
     if p_publish then
       perform app.lock_connected_set(
-        jsonb_build_array(jsonb_build_object('key', 'route:' || p_subject_id, 'name', coalesce(app.trim_text(v_draft.content #>> '{name,vi}'), '')))
+        jsonb_build_array(jsonb_build_object('key', 'route:' || p_subject_id, 'name',
+          coalesce(nullif(app.trim_text(v_draft.content #>> '{name,vi}'), ''), 'Tuyến chưa đặt tên')))
         || coalesce((select jsonb_agg(jsonb_build_object('key', 'checkpoint:' || k.checkpoint_id, 'name', app.checkpoint_name(k.checkpoint_id)))
                      from app.checkpoints k
                      where k.checkpoint_id in (select c ->> 'checkpointId' from jsonb_array_elements(coalesce(v_draft.content -> 'checkpointList', '[]')) c)), '[]'));
@@ -1065,7 +1088,7 @@ begin
     select coalesce(sum(k.concurrency_revision), 0) into v_parts from app.checkpoints k
     where k.checkpoint_id in (select c ->> 'checkpointId' from jsonb_array_elements(coalesce(v_draft.content -> 'checkpointList', '[]')) c);
     v_revision := v_route.concurrency_revision + v_draft.concurrency_revision + v_parts;
-    v_name := coalesce(app.trim_text(v_draft.content #>> '{name,vi}'), '');
+    v_name := coalesce(nullif(app.trim_text(v_draft.content #>> '{name,vi}'), ''), 'Tuyến chưa đặt tên');
     v_journey := app.build_journey(p_subject_id, v_draft.content);
     -- the "no warning" tick is on the review screen, not a gap of the draft (BR-M03-C09)
     v_issues := coalesce((select jsonb_agg(i order by n) from jsonb_array_elements(app.route_publish_issues(p_subject_id, v_draft.content))

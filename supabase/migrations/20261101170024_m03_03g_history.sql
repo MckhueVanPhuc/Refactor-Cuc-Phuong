@@ -152,11 +152,11 @@ begin
                    from app.routes_listing(v_qr.checkpoint_id) as r), '[]'));
     select * into v_qr from app.qr_codes where qr_identifier = p_qr_identifier for update;
     select * into v_checkpoint from app.checkpoints where checkpoint_id = v_qr.checkpoint_id for update;
+    perform app.expect_revision((p_expected ->> 'entity')::integer, v_qr.concurrency_revision,
+      app.entity_last_editor('QRCODE', p_qr_identifier), v_qr.updated_at);
     if v_qr.status <> 'HOAT_DONG' then
       perform app.reject(app.cr_failed());
     end if;
-    perform app.expect_revision((p_expected ->> 'entity')::integer, v_qr.concurrency_revision,
-      app.entity_last_editor('QRCODE', p_qr_identifier), v_qr.updated_at);
     v_problem := app.reason_problem(p_reason, true);
     if v_problem is not null then
       perform app.reject(v_problem);
@@ -166,7 +166,7 @@ begin
         where q.checkpoint_id = v_checkpoint.checkpoint_id and q.status = 'HOAT_DONG') <= 1 then
       perform app.reject(app.cr_blocked('MSG-LAST-QR'));
     end if;
-    select coalesce(jsonb_agg(app.route_name(r.route_id) order by r.route_id), '[]') into v_affected
+    select coalesce(jsonb_agg(app.route_name(r.route_id) order by app.route_name(r.route_id), r.route_id), '[]') into v_affected
     from app.affected_routes(v_checkpoint.checkpoint_id) r;
 
     update app.qr_codes set status = 'THU_HOI', status_reason = app.trim_text(p_reason),

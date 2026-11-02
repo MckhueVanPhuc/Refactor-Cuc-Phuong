@@ -394,6 +394,8 @@ export function createFakePublishArea(store: FakeStore): PublishArea {
     const content = draft.content as RouteContent;
     const before = first ? undefined : (publishedOf(store, 'ROUTE', routeId)?.content as RouteContent | undefined);
     const name = content.name?.vi?.trim() ?? '';
+    // Review và khóa luôn có tên (PublicationReview.routeName không rỗng), như SQL; tên tuyến chỉ đổi khi có tên thật
+    const shownName = name || 'Tuyến chưa đặt tên';
     const journey = buildJourney(store, routeId, content);
     // Bản sửa chỉ tạo version khi hành trình đổi: danh sách, thứ tự, sơ đồ offline (BR-M03-C15, C16, T06, G04)
     const changed = first || !sameJourney(journey.candidate, activeSnapshotOf(store, route));
@@ -405,7 +407,7 @@ export function createFakePublishArea(store: FakeStore): PublishArea {
       (issue) => issue.messageKey !== 'MSG-SAFETY-CONFIRM' && (first || issue.messageKey !== 'MSG-NO-ACTIVE-CHECKPOINT'),
     );
     const lastCheckpointRemoved = !first && route.status === 'HOAT_DONG' && journey.candidate.checkpoints.length === 0;
-    const size = changed && journey.sizeBytes > OFFLINE_PACKAGE_MAX_BYTES ? sizeBlock(routeId, name, journey) : undefined;
+    const size = changed && journey.sizeBytes > OFFLINE_PACKAGE_MAX_BYTES ? sizeBlock(routeId, shownName, journey) : undefined;
     const safetyRequired = !hasText(content.safetyWarning) && !content.noSafetyWarningConfirmed;
 
     // Tập kết nối: tuyến và mọi điểm dừng trong danh sách đã xuất bản và bản nháp (BR-M03-F05; research R-08)
@@ -422,7 +424,7 @@ export function createFakePublishArea(store: FakeStore): PublishArea {
     review.affectedRoutes = [
       {
         routeId,
-        routeName: name,
+        routeName: shownName,
         routeStatus: route.status === 'TAM_DONG' ? 'TAM_DONG' : 'HOAT_DONG',
         createsNewJourneyVersion: changed,
         estimatedOfflineSizeBytes: journey.sizeBytes,
@@ -442,7 +444,7 @@ export function createFakePublishArea(store: FakeStore): PublishArea {
       name,
       subjectType: 'ROUTE',
       lockKeys: [
-        { key: `route:${routeId}`, itemName: name },
+        { key: `route:${routeId}`, itemName: shownName },
         ...lockedCheckpoints.map((checkpoint) => ({ key: `checkpoint:${checkpoint.checkpointId}`, itemName: checkpointName(store, checkpoint) })),
       ],
       lastEdit: lastEditOf(route, draft),

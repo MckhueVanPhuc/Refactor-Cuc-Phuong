@@ -1,5 +1,5 @@
 // Bảng ánh xạ DUY NHẤT từ thao tác logic → tên function trong schema `api` (client đặt db.schema = 'api').
-// Tên là **đề xuất** (Physical §7.3 "Names are proposals"); migration bước 3–4 chốt tên, T197 cập nhật ở đây.
+// Tên đã chốt bởi migration bước 3–4 (Physical §7.3); T197 đối chiếu từng tên với schema `api` trên stack local.
 import type { AdminApi } from './AdminApi';
 
 type RpcMethod = Exclude<

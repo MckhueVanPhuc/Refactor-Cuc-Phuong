@@ -63,9 +63,10 @@ end;
 $$;
 
 -- PT-09: characters counted after trimming leading/trailing whitespace (spec-M03 §5.3)
+-- No SET clause: a pure invoker helper with qualified names only, so the planner can inline it into the snapshot
+-- checks (a SET blocks inlining; validation-report D-127). Fixed search_path stays mandatory for SECURITY DEFINER.
 create function app.text_len(p_value text) returns integer
 language sql immutable parallel safe
-set search_path = ''
 as $$ select char_length(btrim(p_value, E' \t\r\n')) $$;
 
 -- Reason / note: non-empty after trim and at most NOTE_MAX_CHARS (DAC-M03-008, 011, 014, 073)
