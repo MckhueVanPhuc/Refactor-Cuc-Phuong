@@ -18,13 +18,17 @@ major_version = 17
 enabled = true
 port = 54323
 
-# Email local thay SMTP thật (quickstart §5; auth-account §4)
-[inbucket]
+# Email local thay SMTP thật (quickstart §5; auth-account §4). CLI 2.x đổi tên mục `[inbucket]` thành `[local_smtp]`
+[local_smtp]
 enabled = true
 port = 54324
 
 [storage]
 enabled = true
+
+# Không dùng log analytics ở local; container `vector` của nó khởi động lại liên tục trên Docker Desktop Windows
+[analytics]
+enabled = false
 
 [auth]
 enabled = true
@@ -37,5 +41,17 @@ additional_redirect_urls = [
 enable_signup = false
 
 [auth.email]
-enable_signup = false
+# Bật nhà cung cấp email (đăng nhập bằng mật khẩu, lời mời, khôi phục). Ở CLI, `false` tại đây tắt luôn đăng nhập
+# bằng email ("Email logins are disabled"); việc chặn đăng ký công khai do `[auth] enable_signup = false` ở trên lo
+enable_signup = true
 enable_confirmations = false
+
+# Function tự xác minh JWT người gọi; publishable key không phải JWT (tasks M03 T178; auth-account §2.2)
+[functions.admin-accounts]
+verify_jwt = false
+
+# Edge nhận phiên của du khách: gọi bằng publishable key, không phải JWT; bật verify sẽ làm mọi bản ghi bị 401
+# (tasks M03 T195; session-intake-contract §1). Import map ánh xạ `zod` cho bản sao schema ở functions/_shared
+[functions.session-intake]
+verify_jwt = false
+import_map = "./functions/deno.json"

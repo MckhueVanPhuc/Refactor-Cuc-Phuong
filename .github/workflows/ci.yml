@@ -1,11 +1,13 @@
 # CI cho Cúc Phương Quest (tasks M03 T002; người dùng duyệt nối CI 2026-10-30, plan.md Complexity #3).
 # Chỉ dùng giá trị giả trong .env.fake / .env.e2e; không secret thật, không gọi Shared Backend.
-# Job Supabase local được thêm ở T198.
+# Job `local-stack` (T198): stack Supabase local trong runner, chỉ khi push vào main hoặc chạy tay (quyết định
+# giai đoạn B #6). Không link, không db push, không gọi cloud: mọi key là giá trị local do `supabase start` sinh ra.
 name: CI
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -34,3 +36,44 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # Chỉ các project dùng mock; project *-local-stack cần PW_LOCAL_STACK=1 (T007)
       - run: npm run e2e
+
+  local-stack:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.0
+      # Chỉ stack local trong runner (quickstart §3); không bao giờ --linked
+      # `supabase start` in bảng key trước khi kịp che: ghi ra file, chỉ in (đã lọc key) khi lỗi
+      - name: supabase start
+        run: |
+          supabase start > supabase-start.log 2>&1 || { grep -vE 'sb_secret_|sb_publishable_|eyJ' supabase-start.log; exit 1; }
+      - run: supabase db reset
+      - run: supabase test db
+      - name: Cấu hình local cho app, contract test và Edge (giá trị của stack local, được che trong log)
+        run: |
+          eval "$(supabase status -o env | grep -E '^(API_URL|ANON_KEY|SERVICE_ROLE_KEY)=')"
+          echo "::add-mask::$ANON_KEY"
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          printf 'VITE_SUPABASE_URL=%s\nVITE_SUPABASE_PUBLISHABLE_KEY=%s\nVITE_QR_PUBLIC_BASE_URL=http://localhost:5173\n' "$API_URL" "$ANON_KEY" > .env.local
+          printf 'APP_BACKEND_SECRET_KEY=%s\n' "$SERVICE_ROLE_KEY" > supabase/functions/.env
+      - name: Edge Functions local
+        run: |
+          nohup supabase functions serve --env-file supabase/functions/.env > functions.log 2>&1 &
+          for i in $(seq 1 60); do grep -q 'Serving functions' functions.log && break; sleep 2; done
+          grep -q 'Serving functions' functions.log
+      - run: npx vitest run src/modules/m03/api/supabaseAdminApi.contract.local.test.ts
+        env:
+          M03_LOCAL_STACK: '1'
+      - run: npx playwright test --project=m03-local-stack --workers=1
+        env:
+          PW_LOCAL_STACK: '1'

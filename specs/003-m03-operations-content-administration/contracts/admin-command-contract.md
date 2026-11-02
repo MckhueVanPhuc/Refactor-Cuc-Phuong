@@ -99,7 +99,7 @@ Mời, gửi lại lời mời và nối danh tính đi qua Edge `admin-accounts
 | Q-08 | Mở màn review | `api.open_publication_review` | B | `PublicationReview` (§4) | F02; SCR-M03-004 |
 | Q-09 | Tác động khi đóng/mở lại | `api.get_operation_impact` | B (mở lại: R) | các tuyến bị ảnh hưởng, tuyến sẽ tự đóng, kết quả kiểm tra kỹ thuật khi mở lại | H01, H06, X03 |
 | Q-10 | Lịch sử một mục | `api.get_item_history` | B | các revision đã xuất bản (số, người, thời gian, cờ tự xuất bản) + dòng audit của mục | F09; SCR-M03-001/002/003/008 |
-| Q-11 | Nhật ký toàn hệ thống | `api.list_audit_log` | R | dòng audit phân trang, lọc theo thời gian, người, loại mục | F09, A03; SCR-M03-009 |
+| Q-11 | Nhật ký toàn hệ thống | `api.list_audit_log` | R | dòng audit phân trang, lọc theo thời gian, người, loại mục; mỗi dòng kèm `subjectId` của mục (nếu có) chỉ để dựng link "Mở mục liên quan" (SCR-M03-009 E-08), không bao giờ hiển thị (BR-M03-L10) | F09, A03; SCR-M03-009 |
 | Q-12 | RPT-01 | `api.report_rpt01` | B | RPT-01 output (spec-M03 §5.1) | J05, J06, J08; SCR-M03-005 |
 | Q-13 | RPT-02 | `api.report_rpt02` | B | RPT-02 output, có `items[].routeName` | J05, J07, J08 |
 | Q-14 | Danh sách tài khoản | `api.list_accounts` | R | email, role, status (tên hiển thị) | K01–K03; SCR-M03-006 |

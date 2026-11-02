@@ -1,6 +1,7 @@
 // Quickstart Q1–Q5 (US1) trên adapter giả: `npm run dev:fake`, project `m03`.
 import {
   currentAdminEmail,
+  isLocalStack,
   expect,
   latestMail,
   login,
@@ -60,6 +61,7 @@ test('Q2 — mời, gửi lại, người được mời đặt mật khẩu và
   await expect(page.getByText('Nhân viên nội dung')).toBeVisible();
 });
 
+// Khôi phục không cho biết email có tài khoản hay không (BR-M03-K02)
 test('Q3 — khôi phục mật khẩu: cùng một câu cho email có và không có', async ({ page }) => {
   const sent = 'Nếu email này có tài khoản, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.';
   for (const email of [syntheticAccounts.CONTENT_STAFF.email, 'khong-co@example.test']) {
@@ -77,10 +79,13 @@ test('Q3 — khôi phục mật khẩu: cùng một câu cho email có và khôn
 test('Q4 — không khóa và không hạ quyền được Quản lý cuối cùng', async ({ page, signInAs }) => {
   await signInAs('REVIEWER');
   await page.goto('/admin/accounts');
-  // Tải lại trang tạo store mới; đăng nhập lại rồi vào bằng điều hướng trong app
-  await expect(page).toHaveURL(/\/admin\/login$/);
-  await login(page, syntheticAccounts.REVIEWER.email);
-  await page.getByRole('link', { name: 'Tài khoản' }).click();
+  // Adapter giả: tải lại trang tạo store mới, phải đăng nhập lại rồi vào bằng điều hướng trong app.
+  // Stack thật giữ phiên qua lần tải lại, nên trang tài khoản mở ngay.
+  if (!isLocalStack()) {
+    await expect(page).toHaveURL(/\/admin\/login$/);
+    await login(page, syntheticAccounts.REVIEWER.email);
+    await page.getByRole('link', { name: 'Tài khoản' }).click();
+  }
   const me = page.getByRole('row', { name: /reviewer@example\.test/ });
   await me.getByRole('button', { name: 'Khóa' }).click();
   await expect(page.getByRole('alert')).toHaveText(LAST_REVIEWER);

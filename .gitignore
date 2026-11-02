@@ -8,6 +8,8 @@ Thumbs.db
 
 # Temporary files and scratch scripts
 .temp/
+# Trạng thái local của Supabase CLI (`supabase start` tạo ra)
+supabase/.branches/
 scratch/
 *.tmp
 

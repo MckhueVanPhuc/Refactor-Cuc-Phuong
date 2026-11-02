@@ -188,7 +188,8 @@ export function createFakeHistoryArea(store: FakeStore): HistoryArea {
         .filter((row) => !subjectType || row.subjectType === subjectType)
         .reverse();
       const start = page * AUDIT_PAGE_SIZE;
-      return { rows: rows.slice(start, start + AUDIT_PAGE_SIZE).map(withoutInternalId), page, hasMore: rows.length > start + AUDIT_PAGE_SIZE };
+      // Q-11 kèm subjectId để dựng link tới mục (admin-command Q-11); Q-10 không cần vì đã ở trong mục
+      return { rows: rows.slice(start, start + AUDIT_PAGE_SIZE), page, hasMore: rows.length > start + AUDIT_PAGE_SIZE };
     },
   };
 }

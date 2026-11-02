@@ -443,3 +443,363 @@ Branch `feat/m03-polish-a` tạo từ `feat/m03-us9` @ `9e9b88e`.
 ### 11.5 Checkpoint Phase 12
 
 "Giai đoạn A hoàn tất" **đạt**: T001–T165 xong trên adapter giả; Q1–Q24, Q26 pass; mọi BR-M03 còn hiệu lực đã có test hoặc ghi rõ nơi chịu test. Dừng tại đây theo tasks.md: giai đoạn B (Phase 13–15, cần Docker cho stack Supabase local) chuyển cho người làm backend. Còn mở: các mục `NOT RUN` ở §11.2 và §6.2–§10.2, artifact §11.4.
+
+## 12. Đợt 2026-11-01 — Phase 13 Giai đoạn B, nền backend (T168–T176)
+
+Branch `feat/m03-b-foundation` tạo từ `feat/m03-polish-a` @ `73d84d0`. Chỉ stack Supabase local (Supabase CLI 2.122.0, Postgres 17, Docker Desktop trên WSL2); không `supabase link`, `db push` hay deploy (CHG-M03-2026-10-30-01 §4, §7).
+
+### 12.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` | 0 | Áp sạch migration 01, 02, 03a, 04a, 05 và `seed.sql` trên DB trống |
+| `supabase start` | 0 | Mọi dịch vụ khỏe (hết lỗi 503 do thiếu schema `api`) |
+| `supabase test db` | 0 | 4 file, 197/197 pass: `m03_01_schema` 53, `m03_02_triggers` 66, `m03_03_access` 44, `m03_04_helpers` 34 |
+| Đăng nhập tài khoản seed qua GoTrue local + gọi `app.current_admin()` bằng claims của JWT thật (script ngoài repo) | 0 | staff, reviewer: HTTP 200, nhận đúng tài khoản; locked, noaccount: rỗng; token sau đăng xuất (204): rỗng; đăng ký công khai: 422 `signup_disabled` |
+| `npm run ci` | 0 | typecheck sạch; lint pass; test 1123/1123 (thêm `src/modules/m03/api/sqlCatalog.test.ts`); build xong |
+
+### 12.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Đường BUSY của `app.lock_connected_set` | Cần hai phiên DB song song; để cho contract test trên stack thật (T186) |
+| `function_privs_are` trên `api.*` (command, query, `api.lookup_qr`, `api.ingest_session`) | Các hàm này chưa có; thêm vào pgTAP cùng migration 4b–4d của từng story (T191, T196). T175 hiện kiểm: role API chỉ EXECUTE được `app.current_admin` và `app.media_object_is_public`; `service_role` không EXECUTE hàm `app` nào |
+| Contract test adapter Supabase (`supabaseAdminApi.contract.local.test.ts`) | Dựng cùng command đầu tiên ở Phase 14; `test_support.reset_m03()` đã có trong `seed.sql` |
+
+### 12.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-77 | T168 ghi `ALTER DEFAULT PRIVILEGES IN SCHEMA app, api REVOKE EXECUTE … FROM PUBLIC`. Lệnh theo schema không thu hồi được quyền EXECUTE mặc định toàn cục của PUBLIC, nên hàm tạo sau migration 04a (`app.media_object_is_public`) vẫn cho PUBLIC chạy — T175 phát hiện. Sửa: `ALTER DEFAULT PRIVILEGES FOR ROLE postgres REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC` (toàn cục cho role chạy migration) và `revoke … from public` tường minh ở migration 05. Đúng ý Physical §9 | Đã sửa; câu chữ T168 đã cập nhật |
+| D-78 | Giới thiệu điểm tham quan dưới `QR_INTRO_MIN_CHARS`: trigger chấp nhận khi lưu, chỉ chặn ở xuất bản (DAC-M03-052) | Theo DAC |
+| D-79 | Điểm nổi bật chỉ có một ngôn ngữ được lưu nháp (BR-M03-C06); thiếu ngôn ngữ chỉ chặn xuất bản | Theo spec |
+| D-80 | `shortDescription` giữ xuống dòng; trường một dòng chỉ gồm tên, chú thích ảnh, điểm nổi bật (DAC-M03-087, 088) | Theo DAC |
+| D-81 | `routeMapCaption` khi không có sơ đồ bị trigger từ chối (DAC-M03-038). Lệnh lưu (Phase 14) phải bỏ chú thích khi gỡ sơ đồ, giống adapter giả | Chuyển cho T180 |
+| D-82 | Danh mục thông báo (87 khóa) và nhãn trường (34 dòng) nằm trong SQL dạng `VALUES` (`app.message_template`, `app.field_label_base`), sinh từ `catalogText.ts`/`fieldLabels.ts`. `sqlCatalog.test.ts` so từng chữ với định nghĩa mới nhất qua mọi migration; đổi câu chữ thì sửa TypeScript trước rồi thêm migration | Đã có test |
+| D-83 | T170 gọi bộ dựng STALE là `app.stale_result`; code dùng họ `app.cr_*` (`cr_ok`, `cr_validation`, `cr_busy`, `cr_forbidden`, `cr_blocked`, `cr_failed`, `cr_stale`). Chỉ `app.current_admin` và `app.media_object_is_public` là `SECURITY DEFINER`; helper thuần (`render_message`, `cr_*`, …) chạy trong command `SECURITY DEFINER` gọi chúng và không cấp EXECUTE cho role API nào | Ghi nhận |
+| D-84 | `supabase/config.toml`: ở CLI, `[auth.email] enable_signup = false` tắt luôn đăng nhập email ("Email logins are disabled"). Đặt `true` ở `[auth.email]`; đăng ký công khai vẫn bị chặn bởi `[auth] enable_signup = false` (đã kiểm: 422 `signup_disabled`). `[inbucket]` đổi tên thành `[local_smtp]`; tắt `[analytics]` (container `vector` khởi động lại liên tục trên Docker Desktop Windows) | Đã sửa |
+| D-85 | Trigger chặn `DELETE` là cấp dòng (bảng rỗng không kích hoạt); `TRUNCATE` chặn cấp câu lệnh. pgTAP tạo dòng trước khi thử xóa | Ghi nhận |
+| D-86 | `seed.sql` thêm schema `test_support` (đóng với mọi role API): `seed_m03()` tạo 4 người dùng Auth `*@example.test` (reviewer, staff, locked, noaccount) và 3 tài khoản đi đúng vòng đời; `reset_m03()` xóa dữ liệu M03 với `session_replication_role = replica`, chỉ gọi qua `psql` trong container | Chỉ local |
+
+### 12.4 Checkpoint Phase 13
+
+"`supabase db reset` local áp được migration 1, 2, 3a, 4a, 5 và pgTAP nền chạy" **đạt**. Tiếp theo: Phase 14 theo từng story, bắt đầu US1 trên branch `feat/m03-b-us1`.
+
+## 13. Đợt 2026-11-01 — Phase 14 US1 backend (T177–T180)
+
+Branch `feat/m03-b-us1` tạo từ `feat/m03-b-foundation` @ `16b390f`. Chỉ stack local.
+
+### 13.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` | 0 | Áp sạch migration 01–05 và 3b `m03_03b_accounts` |
+| `supabase test db` | 0 | 5 file, 256/256 pass; `m03_us1_accounts` 59 ca: quyền EXECUTE từng function, Q-01, Q-14 (Nhân viên → 42501), C-18/C-19 của Nhân viên → FORBIDDEN có audit FAILURE và không đổi gì, Reviewer cuối (hạ role, khóa) → BLOCKED MSG-LAST-REVIEWER, STALE, mỗi command một dòng audit có trước/sau, vai trò lạ → FAILED, mời/gửi lại/nối, cấp Reviewer đầu tiên chỉ khi rỗng và lần hai là no-op |
+| `supabase functions serve admin-accounts --env-file supabase/functions/.env` + script HTTP ngoài repo | 0 | 25/25 mục: preflight 204 + CORS; thiếu JWT, JWT rác, phiên đã đăng xuất → 401; Nhân viên mời → 403; mời → SENT, mời lại/gửi lại → RESENT, một tài khoản duy nhất; 409 EMAIL_TAKEN; 400 INVALID_EMAIL; thư mời trong Mailpit, link mở `/admin/invitation` với phiên của người được mời; nối → LINKED, `ACTIVE` đúng role; email không có lời mời / nối lần hai → 422; không body nào chứa user id hay token; đúng một dòng audit mỗi lần gọi; đăng ký công khai → 422 |
+| Thủ tục cấp Reviewer đầu tiên trên môi trường trống (script ngoài repo; xóa tài khoản bằng `replica`, sau đó `db reset`) | 0 | 11/11 mục: script thiếu tham số → exit 2; bước 1 `CREATED`, lặp lại `ALREADY_PROVISIONED`; bước 2 `provision-initial-reviewer.ts` gửi lời mời, không in secret; link mở `/admin/invitation`; người nhận nối qua Edge → Reviewer `ACTIVE`; audit `INITIAL_REVIEWER_PROVISIONED` (actor trống) rồi `ACCOUNT_LINKED`; đã có tài khoản → `NOT_EMPTY` |
+| `supabase db reset` + `supabase test db` + `npm run ci` sau cùng | 0 | 256/256 pgTAP; CI: test 1123/1123, build xong |
+
+### 13.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| `supabase/functions/admin-accounts/index.test.ts` (Deno) | Không cài Deno (quyết định giai đoạn B #7). Hành vi cùng các ca đó đã kiểm trực tiếp qua `functions serve` (§13.1) |
+| Reviewer cuối với hai phiên DB thật song song | pgTAP chạy một phiên; khóa bảng `share row exclusive` tuần tự hóa hai lệnh. Ca song song có trong bộ contract dùng chung, chạy với adapter Supabase ở T197 |
+
+### 13.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-87 | Chú thích mẫu command ở migration 3a đặt `app.require_admin` ngoài khối trong; như vậy FORBIDDEN thành lỗi HTTP thay vì `CommandResult` và không có audit FAILURE. Sửa chú thích: gọi trong khối, audit FAILURE ghi `auth.uid()` sau khi khối rollback (người không có tài khoản → null) | Đã sửa |
+| D-88 | R-16/T177/T179: `app.provision_initial_reviewer` "không có trong schema `api`", script chỉ đọc `APP_BACKEND_SECRET_KEY`. Nhưng Data API chỉ mở schema `api`, nên script dùng secret key qua REST không gọi được function trong `app`. Người dùng chọn: hai bước — operator chạy `select app.provision_initial_reviewer(…)` trong SQL editor, rồi script chỉ gửi lời mời. Đã sửa R-16, T179, T207, auth-account §2.8 | Đã quyết định 2026-11-01 |
+| D-89 | Edge mời/gửi lại gồm 3 lời gọi service_role: `api.prepare_invitation` (kiểm actor là Reviewer active, chuẩn hóa/kiểm email, giữ đúng một `INVITATION_PENDING`; không audit), Auth Admin `inviteUserByEmail`, rồi `api.record_account_event` (đúng một dòng audit). `api.link_invitation` nối và audit trong một lời gọi. Cả ba chỉ `service_role` | Ghi nhận |
+| D-90 | STALE của tài khoản: bảng không có cột người sửa cuối, nên `editorEmail` lấy từ actor của dòng audit SUCCESS mới nhất của tài khoản (`app.account_last_editor`) | Ghi nhận |
+| D-91 | `api.list_accounts` của người không phải Reviewer ném `42501` (query không trả `CommandResult`); adapter ánh xạ sang MSG-NO-PERMISSION như contract dùng chung đòi | Theo contract |
+| D-92 | Gửi lại cho tài khoản không ở `INVITATION_PENDING` → HTTP 400 `{ result: 'FAILED' }` (auth-account §3 không có mã riêng); client ánh xạ sang FAILED MSG-GENERIC như adapter giả | Ghi nhận |
+| D-93 | `inviteUserByEmail` bị provider từ chối với người dùng Auth đã xác nhận email (ví dụ đã từng có tài khoản rồi bị xóa) → 502 INVITE_FAILED. Hiếm ở MVP; không xử lý thêm | Ghi nhận |
+
+## 14. Đợt 2026-11-01 — Phase 14 US2 backend (T181–T182)
+
+Branch `feat/m03-b-us2` tạo từ `feat/m03-b-us1` @ `ab7285b`. Chỉ stack local.
+
+### 14.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` | 0 | Áp sạch migration 01–05, 3b, 3c `m03_03c_checkpoints_visit_points` |
+| `supabase test db` | 0 | 6 file, 334/334 pass; `m03_us2_checkpoints` 78 ca: quyền; FORBIDDEN cho danh tính không có tài khoản; C-02 tạo nháp, mode không mặc định, tên trùng (hoa/thường, khoảng trắng), MSG-ONLINE-NOT-VERIFIED, câu MSG-LIMIT-TEXT đủ nhãn và số, người/thời điểm khảo sát do M03 ghi, STALE (cả khi bản nháp người khác vừa tạo); C-03 MSG-MODE-REQUIRED-FIRST không tạo QR, QR + identifier ≥ 16 + bản nháp 1 cùng lúc, tick quyền theo từng tệp, MSG-AV-OFFLINE, MSG-MODE-HAS-AV, issue/readiness trên dữ liệu đã lưu, lưu lỗi thì không đổi gì (kể cả tick quyền) và đúng một dòng audit, media của điểm dừng khác, QR không chuyển điểm dừng; C-04 object không tồn tại / ngoài thư mục owner / usage sai owner / đăng ký lần hai → FAILED, MSG-FILE-TYPE, MSG-FILE-TOO-BIG (biên đúng mức tối đa nhận), MIME/kích thước lấy từ Storage; MSG-LIMIT-QR, hủy QR nháp rồi thêm lại; C-07 điểm dừng cần lý do, QR nháp → THU_HOI, tên dùng lại được, đã xuất bản thì không hủy; ghi chú vị trí không tạo bản nháp; C-16 chỉ QR hoạt động, MSG-LAST-QR, cần lý do, audit giữ lý do; C-17 một dòng audit, không đổi gì; Q-05/Q-06/Q-07 |
+| Kịch bản HTTP (`scratch/check_us2_http.mjs`, ngoài git) với `supabase-js` của repo | 0 | 12/12: C-02/C-03/C-04/Q-05/Q-07 qua PostgREST với JWT thật; tải ảnh lên Storage qua policy, ghi đè và tải ngoài `uploads/` bị từ chối; `register_media` đọc được `metadata.mimetype`/`size` của Storage thật; admin ký URL ảnh nháp, du khách không ký được; anon gọi query quản trị bị từ chối |
+| `npm run ci` | 0 | test 1123/1123, build xong |
+
+### 14.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| T182 "xuất bản điểm dừng `OFFLINE_REQUIRED` có ảnh không đọc được bị chặn" | Cần `api.publish_unit` (T183); chuyển sang pgTAP T185 |
+| Hai lần lưu cùng tên điểm dừng chạy song song thật | pgTAP một phiên; khóa advisory theo tên chuẩn hóa tuần tự hóa (Physical §14 O-1). Ca song song chạy ở T197 |
+| So khớp tự động quy tắc issue SQL ↔ `src/modules/m03/validation/*` | Chưa có test parity riêng (chỉ câu chữ/nhãn qua `sqlCatalog.test.ts`). Bộ contract dùng chung ở T197 so hành vi hai adapter |
+
+### 14.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-94 | C-16 thu hồi QR phải dựng hành trình mới cho mọi tuyến liệt kê điểm dừng (BR-M03-X02). Chưa có code dựng snapshot (T183), nên `app.rebuild_after_visit_point_change` tạm thời từ chối khi có tuyến đã xuất bản liệt kê điểm dừng (không thể xảy ra trước US3). Migration 3d/3e phải `create or replace` hàm này | Chuyển cho T183/T186 |
+| D-95 | Migration 01 đặt CHECK `media_spoken_language` = "non-null đúng khi AUDIO/VIDEO" theo câu chữ Physical §5. Nhưng DAC-M03-059 ("Missing value: visit point not ready, MSG-AV-LANGUAGE-MISSING"), Physical §8 (guard xuất bản kiểm ngôn ngữ nói) và UI (đăng ký AV trước, chọn ngôn ngữ khi lưu) cho thấy thiếu ngôn ngữ chỉ chặn xuất bản. Migration 3c nới CHECK thành "ảnh không có ngôn ngữ nói"; pgTAP T173 đổi theo | Người dùng chọn giữ cách nới (2026-11-02); đã sửa câu chữ Physical §5 dòng `spoken_language` |
+| D-96 | `qr_codes` không có cột thứ tự tạo; `creationOrder` = thứ tự theo `created_at` (lệnh tạo ghi `clock_timestamp()`), tính cả QR đã thu hồi như adapter giả | Ghi nhận |
+| D-97 | Bảng thực thể không có cột người sửa cuối; `editorEmail` của STALE trên thực thể lấy từ actor dòng audit SUCCESS mới nhất (`app.entity_last_editor`), trên bản nháp lấy `revisions.last_edited_by_user_id` | Ghi nhận |
+| D-98 | `register_media` còn từ chối (FAILED) object nằm ngoài `uploads/{ownerType}/{ownerId}/` và object đã đăng ký — media-storage-contract §1 nêu thư mục nhưng không nói rõ kiểm ở bước đăng ký | Ghi nhận |
+| D-99 | Query (Q-05–Q-07) từ chối người không phải admin bằng `42501` (adapter → MSG-NO-PERMISSION) và id không tồn tại bằng `P0002` (→ MSG-GENERIC); adapter giả ném MSG-SESSION-EXPIRED khi không có admin | Ghi nhận; T197 xem lại nếu contract dùng chung đòi khác |
+| D-100 | Quy tắc issue của điểm dừng/điểm tham quan được viết lại trong SQL (`app.check_*`, `app.checkpoint_*_issues`, `app.visit_point_*_issues`, `app.qr_issues`, `app.readiness`) cùng khóa trường, nhãn và câu như `validation/*.ts`, vì R-26 yêu cầu readiness tính phía server trên dữ liệu đã lưu. Hai nơi phải sửa cùng nhau | Ghi nhận; rủi ro lệch nêu ở §14.2 |
+
+## 15. Đợt 2026-11-02 — Phase 14 US3 backend (T183–T185)
+
+Branch `feat/m03-b-us3` tạo từ `feat/m03-b-us2` @ `5f7549c`. Chỉ stack local.
+
+### 15.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` | 0 | Áp sạch tới 3d `m03_03d_routes_publish` và 4b `m03_04b_public_views` |
+| `supabase test db` | 0 | 7 file, 400/400 pass; `m03_us3_publish` 66 ca: quyền hàm và view; xuất bản điểm dừng lần đầu (điểm tham quan chưa đủ giữ Nháp, review liệt kê thiếu gì, tự xuất bản có cờ); C-01 tuyến (MSG-TAG-CONFLICT, MSG-NUMBER-DECIMALS, MSG-CHECKPOINT-DUPLICATE, điểm dừng chưa hoạt động bị từ chối, lần lưu đầu không có ảnh, bỏ tick và chú thích sơ đồ khi không có sơ đồ, mỗi lần từ chối có audit); Q-02/Q-03/Q-04; review tuyến (đòi tick an toàn, ước tính chỉ ảnh + chữ offline, changes bằng chữ thường); BLOCKED MSG-SAFETY-CONFIRM không đổi gì; STALE; xuất bản → `HOAT_DONG` + version 1 atomic, tick lưu vào nội dung, điểm dừng không bị đụng; cột hai view đúng khóa contract, dòng Published Route đầy đủ với giá trị suy ra; `anon` đọc view, không đọc bảng; tuyến nháp vắng; thiếu nội dung → VALIDATION; QR_OBJECT ở điểm dừng đang hoạt động → version 2, version 1 giữ nguyên, mở review không ghi gì; thu hồi QR → version 3 cùng transaction (D-94); STALE sau khi sửa; ảnh không còn trong Storage → MSG-IMAGE-NOT-READABLE; snapshot không dựng được → FAILED MSG-PUBLISH-FAILED, không đổi gì, một dòng audit FAILURE |
+| Vitest tạm trên stack local (đã xóa sau khi chạy) | 0 | Tải ảnh lên Storage thật, xuất bản điểm dừng và tuyến (có sơ đồ offline, cảnh báo an toàn) qua PostgREST; `PublicationReview` qua `publicationReviewSchema`; `anon` đọc hai view, đổi tên cột sang camelCase rồi qua `publishedRouteSchema` và `journeySnapshotSchema`; du khách ký được URL ảnh đã xuất bản |
+| `npm run ci` | 0 | test 1124/1124 (thêm ca `app.display_name` ở `sqlCatalog.test.ts`), build xong |
+
+### 15.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| BUSY khi hai thao tác giữ tập kết nối giao nhau | Cần hai phiên; T186 |
+| Vượt trần `OFFLINE_PACKAGE_MAX_MB` | Cần > 25 ảnh 2 MB; ca `fakeOnly` ở contract. Code dựng issue/BLOCKED dùng chung với QR_OBJECT; chưa có pgTAP riêng |
+| `sequence` có khoảng trống khi điểm dừng trong danh sách không hoạt động | Cần đóng điểm dừng (US6, T188); `build_journey` đã giữ vị trí trong danh sách |
+| Chạy bộ contract dùng chung với adapter Supabase | T197 |
+
+### 15.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-94 | Thu hồi QR dựng hành trình mới cho mọi tuyến liệt kê điểm dừng: migration 3d thay hàm tạm bằng `app.commit_rebuilds(app.rebuild_routes(...))`, không bị trần chặn | Đã xong; pgTAP T185 kiểm |
+| D-101 | Q-08 dùng chung lõi `app.publication_unit` với C-05 để guard chạy lại đúng như review (BR-M03-F02). Review cần thấy hành trình "sau khi xuất bản" (QR_OBJECT), nên lõi ghi trong một khối con rồi ném SQLSTATE riêng để rollback; không có gì được commit hay lộ ra (BR-M03-G09; R-10 "dựng thử trong transaction chỉ đọc") | Ghi nhận |
+| D-102 | View công khai chỉ dùng hàm có sẵn của Postgres: PostgreSQL kiểm quyền EXECUTE của hàm trong view theo người đọc (`anon`), mà hàm `app.*` không cấp cho `anon` | Ghi nhận |
+| D-103 | `changes`/`sensitiveChanges`, ghi chú tác động, MSG-OFFLINE-TOO-BIG và tên hiển thị (độ khó, nhãn, loại kết nối — `app.display_name`, có test đồng bộ) được viết lại trong SQL như adapter giả | Ghi nhận; cùng rủi ro lệch như D-100 |
+| D-104 | Lưu tuyến phía server: chuẩn hóa như `normalizeRouteContent` (một dòng, nhãn phân biệt, bỏ tick sơ đồ khi không có sơ đồ, bỏ tick "không có cảnh báo" khi có cảnh báo) và bỏ luôn `routeMapCaption` khi không có sơ đồ (D-81); lần lưu đầu có ảnh → FAILED (D-25) | Ghi nhận |
+| D-105 | `ROUTE_INFORMATION` và `CHECKPOINT_REVISION` chưa có: `publish_unit` trả FAILED, review lỗi `P0002` cho tới migration 3e (T186) | Chuyển cho T186 |
+| D-106 | Dòng audit `PUBLISHED` giữ `after_state = {changes, affectedRoutes}`; dòng "{nhãn}: {trước} → {sau}" và tên tuyến bị ảnh hưởng do Q-10/Q-11 dựng (T192) | Chuyển cho T192 |
+| D-107 | Audit của C-16 (migration 3c) chưa nêu tên các tuyến bị ảnh hưởng (BR-M03-X06) | Chuyển cho T192/T193 |
+| D-108 | Physical §5.6 nói "a deferred check re-verifies the route's new active snapshot against the live sources at commit". Trigger hoãn hiện chỉ kiểm version active là version cao nhất; thành phần hành trình được kiểm khi dựng trong lệnh. Không thêm kiểm lại lúc commit cho MVP | Người dùng chấp nhận cho MVP (2026-11-02) |
+
+## 16. Đợt 2026-11-02 — Phase 14 US4 backend (T186)
+
+Branch `feat/m03-b-us4` tạo từ `feat/m03-b-us3` @ `8267460`. Chỉ stack local.
+
+### 16.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` | 0 | Áp sạch tới 3e `m03_03e_publish_revisions` |
+| `supabase test db` | 0 | 8 file, 433/433 pass; `m03_us4_revise` 33 ca: sửa tuyến đã xuất bản là một bản nháp chờ, lần sửa sau tiếp tục bản đó, bản công khai không đổi, danh sách đánh dấu bản nháp chờ; STALE không ghi đè; đổi thông tin khác → không version, bản cũ thành `LUU_TRU`; đổi thứ tự → version mới chỉ cho tuyến đó, theo thứ tự mới; sơ đồ không đánh dấu → không version, bật tick → version mới có sơ đồ, tick là thay đổi nhạy cảm; đổi tên điểm dừng chung hai tuyến → review nêu cả hai, mở review không ghi gì, hai tuyến nhận version cùng lúc, version cũ giữ tên cũ; đổi mode → MSG-REPRINT-MODE-CHANGED; nội dung điểm tham quan ở điểm dừng có mạng → không version, ở điểm dừng cần tải trước → version cho mọi tuyến liệt kê, mang nội dung mới; bỏ điểm dừng hoạt động cuối → BLOCKED MSG-ROUTE-LAST-CHECKPOINT, hành trình công khai không đổi; phiên thứ hai (`dblink`) giữ khóa của tập giao nhau → BUSY nêu tên, không đổi gì, một dòng audit FAILURE; tập rời nhau vẫn chạy; nhả khóa thì chạy được |
+| `npm run ci` | 0 | test 1124/1124, build xong |
+
+### 16.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Vượt trần `OFFLINE_PACKAGE_MAX_MB` khi sửa | Như §15.2; code dùng chung `app.size_block` |
+| Snapshot dựng lỗi giữa chừng khi có nhiều tuyến | Đã kiểm một tuyến ở T185; nhiều tuyến dùng chung `app.commit_rebuilds` trong một transaction |
+
+### 16.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-105 | `ROUTE_INFORMATION` và `CHECKPOINT_REVISION` có ở migration 3e. Lõi của 3d được đổi tên thành `app.publication_unit_first`; `app.publication_unit` mới chỉ chia việc theo loại đơn vị, nên `api.publish_unit`/`api.open_publication_review` không phải viết lại | Đã xong |
+| D-109 | `CHECKPOINT_REVISION` đổi sang "Cần tải trước" kiểm ảnh trong nội dung *đã xuất bản* của mọi điểm tham quan đang hoạt động (`app.unreadable_published_images`), như adapter giả | Ghi nhận |
+| D-110 | pgTAP BUSY: khóa advisory giữ tới hết transaction, nên phiên test không được dùng lại khóa của thực thể đã xuất bản trước đó (lần chạy đầu bị treo vì phiên `dblink` chờ khóa của phiên test — đã ngắt và viết lại). Phiên thứ hai dùng `pg_try_advisory_xact_lock`, không bao giờ chờ. Mật khẩu `dblink` là mặc định công khai của stack local | Ghi nhận |
+
+## 17. Đợt 2026-11-02 — Phase 14 US5 backend (T187)
+
+Branch `feat/m03-b-us5` tạo từ `feat/m03-b-us4` @ `04beaf2`. Chỉ stack local; không có migration mới.
+
+### 17.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 9 file, 482/482 pass; `m03_us5_messages` 49 ca. 29 nhánh từ chối của command US1–US4 (FORBIDDEN ×2, STALE ×2, BLOCKED ×8, VALIDATION ×11, FAILED ×6 — gồm nội dung sai hình dạng bị trigger từ chối, `expected` không phải số, đơn vị không tồn tại, object không có, snapshot không dựng được) mỗi nhánh đúng `reason` + `messageKey`; issue gom từ editor (điểm tham quan, điểm dừng, tuyến), review (điểm dừng, điểm tham quan) và guard xuất bản tuyến. Quy tắc chung: mọi khóa có trong danh mục §5.6; FAILED chỉ PUBLISH/CLOSE/GENERIC; STALE có email và thời điểm UTC; câu BLOCKED và câu issue điền đủ placeholder; `values` và câu không chứa id hay identifier QR; không chữ lỗi PostgreSQL nào (error, violates, constraint, relation, SQLSTATE, tên schema…) lọt vào `CommandResult`; VALIDATION luôn có issue và lấy khóa của issue đầu; issue đủ đúng 7 trường, severity hợp lệ, nhãn tiếng Việt khác khóa nội bộ, `targetFieldKey` có nhãn (kể cả khóa phần tử danh sách có chỉ số và ngôn ngữ) |
+| `npm run ci` | 0 | test 1124/1124, build xong |
+
+### 17.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Nhánh từ chối của command US6–US9 (đóng, mở lại, lưu trữ, khôi phục, bỏ bản nháp, báo cáo, nhận phiên) | Chưa có command; mỗi story thêm nhánh của mình vào pgTAP riêng và theo cùng quy tắc |
+| BUSY trong bộ này | Đã kiểm với hai phiên ở T186 |
+
+### 17.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-111 | Issue của `register_media` với file QR_MEDIA có `targetItemType = 'CHECKPOINT'` (chủ media) nhưng `targetFieldKey` là `images`/`avFiles`, hai khóa chỉ có nhãn dưới QRCODE; `fieldLabel` của issue được đặt sẵn ("Ảnh của điểm tham quan"/"Âm thanh/video"). Adapter giả làm y như vậy; UI hiện câu này ở hàng đợi tải lên, không dùng khóa để focus. pgTAP ghi đây là ngoại lệ duy nhất | Người dùng chọn giữ nguyên (2026-11-02) |
+
+## 18. Đợt 2026-11-02 — Phase 14 US6 backend (T188–T189)
+
+Branch `feat/m03-b-us6` tạo từ `feat/m03-b-us5` @ `f056599`. Chỉ stack local.
+
+### 18.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 10 file, 534/534 pass; `m03_us6_operations` 52 ca: quyền; Q-09 đóng điểm dừng nêu mọi tuyến và tuyến sẽ tự đóng; đóng điểm dừng cần lý do, STALE, đóng → TAM_DONG đủ lý do/người/lúc, tuyến chỉ có nó tự đóng `AUTO_NO_ACTIVE_CHECKPOINT`, tuyến kia version mới cùng transaction với `sequence` có khoảng trống (mục còn lại của §15.2), một dòng audit cho điểm dừng nêu tuyến bị ảnh hưởng và một dòng riêng cho mỗi tuyến tự đóng; Nhân viên mở lại/lưu trữ → FORBIDDEN, Q-09 mở lại → 42501; mở lại điểm dừng cần ghi chú an toàn, các tuyến có lại điểm dừng nhưng tuyến tự đóng không tự mở lại, xóa trường đóng; mở lại tuyến; đóng tuyến cần lý do, đóng thủ công không tạo version, M01 thấy TAM_DONG; tuyến không còn điểm dừng hoạt động không mở lại được (MSG-NO-ACTIVE-CHECKPOINT, Q-09 nêu lý do); lưu trữ tuyến chỉ khi đóng, điểm dừng không đổi; lưu trữ điểm dừng còn tuyến dùng → MSG-CHECKPOINT-IN-USE nêu tên, điểm dừng đang hoạt động không lưu trữ được; "đóng các tuyến liên quan" đóng tuyến, điểm dừng vẫn hoạt động, một dòng audit nêu tuyến; lưu trữ điểm dừng → QR thu hồi, không version mới; ảnh không đọc được → Q-09 liệt kê, MSG-REOPEN-BLOCKED; hành trình không dựng lại được khi đóng → FAILED MSG-CLOSE-FAILED, không đổi gì, có audit FAILURE, rồi lệnh dự phòng đóng được tuyến |
+| `npm run ci` | 0 | test 1124/1124, build xong |
+
+### 18.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| BUSY khi đóng/mở lại | Cùng `app.lock_connected_set`; đã kiểm hai phiên ở T186 |
+| Mở lại vượt trần `OFFLINE_PACKAGE_MAX_MB` | Như §15.2; dùng chung `app.rebuild_impact` |
+
+### 18.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-112 | `app.audit` (migration 3a) ghi `occurred_at = clock_timestamp()` thay vì mặc định `now()` của bảng: các dòng của một transaction (đóng điểm dừng rồi từng tuyến tự đóng) giữ đúng thứ tự cho lịch sử và nhật ký. pgTAP T189 phát hiện thứ tự ngẫu nhiên khi dùng `now()` | Đã sửa |
+| D-113 | Thứ tự trong C-10: tính tuyến sẽ tự đóng trên snapshot active trước khi đóng, đóng điểm dừng, dựng lại mọi tuyến bị ảnh hưởng (không bị trần chặn), rồi mới đóng các tuyến tự đóng — như adapter giả. Lỗi bất kỳ → MSG-CLOSE-FAILED | Ghi nhận |
+| D-114 | Mở lại tuyến không dựng lại hành trình: hành trình của tuyến đóng vẫn được dựng lại mỗi khi điểm dừng của nó đổi (tuyến `TAM_DONG` thuộc tuyến bị ảnh hưởng, BR-M03-X02), nên version active đã đúng lúc mở lại | Ghi nhận |
+
+## 19. Đợt 2026-11-02 — Phase 14 US7 backend (T190–T191)
+
+Branch `feat/m03-b-us7` tạo từ `feat/m03-b-us6` @ `bec5a7a`. Chỉ stack local.
+
+### 19.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 11 file, 562/562 pass; `m03_us7_lookup` 28 ca: 23 ca của `LIVE_QR_LOOKUP_CASES` (6 bước BR-M03-I02, có/không `routeId`, tuyến không liệt kê điểm dừng vẫn VALID, trim identifier, phân biệt hoa/thường, QR thứ hai có nội dung riêng, điểm dừng cần tải trước không có âm thanh/video) gọi bằng role `anon`; `anon` và `authenticated` được EXECUTE; hàm `STABLE` + `SECURITY DEFINER`; bốn lần tra cứu không ghi dòng nào (kể cả audit); bản nháp không lộ; nội dung đã xuất bản không đọc được → lỗi `22000`, không phải INVALID |
+| `PW_LOCAL_STACK=1 npx playwright test e2e/m03/lookup.local.spec.ts --project=m03-local-stack` | 0 | 23/23 pass: chính bảng TypeScript, dựng thế giới bằng `test_support.lookup_world` qua `psql`, gọi RPC bằng publishable key, body qua `liveQrLookupResultSchema`, bằng `expected`; dọn bằng `test_support.reset_m03()` |
+| `npx playwright test e2e/m03/lookup.local.spec.ts --project=m03` | 0 | 23 skipped: spec chỉ chạy ở project local-stack |
+| `npm run ci` | 0 | typecheck (gồm `e2e/`) sạch; test 1124/1124; build xong |
+
+### 19.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Toàn bộ project `m03-local-stack` (các spec giao diện chạy với adapter Supabase) | T198 |
+
+### 19.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-115 | `test_support.lookup_world` (seed.sql, chỉ local, chỉ gọi khi test) dựng thẳng bằng SQL với `replica` thế giới của bảng sự thật — cần cả trạng thái không đi qua lệnh được (QR không tồn tại, nội dung có âm thanh ở điểm dừng cần tải trước). Ngoại lệ có chủ đích của quy tắc "không chèn nội dung bằng SQL tay" ở đầu seed.sql, ghi ngay tại hàm | Ghi nhận |
+| D-116 | `test_support.reset_m03()` (T176) xóa `auth.users` khi đang `replica` nên khóa ngoại không cascade sang `auth.identities`; seed lại bị trùng khóa. E2E T191 phát hiện. Sửa: chỉ `replica` cho bảng `app` và `storage.objects`, xóa `auth.users` với trigger bật | Đã sửa |
+| D-117 | `.env.local` (đã gitignore) tạo theo quickstart §2 với URL và publishable key của stack local; spec E2E đọc `VITE_SUPABASE_URL`/`VITE_SUPABASE_PUBLISHABLE_KEY` từ môi trường, nếu không có thì từ file này | Chỉ local |
+
+## 20. Đợt 2026-11-02 — Phase 14 US8 backend (T192–T193)
+
+Branch `feat/m03-b-us8` tạo từ `feat/m03-b-us7` @ `81cd700`. Chỉ stack local.
+
+### 20.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 12 file, 608/608 pass; `m03_us8_history` 46 ca: quyền; Q-10 liệt kê bản đã xuất bản mới nhất trước kèm người xuất bản và cờ tự xuất bản (Nhân viên tự xuất bản = có cờ, Quản lý xuất bản bản nháp của người khác = không), không có nội dung, dòng audit không có id; dòng xuất bản "Quãng đường (km): 4,5 → 6"; xuất bản bản sửa điểm dừng, xuất bản điểm tham quan, thu hồi QR, đóng, mở lại điểm dừng đều nêu cả hai tuyến bị ảnh hưởng; tuyến tự đóng nói lý do; C-06 STALE, bỏ bản nháp → `DA_BO`, không xóa gì, bản công khai không đổi, lịch sử không liệt kê bản đã bỏ, không còn bản nháp → FAILED; C-08 khôi phục bản 1 → bản nháp dựa trên bản 1 mang đúng nội dung, lần hai MSG-DRAFT-EXISTS, bản đang xuất bản/số không có → FAILED, nội dung cũ vi phạm giới hạn hiện hành → MSG-RESTORE-BLOCKED nêu chỗ cần sửa, không tạo gì, đúng một dòng audit, khôi phục điểm dừng; Q-11 Nhân viên → 42501, mới nhất trước, có `subjectId`, lọc người (không phân biệt hoa/thường), loại mục, thời gian, trang 50 dòng với `hasMore`, hai trang không lặp; không dòng thay đổi nào có JSON, id hay mã; đổi vai trò đọc bằng chữ thường |
+| `npm run ci` | 0 | test 1124/1124 (`sqlCatalog.test.ts` kiểm thêm tên trạng thái, vai trò, nguồn đóng), build xong |
+
+### 20.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Link "Mở mục liên quan" trên SCR-M03-009 (E-08) dùng `subjectId` | Việc của UI; backend và kiểu `AuditRow` đã có trường này |
+
+### 20.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-106 | Dòng audit hiển thị bằng `app.audit_change_lines`: dòng trước/sau của xuất bản ("—" cho ô trống), trạng thái/vai trò bằng tên hiển thị §5.4, nguồn đóng, dòng riêng (bỏ bản nháp, khôi phục), "Tuyến bị ảnh hưởng: …" cho mọi thao tác trên điểm dừng/điểm tham quan | Đã xong |
+| D-107 | `api.revoke_visit_point` được viết lại ở migration 3g: dòng audit ghi các tuyến bị ảnh hưởng | Đã xong |
+| D-118 | Quyết định giai đoạn B #5: `admin-command-contract.md` Q-11 sửa trước (mỗi dòng kèm `subjectId` chỉ để dựng link, không hiển thị), rồi `AuditRow.subjectId?` (adminDtos.ts), adapter giả trả `subjectId` ở Q-11, SQL như vậy. Mục §11.4 về SCR-M03-009 E-08 đã có dữ liệu để dựng link | Đã xong phía backend/contract |
+| D-119 | `subjectName` của dòng audit là tên **hiện tại** của mục (tính lúc đọc), không phải tên lúc ghi như adapter giả; tên cũ vẫn thấy trong dòng trước/sau | Ghi nhận |
+| D-120 | Khôi phục tuyến có danh sách cũ chứa điểm dừng nay không còn hoạt động: trigger tham chiếu từ chối → FAILED MSG-GENERIC (adapter giả không kiểm). Hiếm ở MVP | Ghi nhận |
+
+## 21. Đợt 2026-11-02 — Phase 14 US9 backend (T194–T196)
+
+Branch `feat/m03-b-us9` tạo từ `feat/m03-b-us8` @ `a38e2fd`. Chỉ stack local. Phase 14 (T177–T196) hoàn tất.
+
+### 21.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 13 file, 649/649 pass; `m03_us9_ingest_reports` 41 ca: chỉ `service_role` chạy `api.ingest_session`, `anon` gọi thẳng → 42501, báo cáo chỉ cho admin; nhận lần đầu → ACCEPTED, gửi lại giống hệt / đổi thứ tự lượt ghé và khóa / cùng thời điểm viết khác → IDENTICAL, khác nội dung → CONFLICT, một dòng, bản đầu nguyên; offset khác UTC → INVALID; phiên bỏ dở không lượt ghé; tuyến TAM_DONG và LUU_TRU vẫn nhận; phiên của version cũ kiểm theo version đó; 14 bản ghi không hợp lệ (lệch sequence/tên/điểm dừng với snapshot, tuyến/version không có, khóa lạ ở gốc và lượt ghé, trạng thái DANG_DIEN_RA, endedAt < startedAt, ghé trùng, giờ ngoài phiên, sessionId không phải UUID, version không nguyên, không phải object) → INVALID, không lưu gì; RPT-01 đếm theo `ended_at` trong kỳ với tỷ lệ trên tổng, `lastSuccessfulIngestionAt` UTC, 17:30 UTC 31/10 tính vào 01/11 giờ Việt Nam, lọc theo tuyến; RPT-02 đếm phiên phân biệt theo (tuyến, điểm dừng), điểm dừng chung hai tuyến đếm riêng; 367 ngày → MSG-REPORT-SPAN, 366 ngày nhận; một ngày lẻ / from > to → MSG-REPORT-DATES-INVALID; mặc định 30 ngày; không ghi audit |
+| `supabase functions serve --env-file supabase/functions/.env` + `PW_LOCAL_STACK=1 npx playwright test e2e/m03/intake.local.spec.ts --project=m03-local-stack` | 0 | 22/22 pass: 19 ca của `SESSION_INTAKE_CASES` theo thứ tự qua Edge thật (publishable key, không JWT), đúng `result` và HTTP (200/409/422); body > 64 KiB → 413; GET → 405; du khách gọi thẳng RPC → bị từ chối. Import map `zod` (`supabase/functions/deno.json`) chạy được trên edge-runtime |
+| `npx playwright test e2e/m03/intake.local.spec.ts --project=m03` | 0 | 22 skipped |
+| `npm run ci` | 0 | test 1128/1128 (thêm `sessionSyncRecord.parity.test.ts`: bản sao `_shared/sessionSyncRecord.ts` và `_shared/common.ts` giống hệt nguồn ngoài dòng import), build xong |
+
+### 21.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| `supabase/functions/session-intake/index.test.ts` (Deno) | Không cài Deno (quyết định giai đoạn B #7); các bước của handler đã chạy qua Edge thật ở E2E |
+| Hai lần gửi cùng `sessionId` đồng thời | Chèn bằng `on conflict (session_id) do nothing` rồi so sánh; chưa thử hai phiên thật |
+
+### 21.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-121 | `api.ingest_session` báo bản ghi không hợp lệ bằng SQLSTATE `22023` (thông điệp `INVALID_SESSION_RECORD`); Edge ánh xạ mã này sang 422 INVALID, lỗi khác sang 500 (M02 giữ PENDING). Physical §7.2 chỉ nói "raises a validation error" | Ghi nhận |
+| D-122 | Edge cần cả `_shared/common.ts` (schema import `./common`), và Deno cần đuôi `.ts`: test parity so hai file sau khi bỏ dòng `import`, thay vì "ngoài dòng import zod" như T195 ghi | Ghi nhận |
+| D-123 | DB kiểm lại timestamp phải là UTC (`Z` hoặc `±00:00`) như Zod `utcDateTime`; offset khác bị từ chối ở cả hai lớp | Theo contract |
+| D-124 | Báo cáo từ chối khoảng ngày sai bằng lỗi `22023` có thông điệp là khóa (MSG-REPORT-DATES-INVALID / MSG-REPORT-SPAN); adapter hiện ánh xạ mọi lỗi query sang MSG-GENERIC, UI đã chặn khoảng sai trước khi gọi (R-17) | Ghi nhận; T197 xem có cần ánh xạ khóa không |
+| D-125 | Tỷ lệ RPT-01 trả `double precision` (JSON `0.8`), không phải `numeric` | Ghi nhận |
+
+## 22. Đợt 2026-11-02 — Phase 15 kiểm chứng giai đoạn B (T197–T200)
+
+Branch `feat/m03-b-verify` tạo từ `feat/m03-b-us9` @ `6bf556e`. Chỉ stack local (Supabase CLI 2.122.0, Docker Desktop trên Windows); không link, không `db push`, không deploy. Phase 16 vẫn ⛔ (T201).
+
+### 22.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `supabase db reset` + `supabase test db` | 0 | 13 file, 655/655 pass (thêm 3 ca snapshot thiếu một ngôn ngữ — D-128 — và 3 ca H08 — D-133) |
+| Đối chiếu `src/modules/m03/api/rpcNames.ts` với schema `api` | — | 33/33 tên có function; chú thích đổi thành "tên đã chốt" (T197) |
+| `M03_LOCAL_STACK=1 npx vitest run src/modules/m03/api/supabaseAdminApi.contract.local.test.ts` | 0 | 114 pass, 19 skipped (ca `itFakeOnly`): toàn bộ `src/modules/m03/api/contract/*.contract.ts` chạy với adapter Supabase, đăng nhập tài khoản seed, reset bằng `test_support.reset_m03()` trước mỗi ca (T197) |
+| `supabase functions serve --env-file supabase/functions/.env` + `PW_LOCAL_STACK=1 npx playwright test --project=m03-local-stack --workers=1` | 0 | 68 pass, 4 skipped trên 72 ca (Q1–Q26, lookup, intake, perf): Q13, Q20 cần `failNext`, Q16 cần `holdLock`, Q17 cần `inflateLatestMedia` — chỉ có ở adapter giả (T198) |
+| `npx playwright test` (project mock) | 0 | 26 pass, 46 skipped (spec `*.local.spec.ts` và ca chỉ chạy ở stack local) |
+| `PW_LOCAL_STACK=1 npx playwright test e2e/m03/perf.local.spec.ts --project=m03-local-stack` | 0 | Đạt mọi mục tiêu R-24, xem §22.2 (T199) |
+| `npm run ci` | 0 | lint 352 pass; test 1130 pass, 133 skipped; build xong |
+| `git diff --check` | 0 | Không lỗi khoảng trắng (T200) |
+| `gh workflow run ci.yml --ref feat/m03-b-verify` (run 41463656516, runner `ubuntu-26.04`) | 0 | Cả ba job `verify`, `e2e`, `local-stack` success; `local-stack` mất 7 phút 20 giây: pgTAP 655/655, contract 114 pass + 19 skipped, E2E `m03-local-stack` 68 pass + 4 skipped; T199 trên runner p95: review 0,60 s, publish 0,92 s, close 0,91 s, reopen 0,87 s, lookup 3,5 ms. Log lộ `sb_secret_…` của stack tạm trong bảng mà `supabase start` in ra, trước bước che key (D-134) |
+
+### 22.2 Hiệu năng (T199)
+
+Fixture `test_support.perf_world()`: 30 điểm dừng "Cần tải trước", mỗi điểm 20 điểm tham quan có một ảnh 50 KB, 10 tuyến cùng liệt kê cả 30 điểm. Mỗi thao tác chạy 10 lần trên `PerfCheckpoint001` (dựng lại 10 hành trình), lookup 100 lần; đo RPC qua supabase-js gồm HTTP local. Kết quả ghi ở `test-results/m03-perf.json` (không commit).
+
+| Thao tác | Mục tiêu p95 | Lần đầu | Sau D-127 |
+|---|---|---|---|
+| `open_publication_review` (CHECKPOINT_REVISION) | — | Hết `statement_timeout` 8 s của `authenticated` | 0,73 s |
+| `publish_unit` (CHECKPOINT_REVISION) | ≤ 5 s | Không đo được | 1,06 s |
+| `close_checkpoint` | ≤ 5 s | Không đo được | 1,25 s |
+| `reopen_checkpoint` | ≤ 5 s | Không đo được | 1,31 s |
+| `api.lookup_qr` | ≤ 300 ms | — | 10 ms |
+
+Đo nguội (ngay sau khi nạp, trước khi autovacuum ANALYZE): review ≈ 3,4 s, publish ≈ 3,7 s p95, vẫn dưới 5 s. Số đo của máy dev, không phải của môi trường cloud.
+
+### 22.3 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| `e2e/local-stack/global-setup.ts`, project `m01-local-stack` và `m02-local-stack` | Quyết định giai đoạn B #4: T198 chỉ làm phần M03 (hook phía Node trong `e2e/m03/localStack.ts`); BR-M03-I05, I06 ghi `NOT RUN` trong checklist BR |
+| Test Deno `supabase/functions/*/index.test.ts` | Không cài Deno (quyết định giai đoạn B #7); handler đã chạy qua Edge thật ở E2E |
+| Ca cần tiêm lỗi hoặc giữ khóa ở stack local (19 ca `itFakeOnly`; E2E Q13, Q16, Q17, Q20) | Hook chỉ có ở adapter giả; BUSY kiểm bằng dblink trong `m03_us4_revise`, rollback khi lỗi bằng khối con và SQLSTATE `CPQRV` trong pgTAP Phase 14 |
+| SMTP thật | Chỉ Mailpit của stack local |
+
+### 22.4 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-124 | Adapter không ánh xạ khóa lỗi báo cáo (MSG-REPORT-DATES-INVALID / MSG-REPORT-SPAN) | Đóng: UI chặn khoảng ngày sai trước khi gọi (`reportInput.ts`); lỗi server chỉ là lớp phòng thủ, hiện MSG-GENERIC |
+| D-126 | Bucket `quest-media` có `allowed_mime_types` nên Storage từ chối tệp sai loại ngay lúc upload, trước khi `register_media` kịp trả MSG-FILE-TYPE như media-storage §1 bước 4 (contract test media lệch) | Bỏ danh sách MIME khỏi bucket; `register_media` kiểm `metadata.mimetype` như contract |
+| D-127 | T199 lần đầu: review hết thời gian chờ. Ba nguyên nhân: `app.build_journey` nối jsonb trong vòng lặp (bình phương, 543 ms/tuyến); 7 hàm SQL nhỏ có `set search_path` nên planner không inline được, bị gọi hàng chục nghìn lần (`trim_text`, `is_blank`, `complete_bilingual`, `visit_point_name`, `text_len`, `non_empty_text`, `bilingual_complete`); `rebuild_routes` gọi `build_journey` hai lần mỗi tuyến vì subquery lateral bị kéo lên | `build_journey` viết lại set-based, cho kết quả giống hệt bản cũ trên cả 10 tuyến của fixture; 7 hàm trên bỏ mệnh đề `SET` (hàm invoker thuần túy, chỉ dùng tên đủ schema; `search_path` cố định vẫn bắt buộc với `SECURITY DEFINER` — plan §V; linter Supabase `function_search_path_mutable` sẽ cảnh báo 7 hàm này, chấp nhận); `bilingual_complete` bỏ subquery; `offset 0` trong `rebuild_routes`; `perf_world()` chạy ANALYZE ở cuối để đo trạng thái ổn định |
+| D-128 | `app.non_empty_text(NULL)` và `app.bilingual_complete` trả NULL thay vì false: trong CHECK, NULL được coi là đạt, nên snapshot có tên thiếu `en`, resource thiếu `introductionText` hay caption sơ đồ thiếu một ngôn ngữ vẫn lọt qua `snapshot_checkpoints_ok` / `offline_route_map_ok` (lỗi tiềm ẩn từ Phase 14; `build_journey` chưa bao giờ sinh ra dạng này) | Sửa: luôn trả true/false; thêm 3 ca pgTAP trong `m03_02_triggers` |
+| D-129 | Lệnh lưu và đổi trạng thái kiểm trạng thái hay nghiệp vụ trước STALE, còn adapter giả và contract kiểm STALE trước (contract test lệch) | SQL theo thứ tự của `store.run`: mục phải tồn tại → STALE → trạng thái và nghiệp vụ (03b, 03c, 03d, 03f, 03g) |
+| D-130 | Review của tuyến chưa có tên tiếng Việt trả `routeName` rỗng, vi phạm `PublicationReview.routeName` (`z.string().min(1)`); adapter giả cũng trả rỗng nhưng không parse Zod | SQL và adapter giả dùng `Tuyến chưa đặt tên` (chuỗi đã có ở `fake/reports.ts`) cho review, chặn dung lượng và tên khóa BUSY; spec không quy định câu chữ — muốn câu khác thì sửa spec trước |
+| D-131 | Tuyến bị ảnh hưởng trong review và ghi chú tác động sắp theo id ở SQL, theo tên ở adapter giả | SQL sắp theo `app.route_name` rồi id, như adapter giả |
+| D-132 | T198 viết `e2e/local-stack/global-setup.ts` dùng chung M01/M02/M03 | Chỉ phần M03 (quyết định #4): project `m03-local-stack` dùng hook phía Node (`e2e/m03/localStack.ts`) dựng dữ liệu bằng chính adapter Supabase, Mailpit và psql; reset trước mỗi ca; Q4 và Q18 rẽ nhánh theo project; `MEDIA_BUCKET` tách sang `src/shared/config/storage.ts` để code Node import được mà không cần hằng Vite |
+| D-133 | T200: 11 BR có assertion pgTAP kiểm đúng hành vi nhưng chưa trích ID (C02, C14, T02, T09, D06, X01, E03, E16, H05, L05, L07); K02 chỉ được kiểm ở E2E Q3; H08 chưa có test xuất bản tuyến đang tạm đóng | Gắn ID vào assertion; thêm chú thích BR-M03-K02 cho Q3; thêm 3 ca H08 vào `m03_us6_operations`. Checklist BR: 121 BR có test giai đoạn B trích đúng ID, 3 hàng trỏ dùng test của nhóm đích, 8 BR chỉ giao diện, 2 BR consumer `NOT RUN` |
+| D-134 | `supabase start` in bảng trạng thái có key `sb_secret_…` của stack local trước khi bước cấu hình kịp `::add-mask::` (run 41463656516). Key chỉ thuộc stack tạm trong runner, bị hủy khi job kết thúc, không mở được dịch vụ nào bên ngoài | `ci.yml`: ghi output của `supabase start` ra file, chỉ in khi lỗi và đã lọc key; log của run 41463656516 chờ người dùng quyết định có xóa hay không |

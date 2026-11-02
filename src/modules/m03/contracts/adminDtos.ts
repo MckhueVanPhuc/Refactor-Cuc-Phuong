@@ -334,6 +334,8 @@ export type AuditRow = {
   actorEmail: string;
   occurredAt: UtcDateTime;
   subjectType: SubjectType | 'ACCOUNT' | 'MEDIA';
+  /** Q-11: id của mục, chỉ để dựng link "Mở mục liên quan" (SCR-M03-009 E-08); không bao giờ hiển thị */
+  subjectId?: string;
   subjectName?: string;
   /** dòng "{nhãn trường}: {trước} → {sau}" đã render, không phải JSON thô (BR-M03-L10, L11) */
   changeLines: string[];
