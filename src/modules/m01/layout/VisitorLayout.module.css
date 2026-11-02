@@ -72,15 +72,6 @@
   border-bottom-color: var(--color-m01-amber);
 }
 
-.languageSlot {
-  display: flex;
-  align-items: center;
-}
-
-.languageSlot:empty {
-  display: none;
-}
-
 .notices:empty {
   display: none;
 }

@@ -114,18 +114,18 @@ description: "Danh sách task triển khai M01 — Route Planning & Preparation"
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T034 [P] [US1] Viết test src/modules/m01/storage/languageWriter.test.ts: chỉ ghi `vi`/`en` trong một transaction; giá trị khác bị từ chối; ghi không đổi dòng gói hay context (BR-M01-001; DAC-M01-001; US-M01-01 mục 2)
-- [ ] T035 [P] [US1] Viết test src/modules/m01/language/resolveDisplayLanguage.test.ts: giá trị đã lưu thắng; chưa lưu → `navigator.language` bắt đầu bằng `vi` → `vi`, ngược lại `en`; hàm không ghi gì (research R-12; BR-M02-024)
-- [ ] T036 [P] [US1] Viết test src/modules/m01/language/LanguageGate.test.tsx: route thường chưa có ngôn ngữ → panel chọn chặn toàn trang; trang `/q/…` không có panel và không ghi gì cho tới khi bấm VI/EN (US-M01-01 mục 1)
-- [ ] T037 [P] [US1] Viết test src/modules/m01/language/LanguageControl.test.tsx: bấm VI/EN cập nhật `LanguagePreference` ngay; tab khác thấy qua `liveQuery`; UI đổi ngay (US-M01-01 mục 3; FR-M01-001)
-- [ ] T038 [P] [US1] Viết E2E e2e/m01/language.spec.ts cho quickstart V1–V3
+- [X] T034 [P] [US1] Viết test src/modules/m01/storage/languageWriter.test.ts: chỉ ghi `vi`/`en` trong một transaction; giá trị khác bị từ chối; ghi không đổi dòng gói hay context (BR-M01-001; DAC-M01-001; US-M01-01 mục 2)
+- [X] T035 [P] [US1] Viết test src/modules/m01/language/resolveDisplayLanguage.test.ts: giá trị đã lưu thắng; chưa lưu → `navigator.language` bắt đầu bằng `vi` → `vi`, ngược lại `en`; hàm không ghi gì (research R-12; BR-M02-024)
+- [X] T036 [P] [US1] Viết test src/modules/m01/language/LanguageGate.test.tsx: route thường chưa có ngôn ngữ → panel chọn chặn toàn trang; trang `/q/…` không có panel và không ghi gì cho tới khi bấm VI/EN (US-M01-01 mục 1)
+- [X] T037 [P] [US1] Viết test src/modules/m01/language/LanguageControl.test.tsx: bấm VI/EN cập nhật `LanguagePreference` ngay; tab khác thấy qua `liveQuery`; UI đổi ngay (US-M01-01 mục 3; FR-M01-001)
+- [X] T038 [P] [US1] Viết E2E e2e/m01/language.spec.ts cho quickstart V1–V3
 
 ### Implementation for User Story 1
 
-- [ ] T039 [P] [US1] Cài đặt src/modules/m01/storage/languageWriter.ts cho T034 qua
-- [ ] T040 [P] [US1] Cài đặt src/modules/m01/language/resolveDisplayLanguage.ts và src/modules/m01/language/useLanguagePreference.ts (`liveQuery` của Dexie + `useSyncExternalStore`)
-- [ ] T041 [US1] Dựng src/modules/m01/language/LanguageControl.tsx + `.module.css` (nút VI/EN, ghi qua languageWriter) và src/modules/m01/language/LanguageGate.tsx (panel chọn ngôn ngữ của SCR-M01-001)
-- [ ] T042 [US1] Export `LanguageControl`, `useLanguagePreference`, `resolveDisplayLanguage` qua src/modules/m01/index.ts; gắn LanguageControl vào src/modules/m01/layout/VisitorLayout.tsx; bọc bốn route M01 bằng LanguageGate trong src/modules/m01/routes.tsx (không bọc route của M02)
+- [X] T039 [P] [US1] Cài đặt src/modules/m01/storage/languageWriter.ts cho T034 qua
+- [X] T040 [P] [US1] Cài đặt src/modules/m01/language/resolveDisplayLanguage.ts và src/modules/m01/language/useLanguagePreference.ts (`liveQuery` của Dexie + `useSyncExternalStore`)
+- [X] T041 [US1] Dựng src/modules/m01/language/LanguageControl.tsx + `.module.css` (nút VI/EN, ghi qua languageWriter) và src/modules/m01/language/LanguageGate.tsx (panel chọn ngôn ngữ của SCR-M01-001)
+- [X] T042 [US1] Export `LanguageControl`, `useLanguagePreference`, `resolveDisplayLanguage` qua src/modules/m01/index.ts; gắn LanguageControl vào src/modules/m01/layout/VisitorLayout.tsx; bọc bốn route M01 bằng LanguageGate trong src/modules/m01/routes.tsx (không bọc route của M02)
 
 **Checkpoint**: US1 chạy độc lập; M02 dùng được `LanguageControl`
 

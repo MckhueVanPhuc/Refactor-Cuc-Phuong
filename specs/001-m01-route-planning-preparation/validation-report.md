@@ -106,3 +106,37 @@ Test viết trước và đã chạy thấy fail (không resolve được module
 ### 2.4 Checkpoint Phase 2
 
 "Nền sẵn sàng" **đạt**: T008–T033 xong, bằng chứng ở §2.1. M02 đã có `visitorDb`, `paths.ts`, `updateCoordinator` (`registerBusyCheck`, `registerPackageOperation`) và hàm đọc qua `src/modules/m01/index.ts`. Còn mở: các mục `NOT RUN` ở §2.2.
+
+## 3. Đợt 2026-11-02 — Phase 3 US1 Chọn ngôn ngữ (T034–T042)
+
+Branch `feat/m01-us1`, tách từ `feat/m01-foundation` (PR #13 có CI xanh, chờ chủ dự án merge; agent không được merge, xem DV-20). Test T034–T037 viết trước và đã chạy thấy fail (không resolve được module) trước khi cài đặt.
+
+### 3.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | typecheck sạch (gồm `e2e/`); lint 429 pass; test 88 file pass + 1 skipped, 1430 pass, 133 skipped; build precache 35 mục |
+| `npm run e2e` | 0 | 28 pass, 47 skipped: `m01` V1, V3 pass, V2 `fixme`; còn lại là spec `*.local` của M03 |
+| `npx playwright test --project=m01` (chạy lại sau khi sửa kiểu trong `e2e/m01/helpers.ts`) | 0 | 2 pass, 1 skipped (V2) |
+| Ảnh chụp 390×760 của panel chọn ngôn ngữ và thanh app (spec tạm, đã xóa; ảnh trong scratchpad của phiên, không commit) | 0 | Panel nền deep, tiêu đề serif, hai nút hổ phách 48px; thanh app: logo, "Tài nguyên offline", VI/EN với nút đang chọn nền hổ phách |
+| Quét `dist/` production tìm `__cpqTestHooks`, `seedPackage`, `failNextActivation` | — | Không có |
+
+### 3.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| V2 (`/q/{id}` lần đầu với `vi-VN` rồi `en-US`) | Trang `/q/{qrIdentifier}` thuộc M02 (SCR-M02-004) chưa có; `test.fixme` trong `e2e/m01/language.spec.ts`. Hành vi "không panel, hiển thị theo thiết bị, không ghi gì" đã kiểm ở `LanguageGate.test.tsx` và `LanguageControl.test.tsx` |
+| Đổi ngôn ngữ giữa hai tab thật | Unit test kiểm `liveQuery` nhận thay đổi do nơi khác ghi vào cùng database; hai tab thật kiểm ở E2E Phase 10 hoặc thủ công |
+
+### 3.3 Lệch so với tasks và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-20 | Agent không merge được PR (bộ kiểm tra an toàn chặn "merge không có review"); chủ dự án merge. Mỗi phase vẫn một branch, PR base `main` và ghi "merge sau #N"; branch kế tiếp tách từ branch trước khi PR trước chưa merge, rebase lên `main` khi có thể | Áp dụng |
+| DV-21 | T040: thêm `useLanguagePreferenceState()` (trạng thái `loading`/`ready`) để LanguageGate không hiện panel thoáng qua khi IndexedDB chưa đọc xong; `useLanguagePreference()` công khai vẫn trả `LanguagePreference \| null` như contract. Một subscription `liveQuery` dùng chung cho mọi component | Áp dụng |
+| DV-22 | T041: `LanguageControl` có prop `tone` (`onLight` mặc định cho trang M02, `onDark` trên thanh app M01): trên nền deep nút đang chọn nền hổ phách chữ ink (§5.3). Nhãn nút "VI"/"EN" như mockup; nút của panel là tên tự gọi "Tiếng Việt"/"English" lấy từ câu copy "Chọn ngôn ngữ (Tiếng Việt / English)". Tiêu đề panel theo ngôn ngữ thiết bị vì chưa có giá trị lưu | Áp dụng |
+| DV-23 | T042: `VisitorLayout` đặt `document.documentElement.lang` theo ngôn ngữ hiển thị (trình đọc màn hình đọc đúng ngôn ngữ). `writeLanguagePreference` trả `false` thay vì ném lỗi khi giá trị ngoài `vi`/`en` | Áp dụng |
+
+### 3.4 Checkpoint US1
+
+US1 **đạt** trên network mock: V1, V3 pass; V2 chờ trang M02. M02 dùng được `LanguageControl`, `useLanguagePreference`, `resolveDisplayLanguage` qua `src/modules/m01/index.ts`.

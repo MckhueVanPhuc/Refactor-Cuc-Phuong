@@ -36,9 +36,12 @@ describe('kiến trúc M01', () => {
     expect(importsOf(index).filter((specifier) => /storage\/.*Writer/i.test(specifier))).toEqual([]);
   });
 
-  it('bề mặt công khai chỉ gồm hàm đọc và M01_HANDOFF_TABLES (tasks T026; US1 thêm phần ngôn ngữ)', () => {
+  it('bề mặt công khai chỉ gồm hàm đọc, M01_HANDOFF_TABLES và phần ngôn ngữ (tasks T026, T042)', () => {
     expect(Object.keys(publicSurface).sort()).toEqual(
       [
+        'LanguageControl',
+        'resolveDisplayLanguage',
+        'useLanguagePreference',
         'M01_HANDOFF_TABLES',
         'findOfflineResource',
         'readActiveOfflinePackage',
