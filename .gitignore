@@ -24,6 +24,8 @@ scratch/
 # Node / build / test output
 node_modules/
 dist/
+# Build MODE e2e có test hook; tách khỏi dist/ để phép quét bundle production không lẫn (M01 DV-01)
+dist-e2e/
 test-results/
 playwright-report/
 e2e/.local-fixture.json
