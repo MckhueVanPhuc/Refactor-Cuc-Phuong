@@ -140,3 +140,41 @@ Branch `feat/m01-us1`, tách từ `feat/m01-foundation` (PR #13 có CI xanh, ch�
 ### 3.4 Checkpoint US1
 
 US1 **đạt** trên network mock: V1, V3 pass; V2 chờ trang M02. M02 dùng được `LanguageControl`, `useLanguagePreference`, `resolveDisplayLanguage` qua `src/modules/m01/index.ts`.
+
+## 4. Đợt 2026-11-02 — Phase 4 US2 Duyệt tuyến (T043–T050)
+
+Branch `feat/m01-us2`, tách từ `feat/m01-us1` (PR #13, #14 chờ merge; DV-20). Test T043–T045 viết trước và đã chạy thấy fail (không resolve được module) trước khi cài đặt.
+
+### 4.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | typecheck sạch; lint 444 pass; test 91 file pass + 1 skipped, 1468 pass, 133 skipped; build precache 39 mục |
+| `npx playwright test --project=m01` | 0 | 6 pass (V1, V3, V4, V5, V6, V7), 1 skipped (V2) |
+| `npm run e2e` lần 1 | 1 | `m01` pass hết; `m03` 3 ca fail (Q18 không thấy nút "Đăng nhập" trong 5 s ở lần mở đầu `/admin/login` trên `dev:fake`, Q12…) |
+| `npx playwright test --project=m03` chạy lại hai lần; `forbidden-words.spec.ts --repeat-each=3` | 0 / 0 | lần 1: 23 pass, 3 fail khác ca trước; lần 2 và repeat: không fail. Kết luận: chập chờn do máy tải nặng (10 worker + build preview), không do thay đổi của M01 (DV-29) |
+| `npm run e2e` lần 2 | 0 | 32 pass, 47 skipped |
+| Ảnh chụp 390 px danh mục (spec tạm, đã xóa) | 0 | Hero serif, liên kết "Gợi ý tuyến", hai thẻ dẫn bằng ảnh; ảnh A lỗi → khối placeholder trung tính |
+| Quét `dist/` production tìm hook test, `fake://` | — | Không có |
+
+### 4.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| V4 trên stack Supabase local | Phase 11 (T105) |
+| Trạng thái "Route removed" | Thuộc US5 (T071); hiện tuyến `TAM_DONG` đã bị lọc khỏi danh mục sau lần đọc thành công |
+
+### 4.3 Lệch so với tasks và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-24 | `vite.config.ts`: `workbox.clientsClaim: true`. Lý do: ở lần mở đầu, service worker đã cài nhưng chưa điều khiển trang, nên mất mạng ngay sau đó thì chunk lazy chưa nạp (ví dụ `/offline`) không lấy được dù đã precache (E2E V6 phát hiện). `skipWaiting` vẫn tắt: bản cập nhật chỉ áp khi người dùng đồng ý (prompt, constitution VI) | Áp dụng |
+| DV-25 | `src/modules/m01/api/services.ts`: React context `M01Services` (`source`, `media`), mặc định adapter thật; test component bọc bằng adapter giả (`testing/renderM01.tsx`) | Áp dụng |
+| DV-26 | Hook `media/useSignedUrls.ts` (signed URL chỉ trong bộ nhớ) dùng chung cho danh mục và sau này chi tiết tuyến | Áp dụng |
+| DV-27 | T048: local view là một store cho mỗi adapter nguồn, sống suốt phiên chạy; mỗi lần màn danh mục được mở thì làm mới (screen spec §5 mục 6 "Mở/làm mới"); lần đọc trùng dùng chung một request. Trạng thái Loading hiện khối giữ chỗ thay cho spinner (design-system §5.2 "Progress/skeleton") và `aria-busy` trên danh sách | Áp dụng |
+| DV-28 | T046: network mock `e2e/m01/network.ts` giả đúng hình dạng request/response của supabase-js (PostgREST mảng hoặc object theo `Accept`; `createSignedUrls` trả `signedURL` tương đối) | Áp dụng |
+| DV-29 | E2E `m03` thỉnh thoảng hết thời gian chờ 5 s khi máy tải nặng; không đổi test M03 (ngoài phạm vi M01), ghi để theo dõi | Ghi nhận |
+
+### 4.4 Checkpoint US2
+
+US2 **đạt** trên network mock: V4–V7 pass.

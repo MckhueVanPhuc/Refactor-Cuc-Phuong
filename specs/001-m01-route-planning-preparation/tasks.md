@@ -139,17 +139,17 @@ description: "Danh sách task triển khai M01 — Route Planning & Preparation"
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T043 [P] [US2] Viết test src/modules/m01/catalog/selectableRoutes.test.ts: chỉ `HOAT_DONG` + `activeContentVersion` khác null + qua schema; C, D, dòng hỏng bị loại; sắp A→Z bằng `Intl.Collator` theo ngôn ngữ đang chọn; dấu "cần tải trước" khi `hasOfflineRequiredCheckpoint` hoặc `hasOfflineRouteMap` là `true` (BR-M01-002, 012; SC-M01-001; DAC-M01-017)
-- [ ] T044 [P] [US2] Viết test src/modules/m01/catalog/catalogStore.test.ts: lưu danh mục đọc thành công lần cuối trong bộ nhớ; làm mới lỗi → giữ local view kèm cờ dữ liệu cũ; mở lạnh khi không có nguồn → "Source unavailable"; không lưu bền (research R-13; FR-M01-002)
-- [ ] T045 [P] [US2] Viết test src/modules/m01/catalog/CatalogPage.test.tsx: thẻ có thumbnail, tên và mô tả ngắn theo ngôn ngữ, quãng đường, thời lượng, độ khó, `checkpointCount`, dấu cần tải trước; ảnh lỗi → placeholder trung tính, thẻ vẫn bấm được; trạng thái Loading, Has routes, Empty, Stale/offline, Source unavailable; vẫn vào được `/offline` khi không có nguồn (US-M01-02; visitor-ui-flow §2)
-- [ ] T046 [P] [US2] Viết E2E e2e/m01/catalog.spec.ts cho quickstart V4–V7 (`page.route()` giả Data API và Storage)
+- [X] T043 [P] [US2] Viết test src/modules/m01/catalog/selectableRoutes.test.ts: chỉ `HOAT_DONG` + `activeContentVersion` khác null + qua schema; C, D, dòng hỏng bị loại; sắp A→Z bằng `Intl.Collator` theo ngôn ngữ đang chọn; dấu "cần tải trước" khi `hasOfflineRequiredCheckpoint` hoặc `hasOfflineRouteMap` là `true` (BR-M01-002, 012; SC-M01-001; DAC-M01-017)
+- [X] T044 [P] [US2] Viết test src/modules/m01/catalog/catalogStore.test.ts: lưu danh mục đọc thành công lần cuối trong bộ nhớ; làm mới lỗi → giữ local view kèm cờ dữ liệu cũ; mở lạnh khi không có nguồn → "Source unavailable"; không lưu bền (research R-13; FR-M01-002)
+- [X] T045 [P] [US2] Viết test src/modules/m01/catalog/CatalogPage.test.tsx: thẻ có thumbnail, tên và mô tả ngắn theo ngôn ngữ, quãng đường, thời lượng, độ khó, `checkpointCount`, dấu cần tải trước; ảnh lỗi → placeholder trung tính, thẻ vẫn bấm được; trạng thái Loading, Has routes, Empty, Stale/offline, Source unavailable; vẫn vào được `/offline` khi không có nguồn (US-M01-02; visitor-ui-flow §2)
+- [X] T046 [P] [US2] Viết E2E e2e/m01/catalog.spec.ts cho quickstart V4–V7 (`page.route()` giả Data API và Storage)
 
 ### Implementation for User Story 2
 
-- [ ] T047 [P] [US2] Cài đặt src/modules/m01/catalog/selectableRoutes.ts cho T043 qua
-- [ ] T048 [P] [US2] Cài đặt src/modules/m01/catalog/catalogStore.ts cho T044 qua
-- [ ] T049 [P] [US2] Dựng src/modules/m01/catalog/RouteCard.tsx + `.module.css` (signed URL qua mediaClient, `loading="lazy"`, placeholder khi lỗi)
-- [ ] T050 [US2] Dựng SCR-M01-001 src/modules/m01/catalog/CatalogPage.tsx + `.module.css` và đăng ký `/` trong src/modules/m01/routes.tsx
+- [X] T047 [P] [US2] Cài đặt src/modules/m01/catalog/selectableRoutes.ts cho T043 qua
+- [X] T048 [P] [US2] Cài đặt src/modules/m01/catalog/catalogStore.ts cho T044 qua
+- [X] T049 [P] [US2] Dựng src/modules/m01/catalog/RouteCard.tsx + `.module.css` (signed URL qua mediaClient, `loading="lazy"`, placeholder khi lỗi)
+- [X] T050 [US2] Dựng SCR-M01-001 src/modules/m01/catalog/CatalogPage.tsx + `.module.css` và đăng ký `/` trong src/modules/m01/routes.tsx
 
 **Checkpoint**: US1 và US2 chạy độc lập
 
