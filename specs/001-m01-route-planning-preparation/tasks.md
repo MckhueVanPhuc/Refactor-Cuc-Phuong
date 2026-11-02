@@ -163,14 +163,14 @@ description: "Danh sách task triển khai M01 — Route Planning & Preparation"
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T051 [P] [US3] Viết test src/modules/m01/route-detail/detailView.test.ts: online → đủ trường bắt buộc theo ngôn ngữ; trường tùy chọn vắng thì không có mục và không có chữ thay thế; tên điểm dừng từ `checkpointSummaries`, đánh số liên tục 1, 2, 3…; offline có gói → essentials đã lưu + `capturedAt` + tên điểm dừng từ `manifest` gói; không có bản lưu → mở bằng thông tin hiện có, không khẳng định mới nhất; M01 không tự bổ sung ngôn ngữ thiếu (BR-M01-013, 014; FR-M01-003, 014; SC-M01-008)
-- [ ] T052 [P] [US3] Viết test src/modules/m01/route-detail/RouteDetailPage.test.tsx: cảnh báo an toàn nổi bật; ảnh đầu gallery là ảnh bìa; sơ đồ tuyến online; offline ảnh chưa lưu → placeholder; câu "Thông tin được lưu lúc {thời điểm}, có thể không phải bản mới nhất"; trạng thái nguồn lỗi, tuyến không còn khả dụng (US-M01-06; visitor-ui-flow §2)
-- [ ] T053 [P] [US3] Viết E2E e2e/m01/route-detail.spec.ts cho quickstart V8 và chi tiết tuyến A offline có gói (SC-M01-008)
+- [X] T051 [P] [US3] Viết test src/modules/m01/route-detail/detailView.test.ts: online → đủ trường bắt buộc theo ngôn ngữ; trường tùy chọn vắng thì không có mục và không có chữ thay thế; tên điểm dừng từ `checkpointSummaries`, đánh số liên tục 1, 2, 3…; offline có gói → essentials đã lưu + `capturedAt` + tên điểm dừng từ `manifest` gói; không có bản lưu → mở bằng thông tin hiện có, không khẳng định mới nhất; M01 không tự bổ sung ngôn ngữ thiếu (BR-M01-013, 014; FR-M01-003, 014; SC-M01-008)
+- [X] T052 [P] [US3] Viết test src/modules/m01/route-detail/RouteDetailPage.test.tsx: cảnh báo an toàn nổi bật; ảnh đầu gallery là ảnh bìa; sơ đồ tuyến online; offline ảnh chưa lưu → placeholder; câu "Thông tin được lưu lúc {thời điểm}, có thể không phải bản mới nhất"; trạng thái nguồn lỗi, tuyến không còn khả dụng (US-M01-06; visitor-ui-flow §2)
+- [X] T053 [P] [US3] Viết E2E e2e/m01/route-detail.spec.ts cho quickstart V8 và chi tiết tuyến A offline có gói (SC-M01-008)
 
 ### Implementation for User Story 3
 
-- [ ] T054 [P] [US3] Cài đặt src/modules/m01/route-detail/detailView.ts (hàm thuần dựng view online/offline) cho T051 qua
-- [ ] T055 [US3] Dựng SCR-M01-003 src/modules/m01/route-detail/RouteDetailPage.tsx + `.module.css` (đọc qua sourceClient, fallback gói qua readers; vùng nút "Bắt đầu" cho US4 và vùng trạng thái gói cho US6) và đăng ký `/routes/:routeId` trong src/modules/m01/routes.tsx
+- [X] T054 [P] [US3] Cài đặt src/modules/m01/route-detail/detailView.ts (hàm thuần dựng view online/offline) cho T051 qua
+- [X] T055 [US3] Dựng SCR-M01-003 src/modules/m01/route-detail/RouteDetailPage.tsx + `.module.css` (đọc qua sourceClient, fallback gói qua readers; vùng nút "Bắt đầu" cho US4 và vùng trạng thái gói cho US6) và đăng ký `/routes/:routeId` trong src/modules/m01/routes.tsx
 
 **Checkpoint**: US1–US3 chạy độc lập
 

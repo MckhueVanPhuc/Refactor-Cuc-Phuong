@@ -70,6 +70,23 @@ export const vi = {
 
   // SCR-M01-003
   routeDetail: {
+    // Nhãn mục: theo mockup SCR-M01-003 và tên trường của M03 (fieldLabels) — DV-30
+    sections: {
+      distance: 'Quãng đường',
+      duration: 'Thời lượng',
+      difficulty: 'Độ khó',
+      safetyWarning: 'Cảnh báo an toàn',
+      description: 'Giới thiệu',
+      startingPoint: 'Điểm xuất phát',
+      participationRequirements: 'Yêu cầu và điều kiện tham gia',
+      preparation: 'Cần chuẩn bị',
+      bestTime: 'Thời điểm phù hợp',
+      highlights: 'Điểm nổi bật',
+      routeMap: 'Sơ đồ tuyến',
+      checkpoints: 'Các điểm dừng',
+    },
+    distanceValue: ({ km }: { km: string }) => `${km} km`,
+    durationValue: ({ min }: { min: number }) => `${min} phút`,
     start: 'Bắt đầu',
     offlineDecisionTitle: 'Tuyến này nên tải trước',
     stopsMayLackContent: ({ list }: { list: string }) =>

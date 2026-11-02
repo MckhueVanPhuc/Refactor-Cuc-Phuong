@@ -21,3 +21,8 @@ export function formatEstimatedSize(bytes: number | undefined, language: Languag
 export function formatCapturedAt(iso: string, language: LanguageCode): string {
   return new Intl.DateTimeFormat(language, { dateStyle: 'short', timeStyle: 'short' }).format(new Date(iso));
 }
+
+/** Quãng đường theo định dạng số của ngôn ngữ (tối đa một chữ số thập phân như contract): `2,4` / `2.4`. */
+export function formatDistanceKm(distanceKm: number, language: LanguageCode): string {
+  return new Intl.NumberFormat(language, { maximumFractionDigits: 1 }).format(distanceKm);
+}

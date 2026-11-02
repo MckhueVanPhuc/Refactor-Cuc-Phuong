@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import { publicationFixture } from '../../src/shared/contracts/__fixtures__/publication';
 import { contextFromSnapshot, packageFromPublication } from '../../src/modules/m01/testing/packageFixture';
 import { callM01Hook, dumpStores, PACKAGE_STORES } from './helpers';
+import { mockPublication } from './network';
 
 test.use({ locale: 'vi-VN' });
 
@@ -29,20 +30,22 @@ test.fixme('V2 — mở /q/{id} lần đầu với vi-VN rồi en-US: không pan
 
 test('V3 — offline, bấm VI/EN trên SCR-M01-003 có gói: UI đổi ngay; gói và context không đổi', async ({ page, context }) => {
   const { routes, snapshots } = publicationFixture();
+  await mockPublication(page);
   await page.goto('/');
   await page.getByRole('button', { name: 'Tiếng Việt' }).click();
   await callM01Hook(page, 'seedPackage', packageFromPublication(routes.A, snapshots.A));
   await callM01Hook(page, 'seedContext', contextFromSnapshot(snapshots.A));
   await page.goto('/routes/route-a');
-  await expect(page.getByRole('heading', { level: 1, name: 'Chi tiết tuyến & Chuẩn bị' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Tuyến thử Bách Thảo' })).toBeVisible();
   const before = await dumpStores(page, [...PACKAGE_STORES, 'selectedRouteContext']);
 
   await context.setOffline(true);
   await page.getByRole('button', { name: 'EN' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Route details & preparation' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Test Botanic trail' })).toBeVisible();
+  await expect(page.getByText('Test gate A')).toBeVisible();
   await expect(page.getByRole('button', { name: 'EN' })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'VI' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Chi tiết tuyến & Chuẩn bị' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Tuyến thử Bách Thảo' })).toBeVisible();
 
   expect(await dumpStores(page, [...PACKAGE_STORES, 'selectedRouteContext'])).toEqual(before);
   expect((await dumpStores(page, ['languagePreference'])).languagePreference).toEqual([

@@ -178,3 +178,38 @@ Branch `feat/m01-us2`, tách từ `feat/m01-us1` (PR #13, #14 chờ merge; DV-20
 ### 4.4 Checkpoint US2
 
 US2 **đạt** trên network mock: V4–V7 pass.
+
+## 5. Đợt 2026-11-02/03 — Phase 5 US3 Chi tiết tuyến (T051–T055)
+
+Branch `feat/m01-us3`, tách từ `feat/m01-us2` (PR #13, #14, #15 chờ merge; DV-20). Test T051–T052 viết trước và đã chạy thấy fail trước khi cài đặt.
+
+### 5.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` (lần đầu) | 1 | 1 ca M03 fail: `reports/ReportsPage.test.tsx` "ngày không hợp lệ…" (`reportRpt01` bị gọi). Chạy riêng 3 lần: fail 1 lần |
+| Thử nghiệm: bỏ phần xóa IndexedDB trong `afterEach` của `src/test/setup.ts`, chạy `ReportsPage.test.tsx` 6 lần (đã khôi phục file sau đó) | 0 | 6/6 pass → nguyên nhân là `afterEach` bất đồng bộ của Phase 1 (DV-31) |
+| Sau khi sửa DV-31: `ReportsPage.test.tsx` 6 lần; `npx vitest run src/modules/m01 src/shared` | 0 | 6/6 pass; 848 pass |
+| `npm run ci` | 0 | typecheck sạch; lint 451 pass; test 93 file pass + 1 skipped, 1490 pass, 133 skipped; build precache 41 mục |
+| `npm run e2e` | 0 | 34 pass, 47 skipped; `m01`: V1, V3–V8 và SC-M01-008 pass, V2 `fixme` |
+| Ảnh chụp 390 px màn chi tiết A online (spec tạm, đã xóa) | 0 | Hero deep với tên serif và dấu "Cần tải trước"; gallery cuộn ngang; ba ô Quãng đường/Thời lượng/Độ khó; cảnh báo an toàn nền hổ phách; điểm dừng đánh số 1–3 |
+| Quét `dist/` production tìm hook test, `fake://` | — | Không có |
+
+### 5.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Nút "Bắt đầu", vùng trạng thái gói, dialog quyết định offline trên SCR-M01-003 | US4 (T065), US6 (T086) |
+
+### 5.3 Lệch so với tasks và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-30 | Nhãn mục của SCR-M01-003 không có trong bảng copy. Tiếng Việt lấy từ mockup SCR-M01-003 ("Quãng đường", "Thời lượng", "Độ khó", "Cảnh báo an toàn", "Giới thiệu", "Điểm xuất phát", "Cần chuẩn bị", "Các điểm dừng") và tên trường M03 (`fieldLabels`: "Yêu cầu và điều kiện tham gia", "Thời điểm phù hợp", "Điểm nổi bật", "Sơ đồ tuyến"); tiếng Anh do agent đề xuất (Distance, Duration, Difficulty, Safety warning, About this route, Starting point, Requirements, What to bring, Best time to go, Highlights, Route map, Stops) theo ủy quyền của chủ dự án 2026-11-02 | Áp dụng, chủ dự án có thể sửa |
+| DV-31 | `src/test/setup.ts`: chỉ xóa các database mà ca vừa mở (ghi tên đồng bộ khi `indexedDB.open` được gọi); ca không mở database nào kết thúc đồng bộ như trước Phase 1. Sửa lỗi chập chờn của test M03 do DV-04 gây ra | Áp dụng |
+| DV-32 | T055: nguồn lỗi mà không có gói → hiện dòng tuyến trong local view danh mục kèm câu "Chưa tải được thông tin mới. Đang hiển thị thông tin đã lưu." (T051 "mở bằng thông tin hiện có, không khẳng định mới nhất"); không có cả local view → câu "Chưa tải được danh sách tuyến…" của bảng copy SCR-M01-001 (bảng copy SCR-M01-003 không có câu riêng cho trường hợp này). Tuyến không có dòng (chưa từng xuất bản) xử lý như tuyến không còn khả dụng | Áp dụng |
+| DV-33 | T055: gallery là dải ảnh cuộn ngang (ảnh đầu là ảnh bìa); offline không có ảnh lưu nên hiện một khối trung tính. Sơ đồ offline của gói hiện từ byte đã lưu (`readPackageImage` → object URL). `formatDistanceKm` chuyển sang `format.ts` để danh mục và chi tiết dùng chung | Áp dụng |
+
+### 5.4 Checkpoint US3
+
+US3 **đạt** trên network mock: V8 và chi tiết A offline có gói (SC-M01-008) pass.

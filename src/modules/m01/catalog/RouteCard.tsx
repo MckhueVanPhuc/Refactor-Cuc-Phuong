@@ -5,13 +5,10 @@ import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import type { LanguageCode } from '../../../shared/contracts/languagePreference';
 import type { PublishedRoute } from '../../../shared/contracts/publishedRoute';
+import { formatDistanceKm } from '../format';
 import { messagesFor } from '../i18n';
 import styles from './RouteCard.module.css';
 import { needsOfflinePackageMark } from './selectableRoutes';
-
-export function formatDistanceKm(distanceKm: number, language: LanguageCode): string {
-  return new Intl.NumberFormat(language, { maximumFractionDigits: 1 }).format(distanceKm);
-}
 
 export function RouteCard({
   route,

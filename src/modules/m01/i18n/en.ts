@@ -63,6 +63,23 @@ export const en: M01Messages = {
   },
 
   routeDetail: {
+    // Đề xuất của agent theo nhãn tiếng Việt — DV-30
+    sections: {
+      distance: 'Distance',
+      duration: 'Duration',
+      difficulty: 'Difficulty',
+      safetyWarning: 'Safety warning',
+      description: 'About this route',
+      startingPoint: 'Starting point',
+      participationRequirements: 'Requirements',
+      preparation: 'What to bring',
+      bestTime: 'Best time to go',
+      highlights: 'Highlights',
+      routeMap: 'Route map',
+      checkpoints: 'Stops',
+    },
+    distanceValue: ({ km }) => `${km} km`,
+    durationValue: ({ min }) => `${min} min`,
     start: 'Start',
     offlineDecisionTitle: 'Download this route first',
     stopsMayLackContent: ({ list }) => `Some stops may have no content unless you download first: ${list}.`,
