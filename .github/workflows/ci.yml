@@ -53,7 +53,10 @@ jobs:
         with:
           version: 2.122.0
       # Chỉ stack local trong runner (quickstart §3); không bao giờ --linked
-      - run: supabase start
+      # `supabase start` in bảng key trước khi kịp che: ghi ra file, chỉ in (đã lọc key) khi lỗi
+      - name: supabase start
+        run: |
+          supabase start > supabase-start.log 2>&1 || { grep -vE 'sb_secret_|sb_publishable_|eyJ' supabase-start.log; exit 1; }
       - run: supabase db reset
       - run: supabase test db
       - name: Cấu hình local cho app, contract test và Edge (giá trị của stack local, được che trong log)

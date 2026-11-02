@@ -764,6 +764,7 @@ Branch `feat/m03-b-verify` tạo từ `feat/m03-b-us9` @ `6bf556e`. Chỉ stack 
 | `PW_LOCAL_STACK=1 npx playwright test e2e/m03/perf.local.spec.ts --project=m03-local-stack` | 0 | Đạt mọi mục tiêu R-24, xem §22.2 (T199) |
 | `npm run ci` | 0 | lint 352 pass; test 1130 pass, 133 skipped; build xong |
 | `git diff --check` | 0 | Không lỗi khoảng trắng (T200) |
+| `gh workflow run ci.yml --ref feat/m03-b-verify` (run 41463656516, runner `ubuntu-26.04`) | 0 | Cả ba job `verify`, `e2e`, `local-stack` success; `local-stack` mất 7 phút 20 giây: pgTAP 655/655, contract 114 pass + 19 skipped, E2E `m03-local-stack` 68 pass + 4 skipped; T199 trên runner p95: review 0,60 s, publish 0,92 s, close 0,91 s, reopen 0,87 s, lookup 3,5 ms. Log lộ `sb_secret_…` của stack tạm trong bảng mà `supabase start` in ra, trước bước che key (D-134) |
 
 ### 22.2 Hiệu năng (T199)
 
@@ -784,7 +785,6 @@ Fixture `test_support.perf_world()`: 30 điểm dừng "Cần tải trước", m
 | Mục | Lý do |
 |---|---|
 | `e2e/local-stack/global-setup.ts`, project `m01-local-stack` và `m02-local-stack` | Quyết định giai đoạn B #4: T198 chỉ làm phần M03 (hook phía Node trong `e2e/m03/localStack.ts`); BR-M03-I05, I06 ghi `NOT RUN` trong checklist BR |
-| Job CI `local-stack` trên runner GitHub | Chưa push; job chỉ chạy khi push vào `main` hoặc `workflow_dispatch` (quyết định giai đoạn B #6). Các bước đã chạy tay trên máy local theo đúng thứ tự trong `.github/workflows/ci.yml` |
 | Test Deno `supabase/functions/*/index.test.ts` | Không cài Deno (quyết định giai đoạn B #7); handler đã chạy qua Edge thật ở E2E |
 | Ca cần tiêm lỗi hoặc giữ khóa ở stack local (19 ca `itFakeOnly`; E2E Q13, Q16, Q17, Q20) | Hook chỉ có ở adapter giả; BUSY kiểm bằng dblink trong `m03_us4_revise`, rollback khi lỗi bằng khối con và SQLSTATE `CPQRV` trong pgTAP Phase 14 |
 | SMTP thật | Chỉ Mailpit của stack local |
@@ -802,3 +802,4 @@ Fixture `test_support.perf_world()`: 30 điểm dừng "Cần tải trước", m
 | D-131 | Tuyến bị ảnh hưởng trong review và ghi chú tác động sắp theo id ở SQL, theo tên ở adapter giả | SQL sắp theo `app.route_name` rồi id, như adapter giả |
 | D-132 | T198 viết `e2e/local-stack/global-setup.ts` dùng chung M01/M02/M03 | Chỉ phần M03 (quyết định #4): project `m03-local-stack` dùng hook phía Node (`e2e/m03/localStack.ts`) dựng dữ liệu bằng chính adapter Supabase, Mailpit và psql; reset trước mỗi ca; Q4 và Q18 rẽ nhánh theo project; `MEDIA_BUCKET` tách sang `src/shared/config/storage.ts` để code Node import được mà không cần hằng Vite |
 | D-133 | T200: 11 BR có assertion pgTAP kiểm đúng hành vi nhưng chưa trích ID (C02, C14, T02, T09, D06, X01, E03, E16, H05, L05, L07); K02 chỉ được kiểm ở E2E Q3; H08 chưa có test xuất bản tuyến đang tạm đóng | Gắn ID vào assertion; thêm chú thích BR-M03-K02 cho Q3; thêm 3 ca H08 vào `m03_us6_operations`. Checklist BR: 121 BR có test giai đoạn B trích đúng ID, 3 hàng trỏ dùng test của nhóm đích, 8 BR chỉ giao diện, 2 BR consumer `NOT RUN` |
+| D-134 | `supabase start` in bảng trạng thái có key `sb_secret_…` của stack local trước khi bước cấu hình kịp `::add-mask::` (run 41463656516). Key chỉ thuộc stack tạm trong runner, bị hủy khi job kết thúc, không mở được dịch vụ nào bên ngoài | `ci.yml`: ghi output của `supabase start` ra file, chỉ in khi lỗi và đã lọc key; log của run 41463656516 chờ người dùng quyết định có xóa hay không |
