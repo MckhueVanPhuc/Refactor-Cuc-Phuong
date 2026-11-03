@@ -1,6 +1,6 @@
 // Bảng quyết định của một lần quét (tasks T042; scan-resolution-contract §2; research R-08). Hàm thuần.
-// US2 kiểm dòng 1, 6 và R-INVALID-LINK; các dòng 2–5, 7, 8 cho cùng kết quả "không ghi lượt ghé" và được kiểm ở
-// US4 (T057) và US6 (T076).
+// Dòng 1, 6, R-INVALID-LINK kiểm ở resolveScan.test.ts (US2); dòng 2, 4, 5, 7 ở resolveScan.outside.test.ts (US4);
+// dòng 3, 8 (khách tự do) ở US6 (T076).
 import type { ManifestCheckpoint } from '../../../shared/contracts/journeyManifest';
 import type { LiveStationContent } from '../../../shared/contracts/liveQrLookup';
 import type { LookupOutcome } from '../api/lookupClient';

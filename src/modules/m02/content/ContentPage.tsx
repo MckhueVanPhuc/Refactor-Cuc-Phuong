@@ -13,6 +13,7 @@ import type { ContentRouteState } from '../session/TripPage';
 import styles from './ContentPage.module.css';
 import { filterMedia } from './mediaFilter';
 import { MediaList } from './MediaList';
+import { ScanNotice } from './ScanNotice';
 import { selectContentSource, type ContentView } from './selectContentSource';
 import { usePackageImage } from './usePackageImage';
 import { useSignedUrls } from './useSignedImage';
@@ -115,21 +116,7 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
           </p>
         </Notice>
       )}
-      {view?.kind === 'CLOSED' && (
-        <Notice tone="warning" role="alert">
-          <p className={styles.noticeText}>{messages.notice.temporarilyClosed}</p>
-        </Notice>
-      )}
-      {view?.kind === 'INVALID' && (
-        <Notice tone="error" role="alert">
-          <p className={styles.noticeText}>{messages.notice.invalid}</p>
-        </Notice>
-      )}
-      {view?.kind === 'CONNECTION_NEEDED' && (
-        <Notice tone="info" role="alert">
-          <p className={styles.noticeText}>{messages.notice.connectionNeeded}</p>
-        </Notice>
-      )}
+      {(view?.kind === 'CLOSED' || view?.kind === 'INVALID' || view?.kind === 'CONNECTION_NEEDED') && <ScanNotice kind={view.kind} />}
       {scan.freeVisitor && (
         <Notice tone="info">
           <p className={styles.noticeText}>{messages.notice.freeVisitor}</p>
