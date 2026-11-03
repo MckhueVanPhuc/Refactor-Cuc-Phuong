@@ -3,7 +3,7 @@
 import type { M02Messages } from './vi';
 
 export const en: M02Messages = {
-  // Đề xuất của agent cho tiêu đề SCR-M02-001 (nguồn chỉ có tiếng Việt); chờ chủ dự án duyệt
+  // Đề xuất của agent cho tiêu đề SCR-M02-001 (nguồn chỉ có tiếng Việt); chủ dự án duyệt 2026-11-04
   screenTitle: {
     trip: 'Your trip',
   },
