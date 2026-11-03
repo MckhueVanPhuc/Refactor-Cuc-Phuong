@@ -1,0 +1,49 @@
+/*
+ * SCR-M02-001 trên bề mặt scanner tối (mockup-SCR-M02-001). Thông báo phân biệt bằng nhãn chữ và một vạch màu
+ * semantic của scanner ở cạnh trái, không chỉ dựa vào màu (design-system §5 "M02 — Field Experience").
+ */
+.notice {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-body);
+  background: var(--color-m02-scanner-surface);
+  border-left: var(--border-width-thick) solid var(--notice-accent);
+  border-radius: var(--radius-sm);
+}
+
+.info {
+  --notice-accent: var(--color-m02-scanner-secondary);
+}
+
+.warning {
+  --notice-accent: var(--color-m02-scanner-warning);
+}
+
+.error {
+  --notice-accent: var(--color-m02-scanner-error);
+}
+
+.noticeText {
+  margin: 0;
+}
+
+.noticeLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m02-scanner-text);
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+}
+
+.noticeLink:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+.journey {
+  display: grid;
+  gap: var(--space-3);
+}

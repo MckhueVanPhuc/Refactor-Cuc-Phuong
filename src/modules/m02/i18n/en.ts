@@ -3,6 +3,10 @@
 import type { M02Messages } from './vi';
 
 export const en: M02Messages = {
+  // Đề xuất của agent cho tiêu đề SCR-M02-001 (nguồn chỉ có tiếng Việt); chủ dự án duyệt 2026-11-04
+  screenTitle: {
+    trip: 'Your trip',
+  },
   notice: {
     temporarilyClosed: 'This area is temporarily closed. Please stop here or return as directed by Park Management.',
     invalid: 'This QR code is no longer valid or does not exist.',

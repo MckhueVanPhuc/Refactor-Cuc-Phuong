@@ -3,6 +3,10 @@
 // Không chuỗi nào được nói "đã đến"/"có mặt": lượt ghé chỉ nghĩa là đã quét QR (BR-M02-005; SC-M02-013).
 
 export const vi = {
+  // Tiêu đề màn: SCR-M02-001 lấy từ mockup-SCR-M02-001 (bảng copy chưa có); chủ dự án duyệt 2026-11-04
+  screenTitle: {
+    trip: 'Chuyến đi',
+  },
   // spec-M02 §5.1 "Fixed visitor messages"
   notice: {
     temporarilyClosed: 'Khu vực này đang tạm đóng. Vui lòng dừng lại hoặc quay về theo hướng dẫn của Ban Quản lý.',
