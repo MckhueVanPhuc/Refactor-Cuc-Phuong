@@ -1,0 +1,89 @@
+/*
+ * Layout du khách M01 — catalog kiểu field-guide rừng (design-system §5.1; mockup SCR-M01-003).
+ * Điểm nhận diện duy nhất là thanh app màu deep; phần nội dung giữ yên trên nền paper.
+ */
+.shell {
+  --control-accent: var(--color-m01-forest);
+  --control-border-color: var(--color-m01-secondary);
+  --focus-ring-color: var(--color-m01-forest);
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: var(--color-m01-ink);
+  background: var(--color-paper);
+}
+
+.appBar {
+  /* Trên nền deep, focus dùng amber (§5.3: 7.60:1) */
+  --focus-ring-color: var(--color-m01-amber);
+
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-5);
+  color: var(--color-paper);
+  background: var(--color-m01-deep);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  border-radius: var(--radius-sm);
+}
+
+.logo {
+  display: block;
+  /* Cao như logo của mockup SCR-M01-003: không có token riêng, ghép từ spacing */
+  height: calc(var(--space-8) + var(--space-2));
+  width: auto;
+  border-radius: var(--radius-sm);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-paper);
+  text-decoration: none;
+  border-bottom: var(--border-width-thick) solid transparent;
+}
+
+.navLink:hover {
+  text-decoration: underline;
+}
+
+/* Màn đang mở: gạch amber, không chỉ dựa vào màu chữ */
+.navLink[aria-current='page'] {
+  border-bottom-color: var(--color-m01-amber);
+}
+
+.notices:empty {
+  display: none;
+}
+
+.notices {
+  padding: var(--space-3) var(--space-5) 0;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  /* Cột đọc khoảng 70 ký tự trên màn rộng; trên điện thoại dùng toàn bộ bề ngang */
+  max-width: calc(var(--space-8) * 22);
+  padding: var(--space-6) var(--space-5) var(--space-8);
+}

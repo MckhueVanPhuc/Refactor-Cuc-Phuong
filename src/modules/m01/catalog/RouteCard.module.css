@@ -1,0 +1,82 @@
+/*
+ * Thẻ tuyến (design-system §5.2, §5.3): ảnh dẫn đầu, tên trước, metadata bên dưới; tên và metadata đọc được khi
+ * không có ảnh. Thẻ là một liên kết duy nhất tới chi tiết tuyến.
+ */
+.card {
+  display: grid;
+  height: 100%;
+  overflow: hidden;
+  color: var(--color-m01-ink);
+  text-decoration: none;
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m01-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover .body {
+  background: var(--overlay-surface-hover);
+}
+
+.card:active .body {
+  background: var(--overlay-surface-pressed);
+}
+
+.media {
+  aspect-ratio: 16 / 9;
+  background: var(--color-m01-line);
+}
+
+.thumbnail {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.body {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.name {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-m01-route-title);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-m01-deep);
+}
+
+.description {
+  color: var(--color-m01-secondary);
+}
+
+.stats {
+  font-size: var(--font-size-meta);
+  color: var(--color-m01-secondary);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: calc(var(--space-6) + var(--space-1));
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  border: var(--border-width-thin) solid var(--color-m01-secondary);
+  border-radius: var(--radius-sm);
+}
+
+/* "Cần tải trước": chữ và viền forest (8.50:1 trên nền sáng), không chỉ dựa vào màu nhờ nhãn chữ */
+.offlineChip {
+  color: var(--color-m01-forest);
+  border-color: var(--color-m01-forest);
+}

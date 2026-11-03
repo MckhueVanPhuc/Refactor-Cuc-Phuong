@@ -57,6 +57,9 @@ export default defineConfig(({ mode }) => {
           globIgnores: ['**/node_modules/**/*', 'assets/m03-*', 'assets/qrcode-*'],
           // `/q/{qrIdentifier}` và mọi route SPA mở từ app shell khi offline (spec-M01 §9.3; BR-M02-025)
           navigateFallback: '/index.html',
+          // Service worker đầu tiên điều khiển trang ngay, để chunk chưa nạp vẫn lấy được từ precache nếu mất mạng
+          // ngay trong lần mở đầu. Không bật skipWaiting: bản mới vẫn chờ người dùng đồng ý (prompt; DV-24)
+          clientsClaim: true,
           // Không runtime-cache Supabase API, Auth, response quản trị hay media đã ký (constitution VI)
           runtimeCaching: [],
         },

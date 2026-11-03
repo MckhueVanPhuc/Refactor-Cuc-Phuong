@@ -1,0 +1,47 @@
+/*
+ * Control VI/EN dùng chung (mockup SCR-M01-003 `.lang`; design-system §5.3).
+ * Hai tông: trên nền sáng (trang M02, mặc định) và trên thanh app deep của M01.
+ */
+.group {
+  --lang-border: var(--color-m01-secondary);
+  --lang-text: var(--color-m01-ink);
+  --lang-pressed-bg: var(--color-m01-forest);
+  --lang-pressed-text: var(--color-paper);
+
+  display: inline-flex;
+  border: var(--border-width-thin) solid var(--lang-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* Trên nền deep: hổ phách làm nền với chữ ink (§5.3) */
+.onDark {
+  --lang-border: var(--color-paper);
+  --lang-text: var(--color-paper);
+  --lang-pressed-bg: var(--color-m01-amber);
+  --lang-pressed-text: var(--color-m01-ink);
+}
+
+.button {
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  font: var(--font-weight-semibold) var(--font-size-meta) var(--font-sans);
+  color: var(--lang-text);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--overlay-surface-hover);
+}
+
+.button[aria-pressed='true'] {
+  color: var(--lang-pressed-text);
+  background: var(--lang-pressed-bg);
+}
+
+.button:focus-visible {
+  outline-offset: calc(var(--focus-ring-offset) * -2);
+}

@@ -6,12 +6,25 @@ import { cleanup, configure } from '@testing-library/react';
 // (validation-report D-74). Ca qua vẫn xong ngay khi điều kiện đúng; chỉ ca sai mới chờ lâu hơn.
 configure({ asyncUtilTimeout: 3_000 });
 
-afterEach(async () => {
+// Ghi lại đồng bộ tên database được mở (Dexie giữ chính factory này nên lời gọi `open` đi qua đây)
+const openedDatabases = new Set<string>();
+const factory = globalThis.indexedDB;
+const originalOpen = factory.open.bind(factory);
+factory.open = (name: string, version?: number) => {
+  openedDatabases.add(name);
+  return originalOpen(name, version);
+};
+
+afterEach(() => {
   cleanup();
-  // Xóa mọi database IndexedDB giả sau mỗi ca để dữ liệu Dexie không rò giữa các ca trong cùng file
+  // Xóa database IndexedDB giả mà ca vừa mở để dữ liệu Dexie không rò giữa các ca trong cùng file
   // (plan M01 Complexity #4). Dexie tự đóng kết nối khi nhận versionchange và mở lại ở thao tác kế tiếp.
-  const databases = await indexedDB.databases();
-  await Promise.all(databases.map(({ name }) => (name ? deleteDatabase(name) : undefined)));
+  // Ca không mở database nào kết thúc đồng bộ như trước: một afterEach bất đồng bộ làm đổi thời điểm chạy và
+  // khiến test M03 không dùng IndexedDB chập chờn (validation-report M01 DV-31).
+  if (openedDatabases.size === 0) return undefined;
+  const names = [...openedDatabases];
+  openedDatabases.clear();
+  return Promise.all(names.map(deleteDatabase)).then(() => undefined);
 });
 
 function deleteDatabase(name: string): Promise<void> {

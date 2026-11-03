@@ -1,0 +1,69 @@
+/* SCR-M01-001 — hero serif gọn trên điện thoại để hành động khám phá dễ tìm (design-system §3, §5.1) */
+.hero {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+  margin-bottom: var(--space-6);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: calc(var(--font-size-page-heading) + var(--space-2));
+  font-weight: var(--font-weight-regular);
+  color: var(--color-m01-deep);
+}
+
+.recommendLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-forest);
+  text-decoration: none;
+  border: var(--border-width-thin) solid var(--color-m01-forest);
+  border-radius: var(--radius-md);
+}
+
+.recommendLink:hover {
+  background: var(--overlay-surface-hover);
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message {
+  color: var(--color-m01-secondary);
+}
+
+/* Đang đọc nguồn lần đầu: khối giữ chỗ thay cho spinner tròn (§5.2: skeleton khớp nội dung đại diện) */
+.placeholderCard {
+  aspect-ratio: 4 / 3;
+  background: var(--color-m01-line);
+  border-radius: var(--radius-md);
+  animation: pulse var(--duration-pulse) var(--ease-in-out) infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.55;
+  }
+}
+
+.notice {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-meta);
+  color: var(--color-m01-ink);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m01-secondary);
+  border-radius: var(--radius-md);
+}

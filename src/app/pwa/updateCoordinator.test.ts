@@ -88,6 +88,57 @@ describe('updateCoordinator (research R-22; M01 D-02)', () => {
     await vi.waitFor(() => expect(locks.sharedHolders()).toBe(0));
   });
 
+  it('busy check bất đồng bộ (M02 hasRunningSession đọc Dexie): true → hoãn, false → áp', async () => {
+    const coordinator = createUpdateCoordinator({ locks: createFakeLocks() });
+    const apply = vi.fn();
+    coordinator.notifyUpdateAvailable(apply);
+    let busy = true;
+    coordinator.registerBusyCheck(async () => busy);
+    expect(await coordinator.applyUpdate()).toBe('deferred');
+    busy = false;
+    expect(await coordinator.applyUpdate()).toBe('applied');
+    expect(apply).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['ném lỗi', () => { throw new Error('đọc lỗi'); }],
+    ['reject', () => Promise.reject(new Error('đọc lỗi'))],
+  ])('busy check %s → coi là bận, hoãn (research R-14)', async (_label, check) => {
+    const coordinator = createUpdateCoordinator({ locks: createFakeLocks() });
+    const apply = vi.fn();
+    coordinator.notifyUpdateAvailable(apply);
+    coordinator.registerBusyCheck(check);
+    expect(await coordinator.applyUpdate()).toBe('deferred');
+    expect(apply).not.toHaveBeenCalled();
+  });
+
+  it('registerPackageOperation giữ lock shared cpq:busy suốt thao tác gói (M01 R-14)', async () => {
+    const locks = createFakeLocks();
+    const downloadTab = createUpdateCoordinator({ locks });
+    const coordinator = createUpdateCoordinator({ locks });
+    const apply = vi.fn();
+    coordinator.notifyUpdateAvailable(apply);
+    const release = downloadTab.registerPackageOperation();
+    expect(locks.sharedHolders()).toBe(1);
+    expect(await coordinator.applyUpdate()).toBe('deferred');
+    release();
+    release();
+    await vi.waitFor(() => expect(locks.sharedHolders()).toBe(0));
+    expect(await coordinator.applyUpdate()).toBe('applied');
+  });
+
+  it('không có Web Locks API → thao tác gói của tab này vẫn hoãn cập nhật', async () => {
+    const coordinator = createUpdateCoordinator({ locks: undefined });
+    const apply = vi.fn();
+    coordinator.notifyUpdateAvailable(apply);
+    const first = coordinator.registerPackageOperation();
+    const second = coordinator.registerPackageOperation();
+    first();
+    expect(await coordinator.applyUpdate()).toBe('deferred');
+    second();
+    expect(await coordinator.applyUpdate()).toBe('applied');
+  });
+
   it('không có Web Locks API → form chưa lưu của tab này vẫn hoãn cập nhật', async () => {
     const coordinator = createUpdateCoordinator({ locks: undefined });
     const apply = vi.fn();

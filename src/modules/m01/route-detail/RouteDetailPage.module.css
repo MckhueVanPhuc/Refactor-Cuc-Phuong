@@ -1,0 +1,196 @@
+/*
+ * SCR-M01-003 — hero deep với tên tuyến serif (mockup SCR-M01-003; design-system §5.1), rồi nội dung trên paper.
+ * Hero tràn hết bề ngang cột nội dung bằng margin âm bằng đúng padding của main.
+ */
+.hero {
+  --focus-ring-color: var(--color-m01-amber);
+
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  margin: calc(var(--space-6) * -1) calc(var(--space-5) * -1) var(--space-5);
+  padding: var(--space-6) var(--space-5);
+  color: var(--color-paper);
+  background: var(--color-m01-deep);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-amber);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: calc(var(--font-size-page-heading) + var(--space-2));
+  font-weight: var(--font-weight-regular);
+}
+
+.heroChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: calc(var(--space-6) + var(--space-1));
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-amber);
+  border: var(--border-width-thin) solid var(--color-m01-amber);
+  border-radius: var(--radius-sm);
+}
+
+.content {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.notice {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-meta);
+  color: var(--color-m01-ink);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m01-secondary);
+  border-radius: var(--radius-md);
+}
+
+.notices {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.cover,
+.coverPlaceholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--color-m01-line);
+}
+
+.gallery {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(70%, 1fr);
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x mandatory;
+}
+
+.gallery li {
+  display: grid;
+  gap: var(--space-1);
+  scroll-snap-align: start;
+}
+
+.caption {
+  font-size: var(--font-size-meta);
+  color: var(--color-m01-secondary);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.fact {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-2);
+  text-align: center;
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m01-line);
+  border-radius: var(--radius-md);
+}
+
+.fact dt {
+  order: 2;
+  font-size: var(--font-size-meta);
+  color: var(--color-m01-secondary);
+}
+
+.fact dd {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Cảnh báo an toàn: hổ phách làm nền với chữ ink (§5.3), nổi bật nhất trang */
+.safety {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  color: var(--color-m01-ink);
+  background: var(--color-m01-amber);
+  border-radius: var(--radius-md);
+}
+
+.section {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-body);
+  color: var(--color-m01-deep);
+}
+
+.text {
+  max-width: 68ch;
+  white-space: pre-line;
+}
+
+.bullets {
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.stops {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stop {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m01-line);
+  border-radius: var(--radius-md);
+}
+
+.stopNumber {
+  display: inline-grid;
+  place-items: center;
+  min-width: calc(var(--space-6) + var(--space-1));
+  height: calc(var(--space-6) + var(--space-1));
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  border: var(--border-width-thin) solid var(--color-m01-secondary);
+  border-radius: 50%;
+}
+
+.figure {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.message {
+  color: var(--color-m01-secondary);
+}
+
+.startArea {
+  margin-bottom: var(--space-6);
+}
