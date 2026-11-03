@@ -3,6 +3,7 @@
 // nên không vào bundle production. Playwright truyền tham số JSON; byte ảnh được sinh trong trình duyệt.
 import type { OfflinePackage } from '../../../shared/contracts/offlinePackage';
 import type { SelectedRouteContextV3 } from '../../../shared/contracts/selectedRouteContext';
+import { updateCoordinator } from '../../../app/pwa/updateCoordinator';
 import { registerTestHooks } from '../../../shared/testing/e2eHooks';
 import { failNextActivation, failNextContextWrite } from '../storage/faultInjection';
 import { seedContext, seedReadyPackage } from '../storage/testSeed';
@@ -14,5 +15,10 @@ export function registerM01TestHooks(): void {
     seedPackage: (pkg: OfflinePackage) => seedReadyPackage(pkg, () => new Blob([pngBytes()], { type: 'image/png' })),
     failNextActivation: () => failNextActivation(),
     failNextContextWrite: () => failNextContextWrite(),
+    // V25: giả lập service worker báo có bản mới; khi được áp, ghi dấu để E2E kiểm (không tải lại trang)
+    simulateAppUpdate: () =>
+      updateCoordinator.notifyUpdateAvailable(() => {
+        document.documentElement.dataset.e2eUpdateApplied = 'true';
+      }),
   });
 }

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { RouterProvider } from 'react-router';
+import { UpdatePrompt } from './pwa/UpdatePrompt';
 import { createAppRouter } from './router';
 
 export function App() {
@@ -16,5 +17,13 @@ export function App() {
     void import('../modules/m01/offline-package/recoverOrphans').then((m01) => m01.recoverM01Orphans());
   }, []);
 
-  return <RouterProvider router={router} />;
+  // Lời nhắc cập nhật chỉ trên route du khách: theo dõi đường dẫn của router (tasks M01 T093)
+  const pathname = useSyncExternalStore(router.subscribe, () => router.state.location.pathname);
+
+  return (
+    <>
+      <RouterProvider router={router} />
+      <UpdatePrompt pathname={pathname} />
+    </>
+  );
 }

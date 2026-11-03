@@ -342,3 +342,69 @@ Branch `feat/m01-us7`, tách từ `feat/m01-us6` (PR #13–#19 chờ merge; DV-2
 ### 9.3 Checkpoint US7
 
 US7 **đạt** trên network mock: V23 pass. Mọi user story M01 chạy độc lập trên network mock.
+
+## 10. Đợt 2026-11-03 — Phase 10 Polish (T093–T101)
+
+Branch `feat/m01-polish`, tách từ `feat/m01-us7` (PR #13–#20 chờ merge; DV-20). Test `UpdatePrompt.test.tsx` viết trước và đã chạy thấy fail trước khi cài đặt.
+
+### 10.1 Lệnh kiểm chứng (T099)
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run typecheck` (trong `npm run ci`) | 0 | Sạch (gồm `e2e/`) |
+| `npm run lint` (trong `npm run ci`) | 0 | 503 pass |
+| `npm run test` (trong `npm run ci`) | 0 | 109 file pass + 1 skipped; 1662 pass, 133 skipped (ca stack local của M03) |
+| `npm run build` (trong `npm run ci`) | 0 | PWA `generateSW`, precache 50 mục; chunk `m01-*` có trong precache, chunk `m03-*` và `qrcode-*` không |
+| `npm run e2e` (gồm project `m01`) | 0 | 53 pass, 47 skipped. `m01`: 27 pass (V1, V3–V25, SC-M01-008, quét mã thô vi/en), 1 `fixme` (V2) |
+| `npx playwright test --project=m01` cho `pwa-offline`, `pwa-update`, `no-raw-codes` | 0 | 4 pass |
+| Quét `dist/` production tìm `__cpqTestHooks`, `seedPackage`, `simulateAppUpdate`, `fake://`, `node:buffer` | — | Không có |
+| `git diff --check` (T101, gồm file mới) | 0 | Không lỗi khoảng trắng |
+
+### 10.2 Rà soát WCAG 2.1 AA (T097)
+
+Rà soát thủ công theo design-system §6 và research R-19; **không tuyên bố đạt chuẩn** vì chưa đo bằng công cụ (repo không có axe; thêm dependency cần duyệt).
+
+| Mục | Kết quả rà soát |
+|---|---|
+| Vùng chạm | Mọi nút, liên kết và radio dùng `--touch-target` (44px) hoặc `--touch-target-m01-primary` (48px). Khối cao 28px chỉ là chip trạng thái không bấm được |
+| Focus nhìn thấy | `:focus-visible` toàn cục dùng `--focus-ring-*`; trên nền deep (thanh app, hero, panel ngôn ngữ, lời nhắc cập nhật) đổi sang amber (§5.3: 7.60:1); dialog có focus trap, Esc = lựa chọn an toàn |
+| Tương phản | Chỉ dùng các cặp đã tính ở design-system §6.1 (ink/secondary trên paper/white, paper trên deep/forest, ink trên amber, success/warning/error trên white). Nút lọc ở trạng thái vô hiệu (secondary trên line) dưới 4.5:1 — thuộc ngoại lệ "thành phần không hoạt động" của tiêu chí 1.4.3 |
+| Không chỉ bằng màu | Trạng thái gói, dấu "Cần tải trước", lựa chọn đang chọn (VI/EN, radio) luôn có chữ hoặc `aria-pressed`/`checked`, kèm viền dày cho radio |
+| Ngữ nghĩa | `html lang` theo ngôn ngữ hiển thị; radio group có nhãn; danh sách điểm dừng có `aria-labelledby`; thông báo nguồn `role="status"`, lỗi `role="alert"`; ảnh trang trí `alt=""`, sơ đồ tuyến có `alt` |
+| Chuyển động | Chỉ có pulse của khối giữ chỗ, dùng `--duration-pulse` (0 khi `prefers-reduced-motion`) |
+
+### 10.3 Kiểm tra thủ công trên thiết bị thật (T100) — `NOT RUN`, chờ chủ dự án
+
+| # | Kịch bản | Android Chrome | iOS Safari |
+|---|---|---|---|
+| 1 | Mở app có mạng, chọn ngôn ngữ, mở danh mục và một chi tiết; tắt mạng; tải lại `/`, `/routes/{id}` | NOT RUN | NOT RUN |
+| 2 | Đã mở app trước đó, tắt mạng, mở link `/q/{id}` từ camera điện thoại | NOT RUN | NOT RUN |
+| 3 | Đổi VI/EN khi offline trên SCR-M01-003 có gói | NOT RUN | NOT RUN |
+| 4 | Tải gói tuyến cần tải trước; tắt mạng; Start offline | NOT RUN | NOT RUN |
+| 5 | Dung lượng gần đầy (quota): tải gói, xác nhận "Không lưu được dữ liệu…" và gói cũ còn | NOT RUN | NOT RUN |
+| 6 | Xóa dữ liệu trang/eviction: mở lại app, preference/context/gói mất, app không lỗi | NOT RUN | NOT RUN |
+| 7 | Timeout 8 s (provisional) trên mạng yếu ngoài thực địa: nguồn chậm có bị coi nhầm là mất nguồn | NOT RUN | NOT RUN |
+| 8 | Bản mới của app khi đang tải gói: lời nhắc hiện, chỉ áp sau khi tải xong | NOT RUN | NOT RUN |
+
+### 10.4 Tài liệu upstream có nguy cơ cũ (T101; không tự sửa, AGENTS.md §4)
+
+| Tài liệu | Điểm |
+|---|---|
+| `contracts/visitor-ui-flow-contract.md` §1 | Tên chunk `m01-recommend`, `m01-offline`; code dùng `m01-recommendation`, `m01-offline-package` (DV-02) |
+| `screens/screen-spec/M01/*` bảng copy | Chưa có nhãn tên màn, điều hướng, nhãn mục chi tiết, "Phiên bản {n}", "Xem", "Gói tải trước" (DV-13, DV-30, DV-40 — tiếng Anh do agent đề xuất) |
+| `research.md` R-14 | Ghi `registerBusyCheck(fn: () => Promise<boolean>)`; code nhận `boolean \| Promise<boolean>` (DV-06) |
+| `quickstart.md` | Đầu file ghi "Trạng thái: chưa chạy" và lệnh `npm run e2e -- --grep m01` / `--project=local-stack`; thực tế dùng project `m01` / `m01-local-stack` |
+| `tasks.md` T104 | "View lệch thì sửa view phía M03" xung đột với quy tắc M01 không sửa `supabase/` (DV-08) |
+| `plan.md` Complexity #1, `tasks.md` header "Nguồn dữ liệu" | Ghi M03 giai đoạn B "chưa cài đặt"; nay đã có trên stack local |
+
+### 10.5 Lệch so với tasks và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-50 | T093: `UpdatePrompt` gắn vào `src/app/App.tsx`, theo dõi đường dẫn bằng `router.subscribe`; ẩn trên `/admin` và `/admin/*`. Thanh cố định phía dưới, `role="status"` | Áp dụng |
+| DV-51 | T095: bản build mới được giả lập bằng hook `simulateAppUpdate` (MODE e2e) gọi `updateCoordinator.notifyUpdateAvailable`; E2E kiểm "hoãn khi tab khác đang giữ thao tác gói, áp sau khi tải xong". Bước `updateSW(true)` thật của service worker không được kiểm bằng E2E | Áp dụng |
+| DV-52 | T094: trang `/q/{id}` của M02 chưa có; V24 chỉ kiểm app shell được service worker phục vụ khi offline và Cache Storage không chứa URL `/rest/v1`, `/storage/v1`, `/auth/v1` | Áp dụng |
+
+### 10.6 Checkpoint Phase 10
+
+Phase 10 **đạt**: T093–T101 xong. Còn mở: T100 (thiết bị thật) và V2 chờ M02.

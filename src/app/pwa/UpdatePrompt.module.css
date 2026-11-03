@@ -1,0 +1,48 @@
+/* Lời nhắc cập nhật ứng dụng của màn du khách: thanh cố định phía dưới (design-system §4.2 shadow-bottom-nav) */
+.bar {
+  --focus-ring-color: var(--color-m01-amber);
+
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 15;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  color: var(--color-paper);
+  background: var(--color-m01-deep);
+  box-shadow: var(--shadow-bottom-nav);
+}
+
+.text {
+  flex: 1 1 14rem;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.button {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  font: var(--font-weight-semibold) var(--font-size-meta) var(--font-sans);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+/* Hổ phách làm nền với chữ ink trên nền deep (§5.3) */
+.apply {
+  color: var(--color-m01-ink);
+  background: var(--color-m01-amber);
+  border: 0;
+}
+
+.later {
+  color: var(--color-paper);
+  background: transparent;
+  border: var(--border-width-thin) solid var(--color-paper);
+}
