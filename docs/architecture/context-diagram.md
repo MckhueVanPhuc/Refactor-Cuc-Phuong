@@ -1,6 +1,6 @@
 # System Context Diagram — Cúc Phương Quest
 
-Sơ đồ mô tả ranh giới logic của MVP theo ba module spec (M01 v3.2, M02 v3.3, M03 v3.7). Đây không phải deployment diagram hoặc physical API/database design.
+Sơ đồ mô tả ranh giới logic của MVP theo ba module spec (M01 v3.2, M02 v3.3, M03 v3.7) và Spec AI Integration v1.0. Đây không phải deployment diagram hoặc physical API/database design.
 
 ```mermaid
 flowchart LR
@@ -10,6 +10,7 @@ flowchart LR
     reviewer["Reviewer"]
     park["Park Management"]
     auth["Authentication Provider"]
+    translator["Translation Service<br/>(external AI)"]
 
     m01["M01<br/>Route Planning & Preparation"]
     m02["M02<br/>Field Experience"]
@@ -36,6 +37,9 @@ flowchart LR
 
     m03 -->|"invite/status/fixed application role"| auth
     auth -->|"authenticated identity and credential outcome"| m03
+
+    m03 -->|"vi source text of one field, on the admin's press (server-side)"| translator
+    translator -->|"en translation or failure"| m03
 ```
 
 ## Ranh giới trách nhiệm
@@ -59,6 +63,7 @@ flowchart LR
 | M03 → M02 | Link QR công khai `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` | Mã in ra là link cố định; camera điện thoại mở trang của M02. |
 | M02 → M03 | `SessionSyncRecord` | UUID, terminal, immutable, anonymous; identical retry idempotent, changed retry conflict; M03 kiểm tra từng điểm đã quét theo snapshot. M03 lưu accepted business fields thành `SessionRecord` và bổ sung M03-owned `ingestedAt`. |
 | Auth Provider ↔ M03 | Admin identity | Provider sở hữu credential; M03 sở hữu role/status ứng dụng. |
+| M03 editor ↔ AI Integration ↔ Translation Service | `TranslationRequest` / `TranslationResult` | Chỉ khi admin bấm "→"; gọi từ server cho admin `ACTIVE`; chỉ gửi text nguồn của một trường; khóa dịch vụ chỉ ở server; lỗi không chặn editor (spec-AI_integration). |
 
 ## Giới hạn hệ thống
 
@@ -76,3 +81,4 @@ flowchart LR
 - [Specification M01](../spec/spec-M01.md) v3.2
 - [Specification M02](../spec/spec-M02.md) v3.3
 - [Specification M03](../spec/spec-M03.md) v3.7
+- [Specification AI Integration](../spec/spec-AI_integration.md) v1.0

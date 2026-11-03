@@ -1,6 +1,6 @@
 # Main Sequence Diagrams — Cúc Phương Quest
 
-Tài liệu này tập hợp nguyên văn các block `sequenceDiagram` trong ba module spec. Khi sequence trong spec thay đổi, bản sao tương ứng tại đây phải được cập nhật; file này không định nghĩa hành vi mới. Đồng bộ ngày 2026-10-27 với Spec M01 v3.2, M02 v3.3, M03 v3.7.
+Tài liệu này tập hợp nguyên văn các block `sequenceDiagram` trong ba module spec và Spec AI Integration. Khi sequence trong spec thay đổi, bản sao tương ứng tại đây phải được cập nhật; file này không định nghĩa hành vi mới. Đồng bộ ngày 2026-10-27 với Spec M01 v3.2, M02 v3.3, M03 v3.7; SD-05 đồng bộ ngày 2026-11-03 với Spec AI Integration v1.0.
 
 ## Danh mục
 
@@ -8,6 +8,7 @@ Tài liệu này tập hợp nguyên văn các block `sequenceDiagram` trong ba 
 2. [SD-02 — M02 QR Check-in](#sd-02--m02-qr-check-in)
 3. [SD-03 — M02 Terminal Session Sync](#sd-03--m02-terminal-session-sync)
 4. [SD-04 — M03 First Route Publication](#sd-04--m03-first-route-publication)
+5. [SD-05 — AI Translate on Request](#sd-05--ai-translate-on-request)
 
 ## SD-01 — M01 Start Route & Handoff
 
@@ -102,4 +103,38 @@ sequenceDiagram
     M03->>Store: Build snapshot candidate
     M03->>Store: Atomic switch of the route revision, snapshot v1, activeContentVersion and route HOAT_DONG
     M03-->>Author: Publication success
+```
+
+## SD-05 — AI Translate on Request
+
+Nguồn: [spec-AI_integration.md](../spec/spec-AI_integration.md) v1.0, §4.
+
+```mermaid
+sequenceDiagram
+    actor Admin as Administrator
+    participant Editor as M03 editor
+    participant Server as Translation function
+    participant Service as Translation service
+    Admin->>Editor: Press "→" of one bilingual field
+    Editor-->>Admin: "Đang dịch…"
+    Editor->>Server: TranslationRequest (vi text, lineBreaks)
+    Server->>Server: Check ACTIVE AdminAccount
+    alt Authorized
+        Server->>Service: Source text only
+        alt Translated
+            Service-->>Server: English text
+            Server-->>Editor: TranslationResult
+            alt Source unchanged and English input not typed in since the press
+                Editor->>Editor: Replace English input (nothing saved)
+            else Changed meanwhile
+                Editor->>Editor: Drop result
+            end
+        else Service failure or timeout
+            Server-->>Editor: Failure signal
+            Editor-->>Admin: MSG-AI-FAILED with "Thử lại"
+        end
+    else Not authorized
+        Server-->>Editor: Failure signal
+        Editor-->>Admin: MSG-AI-FAILED with "Thử lại"
+    end
 ```

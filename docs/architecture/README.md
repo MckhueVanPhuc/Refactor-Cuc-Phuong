@@ -4,7 +4,7 @@
 |---|---|---|
 | [Context diagram](context-diagram.md) | Tác nhân, ranh giới M01–M03 và contract liên module | Spec M01–M03 |
 | [Usage flow](usage-flow.md) | Các flowchart nghiệp vụ, đánh số UF-01…UF-09 | Block nguyên văn trong spec M01–M03 |
-| [Sequence diagrams](sequence-diagrams.md) | Thứ tự tương tác, đánh số SD-01…SD-04 | Block nguyên văn trong spec M01–M03 |
+| [Sequence diagrams](sequence-diagrams.md) | Thứ tự tương tác, đánh số SD-01…SD-05 | Block nguyên văn trong spec M01–M03 và Spec AI Integration |
 | [System configuration](system-configuration.md) | Runtime components, ownership, data flow, offline architecture và integration contracts | Constraint đã xác nhận trong spec M01–M03 |
 | [Tech stack](tech-stack.md) | Canonical technology choices, responsibility, tooling và MVP non-goals | Approved technical decisions và repository inventory |
 | [Environment configuration](environment.md) | Single Cloud Application Environment, Local Development Workstation, configuration variables, migration controls và public/secret boundary | Approved architecture decision, Spec M01–M03 và repository inventory |
@@ -25,5 +25,6 @@ Technical decisions: [Tech Stack](tech-stack.md) §§2–8, 13; [Environment Con
 - M01: [`spec-M01.md`](../spec/spec-M01.md) v3.2, status MVP implementation baseline, cập nhật ngày 2026-10-29.
 - M02: [`spec-M02.md`](../spec/spec-M02.md) v3.3, status MVP implementation baseline, cập nhật ngày 2026-10-29.
 - M03: [`spec-M03.md`](../spec/spec-M03.md) v3.7, status MVP implementation baseline, cập nhật ngày 2026-10-29.
+- AI Integration: [`spec-AI_integration.md`](../spec/spec-AI_integration.md) v1.0, dịch vi → en theo yêu cầu cho editor M03 (Could), cập nhật ngày 2026-11-03. Usage flow không có flow riêng cho năng lực này (spec không có flowchart).
 
 Trạng thái hiện thực (2026-11-03): M01 và M03 đã có code; M02 chưa có code; backend chỉ chạy trên stack local; chưa deploy cloud. Các bảng status trong [tech-stack.md](tech-stack.md) và [environment.md](environment.md) còn ghi `Selected — not implemented` theo thời điểm viết, chưa được đối chiếu lại với code — xem [README gốc](../../README.md) §1 cho trạng thái hiện hành.

@@ -19,6 +19,8 @@ Hệ thống là một modular monolith gồm ba module logic, chạy chung mộ
 | **M02 — Field Quest Experience** | Phiên thực địa, quét QR, hiển thị nội dung, kết thúc chuyến, đồng bộ ẩn danh | [Spec v3.3](docs/spec/spec-M02.md) | ⏳ Mới có spec, plan, tasks ([gói 002](specs/002-m02-field-quest-experience/)); chưa viết code — `/trip` mới là chỗ giữ |
 | **M03 — Operations & Content Administration** | Đăng nhập quản trị, tuyến, thư viện điểm dừng, mã QR, xem lại và xuất bản, đóng/mở, báo cáo, nhật ký | [Spec v3.7](docs/spec/spec-M03.md) | ✅ Frontend và backend xong trên stack local ([gói 003](specs/003-m03-operations-content-administration/), 200/209 task) |
 
+Ngoài ba module còn **AI Integration** — một năng lực dùng cho M03, không phải module thứ tư: nút "→" dịch ô tiếng Việt sang ô tiếng Anh trong các editor M03 ([Spec v1.0](docs/spec/spec-AI_integration.md), priority Could, [gói 004](specs/004-ai-translation/)).
+
 **Chưa làm:** đưa lên cloud (Vercel + Supabase Cloud). Việc này bị chặn có chủ đích cho tới khi có change brief triển khai (M03 Phase 16, T201–T209). Hiện mọi thứ chạy trên máy local.
 
 Phạm vi Must/Should/Could/Won't: [MVP-Scope.md](MVP-Scope.md).
@@ -114,10 +116,11 @@ React + TypeScript + Vite (PWA, React Router data mode, CSS Modules với design
 - [Spec M01 — Route Planning & Preparation](docs/spec/spec-M01.md)
 - [Spec M02 — Field Quest Experience](docs/spec/spec-M02.md)
 - [Spec M03 — Operations & Content Administration](docs/spec/spec-M03.md)
+- [Spec AI Integration — dịch theo yêu cầu cho M03](docs/spec/spec-AI_integration.md)
 - [MVP Scope](MVP-Scope.md)
 
 ### B. Function list
-- [M01](docs/function%20list/function-list-M01.md) · [M02](docs/function%20list/function-list-M02.md) · [M03](docs/function%20list/function-list-M03.md)
+- [M01](docs/function%20list/function-list-M01.md) · [M02](docs/function%20list/function-list-M02.md) · [M03](docs/function%20list/function-list-M03.md) · [AI](docs/function%20list/function-list-AI.md)
 
 ### C. Kiến trúc
 - [Tổng quan kiến trúc](docs/architecture/README.md)
@@ -139,7 +142,7 @@ React + TypeScript + Vite (PWA, React Router data mode, CSS Modules với design
 - [Physical Schema](data/06-physical-schema.md) — thiết kế; đã hiện thực bằng migration trên stack local, chưa áp lên cloud
 
 ### F. Gói triển khai (Spec-Kit)
-- [001 — M01](specs/001-m01-route-planning-preparation/) · [002 — M02](specs/002-m02-field-quest-experience/) · [003 — M03](specs/003-m03-operations-content-administration/)
+- [001 — M01](specs/001-m01-route-planning-preparation/) · [002 — M02](specs/002-m02-field-quest-experience/) · [003 — M03](specs/003-m03-operations-content-administration/) · [004 — AI Integration](specs/004-ai-translation/)
 - Mỗi gói có `validation-report.md` ghi lệnh đã chạy thật và phần `NOT RUN`.
 
 ---
@@ -147,7 +150,7 @@ React + TypeScript + Vite (PWA, React Router data mode, CSS Modules với design
 ## 6. Quy tắc làm việc
 
 1. **Spec trước.** Thay đổi hành vi hay contract thì sửa spec trước, rồi mới đồng bộ tài liệu dẫn xuất và code. Không tự thêm requirement.
-2. **Quy tắc repo:** [AGENTS.md](AGENTS.md) (chính), [CLAUDE.md](CLAUDE.md) (frontend: token, icon từ `assets/icons/`), [constitution](.specify/memory/constitution.md).
+2. **Quy tắc repo:** [AGENTS.md](AGENTS.md) (chính), [CLAUDE.md](CLAUDE.md) (frontend: token, icon từ `assets/icons/`), [constitution](.specify/memory/constitution.md) 2.1.0.
 3. **Code** chỉ trong phạm vi change brief và plan đã duyệt. Backend chỉ chạy trên stack local; cloud cần change brief riêng.
 4. **Git:** mỗi phase hoặc user story một branch, pull request vào `main`.
 5. **Không** commit secret, `.env.local`, dữ liệu thật hay định danh production.

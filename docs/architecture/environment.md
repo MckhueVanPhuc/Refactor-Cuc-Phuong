@@ -48,6 +48,7 @@ Browser data bị scope theo origin và device. Build/deployment record không t
 | `VITE_APP_VERSION` | Frontend | Public, build-generated | Nhận diện build/release; không dùng làm environment selector |
 | `QR_PUBLIC_BASE_URL` | Frontend (M02 link page and in-app scanner) and M03 printable QR images | Public, build-time configuration | Domain HTTPS cố định của Single Vercel Project; mã QR in ra là `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` (Spec M03 BR-M03-B04). Không đổi khi tem đã được dán; nếu buộc đổi domain thì link cũ phải tiếp tục chuyển hướng. Tên biến cụ thể trong build (ví dụ có prefix `VITE_`) thuộc implementation. |
 | `SUPABASE_URL` | Edge runtime | Platform configuration | URL của Supabase project đang chạy function |
+| `GEMINI_API_KEY` | Edge Function dịch only (spec-AI_integration BR-AI-08) | Secret | Chỉ trong secret của Edge runtime (local: secret local của stack Supabase; cloud: Supabase Edge secret settings, cần change brief triển khai riêng). Không có prefix `VITE_`, không trong repo, `.env` được commit, response hay log. Thiếu biến thì function trả tín hiệu lỗi và editor báo MSG-AI-FAILED. |
 
 **Ánh xạ thuật ngữ trong spec:** "Production" trong Spec M03 BR-M03-B04/B05 là **Single Cloud Application Environment**; "non-Production" là **Local Development Workstation**. Mã QR tạo trên máy local mang dấu "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA" và không bao giờ được dán ra thực địa. Khi build, frontend chỉ coi là Production khi biến nền tảng `VERCEL_ENV` bằng `production`; mọi build khác (local, preview) luôn mang dấu bản thử. Nút Quét trong app chỉ nhận link có base đúng `QR_PUBLIC_BASE_URL` của môi trường đang chạy (Spec M02 BR-M02-023).
 
@@ -78,6 +79,7 @@ Auth redirect/callback URL sử dụng active HTTPS website origin. Local callba
 | Auth/RLS/Storage/Edge | Test local khi harness hỗ trợ | Chỉ non-destructive acceptance/smoke checks |
 | Browser storage | Origin-local và disposable theo test plan | Origin/device-local; có thể mất do browser eviction/clearing |
 | M03 | Test UI/contract locally | Online-only với Shared Backend |
+| Nút dịch M03 (AI Integration) | `dev:fake` dùng adapter dịch giả, không gọi Gemini; stack local gọi Gemini thật bằng key trong secret local | Gọi Gemini qua Edge Function dịch của Shared Backend |
 | Reports | Fixture/local assertions | Chỉ phản ánh `SessionRecord` đã ingest thành công |
 | Timezone | `Asia/Ho_Chi_Minh` | `Asia/Ho_Chi_Minh` |
 

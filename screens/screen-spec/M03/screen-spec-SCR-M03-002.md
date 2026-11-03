@@ -8,9 +8,9 @@
 | Actor | Nhân viên nội dung, Quản lý |
 | Priority | Must |
 | Mockup | [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html) (HTML tĩnh, chỉ để xem tham khảo, không phải thiết kế chính thức; chưa sign-off UX) |
-| Status | Draft — đồng bộ [Spec M03 v3.7](../../../docs/spec/spec-M03.md) |
+| Status | Draft — đồng bộ [Spec M03 v3.7](../../../docs/spec/spec-M03.md) và [Spec AI Integration v1.0](../../../docs/spec/spec-AI_integration.md); mockup chưa có nút dịch |
 
-Nguồn hành vi/contract: [Spec M03](../../../docs/spec/spec-M03.md) (US-M03-01/02/09, BR-M03-C02 đến C17, T01 đến T09, E14, F06, F07, F10, F11, L01 đến L13; giới hạn §5.3; thông báo §5.6). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Giao diện chỉ dùng tên hiển thị và thông báo từ danh mục; mã trạng thái, tên trường nội bộ và định danh không hiện trên màn hình.
+Nguồn hành vi/contract: [Spec M03](../../../docs/spec/spec-M03.md) (US-M03-01/02/09, BR-M03-C02 đến C17, T01 đến T09, E14, F06, F07, F10, F11, L01 đến L13; giới hạn §5.3; thông báo §5.6) và [Spec AI Integration](../../../docs/spec/spec-AI_integration.md) v1.0 cho nút dịch (BR-AI-01 đến BR-AI-12, §5.5). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Giao diện chỉ dùng tên hiển thị và thông báo từ danh mục; mã trạng thái, tên trường nội bộ và định danh không hiện trên màn hình.
 
 Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
@@ -64,6 +64,8 @@ Mockup HTML tĩnh: [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html)
 | 34 | E-SCR-M03-002-34 | Stale banner + Tải lại | Banner + Button | MSG-STALE nêu ai sửa và lúc nào | Conditional | Nội dung đang gõ vẫn giữ trên màn hình để sao chép; không tự gộp |
 | 35 | E-SCR-M03-002-35 | Unsaved-changes dialog | Dialog | MSG-UNSAVED-CHANGES, chọn ở lại hoặc rời | Conditional | Một câu và hai nút (BR-M03-L12) |
 | 36 | E-SCR-M03-002-36 | Busy / permission / failure feedback | Banner | MSG-ROUTE-BUSY, MSG-NO-PERMISSION, MSG-GENERIC | Conditional | Lưu lỗi không làm mất nội dung đã gõ (BR-M03-L06) |
+| 37 | E-SCR-M03-002-37 | Translate button | Button nhỏ (ký tự "→", tên truy cập "Dịch sang tiếng Anh") | Một nút cho mỗi trường song ngữ #6, #7, #11–#16, mỗi chú thích ảnh #18, chú thích sơ đồ #19 và mỗi mục điểm nổi bật #21; đặt giữa ô tiếng Việt và ô tiếng Anh | Could (MVP-Scope §3.5) | Không bấm được khi ô tiếng Việt trống/chỉ khoảng trắng, khi trường đó đang dịch, hoặc khi form chỉ đọc (BR-AI-01, BR-AI-07). Bấm thì thay ô tiếng Anh bằng bản dịch, không hỏi xác nhận (BR-AI-02); không lưu gì (BR-AI-06) |
+| 38 | E-SCR-M03-002-38 | Translate status | Text dưới ô tiếng Anh | MSG-AI-TRANSLATING khi đang dịch; MSG-AI-FAILED kèm nút "Thử lại" khi lỗi | Conditional | Lỗi giữ nguyên ô tiếng Anh; thông báo mất khi bấm "Thử lại", gõ vào ô tiếng Anh hoặc bấm "→" lại (BR-AI-09) |
 
 ## 4. States
 
@@ -83,6 +85,8 @@ Mockup HTML tĩnh: [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html)
 | Restore refused | MSG-RESTORE-BLOCKED | Bản cũ vi phạm giới hạn hiện hành |
 | Archived | Chỉ đọc | Tuyến Đã lưu trữ |
 | Permission denied | MSG-NO-PERMISSION | Không đủ quyền |
+| Translating | "Đang dịch…" dưới ô tiếng Anh của trường đó; nút "→" của trường đó không bấm được | Bấm "→" |
+| Translation failed | MSG-AI-FAILED kèm "Thử lại"; ô tiếng Anh giữ nguyên | Dịch vụ dịch lỗi, quá thời gian hoặc từ chối |
 
 ## 5. Interactions and navigation
 
@@ -100,6 +104,8 @@ Mockup HTML tĩnh: [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html)
 | 10 | Tải lại | Tap | Lấy bản mới nhất; cảnh báo nội dung chưa lưu | Reload form |
 | 11 | Quay lại | Tap | Về danh sách tuyến; có thay đổi chưa lưu thì hiện MSG-UNSAVED-CHANGES | `SCR-M03-001` |
 | 12 | Đăng xuất | Tap | Kết thúc phiên đăng nhập; không đổi vai trò hay trạng thái; không ghi nhật ký | `SCR-M03-000` |
+| 13 | "→" của một trường song ngữ | Tap | Hiện "Đang dịch…"; gửi ô tiếng Việt đi dịch; thành công thì thay ô tiếng Anh (bỏ kết quả nếu ô tiếng Việt đã đổi hoặc người dùng đã gõ vào ô tiếng Anh từ lúc bấm); lỗi thì hiện MSG-AI-FAILED kèm "Thử lại". Bản dịch dài quá giới hạn vẫn điền đủ, bộ đếm ký tự báo đỏ như khi tự gõ | State update (chưa lưu) |
+| 14 | "Thử lại" | Tap | Gửi lại yêu cầu dịch của trường đó | State update |
 
 ## 6. Screen-level rules
 
@@ -121,6 +127,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html)
 | SR-SCR-M03-002-014 | Quản trị viên nào cũng xuất bản được bản nháp của mình, chỉ qua màn xem lại; không có hàng đợi duyệt hay trạng thái chờ duyệt | BR-M03-A05, F01 |
 | SR-SCR-M03-002-015 | Thay đổi thông tin tuyến (không phải danh sách, thứ tự, sơ đồ offline) không tạo phiên bản hành trình mới | BR-M03-C15, G05 |
 | SR-SCR-M03-002-016 | Mọi màn đã đăng nhập có nút Đăng xuất; đăng xuất kết thúc phiên nhà cung cấp và không thay đổi vai trò/trạng thái; sau đó mọi request được bảo vệ cần đăng nhập lại | BR-M03-K06, SC-M03-040 |
+| SR-SCR-M03-002-017 | Chỉ bấm "→" mới dịch; gõ, rời ô, mở form, xóa ô tiếng Anh hay đổi ô tiếng Việt không tự dịch và không đổi ô tiếng Anh. Ô tiếng Anh luôn sửa được. Bản dịch chỉ điền form; lưu, kiểm tra và xuất bản giữ nguyên quy tắc M03; không có hộp xác nhận mới | BR-AI-01 đến BR-AI-06, BR-M03-F11, L12 |
 
 ## 7. Linked requirements
 
@@ -131,6 +138,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html)
 | FR-M03-006 | Xuất bản đi qua màn xem lại; quyền kiểm tra phía server |
 | FR-M03-007 | Một bản nháp, lưu một lần, từ chối stale write, khôi phục, bỏ thay đổi |
 | FR-M03-019 | Tiếng Việt dễ hiểu, tên hiển thị, thông báo từ danh mục |
+| FR-AI-001 đến FR-AI-004 | Nút "→" từng trường song ngữ, điền ô tiếng Anh không lưu, ô tiếng Anh luôn sửa được, lỗi kèm "Thử lại" |
 
 ## 8. Responsive and accessibility notes
 

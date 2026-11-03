@@ -2,7 +2,7 @@
 
 Chỉ mục toàn bộ tài liệu của Cúc Phương Quest V2. Bộ tài liệu V2 đã hoàn tất đợt rebaseline theo [M03 Documentation Refactor Runbook v2](../M03_Documentation_Refactor_Runbook_v2.md) (2026-10-28); từ đó repo đã có code cho M01 và M03 (xem [README gốc](../README.md) §1 về trạng thái và cách chạy).
 
-Spec M01, M02 và M03 là behavioral/contract baseline (nguồn sự thật duy nhất). Architecture, function list, screen specs và data model là tài liệu dẫn xuất.
+Spec M01, M02, M03 và Spec AI Integration là behavioral/contract baseline (nguồn sự thật duy nhất). Architecture, function list, screen specs và data model là tài liệu dẫn xuất.
 
 ---
 
@@ -12,6 +12,7 @@ Spec M01, M02 và M03 là behavioral/contract baseline (nguồn sự thật duy 
 - [Spec M01 — Route Planning & Preparation](spec/spec-M01.md)
 - [Spec M02 — Field Quest Experience](spec/spec-M02.md)
 - [Spec M03 — Operations & Content Administration](spec/spec-M03.md)
+- [Spec AI Integration — Dịch theo yêu cầu cho M03](spec/spec-AI_integration.md)
 
 ---
 
@@ -32,6 +33,7 @@ Spec M01, M02 và M03 là behavioral/contract baseline (nguồn sự thật duy 
 - [Function List M01](function%20list/function-list-M01.md)
 - [Function List M02](function%20list/function-list-M02.md)
 - [Function List M03](function%20list/function-list-M03.md)
+- [Function List AI](function%20list/function-list-AI.md)
 
 ---
 
@@ -71,5 +73,6 @@ Mỗi gói là bản dẫn xuất từ spec của module, gồm spec, plan, rese
 | [001-m01-route-planning-preparation](../specs/001-m01-route-planning-preparation/) | M01 | Đã cài đặt (106/106 task) |
 | [002-m02-field-quest-experience](../specs/002-m02-field-quest-experience/) | M02 | Có spec, plan, tasks; chưa cài đặt |
 | [003-m03-operations-content-administration](../specs/003-m03-operations-content-administration/) | M03 | Đã cài đặt trên stack local (200/209 task); Phase 16 — đưa lên cloud — chờ change brief triển khai |
+| [004-ai-translation](../specs/004-ai-translation/) | AI Integration (dùng cho M03) | Change brief CHG-AI-2026-11-03-01 đã duyệt; spec, plan, tasks xong |
 
 Quy tắc chung của repo: [AGENTS.md](../AGENTS.md); constitution: [.specify/memory/constitution.md](../.specify/memory/constitution.md).

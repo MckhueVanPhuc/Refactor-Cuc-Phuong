@@ -4,7 +4,7 @@
 
 Tài liệu này mô tả runtime architecture đã duyệt của Cúc Phương Quest trong phạm vi MVP M01–M03: các runtime component đã chọn, nơi đặt ba module, các vùng lưu trữ, luồng dữ liệu quan trọng, cách hệ thống hoạt động khi offline và các contract tích hợp. Đây không phải bằng chứng implementation hoặc deployment đã tồn tại.
 
-Baseline nghiệp vụ và contract là Spec M01 v3.2, M02 v3.3 và M03 v3.7 hiện hành trên branch này. Architecture không thay đổi behavior hoặc contract trong các spec này.
+Baseline nghiệp vụ và contract là Spec M01 v3.2, M02 v3.3, M03 v3.7 và Spec AI Integration v1.0 hiện hành trên branch này. Architecture không thay đổi behavior hoặc contract trong các spec này.
 
 Runtime topology là **Single Cloud Application Environment**: một website/PWA trong **Single Vercel Project** và một **Single Supabase Cloud Project** làm **Shared Backend**. **M01 / M02 / M03 — Logical Modules** chạy trong cùng frontend application và không trở thành ba service/deployment. **Local Development Workstation** dùng cho development/testing nhưng không phải deployed environment. Cấu hình, migration state và giới hạn kiểm thử nằm tại [Environment Configuration](environment.md).
 
@@ -19,12 +19,14 @@ flowchart TB
 
         subgraph backend["Single Supabase Cloud Project — Shared Backend"]
             serviceBoundary["Data API + authenticated RPC<br/>public projections / database transactions"]
-            edge["Edge Functions<br/>terminal intake + Auth Admin boundary"]
+            edge["Edge Functions<br/>terminal intake + Auth Admin boundary<br/>+ translation on request"]
             auth["Supabase Auth<br/>admin identity and credential lifecycle"]
             database["Postgres<br/>source data, snapshots, SessionRecord, reports"]
             objectStorage["Supabase Storage<br/>published media objects"]
         end
     end
+
+    gemini["Google Gemini API<br/>external translation service"]
 
     subgraph device["Visitor/Admin device — Browser/PWA runtime"]
         subgraph webClient["Web client"]
@@ -52,6 +54,8 @@ flowchart TB
     m02 <-->|"QR link page offline"| cache
     m02 <-->|"terminal SessionSyncRecord / acknowledgement"| edge
     m03 <-->|"account administration"| edge
+    m03 <-->|"TranslationRequest / TranslationResult"| edge
+    edge <-->|"vi source text / en translation (server-side key)"| gemini
     edge -->|"validated terminal transaction / account state"| serviceBoundary
     edge <-->|"privileged identity operations"| auth
 
@@ -73,7 +77,8 @@ Sơ đồ thể hiện đúng một Vercel deployment unit và đúng một Supa
 | IndexedDB — M01 shared data | Giữ preference, handoff hiện tại, package active và candidate/staging chưa công bố. | M01 ghi; M02 chỉ đọc các contract đã công bố. |
 | IndexedDB — M02 local data | Giữ phiên, lượt ghé checkpoint và terminal sync record chưa được xác nhận; dữ liệu thuộc từng trình duyệt, mỗi trình duyệt tối đa một phiên đang chạy. | M02 sở hữu và ghi liên tục. |
 | Single Supabase Cloud Project / backend service boundary | Data API/RLS cho reads, authenticated RPC cho commands/transactions và reports. | Shared Backend phục vụ cả M01–M03; không tạo thêm business module thứ tư hoặc backend thứ hai. |
-| Edge Functions | Validate terminal intake và xử lý privileged Auth Admin calls trước khi gọi platform/database operations. | M02 sync và M03 account administration; không proxy public reads. |
+| Edge Functions | Validate terminal intake, xử lý privileged Auth Admin calls trước khi gọi platform/database operations, và gọi dịch vụ dịch khi admin bấm "→" (spec-AI_integration). | M02 sync, M03 account administration và AI Integration cho editor M03; không proxy public reads. |
+| Google Gemini API (external) | Dịch vi → en text nguồn của một trường; không giữ dữ liệu nào của hệ thống. | Chỉ được gọi từ Edge Function dịch với `GEMINI_API_KEY` phía server; browser không gọi trực tiếp. |
 | Authentication provider | Xác thực admin, quản lý invitation/credential/session; không sở hữu application role/status. | Hỗ trợ M03; application role/status thuộc dữ liệu M03. |
 | Database | Giữ source data của route/checkpoint/QR/content, revision/public state, immutable `JourneySnapshot`, persisted `SessionRecord` và dữ liệu report. | M03 là owner nghiệp vụ; M01/M02 chỉ đọc hoặc gửi contract được phép. |
 | Object storage | Giữ media được M03 quản lý và backend công bố/tham chiếu. | M03 quản lý ảnh/audio/video; package offline chỉ sao chép text song ngữ và ảnh tĩnh cần thiết. |
@@ -124,6 +129,13 @@ Closure ở M03 không trực tiếp sửa dữ liệu trên thiết bị. Khi M
 4. M01 đọc Published Route và `JourneySnapshot` để browse, recommend, prepare package và Start.
 5. M02 không cập nhật journey đang chạy từ publication mới. Khi online, M02 tra live mọi mã được quét (cả hai loại kết nối); package chỉ dùng khi offline hoặc tra cứu lỗi.
 
+### M03 translate on request (AI Integration)
+
+1. Admin bấm "→" của một trường song ngữ trong editor M03; editor hiện "Đang dịch…".
+2. Editor gửi `TranslationRequest` (text tiếng Việt của trường đó) tới Edge Function dịch kèm phiên đăng nhập admin.
+3. Function kiểm tra `AdminAccount` `ACTIVE`, gọi Gemini bằng key phía server và trả `TranslationResult` hoặc tín hiệu lỗi.
+4. Editor thay ô tiếng Anh bằng bản dịch nếu text nguồn chưa đổi và admin chưa gõ vào ô tiếng Anh từ lúc bấm; không có gì được lưu cho tới khi admin bấm "Lưu bản nháp". Lỗi thì giữ nguyên ô và hiện "Thử lại" (spec-AI_integration §4, SD-05).
+
 ### M01 offline preparation and handoff to M02
 
 1. M01 đọc snapshot hiện hành và xác định các checkpoint `OFFLINE_REQUIRED`.
@@ -163,7 +175,7 @@ Closure ở M03 không trực tiếp sửa dữ liệu trên thiết bị. Khi M
 | Session becomes terminal while offline | Immutable `SessionSyncRecord` ở local queue và được retry sau; Finish không chờ sync. |
 | QR link opened from the phone camera without network | Trang chỉ mở được nếu trình duyệt này đã từng mở app (app shell trong Cache Storage); khi đó hoạt động như quét offline trong app. Nếu chưa, trình duyệt tự báo không có kết nối. Chỉ nút Quét trong app được cam kết khi offline. |
 | App opened with a session older than 24 hours | Phiên được tự đóng trước khi xử lý handoff, rồi xếp hàng đồng bộ như mọi phiên kết thúc. |
-| M03 administration loses connectivity | Save báo lỗi; M03 không có offline draft synchronization. |
+| M03 administration loses connectivity | Save báo lỗi; M03 không có offline draft synchronization. Nút dịch báo MSG-AI-FAILED kèm "Thử lại"; ô tiếng Anh giữ nguyên và vẫn gõ tay được. |
 | Route/checkpoint closes remotely | Không xóa package và không cảnh báo/ngắt running session. Khi M01 đọc được route không còn khả dụng, M01 chặn Start mới và chuyển current context của route sang `REVOKED`; khi chưa biết closure do offline, Start vẫn tuân theo ready package local. |
 
 Không có cross-device recovery. Xóa browser data có thể làm mất preference, package, context, session, visits và pending sync record trên thiết bị đó.
@@ -181,6 +193,7 @@ Không có cross-device recovery. Xóa browser data có thể làm mất prefere
 | M03 → M02 | Printed public QR link | Phone camera opens `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` on the Single Vercel Project | Link cố định trong suốt vòng đời tem; giá trị base URL do [Environment Configuration](environment.md) quản lý. |
 | M02 → M03 | `SessionSyncRecord` | Backend terminal-session intake | Chỉ `HOAN_TAT` hoặc `BO_DO`, anonymous, immutable; accepted fields được lưu thành M03 `SessionRecord` cộng `ingestedAt`; retry idempotent hoặc conflict như phần Terminal session sync and reporting; từng điểm đã quét phải khớp snapshot. |
 | Auth provider ↔ M03 | Admin identity/session | Supabase Auth runtime | Provider sở hữu credential lifecycle; M03 sở hữu fixed role và account status. |
+| AI Integration → M03 editor | `TranslationRequest` / `TranslationResult` | Edge Function dịch → Google Gemini API | Chỉ khi admin `ACTIVE` bấm "→"; chỉ gửi text nguồn; key phía server; lỗi là tín hiệu riêng và không chặn editor. |
 
 Các contract trên là logical contract. Runtime split Edge/RPC đã chốt ở phần Runtime decisions; physical endpoint, table/column và bucket thuộc implementation design.
 
@@ -192,6 +205,7 @@ Các contract trên là logical contract. Runtime split Edge/RPC đã chốt ở
 | Offline package, handoff and browser persistence | [Spec M01](../spec/spec-M01.md) §§4–6; [Tech Stack](tech-stack.md) §4 |
 | Session, QR/content selection and terminal sync | [Spec M02](../spec/spec-M02.md) §§4–6; [Sequence Diagrams](sequence-diagrams.md) |
 | Publication, snapshots, Auth/data/media and reports | [Spec M03](../spec/spec-M03.md) §§3–6; [Tech Stack](tech-stack.md) §5 |
+| Translate on request for M03 editors | [Spec AI Integration](../spec/spec-AI_integration.md) §§4–5; [Sequence Diagrams](sequence-diagrams.md) SD-05 |
 | MVP inclusion and exclusions | [MVP Scope](../../MVP-Scope.md) |
 
 Các BRD M01–M03 không tồn tại trong working tree tại thời điểm refactor; ba module spec (M01 v3.2, M02 v3.3, M03 v3.7) tự khai báo là implementation source of truth và được dùng làm behavioral/contract baseline hiện hành.

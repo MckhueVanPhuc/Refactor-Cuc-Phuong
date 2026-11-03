@@ -2,7 +2,7 @@
 
 ## 1. Baseline và phạm vi
 
-- Baseline: [Spec M03 v3.7](../../docs/spec/spec-M03.md), [Function List M03](../../docs/function%20list/function-list-M03.md).
+- Baseline: [Spec M03 v3.7](../../docs/spec/spec-M03.md), [Function List M03](../../docs/function%20list/function-list-M03.md); nút dịch của SCR-M03-002, 003, 008 theo [Spec AI Integration v1.0](../../docs/spec/spec-AI_integration.md) và [Function List AI](../../docs/function%20list/function-list-AI.md) (cập nhật 2026-11-03; mockup tĩnh chưa có nút dịch).
 - Release priority: [MVP Scope](../../MVP-Scope.md). Priority dưới đây theo function scope; không thay requirement trong spec.
 - Cập nhật: 2026-10-30. Status: screen inventory và screen specification (Draft) đồng bộ baseline v3.7; có mockup tĩnh cho cả 10 màn SCR-M03-000…009 (screens/html/, kèm demo tương tác trong screens/html/interactive/); chưa có route implementation.
 - Quy ước chung: [Screen index](README.md). Mọi màn bắt buộc cho administrative journey nằm trực tiếp trong danh mục M03 này.
@@ -14,13 +14,13 @@
 |---|---|---|---|---|
 | SCR-M03-000 | Đăng nhập quản trị | Nhân viên nội dung, Quản lý | FN-M03-008 | Must |
 | SCR-M03-001 | Quản trị tuyến | Nhân viên nội dung, Quản lý | FN-M03-001, FN-M03-007, FN-M03-008, FN-M03-011 | Must |
-| SCR-M03-002 | Biên tập tuyến | Nhân viên nội dung, Quản lý | FN-M03-001, FN-M03-005, FN-M03-006, FN-M03-008, FN-M03-011 | Must |
-| SCR-M03-003 | Điểm tham quan (QR) & Nội dung | Nhân viên nội dung, Quản lý | FN-M03-003, FN-M03-004, FN-M03-005, FN-M03-008, FN-M03-011 | Must; xem trước như du khách Should |
+| SCR-M03-002 | Biên tập tuyến | Nhân viên nội dung, Quản lý | FN-M03-001, FN-M03-005, FN-M03-006, FN-M03-008, FN-M03-011, FN-AI-001 | Must; nút dịch Could |
+| SCR-M03-003 | Điểm tham quan (QR) & Nội dung | Nhân viên nội dung, Quản lý | FN-M03-003, FN-M03-004, FN-M03-005, FN-M03-008, FN-M03-011, FN-AI-001 | Must; xem trước như du khách Should; nút dịch Could |
 | SCR-M03-004 | Xem lại & Xuất bản | Nhân viên nội dung, Quản lý | FN-M03-005, FN-M03-006, FN-M03-008 | Must; xem trước như du khách Should |
 | SCR-M03-005 | Báo cáo vận hành | Nhân viên nội dung, Quản lý | FN-M03-010 | Should |
 | SCR-M03-006 | Tài khoản & Vai trò | Quản lý | FN-M03-008 | Must |
 | SCR-M03-007 | Nhận lời mời & Khôi phục mật khẩu | Người được mời; Nhân viên nội dung; Quản lý | FN-M03-008 | Must |
-| SCR-M03-008 | Thư viện điểm dừng | Nhân viên nội dung, Quản lý | FN-M03-002, FN-M03-003, FN-M03-005, FN-M03-007, FN-M03-008, FN-M03-011 | Must |
+| SCR-M03-008 | Thư viện điểm dừng | Nhân viên nội dung, Quản lý | FN-M03-002, FN-M03-003, FN-M03-005, FN-M03-007, FN-M03-008, FN-M03-011, FN-AI-001 | Must; nút dịch Could |
 | SCR-M03-009 | Nhật ký hệ thống | Quản lý | FN-M03-011 | Should |
 
 M03 online-only và không có public sign-up. Mọi màn sau đăng nhập có nút Đăng xuất ở header (BR-M03-K06). Giao diện chỉ dùng tiếng Việt dễ hiểu: tên hiển thị cho mọi trạng thái, thông báo từ danh mục cố định, không hiện dữ liệu thô hay mã kỹ thuật. Mỗi editor có một nút "Lưu bản nháp"; nội dung đang gõ được giữ khi lưu lỗi; không cam kết khôi phục bản nháp qua reload. Report dùng `endedAt` theo Asia/Ho_Chi_Minh; RPT-02 nhóm theo stable ID và label/sequence từ record có `endedAt` mới nhất trong kỳ. Snapshot retention, session intake và provisioning Reviewer đầu tiên là backend/operations coverage, không được đếm thành UI screen.
@@ -166,6 +166,8 @@ Screen suffix trong bảng mang prefix `SCR-M03-`; background coverage được 
 | FR-M03-016 | 005 | RPT-02 kèm ghi chú ý nghĩa lượt ghé. |
 | FR-M03-018 | 001, 002, 003, 008 (lịch sử), 009 + backend | Audit mọi thao tác; lịch sử từng mục; nhật ký toàn hệ thống cho Quản lý. |
 | FR-M03-019 | Tất cả | Tiếng Việt dễ hiểu, tên hiển thị, danh mục thông báo cố định. |
+| FR-AI-001–004 | 002, 003, 008 | Nút "→" trên từng trường song ngữ, điền ô tiếng Anh không lưu, ô tiếng Anh luôn sửa được, lỗi kèm "Thử lại" ([Spec AI Integration](../../docs/spec/spec-AI_integration.md)). |
+| FR-AI-005 | Translation Edge Function | Gọi dịch vụ dịch phía server cho admin `ACTIVE`; không có màn riêng. |
 
 ## 7. Screen specifications
 
@@ -173,11 +175,11 @@ Screen suffix trong bảng mang prefix `SCR-M03-`; background coverage được 
 |---|---|---|
 | SCR-M03-000 | [screen-spec-SCR-M03-000.md](../screen-spec/M03/screen-spec-SCR-M03-000.md) | Draft — đồng bộ Spec M03 v3.7 |
 | SCR-M03-001 | [screen-spec-SCR-M03-001.md](../screen-spec/M03/screen-spec-SCR-M03-001.md) | Draft — đồng bộ Spec M03 v3.7 |
-| SCR-M03-002 | [screen-spec-SCR-M03-002.md](../screen-spec/M03/screen-spec-SCR-M03-002.md) | Draft — đồng bộ Spec M03 v3.7 |
-| SCR-M03-003 | [screen-spec-SCR-M03-003.md](../screen-spec/M03/screen-spec-SCR-M03-003.md) | Draft — đồng bộ Spec M03 v3.7 |
+| SCR-M03-002 | [screen-spec-SCR-M03-002.md](../screen-spec/M03/screen-spec-SCR-M03-002.md) | Draft — đồng bộ Spec M03 v3.7, Spec AI Integration v1.0 |
+| SCR-M03-003 | [screen-spec-SCR-M03-003.md](../screen-spec/M03/screen-spec-SCR-M03-003.md) | Draft — đồng bộ Spec M03 v3.7, Spec AI Integration v1.0 |
 | SCR-M03-004 | [screen-spec-SCR-M03-004.md](../screen-spec/M03/screen-spec-SCR-M03-004.md) | Draft — đồng bộ Spec M03 v3.7 |
 | SCR-M03-005 | [screen-spec-SCR-M03-005.md](../screen-spec/M03/screen-spec-SCR-M03-005.md) | Draft — đồng bộ Spec M03 v3.7 |
 | SCR-M03-006 | [screen-spec-SCR-M03-006.md](../screen-spec/M03/screen-spec-SCR-M03-006.md) | Draft — đồng bộ Spec M03 v3.7 |
 | SCR-M03-007 | [screen-spec-SCR-M03-007.md](../screen-spec/M03/screen-spec-SCR-M03-007.md) | Draft — đồng bộ Spec M03 v3.7 |
-| SCR-M03-008 | [screen-spec-SCR-M03-008.md](../screen-spec/M03/screen-spec-SCR-M03-008.md) | Draft — đồng bộ Spec M03 v3.7 |
+| SCR-M03-008 | [screen-spec-SCR-M03-008.md](../screen-spec/M03/screen-spec-SCR-M03-008.md) | Draft — đồng bộ Spec M03 v3.7, Spec AI Integration v1.0 |
 | SCR-M03-009 | [screen-spec-SCR-M03-009.md](../screen-spec/M03/screen-spec-SCR-M03-009.md) | Draft — đồng bộ Spec M03 v3.7 |

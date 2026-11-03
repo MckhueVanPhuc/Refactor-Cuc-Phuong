@@ -15,7 +15,7 @@ File này áp dụng cho toàn bộ repository Refactor-Cuc-Phuong. Mọi agent 
 Đây là repository **spec-first** phục vụ rebaseline và refactor tài liệu Cúc Phương Quest V2. Bộ tài liệu V2 đã hoàn tất; từ 2026-10-28 repo mở phạm vi code theo quyết định của người dùng (xem bullet "Phạm vi code" bên dưới).
 
 - **Phạm vi tài liệu hiện có:** Từ Layer 1 (Canonical Specifications) đến Layer 4 (Data Modeling & Physical Schema). Điểm kết thúc của bộ tài liệu hiện tại là [Physical Schema](data/06-physical-schema.md).
-- **Phạm vi code (đã mở theo quyết định của người dùng):** application source trong `src/`, implementation packages trong `specs/` (Spec-Kit), và cấu hình Vite cùng Supabase local (`supabase/config.toml`, `supabase/seed.sql` chỉ dùng cho local), cùng workflow CI `.github/workflows/ci.yml` (người dùng duyệt 2026-10-30), và backend M03 **chỉ trên stack Supabase local** — SQL migrations, Edge Functions/RPC, pgTAP và script operator trong `supabase/` (change brief CHG-M03-2026-10-30-01, duyệt 2026-10-30) — được phép, theo change brief và plan đã duyệt. Vẫn **chưa** thuộc phạm vi nếu chưa có change brief riêng: áp migration hoặc deploy Edge Function lên cloud, tests dùng dữ liệu thật, cấu hình hoặc secret của cloud project, và deploy. Không dùng dữ liệu thật hay seed vào Shared Backend trên cloud.
+- **Phạm vi code (đã mở theo quyết định của người dùng):** application source trong `src/`, implementation packages trong `specs/` (Spec-Kit), và cấu hình Vite cùng Supabase local (`supabase/config.toml`, `supabase/seed.sql` chỉ dùng cho local), cùng workflow CI `.github/workflows/ci.yml` (người dùng duyệt 2026-10-30), và backend M03 **chỉ trên stack Supabase local** — SQL migrations, Edge Functions/RPC, pgTAP và script operator trong `supabase/` (change brief CHG-M03-2026-10-30-01, duyệt 2026-10-30), cùng Edge Function dịch của AI Integration và gói `specs/004-ai-translation/` (change brief CHG-AI-2026-11-03-01, duyệt 2026-11-03) — được phép, theo change brief và plan đã duyệt. Vẫn **chưa** thuộc phạm vi nếu chưa có change brief riêng: áp migration hoặc deploy Edge Function lên cloud, tests dùng dữ liệu thật, cấu hình hoặc secret của cloud project, và deploy. Không dùng dữ liệu thật hay seed vào Shared Backend trên cloud.
 - **Không chứa downstream artifacts:** Các tài liệu downstream từ V1 như Field Mapping (data/schema/field-mapping.md), Seed Data (data/seed/**), Storage Validation (data/07-storage-validation.md), và các implementation packages cũ (specs/00*-*) không nằm trong bộ tài liệu V2. Package `specs/` mới chỉ được tạo theo change brief code.
 - **HTML mockup:** chỉ là mockup tĩnh theo screen spec, đặt trong `screens/html/`; không chứa logic nghiệp vụ, gọi API hay dữ liệu thật.
 - Ba module logic là:
@@ -34,6 +34,7 @@ Các file sau là nguồn sự thật duy nhất cho hành vi và contract sản
 1. docs/spec/spec-M01.md
 2. docs/spec/spec-M02.md
 3. docs/spec/spec-M03.md
+4. docs/spec/spec-AI_integration.md — năng lực dịch vi → en theo yêu cầu cho editor M03 (quyết định người dùng 2026-11-03). Không phải module logic thứ tư; không đổi rule, contract, entity, state hay permission nào của spec-M03.
 
 Quy tắc áp dụng:
 
@@ -61,6 +62,7 @@ Giữ nguyên tên và ranh giới producer → consumer trong spec hiện hành
 | M01 | LanguagePreference, SelectedRouteContext v3, ready OfflinePackage | M02 |
 | M03 | LiveStationContent và QR lookup result | M02 |
 | M02 | SessionSyncRecord | M03, nơi lưu canonical SessionRecord |
+| AI Integration | TranslationRequest / TranslationResult (spec-AI_integration §5.2) | M03 admin editors |
 
 Không đổi tên contract, bỏ suffix/version hoặc hợp nhất transport shape với canonical entity nếu spec chưa canonicalize thay đổi đó.
 
@@ -77,6 +79,7 @@ Không đổi tên contract, bỏ suffix/version hoặc hợp nhất transport s
 | README.md, docs/README.md | Entry point và navigation V2 | Chỉ sync mô tả/link; không định nghĩa behavior mới |
 | MVP-Scope.md | MVP boundary và delivery priority | Spec vẫn thắng về behavior/contract |
 | docs/spec/spec-M0*.md | Behavioral và contract baseline | Mọi thay đổi nghĩa phải explicit, traceable và đúng module |
+| docs/spec/spec-AI_integration.md | Behavioral và contract baseline của năng lực dịch theo yêu cầu cho M03 | Như spec-M0*; không được đổi nghĩa rule của spec-M03 — thay đổi như vậy phải sửa spec-M03 |
 | docs/function list/ | Functional decomposition và stable function mapping | Derived từ spec; không tự mở rộng behavior |
 | docs/architecture/ | Context, flows, runtime, tech stack, environment | Derived từ spec và approved technical decisions; sửa minimal diff |
 | screens/screen list/ | Screen inventory và requirement coverage | Derived từ spec/function list; screen không tạo requirement |
@@ -86,7 +89,7 @@ Không đổi tên contract, bỏ suffix/version hoặc hợp nhất transport s
 | src/ | Application code (React + TypeScript) | Theo plan đã duyệt và CLAUDE.md; màu, font, khoảng cách lấy từ token; không sửa spec để khớp code |
 | specs/ | Implementation packages (Spec-Kit) | Derived từ spec canonical; không tạo requirement mới; chỉ tạo khi có change brief code |
 | supabase/config.toml, supabase/seed.sql | Cấu hình và dữ liệu synthetic cho Supabase local | Chỉ local; không `link`/`db push` lên cloud nếu chưa phê duyệt |
-| supabase/migrations/, supabase/functions/, supabase/tests/, supabase/scripts/ | Backend M03 giai đoạn B: migration, RPC, Edge Function, pgTAP, script operator | Chỉ chạy trên stack local theo CHG-M03-2026-10-30-01; theo Physical Schema và tasks M03; không `link`/`db push`/deploy nếu chưa có change brief triển khai |
+| supabase/migrations/, supabase/functions/, supabase/tests/, supabase/scripts/ | Backend M03 giai đoạn B: migration, RPC, Edge Function, pgTAP, script operator; Edge Function dịch của AI Integration | Chỉ chạy trên stack local theo CHG-M03-2026-10-30-01 (và CHG-AI-2026-11-03-01, duyệt 2026-11-03, cho function dịch); theo Physical Schema và tasks M03; không `link`/`db push`/deploy nếu chưa có change brief triển khai |
 | assets/ | Static assets dùng chung (hiện có assets/icons/) | Chỉ thêm file do người dùng cung cấp; không tự tạo hay vẽ asset |
 | data/01-entity-dictionary.md | S1 canonical entity vocabulary | Không thêm entity từ implementation convenience |
 | data/02-crud-matrix.md | S2 FN-level direct CRUD evidence | Không gán CRUD từ indirect/delegated effect |

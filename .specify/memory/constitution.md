@@ -1,5 +1,22 @@
 ﻿<!--
 SYNC IMPACT REPORT
+Version change: 2.0.2 → 2.1.0 (MINOR: a fourth behavioral source and one new contract added)
+Modified principles:
+  I. Spec-First Behavioral Authority — docs/spec/spec-AI_integration.md added as a source of truth for
+     the vi → en translation-on-request capability of the M03 editors (not a fourth logical module;
+     it changes no spec-M03 rule).
+  II. Module Ownership Boundaries — contract table adds AI Integration → M03 editors:
+      TranslationRequest / TranslationResult.
+Other sections: Contract & Traceability (shape location spec-AI_integration.md §5.2); Governance
+  (authority and guidance table list spec-AI_integration.md).
+Added sections: none. Removed sections: none.
+Source: AGENTS.md §3.1–3.2 amended 2026-11-03 by user decision; change brief CHG-AI-2026-11-03-01.
+Downstream artifacts: specs/004-ai-translation/plan.md Complexity Tracking #1 closed by this amendment.
+Follow-up TODOs: none.
+-->
+
+<!--
+SYNC IMPACT REPORT
 Version change: 2.0.1 → 2.0.2 (PATCH: correction of downstream status; no principle changed)
 Modified principles: none. Added sections: none. Removed sections: none.
 Correction: the screen specifications under screens/screen-spec/ (M01, M02, M03) are marked "Draft — đồng bộ"
@@ -53,11 +70,15 @@ Follow-up TODOs: none.
 
 ### I. Spec-First Behavioral Authority
 
-The three module specifications are the **sole source of truth** for product behavior and contracts:
+The three module specifications and the AI Integration specification are the **sole source of truth**
+for product behavior and contracts:
 
 - docs/spec/spec-M01.md — Route Planning & Preparation
 - docs/spec/spec-M02.md — Field Quest Experience
 - docs/spec/spec-M03.md — Operations & Content Administration
+- docs/spec/spec-AI_integration.md — vi → en translation on request for the M03 editors. It is a
+  capability used by M03, not a fourth logical module, and it MUST NOT change any spec-M03 rule;
+  such a change requires amending spec-M03.
 
 **Rules:**
 
@@ -96,6 +117,7 @@ The product is a modular monolith with three logical modules. Each module has a 
 | M01 | LanguagePreference, SelectedRouteContext v3, ready OfflinePackage | M02 |
 | M03 | LiveQrLookupResult with LiveStationContent (live QR lookup) | M02 |
 | M02 | Terminal anonymous SessionSyncRecord | M03 |
+| AI Integration | TranslationRequest / TranslationResult | M03 editors |
 
 **Rules:**
 
@@ -271,7 +293,7 @@ Every behavioral contract between modules has:
 
 - A **canonical name** defined in the producing module's spec.
 - A **shape definition** in the relevant Input / Output contract section
-  (spec-M01.md §5.3; spec-M02.md §5.1; spec-M03.md §5.1).
+  (spec-M01.md §5.3; spec-M02.md §5.1; spec-M03.md §5.1; spec-AI_integration.md §5.2).
 - A **consuming module** that reads the exact same shape and MUST NOT extend or redefine it locally.
 
 When implementing or refactoring a contract:
@@ -333,7 +355,7 @@ Validation in this phase focuses on:
 
 **Authority:** This constitution governs engineering process, quality, security, and implementation
 discipline. It does not override product behavior or contract definitions in
-docs/spec/spec-M01.md, spec-M02.md, or spec-M03.md. Technical implementation details not
+docs/spec/spec-M01.md, spec-M02.md, spec-M03.md or spec-AI_integration.md. Technical implementation details not
 covered by the module specs follow the architecture documents in priority order:
 system-configuration.md, tech-stack.md, environment.md.
 
@@ -361,7 +383,7 @@ system-configuration.md, tech-stack.md, environment.md.
 
 | Purpose | File |
 |---------|------|
-| Behavioral and contract baseline | docs/spec/spec-M01.md, spec-M02.md, spec-M03.md |
+| Behavioral and contract baseline | docs/spec/spec-M01.md, spec-M02.md, spec-M03.md, spec-AI_integration.md |
 | Agent workspace rules | AGENTS.md |
 | Product scope boundaries | MVP-Scope.md |
 | Data model source of truth | data/04-data-model.md |
@@ -373,4 +395,4 @@ system-configuration.md, tech-stack.md, environment.md.
 
 ---
 
-**Version**: 2.0.2 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-10-29
+**Version**: 2.1.0 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-11-03

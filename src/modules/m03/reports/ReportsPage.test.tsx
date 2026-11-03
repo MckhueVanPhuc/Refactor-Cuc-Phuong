@@ -67,6 +67,8 @@ describe('SCR-M03-005 Báo cáo vận hành (BR-M03-J05–J08)', { timeout: PAGE
 
   it('ngày không hợp lệ: chỉ một ngày → MSG-REPORT-DATES-INVALID; 367 ngày → MSG-REPORT-SPAN; không gửi truy vấn', async () => {
     const { services } = await openReports();
+    // Trang tự tải báo cáo mặc định khi mở: chờ lượt tải đó xong rồi mới đếm, nếu không CI chậm đếm nhầm lượt này
+    await screen.findByText(formatMessage('MSG-REPORT-NO-DATA-YET'));
     const query = vi.spyOn(services.api, 'reportRpt01');
     fireEvent.change(screen.getByLabelText('Từ ngày'), { target: { value: '01/10/2026' } });
     fireEvent.change(screen.getByLabelText('Đến ngày'), { target: { value: '' } });
