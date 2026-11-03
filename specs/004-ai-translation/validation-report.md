@@ -1,6 +1,6 @@
 # Validation report — 004 AI Integration (nút dịch vi → en cho editor M03)
 
-Báo cáo kiểm chứng của đợt cài đặt T001–T034 (2026-11-03). Chỉ ghi lệnh đã chạy thật; phần chưa chạy ghi `NOT RUN` kèm lý do.
+Báo cáo kiểm chứng của đợt cài đặt T001–T034 (2026-11-03) và đợt kiểm trên stack local T033 (2026-11-04, §3). Chỉ ghi lệnh đã chạy thật; phần chưa chạy ghi `NOT RUN` kèm lý do.
 
 ## 1. Bối cảnh
 
@@ -25,19 +25,20 @@ Báo cáo kiểm chứng của đợt cài đặt T001–T034 (2026-11-03). Ch�
 
 Test viết trước và chạy thấy fail (module chưa có) trước khi cài hook, `BilingualField`, handler và `supabaseTranslator`.
 
-## 3. `NOT RUN` — chuyển cho máy có Docker + Supabase CLI
+## 3. Kiểm trên stack local (T033, 2026-11-04)
 
-| Mục | Lệnh / bước | Lý do |
+Máy: Windows 11, Docker 29.9.2, Supabase CLI 3.0.0 (`npx supabase`), Deno 2.9.8, edge-runtime 1.77.9. Các bước: `npx supabase start`; `npx supabase db reset --local` (seed `supabase/seed.sql`); `npx supabase functions serve --env-file supabase/functions/.env`, file có khóa Gemini thật và **không commit**; `.env.local` trỏ `http://127.0.0.1:54321`; `npm run dev`. Function được gọi bằng `curl.exe` với JWT của các tài khoản seed.
+
+| Mục | Lệnh / bước | Kết quả |
 |---|---|---|
-| `deno test supabase/functions/translate` | `deno test supabase/functions` | Máy không có Deno (đã chạy cùng file bằng shim Node, §2) |
-| Quickstart L1 — dịch thật với khóa Gemini | `supabase start`, `supabase db reset`, tạo `supabase/functions/.env` chứa `GEMINI_API_KEY=…` (**không commit**), `.env.local` trỏ stack local, `npm run dev`, đăng nhập admin, bấm "→" ở Tên đối tượng | Không có Docker/Supabase CLI |
-| Quickstart L2 — 401/403 | `curl -i -X POST http://127.0.0.1:54321/functions/v1/translate -H 'content-type: application/json' -d '{"sourceLanguage":"vi","targetLanguage":"en","text":"Cây","lineBreaks":"NOT_ALLOWED"}'` (không JWT → 401); thêm `-H "authorization: Bearer <JWT tài khoản bị khóa>"` → 403 | Như trên |
-| Quickstart L3 — thiếu khóa | Xóa `GEMINI_API_KEY`, khởi động lại function, bấm "→" → "Chưa dịch được…" | Như trên |
-| Quickstart L5 — log | Xem log function sau L1–L3: chỉ có `[translate] …` kèm mã, không có text, JWT hay khóa | Như trên |
-| `supabase/config.toml` có `[functions.translate]` được CLI đọc | `supabase start` | Như trên |
-| Model `gemini-3.5-flash-lite` trả lời đúng với khóa của dự án | L1 | Chưa gọi Gemini thật lần nào |
-
-Khi chạy xong, đánh dấu T033 trong `tasks.md` và điền kết quả vào bảng này.
+| `deno test supabase/functions/translate` | `deno test supabase/functions/translate` | PASS: 12/12 |
+| `supabase/config.toml` có `[functions.translate]` được CLI đọc | `npx supabase functions serve` | PASS: liệt kê `/functions/v1/translate`; `verify_jwt = false` nên lỗi xác thực do function trả |
+| Quickstart L1: dịch thật với khóa Gemini (API) | `POST /functions/v1/translate` bằng JWT `staff@example.test` (CONTENT_STAFF, ACTIVE) | PASS: `200 { translatedText }`; text một dòng (`NOT_ALLOWED`) trả một dòng; đoạn hai dòng (`ALLOWED`) giữ đúng một xuống dòng |
+| Quickstart L1: dịch thật trên giao diện | Người dùng đăng nhập `staff@example.test`, mở editor tuyến tab "1. Thẻ tuyến", bấm "→" ở Tên tuyến và Mô tả ngắn | PASS: bản dịch điền vào ô tiếng Anh; lưu bản nháp thành công ("Đã lưu bản nháp.") |
+| Quickstart L2: 401/403 | Không `Bearer`; `Bearer` sai; JWT `locked@example.test` (DEACTIVATED); JWT `noaccount@example.test` (không có AdminAccount) | PASS: `401 {}`, `401 {}`, `403 {"result":"FORBIDDEN"}`, `403 {"result":"FORBIDDEN"}` |
+| Quickstart L3: thiếu khóa | Chạy lại function với bản sao env không có `GEMINI_API_KEY`, gọi bằng JWT `staff@example.test` | PASS (API): `502 {"result":"FAILED"}`; client đổi mọi lỗi thành MSG-AI-FAILED (`supabaseTranslator.test.ts`); không bấm lại trên giao diện |
+| Quickstart L5: log | Đọc log function sau L1–L3 | PASS: chỉ có `serving the request …` và `[translate] MISSING_KEY` / `[translate] FAILED`; không có text, JWT hay khóa |
+| Model `gemini-3.5-flash-lite` trả lời đúng với khóa của dự án | L1 | PASS |
 
 ## 4. Độ phủ BR / SC
 
@@ -50,7 +51,7 @@ Khi chạy xong, đánh dấu T033 trong `tasks.md` và điền kết quả vào
 | BR-AI-05 mở editor không dịch | hook test mount; E2E Q5 (`translationRequestCount`) |
 | BR-AI-06 không lưu; kiểm tra độ dài hiện có | E2E Q10 (hộp chưa lưu), Q11 (103/100, MSG-LIMIT-TEXT); handler không cắt |
 | BR-AI-07 chỉ đọc không có nút | `BilingualField.test.tsx`; E2E Q13 |
-| BR-AI-08 server, admin ACTIVE, khóa phía server | `index.test.ts` (401, 403, auth trước body); quét bundle; L2 `NOT RUN` |
+| BR-AI-08 server, admin ACTIVE, khóa phía server | `index.test.ts` (401, 403, auth trước body); quét bundle; L2 (§3) |
 | BR-AI-09 lỗi + "Thử lại" | hook test; `BilingualField.test.tsx`; `supabaseTranslator.test.ts`; `index.test.ts` 502; E2E Q8, Q9 |
 | BR-AI-10 chỉ gửi text nguồn | `index.test.ts` (dependency nhận đúng text đã trim; body lỗi không chứa text) |
 | BR-AI-11 chữ thuần, bỏ xuống dòng trường một dòng | hook test; `index.test.ts` hậu xử lý; E2E Q12 |
@@ -61,7 +62,7 @@ Khi chạy xong, đánh dấu T033 trong `tasks.md` và điền kết quả vào
 | SC-AI-001 | E2E Q1, Q2 (đủ 14 trường; route editor đếm 13 lượt cho 11 trường gồm 2 điểm nổi bật, 2 chú thích ảnh) |
 | SC-AI-002 | E2E Q5 |
 | SC-AI-003 | E2E Q8, Q9 |
-| SC-AI-004 | `index.test.ts`; quét bundle; L2 `NOT RUN` |
+| SC-AI-004 | `index.test.ts`; quét bundle; L2 (§3) |
 | SC-AI-005 | E2E Q10 |
 | SC-AI-006 | E2E Q11 |
 
