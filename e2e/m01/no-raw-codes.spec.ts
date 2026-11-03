@@ -51,6 +51,8 @@ for (const language of ['Tiếng Việt', 'English'] as const) {
     await expectClean(page, 'tài nguyên offline');
     await page.getByRole('button', { name: /^(Xóa|Delete)$/ }).click();
     await page.getByRole('dialog').getByRole('button', { name: /^(Xóa|Delete)$/ }).click();
+    // Chờ xóa xong trước khi rời trang (điều hướng có thể cắt ngang thao tác xóa)
+    await expect(page.getByText(/^(Bạn chưa tải tuyến nào\.|You have not downloaded any route\.)$/)).toBeVisible();
     await page.goto('/routes/route-a');
     await page.getByRole('button', { name: /^(Bắt đầu|Start)$/ }).click();
     await expect(page.getByRole('dialog')).toBeVisible();

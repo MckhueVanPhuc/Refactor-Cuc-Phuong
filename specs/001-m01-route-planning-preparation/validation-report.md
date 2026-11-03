@@ -408,3 +408,42 @@ Rà soát thủ công theo design-system §6 và research R-19; **không tuyên 
 ### 10.6 Checkpoint Phase 10
 
 Phase 10 **đạt**: T093–T101 xong. Còn mở: T100 (thiết bị thật) và V2 chờ M02.
+
+## 11. Đợt 2026-11-03 — Phase 11 Tích hợp (T102–T106)
+
+Branch `feat/m01-integration`, tách từ `feat/m01-polish` (PR #13–#21 chờ merge; DV-20).
+
+### 11.1 T102 — bề mặt cho package 002
+
+`src/modules/m01/index.ts` export đúng danh sách mà `src/modules/m02/m01Port.ts` cần (tasks M02 T016): `useLanguagePreference`, `resolveDisplayLanguage`, `LanguageControl`, `readSelectedRouteContext` (kiểu `SelectedRouteContextReadResult` = `NONE` / `INVALID` / `OK`), `readActiveOfflinePackage`, `findOfflineResource`, `readPackageImage`, `M01_HANDOFF_TABLES`; thêm `readLanguagePreference`. Không export hàm ghi nào (`architecture.test.ts`). `registerBusyCheck` có trong `src/app/pwa/updateCoordinator.ts`, nhận `() => boolean | Promise<boolean>` (DV-06). Package 002 có thể chạy T102–T103 của nó.
+
+### 11.2 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `docker info`, `supabase --version` (Git Bash và PowerShell) | — | Máy này không có Docker lẫn Supabase CLI → không chạy được stack local tại chỗ |
+| `npx playwright test --list` | 0 | `m01` 28 ca (không gồm `*.local.spec.ts`); `m01-local-stack` 5 ca của `integration.local.spec.ts` |
+| `npx playwright test --project=m01` | 0 | 27 pass, 1 skipped (V2) |
+| `gh workflow run ci.yml --ref feat/m01-integration` → run 41562721605 (runner GitHub, stack Supabase local CLI 2.122.0 trong runner; không link, không cloud) | 1 | `verify` success (1662 test); `local-stack` success: pgTAP và contract M03 như trước, `m03-local-stack` 68 pass + 4 skipped, **`m01-local-stack` 5 pass** (T104, V4, V10, V17, V22); `e2e` failure: 1 ca `no-raw-codes` (English) — test điều hướng ngay sau khi bấm xác nhận xóa nên thao tác xóa có thể bị cắt ngang; đã sửa test cho chờ trạng thái "chưa có gói" (DV-56) |
+| `npx playwright test --project=m01 e2e/m01/no-raw-codes.spec.ts` (hai lần, sau khi sửa) | 0 | 2 pass mỗi lần |
+
+### 11.3 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Stack Supabase local trên máy phát triển này | Không có Docker và Supabase CLI; tích hợp thật chỉ chạy trong job CI `local-stack` |
+| Tích hợp thật cho mục ngoài V4, V10, V17, V22 | Tasks T105 chỉ yêu cầu bốn kịch bản; phần còn lại chỉ có network mock (bảng `checklists/br-test-coverage.md`) |
+| T100 thiết bị thật | Chờ chủ dự án |
+
+### 11.4 Lệch so với tasks và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-53 | T103: M03 giai đoạn B đã có view, policy Storage và Edge trên stack local; không dùng `e2e/.local-fixture.json` (M03 không tạo file này). Dữ liệu dựng phía Node trong `beforeAll` bằng helper của M03 (`seedCloseScenario`: hai tuyến đã xuất bản qua adapter Supabase thật, ảnh thật trong Storage), theo hướng dẫn của chủ dự án | Áp dụng |
+| DV-54 | T104: thay vì chạy lại T012/T014 trong Vitest, spec `integration.local.spec.ts` đọc dòng thật của `api.published_routes` / `api.active_journey_snapshots` bằng supabase-js (anon), cho qua `parsePublishedRouteRow` / `parseJourneySnapshotRow` và so với kết quả của M03 (`readPublicationLocal`). Không có lệch cột; không sửa `supabase/` | Áp dụng |
+| DV-55 | T105: project `m01-local-stack` chỉ chạy `*.local.spec.ts`, project `m01` bỏ qua chúng; bước mới trong job CI `local-stack` (`.github/workflows/ci.yml`) chạy `m01-local-stack` sau `m03-local-stack`. V22 đóng tuyến bằng lệnh C-09 thật của tài khoản Quản lý synthetic | Áp dụng |
+| DV-56 | E2E `no-raw-codes`: chờ câu "Bạn chưa tải tuyến nào." sau khi xóa gói rồi mới điều hướng | Áp dụng |
+
+### 11.5 Checkpoint Phase 11
+
+Phase 11 **đạt**: T102–T106 xong. Toàn bộ 106 task của package 001 đã đánh dấu. Còn mở: T100 (thiết bị thật), V2 (chờ trang `/q/{id}` của M02), các mục upstream ở §10.4.

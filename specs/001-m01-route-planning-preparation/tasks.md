@@ -299,14 +299,14 @@ description: "Danh sách task triển khai M01 — Route Planning & Preparation"
 
 ### Với package 002 (M02)
 
-- [ ] T102 Xác nhận bề mặt src/modules/m01/index.ts khớp đúng danh sách mà src/modules/m02/m01Port.ts cần (specs/002-m02-field-quest-experience/tasks.md T016) và `registerBusyCheck` có trong src/app/pwa/updateCoordinator.ts; ghi kết quả vào specs/001-m01-route-planning-preparation/validation-report.md để package 002 chạy T102–T103 của nó
+- [X] T102 Xác nhận bề mặt src/modules/m01/index.ts khớp đúng danh sách mà src/modules/m02/m01Port.ts cần (specs/002-m02-field-quest-experience/tasks.md T016) và `registerBusyCheck` có trong src/app/pwa/updateCoordinator.ts; ghi kết quả vào specs/001-m01-route-planning-preparation/validation-report.md để package 002 chạy T102–T103 của nó
 
 ### Với M03 giai đoạn B (chờ M03 Phase 13–15 cài đặt xong; CHG-M03-2026-10-30-01 đã duyệt)
 
-- [ ] T103 Chờ M03 giai đoạn B có view `api.published_routes`, `api.active_journey_snapshots` và policy đọc Storage trên stack local (specs/003-m03-operations-content-administration/tasks.md T184, T172) và fixture local-stack của M03 T198 (e2e/.local-fixture.json); không làm T104–T106 trước đó
-- [ ] T104 Chạy lại T012, T014 với response thật từ view của M03 (T184); view lệch danh sách cột trong src/shared/contracts/publicationRowMapping.ts thì sửa view phía M03, không sửa mapping (mapping theo Physical §3)
-- [ ] T105 Chạy `PW_LOCAL_STACK=1 npm run e2e -- --project=m01-local-stack` cho quickstart V4, V10, V17, V22 trên stack Supabase local, dùng `routeId` thật từ e2e/.local-fixture.json (M03 T198) (`supabase start`, `supabase db reset` chỉ local); ghi kết quả hoặc `NOT RUN` vào specs/001-m01-route-planning-preparation/validation-report.md
-- [ ] T106 Điền cột "tích hợp thật" trong specs/001-m01-route-planning-preparation/checklists/br-test-coverage.md
+- [X] T103 Chờ M03 giai đoạn B có view `api.published_routes`, `api.active_journey_snapshots` và policy đọc Storage trên stack local (specs/003-m03-operations-content-administration/tasks.md T184, T172) và fixture local-stack của M03 T198 (e2e/.local-fixture.json); không làm T104–T106 trước đó
+- [X] T104 Chạy lại T012, T014 với response thật từ view của M03 (T184); view lệch danh sách cột trong src/shared/contracts/publicationRowMapping.ts thì sửa view phía M03, không sửa mapping (mapping theo Physical §3)
+- [X] T105 Chạy `PW_LOCAL_STACK=1 npm run e2e -- --project=m01-local-stack` cho quickstart V4, V10, V17, V22 trên stack Supabase local, dùng `routeId` thật từ e2e/.local-fixture.json (M03 T198) (`supabase start`, `supabase db reset` chỉ local); ghi kết quả hoặc `NOT RUN` vào specs/001-m01-route-planning-preparation/validation-report.md
+- [X] T106 Điền cột "tích hợp thật" trong specs/001-m01-route-planning-preparation/checklists/br-test-coverage.md
 
 ---
 
