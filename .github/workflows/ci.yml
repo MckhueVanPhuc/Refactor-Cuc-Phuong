@@ -77,3 +77,7 @@ jobs:
       - run: npx playwright test --project=m03-local-stack --workers=1
         env:
           PW_LOCAL_STACK: '1'
+      # M01 T105: V4, V10, V17, V22 trên view và Storage thật của stack local (dữ liệu dựng lại trong beforeAll)
+      - run: npx playwright test --project=m01-local-stack --workers=1
+        env:
+          PW_LOCAL_STACK: '1'

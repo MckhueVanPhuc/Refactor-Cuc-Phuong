@@ -14,6 +14,8 @@ const mockProjects: Project[] = [
   {
     name: 'm01',
     testDir: 'e2e/m01',
+    // Spec *.local.spec.ts chỉ chạy ở m01-local-stack
+    testIgnore: '**/*.local.spec.ts',
     use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:4173', serviceWorkers: 'allow' },
   },
 ];
@@ -27,6 +29,8 @@ const localStackProjects: Project[] = [
   {
     name: 'm01-local-stack',
     testDir: 'e2e/m01',
+    // Chỉ tích hợp thật (T105); kịch bản network mock chạy ở project m01
+    testMatch: '**/*.local.spec.ts',
     use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:5173' },
   },
 ];
