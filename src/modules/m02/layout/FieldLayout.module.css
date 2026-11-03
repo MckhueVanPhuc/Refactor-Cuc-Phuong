@@ -1,0 +1,85 @@
+/*
+ * Layout M02 — hai bề mặt theo design-system §2.2 và mockup SCR-M02-001 (`m02s`) / SCR-M02-004 (`m02r`).
+ * Scanner: rừng tối, focus amber (9.95:1 trên nền). Reader: paper sáng cho bài đọc dài, focus ink (15.69:1).
+ * Header giữ yên: tiêu đề bên trái, VI/EN bên phải, một đường kẻ mảnh phân tách với nội dung.
+ */
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  line-height: var(--line-height-body);
+  color: var(--m02-fg);
+  background: var(--m02-bg);
+}
+
+.scanner {
+  --m02-bg: var(--color-m02-scanner-bg);
+  --m02-fg: var(--color-m02-scanner-text);
+  --m02-fg-secondary: var(--color-m02-scanner-secondary);
+  --m02-surface: var(--color-m02-scanner-surface);
+  --m02-line: var(--color-m02-scanner-secondary);
+  --focus-ring-color: var(--color-m02-scanner-warning);
+  --control-accent: var(--color-m02-scanner-success);
+  --control-border-color: var(--color-m02-scanner-secondary);
+}
+
+.reader {
+  --m02-bg: var(--color-paper);
+  --m02-fg: var(--color-ink);
+  --m02-fg-secondary: var(--color-ink-secondary);
+  --m02-surface: var(--color-white);
+  --m02-line: var(--color-m03-border);
+  --focus-ring-color: var(--color-ink);
+  --control-accent: var(--color-ink);
+  --control-border-color: var(--color-ink-secondary);
+}
+
+.appBar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: calc(var(--touch-target) + var(--space-3) * 2);
+  padding: var(--space-3) var(--space-5);
+  background: var(--m02-bg);
+  border-bottom: var(--border-width-thin) solid var(--m02-line);
+}
+
+/* Reader: header trắng trên nền paper như mockup SCR-M02-004 */
+.reader .appBar {
+  background: var(--m02-surface);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-page-heading-mobile);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+}
+
+.notices:empty {
+  display: none;
+}
+
+.notices {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5) 0;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  /* Cột đọc khoảng 70 ký tự trên màn rộng; trên điện thoại dùng toàn bộ bề ngang */
+  max-width: calc(var(--space-8) * 22);
+  padding: var(--space-5) var(--space-5) var(--space-8);
+}
+
+.main:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: calc(var(--focus-ring-offset) * -1);
+}

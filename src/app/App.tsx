@@ -11,6 +11,7 @@ export function App() {
     if (import.meta.env.MODE === 'e2e' || import.meta.env.MODE === 'fake') {
       void import('../shared/testing/e2eHooks').then((hooks) => hooks.installTestHooks());
       void import('../modules/m01/testing/e2eHooks').then((hooks) => hooks.registerM01TestHooks());
+      void import('../modules/m02/testing/e2eHooks').then((hooks) => hooks.registerM02TestHooks());
     }
     void import('./pwa/registerServiceWorker').then((sw) => sw.registerServiceWorker());
     // M01: candidate gói mồ côi của tab đã đóng giữa lúc tải → thao tác lỗi (research M01 R-08)

@@ -11,10 +11,17 @@ const isProductionBuild = process.env.VERCEL_ENV === 'production';
 // (research M01 R-14; M03 R-24) mà không phải liệt kê từng màn. Chunk màn lazy lấy tên theo module của màn
 // (module dùng chung chỉ nằm trong chunk đó khi không màn nào khác cần); chunk chung lẫn nhiều module giữ tên mặc định.
 const MODULE_DIR = /(?:^|\/)src\/modules\/(m0\d)\/([^/]+)\//;
+// Thư viện decode QR chỉ scanner của M02 dùng: tính như file của src/modules/m02/scanner/ để chunk lazy
+// `m02-scanner` giữ tên dù Rollup gộp thư viện vào cùng chunk (research M02 R-13, R-17)
+const M02_SCANNER_VENDOR = /\/node_modules\/(?:@zxing\/|ts-custom-error\/)/;
+// Màn `/trip` nằm ở session/ nhưng contract gọi chunk là `m02-trip` (field-ui-flow-contract §1)
+const CHUNK_ALIASES: Record<string, string> = { 'm02-session': 'm02-trip' };
 
 function chunkPrefix(facadeModuleId: string | null | undefined, moduleIds: readonly string[]): string | undefined {
   if (facadeModuleId) return chunkPrefix(null, [facadeModuleId]);
-  const ids = moduleIds.map((id) => id.replaceAll('\\', '/'));
+  const ids = moduleIds
+    .map((id) => id.replaceAll('\\', '/'))
+    .map((id) => (M02_SCANNER_VENDOR.test(id) ? 'src/modules/m02/scanner/vendor/' : id));
   if (ids.length === 0) return undefined;
   // Thư viện in QR chỉ M03 dùng (nạp lazy ở renderQr.ts)
   if (ids.some((id) => id.includes('/node_modules/qrcode/')) && ids.every((id) => id.includes('/node_modules/'))) {
@@ -26,7 +33,9 @@ function chunkPrefix(facadeModuleId: string | null | undefined, moduleIds: reado
   if (modules.size !== 1) return undefined;
   const dirs = new Set(matches.map((match) => match![2]));
   const [module] = modules;
-  return dirs.size === 1 ? `${module}-${[...dirs][0]}` : `${module}-[name]`;
+  if (dirs.size !== 1) return `${module}-[name]`;
+  const prefix = `${module}-${[...dirs][0]}`;
+  return CHUNK_ALIASES[prefix] ?? prefix;
 }
 
 export default defineConfig(({ mode }) => {

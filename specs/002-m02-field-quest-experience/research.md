@@ -43,6 +43,7 @@ Sau Phase 0 không còn mục `NEEDS CLARIFICATION` mở. Điểm phối hợp �
 ### R-02 — Toolchain và dependency
 
 - **Decision (Approved upstream + Plan decision):** như M01 (Node.js 24 LTS, React, React Router data mode, supabase-js, Zod, Dexie, Vite, `vite-plugin-pwa`, Vitest, Testing Library, jsdom, Playwright) cộng `@zxing/browser` + `@zxing/library` cho decode QR (tech-stack §3, chỉ M02). Không thêm thư viện state, i18n, media player. Phiên bản pin khi task setup cài thật (tech-stack §13). `fake-indexeddb` (dev) dùng chung đề xuất của plan M01 Complexity #4.
+- **Phiên bản đã cài (tasks T003, `npm install --save-exact` 2026-11-04, Node.js v24.15.0, npm 11.12.1; kiểm bằng `npm ls --depth=0`, exit 0):** `@zxing/browser` 0.2.1 và `@zxing/library` 0.23.0 (runtime; `@zxing/browser` khai báo peer `@zxing/library` ^0.23.0). `dexie` 4.4.7 và `fake-indexeddb` 6.2.7 đã có từ package 001 (research M01 R-02). `npm audit` không có cảnh báo nào từ `@zxing/*`; các cảnh báo hiện có đều nằm trong chuỗi build của `vite-plugin-pwa`.
 - **Alternatives considered:** Chỉ dùng `BarcodeDetector` của trình duyệt — tech-stack loại vì không có trên mọi trình duyệt (iOS Safari).
 
 ### R-03 — Kiến trúc frontend và path
