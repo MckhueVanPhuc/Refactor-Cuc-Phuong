@@ -21,11 +21,12 @@ test('V25 — tab A đang tải gói; tab B có bản mới: Cập nhật bị h
   await mockPublication(tabB, mock);
   await tabB.goto('/');
   await callM01Hook(tabB, 'simulateAppUpdate');
-  const prompt = tabB.getByRole('status').filter({ hasText: 'Đã có phiên bản mới của ứng dụng.' });
-  await expect(prompt).toBeVisible();
+  // Lọc theo nút: câu chữ đổi sang câu báo hoãn sau lần bấm đầu (DV-57)
+  const prompt = tabB.getByRole('status').filter({ has: tabB.getByRole('button', { name: 'Cập nhật' }) });
+  await expect(prompt).toContainText('Đã có phiên bản mới của ứng dụng.');
 
   await prompt.getByRole('button', { name: 'Cập nhật' }).click();
-  await expect(prompt).toBeVisible();
+  await expect(prompt).toContainText('Ứng dụng đang tải gói hoặc có chuyến đi đang diễn ra.');
   expect(await tabB.evaluate(() => document.documentElement.dataset.e2eUpdateApplied)).toBeUndefined();
 
   await expect(page.getByRole('region', { name: 'Gói tải trước' }).getByText('Sẵn sàng – mới nhất')).toBeVisible({

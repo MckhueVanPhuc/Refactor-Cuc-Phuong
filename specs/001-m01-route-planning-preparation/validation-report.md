@@ -466,3 +466,5 @@ Review gộp diff `main..feat/m01-integration` (`/code-review high`); người d
 | `npx vitest run` trên bốn file test bị ảnh hưởng, với code cũ (`git stash` phần `src` không phải test) | 1 | 5 ca mới fail đúng lỗi review |
 | `npx vitest run src/app/pwa src/modules/m01/{offline-package/packageOps.test.ts,route-detail,recommendation,i18n}` | 0 | 80 pass |
 | `npm run ci` | 0 | typecheck, lint sạch; 1665 pass, 133 skipped; build PWA precache 50 mục |
+| `gh workflow run ci.yml --ref feat/m01-integration` → run 41576823462 | 1 | `verify`, `local-stack` success; `e2e` failure: V25 `pwa-update.spec.ts` lọc lời nhắc theo câu "Đã có phiên bản mới…", câu đổi sang câu báo hoãn nên mất locator. Sửa test cho lọc theo nút `Cập nhật` và kiểm thêm câu báo hoãn |
+| `npx playwright test --project=m01` | 0 | 27 pass, 1 skipped (V2) |
