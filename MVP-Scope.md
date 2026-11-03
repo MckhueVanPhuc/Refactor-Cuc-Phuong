@@ -4,9 +4,9 @@
 
 | Thuộc tính | Giá trị |
 |---|---|
-| Phạm vi | MVP cho M01–M03 |
-| Trạng thái | Implementation baseline — đồng bộ Spec M01 v3.2, M02 v3.3, M03 v3.7 |
-| Cập nhật | 2026-10-28 |
+| Phạm vi | MVP cho M01–M03 và năng lực AI Integration dùng cho M03 |
+| Trạng thái | Implementation baseline — đồng bộ Spec M01 v3.2, M02 v3.3, M03 v3.7, AI Integration v1.0 |
+| Cập nhật | 2026-11-03 |
 | Nguồn hành vi và contract | Ba module spec |
 
 Tài liệu này chỉ tóm tắt ranh giới MVP. Khi có khác biệt, module spec tương ứng là nguồn sự thật duy nhất.
@@ -92,6 +92,15 @@ Tài liệu này chỉ tóm tắt ranh giới MVP. Khi có khác biệt, module 
 | Câu hỏi "Kết thúc chuyến đi?" và tự đóng phiên sau 24 giờ | FN-M02-006 | Must |
 | Trang mở từ mã QR bằng camera điện thoại | FN-M02-004, FN-M02-008 | Must |
 
+### 3.5 AI Integration — Dịch theo yêu cầu cho M03
+
+| Function ID | Function | Phạm vi MVP | Priority |
+|---|---|---|---|
+| FN-AI-001 | Translate on Request | Nút "→" trên từng trường song ngữ của editor tuyến, điểm dừng và điểm tham quan; bấm thì dịch ô tiếng Việt sang ô tiếng Anh, ô tiếng Anh vẫn sửa tự do, không tự lưu. | Could |
+| FN-AI-002 | Translation Service Access | Gọi dịch vụ dịch qua server cho admin `ACTIVE`; khóa dịch vụ chỉ nằm phía server. | Could |
+
+Hai function này đi cùng một increment. Thiếu chúng thì admin vẫn gõ tay tiếng Anh như hiện tại; không chặn luồng `Must` nào.
+
 ## 4. Won't — ngoài MVP
 
 | Capability | Phạm vi | Ghi chú |
@@ -138,3 +147,5 @@ Tài liệu này chỉ tóm tắt ranh giới MVP. Khi có khác biệt, module 
 - [Function List M01](docs/function%20list/function-list-M01.md)
 - [Function List M02](docs/function%20list/function-list-M02.md)
 - [Function List M03](docs/function%20list/function-list-M03.md)
+- [Specification AI Integration](docs/spec/spec-AI_integration.md) v1.0
+- [Function List AI](docs/function%20list/function-list-AI.md)

@@ -2,7 +2,7 @@
 
 Tài liệu này là chỉ mục điều hướng toàn bộ hệ thống tài liệu phục vụ quá trình rebaseline và refactor Cúc Phương Quest V2 theo quy trình tại [M03 Documentation Refactor Runbook v2](../M03_Documentation_Refactor_Runbook_v2.md).
 
-Spec M01, M02 và M03 là behavioral/contract baseline (nguồn sự thật duy nhất). Architecture, function list, screen specs và data model là tài liệu dẫn xuất.
+Spec M01, M02, M03 và Spec AI Integration là behavioral/contract baseline (nguồn sự thật duy nhất). Architecture, function list, screen specs và data model là tài liệu dẫn xuất.
 
 ---
 
@@ -12,6 +12,7 @@ Spec M01, M02 và M03 là behavioral/contract baseline (nguồn sự thật duy 
 - [Spec M01 — Route Planning & Preparation](spec/spec-M01.md)
 - [Spec M02 — Field Quest Experience](spec/spec-M02.md)
 - [Spec M03 — Operations & Content Administration](spec/spec-M03.md)
+- [Spec AI Integration — Dịch theo yêu cầu cho M03](spec/spec-AI_integration.md)
 
 ---
 
@@ -32,6 +33,7 @@ Spec M01, M02 và M03 là behavioral/contract baseline (nguồn sự thật duy 
 - [Function List M01](function%20list/function-list-M01.md)
 - [Function List M02](function%20list/function-list-M02.md)
 - [Function List M03](function%20list/function-list-M03.md)
+- [Function List AI](function%20list/function-list-AI.md)
 
 ---
 

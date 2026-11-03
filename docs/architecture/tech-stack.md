@@ -77,8 +77,9 @@ Cache Storage không lưu structured offline business data. IndexedDB không tha
 | Supabase Storage | Published image/audio/video object storage trong cùng backend project | M03 producer; M01/M02 consumers | Selected — bucket/policies/runtime not verified |
 | Supabase Edge Functions (Deno runtime) | HTTP validation cho `SessionSyncRecord` intake và privileged Auth Admin operations | M02 sync, M03 account management | Selected — not implemented |
 | PostgreSQL RPC/database functions | Atomic publication, concurrency, QR identity, close/reopen, roles, `SessionRecord` insert/compare và report query | M03; intake function calls RPC | Selected — not implemented |
+| Google Gemini API (gọi bằng HTTPS REST từ Edge Function, không SDK) | Dịch vi → en khi admin bấm "→" (spec-AI_integration); model cụ thể chốt trong plan `specs/004-ai-translation` | AI Integration cho editor M03 | Selected — not implemented (quyết định người dùng 2026-11-03; chờ CHG-AI-2026-11-03-01) |
 
-Public reads đi qua Data API với RLS/safe projections; không bắt mọi read đi vòng qua Edge Function. Admin domain writes dùng authenticated RPC có role/status check. Edge terminal intake validate strict Zod schema rồi gọi một transactional RPC insert/compare immutable payload; không expose RPC ghi terminal cho anon trực tiếp. Auth Admin calls chỉ ở Edge sau khi xác thực Reviewer.
+Public reads đi qua Data API với RLS/safe projections; không bắt mọi read đi vòng qua Edge Function. Admin domain writes dùng authenticated RPC có role/status check. Edge terminal intake validate strict Zod schema rồi gọi một transactional RPC insert/compare immutable payload; không expose RPC ghi terminal cho anon trực tiếp. Auth Admin calls chỉ ở Edge sau khi xác thực Reviewer. Lời gọi Gemini chỉ ở Edge Function dịch, sau khi xác thực caller có `AdminAccount` `ACTIVE`; function chỉ gửi text nguồn của một trường, không lưu gì vào Postgres, và lỗi/timeout trả về tín hiệu lỗi cho editor (spec-AI_integration BR-AI-08…10).
 
 RPC mặc định security-invoker; chỉ dùng security-definer khi cần, với fixed search_path, explicit EXECUTE grants và permission checks. Elevated client bypass RLS nên phải kiểm tra quyền trước khi gọi. Auth Admin API và Postgres không chung transaction: bootstrap/invitation tạo `INVITATION_PENDING` account và retry idempotent; chỉ callback identity khớp mới chuyển account sang `ACTIVE`. Password recovery chỉ đổi credential ở Auth, không đổi application role/status. Last-active-Reviewer guard nằm trong transaction database.
 
@@ -144,7 +145,8 @@ Ba module dùng chung stack và codebase; bảng này mô tả responsibility kh
 | Authentication | Supabase Auth | Admin identity and credential/session lifecycle |
 | Authorization | RLS + server-side permission checks | Public/admin data boundaries and role enforcement |
 | Media storage | Supabase Storage | Published media objects |
-| Server-side functions | Edge Functions + PostgreSQL RPC | Edge: HTTP/Auth Admin boundary; RPC: database transactions and reports |
+| Server-side functions | Edge Functions + PostgreSQL RPC | Edge: HTTP/Auth Admin boundary and the translation call; RPC: database transactions and reports |
+| Machine translation | Google Gemini API | vi → en translation on request for M03 editors, server-side only |
 | Schema validation | Zod | Runtime validation at TypeScript boundaries |
 | Frontend hosting | Vercel | Static web deployment |
 | Backend hosting | Supabase | Hosted backend/data services |
@@ -163,7 +165,7 @@ Ba module dùng chung stack và codebase; bảng này mô tả responsibility kh
 
 ## 12. Dependency Rules
 
-- Frontend code may receive only public `VITE_*` configuration; `APP_BACKEND_SECRET_KEY` is server-only and must never enter a browser bundle.
+- Frontend code may receive only public `VITE_*` configuration; `APP_BACKEND_SECRET_KEY` and `GEMINI_API_KEY` are server-only and must never enter a browser bundle.
 - Active frontend configuration points to the Single Supabase Cloud Project; generated deployment URLs must not introduce another backend/environment.
 - Cache Storage is limited to app shell/static/i18n resources; structured application/offline data belongs in IndexedDB.
 - M01, M02 and M03 keep logical ownership boundaries even though they share one codebase and deployment.
@@ -192,3 +194,4 @@ Các technology choices ở §§2–8 là **Selected**. Repository hiện không
 - [Supabase database migrations](https://supabase.com/docs/guides/local-development/database-migrations): local validation và deployment tới linked Cloud project.
 - [Vercel Git deployments](https://vercel.com/docs/git): deployment behavior trong một Vercel Project.
 - [Vitest](https://vitest.dev/guide/), [Playwright](https://playwright.dev/docs/intro): test tooling.
+- [Gemini API](https://ai.google.dev/gemini-api/docs): dịch theo yêu cầu cho M03 (spec-AI_integration).

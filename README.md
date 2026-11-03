@@ -19,6 +19,8 @@ Hệ thống được thiết kế dưới dạng modular monolith với ba modu
 | **M02 — Field Quest Experience** | Phiên thực địa, journey cố định, QR check-in, phân phối nội dung và đồng bộ ẩn danh. | Spec v2.0 — Chờ kiểm tra cross-module contract sau M03 |
 | **M03 — Operations & Content Administration** | Xác thực admin, quản trị tuyến/checkpoint/QR/nội dung, phê duyệt revision, snapshot và báo cáo. | **Trọng tâm rebaseline chính trong đợt refactor V2** |
 
+Ngoài ba module, **AI Integration** là một năng lực dùng cho M03 (không phải module thứ tư): nút "→" dịch ô tiếng Việt sang ô tiếng Anh trong các editor M03 (Spec v1.0, priority Could).
+
 Xem [MVP Scope](MVP-Scope.md) để biết phạm vi cam kết Must/Should/Could/Won't cho MVP.
 
 ---
@@ -29,12 +31,14 @@ Xem [MVP Scope](MVP-Scope.md) để biết phạm vi cam kết Must/Should/Could
 - [Spec M01 — Route Planning & Preparation](docs/spec/spec-M01.md)
 - [Spec M02 — Field Quest Experience](docs/spec/spec-M02.md)
 - [Spec M03 — Operations & Content Administration](docs/spec/spec-M03.md)
+- [Spec AI Integration — Dịch theo yêu cầu cho M03](docs/spec/spec-AI_integration.md)
 - [MVP Scope & Boundaries](MVP-Scope.md)
 
 ### B. Function Lists & Decomposition
 - [Function List M01](docs/function%20list/function-list-M01.md)
 - [Function List M02](docs/function%20list/function-list-M02.md)
 - [Function List M03](docs/function%20list/function-list-M03.md)
+- [Function List AI](docs/function%20list/function-list-AI.md)
 
 ### C. Kiến Trúc Hệ Thống (Architecture)
 - [Architecture Overview](docs/architecture/README.md)

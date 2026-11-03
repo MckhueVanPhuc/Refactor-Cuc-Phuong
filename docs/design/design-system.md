@@ -6,7 +6,7 @@
 
 Tài liệu này hướng dẫn màu sắc, kiểu chữ, khoảng cách, bố cục và component dùng lại. Bố cục và kích thước là điểm khởi đầu cho khám phá hình ảnh, có thể điều chỉnh theo độ dài nội dung, viewport và rà soát truy cập.
 
-Hành vi nghiệp vụ và contract thuộc về [Spec M01](../spec/spec-M01.md), [Spec M02](../spec/spec-M02.md) và [Spec M03](../spec/spec-M03.md). Phần tử, trạng thái và điều hướng chi tiết thuộc về [screen inventory](../../screens/screen%20list/README.md) và các screen specification trong [screens/screen-spec/](../../screens/screen-spec/). Ưu tiên giao hàng thuộc về [MVP Scope](../../MVP-Scope.md). Dùng các nguồn đó cho hành động, quyền, validation và data binding. Giao diện không định nghĩa validation, permission, retry timing, storage behavior hay lifecycle transition.
+Hành vi nghiệp vụ và contract thuộc về [Spec M01](../spec/spec-M01.md), [Spec M02](../spec/spec-M02.md), [Spec M03](../spec/spec-M03.md) và [Spec AI Integration](../spec/spec-AI_integration.md). Phần tử, trạng thái và điều hướng chi tiết thuộc về [screen inventory](../../screens/screen%20list/README.md) và các screen specification trong [screens/screen-spec/](../../screens/screen-spec/). Ưu tiên giao hàng thuộc về [MVP Scope](../../MVP-Scope.md). Dùng các nguồn đó cho hành động, quyền, validation và data binding. Giao diện không định nghĩa validation, permission, retry timing, storage behavior hay lifecycle transition.
 
 | Nguyên tắc | Áp dụng hình ảnh |
 |---|---|
@@ -189,6 +189,8 @@ Các quy tắc sau chỉ ghép từ token đã có, để thống nhất khi tri
 | Nhóm hành động (M03) | Ba nhóm tách rõ: chính (Lưu bản nháp, Xuất bản); vòng đời (Đóng tạm, Mở lại); không hoàn tác (Lưu trữ, Hủy) ở cuối, xa hai nhóm kia, luôn qua dialog xác nhận riêng. Trên màn hẹp, thanh hành động cố định phía dưới (`--shadow-bottom-nav`) chỉ chứa nhóm chính. |
 | Nội dung dài trong bảng (M03) | Ô trước/sau của nhật ký rút gọn tối đa 2 dòng; mở rộng theo từng hàng bằng nút có nhãn chữ và `aria-expanded`. Cột kết quả luôn bằng chữ. |
 | Hover/pressed | Không thêm màu mới; dùng lớp phủ trong suốt lên màu nền sẵn có, xem 5.4. |
+| Nút dịch "→" (M03, [Spec AI Integration](../spec/spec-AI_integration.md) §5.5) | Nút phụ nhỏ giữa ô tiếng Việt và ô tiếng Anh của mỗi cặp song ngữ; hiện ký tự chữ "→" (U+2192), không dùng file icon. Nền `white`, viền `control border`, chữ `accent`; bo `--radius-md`; vùng chạm tối thiểu 44×44px; tên truy cập "Dịch sang tiếng Anh". Không bấm được thì theo dòng Disabled/unavailable. Trên màn hẹp, khi hai ô xếp chồng, nút nằm giữa hai ô. |
+| Trạng thái dịch (M03) | Một dòng 14px ngay dưới ô tiếng Anh, gắn với ô bằng `aria-describedby`. "Đang dịch…" màu `secondary`, `role="status"`. Lỗi dùng cách hiển thị của Thông báo lỗi (màu `error`, `role="alert"`) kèm nút chữ "Thử lại"; không tự đóng. Không làm đổi bố cục ô. |
 
 ### 5.4 Hover và pressed
 
@@ -322,6 +324,7 @@ Hệ quả cho thiết kế: các cặp trên 4.5:1 dùng được cho chữ th�
 - Không tự vẽ icon; không lấy icon từ thư viện khác khi chưa được phê duyệt.
 - Icon đi kèm chữ ở nơi truyền đạt trạng thái (Status chip, thông báo lỗi); không dùng icon hay màu làm tín hiệu duy nhất.
 - Màu icon lấy từ token màu của mục 2, không hard-code.
+- Nút dịch "→" của M03 dùng ký tự chữ, không phải icon, nên không cần file trong assets/icons/ (quyết định người dùng 2026-11-03, Spec AI Integration OD-AI-18).
 
 ---
 
@@ -341,11 +344,11 @@ Hướng hình ảnh theo từng màn hình; chỉ dùng token và component c�
 | `SCR-M02-004` — Trang mở từ mã QR | Bề mặt đọc sáng như `SCR-M02-002`; nút VI/EN ở đầu trang; gợi ý khách tự do và các banner (đóng tạm, mã không hợp lệ, cần kết nối, tự kết thúc chuyến trước) dùng nhãn chữ cùng màu semantic; vùng thông báo và xác nhận lượt ghé theo 5.3 | [Screen spec](../../screens/screen-spec/M02/screen-spec-SCR-M02-004.md) |
 | `SCR-M03-000` — Admin login | Form thông tin đăng nhập tập trung | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-000.md) |
 | `SCR-M03-001` — Route administration | Tìm kiếm/danh sách và chi tiết tuyến | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-001.md) |
-| `SCR-M03-002` — Route editor | Field nhóm và danh sách checkpoint có thứ tự | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-002.md) |
-| `SCR-M03-003` — Checkpoint, QR and content | Tab chi tiết/nội dung/QR và điều khiển media | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-003.md) |
+| `SCR-M03-002` — Route editor | Field nhóm và danh sách checkpoint có thứ tự; nút dịch "→" và trạng thái dịch theo 5.3 | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-002.md) |
+| `SCR-M03-003` — Checkpoint, QR and content | Tab chi tiết/nội dung/QR và điều khiển media; nút dịch "→" và trạng thái dịch theo 5.3 | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-003.md) |
 | `SCR-M03-004` — Review and publication | Danh tính revision, khoảng trống và so sánh | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-004.md) |
 | `SCR-M03-005` — Operations reports | RPT-01 thẻ tóm tắt; RPT-02 hàng checkpoint | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-005.md) |
 | `SCR-M03-006` — Accounts and roles | Form lời mời và nhãn role/status | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-006.md) |
 | `SCR-M03-007` — Invitation and recovery | Form thông tin đăng nhập và phản hồi | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-007.md) |
-| `SCR-M03-008` — Thư viện điểm dừng | Workspace M03: danh sách/chi tiết, form song ngữ nhóm lại, chip trạng thái bằng từ vựng của entity, bản nháp tách khỏi bản đã xuất bản, dialog riêng cho đóng tạm/mở lại/lưu trữ/hủy; nhóm hành động theo 5.3 | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-008.md) |
+| `SCR-M03-008` — Thư viện điểm dừng | Workspace M03: danh sách/chi tiết, form song ngữ nhóm lại, chip trạng thái bằng từ vựng của entity, bản nháp tách khỏi bản đã xuất bản, dialog riêng cho đóng tạm/mở lại/lưu trữ/hủy; nhóm hành động theo 5.3; nút dịch "→" cho tên điểm dừng | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-008.md) |
 | `SCR-M03-009` — Nhật ký hệ thống | Workspace M03: bảng chỉ đọc có bộ lọc, cột trước/sau căn chỉnh, kết quả bằng chữ (Thành công / Không thành công), huy hiệu "tự xuất bản"; nội dung trước/sau rút gọn theo 5.3 | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-009.md) |
