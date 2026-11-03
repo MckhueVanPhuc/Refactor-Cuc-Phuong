@@ -1,9 +1,107 @@
-/* SCR-M02-002 trên bề mặt reader sáng; phản hồi ghi nhận dùng màu success semantic kèm nhãn chữ (design-system §2.3). */
-.recorded {
+/*
+ * SCR-M02-002 trên bề mặt reader sáng (mockup-SCR-M02-004 "article"): tên điểm dừng nhỏ phía trên tên đối tượng,
+ * ảnh tràn cột đọc, đoạn giới thiệu dài khoảng 62 ký tự mỗi dòng. Thông báo dùng nhãn chữ + vạch màu semantic.
+ */
+.article {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 62ch;
+  font-size: var(--font-size-body);
+}
+
+.header {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.checkpoint {
   margin: 0;
-  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+.object {
+  margin: 0;
+  font-size: var(--font-size-page-heading-mobile);
   font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+}
+
+.image,
+.imageSlot {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--color-m03-muted);
+}
+
+.placeholder {
+  border: var(--border-width-thin) dashed var(--color-m03-control-border);
+}
+
+.introduction {
+  margin: 0;
+  line-height: var(--line-height-body);
+}
+
+.visitTime,
+.loading {
+  margin: 0;
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+.notice {
+  padding: var(--space-3) var(--space-4);
   background: var(--color-white);
-  border-left: var(--border-width-thick) solid var(--color-success);
+  border-left: var(--border-width-thick) solid var(--notice-accent);
+  border-radius: var(--radius-sm);
+}
+
+.info {
+  --notice-accent: var(--color-info);
+}
+
+.success {
+  --notice-accent: var(--color-success);
+}
+
+.warning {
+  --notice-accent: var(--color-warning);
+}
+
+.error {
+  --notice-accent: var(--color-error);
+}
+
+.noticeText {
+  margin: 0;
+}
+
+.noticeText + .noticeText {
+  margin-top: var(--space-1);
+}
+
+.noticeLink,
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+}
+
+.back {
+  margin-top: var(--space-6);
+}
+
+.noticeLink:focus-visible,
+.back:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
   border-radius: var(--radius-sm);
 }
