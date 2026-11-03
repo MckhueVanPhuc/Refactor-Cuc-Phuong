@@ -152,3 +152,61 @@ describe('RouteDetailPage — Bắt đầu (US4, T065)', () => {
     expect(screen.queryByRole('button', { name: 'Bắt đầu' })).toBeNull();
   });
 });
+
+describe('RouteDetailPage — gói và quyết định offline (US6, T086)', () => {
+  it('Bắt đầu trên A chưa có gói → dialog: tên điểm dừng OFFLINE_REQUIRED, "Chưa có thông tin dung lượng.", ba nút (V9)', async () => {
+    await renderM01('/routes/route-a');
+    (await screen.findByRole('button', { name: 'Bắt đầu' })).click();
+    const dialog = await screen.findByRole('dialog', { name: 'Tuyến này nên tải trước' });
+    expect(within(dialog).getByText(/Điểm thử A1, Điểm thử A2/)).toBeTruthy();
+    expect(within(dialog).getByText('Chưa có thông tin dung lượng.')).toBeTruthy();
+    expect(within(dialog).getAllByRole('button').map((b) => b.textContent)).toEqual(['Tải về', 'Tiếp tục không tải', 'Quay lại']);
+  });
+
+  it('chọn Tải về → gói SAN_SANG, vùng gói hiện "Sẵn sàng – mới nhất" và dòng hướng dẫn quét; không tự Start', async () => {
+    const { router } = await renderM01('/routes/route-a');
+    (await screen.findByRole('button', { name: 'Bắt đầu' })).click();
+    // Vùng gói cũng có nút "Tải về": bấm nút trong dialog
+    within(await screen.findByRole('dialog')).getByRole('button', { name: 'Tải về' }).click();
+    expect(await screen.findByText('Sẵn sàng – mới nhất')).toBeTruthy();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByText(/hãy quét mã bằng nút Quét trong ứng dụng/)).toBeTruthy();
+    expect(router.state.location.pathname).toBe('/routes/route-a');
+  });
+
+  it('chọn Tiếp tục không tải → Start online; chọn Quay lại → không Start', async () => {
+    const { router } = await renderM01('/routes/route-a');
+    (await screen.findByRole('button', { name: 'Bắt đầu' })).click();
+    (await screen.findByRole('button', { name: 'Quay lại' })).click();
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(router.state.location.pathname).toBe('/routes/route-a');
+    (await screen.findByRole('button', { name: 'Bắt đầu' })).click();
+    (await screen.findByRole('button', { name: 'Tiếp tục không tải' })).click();
+    await vi.waitFor(() => expect(router.state.location.pathname).toBe('/trip'));
+  });
+
+  it('tuyến không cần gói (B) → Start không qua dialog', async () => {
+    const { router } = await renderM01('/routes/route-b');
+    (await screen.findByRole('button', { name: 'Bắt đầu' })).click();
+    await vi.waitFor(() => expect(router.state.location.pathname).toBe('/trip'));
+  });
+
+  it('vùng gói: tuyến cần gói chưa tải → "Chưa tải" và Tải về; ảnh lỗi → "Tải chưa hoàn tất…" (V11)', async () => {
+    const fake = createFakeSource();
+    fake.controls.failImage('fixture/a2-1.png', 500);
+    await renderM01('/routes/route-a', { fake });
+    expect(await screen.findByText('Chưa tải')).toBeTruthy();
+    within(screen.getByRole('region', { name: 'Gói tải trước' })).getByRole('button', { name: 'Tải về' }).click();
+    expect(await screen.findByText('Tải chưa hoàn tất. Hãy thử tải lại.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Tải lại' })).toBeTruthy();
+  });
+
+  it('có gói v1, nguồn v2: mở chi tiết online → tự dựng candidate và kích hoạt v2 (V13)', async () => {
+    const fake = createFakeSource();
+    const { routes, snapshots } = publicationFixture();
+    await seedReadyPackage(packageFromPublication(routes.A, snapshots.A), () => new NodeBlob([new Uint8Array([1])], { type: 'image/png' }) as unknown as Blob);
+    fake.controls.publishNextVersion('route-a');
+    await renderM01('/routes/route-a', { fake });
+    await vi.waitFor(async () => expect((await (await import('../storage/readers')).readActiveOfflinePackage('route-a'))?.contentVersion).toBe(2));
+  });
+});

@@ -54,8 +54,9 @@ describe('đăng ký với onSourceRead: mọi lần đọc nguồn thành công
     }
     const context = await readSelectedRouteContext();
     expect(context.kind === 'OK' && context.value.authorizationStatus).toBe('REVOKED');
-    // Gói của tuyến còn nguyên; ba store M02 không đổi
-    expect(await readActiveOfflinePackage('route-a')).toEqual(pkg);
+    // Gói của tuyến còn nguyên (routeEssentials được làm mới sau mỗi lần đọc thành công, FR-M01-014); store M02 không đổi
+    const { routeEssentials: _refreshed, ...frozen } = pkg;
+    expect(await readActiveOfflinePackage('route-a')).toMatchObject(frozen);
     expect(await m02Rows()).toEqual(before);
   });
 

@@ -109,6 +109,11 @@ export const vi = {
 
   // SCR-M01-004
   offline: {
+    // Nhãn ngoài bảng copy: "Gói tải trước" theo mockup SCR-M01-003; phiên bản, "Xem" theo element SCR-M01-004 — DV-40
+    panelTitle: 'Gói tải trước',
+    version: ({ n }: { n: number }) => `Phiên bản ${n}`,
+    view: 'Xem',
+    update: 'Cập nhật',
     status: {
       notDownloaded: 'Chưa tải',
       downloading: 'Đang tải',

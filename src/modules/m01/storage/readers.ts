@@ -135,3 +135,13 @@ export async function listPackageEntries(): Promise<PackageEntry[]> {
     return entries;
   });
 }
+
+/** Con trỏ gói active của tuyến (nội bộ M01: hiệu ứng làm mới chữ cốt lõi). */
+export async function readActivePackagePointer(routeId: string): Promise<ActivePackageRow | undefined> {
+  return activePackagesTable.get(routeId);
+}
+
+/** Mọi dòng candidate (nội bộ M01: khôi phục candidate mồ côi khi mở app). */
+export async function listPackageCandidates(): Promise<PackageCandidateRow[]> {
+  return packageCandidatesTable.toArray();
+}

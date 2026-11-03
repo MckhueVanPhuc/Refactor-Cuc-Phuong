@@ -100,6 +100,11 @@ export const en: M01Messages = {
   },
 
   offline: {
+    // Đề xuất của agent — DV-40
+    panelTitle: 'Offline download',
+    version: ({ n }) => `Version ${n}`,
+    view: 'View',
+    update: 'Update',
     status: {
       notDownloaded: 'Not downloaded',
       downloading: 'Downloading',

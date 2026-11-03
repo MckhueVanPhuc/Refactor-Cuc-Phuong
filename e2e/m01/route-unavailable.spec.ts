@@ -25,6 +25,8 @@ test('V22 — context A AUTHORIZED; A chuyển TAM_DONG; làm mới danh mục: 
   // M03 tạm đóng tuyến A; du khách làm mới danh mục
   mock.routes = mock.routes.map((route) => (route.routeId === 'route-a' ? { ...route, status: 'TAM_DONG' } : route));
   await page.getByRole('link', { name: 'Tài nguyên offline' }).click();
+  // Chờ màn /offline hiện (chunk lazy) để màn danh mục thật sự mount lại và làm mới nguồn
+  await expect(page.getByRole('heading', { level: 1, name: 'Quản lý tài nguyên offline' })).toBeVisible();
   await page.getByRole('link', { name: 'Danh mục tuyến' }).click();
   await expect(page.getByRole('link', { name: /Tuyến thử Ao Hồ/ })).toBeVisible();
   await expect(page.getByRole('link', { name: /Tuyến thử Bách Thảo/ })).toHaveCount(0);
@@ -39,5 +41,10 @@ test('V22 — context A AUTHORIZED; A chuyển TAM_DONG; làm mới danh mục: 
   await expect(page.getByText('Tuyến này hiện không nhận chuyến mới.')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Bắt đầu' })).toHaveCount(0);
 
-  expect(await dumpStores(page, [...PACKAGE_STORES, ...M02_STORES])).toEqual(before);
+  // routeEssentials của gói được làm mới sau mỗi lần đọc nguồn thành công (FR-M01-014): so phần còn lại
+  const withoutEssentials = (data: Record<string, unknown[]>) => ({
+    ...data,
+    offlinePackages: (data.offlinePackages ?? []).map((row) => ({ ...(row as object), routeEssentials: undefined })),
+  });
+  expect(withoutEssentials(await dumpStores(page, [...PACKAGE_STORES, ...M02_STORES]))).toEqual(withoutEssentials(before));
 });

@@ -277,3 +277,44 @@ Branch `feat/m01-us5`, tách từ `feat/m01-us4` (PR #13–#17 chờ merge; DV-2
 ### 7.4 Checkpoint US5
 
 US5 **đạt** trên network mock: V22 pass (tuyến biến mất, Start bị chặn, context `REVOKED`, gói và store M02 không đổi).
+
+## 8. Đợt 2026-11-03 — Phase 8 US6 Chuẩn bị gói offline (T072–T087)
+
+Branch `feat/m01-us6`, tách từ `feat/m01-us5` (PR #13–#18 chờ merge; DV-20). Test T072–T078 và các ca gói của `RouteDetailPage.test.tsx` viết trước và đã chạy thấy fail trước khi cài đặt.
+
+### 8.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx vitest run src/modules/m01` (trong lúc làm) | 0 | 260 pass sau khi sửa: Blob của jsdom từ `Response.blob()` không clone được (DV-44); test thu hồi của US5 so gói bằng đẳng thức tuyệt đối trong khi chữ cốt lõi nay được làm mới (DV-47); test bấm nhầm nút "Tải về" của vùng gói thay vì của dialog |
+| `npx playwright test --project=m01` (lần đầu) | 1 | 4 ca fail, đều do test: V12 tải lại trang làm mất cờ tiêm lỗi trong bộ nhớ; V14 đếm cả lô ký URL của danh mục/gallery; V21 dùng tuyến A nay mở dialog quyết định offline; V22 bấm quay lại danh mục khi chunk `/offline` chưa nạp nên màn danh mục không mount lại (chỉ lộ ra khi cả bộ chạy song song). Đã sửa (DV-46); chạy lại hai lần liên tiếp: 22/22 |
+| `npm run ci` | 0 | typecheck sạch; lint 493 pass; test 106 file pass + 1 skipped, 1632 pass, 133 skipped; build precache 49 mục |
+| `npm run e2e` | 0 | 48 pass, 47 skipped; `m01`: V1, V3–V22 và SC-M01-008 pass, V2 `fixme` |
+| Quét `dist/` production tìm hook test, `fake://`, `node:buffer` | — | Không có |
+
+Một lần chạy `npm run ci` + `npm run e2e` ở phiên trước bị dừng khi phiên kết thúc (không có kết quả); hai lệnh trên là lần chạy lại hoàn chỉnh.
+
+### 8.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Hết quota thật của trình duyệt, eviction | Mô phỏng bằng `failNextActivation`; kiểm thủ công trên thiết bị thật (T100) |
+| V10 trên stack Supabase local (Storage thật, signed URL thật) | Phase 11 (T105) |
+| Hai tab thật bấm Tải cùng lúc trên trình duyệt không có Web Locks | Chỉ kiểm mutex trong tab bằng unit test; rủi ro ghi ở research R-09 |
+
+### 8.3 Lệch so với tasks và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-40 | Nhãn ngoài bảng copy: "Gói tải trước" (mockup SCR-M01-003) / "Offline download"; "Phiên bản {n}" / "Version {n}" (E-SCR-M01-004-05); "Xem" / "View" (E-SCR-M01-004-10); "Cập nhật" / "Update" (cùng chữ với lời nhắc cập nhật). Tiếng Anh do agent đề xuất theo ủy quyền 2026-11-02 | Áp dụng, chủ dự án có thể sửa |
+| DV-41 | T082–T087: phân biệt "lỗi lưu trữ" với "cập nhật lỗi"/"tải chưa hoàn tất" bằng kết quả thao tác trong bộ nhớ của màn (`PackageOpResult`), không thêm trường nào vào dòng `packageCandidates` (data-model §3). Mở lại màn thì chỉ còn trạng thái lưu bền (`CHUA_HOAN_TAT` hoặc gói cũ) | Áp dụng |
+| DV-42 | T085: "Quay lại" đóng dialog và ở lại màn chi tiết (màn trước của quyết định); không điều hướng lùi lịch sử. Esc = Quay lại, focus ban đầu ở Quay lại để không chọn ngầm | Áp dụng |
+| DV-43 | T086: "Tải về" trong dialog chỉ tải gói, không tự Start sau khi tải xong (screen spec §5 mục 5: Tải → Downloading → Ready/Incomplete); du khách bấm "Bắt đầu" lại. Trước khi mở dialog đọc snapshot active; nguồn không khả dụng hoặc snapshot cho thấy không cần gói → không mở dialog | Áp dụng |
+| DV-44 | `fakeSource.ts` (chỉ Vitest) trả byte ảnh bằng `Blob` của `node:buffer` vì `Response.blob()` trong jsdom tạo Blob của jsdom mà fake-indexeddb không clone được (cùng nguyên nhân DV-14) | Áp dụng |
+| DV-45 | T083: `src/app/App.tsx` gọi `recoverM01Orphans()` (import động) khi shell khởi động. Không có Web Locks thì mọi candidate `DANG_TAI` còn lại coi là mồ côi | Áp dụng |
+| DV-46 | E2E: chờ tiêu đề màn `/offline` trước khi quay lại danh mục (V22, V6); đặt lại bộ đếm ký URL trước khi bấm Tải (V14); V21 dùng tuyến B; V12 điều hướng trong app để giữ cờ tiêm lỗi | Áp dụng |
+| DV-47 | T084: hiệu ứng sau đọc nguồn gồm thu hồi, `OUTDATED`, làm mới chữ cốt lõi (mọi dòng tuyến hợp lệ có gói active, kể cả tuyến đã đóng). Hệ quả: test "gói còn nguyên" của US5 (unit, V22) so gói trừ `routeEssentials` | Áp dụng |
+
+### 8.4 Checkpoint US6
+
+US6 **đạt** trên network mock: V9–V16 pass. M02 đọc được gói `SAN_SANG` thật qua `src/modules/m01/index.ts`.

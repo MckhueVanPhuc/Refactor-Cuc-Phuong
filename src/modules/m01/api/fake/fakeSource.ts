@@ -1,6 +1,7 @@
 // Adapter giả in-memory của M01 cho Vitest (tasks T031; research R-01, R-16). Dữ liệu là fixture publication
 // synthetic; trả dòng như view PostgREST rồi đi qua chính adapter thật, nên ánh xạ cột, schema và timeout đều được
 // kiểm. E2E không dùng file này: Playwright giả Data API và Storage bằng page.route() (DV-10).
+import { Blob as NodeBlob } from 'node:buffer';
 import {
   journeySnapshotRow,
   nextVersion,
@@ -83,11 +84,13 @@ export function createFakeSource() {
     },
   };
 
+  // Byte ảnh là Blob của Node: fake-indexeddb trong jsdom không clone được Blob của jsdom (validation-report DV-14)
   async function fakeFetch(url: string): Promise<globalThis.Response> {
     const sourceRef = url.slice(SIGN_PREFIX.length);
     const status = imageFailures.get(sourceRef);
-    if (status !== undefined) return new globalThis.Response(null, { status });
-    return new globalThis.Response(pngBytes(), { status: 200, headers: { 'Content-Type': 'image/png' } });
+    if (status !== undefined) return { ok: false, status, blob: async () => new NodeBlob([]) } as unknown as globalThis.Response;
+    const blob = new NodeBlob([pngBytes()], { type: 'image/png' }) as unknown as Blob;
+    return { ok: true, status: 200, blob: async () => blob } as unknown as globalThis.Response;
   }
 
   return {

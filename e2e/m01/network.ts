@@ -27,6 +27,10 @@ export type PublicationMock = {
   delayMs: number;
   /** Số request Data API đã nhận */
   dataApiRequests: number;
+  /** Trễ mỗi response ảnh (ms) */
+  imageDelayMs: number;
+  /** Số request ký URL (mỗi lần tải gói ký một lô) */
+  signRequests: number;
 };
 
 export function defaultPublication(): PublicationMock {
@@ -38,6 +42,8 @@ export function defaultPublication(): PublicationMock {
     imageFailures: new Map(),
     delayMs: 0,
     dataApiRequests: 0,
+    imageDelayMs: 0,
+    signRequests: 0,
   };
 }
 
@@ -73,6 +79,7 @@ export async function mockPublication(page: Page, mock: PublicationMock = defaul
     fulfillRows(route, mock, mock.snapshots.map(journeySnapshotRow)),
   );
   await page.route('**/storage/v1/object/sign/quest-media', async (route) => {
+    mock.signRequests += 1;
     const { paths } = route.request().postDataJSON() as { paths: string[] };
     await route.fulfill({
       status: 200,
@@ -86,8 +93,9 @@ export async function mockPublication(page: Page, mock: PublicationMock = defaul
     const url = new URL(route.request().url());
     const sourceRef = decodeURIComponent(url.pathname.replace(/^.*\/object\/sign\/quest-media\//, ''));
     const status = mock.imageFailures.get(sourceRef);
-    if (status !== undefined) await route.fulfill({ status, body: '' });
-    else await route.fulfill({ status: 200, contentType: 'image/png', body: PNG_1X1 });
+    if (mock.imageDelayMs > 0) await new Promise((resolve) => setTimeout(resolve, mock.imageDelayMs));
+    if (status !== undefined) await route.fulfill({ status, body: '' }).catch(() => {});
+    else await route.fulfill({ status: 200, contentType: 'image/png', body: PNG_1X1 }).catch(() => {});
   });
   return mock;
 }

@@ -89,10 +89,11 @@ test('V21 — bấm Start hai lần liền → một context; lỗi ghi transact
   const rows = await contextRows(page);
   expect(rows).toHaveLength(1);
 
-  await openDetail(page, 'route-a');
+  // Tuyến B không cần gói nên Start không qua dialog quyết định offline (US6)
+  await openDetail(page, 'route-b');
   await callM01Hook(page, 'failNextContextWrite');
   await page.getByRole('button', { name: 'Bắt đầu' }).click();
   await expect(page.getByRole('alert')).toHaveText('Chưa bắt đầu được. Hãy thử lại.');
-  await expect(page).toHaveURL(/\/routes\/route-a$/);
+  await expect(page).toHaveURL(/\/routes\/route-b$/);
   expect(await contextRows(page)).toEqual(rows);
 });
