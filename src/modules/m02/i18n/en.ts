@@ -32,6 +32,18 @@ export const en: M02Messages = {
     replaceFailed: 'Could not start the new trip. Your current trip is still in progress.',
     previousTripSyncError: 'Your previous trip could not be sent to the system. It is still saved on this device.',
   },
+  // Đề xuất của agent cho chữ lấy từ mockup-SCR-M02-001 (nguồn chỉ có tiếng Việt); chủ dự án duyệt 2026-11-04
+  journey: {
+    heading: 'Journey',
+    notScanned: 'Not scanned',
+    progress: ({ scanned, total }) => `QR scanned: ${scanned}/${total} points`,
+  },
+  scanner: {
+    title: 'Scan a QR code',
+    instruction: "Point the camera at the stop's QR code.",
+    close: 'Close camera',
+    retry: 'Try again',
+  },
   handoff: {
     outdatedVersion: 'This trip data is from an older version. Please choose a route and start again.',
     alreadyUsed: 'This trip has already been started. To go again, choose a route and start again.',

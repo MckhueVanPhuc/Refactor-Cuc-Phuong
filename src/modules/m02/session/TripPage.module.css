@@ -1,6 +1,7 @@
 /*
  * SCR-M02-001 trên bề mặt scanner tối (mockup-SCR-M02-001). Thông báo phân biệt bằng nhãn chữ và một vạch màu
  * semantic của scanner ở cạnh trái, không chỉ dựa vào màu (design-system §5 "M02 — Field Experience").
+ * Nút Quét luôn trong tầm với ở đáy màn.
  */
 .notice {
   margin: 0;
@@ -27,6 +28,10 @@
   margin: 0;
 }
 
+.noticeText + .noticeText {
+  margin-top: var(--space-2);
+}
+
 .noticeLink {
   display: inline-flex;
   align-items: center;
@@ -46,4 +51,50 @@
 .journey {
   display: grid;
   gap: var(--space-3);
+  padding-bottom: var(--space-6);
+}
+
+.actions {
+  position: sticky;
+  bottom: 0;
+  margin: 0 calc(var(--space-5) * -1);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-m02-scanner-bg);
+  border-top: var(--border-width-thin) solid var(--color-m02-scanner-secondary);
+  box-shadow: var(--shadow-bottom-nav);
+}
+
+.scan {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--touch-target-m01-primary);
+  padding: 0 var(--space-4);
+  font: var(--font-weight-semibold) var(--font-size-body) / 1 var(--font-sans);
+  color: var(--color-m02-scanner-bg);
+  background: var(--color-m02-scanner-success);
+  border: var(--border-width-thin) solid var(--color-m02-scanner-success);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.scan:hover:not(:disabled) {
+  background-image: linear-gradient(var(--overlay-fill-hover), var(--overlay-fill-hover));
+}
+
+.scan:active:not(:disabled) {
+  background-image: linear-gradient(var(--overlay-fill-pressed), var(--overlay-fill-pressed));
+}
+
+.scan:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.scan:disabled {
+  cursor: not-allowed;
+  color: var(--color-m02-scanner-secondary);
+  background: transparent;
+  border-color: var(--color-m02-scanner-secondary);
 }
