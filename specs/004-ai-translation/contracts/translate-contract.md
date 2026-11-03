@@ -33,7 +33,7 @@ Xác thực chạy trước kiểm tra body, để người lạ không dò đư
 ## 4. Gọi dịch vụ dịch
 
 - Thiếu `GEMINI_API_KEY` → `502 { "result": "FAILED" }`.
-- `POST https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent`, header `x-goog-api-key`, `signal: AbortSignal.timeout(12000)`; chỉ gửi `systemInstruction` cố định và `trim(text)` (BR-AI-10).
+- `POST https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent` (`GEMINI_MODEL` = `gemini-3.5-flash-lite`, research R-03), header `x-goog-api-key`, `signal: AbortSignal.timeout(12000)`; chỉ gửi `systemInstruction` cố định và `trim(text)` (BR-AI-10).
 - Gemini lỗi HTTP, quá thời gian, bị chặn an toàn hoặc không có text → `502 { "result": "FAILED" }`.
 
 ## 5. Response thành công (`TranslationResult`)

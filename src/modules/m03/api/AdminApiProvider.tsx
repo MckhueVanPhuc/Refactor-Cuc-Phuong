@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { AuthService } from '../auth/authService';
+import type { Translator } from '../translation/translationContract';
 import type { AdminApi } from './AdminApi';
 
-// Chọn adapter và AuthService cho M03 (tasks T044, T065): MODE `fake` → bản giả dùng chung một store
-// (import() động để không vào bundle production), ngược lại Supabase dùng chung một client. Test truyền thẳng `services`.
-export type AdminServices = { api: AdminApi; auth: AuthService };
+// Chọn adapter, AuthService và bộ dịch cho M03 (tasks T044, T065; spec-AI research R-07): MODE `fake` → bản giả dùng
+// chung một store (import() động để không vào bundle production), ngược lại Supabase dùng chung một client.
+// Test truyền thẳng `services`.
+export type AdminServices = { api: AdminApi; auth: AuthService; translator: Translator };
 
 const AdminServicesContext = createContext<AdminServices | null>(null);
 
@@ -20,16 +22,23 @@ async function createServices(): Promise<AdminServices> {
   if (import.meta.env.MODE === 'fake') {
     const fake = await import('./fake/fakeAdminApi');
     const store = new fake.FakeStore();
-    fake.registerFakeTestHooks(store);
-    return fake.createFakeServices(store);
+    const services = fake.createFakeServices(store);
+    fake.registerFakeTestHooks(store, services.translator);
+    return services;
   }
-  const [{ createSupabaseAdminApi }, { createSupabaseAuthService }, { createSupabaseClient }] = await Promise.all([
-    import('./supabaseAdminApi'),
-    import('../auth/session'),
-    import('../../../shared/supabase/client'),
-  ]);
+  const [{ createSupabaseAdminApi }, { createSupabaseAuthService }, { createSupabaseClient }, { createSupabaseTranslator }] =
+    await Promise.all([
+      import('./supabaseAdminApi'),
+      import('../auth/session'),
+      import('../../../shared/supabase/client'),
+      import('../translation/supabaseTranslator'),
+    ]);
   const client = createSupabaseClient();
-  return { api: createSupabaseAdminApi(client), auth: createSupabaseAuthService(client) };
+  return {
+    api: createSupabaseAdminApi(client),
+    auth: createSupabaseAuthService(client),
+    translator: createSupabaseTranslator(client),
+  };
 }
 
 export function AdminServicesProvider({ services, children }: { services?: AdminServices; children: ReactNode }) {
@@ -58,3 +67,4 @@ function useServices(): AdminServices {
 
 export const useAdminApi = (): AdminApi => useServices().api;
 export const useAuthService = (): AuthService => useServices().auth;
+export const useTranslator = (): Translator => useServices().translator;

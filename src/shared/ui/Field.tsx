@@ -13,18 +13,22 @@ export type FieldShellProps = {
   error?: ReactNode | undefined;
   /** Hiện "n/max" khi có; số ký tự tính theo code point. */
   counter?: { length: number; max: number } | undefined;
+  /** Id của phần tử mô tả thêm nằm ngoài khung (ví dụ dòng trạng thái dịch), nối vào `aria-describedby` */
+  extraDescribedBy?: string | undefined;
   children: (ids: FieldIds) => ReactNode;
 };
 
 /** Khung chung của một trường: nhãn phía trên, gợi ý, ô nhập, rồi dòng lỗi + bộ đếm (design-system §5.3). */
-export function FieldShell({ label, hint, error, counter, children }: FieldShellProps) {
+export function FieldShell({ label, hint, error, counter, extraDescribedBy, children }: FieldShellProps) {
   const controlId = useId();
   const hintId = `${controlId}-hint`;
   const errorId = `${controlId}-error`;
   const counterId = `${controlId}-counter`;
   const invalid = error !== undefined && error !== null && error !== '';
   const describedBy =
-    [hint ? hintId : null, invalid ? errorId : null, counter ? counterId : null].filter(Boolean).join(' ') ||
+    [hint ? hintId : null, invalid ? errorId : null, counter ? counterId : null, extraDescribedBy ?? null]
+      .filter(Boolean)
+      .join(' ') ||
     undefined;
 
   return (

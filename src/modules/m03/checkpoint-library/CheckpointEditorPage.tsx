@@ -7,13 +7,13 @@ import { Button } from '../../../shared/ui/Button';
 import { Checkbox } from '../../../shared/ui/Checkbox';
 import { RadioGroup } from '../../../shared/ui/RadioGroup';
 import { TextArea } from '../../../shared/ui/TextArea';
-import { TextField } from '../../../shared/ui/TextField';
 import { useAdminApi } from '../api/AdminApiProvider';
 import { AdminApiError } from '../api/errors';
 import { useSessionExpiry } from '../auth/useSessionExpiry';
 import { CHECKPOINT_QR_MAX_ITEMS, NAME_MAX_CHARS, NOTE_MAX_CHARS } from '../config/limits';
 import type { CheckpointContent, CheckpointEditor, ConnectivityMode } from '../contracts/adminDtos';
 import type { CommandResult } from '../contracts/commandResult';
+import { BilingualField } from '../editor/BilingualField';
 import { CommandOutcome } from '../editor/CommandOutcome';
 import { confirmation } from '../editor/confirmations';
 import layout from '../editor/EditorLayout.module.css';
@@ -33,7 +33,6 @@ import { qrSuffix } from '../messages/format';
 import { OperationActions, OperationDialogs, useOperationLauncher } from '../operations/OperationLauncher';
 import { ADMIN_PATHS } from '../paths';
 import { checkpointPublishIssues, checkpointSaveIssues } from '../validation/checkpoint';
-import { stripLineBreaks } from '../validation/common';
 import { visitPointName } from '../validation/visitPoint';
 import styles from './CheckpointEditorPage.module.css';
 
@@ -277,28 +276,15 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
       <div className={layout.columns}>
         <div className={layout.main}>
           <form className={layout.section} onSubmit={onSave} noValidate aria-label="Thông tin điểm dừng">
-            <div className={layout.pair}>
-              <TextField
-                label={`${FIELD_LABELS.CHECKPOINT.checkpointName} (tiếng Việt)`}
-                value={state.name.vi}
-                onChange={(value) => update((current) => ({ ...current, name: { ...current.name, vi: stripLineBreaks(value) } }))}
-                maxChars={NAME_MAX_CHARS}
-                error={fields.errorFor('checkpointName.vi')}
-                fieldKey="checkpointName.vi"
-                lang="vi"
-                disabled={archived}
-              />
-              <TextField
-                label={`${FIELD_LABELS.CHECKPOINT.checkpointName} (tiếng Anh)`}
-                value={state.name.en}
-                onChange={(value) => update((current) => ({ ...current, name: { ...current.name, en: stripLineBreaks(value) } }))}
-                maxChars={NAME_MAX_CHARS}
-                error={fields.errorFor('checkpointName.en')}
-                fieldKey="checkpointName.en"
-                lang="en"
-                disabled={archived}
-              />
-            </div>
+            <BilingualField
+              fieldKey="checkpointName"
+              label={FIELD_LABELS.CHECKPOINT.checkpointName}
+              value={state.name}
+              onChange={(name) => update((current) => ({ ...current, name }))}
+              maxChars={NAME_MAX_CHARS}
+              errorFor={fields.errorFor}
+              readOnly={archived}
+            />
             <div data-field-key="connectivityMode" tabIndex={-1} className={styles.focusTarget}>
               <RadioGroup
                 legend={FIELD_LABELS.CHECKPOINT.connectivityMode}

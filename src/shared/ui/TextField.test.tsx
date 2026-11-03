@@ -23,6 +23,13 @@ describe('TextField', () => {
     expect(screen.getByLabelText('Tên').getAttribute('aria-invalid')).toBeNull();
   });
 
+  it('extraDescribedBy được nối vào aria-describedby, cạnh bộ đếm', () => {
+    render(<TextField label="Tên" value="Cúc" onChange={() => {}} maxChars={80} extraDescribedBy="trang-thai-dich" />);
+    const ids = (screen.getByLabelText('Tên').getAttribute('aria-describedby') ?? '').split(' ');
+    expect(ids).toContain('trang-thai-dich');
+    expect(ids.some((id) => id.endsWith('-counter'))).toBe(true);
+  });
+
   it('đếm ký tự khi có maxChars', () => {
     render(<TextField label="Tên" value="Cúc" onChange={() => {}} maxChars={80} />);
     expect(screen.getByText('3/80')).toBeTruthy();

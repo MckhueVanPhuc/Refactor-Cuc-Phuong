@@ -20,6 +20,8 @@ export type TextFieldProps = {
   inputRef?: Ref<HTMLInputElement>;
   /** Khóa trường (`targetFieldKey`) để panel lỗi focus được ô này */
   fieldKey?: string;
+  /** Id phần tử mô tả thêm ngoài khung trường (FieldShell `extraDescribedBy`) */
+  extraDescribedBy?: string;
 };
 
 export function TextField({
@@ -33,6 +35,7 @@ export function TextField({
   type = 'text',
   inputRef,
   fieldKey,
+  extraDescribedBy,
   ...inputProps
 }: TextFieldProps) {
   return (
@@ -41,6 +44,7 @@ export function TextField({
       hint={hint}
       error={error}
       counter={maxChars === undefined ? undefined : { length: countChars(value), max: maxChars }}
+      extraDescribedBy={extraDescribedBy}
     >
       {({ controlId, describedBy, invalid }) => (
         <input

@@ -89,6 +89,23 @@
   gap: var(--space-4);
 }
 
+/* Cặp có nút dịch "→" ở giữa (spec-AI_integration; design-system §5.3 "Nút dịch") */
+.pairTranslatable {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.pairAction {
+  align-self: center;
+}
+
+.pairColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
 .formActions {
   display: flex;
   flex-wrap: wrap;
@@ -218,7 +235,13 @@
     font-size: var(--font-size-page-heading-mobile);
   }
 
-  .pair {
+  .pair,
+  .pairTranslatable {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Xếp chồng: nút nằm giữa hai ô */
+  .pairAction {
+    justify-self: start;
   }
 }

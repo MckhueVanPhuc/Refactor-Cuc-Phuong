@@ -7,18 +7,21 @@ import { createFakeServices } from '../api/fake/fakeAdminApi';
 import { FIXTURE_ACCOUNTS } from '../api/fake/fixtures';
 import { FakeStore } from '../api/fake/store';
 import { createM03Routes } from '../routes';
+import type { FakeTranslator } from '../translation/fakeTranslator';
 
 export type RenderAdminOptions = {
   store?: FakeStore;
   signedInAs?: AdminRole;
   /** state của entry đầu (ví dụ `{ expired: true }`) */
   state?: unknown;
+  /** Bộ dịch giả riêng (ví dụ delayMs: 0) cho test nút dịch */
+  translator?: FakeTranslator;
 };
 
 export function renderAdmin(path: string, options: RenderAdminOptions = {}) {
   const store = options.store ?? new FakeStore();
   if (options.signedInAs) store.signIn(FIXTURE_ACCOUNTS[options.signedInAs].userId);
-  const services = createFakeServices(store);
+  const services = createFakeServices(store, options.translator);
   const router = createMemoryRouter(createRoutesFromElements(createM03Routes(services)), {
     initialEntries: [{ pathname: path.split('?')[0]!, search: path.includes('?') ? `?${path.split('?')[1]}` : '', state: options.state }],
   });
