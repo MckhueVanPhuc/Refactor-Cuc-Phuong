@@ -32,7 +32,7 @@ export const en: M02Messages = {
     replaceFailed: 'Could not start the new trip. Your current trip is still in progress.',
     previousTripSyncError: 'Your previous trip could not be sent to the system. It is still saved on this device.',
   },
-  // Đề xuất của agent cho chữ lấy từ mockup-SCR-M02-001 (nguồn chỉ có tiếng Việt); chờ chủ dự án duyệt
+  // Đề xuất của agent cho chữ lấy từ mockup-SCR-M02-001 (nguồn chỉ có tiếng Việt); chủ dự án duyệt 2026-11-04
   journey: {
     heading: 'Journey',
     notScanned: 'Not scanned',

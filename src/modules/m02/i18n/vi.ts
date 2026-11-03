@@ -37,7 +37,7 @@ export const vi = {
     replaceFailed: 'Chưa bắt đầu được chuyến mới. Chuyến hiện tại vẫn đang chạy.',
     previousTripSyncError: 'Chuyến đi trước không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này.',
   },
-  // SCR-M02-001: journey và scanner — chữ lấy từ mockup-SCR-M02-001 (bảng copy chưa có); chờ chủ dự án duyệt
+  // SCR-M02-001: journey và scanner — chữ lấy từ mockup-SCR-M02-001 (bảng copy chưa có); chủ dự án duyệt 2026-11-04
   journey: {
     heading: 'Hành trình',
     notScanned: 'Chưa quét',
