@@ -14,7 +14,7 @@
 - `usage-flow.md` và `sequence-diagrams.md` chỉ tổng hợp diagram đã tồn tại trong spec; không tự sửa node, participant hoặc nhánh.
 - `context-diagram.md` là sơ đồ tổng hợp liên module, vì vậy có thể chuẩn hóa tên nhưng không được tạo contract mới.
 - `system-configuration.md` là runtime architecture; `tech-stack.md` sở hữu technology choices và `environment.md` sở hữu environment-specific configuration.
-- Technology được đánh dấu `Selected` khi đã có approved technical decision; `Present` chỉ dùng khi artifact thực sự tồn tại trong repository. Repository đã mở phạm vi code nhưng chưa có implementation, nên selected technology không được mô tả như đã implemented hoặc deployed.
+- Technology được đánh dấu `Selected` khi đã có approved technical decision; `Present` chỉ dùng khi artifact thực sự tồn tại trong repository. Repository đã có code cho M01 và M03 (frontend, migration, Edge Functions chạy trên stack Supabase local); chưa có gì được deploy lên Vercel hay Supabase Cloud. Vì vậy không mô tả technology nào là deployed, và chỉ đánh dấu implemented khi artifact thật sự có trong repo.
 - Secret value không được đưa vào repository hoặc documentation; `environment.md` chỉ quản lý tên biến, classification và placement.
 - Khi một spec thay đổi diagram hoặc contract, phải cập nhật tài liệu architecture và chạy lại kiểm tra đối chiếu.
 
@@ -26,3 +26,5 @@ Technical decisions: [Tech Stack](tech-stack.md) §§2–8, 13; [Environment Con
 - M02: [`spec-M02.md`](../spec/spec-M02.md) v3.3, status MVP implementation baseline, cập nhật ngày 2026-10-29.
 - M03: [`spec-M03.md`](../spec/spec-M03.md) v3.7, status MVP implementation baseline, cập nhật ngày 2026-10-29.
 - AI Integration: [`spec-AI_integration.md`](../spec/spec-AI_integration.md) v1.0, dịch vi → en theo yêu cầu cho editor M03 (Could), cập nhật ngày 2026-11-03. Usage flow không có flow riêng cho năng lực này (spec không có flowchart).
+
+Trạng thái hiện thực (2026-11-03): M01 và M03 đã có code; M02 chưa có code; backend chỉ chạy trên stack local; chưa deploy cloud. Các bảng status trong [tech-stack.md](tech-stack.md) và [environment.md](environment.md) còn ghi `Selected — not implemented` theo thời điểm viết, chưa được đối chiếu lại với code — xem [README gốc](../../README.md) §1 cho trạng thái hiện hành.

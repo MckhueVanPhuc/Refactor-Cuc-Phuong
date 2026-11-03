@@ -1,6 +1,6 @@
 # Screen Inventory — Cúc Phương Quest
 
-Cập nhật 2026-10-30 theo Spec M01 v3.2, M02 v3.3, M03 v3.7 và function lists hiện hành. Đây là danh mục màn hình và coverage; screen specification chi tiết (Draft) đã được viết lại theo cùng baseline; mockup HTML tĩnh có cho 13 màn trong screens/html/ (M01: 1, M02: 2, M03: 10); chưa có implementation.
+Cập nhật 2026-11-03 theo Spec M01 v3.2, M02 v3.3, M03 v3.7 và function lists hiện hành. Đây là danh mục màn hình và coverage; screen specification chi tiết (Draft) đã được viết lại theo cùng baseline; mockup HTML tĩnh có cho 13 màn trong screens/html/ (M01: 1, M02: 2, M03: 10), kèm demo tương tác M03 trong screens/html/interactive/. Màn M01 (4) và M03 (10) đã được hiện thực trong `src/`; màn M02 (4) chưa có code.
 
 | Danh mục | Screens | Coverage | Nội dung |
 |---|---:|---|---|
