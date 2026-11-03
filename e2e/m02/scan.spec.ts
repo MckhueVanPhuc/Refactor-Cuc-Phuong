@@ -57,7 +57,7 @@ test('V5 — online quét Q1a (camera) rồi Q1b → một lượt ghé C1 với
   await expect(page.getByText(vi.trip.scanned, { exact: true })).toHaveCount(1);
   await scan(page, `${BASE}/q/Q1b`);
   await expect(page).toHaveURL(/\/trip\/qr\/Q1b$/);
-  await expect(page.locator('[data-display="LIVE"]')).toBeAttached();
+  await expect(page.locator('[data-view="LIVE"]')).toBeAttached();
   await expect(page.getByText(vi.trip.visitRecorded)).toHaveCount(0);
 
   const recorded = await visits(page);
