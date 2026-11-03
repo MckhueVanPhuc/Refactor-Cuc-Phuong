@@ -130,7 +130,7 @@ description: "Danh sách task triển khai AI Integration — dịch theo yêu c
 
 - [X] T031 Chạy `npm run ci` và toàn bộ `npx playwright test` (mock projects); sửa hồi quy ở các E2E M03 hiện có do DOM của `BilingualField` đổi (selector theo nhãn, không theo cấu trúc)
 - [X] T032 Quét bundle: `npm run build` rồi tìm `GEMINI`, `generativelanguage`, `x-goog-api-key` trong `dist/` — phải rỗng (SC-AI-004, quickstart L4)
-- [ ] T033 Kiểm trên stack local theo quickstart §3 (L1–L3, L5) với khóa thật trong `supabase/functions/.env`; nếu máy chưa có Docker/Supabase CLI ghi `NOT RUN` kèm lý do — **NOT RUN trên máy cài đặt (không có Docker/Supabase CLI/Deno); chuyển cho máy có Docker, xem validation-report §3**
+- [X] T033 Kiểm trên stack local theo quickstart §3 (L1–L3, L5) với khóa thật trong `supabase/functions/.env`; nếu máy chưa có Docker/Supabase CLI ghi `NOT RUN` kèm lý do — chạy 2026-11-04 trên máy có Docker/Supabase CLI/Deno: `deno test` 12/12, L1 (API và giao diện), L2, L3, L5 PASS; xem validation-report §3
 - [X] T034 Tạo `specs/004-ai-translation/validation-report.md`: kết quả từng lệnh/kịch bản quickstart (PASS / FAIL / NOT RUN + lý do), độ phủ BR-AI-01…12 → test, SC-AI-001…006 → kịch bản
 
 ---
