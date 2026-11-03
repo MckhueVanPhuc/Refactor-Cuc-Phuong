@@ -264,14 +264,14 @@ description: "Danh sách task triển khai M01 — Route Planning & Preparation"
 
 ### Tests for User Story 7 ⚠️
 
-- [ ] T088 [P] [US7] Viết test src/modules/m01/recommendation/recommend.test.ts: mọi kết quả chứa cả `timeTags ∋ t`, `groupTags ∋ g`, `experienceTags ∋ e`; thiếu hoặc sai enum ở bất kỳ nhóm nào → không chạy so khớp; 0 kết quả hợp lệ, không nới; chỉ trên tuyến chọn được; sắp A→Z (FR-M01-004; BR-M01-002, 003; SC-M01-002; DAC-M01-018)
-- [ ] T089 [P] [US7] Viết test src/modules/m01/recommendation/RecommendPage.test.tsx: mỗi nhóm là một radio group dùng được bằng bàn phím; trạng thái thiếu tiêu chí, 0 kết quả, có kết quả; `RecommendationContext` không được lưu (OQ-SCR-M01-002-002; HC-007)
-- [ ] T090 [P] [US7] Viết E2E e2e/m01/recommend.spec.ts cho quickstart V23
+- [X] T088 [P] [US7] Viết test src/modules/m01/recommendation/recommend.test.ts: mọi kết quả chứa cả `timeTags ∋ t`, `groupTags ∋ g`, `experienceTags ∋ e`; thiếu hoặc sai enum ở bất kỳ nhóm nào → không chạy so khớp; 0 kết quả hợp lệ, không nới; chỉ trên tuyến chọn được; sắp A→Z (FR-M01-004; BR-M01-002, 003; SC-M01-002; DAC-M01-018)
+- [X] T089 [P] [US7] Viết test src/modules/m01/recommendation/RecommendPage.test.tsx: mỗi nhóm là một radio group dùng được bằng bàn phím; trạng thái thiếu tiêu chí, 0 kết quả, có kết quả; `RecommendationContext` không được lưu (OQ-SCR-M01-002-002; HC-007)
+- [X] T090 [P] [US7] Viết E2E e2e/m01/recommend.spec.ts cho quickstart V23
 
 ### Implementation for User Story 7
 
-- [ ] T091 [P] [US7] Cài đặt src/modules/m01/recommendation/recommend.ts cho T088 qua
-- [ ] T092 [US7] Dựng SCR-M01-002 src/modules/m01/recommendation/RecommendPage.tsx + `.module.css`, đăng ký `/recommend` trong src/modules/m01/routes.tsx và thêm liên kết từ src/modules/m01/catalog/CatalogPage.tsx
+- [X] T091 [P] [US7] Cài đặt src/modules/m01/recommendation/recommend.ts cho T088 qua
+- [X] T092 [US7] Dựng SCR-M01-002 src/modules/m01/recommendation/RecommendPage.tsx + `.module.css`, đăng ký `/recommend` trong src/modules/m01/routes.tsx và thêm liên kết từ src/modules/m01/catalog/CatalogPage.tsx
 
 **Checkpoint**: Mọi user story M01 chạy độc lập trên network mock
 

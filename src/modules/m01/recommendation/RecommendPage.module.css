@@ -1,0 +1,134 @@
+/* SCR-M01-002 — ba nhóm chip chọn một (radio), kết quả dùng lại thẻ tuyến của danh mục (design-system §5.1) */
+.title {
+  margin-bottom: var(--space-5);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-page-heading-mobile);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-m01-deep);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+.group {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.groupTitle {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-deep);
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Chip là nhãn của radio thật: bàn phím và trình đọc màn hình dùng radio gốc */
+.option {
+  position: relative;
+  display: inline-flex;
+}
+
+.option input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+}
+
+.option span {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-ink);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m01-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+/* Đã chọn: nền forest chữ paper, kèm viền dày để không chỉ dựa vào màu */
+.option input:checked + span {
+  color: var(--color-paper);
+  background: var(--color-m01-forest);
+  border: var(--border-width-thick) solid var(--color-m01-deep);
+}
+
+.option input:focus-visible + span {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.submit {
+  justify-self: start;
+  min-height: var(--touch-target-m01-primary);
+  padding: 0 var(--space-6);
+  font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
+  color: var(--color-paper);
+  background: var(--color-m01-forest);
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+/* Vô hiệu: đổi nền và con trỏ, không chỉ giảm độ mờ (§5.3) */
+.submit:disabled {
+  color: var(--color-m01-secondary);
+  background: var(--color-m01-line);
+  cursor: not-allowed;
+}
+
+.summary {
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-meta);
+  color: var(--color-m01-secondary);
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.empty {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  font: var(--font-weight-semibold) var(--font-size-meta) var(--font-sans);
+  color: var(--color-m01-forest);
+  text-decoration: none;
+  background: transparent;
+  border: var(--border-width-thin) solid var(--color-m01-forest);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.message {
+  color: var(--color-m01-secondary);
+}

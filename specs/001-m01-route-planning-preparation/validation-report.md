@@ -318,3 +318,27 @@ Một lần chạy `npm run ci` + `npm run e2e` ở phiên trước bị dừng 
 ### 8.4 Checkpoint US6
 
 US6 **đạt** trên network mock: V9–V16 pass. M02 đọc được gói `SAN_SANG` thật qua `src/modules/m01/index.ts`.
+
+## 9. Đợt 2026-11-03 — Phase 9 US7 Gợi ý tuyến (T088–T092)
+
+Branch `feat/m01-us7`, tách từ `feat/m01-us6` (PR #13–#19 chờ merge; DV-20). Test T088–T089 viết trước và đã chạy thấy fail trước khi cài đặt.
+
+### 9.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx playwright test --project=m01 e2e/m01/recommend.spec.ts` (lần 1) | 1 | Test bấm vào chữ của chip, nhưng radio trong suốt nằm đè lên chip (đúng thiết kế: người dùng bấm vào radio) nên Playwright báo bị chặn; test đổi sang `check()` trên radio |
+| `npm run ci` | 0 | typecheck sạch; lint 498 pass; test 108 file pass + 1 skipped, 1651 pass, 133 skipped; build precache 51 mục |
+| `npm run e2e` | 0 | 49 pass, 47 skipped; `m01` thêm V23 pass |
+| Quét `dist/` production tìm hook test, `fake://`, `node:buffer` | — | Không có |
+
+### 9.2 Lệch so với tasks và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-48 | T092: mỗi nhóm là `role="radiogroup"` chứa radio gốc (chip là nhãn), nên phím mũi tên và Space dùng được như radio chuẩn. Hành động "Về danh mục" (E-SCR-M01-002-12) dùng câu copy "Xem tất cả tuyến" / "See all routes" của bảng copy SCR-M01-002; tóm tắt tiêu chí ghép ba nhãn đã chọn. Nút lọc vô hiệu cả khi danh mục chưa đọc được | Áp dụng |
+| DV-49 | T092: gợi ý dùng chung local view danh mục (catalogStore) nên mở màn gợi ý cũng làm mới nguồn và chạy hiệu ứng thu hồi/`OUTDATED`/chữ cốt lõi | Áp dụng |
+
+### 9.3 Checkpoint US7
+
+US7 **đạt** trên network mock: V23 pass. Mọi user story M01 chạy độc lập trên network mock.
