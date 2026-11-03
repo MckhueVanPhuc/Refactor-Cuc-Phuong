@@ -19,6 +19,8 @@ export type TextAreaProps = {
   textareaRef?: Ref<HTMLTextAreaElement>;
   /** Khóa trường (`targetFieldKey`) để panel lỗi focus được ô này */
   fieldKey?: string;
+  /** Id phần tử mô tả thêm ngoài khung trường (FieldShell `extraDescribedBy`) */
+  extraDescribedBy?: string;
 };
 
 export function TextArea({
@@ -32,6 +34,7 @@ export function TextArea({
   rows = 4,
   textareaRef,
   fieldKey,
+  extraDescribedBy,
   ...textareaProps
 }: TextAreaProps) {
   return (
@@ -40,6 +43,7 @@ export function TextArea({
       hint={hint}
       error={error}
       counter={maxChars === undefined ? undefined : { length: countChars(value), max: maxChars }}
+      extraDescribedBy={extraDescribedBy}
     >
       {({ controlId, describedBy, invalid }) => (
         <textarea

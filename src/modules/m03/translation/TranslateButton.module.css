@@ -1,0 +1,62 @@
+/* Nút dịch "→" và dòng trạng thái (design-system §5.3; chỉ token) */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  color: var(--control-accent);
+  background-color: var(--color-white);
+  border: var(--border-width-thin) solid var(--control-border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .button:not(:disabled):hover {
+    background-image: linear-gradient(var(--overlay-surface-hover), var(--overlay-surface-hover));
+  }
+}
+
+.button:not(:disabled):active {
+  background-image: linear-gradient(var(--overlay-surface-pressed), var(--overlay-surface-pressed));
+}
+
+/* Không dùng độ mờ làm tín hiệu duy nhất (design-system §5.3 Disabled) */
+.button:disabled {
+  color: var(--color-ink-secondary);
+  background-color: var(--color-m03-muted);
+  border-color: var(--color-m03-border);
+  cursor: not-allowed;
+}
+
+.progress {
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+.failure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  font-size: var(--font-size-meta);
+  color: var(--color-error);
+}
+
+/* Nút chữ "Thử lại": vùng chạm --touch-target, gạch chân để không chỉ dựa vào màu */
+.retry {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-1);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--control-accent);
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

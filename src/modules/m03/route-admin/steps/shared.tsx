@@ -1,15 +1,14 @@
 // Phần dùng chung của bốn bước editor tuyến: props của bước, trường song ngữ, một ảnh đã tải.
+// BilingualField nằm ở editor/ (dùng chung cho ba editor M03, spec-AI research R-08); export lại để import cũ không đổi.
 import type { ReactNode } from 'react';
 import { Button } from '../../../../shared/ui/Button';
 import { Checkbox } from '../../../../shared/ui/Checkbox';
-import { TextArea } from '../../../../shared/ui/TextArea';
-import { TextField } from '../../../../shared/ui/TextField';
 import type { AdminApi } from '../../api/AdminApi';
-import layout from '../../editor/EditorLayout.module.css';
 import { FileThumbnail, MediaThumbnail } from '../../media/MediaThumbnail';
-import { stripLineBreaks } from '../../validation/common';
-import type { Pair, RouteForm, RouteImage } from '../routeForm';
+import type { RouteForm, RouteImage } from '../routeForm';
 import styles from './steps.module.css';
+
+export { BilingualField } from '../../editor/BilingualField';
 
 export type StepProps = {
   form: RouteForm;
@@ -25,58 +24,6 @@ export type UploadProps = {
   /** Media của bản đã lưu, để ảnh đã lưu không còn dòng "chưa lưu vào bản nháp" (BR-M03-E14) */
   savedMediaIds: ReadonlySet<string>;
 };
-
-const LANGUAGES = [
-  { key: 'vi', name: 'tiếng Việt' },
-  { key: 'en', name: 'tiếng Anh' },
-] as const;
-
-/** Hai ô vi/en của một trường; câu gợi ý (nếu có) chỉ đặt dưới nhãn ô tiếng Việt */
-export function BilingualField({
-  fieldKey,
-  label,
-  value,
-  onChange,
-  maxChars,
-  multiline = false,
-  rows,
-  hint,
-  errorFor,
-  readOnly,
-}: {
-  fieldKey: string;
-  label: string;
-  value: Pair;
-  onChange: (value: Pair) => void;
-  maxChars: number;
-  multiline?: boolean;
-  rows?: number;
-  hint?: ReactNode;
-  errorFor: StepProps['errorFor'];
-  readOnly: boolean;
-}) {
-  return (
-    <div className={layout.pair}>
-      {LANGUAGES.map(({ key, name }) => {
-        const common = {
-          label: `${label} (${name})`,
-          value: value[key],
-          maxChars,
-          error: errorFor(`${fieldKey}.${key}`),
-          fieldKey: `${fieldKey}.${key}`,
-          lang: key,
-          disabled: readOnly,
-          ...(hint && key === 'vi' ? { hint } : {}),
-        };
-        return multiline ? (
-          <TextArea key={key} {...common} rows={rows ?? 4} onChange={(text) => onChange({ ...value, [key]: text })} />
-        ) : (
-          <TextField key={key} {...common} onChange={(text) => onChange({ ...value, [key]: stripLineBreaks(text) })} />
-        );
-      })}
-    </div>
-  );
-}
 
 /** Một ảnh đã tải của tuyến: ảnh nhỏ, tick quyền sử dụng, nút bỏ; phần thêm (chú thích) qua `children` */
 export function RouteImageItem({

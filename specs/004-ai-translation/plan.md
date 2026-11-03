@@ -12,7 +12,7 @@ Thêm nút "→" vào mỗi trường song ngữ của ba editor M03 (tuyến, �
 
 Cách làm kỹ thuật:
 
-- **Backend:** `supabase/functions/translate/` (`handler.ts` thuần + `index.ts` nối dependency), xác thực như `admin-accounts`, gọi Gemini REST `generateContent` không SDK (R-01…R-06).
+- **Backend:** `supabase/functions/translate/` (`handler.ts` thuần + `index.ts` nối dependency), xác thực như `admin-accounts`, gọi Gemini REST `generateContent` (model `gemini-3.5-flash-lite`) không SDK (R-01…R-06).
 - **Frontend:** `src/modules/m03/translation/` (interface `Translator`, bản Supabase, bản giả, hook `useFieldTranslation`, `TranslateButton`); cấp qua `AdminServices`; cài một lần trong `BilingualField` (chuyển về `src/modules/m03/editor/`) rồi dùng `BilingualField` cho cả checkpoint và visit-point editor (R-07…R-11).
 - **Không** đổi schema, migration, RPC, `AdminApi`, contract M01/M02 hay luật M03.
 
@@ -87,10 +87,10 @@ src/
 └── modules/m03/
     ├── api/AdminApiProvider.tsx           # SỬA: AdminServices.translator + useTranslator()
     ├── api/fake/fakeAdminApi.ts           # SỬA: createFakeServices thêm translator; hook E2E đặt chế độ dịch
-    ├── messages/catalogText.ts            # SỬA: MSG-AI-TRANSLATING, MSG-AI-FAILED
     ├── testing/                           # SỬA: builder services cho test có translator
     ├── translation/                       # MỚI
     │   ├── translationContract.ts         # kiểu, AI_TRANSLATE_TIMEOUT_MS, TRANSLATE_FUNCTION
+    │   ├── translationMessages.ts (+ .test.ts)   # MSG-AI-TRANSLATING, MSG-AI-FAILED (spec-AI §5.5)
     │   ├── supabaseTranslator.ts (+ .test.ts)
     │   ├── fakeTranslator.ts
     │   ├── useFieldTranslation.ts (+ .test.tsx)
@@ -134,7 +134,7 @@ e2e/m03/translate.spec.ts                  # MỚI
 
 ## Implementation Sequence (định hướng cho `/speckit-tasks`)
 
-1. **Nền chung**: catalog (2 khóa), `translationContract.ts`, `Translator` + `fakeTranslator`, `AdminServices.translator`, builder test, `extraDescribedBy`.
+1. **Nền chung**: danh mục thông báo AI riêng (2 khóa), `translationContract.ts`, `Translator` + `fakeTranslator`, `AdminServices.translator`, builder test, `extraDescribedBy`.
 2. **US1 + US2 (P1) trên `dev:fake`**: `useFieldTranslation` (test trước: ghi, thay, bỏ trễ, không tự dịch), `TranslateButton`, chuyển `BilingualField` + nút, dùng trong checkpoint và visit-point editor, CSS lưới; E2E Q1–Q7, Q10–Q14.
 3. **US3 (P2)**: `supabaseTranslator` (+ test ánh xạ lỗi), Edge `translate` handler (deno test trước) + `index.ts` + `config.toml`; E2E Q8–Q9 (bản giả `fail`); kiểm tay L1–L5 khi có stack local.
 4. **Polish**: `npm run ci`, quét bundle (L4), cập nhật validation-report của gói.

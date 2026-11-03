@@ -7,7 +7,6 @@ import { Button } from '../../../shared/ui/Button';
 import { Checkbox } from '../../../shared/ui/Checkbox';
 import { RadioGroup } from '../../../shared/ui/RadioGroup';
 import { TextArea } from '../../../shared/ui/TextArea';
-import { TextField } from '../../../shared/ui/TextField';
 import { useAdminApi } from '../api/AdminApiProvider';
 import { AdminApiError } from '../api/errors';
 import { useSessionExpiry } from '../auth/useSessionExpiry';
@@ -28,6 +27,7 @@ import type {
   VisitPointEditor,
 } from '../contracts/adminDtos';
 import type { CommandResult } from '../contracts/commandResult';
+import { BilingualField } from '../editor/BilingualField';
 import { CommandOutcome } from '../editor/CommandOutcome';
 import layout from '../editor/EditorLayout.module.css';
 import type { FlashState } from '../editor/flash';
@@ -47,7 +47,6 @@ import { FIELD_LABELS } from '../messages/fieldLabels';
 import { qrSuffix } from '../messages/format';
 import { HINTS } from '../messages/hints';
 import { ADMIN_PATHS } from '../paths';
-import { stripLineBreaks } from '../validation/common';
 import {
   mediaLabel,
   visitPointName,
@@ -431,39 +430,26 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
       <div className={layout.columns}>
         <div className={layout.main}>
           <form className={layout.section} onSubmit={onSave} noValidate aria-label="Nội dung điểm tham quan">
-            <div className={layout.pair}>
-              {(['vi', 'en'] as const).map((language) => (
-                <TextField
-                  key={language}
-                  label={`${FIELD_LABELS.QRCODE.objectName} (${language === 'vi' ? 'tiếng Việt' : 'tiếng Anh'})`}
-                  value={state.objectName[language]}
-                  onChange={(value) =>
-                    update((current) => ({ ...current, objectName: { ...current.objectName, [language]: stripLineBreaks(value) } }))
-                  }
-                  maxChars={NAME_MAX_CHARS}
-                  error={fields.errorFor(`objectName.${language}`)}
-                  fieldKey={`objectName.${language}`}
-                  lang={language}
-                  disabled={readOnly}
-                />
-              ))}
-            </div>
-            <div className={layout.pair}>
-              {(['vi', 'en'] as const).map((language) => (
-                <TextArea
-                  key={language}
-                  label={`${FIELD_LABELS.QRCODE.introductionText} (${language === 'vi' ? 'tiếng Việt' : 'tiếng Anh'})`}
-                  value={state.intro[language]}
-                  onChange={(value) => update((current) => ({ ...current, intro: { ...current.intro, [language]: value } }))}
-                  maxChars={QR_INTRO_MAX_CHARS}
-                  rows={6}
-                  error={fields.errorFor(`introductionText.${language}`)}
-                  fieldKey={`introductionText.${language}`}
-                  lang={language}
-                  disabled={readOnly}
-                />
-              ))}
-            </div>
+            <BilingualField
+              fieldKey="objectName"
+              label={FIELD_LABELS.QRCODE.objectName}
+              value={state.objectName}
+              onChange={(objectName) => update((current) => ({ ...current, objectName }))}
+              maxChars={NAME_MAX_CHARS}
+              errorFor={fields.errorFor}
+              readOnly={readOnly}
+            />
+            <BilingualField
+              fieldKey="introductionText"
+              label={FIELD_LABELS.QRCODE.introductionText}
+              value={state.intro}
+              onChange={(intro) => update((current) => ({ ...current, intro }))}
+              maxChars={QR_INTRO_MAX_CHARS}
+              multiline
+              rows={6}
+              errorFor={fields.errorFor}
+              readOnly={readOnly}
+            />
 
             <div className={styles.mediaGroup} data-field-key="images" tabIndex={-1}>
               {readOnly ? (

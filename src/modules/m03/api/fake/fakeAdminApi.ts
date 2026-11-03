@@ -2,6 +2,7 @@
 // kiểu trả về `AdminApi` bảo đảm không thiếu phương thức nào.
 import { registerTestHooks } from '../../../../shared/testing/e2eHooks';
 import { createFakeAuthService } from '../../auth/fakeAuthService';
+import { createFakeTranslator, type FakeTranslationMode, type FakeTranslator } from '../../translation/fakeTranslator';
 import type { AuthService } from '../../auth/authService';
 import type { AdminRole, RouteContent } from '../../contracts/adminDtos';
 import type { AdminApi } from '../AdminApi';
@@ -38,9 +39,12 @@ export function createFakeAdminApi(store: FakeStore = new FakeStore()): AdminApi
   };
 }
 
-/** AdminApi và AuthService giả dùng chung một store (một "backend" giả) */
-export function createFakeServices(store: FakeStore = new FakeStore()): { api: AdminApi; auth: AuthService } {
-  return { api: createFakeAdminApi(store), auth: createFakeAuthService(store) };
+/** AdminApi và AuthService giả dùng chung một store (một "backend" giả), cùng bộ dịch giả (spec-AI; research R-11) */
+export function createFakeServices(
+  store: FakeStore = new FakeStore(),
+  translator: FakeTranslator = createFakeTranslator(),
+): { api: AdminApi; auth: AuthService; translator: FakeTranslator } {
+  return { api: createFakeAdminApi(store), auth: createFakeAuthService(store), translator };
 }
 
 function seedRoute(store: FakeStore, name: string): string {
@@ -137,8 +141,12 @@ function publicationOf(store: FakeStore, routeId: string) {
 }
 
 /** Namespace `m03` của `window.__cpqTestHooks` cho E2E trên `npm run dev:fake` (Q13, Q16, Q20) */
-export function registerFakeTestHooks(store: FakeStore): void {
+export function registerFakeTestHooks(store: FakeStore, translator?: FakeTranslator): void {
   registerTestHooks('m03', {
+    /** Chế độ của bộ dịch giả: ok / fail / slow (spec-AI quickstart Q6–Q9) */
+    setTranslationMode: (mode: FakeTranslationMode) => translator?.setMode(mode),
+    /** Số lượt dịch đã gửi — kiểm "chỉ bấm mới dịch" (SC-AI-001, SC-AI-002) */
+    translationRequestCount: () => translator?.requestCount ?? 0,
     signInAs: async (role: AdminRole) => store.signIn(FIXTURE_ACCOUNTS[role].userId),
     failNext: (action: string, messageKey?: FailureKey) => store.failNext(action, messageKey),
     holdLock: (key: string) => store.holdLock(key),

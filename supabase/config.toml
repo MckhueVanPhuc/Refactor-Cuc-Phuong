@@ -55,3 +55,9 @@ verify_jwt = false
 [functions.session-intake]
 verify_jwt = false
 import_map = "./functions/deno.json"
+
+# Edge dịch vi → en theo yêu cầu cho editor M03: function tự xác minh JWT và AdminAccount ACTIVE như admin-accounts
+# (spec-AI_integration BR-AI-08; specs/004-ai-translation contracts/translate-contract.md §1). Khóa Gemini đọc từ
+# secret GEMINI_API_KEY của Edge (local: supabase/functions/.env, không commit).
+[functions.translate]
+verify_jwt = false
