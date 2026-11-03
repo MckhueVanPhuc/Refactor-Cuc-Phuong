@@ -15,6 +15,11 @@ export async function hasRunningSession(): Promise<boolean> {
   return (await playSessionsTable.where('status').equals('DANG_DIEN_RA').count()) > 0;
 }
 
+/** Lượt ghé của một checkpoint trong phiên; chưa có → `null` (xem lại, scan-resolution §4). */
+export async function getVisit(sessionId: string, checkpointId: string): Promise<CheckpointVisitRow | null> {
+  return (await checkpointVisitsTable.get([sessionId, checkpointId])) ?? null;
+}
+
 export async function getSessionVisits(sessionId: string): Promise<CheckpointVisitRow[]> {
   return checkpointVisitsTable.where('sessionId').equals(sessionId).toArray();
 }
