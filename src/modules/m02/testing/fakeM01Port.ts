@@ -3,7 +3,7 @@
 //   vi.mock('../m01Port', () => import('../testing/fakeM01Port'));
 //   beforeEach(() => fakeM01.reset());
 // rồi đặt dữ liệu bằng `fakeM01.setContext(...)`, `fakeM01.setPackage(...)`… Tích hợp thật với M01 ở T102–T103.
-import { createElement } from 'react';
+import { createElement, useSyncExternalStore } from 'react';
 import type { LanguagePreference } from '../../../shared/contracts/languagePreference';
 import type { OfflinePackage, OfflineResource } from '../../../shared/contracts/offlinePackage';
 import type { SelectedRouteContextV3 } from '../../../shared/contracts/selectedRouteContext';
@@ -25,10 +25,14 @@ function initialState(): State {
 }
 
 let state = initialState();
+// Nút VI/EN của M01 cập nhật mọi màn ngay; bản giả báo cho hook khi đổi ngôn ngữ
+const languageListeners = new Set<() => void>();
+const notifyLanguage = () => languageListeners.forEach((listener) => listener());
 
 export const fakeM01 = {
   reset(): void {
     state = initialState();
+    notifyLanguage();
   },
   /** `null` → `NONE`; `'INVALID'` → context có dòng nhưng không qua schema v3 (gồm version 2, D-01). */
   setContext(context: SelectedRouteContextV3 | 'INVALID' | null): void {
@@ -52,6 +56,7 @@ export const fakeM01 = {
   },
   setLanguage(language: LanguagePreference | null): void {
     state.language = language;
+    notifyLanguage();
   },
 };
 
@@ -84,7 +89,14 @@ export const resolveDisplayLanguage: typeof Port.resolveDisplayLanguage = (store
   return deviceLanguage?.toLowerCase().startsWith('vi') ? 'vi' : 'en';
 };
 
-export const useLanguagePreference: typeof Port.useLanguagePreference = () => state.language;
+export const useLanguagePreference: typeof Port.useLanguagePreference = () =>
+  useSyncExternalStore(
+    (listener) => {
+      languageListeners.add(listener);
+      return () => languageListeners.delete(listener);
+    },
+    () => state.language,
+  );
 
 /** Chỗ giữ chỗ của nút VI/EN của M01 (bản thật ghi LanguagePreference; bản giả không ghi gì). */
 export const LanguageControl: typeof Port.LanguageControl = ({ tone = 'onLight' }) =>

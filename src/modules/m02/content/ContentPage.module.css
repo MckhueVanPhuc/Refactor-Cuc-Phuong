@@ -1,0 +1,9 @@
+/* SCR-M02-002 trên bề mặt reader sáng; phản hồi ghi nhận dùng màu success semantic kèm nhãn chữ (design-system §2.3). */
+.recorded {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  font-weight: var(--font-weight-semibold);
+  background: var(--color-white);
+  border-left: var(--border-width-thick) solid var(--color-success);
+  border-radius: var(--radius-sm);
+}

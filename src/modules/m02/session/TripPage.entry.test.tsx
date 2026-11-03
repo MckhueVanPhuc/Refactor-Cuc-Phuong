@@ -50,7 +50,9 @@ describe('TripPage — vào phiên', () => {
 
     const second = renderTrip();
     await vi.waitFor(() => expect(entryOf(second.container)).toBe('RESTORED'));
-    expect(second.container.querySelector('[data-session-id]')?.getAttribute('data-session-id')).toBe(sessionId);
+    await vi.waitFor(() =>
+      expect(second.container.querySelector('[data-session-id]')?.getAttribute('data-session-id')).toBe(sessionId),
+    );
     expect(screen.queryByText(viMessages.notice.sessionStartHint)).toBeNull();
     expect(await playSessionsTable.count()).toBe(1);
   });

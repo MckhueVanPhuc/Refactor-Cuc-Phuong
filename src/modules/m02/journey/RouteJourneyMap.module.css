@@ -1,0 +1,128 @@
+/*
+ * Journey map trên bề mặt scanner (mockup-SCR-M02-001 "Hành trình"). Điểm nhận diện của màn: một dải số thứ tự nối
+ * nhau bằng đường mảnh như lối mòn trong rừng; điểm đã quét có số tô màu success của scanner. Trạng thái luôn có nhãn
+ * chữ, không chỉ màu (design-system §5 "M02 — Field Experience").
+ */
+.journey {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--font-size-row-title);
+  font-weight: var(--font-weight-semibold);
+}
+
+.progress {
+  margin: 0;
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m02-scanner-success);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: calc(var(--space-8) - var(--space-1)) 1fr;
+  gap: var(--space-3);
+  align-items: start;
+  padding-bottom: var(--space-3);
+}
+
+/* Lối mòn: đường mảnh nối số thứ tự của điểm này với điểm kế tiếp */
+.item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--space-8) - var(--space-1));
+  bottom: 0;
+  left: calc((var(--space-8) - var(--space-1)) / 2);
+  border-left: var(--border-width-thin) dashed var(--color-m02-scanner-secondary);
+}
+
+.number {
+  display: inline-grid;
+  place-items: center;
+  width: calc(var(--space-8) - var(--space-1));
+  height: calc(var(--space-8) - var(--space-1));
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m02-scanner-text);
+  background: var(--color-m02-scanner-bg);
+  border: var(--border-width-thin) solid var(--color-m02-scanner-secondary);
+  border-radius: var(--radius-lg);
+}
+
+.item:has(.open) .number {
+  color: var(--color-m02-scanner-bg);
+  background: var(--color-m02-scanner-success);
+  border-color: var(--color-m02-scanner-success);
+}
+
+.open,
+.pending {
+  display: grid;
+  gap: var(--space-1);
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  background: var(--color-m02-scanner-surface);
+  border: var(--border-width-thin) solid transparent;
+  border-radius: var(--radius-md);
+}
+
+.open {
+  cursor: pointer;
+}
+
+.open:hover {
+  background-image: linear-gradient(var(--overlay-scanner-hover), var(--overlay-scanner-hover));
+}
+
+.open:active {
+  background-image: linear-gradient(var(--overlay-scanner-pressed), var(--overlay-scanner-pressed));
+}
+
+.open:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.name {
+  font-weight: var(--font-weight-semibold);
+}
+
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: var(--font-size-meta);
+}
+
+.scanned {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m02-scanner-success);
+}
+
+.time,
+.notScanned {
+  font-size: var(--font-size-meta);
+  color: var(--color-m02-scanner-secondary);
+}

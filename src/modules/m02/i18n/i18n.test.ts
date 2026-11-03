@@ -18,7 +18,7 @@ function keyPaths(tree: Tree, prefix = ''): string[] {
 function renderedStrings(tree: Tree): string[] {
   return Object.values(tree).flatMap((value) => {
     if (typeof value === 'string') return [value];
-    if (typeof value === 'function') return [String((value as (...args: unknown[]) => unknown)({ n: 2, time: '10:00' }))];
+    if (typeof value === 'function') return [String((value as (...args: unknown[]) => unknown)({ n: 2, time: '10:00', scanned: 1, total: 3 }))];
     if (typeof value === 'object' && value !== null) return renderedStrings(value as Tree);
     return [];
   });
