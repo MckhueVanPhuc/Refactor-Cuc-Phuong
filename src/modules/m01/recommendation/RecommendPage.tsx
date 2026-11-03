@@ -89,7 +89,9 @@ export function RecommendPage() {
 
   function changeChoices() {
     setResult(null);
-    formRef.current?.querySelector<HTMLInputElement>('input:checked, input')?.focus();
+    // Ưu tiên radio đang chọn; `'input:checked, input'` trả phần tử đầu theo thứ tự tài liệu nên luôn là radio đầu tiên
+    const form = formRef.current;
+    (form?.querySelector<HTMLInputElement>('input:checked') ?? form?.querySelector<HTMLInputElement>('input'))?.focus();
   }
 
   const summary = groups

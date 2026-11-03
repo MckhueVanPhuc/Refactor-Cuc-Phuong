@@ -392,6 +392,7 @@ Rà soát thủ công theo design-system §6 và research R-19; **không tuyên 
 |---|---|
 | `contracts/visitor-ui-flow-contract.md` §1 | Tên chunk `m01-recommend`, `m01-offline`; code dùng `m01-recommendation`, `m01-offline-package` (DV-02) |
 | `screens/screen-spec/M01/*` bảng copy | Chưa có nhãn tên màn, điều hướng, nhãn mục chi tiết, "Phiên bản {n}", "Xem", "Gói tải trước" (DV-13, DV-30, DV-40 — tiếng Anh do agent đề xuất) |
+| `screens/screen-spec/M01/SCR-M01-001` bảng copy | Chưa có câu báo khi cập nhật app bị hoãn (DV-57; câu VI/EN do agent đề xuất) |
 | `research.md` R-14 | Ghi `registerBusyCheck(fn: () => Promise<boolean>)`; code nhận `boolean \| Promise<boolean>` (DV-06) |
 | `quickstart.md` | Đầu file ghi "Trạng thái: chưa chạy" và lệnh `npm run e2e -- --grep m01` / `--project=local-stack`; thực tế dùng project `m01` / `m01-local-stack` |
 | `tasks.md` T104 | "View lệch thì sửa view phía M03" xung đột với quy tắc M01 không sửa `supabase/` (DV-08) |
@@ -447,3 +448,21 @@ Branch `feat/m01-integration`, tách từ `feat/m01-polish` (PR #13–#21 chờ 
 ### 11.5 Checkpoint Phase 11
 
 Phase 11 **đạt**: T102–T106 xong. Toàn bộ 106 task của package 001 đã đánh dấu. Còn mở: T100 (thiết bị thật), V2 (chờ trang `/q/{id}` của M02), các mục upstream ở §10.4.
+
+## 12. Đợt 2026-11-03 — Sửa lỗi sau review PR #13–#22
+
+Review gộp diff `main..feat/m01-integration` (`/code-review high`); người dùng duyệt sửa bốn lỗi đầu, các mục hiệu năng và dọn code để sau.
+
+### 12.1 Lệch so với tasks và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-57 | `packageOps.ts`: ghi candidate lỗi ngay đầu (quota, IndexedDB bị chặn) trả `{ kind: 'failed', reason: 'storage' }` thay vì reject, để màn hiện câu `storageError`. `StartPanel.tsx`: nút Bắt đầu vô hiệu từ lúc bấm, gồm cả lúc đọc snapshot và chờ dialog quyết định offline; ref chặn bấm lặp trước khi kịp render. `UpdatePrompt.tsx`: `applyUpdate()` trả `deferred` thì hiện câu mới `update.deferred` (VI/EN do agent đề xuất, chưa có trong bảng copy SCR-M01-001 — xem §10.4); bản mới hơn tới sau `Để sau` thì lời nhắc hiện lại. `RecommendPage.tsx`: `Đổi tiêu chí` đưa focus về radio đang chọn | Áp dụng |
+
+### 12.2 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx vitest run` trên bốn file test bị ảnh hưởng, với code cũ (`git stash` phần `src` không phải test) | 1 | 5 ca mới fail đúng lỗi review |
+| `npx vitest run src/app/pwa src/modules/m01/{offline-package/packageOps.test.ts,route-detail,recommendation,i18n}` | 0 | 80 pass |
+| `npm run ci` | 0 | typecheck, lint sạch; 1665 pass, 133 skipped; build PWA precache 50 mục |

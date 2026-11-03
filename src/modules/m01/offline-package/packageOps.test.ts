@@ -94,6 +94,15 @@ describe('packageOps', () => {
     expect(await visitorDb.table('packageCandidates').count()).toBe(0);
   });
 
+  it('ghi candidate lỗi ngay đầu (quota, IndexedDB bị chặn) → lỗi lưu trữ, không reject', async () => {
+    const { ops, release } = setup();
+    const put = vi.spyOn(visitorDb.table('packageCandidates'), 'put').mockRejectedValueOnce(new Error('QuotaExceededError'));
+    expect(await ops.download('route-a')).toEqual({ kind: 'failed', reason: 'storage' });
+    expect(release).toHaveBeenCalledTimes(1);
+    put.mockRestore();
+    expect(await ops.download('route-a')).toEqual({ kind: 'ready' });
+  });
+
   it('đổi ngôn ngữ trong lúc tải không ảnh hưởng candidate (gói chứa cả hai ngôn ngữ)', async () => {
     const { fake, ops } = setup();
     fake.controls.setDelayMs(10);

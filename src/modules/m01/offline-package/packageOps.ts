@@ -58,7 +58,13 @@ export function createPackageOps({
       persistRequested = true;
       await persistStorage().catch(() => false);
     }
-    const token = await beginCandidate(routeId);
+    // Ghi candidate lỗi (quota, IndexedDB bị chặn) → lỗi lưu trữ, không reject ra màn
+    let token: string;
+    try {
+      token = await beginCandidate(routeId);
+    } catch {
+      return { kind: 'failed', reason: 'storage' };
+    }
     const fail = async (reason: PackageFailure): Promise<PackageOpResult> => {
       await failCandidate(routeId, token).catch(() => {});
       return { kind: 'failed', reason };

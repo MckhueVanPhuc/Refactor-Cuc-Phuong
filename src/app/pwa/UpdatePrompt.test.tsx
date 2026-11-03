@@ -43,7 +43,7 @@ describe('UpdatePrompt', () => {
     await vi.waitFor(() => expect(screen.queryByText('A new version of the app is available.')).toBeNull());
   });
 
-  it('Cập nhật khi đang có thao tác gói → hoãn, lời nhắc vẫn còn', async () => {
+  it('Cập nhật khi đang có thao tác gói → hoãn, lời nhắc vẫn còn và báo lý do', async () => {
     await writeLanguagePreference('vi');
     const { coordinator } = setup();
     const apply = vi.fn();
@@ -51,7 +51,9 @@ describe('UpdatePrompt', () => {
     const release = coordinator.registerPackageOperation();
     await userEvent.click(await screen.findByRole('button', { name: 'Cập nhật' }));
     expect(apply).not.toHaveBeenCalled();
-    expect(screen.getByText('Đã có phiên bản mới của ứng dụng.')).toBeTruthy();
+    expect(
+      await screen.findByText('Ứng dụng đang tải gói hoặc có chuyến đi đang diễn ra. Hãy thử cập nhật lại sau khi xong.'),
+    ).toBeTruthy();
     release();
     await userEvent.click(screen.getByRole('button', { name: 'Cập nhật' }));
     expect(apply).toHaveBeenCalledTimes(1);
@@ -64,5 +66,15 @@ describe('UpdatePrompt', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Để sau' }));
     expect(screen.queryByText('Đã có phiên bản mới của ứng dụng.')).toBeNull();
     expect(coordinator.isUpdateAvailable()).toBe(true);
+  });
+
+  it('Để sau rồi có bản mới hơn → lời nhắc hiện lại', async () => {
+    await writeLanguagePreference('vi');
+    const { coordinator } = setup();
+    act(() => coordinator.notifyUpdateAvailable(vi.fn()));
+    await userEvent.click(await screen.findByRole('button', { name: 'Để sau' }));
+    expect(screen.queryByText('Đã có phiên bản mới của ứng dụng.')).toBeNull();
+    act(() => coordinator.notifyUpdateAvailable(vi.fn()));
+    expect(await screen.findByText('Đã có phiên bản mới của ứng dụng.')).toBeTruthy();
   });
 });

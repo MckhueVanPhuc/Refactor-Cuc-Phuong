@@ -185,6 +185,17 @@ describe('RouteDetailPage — gói và quyết định offline (US6, T086)', () 
     await vi.waitFor(() => expect(router.state.location.pathname).toBe('/trip'));
   });
 
+  it('Bắt đầu bị vô hiệu trong lúc chờ quyết định offline: bấm lặp không mở luồng thứ hai', async () => {
+    await renderM01('/routes/route-a');
+    const start = (await screen.findByRole('button', { name: 'Bắt đầu' })) as HTMLButtonElement;
+    start.click();
+    start.click();
+    await screen.findByRole('dialog');
+    expect(start.disabled).toBe(true);
+    (await screen.findByRole('button', { name: 'Quay lại' })).click();
+    await vi.waitFor(() => expect(start.disabled).toBe(false));
+  });
+
   it('tuyến không cần gói (B) → Start không qua dialog', async () => {
     const { router } = await renderM01('/routes/route-b');
     (await screen.findByRole('button', { name: 'Bắt đầu' })).click();

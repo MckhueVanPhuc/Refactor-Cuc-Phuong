@@ -32,6 +32,7 @@ export const en: M01Messages = {
     available: 'A new version of the app is available.',
     apply: 'Update',
     later: 'Later',
+    deferred: 'A route download or trip is in progress. Please try updating again when it finishes.',
   },
 
   labels: {

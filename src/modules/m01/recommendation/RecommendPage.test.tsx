@@ -65,6 +65,8 @@ describe('RecommendPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Đổi tiêu chí' }));
     expect(screen.queryByText(/Chưa có tuyến phù hợp/)).toBeNull();
     expect(radio('Thời gian', 'Dài (trên 180 phút)').checked).toBe(true);
+    // Focus về radio đang chọn, không phải radio đầu tiên của nhóm
+    expect(document.activeElement).toBe(radio('Thời gian', 'Dài (trên 180 phút)'));
     await userEvent.click(screen.getByRole('link', { name: 'Xem tất cả tuyến' }));
     expect(router.state.location.pathname).toBe('/');
   });

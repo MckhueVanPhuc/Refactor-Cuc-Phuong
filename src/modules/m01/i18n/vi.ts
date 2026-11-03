@@ -36,6 +36,7 @@ export const vi = {
     available: 'Đã có phiên bản mới của ứng dụng.',
     apply: 'Cập nhật',
     later: 'Để sau',
+    deferred: 'Ứng dụng đang tải gói hoặc có chuyến đi đang diễn ra. Hãy thử cập nhật lại sau khi xong.',
   },
 
   // SCR-M01-002: bảng nhãn dùng cho mọi màn du khách của M01
