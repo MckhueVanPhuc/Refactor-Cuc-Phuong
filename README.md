@@ -1,71 +1,155 @@
-﻿# Cúc Phương Quest — Documentation Refactor (V2)
+﻿# Cúc Phương Quest
 
-Repository này phục vụ việc **tái xây dựng và refactor toàn diện hệ thống tài liệu Cúc Phương Quest** theo định hướng **Spec-first**, bắt đầu từ việc rebaseline Spec-M03 và lan truyền có kiểm soát sang các tầng tài liệu dẫn xuất.
+Ứng dụng web (PWA) cho Vườn quốc gia Cúc Phương:
 
-Quy trình refactor được điều phối bởi [M03 Documentation Refactor Runbook v2](M03_Documentation_Refactor_Runbook_v2.md).
+- **Du khách** chọn tuyến tham quan, tải trước nội dung cho khu vực không có sóng, rồi quét mã QR dọc đường để đọc giới thiệu về cây, con, địa điểm.
+- **Nhân viên vườn** soạn và xuất bản tuyến, điểm dừng, mã QR, đóng/mở tuyến khi cần, quản lý tài khoản và xem báo cáo.
 
-> **Trạng thái hiện tại:** DOCUMENTATION REBASELINE IN PROGRESS.  
-> Repository hiện chỉ bao gồm tài liệu nghiệp vụ, kiến trúc, đặc tả màn hình và mô hình dữ liệu (kết thúc tại Physical Schema). Hoàn toàn không chứa application source code, SQL migrations, Edge Functions, tests, hoặc runtime environment.
-
----
-
-## 1. Ba Module Nghiệp Vụ Cốt Lõi
-
-Hệ thống được thiết kế dưới dạng modular monolith với ba module logic:
-
-| Module | Trách nhiệm chính | Trạng thái tài liệu |
-|---|---|---|
-| **M01 — Route Planning & Preparation** | Chọn ngôn ngữ, khám phá/chọn tuyến, chuẩn bị offline package và Start route. | Spec v2.0 — Chờ kiểm tra cross-module contract sau M03 |
-| **M02 — Field Quest Experience** | Phiên thực địa, journey cố định, QR check-in, phân phối nội dung và đồng bộ ẩn danh. | Spec v2.0 — Chờ kiểm tra cross-module contract sau M03 |
-| **M03 — Operations & Content Administration** | Xác thực admin, quản trị tuyến/checkpoint/QR/nội dung, phê duyệt revision, snapshot và báo cáo. | **Trọng tâm rebaseline chính trong đợt refactor V2** |
-
-Xem [MVP Scope](MVP-Scope.md) để biết phạm vi cam kết Must/Should/Could/Won't cho MVP.
+Repository làm theo hướng **spec-first**: đặc tả nghiệp vụ là nguồn sự thật, mọi tài liệu thiết kế, gói triển khai và code đều dẫn xuất từ đặc tả. Trước khi sửa bất kỳ thứ gì, đọc [AGENTS.md](AGENTS.md).
 
 ---
 
-## 2. Bản Đồ Điều Hướng Tài Liệu
+## 1. Trạng thái (cập nhật 2026-11-03)
 
-### A. Nguồn Sự Thật Nghiệp Vụ (Canonical Specifications)
+Hệ thống là một modular monolith gồm ba module logic, chạy chung một website và một backend Supabase.
+
+| Module | Làm gì | Đặc tả | Code |
+|---|---|---|---|
+| **M01 — Route Planning & Preparation** | Chọn ngôn ngữ, xem và gợi ý tuyến, tải gói offline, bắt đầu chuyến đi | [Spec v3.2](docs/spec/spec-M01.md) | ✅ Xong ([gói 001](specs/001-m01-route-planning-preparation/), 106/106 task) |
+| **M02 — Field Quest Experience** | Phiên thực địa, quét QR, hiển thị nội dung, kết thúc chuyến, đồng bộ ẩn danh | [Spec v3.3](docs/spec/spec-M02.md) | ⏳ Mới có spec, plan, tasks ([gói 002](specs/002-m02-field-quest-experience/)); chưa viết code — `/trip` mới là chỗ giữ |
+| **M03 — Operations & Content Administration** | Đăng nhập quản trị, tuyến, thư viện điểm dừng, mã QR, xem lại và xuất bản, đóng/mở, báo cáo, nhật ký | [Spec v3.7](docs/spec/spec-M03.md) | ✅ Frontend và backend xong trên stack local ([gói 003](specs/003-m03-operations-content-administration/), 200/209 task) |
+
+**Chưa làm:** đưa lên cloud (Vercel + Supabase Cloud). Việc này bị chặn có chủ đích cho tới khi có change brief triển khai (M03 Phase 16, T201–T209). Hiện mọi thứ chạy trên máy local.
+
+Phạm vi Must/Should/Could/Won't: [MVP-Scope.md](MVP-Scope.md).
+
+---
+
+## 2. Chạy thử
+
+Yêu cầu: **Node.js 24** và npm. Sau khi clone:
+
+```bash
+npm ci
+```
+
+### 2.1 Không cần backend — trang quản trị M03 với dữ liệu giả
+
+```bash
+npm run dev:fake
+```
+
+Mở <http://localhost:5174/admin/login>. Mật khẩu chung `Matkhau-thu-123`:
+
+| Tài khoản | Vai trò |
+|---|---|
+| `reviewer@example.test` | Quản lý (đủ quyền) |
+| `staff@example.test` | Nhân viên nội dung |
+| `locked@example.test` | Tài khoản bị khóa (để thử lỗi) |
+
+Dữ liệu nằm trong bộ nhớ trình duyệt: lúc đầu chỉ có tài khoản, chưa có tuyến hay điểm dừng; tải lại trang là mất. Phần du khách (M01) cần backend nên không có dữ liệu ở chế độ này.
+
+### 2.2 Đầy đủ — stack Supabase local
+
+Cần thêm **Docker Desktop** và **Supabase CLI**.
+
+```bash
+supabase start        # dựng Postgres, Auth, Storage, Edge Functions trong Docker
+supabase db reset     # chạy 14 migration trong supabase/migrations và nạp supabase/seed.sql
+supabase status       # lấy API URL và publishable key
+```
+
+Tạo `.env.local` (đã bị `.gitignore` bỏ qua) với giá trị từ `supabase status`, theo mẫu [.env.example](.env.example):
+
+```bash
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_PUBLISHABLE_KEY=<publishable key local>
+VITE_QR_PUBLIC_BASE_URL=http://localhost:5173
+```
+
+Rồi `npm run dev` và mở <http://localhost:5173> (du khách) hoặc <http://localhost:5173/admin/login> (quản trị). Seed local tạo cùng ba tài khoản ở bảng trên; tuyến và điểm dừng tạo qua giao diện quản trị.
+
+**Không bao giờ** trỏ app hay chạy `supabase link` / `db push` tới Supabase Cloud khi chưa có change brief triển khai.
+
+### 2.3 Lệnh kiểm tra
+
+| Lệnh | Việc |
+|---|---|
+| `npm run ci` | Typecheck, lint token (không màu/px viết tay ngoài `tokens.css`), unit test (Vitest), build |
+| `npm run e2e` | E2E Playwright trên dữ liệu giả (project `m03`, `m01`) |
+| `PW_LOCAL_STACK=1 npx playwright test --project=m03-local-stack --workers=1` | E2E M03 trên stack local |
+| `supabase test db` | pgTAP trong `supabase/tests` trên stack local |
+
+CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) chạy `verify` (`npm run ci`) và `e2e` cho mọi push và pull request; job `local-stack` (Supabase trong runner, pgTAP, contract và E2E local) chỉ chạy khi push vào `main` hoặc chạy tay.
+
+---
+
+## 3. Công nghệ
+
+React + TypeScript + Vite (PWA, React Router data mode, CSS Modules với design token), Dexie/IndexedDB cho dữ liệu offline của du khách, Supabase (Postgres với RPC và RLS, Auth, Storage, Edge Functions chạy Deno), Zod, Vitest + Testing Library, Playwright, pgTAP. Chi tiết và lý do: [tech-stack.md](docs/architecture/tech-stack.md).
+
+---
+
+## 4. Cấu trúc repository
+
+| Đường dẫn | Nội dung |
+|---|---|
+| `docs/spec/` | **Đặc tả nghiệp vụ** — nguồn sự thật về hành vi và contract |
+| `docs/function list/`, `docs/architecture/`, `docs/design/` | Function list, kiến trúc, design system (dẫn xuất từ spec) |
+| `screens/` | Danh mục màn hình, đặc tả từng màn, mockup HTML tĩnh và demo tương tác M03 |
+| `data/` | Mô hình dữ liệu S1 → S4, tiêu chí chấp nhận dữ liệu (DAC), review gate, Physical Schema |
+| `specs/` | Gói triển khai Spec-Kit theo module: spec, plan, research, contracts, tasks, validation report |
+| `src/app/` | Khung ứng dụng: router, PWA, cập nhật service worker |
+| `src/modules/m01/`, `src/modules/m03/` | Code của từng module |
+| `src/shared/` | UI dùng chung, design token, cấu hình, Supabase client, contract dùng chung, IndexedDB |
+| `supabase/` | Migration, seed local, Edge Functions (`admin-accounts`, `session-intake`), pgTAP, script cấp Quản lý đầu tiên |
+| `e2e/` | Test Playwright của M01 và M03 |
+| `.specify/`, `.claude/skills/` | Constitution và skill Spec-Kit |
+
+---
+
+## 5. Bản đồ tài liệu
+
+### A. Đặc tả (nguồn sự thật)
 - [Spec M01 — Route Planning & Preparation](docs/spec/spec-M01.md)
 - [Spec M02 — Field Quest Experience](docs/spec/spec-M02.md)
 - [Spec M03 — Operations & Content Administration](docs/spec/spec-M03.md)
-- [MVP Scope & Boundaries](MVP-Scope.md)
+- [MVP Scope](MVP-Scope.md)
 
-### B. Function Lists & Decomposition
-- [Function List M01](docs/function%20list/function-list-M01.md)
-- [Function List M02](docs/function%20list/function-list-M02.md)
-- [Function List M03](docs/function%20list/function-list-M03.md)
+### B. Function list
+- [M01](docs/function%20list/function-list-M01.md) · [M02](docs/function%20list/function-list-M02.md) · [M03](docs/function%20list/function-list-M03.md)
 
-### C. Kiến Trúc Hệ Thống (Architecture)
-- [Architecture Overview](docs/architecture/README.md)
-- [Context Diagram](docs/architecture/context-diagram.md)
-- [Usage Flow](docs/architecture/usage-flow.md)
-- [Sequence Diagrams](docs/architecture/sequence-diagrams.md)
-- [System Configuration & Runtime Topology](docs/architecture/system-configuration.md)
-- [Tech Stack Selection](docs/architecture/tech-stack.md)
-- [Environment Configuration](docs/architecture/environment.md)
+### C. Kiến trúc
+- [Tổng quan kiến trúc](docs/architecture/README.md)
+- [Context diagram](docs/architecture/context-diagram.md) · [Usage flow](docs/architecture/usage-flow.md) · [Sequence diagrams](docs/architecture/sequence-diagrams.md)
+- [System configuration](docs/architecture/system-configuration.md) · [Tech stack](docs/architecture/tech-stack.md) · [Environment](docs/architecture/environment.md)
 
-### D. Giao Diện & Màn Hình (Screens)
-- [Screen Inventory & Quy ước](screens/screen%20list/README.md)
-- [Screen List M01](screens/screen%20list/screen-list-M01.md) | [Screen Specs M01](screens/screen-spec/M01/)
-- [Screen List M02](screens/screen%20list/screen-list-M02.md) | [Screen Specs M02](screens/screen-spec/M02/)
-- [Screen List M03](screens/screen%20list/screen-list-M03.md) | [Screen Specs M03](screens/screen-spec/M03/)
-- [Design System](docs/design/design-system.md)
+### D. Màn hình và giao diện
+- [Danh mục màn hình và quy ước](screens/screen%20list/README.md)
+- Screen list: [M01](screens/screen%20list/screen-list-M01.md) · [M02](screens/screen%20list/screen-list-M02.md) · [M03](screens/screen%20list/screen-list-M03.md)
+- Screen spec: [M01](screens/screen-spec/M01/) · [M02](screens/screen-spec/M02/) · [M03](screens/screen-spec/M03/)
+- [Mockup HTML](screens/html/) · [Demo tương tác M03](screens/html/interactive/README.md)
+- [Design system](docs/design/design-system.md)
 
-### E. Dữ Liệu & Lưu Trữ (Data Modeling — S1 đến Physical Schema)
-- [S1 — Entity Dictionary](data/01-entity-dictionary.md): Từ điển 16 canonical entities.
-- [S2 — CRUD Matrix](data/02-crud-matrix.md): Ma trận CRUD trực tiếp theo function.
-- [S3 — ERD Source](data/03-erd.mmd), [ERD Preview](data/03-erd-preview.md), [ERD Review](data/03-erd-review.md): Quan hệ thực thể.
-- [S4 — Logical Data Model](data/04-data-model.md) & [DBML Visualization](data/04-data-model.dbml): Mô hình dữ liệu logic chuẩn.
-- [Data Acceptance Criteria (DAC)](data/08-data-acceptance-criteria.md): Tiêu chí chấp nhận dữ liệu toàn dự án (*V2 — hoàn tất, 118 tiêu chí*).
-- [Data Review Gate](data/05-review.md): Đánh giá review gate (*V2 — PASS, 2026-10-28*).
-- [Physical Schema](data/06-physical-schema.md): Thiết kế vật lý V2, giới hạn cuối cùng của tài liệu chuyển giao (*V2 — thiết kế, chưa implement*).
+### E. Dữ liệu
+- [S1 — Entity Dictionary](data/01-entity-dictionary.md) (16 entity) · [S2 — CRUD Matrix](data/02-crud-matrix.md)
+- [S3 — ERD](data/03-erd.mmd) · [ERD preview](data/03-erd-preview.md) · [ERD review](data/03-erd-review.md)
+- [S4 — Logical Data Model](data/04-data-model.md) · [DBML](data/04-data-model.dbml)
+- [Data Acceptance Criteria](data/08-data-acceptance-criteria.md) (118 tiêu chí) · [Review gate](data/05-review.md) (PASS 2026-10-28)
+- [Physical Schema](data/06-physical-schema.md) — thiết kế; đã hiện thực bằng migration trên stack local, chưa áp lên cloud
+
+### F. Gói triển khai (Spec-Kit)
+- [001 — M01](specs/001-m01-route-planning-preparation/) · [002 — M02](specs/002-m02-field-quest-experience/) · [003 — M03](specs/003-m03-operations-content-administration/)
+- Mỗi gói có `validation-report.md` ghi lệnh đã chạy thật và phần `NOT RUN`.
 
 ---
 
-## 3. Quy Ước Làm Việc & Governance
+## 6. Quy tắc làm việc
 
-1. **Spec-First Authority:** Ba module specifications là nguồn sự thật duy nhất cho hành vi và hợp đồng. Mọi tài liệu kiến trúc, màn hình, dữ liệu đều là tài liệu dẫn xuất.
-2. **Quy trình Refactor:** Tuân thủ 12 pha P0–P11 trong [Runbook](M03_Documentation_Refactor_Runbook_v2.md). Tuyệt đối không nhảy cóc từ Spec sang Physical Schema khi chưa qua các bước trung gian (S1 → S2 → S3 → S4 → DAC → Review Gate).
-3. **Giới hạn Migration:** Bộ tài liệu V2 hiện tại dừng lại ở data/06-physical-schema.md. Các tài liệu Field Mapping, Seed Data, Storage Validation và implementation packages của V1 không thuộc phạm vi active của V2 cho đến khi có kế hoạch triển khai cụ thể.
-4. **Agent Rules:** Mọi contributor và AI agent bắt buộc phải đọc và tuân thủ [AGENTS.md](AGENTS.md) và [.specify/memory/constitution.md](.specify/memory/constitution.md).
+1. **Spec trước.** Thay đổi hành vi hay contract thì sửa spec trước, rồi mới đồng bộ tài liệu dẫn xuất và code. Không tự thêm requirement.
+2. **Quy tắc repo:** [AGENTS.md](AGENTS.md) (chính), [CLAUDE.md](CLAUDE.md) (frontend: token, icon từ `assets/icons/`), [constitution](.specify/memory/constitution.md).
+3. **Code** chỉ trong phạm vi change brief và plan đã duyệt. Backend chỉ chạy trên stack local; cloud cần change brief riêng.
+4. **Git:** mỗi phase hoặc user story một branch, pull request vào `main`.
+5. **Không** commit secret, `.env.local`, dữ liệu thật hay định danh production.
+
+Lịch sử rebaseline tài liệu V2 (P0–P11): [M03 Documentation Refactor Runbook v2](M03_Documentation_Refactor_Runbook_v2.md).

@@ -1,6 +1,6 @@
 ﻿# Documentation Index — Cúc Phương Quest V2
 
-Tài liệu này là chỉ mục điều hướng toàn bộ hệ thống tài liệu phục vụ quá trình rebaseline và refactor Cúc Phương Quest V2 theo quy trình tại [M03 Documentation Refactor Runbook v2](../M03_Documentation_Refactor_Runbook_v2.md).
+Chỉ mục toàn bộ tài liệu của Cúc Phương Quest V2. Bộ tài liệu V2 đã hoàn tất đợt rebaseline theo [M03 Documentation Refactor Runbook v2](../M03_Documentation_Refactor_Runbook_v2.md) (2026-10-28); từ đó repo đã có code cho M01 và M03 (xem [README gốc](../README.md) §1 về trạng thái và cách chạy).
 
 Spec M01, M02 và M03 là behavioral/contract baseline (nguồn sự thật duy nhất). Architecture, function list, screen specs và data model là tài liệu dẫn xuất.
 
@@ -53,9 +53,23 @@ Spec M01, M02 và M03 là behavioral/contract baseline (nguồn sự thật duy 
 - [04 — Logical Data Model](../data/04-data-model.md) & [DBML](../data/04-data-model.dbml)
 - [08 — Data Acceptance Criteria (DAC)](../data/08-data-acceptance-criteria.md) (*V2 — hoàn tất, 118 tiêu chí*)
 - [05 — Data Review Gate](../data/05-review.md) (*V2 — PASS, 2026-10-28*)
-- [06 — Physical Schema](../data/06-physical-schema.md) (*V2 — thiết kế vật lý, giới hạn cuối cùng của đợt chuyển giao tài liệu; chưa implement*)
+- [06 — Physical Schema](../data/06-physical-schema.md) (*V2 — thiết kế vật lý; đã hiện thực bằng 14 migration trong `supabase/migrations/` trên stack local, chưa áp lên cloud*)
 
 > **Lưu ý về phạm vi:**  
-> - data/06-physical-schema.md là ranh giới kết thúc của bộ tài liệu chuyển giao V2.
-> - data/05-review.md (review gate) và data/06-physical-schema.md (thiết kế vật lý) đã được làm lại cho V2 (2026-10-28). Physical Schema là thiết kế tài liệu, chưa có SQL, migration hay triển khai.
+> - data/06-physical-schema.md là tầng tài liệu dữ liệu cuối cùng của V2; phần hiện thực (SQL migration, RPC, pgTAP) nằm trong `supabase/` theo change brief CHG-M03-2026-10-30-01, chỉ trên stack local.
+> - data/05-review.md (review gate) và data/06-physical-schema.md đã được làm lại cho V2 (2026-10-28). Khi Physical Schema đổi, migration phải được viết mới (forward), không sửa migration đã có.
 > - Các tài liệu downstream cũ như Field Mapping (data/schema/field-mapping.md), Seed Data (data/seed/**), Storage Validation (data/07-storage-validation.md) và implementation packages không thuộc active documentation set của V2.
+
+---
+
+## 6. Implementation Packages (Spec-Kit)
+
+Mỗi gói là bản dẫn xuất từ spec của module, gồm spec, plan, research, data-model, contracts, quickstart, tasks và `validation-report.md` (chỉ ghi lệnh đã chạy thật; phần chưa chạy là `NOT RUN`).
+
+| Gói | Module | Trạng thái |
+|---|---|---|
+| [001-m01-route-planning-preparation](../specs/001-m01-route-planning-preparation/) | M01 | Đã cài đặt (106/106 task) |
+| [002-m02-field-quest-experience](../specs/002-m02-field-quest-experience/) | M02 | Có spec, plan, tasks; chưa cài đặt |
+| [003-m03-operations-content-administration](../specs/003-m03-operations-content-administration/) | M03 | Đã cài đặt trên stack local (200/209 task); Phase 16 — đưa lên cloud — chờ change brief triển khai |
+
+Quy tắc chung của repo: [AGENTS.md](../AGENTS.md); constitution: [.specify/memory/constitution.md](../.specify/memory/constitution.md).
