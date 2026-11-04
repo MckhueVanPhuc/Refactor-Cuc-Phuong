@@ -39,15 +39,20 @@ type EntryState = { status: 'entering' } | { status: 'done'; result: EntryResult
 
 function useTripEntry(): EntryState {
   const [state, setState] = useState<EntryState>({ status: 'entering' });
-  // Một lần mỗi lần mở màn (StrictMode gọi effect hai lần ở dev)
-  const started = useRef(false);
+  // Vào phiên một lần mỗi lần mở màn: StrictMode chạy effect hai lần ở dev, các lần chạy dùng chung một promise
+  const entry = useRef<Promise<EntryResult> | null>(null);
   useEffect(() => {
-    if (started.current) return;
-    started.current = true;
-    void enterTrip()
-      .then((result) => setState({ status: 'done', result }))
+    entry.current ??= enterTrip()
       // Không đọc/ghi được IndexedDB khi không có phiên: hiện như chưa có chuyến đi, du khách bắt đầu lại từ M01
-      .catch(() => setState({ status: 'done', result: { kind: 'FREE' } }));
+      .catch((): EntryResult => ({ kind: 'FREE' }));
+    // Rời màn trước khi xong: bỏ kết quả, không cập nhật state sau khi unmount
+    let cancelled = false;
+    void entry.current.then((result) => {
+      if (!cancelled) setState({ status: 'done', result });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
   return state;
 }

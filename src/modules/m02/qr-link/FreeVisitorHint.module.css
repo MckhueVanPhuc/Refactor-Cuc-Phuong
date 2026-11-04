@@ -1,0 +1,31 @@
+/* Gợi ý khách tự do: nền surface của bề mặt, vạch info, liên kết "Chọn tuyến" gạch chân, vùng chạm theo --touch-target. */
+.hint {
+  display: grid;
+  margin-top: var(--space-5);
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--m02-surface);
+  border-left: var(--border-width-thick) solid var(--m02-info);
+  border-radius: var(--radius-sm);
+}
+
+.text {
+  margin: 0;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-height: var(--touch-target);
+  font-weight: var(--font-weight-semibold);
+  color: var(--m02-fg);
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+}
+
+.link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}

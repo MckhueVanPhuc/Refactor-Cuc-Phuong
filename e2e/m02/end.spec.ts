@@ -40,6 +40,18 @@ async function stores(page: Page) {
   return { sessions: dump.playSessions as SessionRow[], items: dump.pendingSyncItems as SyncRow[] };
 }
 
+/**
+ * Hộp thoại kết thúc chuyến đã có style (CSS của chunk lazy đã áp, hộp thoại cố định ở đáy màn) rồi mới bấm: khi máy
+ * tải nặng, CSS có thể tới sau lúc hộp thoại hiện và làm nút đổi chỗ ngay trước cú click.
+ */
+async function promptButton(page: Page, name: string) {
+  await page.waitForFunction(() => {
+    const dialog = document.querySelector('[role="alertdialog"]');
+    return Boolean(dialog?.parentElement && getComputedStyle(dialog.parentElement).position === 'fixed');
+  });
+  return page.getByRole('button', { name, exact: true });
+}
+
 /** Về SCR-M02-001 bằng liên kết "Quay lại" (điều hướng trong app, giữ trạng thái JS của trang). */
 async function back(page: Page) {
   await page.getByRole('link', { name: vi.content.back }).click();
@@ -51,7 +63,7 @@ test('V16 — quét Q3 lần đầu: câu hỏi một lần; [Đi tiếp] → Fi
   await startTrip(page);
   await scan(page, 'Q3');
   await expect(page.getByRole('alertdialog')).toContainText(vi.endPrompt.question);
-  await page.getByRole('button', { name: vi.endPrompt.continue }).click();
+  await (await promptButton(page, vi.endPrompt.continue)).click();
   await expect(page.getByRole('alertdialog')).toHaveCount(0);
 
   await back(page);
@@ -65,7 +77,7 @@ test('V16 — quét Q3 lần đầu: câu hỏi một lần; [Đi tiếp] → Fi
 test('V17 — [Kết thúc] khi chưa quét C2 → HOAN_TAT; mục hàng đợi PENDING cùng lúc; màn kết quả', async ({ page }) => {
   await startTrip(page);
   await scan(page, 'Q3');
-  await page.getByRole('button', { name: vi.endPrompt.end }).click();
+  await (await promptButton(page, vi.endPrompt.end)).click();
   await expect(page).toHaveURL(/\/trip\/end$/);
   await expect(page.getByRole('heading', { name: vi.end.title })).toBeVisible();
   await expect(page.getByText(vi.end.syncPending)).toBeVisible();
@@ -105,7 +117,7 @@ test.describe('V19 — giờ thiết bị +24 h rồi đưa trang hiện lại',
       await startTrip(page);
       if (visitedFinal) {
         await scan(page, 'Q3');
-        await page.getByRole('button', { name: vi.endPrompt.continue }).click();
+        await (await promptButton(page, vi.endPrompt.continue)).click();
         await back(page);
       }
       const before = (await stores(page)).sessions[0]!;
