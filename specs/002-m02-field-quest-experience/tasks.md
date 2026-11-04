@@ -155,7 +155,7 @@ description: "Danh sách task triển khai M02 — Field Quest Experience"
 - [X] T048 [P] [US3] Viết test src/modules/m02/content/selectContentSource.test.ts: online `VALID` → nội dung live cho cả hai mode; offline/lỗi nguồn + `OFFLINE_REQUIRED` + có resource → nội dung gói; thiếu resource hoặc không có gói `SAN_SANG` → "Chưa có nội dung offline cho điểm này." (không bao giờ là mã không hợp lệ); `ONLINE_AVAILABLE` offline → không có nội dung; cảnh báo gói cũ khi `versionStatus = OUTDATED` hoặc `package.contentVersion < session.contentVersion`; ảnh của nội dung gói đọc bằng `readPackageImage(routeId, package.contentVersion, sourceRef)` — version của gói active, có thể khác version của phiên; gói không bao giờ bị đổi (BR-M02-009, 018; FR-M02-010; SC-M02-012)
 - [X] T049 [P] [US3] Viết test src/modules/m02/content/mediaFilter.test.ts: chỉ giữ `spokenLanguage` = ngôn ngữ hiện tại hoặc `NONE`, theo thứ tự nhận; nhãn "Âm thanh {n}"/"Audio {n}", "Video {n}" đánh số trong từng loại; đổi ngôn ngữ tính lại ngay; không có tệp khớp → danh sách rỗng (BR-M02-026; FR-M02-014; SC-M02-019)
 - [X] T050 [P] [US3] Viết test src/modules/m02/content/ContentPage.test.tsx: nội dung là của đúng mã (hai mã của `C1` hiện hai nội dung khác nhau); `<audio>`/`<video>` có `controls preload="none"`, không autoplay; tệp bị bỏ khi đổi ngôn ngữ thì dừng phát; nội dung gói không bao giờ có điều khiển media; ảnh lỗi → placeholder; media lỗi → thông báo lỗi tệp, chữ và ảnh còn; lỗi nguồn → thông báo "Chưa tải được nội dung mới…" rồi nội dung gói; object URL bị thu hồi khi rời màn; xem lại hiện `checkedInAt` gốc dạng hh:mm dd/mm/yyyy (BR-M02-014, 016; FR-M02-009, 011; SC-M02-008, 011)
-- [X] T051 [P] [US3] Viết E2E e2e/m02/content.spec.ts cho quickstart V9–V12 (`context.setOffline(true)`; `page.route()` trì hoãn lookup quá 8 s cho V12) — V9–V12 và V10b (gói thiếu resource); test offline chờ service worker điều khiển trang trước khi `setOffline` (app phải được mở một lần, BR-M02-025). V10 với `Q2`: hiện "Điểm này cần có mạng để xem nội dung." theo spec-M02 US-M02-03 mục 3 và bảng copy SCR-M02-002 (quickstart V10 và scan-resolution §2 dòng 6 ghi gộp thành "Chưa có nội dung offline…")
+- [X] T051 [P] [US3] Viết E2E e2e/m02/content.spec.ts cho quickstart V9–V12 (`context.setOffline(true)`; `page.route()` trì hoãn lookup quá 8 s cho V12) — V9–V12 và V10b (gói thiếu resource); test offline chờ service worker điều khiển trang trước khi `setOffline` (app phải được mở một lần, BR-M02-025). V10 với `Q2`: hiện "Điểm này cần có mạng để xem nội dung." theo spec-M02 US-M02-03 mục 3 và bảng copy SCR-M02-002; quickstart V10 và scan-resolution §2 dòng 6 đã sửa cho khớp spec (chủ dự án duyệt 2026-11-04, gộp vào PR US4)
 
 ### Implementation for User Story 3
 
@@ -177,15 +177,15 @@ description: "Danh sách task triển khai M02 — Field Quest Experience"
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T057 [P] [US4] Viết test src/modules/m02/scan/resolveScan.outside.test.ts cho dòng 2, 4, 5, 7 của scan-resolution §2: `VALID` ngoài journey → nội dung live, không lượt ghé, không đổi tuyến; `TEMPORARILY_CLOSED` (cả hai scope, mã trong hoặc ngoài journey) → không lượt ghé, không nội dung; `INVALID` → không lượt ghé; offline/lỗi nguồn với mã không có `J` → "Cần có kết nối mạng…", không lượt ghé (BR-M02-008, 015; FR-M02-012, 013, 021; SC-M02-009)
-- [ ] T058 [P] [US4] Viết test src/modules/m02/content/ScanNotice.test.tsx: thông báo tạm đóng giống hệt cho `ROUTE` và `CHECKPOINT` ở cả vi/en (đúng câu của US-M02-04 mục 3); "Mã không còn hiệu lực hoặc không tồn tại"; lỗi kết nối không bao giờ hiện là mã không hợp lệ; offline không hiện thông báo đóng nào (BR-M02-015; FR-M02-013)
-- [ ] T059 [P] [US4] Viết E2E e2e/m02/outside-closed.spec.ts cho quickstart V13–V14
+- [X] T057 [P] [US4] Viết test src/modules/m02/scan/resolveScan.outside.test.ts cho dòng 2, 4, 5, 7 của scan-resolution §2: `VALID` ngoài journey → nội dung live, không lượt ghé, không đổi tuyến; `TEMPORARILY_CLOSED` (cả hai scope, mã trong hoặc ngoài journey) → không lượt ghé, không nội dung; `INVALID` → không lượt ghé; offline/lỗi nguồn với mã không có `J` → "Cần có kết nối mạng…", không lượt ghé (BR-M02-008, 015; FR-M02-012, 013, 021; SC-M02-009)
+- [X] T058 [P] [US4] Viết test src/modules/m02/content/ScanNotice.test.tsx: thông báo tạm đóng giống hệt cho `ROUTE` và `CHECKPOINT` ở cả vi/en (đúng câu của US-M02-04 mục 3); "Mã không còn hiệu lực hoặc không tồn tại"; lỗi kết nối không bao giờ hiện là mã không hợp lệ; offline không hiện thông báo đóng nào (BR-M02-015; FR-M02-013) — kiểm qua resolveScan để chắc hai scope cho cùng một thông báo
+- [X] T059 [P] [US4] Viết E2E e2e/m02/outside-closed.spec.ts cho quickstart V13–V14 — thêm ca lỗi mạng (HTTP 500) với mã ngoài hành trình
 
 ### Implementation for User Story 4
 
-- [ ] T060 [US4] Hoàn thiện dòng 2, 4, 5, 7 trong src/modules/m02/scan/resolveScan.ts cho T057 qua
-- [ ] T061 [P] [US4] Dựng src/modules/m02/content/ScanNotice.tsx + `.module.css` (Closure notice, Invalid QR, Connection needed, Out of journey) cho T058 qua
-- [ ] T062 [US4] Gắn ScanNotice vào src/modules/m02/content/ContentPage.tsx và src/modules/m02/session/TripPage.tsx theo `display` của resolveScan
+- [X] T060 [US4] Hoàn thiện dòng 2, 4, 5, 7 trong src/modules/m02/scan/resolveScan.ts cho T057 qua — bảng quyết định đã cho đúng các dòng này từ T042; chỉ cập nhật ghi chú
+- [X] T061 [P] [US4] Dựng src/modules/m02/content/ScanNotice.tsx + `.module.css` (Closure notice, Invalid QR, Connection needed, Out of journey) cho T058 qua — "Out of journey" không có thông báo: spec và screen spec không chốt chữ nào, màn hiện nội dung live và không ghi lượt ghé; màu theo bề mặt qua biến `--m02-info/-warning/-error/-success` của FieldLayout
+- [X] T062 [US4] Gắn ScanNotice vào src/modules/m02/content/ContentPage.tsx và src/modules/m02/session/TripPage.tsx theo `display` của resolveScan
 
 **Checkpoint**: US1–US4 chạy độc lập
 

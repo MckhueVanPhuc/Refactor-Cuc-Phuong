@@ -4,6 +4,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { PATHS } from '../../../app/paths';
+import { ScanNotice, type ScanNoticeKind } from '../content/ScanNotice';
 import type { M02Messages } from '../i18n';
 import { useM02Messages } from '../i18n/useM02Messages';
 import { RouteJourneyMap } from '../journey/RouteJourneyMap';
@@ -72,24 +73,8 @@ function EntryNotice({ result }: { result: EntryResult }) {
   }
 }
 
-/** Káº¿t quáº£ quÃ©t á»Ÿ láº¡i SCR-M02-001: táº¡m Ä‘Ã³ng, mÃ£ khÃ´ng há»£p lá»‡, cáº§n káº¿t ná»‘i (screen spec Â§4). */
-type StayNotice = { kind: 'CLOSED' | 'INVALID' | 'CONNECTION_NEEDED'; freeVisitor: boolean };
-
-function ScanNoticeLine({ notice }: { notice: StayNotice }) {
-  const messages = useM02Messages();
-  const text = {
-    CLOSED: messages.notice.temporarilyClosed,
-    INVALID: messages.notice.invalid,
-    CONNECTION_NEEDED: messages.notice.connectionNeeded,
-  }[notice.kind];
-  const tone = notice.kind === 'INVALID' ? styles.error : notice.kind === 'CLOSED' ? styles.warning : styles.info;
-  return (
-    <div className={`${styles.notice} ${tone}`} role="alert">
-      <p className={styles.noticeText}>{text}</p>
-      {notice.freeVisitor && <p className={styles.noticeText}>{messages.notice.freeVisitor}</p>}
-    </div>
-  );
-}
+/** Kết quả quét ở lại SCR-M02-001: tạm đóng, mã không hợp lệ, cần kết nối (screen spec §4; tasks T062). */
+type StayNotice = { kind: ScanNoticeKind; freeVisitor: boolean };
 
 export function TripPage() {
   const messages = useM02Messages();
@@ -131,7 +116,7 @@ export function TripPage() {
     <FieldLayout surface="scanner" title={messages.screenTitle.trip}>
       {entry.status === 'done' && (
         <FieldNotice>
-          {stayNotice ? <ScanNoticeLine notice={stayNotice} /> : <EntryNotice result={entry.result} />}
+          {stayNotice ? <ScanNotice kind={stayNotice.kind} freeVisitor={stayNotice.freeVisitor} /> : <EntryNotice result={entry.result} />}
           {lookingUp && (
             <p className={`${styles.notice} ${styles.info}`} role="status">
               {messages.trip.lookingUp}

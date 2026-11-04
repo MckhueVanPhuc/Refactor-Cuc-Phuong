@@ -1,0 +1,29 @@
+/*
+ * Thông báo kết quả quét trên cả hai bề mặt M02: nền surface của bề mặt, vạch màu semantic ở cạnh trái (biến
+ * `--m02-*` do FieldLayout đặt theo scanner/reader), chữ luôn nói rõ tình huống — không chỉ dựa vào màu.
+ */
+.notice {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-body);
+  background: var(--m02-surface);
+  border-left: var(--border-width-thick) solid var(--notice-accent);
+  border-radius: var(--radius-sm);
+}
+
+.info {
+  --notice-accent: var(--m02-info);
+}
+
+.warning {
+  --notice-accent: var(--m02-warning);
+}
+
+.error {
+  --notice-accent: var(--m02-error);
+}
+
+.text {
+  margin: 0;
+}

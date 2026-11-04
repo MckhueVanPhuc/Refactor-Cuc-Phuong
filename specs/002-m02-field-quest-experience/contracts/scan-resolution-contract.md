@@ -24,7 +24,7 @@
 | 3 | không | online | `VALID` | — | không | nội dung live + gợi ý khách tự do + liên kết "Chọn tuyến" | BR-M02-012, 019 |
 | 4 | bất kỳ | online | `TEMPORARILY_CLOSED` | bất kỳ | không | thông báo tạm đóng, không nội dung | BR-M02-015; SC-M02-009 |
 | 5 | bất kỳ | online | `INVALID` | bất kỳ | không | "Mã không còn hiệu lực hoặc không tồn tại." | US-M02-04 mục 2 |
-| 6 | có | offline / lỗi nguồn | — | có `J` | có, nếu chưa có | thông báo lỗi nguồn; `J` là `OFFLINE_REQUIRED` và có resource → nội dung gói; thiếu resource hoặc `ONLINE_AVAILABLE` → "Chưa có nội dung offline cho điểm này." | BR-M02-005, 009, 018 |
+| 6 | có | offline / lỗi nguồn | — | có `J` | có, nếu chưa có | thông báo lỗi nguồn; `J` là `OFFLINE_REQUIRED` và có resource → nội dung gói; thiếu resource (hoặc không có gói `SAN_SANG`) → "Chưa có nội dung offline cho điểm này."; `J` là `ONLINE_AVAILABLE` → "Điểm này cần có mạng để xem nội dung." (US-M02-03 mục 3; bảng copy SCR-M02-002) | BR-M02-005, 009, 018 |
 | 7 | có | offline / lỗi nguồn | — | không có `J` | không | "Cần có kết nối mạng để kiểm tra mã QR này." | BR-M02-020; US-M02-04 mục 4 |
 | 8 | không | offline / lỗi nguồn | — | — | không | "Cần có kết nối mạng…" (+ gợi ý khách tự do ở `/q/…`) | spec-M02 §4.4 |
 | R-INVALID-LINK | bất kỳ | (không gọi mạng) | — | — | không | thông báo mã không hợp lệ | FR-M02-026 |

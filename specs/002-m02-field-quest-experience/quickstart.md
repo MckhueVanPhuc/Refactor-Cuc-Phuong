@@ -59,7 +59,7 @@ Fixture synthetic: tuyến A, version 3, checkpoint `C1` (seq 1, `OFFLINE_REQUIR
 | V7 | Story 2 | Offline quét `QN` | "Cần có kết nối mạng…"; không lượt ghé | scan-resolution dòng 7 |
 | V8 | Story 2 | Giả lập lỗi tải ảnh sau khi ghi lượt ghé | Lượt ghé còn sau khi tải lại | scan-resolution §3 |
 | V9 | Story 3 | Online quét `Q2`, đổi VI ↔ EN khi audio `vi` đang phát | Danh sách đổi ngay; tệp `vi` dừng khi chuyển EN; `NONE` luôn có; không autoplay | [live-qr-lookup-consumer](contracts/live-qr-lookup-consumer-contract.md) §4 |
-| V10 | Story 3 | Offline quét `Q1a` có gói; quét `Q2` offline | `Q1a`: chữ + ảnh từ gói, không media; `Q2`: "Chưa có nội dung offline…"; cả hai có lượt ghé | scan-resolution dòng 6 |
+| V10 | Story 3 | Offline quét `Q1a` có gói; quét `Q2` offline | `Q1a`: chữ + ảnh từ gói, không media; `Q2` (`ONLINE_AVAILABLE`): "Điểm này cần có mạng để xem nội dung."; cả hai có lượt ghé. Gói thiếu resource của mã: "Chưa có nội dung offline cho điểm này." | scan-resolution dòng 6 |
 | V11 | Story 3 | Gói A v2 (`OUTDATED`), phiên v3, offline quét `Q1a` | Nội dung gói + cảnh báo gói cũ | m01-shared-data-consumer §4 |
 | V12 | Story 3 | Lookup không trả lời 8 s (provisional) với `Q1a` | Thông báo lỗi nguồn, lượt ghé, nội dung gói; không bao giờ "mã không hợp lệ" | live-qr-lookup-consumer §3 |
 | V13 | Story 4 | Online quét `QX` | Nội dung live, không lượt ghé | scan-resolution dòng 2 |

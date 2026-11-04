@@ -19,6 +19,10 @@
   --m02-fg-secondary: var(--color-m02-scanner-secondary);
   --m02-surface: var(--color-m02-scanner-surface);
   --m02-line: var(--color-m02-scanner-secondary);
+  --m02-info: var(--color-m02-scanner-secondary);
+  --m02-success: var(--color-m02-scanner-success);
+  --m02-warning: var(--color-m02-scanner-warning);
+  --m02-error: var(--color-m02-scanner-error);
   --focus-ring-color: var(--color-m02-scanner-warning);
   --control-accent: var(--color-m02-scanner-success);
   --control-border-color: var(--color-m02-scanner-secondary);
@@ -30,6 +34,10 @@
   --m02-fg-secondary: var(--color-ink-secondary);
   --m02-surface: var(--color-white);
   --m02-line: var(--color-m03-border);
+  --m02-info: var(--color-info);
+  --m02-success: var(--color-success);
+  --m02-warning: var(--color-warning);
+  --m02-error: var(--color-error);
   --focus-ring-color: var(--color-ink);
   --control-accent: var(--color-ink);
   --control-border-color: var(--color-ink-secondary);
