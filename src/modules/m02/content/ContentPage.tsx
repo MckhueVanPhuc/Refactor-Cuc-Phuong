@@ -3,9 +3,11 @@
 // (BR-M02-014). Online `VALID` → nội dung live + audio/video lọc theo ngôn ngữ; lỗi nguồn → nội dung gói, không bao giờ
 // có media (BR-M02-016). Lỗi ảnh hay media không gỡ lượt ghé đã ghi (SC-M02-004).
 import { useEffect, useState, type ReactNode } from 'react';
-import { Link, useLocation, useParams } from 'react-router';
+import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
+import { FinalPrompt } from '../end/FinalPrompt';
+import { useEndTrip } from '../end/useEndTrip';
 import { FieldLayout, FieldNotice } from '../layout/FieldLayout';
 import type { ScanResult } from '../scan/processScan';
 import { viewScannedPoint } from '../scan/viewScannedPoint';
@@ -132,9 +134,20 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
 export function ContentPage() {
   const messages = useM02Messages();
   const { qrIdentifier = '' } = useParams();
-  const state = (useLocation().state ?? {}) as ContentRouteState;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const state = (location.state ?? {}) as ContentRouteState;
   const [scan, setScan] = useState<ScanResult | undefined>(state.scan);
   const [view, setView] = useState<ContentView | undefined>(undefined);
+  const { endTrip, ending } = useEndTrip();
+  const [promptDismissed, setPromptDismissed] = useState(false);
+  // Lượt ghé điểm cuối vừa ghi lần đầu → hỏi kết thúc chuyến một lần (BR-M02-021; FR-M02-023)
+  const promptSessionId = scan?.finalPromptNeeded && !promptDismissed ? scan.session?.sessionId : undefined;
+  const continueTrip = () => {
+    setPromptDismissed(true);
+    // Ghi đè router state để quay lại / tải lại trang không hỏi lần nữa
+    if (scan) navigate(location.pathname, { replace: true, state: { scan: { ...scan, finalPromptNeeded: false } } satisfies ContentRouteState });
+  };
 
   // Không có kết quả quét trong router state: xem lại, không ghi lượt ghé (scan-resolution §4)
   useEffect(() => {
@@ -176,6 +189,7 @@ export function ContentPage() {
       <Link className={styles.back} to={PATHS.m02SessionEntry}>
         {messages.content.back}
       </Link>
+      {promptSessionId && <FinalPrompt onEnd={() => void endTrip(promptSessionId)} onContinue={continueTrip} busy={ending} />}
     </FieldLayout>
   );
 }

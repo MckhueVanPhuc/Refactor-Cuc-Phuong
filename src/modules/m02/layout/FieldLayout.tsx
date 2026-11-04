@@ -4,8 +4,9 @@
 // thông báo một lần mà màn đặt vào bằng <FieldNotice>.
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { useM02DisplayLanguage } from '../i18n/useM02Messages';
+import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { LanguageControl } from '../m01Port';
+import { useAutoEndNotice } from '../session/autoEnd';
 import styles from './FieldLayout.module.css';
 
 export type FieldSurface = 'scanner' | 'reader';
@@ -20,6 +21,9 @@ export function FieldNotice({ children }: { children: ReactNode }) {
 
 export function FieldLayout({ surface, title, children }: { surface: FieldSurface; title?: string; children?: ReactNode }) {
   const language = useM02DisplayLanguage();
+  const messages = useM02Messages();
+  // Chuyến trước vừa tự kết thúc (BR-M02-022): thông báo một lần trên màn M02 đang mở
+  const autoEnded = useAutoEndNotice();
   const [noticeSlot, setNoticeSlot] = useState<HTMLElement | null>(null);
 
   // Trình đọc màn hình đọc đúng ngôn ngữ đang hiển thị
@@ -33,7 +37,13 @@ export function FieldLayout({ surface, title, children }: { surface: FieldSurfac
         {title ? <h1 className={styles.title}>{title}</h1> : <span />}
         <LanguageControl tone={surface === 'scanner' ? 'onDark' : 'onLight'} />
       </header>
-      <div className={styles.notices} role="status" ref={setNoticeSlot} />
+      <div className={styles.notices} role="status" ref={setNoticeSlot}>
+        {autoEnded && (
+          <p className={styles.autoEnded} data-auto-ended={autoEnded}>
+            {autoEnded === 'HOAN_TAT' ? messages.notice.autoEndedCompleted : messages.notice.autoEndedAbandoned}
+          </p>
+        )}
+      </div>
       <main className={styles.main} id="m02-main" tabIndex={-1}>
         <NoticeSlotContext.Provider value={noticeSlot}>{children}</NoticeSlotContext.Provider>
       </main>

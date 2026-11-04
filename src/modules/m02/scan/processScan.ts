@@ -2,6 +2,7 @@
 // và trang `/q/…`. Lượt ghé được commit TRƯỚC khi trả kết quả để điều hướng sang nội dung; lỗi hiển thị về sau không gỡ
 // nó (SC-M02-004). Kết quả chỉ sống trong router state, không lưu (data-model §6).
 import { lookupClient, type LookupClient } from '../api/lookupClient';
+import { autoEndForgottenSession } from '../session/autoEnd';
 import { getRunningSession } from '../storage/readers';
 import { recordVisit } from '../storage/recordVisit';
 import type { CheckpointVisitRow } from '../storage/rows';
@@ -29,9 +30,8 @@ export type ScanDeps = { lookup?: LookupClient; now?: () => Date };
 export async function processScan(qrIdentifier: string, origin: ScanOrigin, deps: ScanDeps = {}): Promise<ScanResult> {
   const lookup = deps.lookup ?? lookupClient;
   const now = deps.now ?? (() => new Date());
-  if (origin === 'link') {
-    // Tự đóng phiên quá 24 giờ trước khi xử lý mã mở từ camera điện thoại (research R-09) — gắn ở T072
-  }
+  // Mã mở từ camera điện thoại: tự đóng phiên quá 24 giờ trước (research R-09; BR-M02-022)
+  if (origin === 'link') await autoEndForgottenSession(now());
 
   // Đọc lại phiên từ Dexie: tab khác có thể vừa đổi phiên (BR-M02-002)
   const session = await getRunningSession();
