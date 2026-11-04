@@ -21,18 +21,25 @@ export function QrLinkPage() {
   const messages = useM02Messages();
   const { qrIdentifier = '' } = useParams();
   const [scan, setScan] = useState<ScanResult | undefined>(undefined);
-  // Một lần mỗi mã (StrictMode gọi effect hai lần ở dev; lượt ghé chỉ ghi một lần dù vậy)
-  const processed = useRef<string | null>(null);
+  // Mỗi mã chỉ xử lý một lần (StrictMode chạy effect hai lần ở dev): các lần chạy effect dùng chung một promise
+  const pending = useRef<{ qrIdentifier: string; result: Promise<ScanResult> } | null>(null);
 
   useEffect(() => {
-    if (processed.current === qrIdentifier) return;
-    processed.current = qrIdentifier;
-    setScan(undefined);
-    if (!qrIdentifier.trim()) {
-      setScan(emptyCodeResult());
-      return;
+    if (pending.current?.qrIdentifier !== qrIdentifier) {
+      pending.current = {
+        qrIdentifier,
+        result: qrIdentifier.trim() ? processScan(qrIdentifier, 'link') : Promise.resolve(emptyCodeResult()),
+      };
     }
-    void processScan(qrIdentifier, 'link').then(setScan);
+    // Rời trang trước khi tra cứu xong: bỏ kết quả, không cập nhật state sau khi unmount
+    let cancelled = false;
+    setScan(undefined);
+    void pending.current.result.then((result) => {
+      if (!cancelled) setScan(result);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [qrIdentifier]);
 
   return (
