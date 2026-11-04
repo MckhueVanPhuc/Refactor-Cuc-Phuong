@@ -6,7 +6,7 @@ export const vi = {
   // Tiêu đề màn: SCR-M02-001 lấy từ mockup-SCR-M02-001 (bảng copy chưa có); chủ dự án duyệt 2026-11-04
   screenTitle: {
     trip: 'Chuyến đi',
-    // SCR-M02-004: tên sản phẩm trên mockup-SCR-M02-004, giữ nguyên ở hai ngôn ngữ; chờ chủ dự án duyệt
+    // SCR-M02-004: tên sản phẩm trên mockup-SCR-M02-004, giữ nguyên ở hai ngôn ngữ; chủ dự án duyệt 2026-11-04
     qrLink: 'Cúc Phương Quest',
   },
   // spec-M02 §5.1 "Fixed visitor messages"

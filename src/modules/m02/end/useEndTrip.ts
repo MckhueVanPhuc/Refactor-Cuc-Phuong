@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { finishSession } from '../storage/terminalTransition';
+import { requestSync } from '../sync/startSync';
 
 export const endPath = `${PATHS.m02SessionEntry}/end`;
 
@@ -16,6 +17,7 @@ export function useEndTrip(): { endTrip: (sessionId: string) => Promise<void>; e
     setEnding(true);
     try {
       const result = await finishSession(sessionId);
+      if (result.kind === 'FINISHED') requestSync();
       // Phiên đã kết thúc ở tab khác cũng sang màn kết quả của phiên đó
       if (result.kind === 'FINISHED' || result.kind === 'NOT_RUNNING') {
         navigate(endPath, { state: { sessionId } satisfies EndRouteState });

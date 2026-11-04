@@ -55,3 +55,11 @@ export async function mockStorage(page: Page): Promise<void> {
     await route.fulfill(isImage ? { status: 200, contentType: 'image/png', body: PNG_1X1 } : { status: 200, body: '' }).catch(() => {});
   });
 }
+
+/**
+ * Edge `session-intake` tạm không khả dụng (503 → bản ghi giữ `PENDING`). Spec có kết thúc phiên mà không tự giả lập
+ * intake dùng hàm này để không bao giờ gọi tới một stack Supabase local đang chạy trên máy (kết quả phụ thuộc môi trường).
+ */
+export async function mockIntakeUnavailable(page: Page): Promise<void> {
+  await page.route('**/functions/v1/session-intake', (route) => route.fulfill({ status: 503, json: { message: 'unavailable' } }));
+}

@@ -6,7 +6,7 @@ export const en: M02Messages = {
   // Đề xuất của agent cho tiêu đề SCR-M02-001 (nguồn chỉ có tiếng Việt); chủ dự án duyệt 2026-11-04
   screenTitle: {
     trip: 'Your trip',
-    // Tên sản phẩm, không dịch; chờ chủ dự án duyệt
+    // Tên sản phẩm, không dịch; chủ dự án duyệt 2026-11-04
     qrLink: 'Cúc Phương Quest',
   },
   notice: {

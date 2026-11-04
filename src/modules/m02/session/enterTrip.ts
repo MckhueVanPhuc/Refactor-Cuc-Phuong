@@ -4,6 +4,7 @@
 import type { PlaySessionRow } from '../storage/rows';
 import { createSession } from '../storage/createSession';
 import { getRunningSession } from '../storage/readers';
+import { requestSync } from '../sync/startSync';
 import { autoEndForgottenSession } from './autoEnd';
 import type { EntryDecision, RejectReason } from './decideEntry';
 
@@ -31,7 +32,11 @@ export async function enterTrip(now: Date = new Date()): Promise<EntryResult> {
   await autoEndForgottenSession(now);
   try {
     const result = await createSession(now);
-    if (result.kind === 'CREATED') return { kind: 'STARTED', session: result.session, replaced: result.replaced };
+    if (result.kind === 'CREATED') {
+      // Phiên cũ vừa thành BO_DO và vào hàng đợi: gửi ngay
+      if (result.replaced) requestSync();
+      return { kind: 'STARTED', session: result.session, replaced: result.replaced };
+    }
     return fromDecision(result.decision);
   } catch (error) {
     // Transaction đã rollback: nếu còn phiên đang chạy thì đó là lần thay phiên lỗi (E-SCR-M02-001-21)

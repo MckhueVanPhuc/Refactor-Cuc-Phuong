@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { autoEndIfExpired } from '../storage/terminalTransition';
 import type { TerminalStatus } from '../sync/buildSyncRecord';
+import { requestSync } from '../sync/startSync';
 
 let pendingNotice: TerminalStatus | null = null;
 const listeners = new Set<() => void>();
@@ -11,6 +12,7 @@ const listeners = new Set<() => void>();
 export async function autoEndForgottenSession(now: Date = new Date()): Promise<TerminalStatus | null> {
   const status = await autoEndIfExpired(now);
   if (status) {
+    requestSync();
     pendingNotice = status;
     listeners.forEach((listener) => listener());
   }
