@@ -291,14 +291,14 @@ description: "Danh sách task triển khai M02 — Field Quest Experience"
 
 ### Với package 001 (M01) — chờ package 001 xong bước 1–9 của plan M01
 
-- [ ] T102 Xác nhận src/modules/m01/index.ts có đủ hàm mà src/modules/m02/m01Port.ts re-export với đúng chữ ký (gồm kết quả `NONE`/`INVALID`/`OK` của `readSelectedRouteContext()` — D-01) và `registerBusyCheck` có trong src/app/pwa/updateCoordinator.ts (D-02); lệch thì ghi vào validation-report.md và báo package 001, không sửa file của M01
-- [ ] T103 Chạy lại toàn bộ test M02 và E2E project `m02` với m01Port thật (bỏ fakeM01Port trong E2E): luồng M01 Start → `/trip` → phiên mới; trang `/q/…` đổi ngôn ngữ ghi qua M01; ghi kết quả vào specs/002-m02-field-quest-experience/validation-report.md
+- [X] T102 Xác nhận src/modules/m01/index.ts có đủ hàm mà src/modules/m02/m01Port.ts re-export với đúng chữ ký (gồm kết quả `NONE`/`INVALID`/`OK` của `readSelectedRouteContext()` — D-01) và `registerBusyCheck` có trong src/app/pwa/updateCoordinator.ts (D-02); lệch thì ghi vào validation-report.md và báo package 001, không sửa file của M01
+- [X] T103 Chạy lại toàn bộ test M02 và E2E project `m02` với m01Port thật (bỏ fakeM01Port trong E2E): luồng M01 Start → `/trip` → phiên mới; trang `/q/…` đổi ngôn ngữ ghi qua M01; ghi kết quả vào specs/002-m02-field-quest-experience/validation-report.md
 
 ### Với M03 giai đoạn B (chờ M03 Phase 13–15 cài đặt xong; CHG-M03-2026-10-30-01 đã duyệt)
 
-- [ ] T104 Chờ M03 giai đoạn B hoàn tất `api.lookup_qr`, Edge `session-intake` và policy Storage trên stack local (specs/003-m03-operations-content-administration/tasks.md T190, T195, T172) và fixture local-stack của M03 T198 (e2e/.local-fixture.json); không làm T105–T106 trước đó
-- [ ] T105 Chạy `PW_LOCAL_STACK=1 npm run e2e -- --project=m02-local-stack` cho quickstart V5, V14, V20, V24, V25 trên stack Supabase local, dùng `qrIdentifier`/`routeId` thật từ e2e/.local-fixture.json (M03 T198) (`supabase start`, `supabase db reset` chỉ local, `supabase functions serve session-intake`); ghi kết quả hoặc `NOT RUN` vào specs/002-m02-field-quest-experience/validation-report.md
-- [ ] T106 Điền cột "tích hợp thật" trong specs/002-m02-field-quest-experience/checklists/br-test-coverage.md; nếu M03 trả mã HTTP ngoài bảng session-intake §3, xác nhận M02 giữ `PENDING` và ghi đề xuất L-02 cho package 003
+- [X] T104 Chờ M03 giai đoạn B hoàn tất `api.lookup_qr`, Edge `session-intake` và policy Storage trên stack local (specs/003-m03-operations-content-administration/tasks.md T190, T195, T172) và fixture local-stack của M03 T198 (e2e/.local-fixture.json); không làm T105–T106 trước đó
+- [X] T105 Chạy `PW_LOCAL_STACK=1 npm run e2e -- --project=m02-local-stack` cho quickstart V5, V14, V20, V24, V25 trên stack Supabase local, dùng `qrIdentifier`/`routeId` thật từ e2e/.local-fixture.json (M03 T198) (`supabase start`, `supabase db reset` chỉ local, `supabase functions serve session-intake`); ghi kết quả hoặc `NOT RUN` vào specs/002-m02-field-quest-experience/validation-report.md
+- [X] T106 Điền cột "tích hợp thật" trong specs/002-m02-field-quest-experience/checklists/br-test-coverage.md; nếu M03 trả mã HTTP ngoài bảng session-intake §3, xác nhận M02 giữ `PENDING` và ghi đề xuất L-02 cho package 003
 
 ---
 
