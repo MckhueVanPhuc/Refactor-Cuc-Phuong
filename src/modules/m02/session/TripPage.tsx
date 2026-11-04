@@ -17,6 +17,7 @@ import { setScanHandler } from '../scan/scanBridge';
 import type { CheckpointVisitRow } from '../storage/rows';
 import { useRunningSession, useSessionVisits } from '../storage/readers';
 import { finalCheckpointId } from '../sync/buildSyncRecord';
+import { usePreviousTripSyncError } from '../sync/useSyncStatus';
 import type { RejectReason } from './decideEntry';
 import { enterTrip, type EntryResult } from './enterTrip';
 import styles from './TripPage.module.css';
@@ -96,6 +97,8 @@ export function TripPage() {
   const session = entry.status === 'done' && running.status === 'ready' ? running.value : null;
   const visits = useSessionVisits(session?.sessionId);
   const { endTrip, ending } = useEndTrip();
+  // E-SCR-M02-001-22: chuyến trước không gửi được và chưa có chuyến mới; chỉ hiển thị, không có thao tác (BR-M02-011)
+  const previousTripSyncError = usePreviousTripSyncError();
 
   const [scanning, setScanning] = useState(false);
   const [lookingUp, setLookingUp] = useState(false);
@@ -134,6 +137,11 @@ export function TripPage() {
       {entry.status === 'done' && (
         <FieldNotice>
           {stayNotice ? <ScanNotice kind={stayNotice.kind} freeVisitor={stayNotice.freeVisitor} /> : <EntryNotice result={entry.result} />}
+          {previousTripSyncError && (
+            <p className={`${styles.notice} ${styles.error}`} data-previous-sync-error="">
+              {messages.trip.previousTripSyncError}
+            </p>
+          )}
           {lookingUp && (
             <p className={`${styles.notice} ${styles.info}`} role="status">
               {messages.trip.lookingUp}

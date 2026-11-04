@@ -4,7 +4,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { contextV3 } from '../../src/modules/m02/api/fake/fixtures';
 import { vi } from '../../src/modules/m02/i18n/vi';
 import { callM01Hook, dumpStores, seedValidContext } from './helpers';
-import { mockLookup, mockStorage } from './network';
+import { mockIntakeUnavailable, mockLookup, mockStorage } from './network';
 
 const BASE = 'http://localhost:4173';
 const DAY = 86_400_000;
@@ -18,6 +18,7 @@ async function startTrip(page: Page) {
   await page.addInitScript(() => Object.defineProperty(navigator, 'language', { get: () => 'vi-VN' }));
   await mockLookup(page);
   await mockStorage(page);
+  await mockIntakeUnavailable(page);
   await page.goto('/');
   const context = await seedValidContext(page);
   await page.goto('/trip');

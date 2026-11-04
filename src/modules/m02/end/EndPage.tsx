@@ -6,7 +6,8 @@ import { Link, useLocation } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { FieldLayout } from '../layout/FieldLayout';
-import { useLatestTerminalSyncItem, useSession, useSessionVisits, useSyncItem } from '../storage/readers';
+import { useLatestTerminalSyncItem, useSession, useSessionVisits } from '../storage/readers';
+import { useSyncStatus } from '../sync/useSyncStatus';
 import styles from './EndPage.module.css';
 import type { EndRouteState } from './useEndTrip';
 
@@ -24,7 +25,7 @@ export function EndPage() {
   const sessionId = state.sessionId ?? (latest.status === 'ready' ? latest.value?.sessionId : undefined);
   const session = useSession(sessionId);
   const visits = useSessionVisits(sessionId);
-  const syncItem = useSyncItem(sessionId);
+  const sync = useSyncStatus(sessionId);
 
   const ended = session.status === 'ready' && session.value && session.value.status !== 'DANG_DIEN_RA' ? session.value : null;
   const order = new Map(ended?.journeyCheckpoints.map((c) => [c.checkpointId, c]) ?? []);
@@ -34,7 +35,6 @@ export function EndPage() {
           .filter((v) => order.has(v.checkpointId))
           .sort((a, b) => order.get(a.checkpointId)!.sequence - order.get(b.checkpointId)!.sequence)
       : [];
-  const sync = syncItem.status === 'ready' ? syncItem.value?.syncStatus : undefined;
 
   return (
     <FieldLayout surface="reader">
