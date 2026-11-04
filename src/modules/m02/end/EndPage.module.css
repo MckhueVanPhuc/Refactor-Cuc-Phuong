@@ -1,0 +1,83 @@
+/*
+ * SCR-M02-003 trên bề mặt reader sáng: kết quả chuyến tách khỏi trạng thái đồng bộ (design-system §5 "M02 — Field
+ * Experience"): tiêu đề, một dòng trạng thái gửi, rồi danh sách điểm đã quét theo thứ tự hành trình.
+ */
+.result {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-page-heading-mobile);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+}
+
+.sync {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+  background: var(--color-white);
+  border-left: var(--border-width-thick) solid var(--color-info);
+  border-radius: var(--radius-sm);
+}
+
+.conflict {
+  color: var(--color-ink);
+  border-left-color: var(--color-error);
+}
+
+.listTitle {
+  margin: 0;
+  font-size: var(--font-size-row-title);
+  font-weight: var(--font-weight-semibold);
+}
+
+.list {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.item {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  border-bottom: var(--border-width-thin) solid var(--color-m03-border);
+}
+
+.name {
+  font-weight: var(--font-weight-semibold);
+}
+
+.meta {
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+.scanned {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-success);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  margin-top: var(--space-6);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+}
+
+.back:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}

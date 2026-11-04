@@ -72,12 +72,12 @@ describe('createSession', () => {
     expect(await playSessionsTable.count()).toBe(1);
   });
 
-  it('không bao giờ có hai phiên DANG_DIEN_RA: đang có phiên của handoff khác → REPLACE, không ghi (BR-M02-002)', async () => {
+  it('không bao giờ có hai phiên DANG_DIEN_RA: handoff khác khi đang có phiên → thay phiên, vẫn một phiên chạy (BR-M02-002)', async () => {
     await createSession(NOW);
     const next = contextV3({ handoffId: '2e1d0c9b-8a7f-4e6d-9c5b-4a3f2e1d0c9b' });
     fakeM01.setContext(next);
-    expect(await createSession(NOW)).toMatchObject({ kind: 'NOT_CREATED', decision: { kind: 'REPLACE' } });
-    expect(await running()).toHaveLength(1);
+    expect(await createSession(NOW)).toMatchObject({ kind: 'CREATED', replaced: { status: 'BO_DO' } });
+    expect((await running()).map((s) => s.sourceHandoffId)).toEqual([next.handoffId]);
   });
 
   it('không có context hoặc context INVALID → không tạo', async () => {

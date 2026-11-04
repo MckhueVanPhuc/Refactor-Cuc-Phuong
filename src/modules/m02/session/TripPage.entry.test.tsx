@@ -4,6 +4,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { contextV3 } from '../api/fake/fixtures';
 import { vi as viMessages } from '../i18n/vi';
+import { failNextCreateSession } from '../storage/faultInjection';
 import { playSessionsTable } from '../storage/tables';
 import { fakeM01 } from '../testing/fakeM01Port';
 import { TripPage } from './TripPage';
@@ -104,15 +105,32 @@ describe('TripPage — vào phiên', () => {
     expect((await screen.findByRole('alert')).textContent).toContain(viMessages.handoff.none);
   });
 
-  it('handoff mới khi đang có phiên → phiên cũ giữ nguyên, báo chưa bắt đầu được chuyến mới', async () => {
+  it('handoff mới khi đang có phiên → thay phiên: phiên cũ BO_DO, phiên mới bắt đầu (FR-M02-017)', async () => {
+    fakeM01.setContext(context);
+    const first = renderTrip();
+    await screen.findByText(viMessages.notice.sessionStartHint);
+    first.unmount();
+
+    const next = contextV3({ authorizedAt: AUTHORIZED_AT, handoffId: '2e1d0c9b-8a7f-4e6d-9c5b-4a3f2e1d0c9b' });
+    fakeM01.setContext(next);
+    renderTrip();
+    expect(await screen.findByText(viMessages.notice.sessionStartHint)).toBeTruthy();
+    const sessions = await playSessionsTable.toArray();
+    expect(sessions.map((s) => [s.sourceHandoffId, s.status]).sort()).toEqual(
+      [[context.handoffId, 'BO_DO'], [next.handoffId, 'DANG_DIEN_RA']].sort(),
+    );
+  });
+
+  it('thay phiên lỗi → phiên cũ vẫn chạy, báo chưa bắt đầu được chuyến mới (BR-M02-013; E-SCR-M02-001-21)', async () => {
     fakeM01.setContext(context);
     const first = renderTrip();
     await screen.findByText(viMessages.notice.sessionStartHint);
     first.unmount();
 
     fakeM01.setContext(contextV3({ authorizedAt: AUTHORIZED_AT, handoffId: '2e1d0c9b-8a7f-4e6d-9c5b-4a3f2e1d0c9b' }));
+    failNextCreateSession();
     renderTrip();
     expect((await screen.findByRole('alert')).textContent).toBe(viMessages.trip.replaceFailed);
-    expect((await playSessionsTable.toArray()).map((s) => s.sourceHandoffId)).toEqual([context.handoffId]);
+    expect((await playSessionsTable.toArray()).map((s) => [s.sourceHandoffId, s.status])).toEqual([[context.handoffId, 'DANG_DIEN_RA']]);
   });
 });

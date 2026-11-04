@@ -1,0 +1,75 @@
+/*
+ * Hộp thoại kết thúc chuyến, nổi ở đáy màn trong tầm với ngón cái. Màu lấy từ biến bề mặt của FieldLayout
+ * (scanner tối hoặc reader sáng); [Kết thúc] là hành động chính, [Đi tiếp] là hành động phụ.
+ */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  display: grid;
+  align-items: end;
+  padding: var(--space-5);
+  background: var(--overlay-fill-pressed);
+}
+
+.dialog {
+  display: grid;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: calc(var(--space-8) * 15);
+  margin: 0 auto;
+  padding: var(--space-5);
+  color: var(--m02-fg);
+  background: var(--m02-surface);
+  border: var(--border-width-thin) solid var(--m02-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+}
+
+.question {
+  margin: 0;
+  font-size: var(--font-size-row-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.end,
+.continue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target-m01-primary);
+  padding: 0 var(--space-4);
+  font: var(--font-weight-semibold) var(--font-size-body) / 1 var(--font-sans);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.end {
+  color: var(--m02-bg);
+  background: var(--m02-success);
+  border: var(--border-width-thin) solid var(--m02-success);
+}
+
+.continue {
+  color: var(--m02-fg);
+  background: transparent;
+  border: var(--border-width-thin) solid var(--m02-line);
+}
+
+.end:focus-visible,
+.continue:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.end:disabled,
+.continue:disabled {
+  cursor: progress;
+}

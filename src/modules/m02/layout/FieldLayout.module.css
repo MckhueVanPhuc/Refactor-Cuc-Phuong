@@ -91,3 +91,12 @@
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: calc(var(--focus-ring-offset) * -1);
 }
+
+/* Thông báo chuyến trước đã tự kết thúc (BR-M02-022): cùng dạng thông báo của màn, vạch màu info */
+.autoEnded {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--m02-surface);
+  border-left: var(--border-width-thick) solid var(--m02-info);
+  border-radius: var(--radius-sm);
+}

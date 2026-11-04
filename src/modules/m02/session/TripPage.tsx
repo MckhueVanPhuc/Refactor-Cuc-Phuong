@@ -1,10 +1,13 @@
-// SCR-M02-001 â€” PhiÃªn tráº£i nghiá»‡m & QuÃ©t QR (tasks T032, T047; screen spec Â§4). VÃ o `/trip` gá»i enterTrip má»™t láº§n;
-// sau Ä‘Ã³ journey, lÆ°á»£t ghÃ© vÃ  phiÃªn Ä‘á»c theo thá»i gian thá»±c (tab khÃ¡c Ä‘á»•i cÅ©ng tháº¥y). NÃºt QuÃ©t má»Ÿ scanner (chunk lazy
-// `m02-scanner`); mÃ£ Ä‘á»c Ä‘Æ°á»£c Ä‘i qua processScannedText rá»“i sang `/trip/qr/:qrIdentifier` vá»›i káº¿t quáº£ trong router state.
+// SCR-M02-001 — Phiên trải nghiệm & Quét QR (tasks T032, T047, T075; screen spec §4). Vào `/trip` gọi enterTrip một
+// lần; sau đó journey, lượt ghé và phiên đọc theo thời gian thực (tab khác đổi cũng thấy). Nút Quét mở scanner (chunk
+// lazy `m02-scanner`); mã đọc được đi qua processScannedText rồi sang `/trip/qr/:qrIdentifier` với kết quả trong router
+// state. Finish chỉ có sau khi điểm cuối đã quét (FR-M02-015); không có nút "Dừng chuyến đi".
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { ScanNotice, type ScanNoticeKind } from '../content/ScanNotice';
+import { FinalPrompt } from '../end/FinalPrompt';
+import { useEndTrip } from '../end/useEndTrip';
 import type { M02Messages } from '../i18n';
 import { useM02Messages } from '../i18n/useM02Messages';
 import { RouteJourneyMap } from '../journey/RouteJourneyMap';
@@ -13,6 +16,7 @@ import { processScannedText, type ScanResult } from '../scan/processScan';
 import { setScanHandler } from '../scan/scanBridge';
 import type { CheckpointVisitRow } from '../storage/rows';
 import { useRunningSession, useSessionVisits } from '../storage/readers';
+import { finalCheckpointId } from '../sync/buildSyncRecord';
 import type { RejectReason } from './decideEntry';
 import { enterTrip, type EntryResult } from './enterTrip';
 import styles from './TripPage.module.css';
@@ -26,7 +30,7 @@ const REJECT_MESSAGE: Record<RejectReason, keyof M02Messages['handoff']> = {
   REVOKED: 'revoked',
 };
 
-/** ÄÆ°á»ng dáº«n ná»™i dung cá»§a má»™t mÃ£; káº¿t quáº£ quÃ©t Ä‘i kÃ¨m trong router state (data-model Â§6). */
+/** Đường dẫn nội dung của một mã; kết quả quét đi kèm trong router state (data-model §6). */
 export const contentPath = (qrIdentifier: string) => `${PATHS.m02SessionEntry}/qr/${encodeURIComponent(qrIdentifier)}`;
 
 export type ContentRouteState = { scan?: ScanResult; review?: true };
@@ -35,12 +39,15 @@ type EntryState = { status: 'entering' } | { status: 'done'; result: EntryResult
 
 function useTripEntry(): EntryState {
   const [state, setState] = useState<EntryState>({ status: 'entering' });
-  // Má»™t láº§n má»—i láº§n má»Ÿ mÃ n (StrictMode gá»i effect hai láº§n á»Ÿ dev)
+  // Một lần mỗi lần mở màn (StrictMode gọi effect hai lần ở dev)
   const started = useRef(false);
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    void enterTrip().then((result) => setState({ status: 'done', result }));
+    void enterTrip()
+      .then((result) => setState({ status: 'done', result }))
+      // Không đọc/ghi được IndexedDB khi không có phiên: hiện như chưa có chuyến đi, du khách bắt đầu lại từ M01
+      .catch(() => setState({ status: 'done', result: { kind: 'FREE' } }));
   }, []);
   return state;
 }
@@ -83,10 +90,15 @@ export function TripPage() {
   const running = useRunningSession();
   const session = entry.status === 'done' && running.status === 'ready' ? running.value : null;
   const visits = useSessionVisits(session?.sessionId);
+  const { endTrip, ending } = useEndTrip();
 
   const [scanning, setScanning] = useState(false);
   const [lookingUp, setLookingUp] = useState(false);
   const [stayNotice, setStayNotice] = useState<StayNotice | null>(null);
+  const [confirmingFinish, setConfirmingFinish] = useState(false);
+
+  const finalId = session ? finalCheckpointId(session) : undefined;
+  const finalVisited = visits.status === 'ready' && visits.value.some((visit) => visit.checkpointId === finalId);
 
   const handleText = useCallback(
     async (text: string) => {
@@ -138,12 +150,20 @@ export function TripPage() {
           <button type="button" className={styles.scan} onClick={() => setScanning(true)} disabled={lookingUp}>
             {messages.trip.scan}
           </button>
+          {session && finalVisited && (
+            <button type="button" className={styles.finish} onClick={() => setConfirmingFinish(true)}>
+              {messages.trip.finish}
+            </button>
+          )}
         </div>
       )}
       {scanning && (
         <Suspense fallback={null}>
           <QrScanner onDetected={(text) => void handleText(text)} onClose={() => setScanning(false)} />
         </Suspense>
+      )}
+      {session && confirmingFinish && (
+        <FinalPrompt onEnd={() => void endTrip(session.sessionId)} onContinue={() => setConfirmingFinish(false)} busy={ending} />
       )}
     </FieldLayout>
   );

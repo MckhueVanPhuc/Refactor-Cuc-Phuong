@@ -1,12 +1,15 @@
-// Namespace `m02` cá»§a `window.__cpqTestHooks` (tasks T023). Chá»‰ Ä‘Æ°á»£c náº¡p báº±ng import() Ä‘á»™ng trong nhÃ¡nh MODE e2e/fake
-// cá»§a src/app/App.tsx, nÃªn khÃ´ng vÃ o bundle production. Hook Ä‘Æ°á»£c thÃªm cÃ¹ng task táº¡o hÃ m mÃ  nÃ³ gá»i:
-// `scan(text)` (US2, T039) vÃ  `failNextCreateSession` (V18, nhÃ¡nh thay phiÃªn lá»—i) á»Ÿ T071.
+// Namespace `m02` của `window.__cpqTestHooks` (tasks T023). Chỉ được nạp bằng import() động trong nhánh MODE e2e/fake
+// của src/app/App.tsx, nên không vào bundle production. Hook được thêm cùng task tạo hàm mà nó gọi:
+// `scan(text)` (US2, T039) và `failNextCreateSession` (V18, nhánh thay phiên lỗi, T071).
 import { registerTestHooks, type TestHooks } from '../../../shared/testing/e2eHooks';
 import { handleScannedText } from '../scan/scanBridge';
+import { failNextCreateSession } from '../storage/faultInjection';
 
 const hooks: TestHooks = {
-  // ÄÆ°a chuá»—i vÃ o Ä‘Ãºng Ä‘Æ°á»ng cá»§a trÃ¬nh quÃ©t trÃªn mÃ n Ä‘ang má»Ÿ: parseQrLink â†’ processScan (T039)
+  // Đưa chuỗi vào đúng đường của trình quét trên màn đang mở: parseQrLink → processScan (T039)
   scan: (text: string) => handleScannedText(text),
+  // V18: lần tạo phiên kế tiếp lỗi ngay trước khi chèn phiên mới (T071)
+  failNextCreateSession: () => failNextCreateSession(),
 };
 
 export function registerM02TestHooks(): void {

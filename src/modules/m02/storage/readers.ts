@@ -11,6 +11,15 @@ export async function getRunningSession(): Promise<PlaySessionRow | null> {
 }
 
 /** Có phiên đang chạy không — update coordinator gọi trước khi áp bản mới (research R-15). */
+export async function getSession(sessionId: string): Promise<PlaySessionRow | null> {
+  return (await playSessionsTable.get(sessionId)) ?? null;
+}
+
+/** Mục hàng đợi đồng bộ của một phiên terminal; chưa có → `null`. */
+export async function getSyncItem(sessionId: string): Promise<PendingSyncItemRow | null> {
+  return (await pendingSyncItemsTable.get(sessionId)) ?? null;
+}
+
 export async function hasRunningSession(): Promise<boolean> {
   return (await playSessionsTable.where('status').equals('DANG_DIEN_RA').count()) > 0;
 }
@@ -35,16 +44,19 @@ export async function getLatestTerminalSyncItem(): Promise<PendingSyncItemRow | 
 
 export type LiveValue<T> = { status: 'loading' } | { status: 'ready'; value: T };
 
-/** Giá trị đọc theo thời gian thực; đổi `deps` thì đọc lại từ đầu. Lỗi IndexedDB giữ trạng thái `loading`. */
+/**
+ * Giá trị đọc theo thời gian thực. Đổi `deps` thì coi như đang tải cho tới khi có giá trị của chính `deps` mới — không
+ * bao giờ trả giá trị của lần đọc trước (ví dụ danh sách lượt ghé rỗng của lúc chưa có phiên). Lỗi IndexedDB giữ `loading`.
+ */
 function useLiveValue<T>(query: () => Promise<T>, deps: readonly unknown[]): LiveValue<T> {
-  const [state, setState] = useState<LiveValue<T>>({ status: 'loading' });
+  const key = JSON.stringify(deps);
+  const [state, setState] = useState<{ key: string; value: T } | null>(null);
   useEffect(() => {
-    setState({ status: 'loading' });
-    const subscription = liveQuery(query).subscribe({ next: (value) => setState({ status: 'ready', value }) });
+    const subscription = liveQuery(query).subscribe({ next: (value) => setState({ key, value }) });
     return () => subscription.unsubscribe();
-    // `query` đóng gói đúng các giá trị trong `deps`
-  }, deps);
-  return state;
+    // `query` đóng gói đúng các giá trị trong `deps` (`key` là bản chuỗi của chúng)
+  }, [key]);
+  return state && state.key === key ? { status: 'ready', value: state.value } : { status: 'loading' };
 }
 
 export function useRunningSession(): LiveValue<PlaySessionRow | null> {
@@ -53,4 +65,16 @@ export function useRunningSession(): LiveValue<PlaySessionRow | null> {
 
 export function useSessionVisits(sessionId: string | undefined): LiveValue<CheckpointVisitRow[]> {
   return useLiveValue(() => (sessionId ? getSessionVisits(sessionId) : Promise.resolve([])), [sessionId]);
+}
+
+export function useSession(sessionId: string | undefined): LiveValue<PlaySessionRow | null> {
+  return useLiveValue(() => (sessionId ? getSession(sessionId) : Promise.resolve(null)), [sessionId]);
+}
+
+export function useSyncItem(sessionId: string | undefined): LiveValue<PendingSyncItemRow | null> {
+  return useLiveValue(() => (sessionId ? getSyncItem(sessionId) : Promise.resolve(null)), [sessionId]);
+}
+
+export function useLatestTerminalSyncItem(): LiveValue<PendingSyncItemRow | null> {
+  return useLiveValue(getLatestTerminalSyncItem, []);
 }
