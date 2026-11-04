@@ -55,8 +55,17 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 
 | Tình huống | Tiếng Việt | English |
 |---|---|---|
+| Tiêu đề màn (E-SCR-M02-001-02) | Chuyến đi | Your trip |
 | Nút quét | Quét | Scan |
 | Nhãn đã quét | Đã quét QR | QR scanned |
+| Tiêu đề hành trình | Hành trình | Journey |
+| Nhãn chưa quét | Chưa quét | Not scanned |
+| Số điểm đã quét | Đã quét QR: {n}/{tổng} điểm | QR scanned: {n}/{total} points |
+| Tiêu đề scanner | Quét mã QR | Scan a QR code |
+| Hướng dẫn scanner | Đưa mã QR của điểm dừng vào khung. | Point the camera at the stop's QR code. |
+| Nút đóng scanner | Đóng camera | Close camera |
+| Nút thử lại camera | Thử lại | Try again |
+| Nút Finish (E-SCR-M02-001-19) | Kết thúc chuyến | End trip |
 | Đang tra cứu | Đang kiểm tra mã QR… | Checking the QR code… |
 | Đã ghi nhận lượt quét | Đã ghi nhận lượt quét. | Scan recorded. |
 | Handoff phiên bản 2 | Dữ liệu chuyến đi này thuộc phiên bản cũ. Hãy chọn tuyến và bắt đầu lại. | This trip data is from an older version. Please choose a route and start again. |

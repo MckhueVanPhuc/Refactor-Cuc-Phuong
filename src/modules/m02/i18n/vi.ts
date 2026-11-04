@@ -3,10 +3,10 @@
 // Không chuỗi nào được nói "đã đến"/"có mặt": lượt ghé chỉ nghĩa là đã quét QR (BR-M02-005; SC-M02-013).
 
 export const vi = {
-  // Tiêu đề màn: SCR-M02-001 lấy từ mockup-SCR-M02-001 (bảng copy chưa có); chủ dự án duyệt 2026-11-04
+  // Tiêu đề màn: bảng copy SCR-M02-001 (E-SCR-M02-001-02) và SCR-M02-004
   screenTitle: {
     trip: 'Chuyến đi',
-    // SCR-M02-004: tên sản phẩm trên mockup-SCR-M02-004, giữ nguyên ở hai ngôn ngữ; chủ dự án duyệt 2026-11-04
+    // SCR-M02-004: tên sản phẩm, giữ nguyên ở hai ngôn ngữ
     qrLink: 'Cúc Phương Quest',
   },
   // spec-M02 §5.1 "Fixed visitor messages"
@@ -38,10 +38,10 @@ export const vi = {
     visitRecorded: 'Đã ghi nhận lượt quét.',
     replaceFailed: 'Chưa bắt đầu được chuyến mới. Chuyến hiện tại vẫn đang chạy.',
     previousTripSyncError: 'Chuyến đi trước không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này.',
-    // Nút Finish: chữ lấy từ mockup-SCR-M02-001 (bảng copy chưa có); chủ dự án duyệt 2026-11-04
+    // Nút Finish (E-SCR-M02-001-19)
     finish: 'Kết thúc chuyến',
   },
-  // SCR-M02-001: journey và scanner — chữ lấy từ mockup-SCR-M02-001 (bảng copy chưa có); chủ dự án duyệt 2026-11-04
+  // SCR-M02-001: journey và scanner
   journey: {
     heading: 'Hành trình',
     notScanned: 'Chưa quét',

@@ -237,7 +237,7 @@ Giữ nguyên SC-M02-001…019 (spec-M02 §8):
 - **SC-M02-010**: Handoff hết hạn hoặc v2 không tạo phiên; phiên đã có không bị kết thúc vì handoff hết hạn.
 - **SC-M02-011**: Điều khiển audio/video không bao giờ hiện cho điểm dừng offline-required hay nội dung package.
 - **SC-M02-012**: Resource offline thiếu không bao giờ bị báo là QR không hợp lệ.
-- **SC-M02-013**: Không màn hình nào diễn đạt lượt ghé là bằng chứng đã có mặt thực tế: lượt ghé chỉ được gắn nhãn "Đã quét QR" / "Scanned", và không thông báo hay nhãn cố định nào nêu hoặc ngụ ý đã đến/có mặt (ví dụ "đã đến", "có mặt", "arrived").
+- **SC-M02-013**: Không màn hình nào diễn đạt lượt ghé là bằng chứng đã có mặt thực tế: lượt ghé chỉ được gắn nhãn "Đã quét QR" / "QR scanned", và không thông báo hay nhãn cố định nào nêu hoặc ngụ ý đã đến/có mặt (ví dụ "đã đến", "có mặt", "arrived").
 - **SC-M02-014**: Online, mã thêm sau ghi lượt ghé điểm dừng một lần, nên đổi mã giữa chuyến không chặn Finish khi online.
 - **SC-M02-015**: Ghi lượt ghé điểm cuối luôn hiện câu hỏi kết thúc một lần.
 - **SC-M02-016**: Sau khi mở app, không phiên nào quá 24 giờ còn đang chạy; nó thành `HOAN_TAT` hoặc `BO_DO` theo BR-M02-022 và được đồng bộ như phiên terminal khác.
