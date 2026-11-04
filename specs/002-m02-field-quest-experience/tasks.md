@@ -237,7 +237,7 @@ description: "Danh sách task triển khai M02 — Field Quest Experience"
 
 - [X] T080 [US6] Hoàn thiện dòng 3, 8 và gợi ý khách tự do trong src/modules/m02/scan/resolveScan.ts cho T076 qua — bảng quyết định đã cho đúng dòng 3, 8 và cờ khách tự do từ T042; chỉ thêm test
 - [X] T081 [P] [US6] Dựng src/modules/m02/qr-link/FreeVisitorHint.tsx (gợi ý một dòng + liên kết "Chọn tuyến" tới `/`) — đặt sau nội dung như mockup-SCR-M02-004
-- [X] T082 [US6] Dựng SCR-M02-004 src/modules/m02/qr-link/QrLinkPage.tsx + `.module.css`: tự đóng → có phiên: processScan(…, 'link'); không phiên: lookup không `routeId`, hiển thị qua ContentPage/ScanNotice và FreeVisitorHint; `LanguageControl` góc phải; đăng ký `/q/:qrIdentifier` (lazy `m02-qr-link`) trong src/modules/m02/routes.tsx — phần hiển thị tách thành `content/ScanContent.tsx` dùng chung với SCR-M02-002; tiêu đề "Cúc Phương Quest" (tên sản phẩm trên mockup-SCR-M02-004, không dịch): **chờ chủ dự án duyệt**
+- [X] T082 [US6] Dựng SCR-M02-004 src/modules/m02/qr-link/QrLinkPage.tsx + `.module.css`: tự đóng → có phiên: processScan(…, 'link'); không phiên: lookup không `routeId`, hiển thị qua ContentPage/ScanNotice và FreeVisitorHint; `LanguageControl` góc phải; đăng ký `/q/:qrIdentifier` (lazy `m02-qr-link`) trong src/modules/m02/routes.tsx — phần hiển thị tách thành `content/ScanContent.tsx` dùng chung với SCR-M02-002; tiêu đề "Cúc Phương Quest" (tên sản phẩm trên mockup-SCR-M02-004, không dịch), chủ dự án duyệt 2026-11-04
 - [X] T083 [US6] Thêm chế độ khách tự do cho src/modules/m02/session/TripPage.tsx khi `NONE` + không phiên: nút Quét, mọi lần quét đi theo dòng 3/8 (SF-M02-008-01) — chế độ khách tự do đã có từ US1/US2 (nút Quét khi `FREE`); thêm test `TripPage.free.test.tsx`
 
 **Checkpoint**: US1–US6 chạy độc lập
