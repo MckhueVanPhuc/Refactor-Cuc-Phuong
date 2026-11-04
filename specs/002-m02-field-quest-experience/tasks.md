@@ -228,17 +228,17 @@ description: "Danh sách task triển khai M02 — Field Quest Experience"
 
 ### Tests for User Story 6 ⚠️
 
-- [ ] T076 [P] [US6] Viết test src/modules/m02/scan/resolveScan.free.test.ts cho dòng 3, 8: không phiên + online `VALID` → nội dung live + gợi ý khách tự do + "Chọn tuyến"; không phiên + offline/lỗi nguồn → "Cần có kết nối mạng…" + gợi ý; gợi ý khách tự do hiện với **mọi** kết quả khi không phiên; request không có `routeId` (BR-M02-012, 019; FR-M02-019)
-- [ ] T077 [P] [US6] Viết test src/modules/m02/qr-link/freeVisitor.zeroRecords.test.ts (fake-indexeddb): mở `/q/{id}` không phiên với mọi kết quả lookup (`VALID`, `TEMPORARILY_CLOSED`, `INVALID`, lỗi nguồn, offline) → `playSessions`, `checkpointVisits`, `pendingSyncItems` đều rỗng; không bao giờ tạo phiên (constitution "Free-visitor path MUST…"; SC-M02-018; BR-M02-012)
-- [ ] T078 [P] [US6] Viết test src/modules/m02/qr-link/QrLinkPage.test.tsx: không có bước ngôn ngữ hay tuyến trước nội dung; chưa có preference → ngôn ngữ thiết bị (`vi-VN` → tiếng Việt, khác → tiếng Anh); `LanguageControl` có mặt và việc ghi đi qua M01; có phiên → gọi `processScan(id, 'link')` (lượt ghé, thông báo đóng, câu hỏi cuối chuyến như trong app); tự đóng 24 giờ chạy trước; "Chọn tuyến" điều hướng `/` (BR-M02-024; FR-M02-025; SC-M02-017)
-- [ ] T079 [P] [US6] Viết E2E e2e/m02/qr-link.spec.ts cho quickstart V20–V22 (V22: mở app một lần để shell được cache, rồi `setOffline(true)`; BR-M02-025)
+- [X] T076 [P] [US6] Viết test src/modules/m02/scan/resolveScan.free.test.ts cho dòng 3, 8: không phiên + online `VALID` → nội dung live + gợi ý khách tự do + "Chọn tuyến"; không phiên + offline/lỗi nguồn → "Cần có kết nối mạng…" + gợi ý; gợi ý khách tự do hiện với **mọi** kết quả khi không phiên; request không có `routeId` (BR-M02-012, 019; FR-M02-019)
+- [X] T077 [P] [US6] Viết test src/modules/m02/qr-link/freeVisitor.zeroRecords.test.ts (fake-indexeddb): mở `/q/{id}` không phiên với mọi kết quả lookup (`VALID`, `TEMPORARILY_CLOSED`, `INVALID`, lỗi nguồn, offline) → `playSessions`, `checkpointVisits`, `pendingSyncItems` đều rỗng; không bao giờ tạo phiên (constitution "Free-visitor path MUST…"; SC-M02-018; BR-M02-012) — chạy qua router M02 thật; có sẵn handoff hợp lệ trong M01 mà trang vẫn không tạo phiên
+- [X] T078 [P] [US6] Viết test src/modules/m02/qr-link/QrLinkPage.test.tsx: không có bước ngôn ngữ hay tuyến trước nội dung; chưa có preference → ngôn ngữ thiết bị (`vi-VN` → tiếng Việt, khác → tiếng Anh); `LanguageControl` có mặt và việc ghi đi qua M01; có phiên → gọi `processScan(id, 'link')` (lượt ghé, thông báo đóng, câu hỏi cuối chuyến như trong app); tự đóng 24 giờ chạy trước; "Chọn tuyến" điều hướng `/` (BR-M02-024; FR-M02-025; SC-M02-017)
+- [X] T079 [P] [US6] Viết E2E e2e/m02/qr-link.spec.ts cho quickstart V20–V22 (V22: mở app một lần để shell được cache, rồi `setOffline(true)`; BR-M02-025)
 
 ### Implementation for User Story 6
 
-- [ ] T080 [US6] Hoàn thiện dòng 3, 8 và gợi ý khách tự do trong src/modules/m02/scan/resolveScan.ts cho T076 qua
-- [ ] T081 [P] [US6] Dựng src/modules/m02/qr-link/FreeVisitorHint.tsx (gợi ý một dòng + liên kết "Chọn tuyến" tới `/`)
-- [ ] T082 [US6] Dựng SCR-M02-004 src/modules/m02/qr-link/QrLinkPage.tsx + `.module.css`: tự đóng → có phiên: processScan(…, 'link'); không phiên: lookup không `routeId`, hiển thị qua ContentPage/ScanNotice và FreeVisitorHint; `LanguageControl` góc phải; đăng ký `/q/:qrIdentifier` (lazy `m02-qr-link`) trong src/modules/m02/routes.tsx
-- [ ] T083 [US6] Thêm chế độ khách tự do cho src/modules/m02/session/TripPage.tsx khi `NONE` + không phiên: nút Quét, mọi lần quét đi theo dòng 3/8 (SF-M02-008-01)
+- [X] T080 [US6] Hoàn thiện dòng 3, 8 và gợi ý khách tự do trong src/modules/m02/scan/resolveScan.ts cho T076 qua — bảng quyết định đã cho đúng dòng 3, 8 và cờ khách tự do từ T042; chỉ thêm test
+- [X] T081 [P] [US6] Dựng src/modules/m02/qr-link/FreeVisitorHint.tsx (gợi ý một dòng + liên kết "Chọn tuyến" tới `/`) — đặt sau nội dung như mockup-SCR-M02-004
+- [X] T082 [US6] Dựng SCR-M02-004 src/modules/m02/qr-link/QrLinkPage.tsx + `.module.css`: tự đóng → có phiên: processScan(…, 'link'); không phiên: lookup không `routeId`, hiển thị qua ContentPage/ScanNotice và FreeVisitorHint; `LanguageControl` góc phải; đăng ký `/q/:qrIdentifier` (lazy `m02-qr-link`) trong src/modules/m02/routes.tsx — phần hiển thị tách thành `content/ScanContent.tsx` dùng chung với SCR-M02-002; tiêu đề "Cúc Phương Quest" (tên sản phẩm trên mockup-SCR-M02-004, không dịch): **chờ chủ dự án duyệt**
+- [X] T083 [US6] Thêm chế độ khách tự do cho src/modules/m02/session/TripPage.tsx khi `NONE` + không phiên: nút Quét, mọi lần quét đi theo dòng 3/8 (SF-M02-008-01) — chế độ khách tự do đã có từ US1/US2 (nút Quét khi `FREE`); thêm test `TripPage.free.test.tsx`
 
 **Checkpoint**: US1–US6 chạy độc lập
 
