@@ -12,6 +12,7 @@ import type { M02Messages } from '../i18n';
 import { useM02Messages } from '../i18n/useM02Messages';
 import { RouteJourneyMap } from '../journey/RouteJourneyMap';
 import { FieldLayout, FieldNotice } from '../layout/FieldLayout';
+import { useBusyWhile } from '../pwa/registerBusy';
 import { processScannedText, type ScanResult } from '../scan/processScan';
 import { setScanHandler } from '../scan/scanBridge';
 import type { CheckpointVisitRow } from '../storage/rows';
@@ -104,6 +105,9 @@ export function TripPage() {
   const [lookingUp, setLookingUp] = useState(false);
   const [stayNotice, setStayNotice] = useState<StayNotice | null>(null);
   const [confirmingFinish, setConfirmingFinish] = useState(false);
+  // Không áp bản build mới giữa phiên hay giữa một lần quét (research R-15)
+  useBusyWhile(Boolean(session), 'm02:session');
+  useBusyWhile(lookingUp, 'm02:scan');
 
   const finalId = session ? finalCheckpointId(session) : undefined;
   const finalVisited = visits.status === 'ready' && visits.value.some((visit) => visit.checkpointId === finalId);

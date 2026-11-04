@@ -5,6 +5,7 @@
 import type { LockManagerLike } from '../../../app/pwa/updateCoordinator';
 import type { IntakeClient } from '../api/intakeClient';
 import { SYNC_RETRY_DELAYS_MS } from '../config/limits';
+import { holdBusy } from '../pwa/registerBusy';
 import { getPendingSyncItems, updateSyncStatus } from '../storage/updateSyncStatus';
 
 export const SYNC_LOCK = 'cpq:m02:sync';
@@ -18,6 +19,16 @@ export function createSyncRunner({ intake, locks }: { intake: IntakeClient; lock
   let running: Promise<SyncRunResult> | null = null;
 
   async function sendAll(): Promise<SyncRunResult> {
+    // Không áp bản build mới giữa một lượt gửi (research R-15)
+    const release = holdBusy('m02:sync');
+    try {
+      return await sendPending();
+    } finally {
+      release();
+    }
+  }
+
+  async function sendPending(): Promise<SyncRunResult> {
     for (const item of await getPendingSyncItems()) {
       const outcome = await intake.send(item.record);
       // Mạng hay server lỗi: dừng lượt này, các mục còn lại gửi ở lượt thử lại

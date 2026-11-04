@@ -10,6 +10,14 @@ export function FinalPrompt({ onEnd, onContinue, busy = false }: { onEnd: () => 
   const endButton = useRef<HTMLButtonElement>(null);
   // Đưa focus vào hộp thoại để bàn phím và trình đọc màn hình đi vào câu hỏi ngay
   useEffect(() => endButton.current?.focus(), []);
+  // Esc = [Đi tiếp]: lựa chọn không đổi gì (WCAG 2.1.1)
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !busy) onContinue();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [busy, onContinue]);
 
   return (
     <div className={styles.backdrop}>

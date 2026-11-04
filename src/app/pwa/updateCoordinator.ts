@@ -135,3 +135,7 @@ export const registerBusyCheck = (check: BusyCheck) => updateCoordinator.registe
 export const registerPackageOperation = () => updateCoordinator.registerPackageOperation();
 export const registerUnsavedForm = (id: string) => updateCoordinator.registerUnsavedForm(id);
 export const unregisterUnsavedForm = (id: string) => updateCoordinator.unregisterUnsavedForm(id);
+// Việc bận chung theo id (M02: phiên đang hiển thị, lần quét hay lượt đồng bộ đang chạy — research M02 R-15): cùng cơ chế
+// giữ lock shared `cpq:busy` với form chưa lưu của M03.
+export const registerBusyWork = (id: string) => updateCoordinator.registerUnsavedForm(id);
+export const unregisterBusyWork = (id: string) => updateCoordinator.unregisterUnsavedForm(id);

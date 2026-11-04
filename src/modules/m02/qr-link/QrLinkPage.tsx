@@ -8,6 +8,7 @@ import { useParams } from 'react-router';
 import { ScanContent } from '../content/ScanContent';
 import { useM02Messages } from '../i18n/useM02Messages';
 import { FieldLayout } from '../layout/FieldLayout';
+import { useBusyWhile } from '../pwa/registerBusy';
 import { processScan, type ScanResult } from '../scan/processScan';
 import { resolveScan } from '../scan/resolveScan';
 
@@ -23,6 +24,8 @@ export function QrLinkPage() {
   const [scan, setScan] = useState<ScanResult | undefined>(undefined);
   // Mỗi mã chỉ xử lý một lần (StrictMode chạy effect hai lần ở dev): các lần chạy effect dùng chung một promise
   const pending = useRef<{ qrIdentifier: string; result: Promise<ScanResult> } | null>(null);
+  // Không áp bản build mới giữa lúc xử lý mã (research R-15)
+  useBusyWhile(scan === undefined, 'm02:scan-link');
 
   useEffect(() => {
     if (pending.current?.qrIdentifier !== qrIdentifier) {
