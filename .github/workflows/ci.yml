@@ -81,3 +81,7 @@ jobs:
       - run: npx playwright test --project=m01-local-stack --workers=1
         env:
           PW_LOCAL_STACK: '1'
+      # M02 T105: V5, V14, V20, V24, V25 với lookup, Storage và session-intake thật (dữ liệu dựng lại trong beforeAll)
+      - run: npx playwright test --project=m02-local-stack --workers=1
+        env:
+          PW_LOCAL_STACK: '1'
