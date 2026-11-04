@@ -45,6 +45,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-004.html](../../html/mockup-SCR-M02-004.html)
 
 | Tình huống | Tiếng Việt | English |
 |---|---|---|
+| Tiêu đề trang (tên sản phẩm, không dịch) | Cúc Phương Quest | Cúc Phương Quest |
 | Nút VI/EN | VI · EN | VI · EN |
 | Liên kết sang danh mục | Chọn tuyến | Choose a route |
 | Đang tra cứu | Đang kiểm tra mã QR… | Checking the QR code… |

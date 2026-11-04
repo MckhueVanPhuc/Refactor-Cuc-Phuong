@@ -87,8 +87,8 @@ Chạy trên bản Preview hoặc Production đã deploy (HTTPS — camera cần
 
 | # | Artifact | Ghi nhận |
 |---|---|---|
-| S-1 | spec-M02 SC-M02-013 và tasks T037 | Ghi nhãn tiếng Anh "Scanned"; bảng copy SCR-M02-001 ghi "QR scanned" — code theo bảng copy |
-| S-2 | screen spec SCR-M02-001, -003, -004 (bảng copy) | Thiếu các chữ đã dùng từ mockup và được duyệt (D-1); nên bổ sung vào bảng copy để mockup không còn là nguồn chữ |
+| S-1 | spec-M02 SC-M02-013 và tasks T037 | **Đã xử lý 2026-11-04:** nhãn tiếng Anh thống nhất là "QR scanned" (spec-M02 3.3 clarification 2; `specs/002/spec.md`; tasks T037) |
+| S-2 | screen spec SCR-M02-001, -004 (bảng copy) | **Đã xử lý 2026-11-04:** bảng copy có đủ các chữ của D-1 (SCR-M02-003 không cần thêm); `i18n/vi.ts`, `en.ts` lấy nguồn từ bảng copy |
 | S-3 | research R-15 / tasks T092 | Không nêu coordinator cần API giữ lock theo id cho module khác M03; đã thêm alias (D-6) |
 | S-4 | `src/modules/m01/architecture.test.ts` | Mẫu `storage/tables$` khớp mọi import `…/storage/tables` của module khác; M02 tránh bằng cách chỉ đọc bảng qua `storage/readers.ts` |
 | S-5 | `src/modules/m03/editor/BilingualField.test.tsx` | Test chập chờn (CI #30, #32): `role="status"` "Đang dịch…" đôi khi biến mất trước khi test tìm — ngoài phạm vi M02 |
