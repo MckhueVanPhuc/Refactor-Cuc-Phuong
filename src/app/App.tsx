@@ -1,5 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { RouterProvider } from 'react-router';
+import { registerM02BusyCheck } from '../modules/m02/pwa/registerBusy';
 import { UpdatePrompt } from './pwa/UpdatePrompt';
 import { createAppRouter } from './router';
 
@@ -7,6 +8,9 @@ export function App() {
   const [router] = useState(createAppRouter);
 
   useEffect(() => {
+    // M02: không áp bản mới khi có phiên đang chạy hoặc đang quét/đồng bộ (research M02 R-15). Đồng bộ, trước mọi import()
+    // động, để điều kiện bận có mặt trước khi người dùng kịp bấm Cập nhật.
+    registerM02BusyCheck();
     // Cầu nối test E2E chỉ ở MODE e2e/fake; import() động trong nhánh này để không vào bundle production
     if (import.meta.env.MODE === 'e2e' || import.meta.env.MODE === 'fake') {
       void import('../shared/testing/e2eHooks').then((hooks) => hooks.installTestHooks());

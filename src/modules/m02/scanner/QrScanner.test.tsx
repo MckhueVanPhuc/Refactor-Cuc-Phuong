@@ -75,6 +75,14 @@ describe('QrScanner', () => {
     expect(onDetected).toHaveBeenCalledTimes(2);
   });
 
+  it('bàn phím: mở scanner → focus vào nút Đóng camera; Esc đóng (WCAG 2.1.1, 2.4.3)', async () => {
+    const onClose = vi.fn();
+    render(<QrScanner onDetected={() => {}} onClose={onClose} />);
+    await waitFor(() => expect(document.activeElement?.textContent).toBe(viMessages.scanner.close));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('đóng → dừng stream', async () => {
     const onClose = vi.fn();
     const { unmount } = render(<QrScanner onDetected={() => {}} onClose={onClose} />);

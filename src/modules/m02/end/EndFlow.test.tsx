@@ -78,6 +78,16 @@ describe('kết thúc chuyến', () => {
     expect(prompt()).toBeNull();
   });
 
+  it('bàn phím: câu hỏi mở với focus ở [Kết thúc]; Esc = [Đi tiếp], phiên vẫn chạy (WCAG 2.1.1)', async () => {
+    await startTrip();
+    await scan('Q3');
+    await screen.findByRole('alertdialog');
+    expect(document.activeElement?.textContent).toBe(viMessages.endPrompt.end);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await waitFor(() => expect(prompt()).toBeNull());
+    expect((await playSessionsTable.toArray()).map((s) => s.status)).toEqual(['DANG_DIEN_RA']);
+  });
+
   it('[Kết thúc] → HOAN_TAT kể cả khi bỏ qua điểm trước; mục hàng đợi PENDING; sang màn kết quả (FR-M02-016)', async () => {
     await startTrip();
     await scan('Q3');

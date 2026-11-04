@@ -19,6 +19,19 @@ export function QrScanner({ onDetected, onClose }: { onDetected: (text: string) 
   // Giữ callback mới nhất mà không khởi động lại camera
   const onDetectedRef = useRef(onDetected);
   onDetectedRef.current = onDetected;
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const closeButton = useRef<HTMLButtonElement>(null);
+
+  // Bàn phím (WCAG 2.1.1, 2.4.3): focus vào lớp scanner khi mở (một lần), Esc đóng như nút Đóng camera
+  useEffect(() => {
+    closeButton.current?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCloseRef.current();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -82,7 +95,7 @@ export function QrScanner({ onDetected, onClose }: { onDetected: (text: string) 
             </div>
           </>
         )}
-        <button type="button" className={styles.close} onClick={onClose}>
+        <button type="button" className={styles.close} onClick={onClose} ref={closeButton}>
           {messages.scanner.close}
         </button>
       </div>
