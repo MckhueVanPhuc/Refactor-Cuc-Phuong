@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it } from 'vitest';
@@ -38,6 +38,37 @@ function Harness({
 const english = () => screen.getByLabelText('Tên tuyến (tiếng Anh)') as HTMLInputElement | HTMLTextAreaElement;
 const button = () => screen.getByRole('button', { name: 'Dịch sang tiếng Anh' });
 
+/**
+ * Bộ dịch giả chỉ trả kết quả khi test gọi `release()`: trạng thái "đang dịch" không phụ thuộc đồng hồ, nên test không
+ * chập chờn khi máy tải nặng (trước đây dùng độ trễ 20 ms / 150 ms và đôi khi bản dịch về trước khi test kịp kiểm).
+ */
+function gatedTranslator(): FakeTranslator & { release(): void; translated(): Promise<void> } {
+  const inner = createFakeTranslator({ delayMs: 0 });
+  let open: () => void = () => {};
+  const gate = new Promise<void>((resolve) => {
+    open = resolve;
+  });
+  let done: () => void = () => {};
+  const finished = new Promise<void>((resolve) => {
+    done = resolve;
+  });
+  return {
+    setMode: (mode) => inner.setMode(mode),
+    get requestCount() {
+      return inner.requestCount;
+    },
+    async translate(request) {
+      await gate;
+      const result = await inner.translate(request);
+      done();
+      return result;
+    },
+    release: () => open(),
+    /** Bản dịch đã trả về cho component (kể cả khi component bỏ nó) */
+    translated: () => finished,
+  };
+}
+
 describe('BilingualField — nút dịch (spec-AI_integration)', () => {
   it('nhãn, fieldKey và lang của hai ô giữ nguyên; nút chữ "→" có tên truy cập', () => {
     render(<Harness translator={createFakeTranslator({ delayMs: 0 })} />);
@@ -59,14 +90,15 @@ describe('BilingualField — nút dịch (spec-AI_integration)', () => {
   });
 
   it('bấm → "Đang dịch…" gắn với ô tiếng Anh, rồi ô tiếng Anh có bản dịch (BR-AI-01, BR-AI-02)', async () => {
-    const translator = createFakeTranslator({ delayMs: 20 });
+    const translator = gatedTranslator();
     render(<Harness translator={translator} />);
     await userEvent.type(screen.getByLabelText('Tên tuyến (tiếng Việt)'), 'Rừng nguyên sinh');
     expect(translator.requestCount).toBe(0);
     await userEvent.click(button());
-    const status = screen.getByRole('status');
+    const status = await screen.findByRole('status');
     expect(status.textContent).toBe('Đang dịch…');
     expect((english().getAttribute('aria-describedby') ?? '').split(' ')).toContain(status.id);
+    translator.release();
     await waitFor(() => expect(english().value).toBe('Rừng nguyên sinh (en)'));
     expect(screen.queryByRole('status')).toBeNull();
   });
@@ -109,9 +141,14 @@ describe('BilingualField — nút dịch (spec-AI_integration)', () => {
   });
 
   it('gõ ô tiếng Anh trong lúc dịch → kết quả bị bỏ, giữ chữ đã gõ (BR-AI-04)', async () => {
-    render(<Harness translator={createFakeTranslator({ delayMs: 150 })} initial={{ vi: 'Rừng', en: '' }} />);
+    const translator = gatedTranslator();
+    render(<Harness translator={translator} initial={{ vi: 'Rừng', en: '' }} />);
     await userEvent.click(button());
+    await screen.findByRole('status');
     await userEvent.type(english(), 'Forest');
+    // Bản dịch về sau khi du khách đã gõ: phải bị bỏ
+    translator.release();
+    await act(() => translator.translated());
     await waitFor(() => expect(screen.queryByRole('status')).toBeNull());
     expect(english().value).toBe('Forest');
   });
