@@ -1,11 +1,11 @@
-// Chữ tiếng Việt của M01 (research R-12). Câu chép nguyên văn bảng copy của screen spec SCR-M01-001…004;
-// nhóm `nav`, `screenTitle`, `language.groupLabel` lấy theo tên màn ở screen list và mockup (validation-report DV-13).
+// Chữ tiếng Việt của M01 (research R-12). Câu chép nguyên văn bảng copy của screen spec SCR-M01-001…004
+// (gồm tên màn, điều hướng, nhãn mục, đã thêm vào bảng copy 2026-11-05 — validation-report DV-13, DV-30, DV-40, §13.3).
 // Mã enum chỉ làm khóa, không bao giờ là chữ hiển thị (visitor-ui-flow §4).
 
 export type StatsParams = { n: number; km: string; min: number };
 
 export const vi = {
-  // Tên màn và nhãn điều hướng (screen-list-M01; mockup-SCR-M01-003) — DV-13
+  // Tên màn và nhãn điều hướng (bảng copy SCR-M01-001…004) — DV-13
   nav: {
     catalog: 'Danh mục tuyến',
     recommend: 'Gợi ý tuyến',
@@ -71,7 +71,7 @@ export const vi = {
 
   // SCR-M01-003
   routeDetail: {
-    // Nhãn mục: theo mockup SCR-M01-003 và tên trường của M03 (fieldLabels) — DV-30
+    // Nhãn mục (bảng copy SCR-M01-003) — DV-30
     sections: {
       distance: 'Quãng đường',
       duration: 'Thời lượng',
@@ -110,7 +110,7 @@ export const vi = {
 
   // SCR-M01-004
   offline: {
-    // Nhãn ngoài bảng copy: "Gói tải trước" theo mockup SCR-M01-003; phiên bản, "Xem" theo element SCR-M01-004 — DV-40
+    // "Gói tải trước" (bảng copy SCR-M01-003); phiên bản, "Xem", "Cập nhật" (bảng copy SCR-M01-004) — DV-40
     panelTitle: 'Gói tải trước',
     version: ({ n }: { n: number }) => `Phiên bản ${n}`,
     view: 'Xem',

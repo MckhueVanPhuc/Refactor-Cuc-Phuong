@@ -51,6 +51,10 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 
 | Tình huống | Tiếng Việt | English |
 |---|---|---|
+| Tiêu đề màn | Quản lý tài nguyên offline | Offline downloads |
+| Phiên bản gói (E-SCR-M01-004-05) | Phiên bản {n} | Version {n} |
+| Nút xem (E-SCR-M01-004-10) | Xem | View |
+| Nút cập nhật | Cập nhật | Update |
 | Chưa tải | Chưa tải | Not downloaded |
 | Đang tải | Đang tải | Downloading |
 | Sẵn sàng, hiện hành | Sẵn sàng – mới nhất | Ready – up to date |

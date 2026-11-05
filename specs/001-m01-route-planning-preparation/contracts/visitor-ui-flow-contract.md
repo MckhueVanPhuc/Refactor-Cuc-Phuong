@@ -13,9 +13,9 @@ File này không tạo màn hình, trường hay trạng thái mới: mỗi dòn
 | Path | Màn hình | Lazy chunk | Guard |
 |---|---|---|---|
 | `/` | SCR-M01-001 Danh mục tuyến | `m01-catalog` | chưa có `LanguagePreference` → panel chọn ngôn ngữ chặn toàn trang (SR-SCR-M01-001-002) |
-| `/recommend` | SCR-M01-002 Gợi ý tuyến | `m01-recommend` | như trên |
+| `/recommend` | SCR-M01-002 Gợi ý tuyến | `m01-recommendation` | như trên |
 | `/routes/:routeId` | SCR-M01-003 Chi tiết tuyến & Chuẩn bị | `m01-route-detail` | như trên |
-| `/offline` | SCR-M01-004 Quản lý tài nguyên offline | `m01-offline` | như trên |
+| `/offline` | SCR-M01-004 Quản lý tài nguyên offline | `m01-offline-package` | như trên |
 | `PATHS.m02SessionEntry` | SCR-M02-001 (package 002) | — | M01 chỉ điều hướng sau khi commit context (SF-M01-006-08) |
 
 Trang `/q/{qrIdentifier}` thuộc M02 và không bao giờ qua guard ngôn ngữ (BR-M02-024); nó đặt `LanguageControl` của M01 ([language-preference-contract.md](language-preference-contract.md) §3).

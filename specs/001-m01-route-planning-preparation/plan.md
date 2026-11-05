@@ -219,7 +219,7 @@ playwright.config.ts, .env.example, .env.e2e   # tooling gốc (Complexity #2)
 
 **Quyết định (2026-10-30, người dùng ủy quyền cho agent quyết; tasks.md T001; giống plan M02, M03):**
 
-- **#1:** giữ nguyên — tích hợp thật chờ M03 giai đoạn B. Cập nhật 2026-10-30: change brief backend CHG-M03-2026-10-30-01 đã duyệt (chỉ stack local); tích hợp thật chờ M03 cài đặt Phase 13–15.
+- **#1:** giữ nguyên — tích hợp thật chờ M03 giai đoạn B. Cập nhật 2026-10-30: change brief backend CHG-M03-2026-10-30-01 đã duyệt (chỉ stack local); tích hợp thật chờ M03 cài đặt Phase 13–15. Cập nhật 2026-11-05: M03 Phase 13–15 đã có trên stack local; tích hợp thật của M01 đã chạy ở T102–T106 ([validation-report.md](validation-report.md) §11).
 - **#2:** duyệt — file tooling gốc, `.env.e2e` (giá trị giả an toàn) và `e2e/` thuộc "cấu hình Vite".
 - **#3:** duyệt nối CI (người dùng, 2026-10-30; thay quyết định hoãn trước đó): .github/workflows/ci.yml chạy `npm run ci` và E2E project mock trên mỗi push/PR (tasks M03 T002); job Supabase local thêm khi giai đoạn B mở (tasks M03 T198).
 - **#4:** duyệt `fake-indexeddb` **chỉ làm dev dependency** cho Vitest; không vào bundle.

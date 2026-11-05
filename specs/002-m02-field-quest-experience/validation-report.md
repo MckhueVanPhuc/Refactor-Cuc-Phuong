@@ -88,11 +88,11 @@ Chạy trên bản Preview hoặc Production đã deploy (HTTPS — camera cần
 |---|---|---|
 | S-1 | spec-M02 SC-M02-013 và tasks T037 | **Đã xử lý 2026-11-04:** nhãn tiếng Anh thống nhất là "QR scanned" (spec-M02 3.3 clarification 2; `specs/002/spec.md`; tasks T037) |
 | S-2 | screen spec SCR-M02-001, -004 (bảng copy) | **Đã xử lý 2026-11-04:** bảng copy có đủ các chữ của D-1 (SCR-M02-003 không cần thêm); `i18n/vi.ts`, `en.ts` lấy nguồn từ bảng copy |
-| S-3 | research R-15 / tasks T092 | Không nêu coordinator cần API giữ lock theo id cho module khác M03; đã thêm alias (D-6) |
+| S-3 | research R-15 / tasks T092 | Không nêu coordinator cần API giữ lock theo id cho module khác M03; đã thêm alias (D-6). **Đã xử lý 2026-11-05:** R-15 (a) nêu `registerBusyWork` / `unregisterBusyWork` |
 | S-4 | `src/modules/m01/architecture.test.ts` | Mẫu `storage/tables$` khớp mọi import `…/storage/tables` của module khác; M02 tránh bằng cách chỉ đọc bảng qua `storage/readers.ts` |
 | S-5 | `src/modules/m03/editor/BilingualField.test.tsx` | Test chập chờn (CI #30, #32): `role="status"` "Đang dịch…" đôi khi biến mất trước khi test tìm — ngoài phạm vi M02. **Đã xử lý 2026-11-04 (#35):** bộ dịch giả chỉ trả kết quả khi test cho phép |
-| S-6 | tasks T008 / field-ui-flow §1 | Gọi chunk `/trip` là `m02-trip` trong khi màn nằm ở `session/` (D-4) |
-| S-7 | field-ui-flow §1 `/trip/end` | "chỉ khi có phiên vừa kết thúc": cài đặt dùng phiên từ router state, không có thì chuyến kết thúc gần nhất |
+| S-6 | tasks T008 / field-ui-flow §1 | Gọi chunk `/trip` là `m02-trip` trong khi màn nằm ở `session/` (D-4). **Đã xử lý 2026-11-05:** field-ui-flow §1 ghi alias `m02-session` → `m02-trip` (T008 đã ghi từ trước) |
+| S-7 | field-ui-flow §1 `/trip/end` | "chỉ khi có phiên vừa kết thúc": cài đặt dùng phiên từ router state, không có thì chuyến kết thúc gần nhất. **Đã xử lý 2026-11-05:** field-ui-flow §1 ghi đúng cách chọn phiên này (spec-M02 không quy định; chủ dự án duyệt) |
 
 ## 8. Tích hợp thật với M01 và M03 (Phase 11, T102–T106)
 

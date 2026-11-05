@@ -1,10 +1,10 @@
 // Chữ tiếng Anh của M01 (research R-12). Câu chép nguyên văn bảng copy của screen spec SCR-M01-001…004.
-// Nhóm `nav`, `screenTitle`, `language.groupLabel`: nguồn chỉ có tiếng Việt; bản tiếng Anh do agent đề xuất, chủ dự án duyệt 2026-11-02
-// (validation-report DV-13).
+// Tên màn, điều hướng, nhãn mục và câu hoãn cập nhật: agent đề xuất, chủ dự án duyệt và đưa vào bảng copy 2026-11-05
+// (validation-report DV-13, DV-30, DV-40, DV-57, §13.3).
 import type { M01Messages } from './vi';
 
 export const en: M01Messages = {
-  // Đề xuất của agent, chủ dự án duyệt 2026-11-02 — DV-13
+  // Bảng copy SCR-M01-001…004 — DV-13
   nav: {
     catalog: 'Routes',
     recommend: 'Route suggestions',
@@ -64,7 +64,7 @@ export const en: M01Messages = {
   },
 
   routeDetail: {
-    // Đề xuất của agent theo nhãn tiếng Việt — DV-30
+    // Bảng copy SCR-M01-003 — DV-30
     sections: {
       distance: 'Distance',
       duration: 'Duration',
@@ -101,7 +101,7 @@ export const en: M01Messages = {
   },
 
   offline: {
-    // Đề xuất của agent — DV-40
+    // Bảng copy SCR-M01-003, SCR-M01-004 — DV-40
     panelTitle: 'Offline download',
     version: ({ n }) => `Version ${n}`,
     view: 'View',
