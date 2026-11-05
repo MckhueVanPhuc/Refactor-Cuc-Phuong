@@ -104,6 +104,7 @@ Database constraints và server-side authorization vẫn phải enforce invarian
 | Web client | Single Vercel Project | Một website/PWA chứa public và protected routes của M01/M02/M03 | Selected — project/deployment state not verified |
 | Backend/data | Single Supabase Cloud Project | Shared PostgreSQL, Auth, RLS, Storage, Edge Functions, RPC và Data API | Selected — not implemented |
 | Browser runtime | Standards-based browser/PWA platform | UI, Cache Storage, IndexedDB, camera/QR interaction và network access | Selected runtime |
+| Traffic and performance measurement | Vercel Web Analytics (`@vercel/analytics`), Speed Insights (`@vercel/speed-insights`) | Số liệu vận hành cho người vận hành, chỉ build Production; không thay RPT-01, RPT-02 | Selected — not implemented (CHG-M03-2026-11-05-01; tasks M03 T210) |
 
 ## 8. Development Tooling
 
@@ -159,7 +160,7 @@ Ba module dùng chung stack và codebase; bảng này mô tả responsibility kh
 | Message broker or backend job queue | Snapshot/publication are synchronous transactional operations; terminal retry is client-owned | [System Configuration](system-configuration.md), Runtime components |
 | Cron/scheduler and report pre-aggregation | Reports query on demand; MVP defines no scheduled backend processing | [System Configuration](system-configuration.md), Runtime components; [Spec M03](../spec/spec-M03.md) §5.1 |
 | Offline administration/draft synchronization | M03 is online-only | [MVP Scope](../../MVP-Scope.md) §5 |
-| Dedicated observability vendor | No separate vendor is selected in the current architecture baseline | Approved architecture decision scope |
+| Dedicated observability vendor | No separate vendor is selected in the current architecture baseline; Vercel Web Analytics and Speed Insights (§7) belong to the hosting platform | Approved architecture decision scope; CHG-M03-2026-11-05-01 |
 | Additional hosted application environments | MVP uses one Single Cloud Application Environment; local machine is a development workstation | Approved architecture decision; [Environment Configuration](environment.md) §2 |
 | Additional Supabase or Vercel project for test isolation | Target topology fixes one project of each; isolation must be local or an explicit limitation | [Environment Configuration](environment.md) §§9–12 |
 
@@ -179,7 +180,7 @@ Ba module dùng chung stack và codebase; bảng này mô tả responsibility kh
 Các technology choices ở §§2–8 là **Selected**. Repository hiện không có implementation artifact để xác nhận installation, runtime behavior hoặc hosted deployment; xem [Environment Configuration](environment.md) §§10–12.
 
 - Khi implementation được tạo, pin exact dependency/CLI versions, commit lockfile và chỉ ghi version là verified sau khi cài/chạy thực tế.
-- Browser runtime dependencies đã chọn: React, React Router, Dexie, Supabase JS, Zod và ZXing. TypeScript/Vite/plugin PWA/test tools là development dependencies; generated Workbox service worker chạy trong browser. Edge chạy Deno qua Supabase; kiến trúc này không thêm Node backend server trên Vercel.
+- Browser runtime dependencies đã chọn: React, React Router, Dexie, Supabase JS, Zod và ZXing; `@vercel/analytics` và `@vercel/speed-insights` chỉ nạp ở build Production (T210). TypeScript/Vite/plugin PWA/test tools là development dependencies; generated Workbox service worker chạy trong browser. Edge chạy Deno qua Supabase; kiến trúc này không thêm Node backend server trên Vercel.
 - Release gate: build/typecheck; contract tests; RPC rollback/concurrency/RLS tests; browser offline start, cached scanner, reload recovery, update deferral và terminal retry/conflict tests.
 - Kiểm tra camera + offline trên thiết bị Android/iOS thực tế; Playwright không thay thế kiểm tra permission/camera và browser eviction.
 - Giữ SPA + BaaS vì hợp với local-first flow và admin online; chưa có requirement cần SSR, server riêng hoặc state/cache framework bổ sung. Đây là trade-off giảm complexity, không cam kết tối ưu hiệu năng trước đo đạc.

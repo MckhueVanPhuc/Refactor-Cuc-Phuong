@@ -135,7 +135,7 @@ supabase/
 
 package.json, package-lock.json, tsconfig*.json, vite.config.ts, vitest.config.ts,
 playwright.config.ts, .env.example    # tooling gốc (Complexity Tracking #2)
-vercel.json                           # rewrite SPA + header cache — Phase 16, cần change brief triển khai
+vercel.json                           # rewrite SPA + header cache — Phase 16, CHG-M03-2026-11-05-01
 ```
 
 **Structure Decision**: Một web app (modular monolith). M03 nằm trọn trong `src/modules/m03/`. Phần dùng chung giữa các module chỉ có `src/shared/contracts` (schema contract), `src/shared/config`, `src/shared/supabase`, `src/shared/ui` và shell `src/app`. M03 không import gì từ `src/modules/m01|m02`, và ngược lại (constitution II). Backend nằm dưới `supabase/`, theo đúng thứ tự migration của Physical Schema §13.
@@ -214,7 +214,7 @@ M03 là một package theo quyết định của người dùng. Nếu tasks.md 
 | Lệch giới hạn provisional giữa client và `app.limit` | Phản hồi trên UI khác kết quả server | một module hằng + test so khớp (R-19) |
 | Dọn dẹp media mồ côi | Tốn dung lượng | chấp nhận; dọn theo yêu cầu (R-11) |
 | Lạm dụng intake/lookup công khai | Báo cáo bị nhiễu | giới hạn của nền tảng + trần kích thước body; rủi ro đã chấp nhận ở spec §9 (R-25) |
-| Domain Production chưa chốt trước khi in tem | Tem thật bị sai link | release gate của chủ dự án (spec.md Open clarifications); dấu BẢN THỬ fail-safe (R-13) |
+| Địa chỉ Production `vercel.app` phụ thuộc Vercel project | Mất project thì tem đã dán hỏng | ràng buộc ở environment.md §4; rủi ro đã chấp nhận ở CHG-M03-2026-11-05-01 §9; dấu BẢN THỬ fail-safe (R-13) |
 | Lệch nguồn upstream (research §4) | Tài liệu không đồng bộ | báo cáo; sửa bằng task riêng |
 
 ## Validation Strategy
@@ -243,7 +243,7 @@ M03 là một package theo quyết định của người dùng. Nếu tasks.md 
 
 **Quyết định (2026-10-30, người dùng ủy quyền cho agent quyết; tasks.md T001):**
 
-- **#1:** đã giải quyết — change brief backend CHG-M03-2026-10-30-01 ([change-brief-CHG-M03-2026-10-30-01-backend.md](change-brief-CHG-M03-2026-10-30-01-backend.md)) được chủ dự án duyệt 2026-10-30 (tasks M03 T166–T167): giai đoạn B mở phạm vi chỉ trên stack Supabase local; cấu hình cloud và deploy vẫn cần change brief triển khai (tasks M03 T201).
+- **#1:** đã giải quyết — change brief backend CHG-M03-2026-10-30-01 ([change-brief-CHG-M03-2026-10-30-01-backend.md](change-brief-CHG-M03-2026-10-30-01-backend.md)) được chủ dự án duyệt 2026-10-30 (tasks M03 T166–T167): giai đoạn B mở phạm vi chỉ trên stack Supabase local; cấu hình cloud và deploy mở theo change brief triển khai CHG-M03-2026-11-05-01 ([change-brief-CHG-M03-2026-11-05-01-deployment.md](change-brief-CHG-M03-2026-11-05-01-deployment.md), duyệt 2026-11-05; tasks M03 T201).
 - **#2:** duyệt — các file tooling gốc nêu ở #2 và thư mục `e2e/` được coi là thuộc "cấu hình Vite".
 - **#3:** duyệt nối CI (người dùng, 2026-10-30; thay quyết định hoãn trước đó): .github/workflows/ci.yml chạy `npm run ci` và E2E project mock trên mỗi push/PR (tasks M03 T002); job Supabase local thêm khi giai đoạn B mở (tasks M03 T198).
 - **#4:** giữ thiết kế `SECURITY DEFINER` như đã giải trình.

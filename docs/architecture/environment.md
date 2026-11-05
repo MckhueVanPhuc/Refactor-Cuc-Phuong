@@ -46,9 +46,9 @@ Browser data bị scope theo origin và device. Build/deployment record không t
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Frontend | Public client credential/configuration | Publishable key của cùng project; RLS và server-side authorization vẫn bắt buộc |
 | `APP_BACKEND_SECRET_KEY` | Edge Functions/server-side runtime only | Secret | Chỉ tồn tại trong server-side secret store; không có prefix `VITE_` |
 | `VITE_APP_VERSION` | Frontend | Public, build-generated | Nhận diện build/release; không dùng làm environment selector |
-| `QR_PUBLIC_BASE_URL` | Frontend (M02 link page and in-app scanner) and M03 printable QR images | Public, build-time configuration | Domain HTTPS cố định của Single Vercel Project; mã QR in ra là `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` (Spec M03 BR-M03-B04). Không đổi khi tem đã được dán; nếu buộc đổi domain thì link cũ phải tiếp tục chuyển hướng. Tên biến cụ thể trong build (ví dụ có prefix `VITE_`) thuộc implementation. |
+| `QR_PUBLIC_BASE_URL` | Frontend (M02 link page and in-app scanner) and M03 printable QR images | Public, build-time configuration | Domain HTTPS cố định của Single Vercel Project; mã QR in ra là `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` (Spec M03 BR-M03-B04). MVP dùng địa chỉ Production do Vercel cấp trên `vercel.app` (CHG-M03-2026-11-05-01); khi tem còn dán thì không xóa project, không chuyển project sang tài khoản khác nếu chưa kiểm tra địa chỉ vẫn giữ nguyên. Không đổi khi tem đã được dán; nếu buộc đổi địa chỉ thì link cũ phải tiếp tục chuyển hướng. Tên biến cụ thể trong build (ví dụ có prefix `VITE_`) thuộc implementation. |
 | `SUPABASE_URL` | Edge runtime | Platform configuration | URL của Supabase project đang chạy function |
-| `GEMINI_API_KEY` | Edge Function dịch only (spec-AI_integration BR-AI-08) | Secret | Chỉ trong secret của Edge runtime (local: secret local của stack Supabase; cloud: Supabase Edge secret settings, cần change brief triển khai riêng). Không có prefix `VITE_`, không trong repo, `.env` được commit, response hay log. Thiếu biến thì function trả tín hiệu lỗi và editor báo MSG-AI-FAILED. |
+| `GEMINI_API_KEY` | Edge Function dịch only (spec-AI_integration BR-AI-08) | Secret | Chỉ trong secret của Edge runtime (local: secret local của stack Supabase; cloud: Supabase Edge secret settings, theo CHG-M03-2026-11-05-01). Không có prefix `VITE_`, không trong repo, `.env` được commit, response hay log. Thiếu biến thì function trả tín hiệu lỗi và editor báo MSG-AI-FAILED. |
 
 **Ánh xạ thuật ngữ trong spec:** "Production" trong Spec M03 BR-M03-B04/B05 là **Single Cloud Application Environment**; "non-Production" là **Local Development Workstation**. Mã QR tạo trên máy local mang dấu "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA" và không bao giờ được dán ra thực địa. Khi build, frontend chỉ coi là Production khi biến nền tảng `VERCEL_ENV` bằng `production`; mọi build khác (local, preview) luôn mang dấu bản thử. Nút Quét trong app chỉ nhận link có base đúng `QR_PUBLIC_BASE_URL` của môi trường đang chạy (Spec M02 BR-M02-023).
 
@@ -66,6 +66,7 @@ Browser data bị scope theo origin và device. Build/deployment record không t
 | Database migrations | Replay trên clean local/ephemeral database | Apply vào single linked Supabase project sau approval | Không sửa migration history đã apply |
 | Test data | Synthetic, deterministic và disposable | Chỉ non-destructive smoke-test data được kiểm soát | Không remote reset hoặc seed Shared Backend |
 | Vercel configuration | Local build/dev configuration | Settings của Single Vercel Project và active HTTPS origin | Generated deployment không tạo environment riêng |
+| Auth email (SMTP) | Mailpit của stack local | Auth settings của single linked Supabase project; SMTP qua tài khoản Gmail riêng của dự án (CHG-M03-2026-11-05-01) | Không commit hoặc log mật khẩu ứng dụng |
 
 Auth redirect/callback URL sử dụng active HTTPS website origin. Local callback chỉ phục vụ local development và không thay thế release verification trên website đã deploy.
 
@@ -81,6 +82,7 @@ Auth redirect/callback URL sử dụng active HTTPS website origin. Local callba
 | M03 | Test UI/contract locally | Online-only với Shared Backend |
 | Nút dịch M03 (AI Integration) | `dev:fake` dùng adapter dịch giả, không gọi Gemini; stack local gọi Gemini thật bằng key trong secret local | Gọi Gemini qua Edge Function dịch của Shared Backend |
 | Reports | Fixture/local assertions | Chỉ phản ánh `SessionRecord` đã ingest thành công |
+| Vercel Web Analytics, Speed Insights | Không nạp | Chỉ build Production nạp; không gửi `/admin/*`, gộp `/q/{qrIdentifier}` thành `/q/[id]`, bỏ query và hash (CHG-M03-2026-11-05-01 §6) |
 | Timezone | `Asia/Ho_Chi_Minh` | `Asia/Ho_Chi_Minh` |
 
 Environment không được override business behavior, canonical contract, report timezone hoặc module ownership.
@@ -143,6 +145,7 @@ Environment không được override business behavior, canonical contract, repo
 - Mỗi schema change được lưu thành reviewed migration và replay từ đầu trên clean local database.
 - Supabase CLI chỉ link tới Single Supabase Cloud Project; operator kiểm tra project ref trước mọi remote command.
 - Review migration list, dry-run khi CLI version hỗ trợ, kiểm tra backup/recovery readiness rồi mới apply.
+- MVP dùng gói Supabase Free, không có backup tự động: trước mỗi lần apply, operator dump đủ roles, schema và data, lưu ngoài repo; bản dump không gồm file Storage nên bản gốc ảnh và media được giữ riêng (CHG-M03-2026-11-05-01 §9).
 - Seed và destructive test-data load vào Shared Backend bị cấm.
 - Migration đã apply không được rewrite; dùng corrective/forward migration.
 
@@ -150,7 +153,7 @@ Environment không được override business behavior, canonical contract, repo
 
 - Build/release reviewed artifact lên Single Vercel Project.
 - Trước release, xác nhận build và database schema tương thích với nhau.
-- Sau release, chạy non-destructive smoke checks trên active website cho public reads, M03 login/authorization, media access, offline path và terminal sync.
+- Sau release, chạy non-destructive smoke checks trên active website cho public reads, M03 login/authorization, media access, offline path và terminal sync. Không tạo dữ liệu giả trên Shared Backend: phần kiểm tra cần dữ liệu chạy trên nội dung thật do quản trị viên nhập; phiên thử được giữ trong báo cáo vì MVP không có hard delete (CHG-M03-2026-11-05-01).
 - Application rollback không rollback Supabase schema/data/config; database recovery dùng backup/restore hoặc forward-fix đã được phê duyệt.
 
 ## 12. Operational Risks and Controls
@@ -163,7 +166,7 @@ Environment không được override business behavior, canonical contract, repo
 | Accidental destructive operation | Target confirmation, least privilege và cấm remote reset/seed |
 | Frontend deployment failure | Retain deployment history, smoke-test và rollback application build |
 | Shared Backend outage | Monitoring, incident response và recovery procedure |
-| Data/media recovery failure | Xác minh backup retention và thực hành restore định kỳ |
+| Data/media recovery failure | Xác minh backup retention và thực hành restore định kỳ; MVP gói Free chấp nhận không thực hành restore định kỳ (CHG-M03-2026-11-05-01 §9) |
 
 ## 13. Official References
 

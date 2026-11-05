@@ -15,7 +15,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 > **Quy tắc dẫn xuất.** File này không tạo requirement. Hành vi lấy từ [spec-M03 v3.7](../../docs/spec/spec-M03.md); quyết định kỹ thuật lấy từ plan/research. Giữ nguyên tên contract (`JourneySnapshot`, `LiveQrLookupResult`, `LiveStationContent`, `SessionSyncRecord`, `SessionRecord`, `Revision`) và mọi ID. Mọi giới hạn số là **provisional** (spec-M03 §5.3).
 >
-> **Hai giai đoạn (research R-01).** Phase 1–12 là **giai đoạn A** (frontend, adapter, contract, cấu hình local), nằm trong phạm vi code hiện tại. Phase 13–15 là **giai đoạn B** (SQL migration, RPC, Edge Function, pgTAP, script cấp Reviewer) và được mở phạm vi **chỉ trên stack Supabase local** bởi change brief backend CHG-M03-2026-10-30-01 (APPROVED 2026-10-30; AGENTS.md §2; plan.md Complexity Tracking #1). Phase 16 (kích hoạt môi trường cloud và phát hành) cần thêm một change brief triển khai.
+> **Hai giai đoạn (research R-01).** Phase 1–12 là **giai đoạn A** (frontend, adapter, contract, cấu hình local), nằm trong phạm vi code hiện tại. Phase 13–15 là **giai đoạn B** (SQL migration, RPC, Edge Function, pgTAP, script cấp Reviewer) và được mở phạm vi **chỉ trên stack Supabase local** bởi change brief backend CHG-M03-2026-10-30-01 (APPROVED 2026-10-30; AGENTS.md §2; plan.md Complexity Tracking #1). Phase 16 (kích hoạt môi trường cloud và phát hành) mở theo change brief triển khai CHG-M03-2026-11-05-01 (APPROVED 2026-11-05).
 >
 > **Giao diện.** Mọi task dựng màn hình dùng skill `frontend-design`; màu, font, khoảng cách, bo góc chỉ lấy từ token ([design-system.md](../../docs/design/design-system.md)); icon chỉ từ `assets/icons/`; hình thức tham chiếu `screens/screen-spec/M03/screen-spec-SCR-M03-nnn.md` và `screens/html/mockup-SCR-M03-nnn.html` (CLAUDE.md). Mọi chữ hiển thị đi qua danh mục thông báo (BR-M03-L13).
 
@@ -470,21 +470,22 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 
 ---
 
-## Phase 16: Kích hoạt môi trường cloud và phát hành (⛔ BLOCKED: cần change brief triển khai)
+## Phase 16: Kích hoạt môi trường cloud và phát hành (mở theo CHG-M03-2026-11-05-01)
 
-**Purpose**: Đưa sản phẩm lên Single Vercel Project và Single Supabase Cloud Project theo environment.md §10–11. AGENTS.md §2 chưa mở phạm vi cấu hình cloud và deploy; mọi task dưới đây chỉ chạy khi có change brief triển khai, và mọi lệnh tác động cloud cần người dùng duyệt
+**Purpose**: Đưa sản phẩm lên Single Vercel Project và Single Supabase Cloud Project theo environment.md §10–11 và [change brief triển khai](change-brief-CHG-M03-2026-11-05-01-deployment.md). Người vận hành cloud do chủ dự án chỉ định chạy mọi lệnh có secret hoặc tác động cloud (T203–T207); agent chỉ soạn lệnh. Không lệnh cloud nào chạy trước khi PR của T201 đã merge
 
-- [ ] T201 Chờ change brief triển khai (link project cloud, apply migration, deploy Edge Function, cấu hình Vercel, domain Production); ghi tham chiếu vào specs/003-m03-operations-content-administration/validation-report.md
+- [X] T201 Chờ change brief triển khai (link project cloud, apply migration, deploy Edge Function, cấu hình Vercel, địa chỉ Production); ghi tham chiếu vào specs/003-m03-operations-content-administration/validation-report.md
 - [ ] T202 [P] Tạo vercel.json: rewrite mọi đường dẫn không khớp file tĩnh về `/index.html` để `/q/{qrIdentifier}`, `/routes/{routeId}`, `/trip`, `/admin/*` mở được ngay lần đầu (thiếu rewrite thì mã QR quét bằng camera điện thoại trên máy chưa từng mở app trả 404 — SC-M02-017); header `Cache-Control: no-cache` cho `index.html`, `sw.js`, `registerSW.js`, `manifest.webmanifest`; asset có hash được cache dài (environment.md §5)
-- [ ] T203 Cấu hình Supabase cloud sau khi kiểm project ref: Data API chỉ mở schema `api`; Auth tắt đăng ký công khai, `site_url` là origin HTTPS Production, redirect URL `/admin/invitation` và `/admin/recovery`; SMTP riêng cho email mời và khôi phục (dịch vụ email mặc định của Supabase chỉ dành cho thử nghiệm và bị giới hạn tần suất) (environment.md §5, §10; auth-account §4)
-- [ ] T204 Apply migration vào Single Supabase Cloud Project theo environment.md §11: kiểm project ref, xem danh sách migration, dry-run nếu CLI hỗ trợ, kiểm sẵn sàng backup; không seed, không reset, không chạy test phá hủy trên cloud
-- [ ] T205 Đặt secret `APP_BACKEND_SECRET_KEY` trong Supabase Edge secrets; deploy `session-intake` và `admin-accounts` với cùng cấu hình `verify_jwt = false` như local (T178, T195)
-- [ ] T206 Cấu hình biến môi trường của Single Vercel Project: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_QR_PUBLIC_BASE_URL` = domain HTTPS Production cố định (release gate: chốt trước khi in tem thật — spec-M03 §9; spec.md Open clarifications); xác nhận build Production không còn dấu "BẢN THỬ" (research R-13)
+- [ ] T203 Tạo Single Vercel Project để có origin Production; cấu hình Supabase cloud sau khi kiểm project ref: Data API chỉ mở schema `api`; Auth tắt đăng ký công khai, `site_url` là origin HTTPS Production, redirect URL `/admin/invitation` và `/admin/recovery`; SMTP riêng qua tài khoản Gmail của dự án cho email mời và khôi phục (dịch vụ email mặc định của Supabase chỉ dành cho thử nghiệm và bị giới hạn tần suất); đặt trên dashboard, không dùng `supabase config push` (environment.md §5, §10; auth-account §4)
+- [ ] T204 Apply migration vào Single Supabase Cloud Project theo environment.md §11: kiểm project ref, xem danh sách migration, dry-run nếu CLI hỗ trợ, dump đủ roles, schema và data lưu ngoài repo; không seed, không reset, không chạy test phá hủy trên cloud
+- [ ] T205 Đặt secret `APP_BACKEND_SECRET_KEY` và `GEMINI_API_KEY` trong Supabase Edge secrets; deploy `session-intake`, `admin-accounts` và `translate` với cùng cấu hình `verify_jwt = false` như local (T178, T195; specs/004-ai-translation)
+- [ ] T206 Cấu hình biến môi trường của Single Vercel Project ở scope Production: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_QR_PUBLIC_BASE_URL` = địa chỉ `vercel.app` Production cố định (spec-M03 BR-M03-B04, clarification 10; spec.md Open clarifications); bật Web Analytics và Speed Insights; xác nhận build Production không còn dấu "BẢN THỬ" (research R-13); xác nhận deploy từ merge commit của người vận hành cloud không bị Vercel chặn (brief §9)
 - [ ] T207 Operator chạy `select app.provision_initial_reviewer('<email>')` trong SQL editor rồi supabase/scripts/provision-initial-reviewer.ts (T179) một lần cho môi trường trống; Reviewer đầu tiên mời ít nhất một Reviewer dự phòng (BR-M03-K03, K04)
-- [ ] T208 Smoke check không phá hủy trên website đã deploy (environment.md §11): đọc công khai, đăng nhập và phân quyền M03, đọc media, đường offline, gửi phiên terminal; ghi kết quả vào specs/003-m03-operations-content-administration/validation-report.md
-- [ ] T209 Release gate trước lần phát hành thật đầu tiên: chủ dự án kiểm chứng trên thiết bị thật các giá trị provisional (`SOURCE_REQUEST_TIMEOUT_SECONDS`, `LOOKUP_TIMEOUT_SECONDS`, giới hạn §5.3 của M03) và chạy checklist thủ công M01 T100, M02 T100; ghi kết quả vào specs/003-m03-operations-content-administration/validation-report.md
+- [ ] T208 Smoke check không phá hủy trên website đã deploy (environment.md §11), không tạo dữ liệu giả. Hai đợt: (1) sau T207: đọc công khai, đăng nhập và phân quyền M03, đường offline, `/admin` không phát sinh event Analytics; (2) sau khi Reviewer nhập và xuất bản tuyến thật đầu tiên: đọc media, gửi phiên terminal; ghi kết quả vào specs/003-m03-operations-content-administration/validation-report.md
+- [ ] T209 Release gate trước lần phát hành thật đầu tiên, chạy trên tuyến thật đầu tiên: chủ dự án kiểm chứng trên Android Chrome và iOS Safari thật các giá trị provisional (`SOURCE_REQUEST_TIMEOUT_SECONDS`, `LOOKUP_TIMEOUT_SECONDS`, giới hạn §5.3 của M03), chạy checklist thủ công M01 T100, M02 T100 và đo LCP của `/q/{id}` (M02 T096, mục tiêu ≤ 2,5 s); chỉ in số tem cần cho checklist; ghi kết quả vào specs/003-m03-operations-content-administration/validation-report.md
+- [ ] T210 [P] Thêm `@vercel/analytics` và `@vercel/speed-insights` (ghim phiên bản, cập nhật lockfile), chỉ nạp ở build Production bằng `import()` động; hàm `beforeSend` dùng chung có unit test: không gửi `/admin` và `/admin/*`, đổi `/q/{qrIdentifier}` thành `/q/[id]`, bỏ query và hash; không custom event, không thêm màn hình; làm trước T206 (change brief §6)
 
-**Checkpoint**: Sản phẩm chạy trên môi trường cloud; tem QR thật chỉ được in sau T206 và T209
+**Checkpoint**: Sản phẩm chạy trên môi trường cloud; tem QR thật chỉ được in hàng loạt và dán ra thực địa sau T206 và T209
 
 ---
 
@@ -497,7 +498,7 @@ description: "Danh sách task triển khai M03 — Operations & Content Administ
 - **User Stories giai đoạn A (Phase 3–11)**: sau Foundational
 - **Polish giai đoạn A (Phase 12)**: sau các story muốn giao
 - **Giai đoạn B (Phase 13–15)**: đã mở (T166–T167 xong, CHG-M03-2026-10-30-01); Phase 13 sau Phase 2 (Foundational); Phase 13 trước Phase 14; Phase 15 sau Phase 14
-- **Phase 16 (kích hoạt cloud)**: ⛔ sau Phase 15 và change brief triển khai (T201)
+- **Phase 16 (kích hoạt cloud)**: đã mở (T201 xong, CHG-M03-2026-11-05-01); T202, T210 trước T203; T203 → T204 → T205 → T206 → T207 → T208 → T209
 
 ### User Story Dependencies
 
@@ -573,7 +574,7 @@ MVP có giá trị nghiệp vụ đầu tiên cho M01 là **US1 + US2 + US3** (t
 2. US1 → US2 → US3 → US4 → US5 → US6 → US7 → US8 → US9, mỗi story qua checkpoint của nó trên adapter giả
 3. Phase 12 → bằng chứng giai đoạn A
 4. Giai đoạn B (change brief backend đã duyệt 2026-10-30): Phase 13 → Phase 14 theo cùng thứ tự story → Phase 15
-5. Khi có change brief triển khai: Phase 16 (vercel.json, Supabase cloud, smoke check, release gate)
+5. Change brief triển khai đã duyệt 2026-11-05: Phase 16 (vercel.json, gói đo, Supabase cloud, smoke check, release gate)
 
 ### Parallel Team Strategy
 
