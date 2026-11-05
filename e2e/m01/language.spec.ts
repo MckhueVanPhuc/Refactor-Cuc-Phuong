@@ -4,6 +4,7 @@ import { publicationFixture } from '../../src/shared/contracts/__fixtures__/publ
 import { contextFromSnapshot, packageFromPublication } from '../../src/modules/m01/testing/packageFixture';
 import { callM01Hook, dumpStores, PACKAGE_STORES } from './helpers';
 import { mockPublication } from './network';
+import { mockLookup, mockStorage } from '../m02/network';
 
 test.use({ locale: 'vi-VN' });
 
@@ -24,9 +25,25 @@ test('V1 — mở / lần đầu: panel chọn ngôn ngữ chặn trang; chọn 
   await expect(page.getByRole('heading', { level: 1, name: 'Routes' })).toBeVisible();
 });
 
-// Trang /q/{qrIdentifier} thuộc M02 (package 002, SCR-M02-004) chưa được cài; hành vi "không panel, không ghi gì"
-// đã kiểm ở src/modules/m01/language/LanguageGate.test.tsx. Bật lại khi M02 có trang này.
-test.fixme('V2 — mở /q/{id} lần đầu với vi-VN rồi en-US: không panel, hiển thị theo thiết bị, store trống', async () => {});
+// Trang /q/{qrIdentifier} thuộc M02 (SCR-M02-004); lookup và Storage giả bằng mock của E2E M02.
+for (const { locale, heading } of [
+  { locale: 'vi-VN', heading: 'Đối tượng Q1a' },
+  { locale: 'en-US', heading: 'Object Q1a' },
+]) {
+  test.describe(`V2 — ${locale}`, () => {
+    test.use({ locale });
+
+    test(`V2 — mở /q/{id} lần đầu với ${locale}: không panel, hiển thị theo thiết bị, store trống`, async ({ page }) => {
+      await mockLookup(page);
+      await mockStorage(page);
+      await page.goto('/q/Q1a');
+      await expect(page.getByRole('heading', { name: heading })).toBeVisible();
+      await expect(page.getByText('Chọn ngôn ngữ (Tiếng Việt / English)')).toHaveCount(0);
+      await expect(page.locator('html')).toHaveAttribute('lang', locale.slice(0, 2));
+      expect((await dumpStores(page, ['languagePreference'])).languagePreference).toEqual([]);
+    });
+  });
+}
 
 test('V3 — offline, bấm VI/EN trên SCR-M01-003 có gói: UI đổi ngay; gói và context không đổi', async ({ page, context }) => {
   const { routes, snapshots } = publicationFixture();

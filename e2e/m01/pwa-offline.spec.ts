@@ -1,6 +1,7 @@
 // Quickstart M01 V24 (tasks T094; constitution VI; spec-M01 §9.3): offline sau khi đã mở app, tải lại `/`, `/routes/A`,
 // `/q/{id}` từ app shell; đổi VI/EN được; không request `/rest/v1` hay `/storage/v1` nào được trả từ Cache Storage.
 import { expect, test } from '@playwright/test';
+import { vi as m02Vi } from '../../src/modules/m02/i18n/vi';
 import { chooseLanguage, mockPublication } from './network';
 
 test.use({ locale: 'vi-VN' });
@@ -34,10 +35,10 @@ test('V24 — offline: app shell phục vụ /, /routes/route-a, /q/{id}; VI/EN 
   await expect(page.getByRole('banner')).toBeVisible();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 
-  // Trang link QR thuộc M02 (chưa cài): chỉ kiểm app shell được phục vụ từ service worker khi offline
+  // Trang link QR của M02 (SCR-M02-004) mở từ app shell; không có phiên nên offline báo cần kết nối (M02 V22)
   const qr = await page.goto('/q/qr-a1-1');
   expect(qr?.fromServiceWorker()).toBe(true);
-  await expect(page.locator('#root')).not.toBeEmpty();
+  await expect(page.getByRole('alert')).toHaveText(m02Vi.notice.connectionNeeded);
 
   const cachedUrls = await page.evaluate(async () => {
     const urls: string[] = [];
