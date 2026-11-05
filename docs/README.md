@@ -1,6 +1,6 @@
 ﻿# Documentation Index — Cúc Phương Quest V2
 
-Chỉ mục toàn bộ tài liệu của Cúc Phương Quest V2. Bộ tài liệu V2 đã hoàn tất đợt rebaseline theo [M03 Documentation Refactor Runbook v2](../M03_Documentation_Refactor_Runbook_v2.md) (2026-10-28); từ đó repo đã có code cho M01 và M03 (xem [README gốc](../README.md) §1 về trạng thái và cách chạy).
+Chỉ mục toàn bộ tài liệu của Cúc Phương Quest V2. Bộ tài liệu V2 đã hoàn tất đợt rebaseline theo [M03 Documentation Refactor Runbook v2](../M03_Documentation_Refactor_Runbook_v2.md) (2026-10-28); từ đó repo đã có code cho M01, M02 và M03 (xem [README gốc](../README.md) §1 về trạng thái và cách chạy).
 
 Spec M01, M02, M03 và Spec AI Integration là behavioral/contract baseline (nguồn sự thật duy nhất). Architecture, function list, screen specs và data model là tài liệu dẫn xuất.
 
@@ -58,7 +58,7 @@ Spec M01, M02, M03 và Spec AI Integration là behavioral/contract baseline (ngu
 - [06 — Physical Schema](../data/06-physical-schema.md) (*V2 — thiết kế vật lý; đã hiện thực bằng 14 migration trong `supabase/migrations/` trên stack local, chưa áp lên cloud*)
 
 > **Lưu ý về phạm vi:**  
-> - data/06-physical-schema.md là tầng tài liệu dữ liệu cuối cùng của V2; phần hiện thực (SQL migration, RPC, pgTAP) nằm trong `supabase/` theo change brief CHG-M03-2026-10-30-01, chỉ trên stack local.
+> - data/06-physical-schema.md là tầng tài liệu dữ liệu cuối cùng của V2; phần hiện thực (SQL migration, RPC, pgTAP) nằm trong `supabase/` theo change brief CHG-M03-2026-10-30-01, đã chạy trên stack local; áp lên cloud theo CHG-M03-2026-11-05-01.
 > - data/05-review.md (review gate) và data/06-physical-schema.md đã được làm lại cho V2 (2026-10-28). Khi Physical Schema đổi, migration phải được viết mới (forward), không sửa migration đã có.
 > - Các tài liệu downstream cũ như Field Mapping (data/schema/field-mapping.md), Seed Data (data/seed/**), Storage Validation (data/07-storage-validation.md) và implementation packages không thuộc active documentation set của V2.
 
@@ -71,8 +71,8 @@ Mỗi gói là bản dẫn xuất từ spec của module, gồm spec, plan, rese
 | Gói | Module | Trạng thái |
 |---|---|---|
 | [001-m01-route-planning-preparation](../specs/001-m01-route-planning-preparation/) | M01 | Đã cài đặt (106/106 task) |
-| [002-m02-field-quest-experience](../specs/002-m02-field-quest-experience/) | M02 | Có spec, plan, tasks; chưa cài đặt |
-| [003-m03-operations-content-administration](../specs/003-m03-operations-content-administration/) | M03 | Đã cài đặt trên stack local (200/209 task); Phase 16 — đưa lên cloud — chờ change brief triển khai |
-| [004-ai-translation](../specs/004-ai-translation/) | AI Integration (dùng cho M03) | Change brief CHG-AI-2026-11-03-01 đã duyệt; spec, plan, tasks xong |
+| [002-m02-field-quest-experience](../specs/002-m02-field-quest-experience/) | M02 | Đã cài đặt (106/106 task) |
+| [003-m03-operations-content-administration](../specs/003-m03-operations-content-administration/) | M03 | Đã cài đặt trên stack local (201/210 task); Phase 16 — đưa lên cloud — đang làm theo change brief CHG-M03-2026-11-05-01 |
+| [004-ai-translation](../specs/004-ai-translation/) | AI Integration (dùng cho M03) | Đã cài đặt (34/34 task); deploy lên cloud trong M03 Phase 16 |
 
 Quy tắc chung của repo: [AGENTS.md](../AGENTS.md); constitution: [.specify/memory/constitution.md](../.specify/memory/constitution.md).

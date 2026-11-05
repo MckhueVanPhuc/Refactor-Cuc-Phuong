@@ -802,7 +802,7 @@ Fixture `test_support.perf_world()`: 30 điểm dừng "Cần tải trước", m
 | D-131 | Tuyến bị ảnh hưởng trong review và ghi chú tác động sắp theo id ở SQL, theo tên ở adapter giả | SQL sắp theo `app.route_name` rồi id, như adapter giả |
 | D-132 | T198 viết `e2e/local-stack/global-setup.ts` dùng chung M01/M02/M03 | Chỉ phần M03 (quyết định #4): project `m03-local-stack` dùng hook phía Node (`e2e/m03/localStack.ts`) dựng dữ liệu bằng chính adapter Supabase, Mailpit và psql; reset trước mỗi ca; Q4 và Q18 rẽ nhánh theo project; `MEDIA_BUCKET` tách sang `src/shared/config/storage.ts` để code Node import được mà không cần hằng Vite |
 | D-133 | T200: 11 BR có assertion pgTAP kiểm đúng hành vi nhưng chưa trích ID (C02, C14, T02, T09, D06, X01, E03, E16, H05, L05, L07); K02 chỉ được kiểm ở E2E Q3; H08 chưa có test xuất bản tuyến đang tạm đóng | Gắn ID vào assertion; thêm chú thích BR-M03-K02 cho Q3; thêm 3 ca H08 vào `m03_us6_operations`. Checklist BR: 121 BR có test giai đoạn B trích đúng ID, 3 hàng trỏ dùng test của nhóm đích, 8 BR chỉ giao diện, 2 BR consumer `NOT RUN` |
-| D-134 | `supabase start` in bảng trạng thái có key `sb_secret_…` của stack local trước khi bước cấu hình kịp `::add-mask::` (run 41463656516). Key chỉ thuộc stack tạm trong runner, bị hủy khi job kết thúc, không mở được dịch vụ nào bên ngoài | `ci.yml`: ghi output của `supabase start` ra file, chỉ in khi lỗi và đã lọc key; log của run 41463656516 chờ người dùng quyết định có xóa hay không |
+| D-134 | `supabase start` in bảng trạng thái có key `sb_secret_…` của stack local trước khi bước cấu hình kịp `::add-mask::` (run 41463656516). Key chỉ thuộc stack tạm trong runner, bị hủy khi job kết thúc, không mở được dịch vụ nào bên ngoài | `ci.yml`: ghi output của `supabase start` ra file, chỉ in khi lỗi và đã lọc key; log của run 41463656516 đã xóa 2026-11-05 theo quyết định của chủ dự án |
 
 ## 23. Đợt 2026-11-05 — Phase 16 T201 (change brief triển khai)
 
@@ -823,7 +823,7 @@ Branch `docs/deploy-change-brief` tạo từ `main` @ `b347078`. Tham chiếu: [
 | Mục | Lý do |
 |---|---|
 | Job `local-stack`, pgTAP, test Deno | Đợt này không đổi backend |
-| Quét secret trong bình luận PR, issue và log GitHub Actions | Chỉ quét lịch sử git; log run 41463656516 có key của stack tạm (D-134) |
+| Quét secret trong bình luận PR, issue và log GitHub Actions ngoài các run ở §24 | Chỉ quét lịch sử git và các run ở §24 |
 | T202–T210 | Chưa đến lượt; lệnh cloud chỉ chạy sau khi PR này merge |
 
 ### 23.3 Lệch và quyết định
@@ -832,4 +832,19 @@ Branch `docs/deploy-change-brief` tạo từ `main` @ `b347078`. Tham chiếu: [
 |---|---|---|
 | D-135 | `SyncStatus.test.tsx`, ca "đã có chuyến mới đang chạy": phiên có `startedAt` cố định `2026-11-04T04:00Z`, `/trip` tự đóng phiên quá 24 giờ (BR-M02-022) nên test hỏng từ `2026-11-05T04:00Z` theo giờ thực, không liên quan tới thay đổi tài liệu. Lỗi ổn định 5/5 lần trước khi sửa | Sửa test: `startedAt` theo giờ thực, như `QrLinkPage.test.tsx`; pass 3/3 lần và trong `npm run ci` |
 | D-136 | `npm run e2e` với số worker mặc định trên máy 20 nhân: 13 ca lỗi, chủ yếu hết thời gian chờ. Một worker: cả 13 file pass (53 ca). Bốn worker: toàn bộ pass. Unit test cũng có ca hết thời gian chờ trong lần chạy ngay sau `npm ci`, không lặp lại | Tải của máy local, không sửa code. Không đo được trên runner CI trong đợt này trước khi mở PR |
-| D-137 | Tài liệu dẫn xuất lệch, ngoài phạm vi brief §7.1: `docs/README.md` dòng 74–76 (M02 "chưa cài đặt", M03 "chờ change brief", 004); `docs/architecture/tech-stack.md` dòng 80 ("chờ CHG-AI-2026-11-03-01"); `CLAUDE.md` ("Chưa có source code nào được viết") | Báo chủ dự án, chưa sửa |
+| D-137 | Tài liệu dẫn xuất lệch, ngoài phạm vi brief §7.1: `docs/README.md` dòng 74–76 (M02 "chưa cài đặt", M03 "chờ change brief", 004); `docs/architecture/tech-stack.md` dòng 80 ("chờ CHG-AI-2026-11-03-01"); `CLAUDE.md` ("Chưa có source code nào được viết") | Đã sửa ở §24 theo yêu cầu của chủ dự án |
+
+## 24. Đợt 2026-11-05 — Đồng bộ tài liệu trạng thái (D-137)
+
+Branch `docs/sync-status-docs` tạo từ `main` @ `34daa6f`. Chỉ sửa tài liệu; không có lệnh cloud nào được chạy.
+
+| Mục | Kết quả |
+|---|---|
+| `npm run ci` | Exit 0: lint 641 pass; test 2107 pass, 133 skipped; build xong |
+| `npx playwright test --workers=4` | Exit 0: 113 pass, 46 skipped |
+| `git diff --check` | Exit 0 |
+| `README.md`, `docs/README.md`, `CLAUDE.md` | Sửa trạng thái M02, M03, AI và phạm vi cloud. Giữ các địa chỉ `localhost` ở README §2 vì đó là hướng dẫn chạy trên máy; đổi tên mục và ghi rõ dữ liệu giả, địa chỉ Production không ghi trong repo |
+| `docs/architecture/tech-stack.md` | Thêm status `Implemented — local`; áp cho phần đã đối chiếu với `package.json`, lockfile và `supabase/`. Các dòng cloud (Cloud environment, Web hosting, Backend model, Supabase, §7) và T210 giữ `Selected` |
+| Brief §4, Q9 | Làm rõ: người vận hành cloud merge PR từ khi nối Vercel (T203), theo quyết định của chủ dự án về PR #39 |
+| Xóa log run 41463656516 (`DELETE /actions/runs/{id}/logs`) | Exit 0; `gh run view --log` trả 0 dòng (D-134) |
+| Quét `sb_secret_…` chưa bị che trong log: 5 run `workflow_dispatch` còn lại và 2 run `push` vào `main` trước 2026-11-02T15:00Z | 0 dòng |

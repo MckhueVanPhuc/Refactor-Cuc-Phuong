@@ -36,7 +36,7 @@
 | Q6 — Function dịch | Deploy `translate` cùng đợt, dùng khóa Gemini gói miễn phí do người vận hành cloud cấp và giữ |
 | Q7 — Đo sau phát hành | Dùng Vercel Web Analytics và Speed Insights theo điều kiện §6. Không dùng Google Analytics |
 | Q8 — Reviewer | Chủ dự án và một thành viên nhóm. Email chỉ dùng khi chạy lệnh, không ghi vào repo, log hay tài liệu |
-| Q9 — Deploy | Nối GitHub, tự deploy khi merge vào `main`. Người vận hành cloud là người merge PR, chỉ dùng kiểu "Create a merge commit", để tác giả commit trên `main` là owner của Vercel project (§9). PR có migration: người vận hành cloud apply trước khi merge, và migration phải tương thích với bản frontend đang chạy (environment.md §11) |
+| Q9 — Deploy | Nối GitHub, tự deploy khi merge vào `main`. Từ khi nối Vercel (T203), người vận hành cloud là người merge PR, chỉ dùng kiểu "Create a merge commit", để tác giả commit trên `main` là owner của Vercel project (§9). PR có migration: người vận hành cloud apply trước khi merge, và migration phải tương thích với bản frontend đang chạy (environment.md §11) |
 | Q10 — Release gate | Chủ dự án kiểm trên Android Chrome và iOS Safari thật. Giữ `SOURCE_REQUEST_TIMEOUT_SECONDS` = 8, `LOOKUP_TIMEOUT_SECONDS` = 8 và các giới hạn §5.3, chỉ đổi nếu đo thực địa thấy chậm |
 | Dữ liệu trên production | Production bắt đầu sạch: migration không tạo nội dung, không seed. Không tạo dữ liệu giả; phần kiểm thử cần dữ liệu chạy trên tuyến thật đầu tiên do Reviewer nhập. Phiên thử được giữ trong báo cáo |
 
