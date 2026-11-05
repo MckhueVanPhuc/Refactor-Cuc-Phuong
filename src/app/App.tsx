@@ -17,6 +17,10 @@ export function App() {
       void import('../modules/m01/testing/e2eHooks').then((hooks) => hooks.registerM01TestHooks());
       void import('../modules/m02/testing/e2eHooks').then((hooks) => hooks.registerM02TestHooks());
     }
+    // Số liệu vận hành chỉ ở build Production; import() động để không vào bundle khác; lỗi nạp không ảnh hưởng app (T210)
+    if (__IS_PRODUCTION_BUILD__) {
+      void import('./analytics/startAnalytics').then((analytics) => analytics.startAnalytics()).catch(() => undefined);
+    }
     void import('./pwa/registerServiceWorker').then((sw) => sw.registerServiceWorker());
     // M01: candidate gói mồ côi của tab đã đóng giữa lúc tải → thao tác lỗi (research M01 R-08)
     void import('../modules/m01/offline-package/recoverOrphans').then((m01) => m01.recoverM01Orphans());
