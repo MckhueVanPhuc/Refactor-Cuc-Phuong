@@ -2,10 +2,11 @@
 // `verify_jwt = false` trong supabase/config.toml: function tự xác minh JWT người gọi (publishable key không phải JWT).
 // APP_BACKEND_SECRET_KEY chỉ có trong secret của Edge (environment.md §4); không bao giờ trả về hay ghi log.
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
+import { publishableKeyFromEnv } from '../_shared/publishableKey.ts';
 import { type Deps, handle } from './handler.ts';
 
 const url = Deno.env.get('SUPABASE_URL') ?? '';
-const publishableKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+const publishableKey = publishableKeyFromEnv();
 const secretKey = Deno.env.get('APP_BACKEND_SECRET_KEY') ?? '';
 
 const noSession = { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false };

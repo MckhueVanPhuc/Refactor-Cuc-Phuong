@@ -2,10 +2,11 @@
 // `verify_jwt = false` trong supabase/config.toml: function tự xác minh JWT người gọi như `admin-accounts`.
 // GEMINI_API_KEY chỉ có trong secret của Edge (environment.md §4); gửi qua header, không bao giờ trả về hay ghi log.
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
+import { publishableKeyFromEnv } from '../_shared/publishableKey.ts';
 import { type Deps, handle } from './handler.ts';
 
 const url = Deno.env.get('SUPABASE_URL') ?? '';
-const publishableKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+const publishableKey = publishableKeyFromEnv();
 
 /**
  * Model stable cho tác vụ ngắn, độ trễ thấp. Kiểm trên tài liệu Gemini API ngày 2026-11-03: gemini-2.5-flash đã
