@@ -6,7 +6,7 @@ AGENTS.md là quy tắc chính của repo. Nếu một yêu cầu xung đột v�
 ## Trạng thái repo
 
 Repo đã **mở phạm vi code** (xem AGENTS.md §2): application code nằm trong `src/`, implementation packages trong `specs/`,
-cấu hình Vite và Supabase local. Chưa có source code nào được viết; việc viết code chỉ bắt đầu sau khi plan được duyệt.
+cấu hình Vite và Supabase local. Code của M01, M02, M03 và AI Integration đã có; phạm vi cloud mở theo AGENTS.md §2.
 Quy tắc frontend dưới đây áp dụng cho `src/`. HTML mockup tĩnh trong `screens/html/` chỉ là tham chiếu, không phải code ứng dụng.
 
 ## Skill

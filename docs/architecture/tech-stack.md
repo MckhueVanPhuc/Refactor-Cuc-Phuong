@@ -4,42 +4,42 @@
 
 Tài liệu này là nguồn canonical cho các lựa chọn công nghệ của MVP Cúc Phương Quest. Runtime topology, component ownership và data flow nằm tại [System Configuration / Runtime Architecture](system-configuration.md); cấu hình theo từng environment nằm tại [Environment Configuration](environment.md).
 
-Repository đã mở phạm vi code theo AGENTS.md §2, nhưng hiện chưa có application source, `package.json`, lockfile, SQL migration, Edge Function, test suite, Supabase/Vercel runtime configuration hoặc deployment evidence. Mọi lựa chọn trong tài liệu này là `Selected — not implemented` cho đến khi có artifact tương ứng. [Physical Schema](../../data/06-physical-schema.md) là documentation baseline, không phải implemented schema.
+Repository đã có application source, `package.json`, lockfile, SQL migration, Edge Function và test suite, đã chạy trên máy local và stack Supabase local (validation report của từng gói trong `specs/`). Chưa có deployment evidence trên cloud (tasks M03 Phase 16). [Physical Schema](../../data/06-physical-schema.md) là documentation baseline; `supabase/migrations/` hiện thực nó.
 
-Status trong tài liệu này dùng nhất quán: **Selected — not implemented** cho technology/approach đã được chốt nhưng chưa có implementation artifact; **Present — documentation/tooling only** cho artifact quản trị thực sự có trong repository; **Not verified** cho trạng thái máy hoặc cloud cần evidence bên ngoài; **Excluded** cho lựa chọn ngoài MVP. Không suy ra hosted service đã tồn tại chỉ vì technology đã được chọn.
+Status trong tài liệu này dùng nhất quán: **Selected — not implemented** cho technology/approach đã được chốt nhưng chưa có implementation artifact; **Implemented — local** cho phần đã có artifact trong repository và đã chạy trên local, chưa có evidence trên cloud; **Present — documentation/tooling only** cho artifact quản trị thực sự có trong repository; **Not verified** cho trạng thái máy hoặc cloud cần evidence bên ngoài; **Excluded** cho lựa chọn ngoài MVP. Không suy ra hosted service đã tồn tại chỉ vì technology đã được chọn.
 
 ## 2. Architecture Profile
 
 | Item | Decision | Status | Source |
 |---|---|---|---|
-| Application type | Browser-based Progressive Web App | Selected — not implemented | [System Configuration](system-configuration.md) |
-| Architecture style | Modular Monolith | Selected — not implemented | Approved architecture decision; [System Configuration](system-configuration.md) |
-| Frontend organization | Một shared frontend codebase và một website/PWA trong Single Vercel Project | Selected — not implemented | Approved architecture decision; [System Configuration](system-configuration.md) |
+| Application type | Browser-based Progressive Web App | Implemented — local | [System Configuration](system-configuration.md) |
+| Architecture style | Modular Monolith | Implemented — local | Approved architecture decision; [System Configuration](system-configuration.md) |
+| Frontend organization | Một shared frontend codebase và một website/PWA trong Single Vercel Project | Implemented — local | Approved architecture decision; [System Configuration](system-configuration.md) |
 | Module boundary | M01, M02, M03 là logical modules, không phải ba service/deployment | Selected | [System Configuration](system-configuration.md), Module placement and ownership |
-| Route exposure | M01/M02 dùng public routes; M03 dùng protected administration routes | Selected — not implemented | [System Configuration](system-configuration.md), Runtime components |
+| Route exposure | M01/M02 dùng public routes; M03 dùng protected administration routes | Implemented — local | [System Configuration](system-configuration.md), Runtime components |
 | Cloud environment | Single Cloud Application Environment | Selected — not implemented | [Environment Configuration](environment.md) §2 |
 | Web hosting | Single Vercel Project | Selected — project/deployment state not verified | Approved architecture decision |
 | Backend model | Single Supabase Cloud Project cung cấp PostgreSQL, Auth, RLS, Storage, Edge Functions, PostgreSQL RPC và Data API | Selected — not implemented | Approved architecture decision; [System Configuration](system-configuration.md) |
-| Offline model | App shell/static resources trong Cache Storage; structured business data trong IndexedDB | Selected — not implemented | [System Configuration](system-configuration.md), Data placement and ownership |
+| Offline model | App shell/static resources trong Cache Storage; structured business data trong IndexedDB | Implemented — local | [System Configuration](system-configuration.md), Data placement and ownership |
 
 ## 3. Frontend Stack
 
 | Technology | Responsibility | Used by | Why selected | Status |
 |---|---|---|---|---|
-| React | UI runtime và component model cho web client dùng chung | M01, M02, M03 | Frontend choice đã chốt | Selected — not implemented |
-| TypeScript | Type safety cho UI, local data access và contract integration | M01, M02, M03 | Giữ typed boundaries giữa các logical modules | Selected — not implemented |
-| Vite | Frontend development/build pipeline và public `VITE_*` configuration boundary | M01, M02, M03 | Build tool cho single frontend codebase | Selected — not implemented |
+| React | UI runtime và component model cho web client dùng chung | M01, M02, M03 | Frontend choice đã chốt | Implemented — local |
+| TypeScript | Type safety cho UI, local data access và contract integration | M01, M02, M03 | Giữ typed boundaries giữa các logical modules | Implemented — local |
+| Vite | Frontend development/build pipeline và public `VITE_*` configuration boundary | M01, M02, M03 | Build tool cho single frontend codebase | Implemented — local |
 
-Các lựa chọn frontend bổ sung hiện hành (**Selected — not implemented**):
+Các lựa chọn frontend bổ sung hiện hành (**Implemented — local**):
 
 | Technology | Responsibility | Used by | Why selected | Status |
 |---|---|---|---|---|
-| React Router, data mode (`createBrowserRouter` + `RouterProvider`; route khai báo bằng JSX qua `createRoutesFromElements`) | Client-side routes, lazy route loading, `errorElement`, chặn rời trang bằng `useBlocker` | M01–M03 | Phù hợp SPA; không cần framework server/SSR. Data mode thay declarative mode (quyết định 2026-10-31) vì `useBlocker` và `errorElement` chỉ có ở data router, cần cho chặn rời form chưa lưu của M03 (BR-M03-F11) | Selected — not implemented |
-| CSS Modules + CSS custom properties | Scoped styles và shared design tokens | M01–M03 | Tránh thêm UI framework trước khi có screen designs | Selected — not implemented |
-| React state/hooks/context | UI state tạm thời, language/session view | M01–M03 | Dexie sở hữu persistent state theo target design; không thêm Redux/Zustand hoặc cache server thứ hai | Selected — not implemented |
-| `@supabase/supabase-js` | Auth, Data API, Storage và function calls | M01–M03 | Một SDK cho platform đã chọn | Selected — not implemented |
-| `@zxing/browser` + `@zxing/library` | Decode QR từ camera; lazy-load scanner | M02 | Không phụ thuộc duy nhất vào browser BarcodeDetector | Selected — not implemented |
-| `qrcode` (node-qrcode) 1.5.x + `@types/qrcode` | Sinh ảnh mã QR để in chứa link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}`: SVG qua `toString({ type: 'svg' })`, PNG qua `toDataURL`/canvas với `width` ≥ 1024, `errorCorrectionLevel: 'Q'`, `margin: 4`; dòng "Mã …{6 ký tự}", dòng cảnh báo offline và dấu bản thử do M03 vẽ thêm quanh mã | M03 | Spec M03 BR-M03-B04/B05; MIT, chạy trong trình duyệt (không cần server), có sẵn SVG và PNG với mức sửa lỗi và lề cấu hình được; chỉ lazy-load ở màn điểm tham quan của M03. Phiên bản kiểm tra trên npm registry ngày 2026-10-28: 1.5.4 | Selected — not implemented |
+| React Router, data mode (`createBrowserRouter` + `RouterProvider`; route khai báo bằng JSX qua `createRoutesFromElements`) | Client-side routes, lazy route loading, `errorElement`, chặn rời trang bằng `useBlocker` | M01–M03 | Phù hợp SPA; không cần framework server/SSR. Data mode thay declarative mode (quyết định 2026-10-31) vì `useBlocker` và `errorElement` chỉ có ở data router, cần cho chặn rời form chưa lưu của M03 (BR-M03-F11) | Implemented — local |
+| CSS Modules + CSS custom properties | Scoped styles và shared design tokens | M01–M03 | Tránh thêm UI framework trước khi có screen designs | Implemented — local |
+| React state/hooks/context | UI state tạm thời, language/session view | M01–M03 | Dexie sở hữu persistent state theo target design; không thêm Redux/Zustand hoặc cache server thứ hai | Implemented — local |
+| `@supabase/supabase-js` | Auth, Data API, Storage và function calls | M01–M03 | Một SDK cho platform đã chọn | Implemented — local |
+| `@zxing/browser` + `@zxing/library` | Decode QR từ camera; lazy-load scanner | M02 | Không phụ thuộc duy nhất vào browser BarcodeDetector | Implemented — local |
+| `qrcode` (node-qrcode) 1.5.x + `@types/qrcode` | Sinh ảnh mã QR để in chứa link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}`: SVG qua `toString({ type: 'svg' })`, PNG qua `toDataURL`/canvas với `width` ≥ 1024, `errorCorrectionLevel: 'Q'`, `margin: 4`; dòng "Mã …{6 ký tự}", dòng cảnh báo offline và dấu bản thử do M03 vẽ thêm quanh mã | M03 | Spec M03 BR-M03-B04/B05; MIT, chạy trong trình duyệt (không cần server), có sẵn SVG và PNG với mức sửa lỗi và lề cấu hình được; chỉ lazy-load ở màn điểm tham quan của M03. Phiên bản kiểm tra trên npm registry ngày 2026-10-28: 1.5.4 | Implemented — local |
 
 Dữ liệu domain bền vững nằm trong Dexie/Postgres; Context chỉ giữ UI state hoặc view của dữ liệu đó. Server calls dùng typed adapters với loading/error/retry rõ ràng.
 
@@ -47,12 +47,12 @@ Dữ liệu domain bền vững nằm trong Dexie/Postgres; Context chỉ giữ 
 
 | Technology | Responsibility | Data/resources handled | Used by | Status |
 |---|---|---|---|---|
-| PWA | Cho phép web client tải app shell và tiếp tục các flow local đã hỗ trợ khi mất mạng | App shell, local application state | M01, M02 | Selected — not implemented |
-| `vite-plugin-pwa` | Tích hợp PWA/service-worker generation vào Vite build | Build-time PWA configuration | Shared frontend | Selected — not implemented |
-| Workbox | Precache app shell và resource i18n bằng revisioned assets | Static assets, app shell, i18n `vi/en` | M01/M02 visitor runtime | Selected — not implemented |
+| PWA | Cho phép web client tải app shell và tiếp tục các flow local đã hỗ trợ khi mất mạng | App shell, local application state | M01, M02 | Implemented — local |
+| `vite-plugin-pwa` | Tích hợp PWA/service-worker generation vào Vite build | Build-time PWA configuration | Shared frontend | Implemented — local |
+| Workbox | Precache app shell và resource i18n bằng revisioned assets | Static assets, app shell, i18n `vi/en` | M01/M02 visitor runtime | Implemented — local |
 | Cache Storage | Browser storage cho app shell và static/i18n resources | App shell, bundled `vi/en` resources | M01/M02 visitor runtime | Selected browser API |
 | IndexedDB | Structured local persistence cho application/offline data | Preference, handoff, package/staging, session, visits, pending sync | M01, M02 | Selected browser API |
-| Dexie | Data-access wrapper và migration layer trên IndexedDB | M01 shared data và M02 local session data | M01, M02 | Selected — not implemented |
+| Dexie | Data-access wrapper và migration layer trên IndexedDB | M01 shared data và M02 local session data | M01, M02 | Implemented — local |
 
 Cache Storage không lưu structured offline business data. IndexedDB không thay vai trò static asset cache. Offline package image phải được lưu dưới dạng local byte/blob; URL hoặc signed URL không được tính là resource đã tải.
 
@@ -71,13 +71,13 @@ Cache Storage không lưu structured offline business data. IndexedDB không tha
 | Technology / Service | Responsibility | Used by | Status |
 |---|---|---|---|
 | Supabase | Single Supabase Cloud Project — Shared Backend của MVP | M01, M02, M03 | Selected — not implemented |
-| PostgreSQL | Source data, revisions/public state, immutable snapshots, persisted `SessionRecord` và report data | Primarily M03; M01/M02 through contracts | Selected — not implemented in this repository |
-| Supabase Auth | Admin identity, invitation, credential và session lifecycle trong cùng backend project | M03 | Selected — runtime not verified |
-| Row Level Security | Public-read và authenticated-write authorization boundary tại data layer | M01 public reads, M02 public reads/intake, M03 administration | Selected — policies/tests not present |
-| Supabase Storage | Published image/audio/video object storage trong cùng backend project | M03 producer; M01/M02 consumers | Selected — bucket/policies/runtime not verified |
-| Supabase Edge Functions (Deno runtime) | HTTP validation cho `SessionSyncRecord` intake và privileged Auth Admin operations | M02 sync, M03 account management | Selected — not implemented |
-| PostgreSQL RPC/database functions | Atomic publication, concurrency, QR identity, close/reopen, roles, `SessionRecord` insert/compare và report query | M03; intake function calls RPC | Selected — not implemented |
-| Google Gemini API (gọi bằng HTTPS REST từ Edge Function, không SDK) | Dịch vi → en khi admin bấm "→" (spec-AI_integration); model `gemini-3.5-flash-lite` chốt trong `specs/004-ai-translation` research R-03 | AI Integration cho editor M03 | Selected — not implemented (quyết định người dùng 2026-11-03; chờ CHG-AI-2026-11-03-01) |
+| PostgreSQL | Source data, revisions/public state, immutable snapshots, persisted `SessionRecord` và report data | Primarily M03; M01/M02 through contracts | Implemented — local |
+| Supabase Auth | Admin identity, invitation, credential và session lifecycle trong cùng backend project | M03 | Implemented — local |
+| Row Level Security | Public-read và authenticated-write authorization boundary tại data layer | M01 public reads, M02 public reads/intake, M03 administration | Implemented — local |
+| Supabase Storage | Published image/audio/video object storage trong cùng backend project | M03 producer; M01/M02 consumers | Implemented — local |
+| Supabase Edge Functions (Deno runtime) | HTTP validation cho `SessionSyncRecord` intake và privileged Auth Admin operations | M02 sync, M03 account management | Implemented — local |
+| PostgreSQL RPC/database functions | Atomic publication, concurrency, QR identity, close/reopen, roles, `SessionRecord` insert/compare và report query | M03; intake function calls RPC | Implemented — local |
+| Google Gemini API (gọi bằng HTTPS REST từ Edge Function, không SDK) | Dịch vi → en khi admin bấm "→" (spec-AI_integration); model `gemini-3.5-flash-lite` chốt trong `specs/004-ai-translation` research R-03 | AI Integration cho editor M03 | Implemented — local (CHG-AI-2026-11-03-01, duyệt 2026-11-03; cloud theo tasks M03 T205) |
 
 Public reads đi qua Data API với RLS/safe projections; không bắt mọi read đi vòng qua Edge Function. Admin domain writes dùng authenticated RPC có role/status check. Edge terminal intake validate strict Zod schema rồi gọi một transactional RPC insert/compare immutable payload; không expose RPC ghi terminal cho anon trực tiếp. Auth Admin calls chỉ ở Edge sau khi xác thực Reviewer. Lời gọi Gemini chỉ ở Edge Function dịch, sau khi xác thực caller có `AdminAccount` `ACTIVE`; function chỉ gửi text nguồn của một trường, không lưu gì vào Postgres, và lỗi/timeout trả về tín hiệu lỗi cho editor (spec-AI_integration BR-AI-08…10).
 
@@ -91,9 +91,9 @@ Chống lạm dụng cho lookup QR công khai và terminal intake (Spec M03 §9)
 
 | Technology | Responsibility | Scope | Status |
 |---|---|---|---|
-| TypeScript types | Compile-time representation của module và integration contracts | Frontend modules và shared contract package | Selected — not implemented |
-| Zod | Runtime schema validation cho contract/payload | Client boundaries và Edge Functions | Selected — not implemented |
-| Shared schema package/module | Dùng cùng logical schema ở client và server-side TypeScript boundary | Cross-module payloads và integration inputs | Selected — not implemented |
+| TypeScript types | Compile-time representation của module và integration contracts | Frontend modules và shared contract package | Implemented — local |
+| Zod | Runtime schema validation cho contract/payload | Client boundaries và Edge Functions | Implemented — local |
+| Shared schema package/module | Dùng cùng logical schema ở client và server-side TypeScript boundary | Cross-module payloads và integration inputs | Implemented — local |
 
 Database constraints và server-side authorization vẫn phải enforce invariant tại backend; client/Zod validation không thay thế các kiểm tra đó.
 
@@ -112,11 +112,11 @@ Database constraints và server-side authorization vẫn phải enforce invarian
 |---|---|---:|---|
 | Git | Version control | No | Present |
 | GitHub | Remote source repository | No | Present (`origin`) |
-| Node.js 24 LTS + npm | Frontend toolchain; exact dependency versions phải pin khi implementation được tạo | No | Selected — repository không có package/lockfile |
-| Supabase CLI | Local Supabase testing khi được chọn; link/deploy chỉ tới một canonical cloud project | No | Selected — CLI/local harness/cloud link not verified |
-| Vitest + Testing Library | Unit/component tests và contract validation | No | Selected — not implemented |
-| Playwright | Browser E2E, offline/reload/multi-tab scenarios | No | Selected — not implemented |
-| pgTAP / transactional database fixtures | Schema, grant và RLS assertions trên local/ephemeral target | No | Selected approach — exact harness not verified |
+| Node.js 24 LTS + npm | Frontend toolchain; dependency versions được pin trong `package.json` và lockfile | No | Implemented — local |
+| Supabase CLI | Local Supabase testing khi được chọn; link/deploy chỉ tới một canonical cloud project | No | Implemented — local; cloud link not verified |
+| Vitest + Testing Library | Unit/component tests và contract validation | No | Implemented — local |
+| Playwright | Browser E2E, offline/reload/multi-tab scenarios | No | Implemented — local |
+| pgTAP / transactional database fixtures | Schema, grant và RLS assertions trên local/ephemeral target | No | Implemented — local |
 | Spec Kit 1.0.1 | Specification, planning and task workflow assets | No | Present in `.specify/` |
 | Python scripts | Default Spec Kit script runner | No | Present in `.specify/scripts/python/` |
 | PowerShell scripts | Windows-compatible Spec Kit workflow runner | No | Present in `.specify/scripts/powershell/` |
@@ -177,7 +177,7 @@ Ba module dùng chung stack và codebase; bảng này mô tả responsibility kh
 
 ## 13. Decisions and Implementation Verification
 
-Các technology choices ở §§2–8 là **Selected**. Repository hiện không có implementation artifact để xác nhận installation, runtime behavior hoặc hosted deployment; xem [Environment Configuration](environment.md) §§10–12.
+Các technology choices ở §§2–8 là **Selected**; phần ghi `Implemented — local` đã có artifact và đã chạy trên local. Chưa có evidence về hosted deployment; xem [Environment Configuration](environment.md) §§10–12.
 
 - Khi implementation được tạo, pin exact dependency/CLI versions, commit lockfile và chỉ ghi version là verified sau khi cài/chạy thực tế.
 - Browser runtime dependencies đã chọn: React, React Router, Dexie, Supabase JS, Zod và ZXing; `@vercel/analytics` và `@vercel/speed-insights` chỉ nạp ở build Production (T210). TypeScript/Vite/plugin PWA/test tools là development dependencies; generated Workbox service worker chạy trong browser. Edge chạy Deno qua Supabase; kiến trúc này không thêm Node backend server trên Vercel.
