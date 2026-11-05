@@ -101,7 +101,8 @@ describe('SCR-M02-001 — dòng lỗi chuyến trước (E-SCR-M02-001-22)', () 
       contentVersion: 3,
       journeyCheckpoints: structuredClone([...CHECKPOINTS]),
       status: 'DANG_DIEN_RA',
-      startedAt: '2026-11-04T04:00:00.000Z',
+      // Theo giờ thực: `/trip` tự đóng phiên quá 24 giờ (BR-M02-022), mốc cố định sẽ hết hạn theo thời gian
+      startedAt: new Date(Date.now() - 3_600_000).toISOString(),
     });
     open('/trip');
     await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(3));

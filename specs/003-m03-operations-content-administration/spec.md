@@ -323,7 +323,7 @@ Nguồn: spec-M03 §9, §10. Quyết định người dùng 2026-10-29: build to
 - Nhà cung cấp xác thực lo mật khẩu, token lời mời/khôi phục và phiên; M03 lo role ứng dụng và trạng thái hoạt động.
 - Chấp nhận rủi ro: vì mọi quản trị viên tự xuất bản, một lỗi có thể thành công khai ngay; kiểm soát bù là màn review bắt buộc, khôi phục phiên bản và audit.
 - Lookup công khai và intake phiên mở cho bất kỳ ai, không cần tài khoản.
-- Domain Production cố định được bảo đảm trước khi in mã thật.
+- Địa chỉ Production cố định được bảo đảm trước khi in mã thật.
 - Dependency: M03 là producer của Published Route, `JourneySnapshot`, `LiveQrLookupResult`/`LiveStationContent`; M02 là producer của `SessionSyncRecord`. Không có hàng đợi duyệt, không có người duyệt thứ hai (BR-M03-A05).
 - Không có message broker, cron hay scheduler trong backend MVP; báo cáo truy vấn theo yêu cầu (constitution VII). Không hard-delete hay purge tự động thực thể canonical M03 (DEC-S6-002).
 
@@ -341,7 +341,7 @@ Tất cả là hằng cấu hình **provisional**, phải kiểm chứng trên g
 
 Không còn mục `[NEEDS CLARIFICATION]` mở. Các quyết định (người dùng, 2026-10-29):
 
-- **`QR_PUBLIC_BASE_URL` Production**: giữ nguyên như spec-M03 BR-M03-B04 và §9: là cấu hình môi trường; domain vĩnh viễn do dự án sở hữu phải được chốt **trước khi in tem thật** (release gate của chủ dự án, MVP-Scope §5). Không chặn build, dev và staging dùng giá trị theo môi trường; mã tạo ngoài Production luôn có nhãn "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA" (BR-M03-B05).
+- **`QR_PUBLIC_BASE_URL` Production**: giữ nguyên như spec-M03 BR-M03-B04 và §9: là cấu hình môi trường; địa chỉ HTTPS cố định do dự án kiểm soát (MVP: địa chỉ `vercel.app`, spec-M03 clarification 10, 2026-11-05) phải được chốt **trước khi in tem thật** (release gate của chủ dự án, MVP-Scope §5). Không chặn build, dev và staging dùng giá trị theo môi trường; mã tạo ngoài Production luôn có nhãn "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA" (BR-M03-B05).
 - **Chống lạm dụng (rate limiting) cho lookup công khai và intake phiên**: giao cho tài liệu architecture (spec-M03 §9); không phải requirement hành vi. MVP chấp nhận rủi ro đã nêu: bản ghi giả đúng định dạng có thể vào báo cáo.
 - **Phiên bản M02 chuẩn**: v3.3. spec-M03 đã được sửa thành v3.3 ở §11 và Completion checklist (change note 3.7 clarification 5).
 
