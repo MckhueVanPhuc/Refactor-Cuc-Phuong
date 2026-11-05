@@ -12,9 +12,9 @@ File này không tạo màn hình, trường hay trạng thái mới; mỗi dòn
 
 | Path | Màn hình | Lazy chunk | Guard |
 |---|---|---|---|
-| `/trip` (= `PATHS.m02SessionEntry`) | SCR-M02-001 | `m02-trip` (+ `m02-scanner` khi mở scanner) | tự đóng phiên quá 24 giờ, rồi quyết định vào phiên ([research.md](../research.md) R-06) |
+| `/trip` (= `PATHS.m02SessionEntry`) | SCR-M02-001 | `m02-trip` (+ `m02-scanner` khi mở scanner; mã nằm ở `session/`, alias `m02-session` → `m02-trip` trong `vite.config.ts`) | tự đóng phiên quá 24 giờ, rồi quyết định vào phiên ([research.md](../research.md) R-06) |
 | `/trip/qr/:qrIdentifier` | SCR-M02-002 | `m02-content` | nhận kết quả quét qua router state; không có → xem lại (scan-resolution §4) |
-| `/trip/end` | SCR-M02-003 | `m02-end` | chỉ khi có phiên vừa kết thúc hoặc đang chờ xác nhận |
+| `/trip/end` | SCR-M02-003 | `m02-end` | phiên lấy từ router state (vừa kết thúc hoặc đang chờ xác nhận); không có (ví dụ tải lại trang) thì dùng chuyến kết thúc gần nhất |
 | `/q/:qrIdentifier` | SCR-M02-004 | `m02-qr-link` | không guard ngôn ngữ; tự đóng phiên quá 24 giờ trước (BR-M02-024) |
 
 Không màn M02 nào có bước chọn ngôn ngữ; mọi màn đặt `LanguageControl` của M01.

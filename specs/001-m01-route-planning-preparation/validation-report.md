@@ -468,3 +468,39 @@ Review gộp diff `main..feat/m01-integration` (`/code-review high`); người d
 | `npm run ci` | 0 | typecheck, lint sạch; 1665 pass, 133 skipped; build PWA precache 50 mục |
 | `gh workflow run ci.yml --ref feat/m01-integration` → run 41576823462 | 1 | `verify`, `local-stack` success; `e2e` failure: V25 `pwa-update.spec.ts` lọc lời nhắc theo câu "Đã có phiên bản mới…", câu đổi sang câu báo hoãn nên mất locator. Sửa test cho lọc theo nút `Cập nhật` và kiểm thêm câu báo hoãn |
 | `npx playwright test --project=m01` | 0 | 27 pass, 1 skipped (V2) |
+
+## 13. Đợt 2026-11-05 — Hoàn tất V2 và V24 sau khi M02 có trang `/q/{id}`
+
+Branch `test/m01-qr-link-followups`. Trang `/q/{qrIdentifier}` (SCR-M02-004) đã có từ package 002 (PR #32), nên hai mục chờ M02 được kiểm bằng E2E thật thay cho `fixme` / kiểm app shell.
+
+### 13.1 Thay đổi
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-58 | V2: thay `test.fixme` bằng hai ca (`vi-VN`, `en-US`), mỗi ca là một lần mở `/q/Q1a` đầu tiên trong context mới; lookup và Storage giả bằng `e2e/m02/network.ts`. Kiểm: nội dung theo ngôn ngữ thiết bị, không có panel chọn ngôn ngữ, `<html lang>` theo thiết bị, store `languagePreference` trống | Áp dụng; đóng mục V2 ở §3.2 |
+| DV-59 | V24 (thay phần DV-52): offline, `/q/qr-a1-1` được service worker phục vụ và trang M02 render câu "Cần có kết nối mạng để kiểm tra mã QR này." (không phiên, như M02 V22), thay vì chỉ kiểm `#root` không rỗng. CI PR #38 (run 41940335653) từng fail: trang `/q/…` hiện tiếng Anh vì test bấm VI rồi chuyển trang ngay, lần ghi `languagePreference` bị cắt ngang; test nay chờ tiêu đề "Danh mục tuyến" (UI đổi sau khi ghi xong) rồi mới chuyển trang | Áp dụng |
+
+### 13.2 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run typecheck` | 0 | sạch (gồm `e2e/` qua `tsconfig.node.json`) |
+| `npx playwright test --project=m01 e2e/m01/language.spec.ts e2e/m01/pwa-offline.spec.ts --repeat-each=2` | 0 | 10 pass |
+| `npx playwright test --project=m01` | 0 | 29 pass, 0 skipped |
+| `npx playwright test --project=m01 e2e/m01/pwa-offline.spec.ts --repeat-each=10 --workers=4` (sau khi sửa V24) | 0 | 10 pass |
+| `git diff --check` | 0 | không lỗi khoảng trắng |
+
+### 13.3 Đồng bộ tài liệu upstream (§10.4; chủ dự án duyệt 2026-11-05)
+
+| Tài liệu | Sửa |
+|---|---|
+| `contracts/visitor-ui-flow-contract.md` §1 | Tên chunk `m01-recommendation`, `m01-offline-package` (DV-02) |
+| `screens/screen-spec/M01/*` bảng copy | Thêm các chữ đang dùng trong `src/modules/m01/i18n/` (DV-13, DV-30, DV-40, DV-57) |
+| `research.md` R-14 | `registerBusyCheck(fn: () => boolean \| Promise<boolean>)` (DV-06) |
+| `quickstart.md` | Trạng thái "đã chạy" (kết quả ở file này); lệnh dùng project `m01` / `m01-local-stack` |
+| `tasks.md` T104 | View lệch thì dừng và báo M03, không sửa `supabase/` (DV-08) |
+| `plan.md` Complexity #1, `tasks.md` header "Nguồn dữ liệu" | M03 giai đoạn B đã có trên stack local |
+
+### 13.4 Còn mở
+
+T100 (thiết bị thật).

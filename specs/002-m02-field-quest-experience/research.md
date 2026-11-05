@@ -182,7 +182,7 @@ Sau Phase 0 không còn mục `NEEDS CLARIFICATION` mở. Điểm phối hợp �
 
 ### R-15 — PWA và hoãn cập nhật
 
-- **Decision (Approved upstream: constitution VI, plan M01 R-14; Plan decision về đăng ký phía M02):** M02 không cấu hình service worker riêng; dùng cấu hình của shell (precache chunk M02, `navigateFallback` cho `/q/*`). Với update coordinator: (a) tab M02 giữ lock shared `cpq:busy` trong lúc hiển thị phiên đang chạy hoặc đang xử lý quét/đồng bộ; (b) vì phiên là trạng thái lưu bền, có thể tồn tại khi không có tab M02 nào mở, M02 đăng ký một hàm kiểm `hasRunningSession()` (đọc `playSessions` theo index `status`) để coordinator gọi trước khi áp dụng bản mới. Mục (b) dùng `registerBusyCheck` của coordinator (plan M01 R-14; §5 D-02).
+- **Decision (Approved upstream: constitution VI, plan M01 R-14; Plan decision về đăng ký phía M02):** M02 không cấu hình service worker riêng; dùng cấu hình của shell (precache chunk M02, `navigateFallback` cho `/q/*`). Với update coordinator: (a) tab M02 giữ lock shared `cpq:busy` trong lúc hiển thị phiên đang chạy hoặc đang xử lý quét/đồng bộ, qua `registerBusyWork(id)` / `unregisterBusyWork(id)` (alias trung tính của `registerUnsavedForm(id)` / `unregisterUnsavedForm(id)` mà M03 dùng, cùng cơ chế lock; validation-report D-6); (b) vì phiên là trạng thái lưu bền, có thể tồn tại khi không có tab M02 nào mở, M02 đăng ký một hàm kiểm `hasRunningSession()` (đọc `playSessions` theo index `status`) để coordinator gọi trước khi áp dụng bản mới. Mục (b) dùng `registerBusyCheck` của coordinator (plan M01 R-14; §5 D-02).
 - **Alternatives considered:** Chỉ dựa vào lock — tab M01 có thể áp bản mới và tải lại khi phiên vẫn đang chạy.
 
 ### R-16 — Cấu hình

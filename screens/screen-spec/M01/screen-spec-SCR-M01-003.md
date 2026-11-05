@@ -59,6 +59,9 @@ Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html)
 
 | Tình huống | Tiếng Việt | English |
 |---|---|---|
+| Tiêu đề màn | Chi tiết tuyến & Chuẩn bị | Route details & preparation |
+| Nhãn mục | Quãng đường · Thời lượng · Độ khó · Cảnh báo an toàn · Giới thiệu · Điểm xuất phát · Yêu cầu và điều kiện tham gia · Cần chuẩn bị · Thời điểm phù hợp · Điểm nổi bật · Sơ đồ tuyến · Các điểm dừng | Distance · Duration · Difficulty · Safety warning · About this route · Starting point · Requirements · What to bring · Best time to go · Highlights · Route map · Stops |
+| Tiêu đề khối gói tải trước | Gói tải trước | Offline download |
 | Nút Start | Bắt đầu | Start |
 | Tiêu đề quyết định offline | Tuyến này nên tải trước | Download this route first |
 | Điểm dừng có thể thiếu nội dung | Một số điểm dừng có thể không có nội dung nếu bạn không tải trước: {danh sách}. | Some stops may have no content unless you download first: {list}. |

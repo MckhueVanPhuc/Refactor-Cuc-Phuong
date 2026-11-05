@@ -52,6 +52,9 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 
 | Tình huống | Tiếng Việt | English |
 |---|---|---|
+| Tiêu đề màn | Danh mục tuyến | Routes |
+| Nhãn điều hướng | Danh mục tuyến · Gợi ý tuyến · Tài nguyên offline | Routes · Route suggestions · Offline downloads |
+| Nhãn nhóm điều khiển ngôn ngữ | Ngôn ngữ | Language |
 | Bước chọn ngôn ngữ | Chọn ngôn ngữ (Tiếng Việt / English) | Choose your language (Tiếng Việt / English) |
 | Dấu cần tải trước | Cần tải trước | Download first |
 | Số điểm dừng / quãng đường / thời lượng | {n} điểm dừng · {km} km · {phút} phút | {n} stops · {km} km · {min} min |
@@ -61,6 +64,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | Lời nhắc cập nhật ứng dụng (shell dùng chung cho mọi màn du khách M01/M02; quyết định người dùng 2026-10-30) | Đã có phiên bản mới của ứng dụng. | A new version of the app is available. |
 | Nút áp dụng bản mới | Cập nhật | Update |
 | Nút hoãn | Để sau | Later |
+| Cập nhật bị hoãn (đang tải gói hoặc có chuyến đi đang diễn ra) | Ứng dụng đang tải gói hoặc có chuyến đi đang diễn ra. Hãy thử cập nhật lại sau khi xong. | A route download or trip is in progress. Please try updating again when it finishes. |
 
 ## 4. States
 

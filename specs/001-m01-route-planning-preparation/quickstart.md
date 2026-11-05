@@ -2,7 +2,7 @@
 
 **Package**: `specs/001-m01-route-planning-preparation` | **Date**: 2026-10-29 | **Plan**: [plan.md](plan.md)
 
-> **Trạng thái: chưa chạy.** Repository chưa có `package.json`, `src/`, `e2e/` hay test. Mọi lệnh dưới đây là quy trình **dự kiến** cho lúc implementation đã có. Cột "Kết quả mong đợi" là điều phải quan sát được; nó không phải kết quả đã ghi nhận. Không tuyên bố PASS cho tới khi lệnh thực sự chạy (constitution "Testing & Validation"; AGENTS.md §6).
+> **Trạng thái: đã chạy.** Kết quả thật của từng đợt ghi ở [validation-report.md](validation-report.md); file này chỉ mô tả quy trình. Cột "Kết quả mong đợi" là điều phải quan sát được; nó không phải kết quả đã ghi nhận. Không tuyên bố PASS cho tới khi lệnh thực sự chạy (constitution "Testing & Validation"; AGENTS.md §6).
 
 ## 1. Điều kiện tiên quyết
 
@@ -33,12 +33,12 @@ npm run typecheck        # tsc --noEmit
 npm run lint
 npm run test             # Vitest: unit + contract + component (+ Dexie nếu fake-indexeddb được duyệt)
 npm run build            # vite build (có service worker)
-npm run e2e -- --grep m01   # Playwright trên vite preview, network mock, gồm kịch bản offline
+npm run e2e -- --project=m01   # Playwright trên vite preview, network mock, gồm kịch bản offline
 
-# Chỉ khi M03 giai đoạn B đã có migration (ngoài phạm vi package này):
+# Tích hợp thật trên stack Supabase local (migration của M03 giai đoạn B):
 supabase start
 supabase db reset        # CHỈ local; không bao giờ --linked
-npm run e2e -- --project=local-stack --grep m01
+$env:PW_LOCAL_STACK = '1'; npm run e2e -- --project=m01-local-stack
 ```
 
 ## 4. Kịch bản kiểm chứng
@@ -77,7 +77,7 @@ Fixture synthetic (`src/shared/contracts/__fixtures__/`, dùng chung với M03):
 ## 5. Bằng chứng thành công mong đợi
 
 - `npm run typecheck`, `lint`, `test`, `build` thoát với mã 0; báo cáo Vitest có test contract cho `LanguagePreference`, `SelectedRouteContextV3`, `OfflinePackage`/`OfflineResource` và test consumer cho Published Route, `JourneySnapshot`.
-- `npm run e2e -- --grep m01`: V1–V25 pass trên network mock.
+- `npm run e2e -- --project=m01`: V1–V25 pass trên network mock.
 - Tích hợp local (sau M03 giai đoạn B): V4, V10, V17, V22 pass trên stack Supabase local. Trước đó ghi `NOT RUN` kèm lý do.
 - Kiểm tra thủ công trên thiết bị thật: kết quả ghi riêng; Playwright không thay thế.
 

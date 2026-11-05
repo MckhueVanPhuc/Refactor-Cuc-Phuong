@@ -17,7 +17,7 @@ description: "Danh sách task triển khai M01 — Route Planning & Preparation"
 >
 > **Vị trí của M01 giữa ba package.** M01 sở hữu phần lớn hạ tầng trình duyệt mà M02 dùng: `src/shared/db/visitorDb.ts` (cả 3 store M02), bề mặt đọc `src/modules/m01/index.ts`, ba schema produce, `src/app/paths.ts`, `src/app/pwa/updateCoordinator.ts` và cấu hình PWA (research R-07, R-14, §4). Nên làm M01 **trước** M02. Tooling gốc dùng chung với [tasks M03](../003-m03-operations-content-administration/tasks.md) Phase 1; package nào chạy trước thì tạo.
 >
-> **Nguồn dữ liệu.** View `api.published_routes`, `api.active_journey_snapshots` và policy đọc Storage thuộc **M03 giai đoạn B** (phạm vi local mở 2026-10-30 theo CHG-M03-2026-10-30-01; chưa cài đặt). Phase 3–9 chạy với adapter giả (Vitest) và network mock (Playwright); tích hợp thật ở T103–T106.
+> **Nguồn dữ liệu.** View `api.published_routes`, `api.active_journey_snapshots` và policy đọc Storage thuộc **M03 giai đoạn B** (phạm vi local mở 2026-10-30 theo CHG-M03-2026-10-30-01; đã cài đặt trên stack local, M03 Phase 13–15). Phase 3–9 chạy với adapter giả (Vitest) và network mock (Playwright); tích hợp thật ở T103–T106.
 >
 > **Giao diện.** Mọi task dựng màn hình dùng skill `frontend-design`; màu, font, khoảng cách chỉ lấy từ token ([design-system.md](../../docs/design/design-system.md), nhóm `--color-m01-*`); icon chỉ từ `assets/icons/`; hình thức tham chiếu `screens/screen-spec/M01/` và `screens/html/mockup-SCR-M01-*.html` (CLAUDE.md). Chữ hiển thị chỉ lấy từ `src/modules/m01/i18n/`, chép từ bảng copy screen spec.
 
@@ -304,7 +304,7 @@ description: "Danh sách task triển khai M01 — Route Planning & Preparation"
 ### Với M03 giai đoạn B (chờ M03 Phase 13–15 cài đặt xong; CHG-M03-2026-10-30-01 đã duyệt)
 
 - [X] T103 Chờ M03 giai đoạn B có view `api.published_routes`, `api.active_journey_snapshots` và policy đọc Storage trên stack local (specs/003-m03-operations-content-administration/tasks.md T184, T172) và fixture local-stack của M03 T198 (e2e/.local-fixture.json); không làm T104–T106 trước đó
-- [X] T104 Chạy lại T012, T014 với response thật từ view của M03 (T184); view lệch danh sách cột trong src/shared/contracts/publicationRowMapping.ts thì sửa view phía M03, không sửa mapping (mapping theo Physical §3)
+- [X] T104 Chạy lại T012, T014 với response thật từ view của M03 (T184); view lệch danh sách cột trong src/shared/contracts/publicationRowMapping.ts thì dừng và báo lệch cho M03, không sửa `supabase/` và không sửa mapping (mapping theo Physical §3; DV-08)
 - [X] T105 Chạy `PW_LOCAL_STACK=1 npm run e2e -- --project=m01-local-stack` cho quickstart V4, V10, V17, V22 trên stack Supabase local, dùng `routeId` thật từ e2e/.local-fixture.json (M03 T198) (`supabase start`, `supabase db reset` chỉ local); ghi kết quả hoặc `NOT RUN` vào specs/001-m01-route-planning-preparation/validation-report.md
 - [X] T106 Điền cột "tích hợp thật" trong specs/001-m01-route-planning-preparation/checklists/br-test-coverage.md
 

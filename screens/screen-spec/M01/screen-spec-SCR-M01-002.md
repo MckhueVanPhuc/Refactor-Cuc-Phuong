@@ -63,6 +63,7 @@ Chữ cố định khác của màn này:
 
 | Tình huống | Tiếng Việt | English |
 |---|---|---|
+| Tiêu đề màn | Gợi ý tuyến | Route suggestions |
 | Nút lọc | Xem tuyến phù hợp | Show matching routes |
 | Không có tuyến khớp | Chưa có tuyến phù hợp với lựa chọn của bạn. Bạn có thể đổi tiêu chí hoặc xem tất cả tuyến. | No route matches your choices. You can change them or see all routes. |
 | Hành động khi 0 kết quả | Đổi tiêu chí · Xem tất cả tuyến | Change choices · See all routes |
