@@ -478,7 +478,7 @@ Branch `test/m01-qr-link-followups`. Trang `/q/{qrIdentifier}` (SCR-M02-004) đ�
 | # | Mục | Trạng thái |
 |---|---|---|
 | DV-58 | V2: thay `test.fixme` bằng hai ca (`vi-VN`, `en-US`), mỗi ca là một lần mở `/q/Q1a` đầu tiên trong context mới; lookup và Storage giả bằng `e2e/m02/network.ts`. Kiểm: nội dung theo ngôn ngữ thiết bị, không có panel chọn ngôn ngữ, `<html lang>` theo thiết bị, store `languagePreference` trống | Áp dụng; đóng mục V2 ở §3.2 |
-| DV-59 | V24 (thay phần DV-52): offline, `/q/qr-a1-1` được service worker phục vụ và trang M02 render câu "Cần có kết nối mạng để kiểm tra mã QR này." (không phiên, như M02 V22), thay vì chỉ kiểm `#root` không rỗng | Áp dụng |
+| DV-59 | V24 (thay phần DV-52): offline, `/q/qr-a1-1` được service worker phục vụ và trang M02 render câu "Cần có kết nối mạng để kiểm tra mã QR này." (không phiên, như M02 V22), thay vì chỉ kiểm `#root` không rỗng. CI PR #38 (run 41940335653) từng fail: trang `/q/…` hiện tiếng Anh vì test bấm VI rồi chuyển trang ngay, lần ghi `languagePreference` bị cắt ngang; test nay chờ tiêu đề "Danh mục tuyến" (UI đổi sau khi ghi xong) rồi mới chuyển trang | Áp dụng |
 
 ### 13.2 Lệnh kiểm chứng
 
@@ -487,6 +487,7 @@ Branch `test/m01-qr-link-followups`. Trang `/q/{qrIdentifier}` (SCR-M02-004) đ�
 | `npm run typecheck` | 0 | sạch (gồm `e2e/` qua `tsconfig.node.json`) |
 | `npx playwright test --project=m01 e2e/m01/language.spec.ts e2e/m01/pwa-offline.spec.ts --repeat-each=2` | 0 | 10 pass |
 | `npx playwright test --project=m01` | 0 | 29 pass, 0 skipped |
+| `npx playwright test --project=m01 e2e/m01/pwa-offline.spec.ts --repeat-each=10 --workers=4` (sau khi sửa V24) | 0 | 10 pass |
 | `git diff --check` | 0 | không lỗi khoảng trắng |
 
 ### 13.3 Đồng bộ tài liệu upstream (§10.4; chủ dự án duyệt 2026-11-05)

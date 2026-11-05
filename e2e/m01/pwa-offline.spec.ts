@@ -30,6 +30,8 @@ test('V24 — offline: app shell phục vụ /, /routes/route-a, /q/{id}; VI/EN 
   await page.getByRole('button', { name: 'EN' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Routes' })).toBeVisible();
   await page.getByRole('button', { name: 'VI' }).click();
+  // Giao diện đổi sau khi lựa chọn đã ghi vào IndexedDB (liveQuery); chuyển trang sớm hơn có thể cắt ngang lần ghi
+  await expect(page.getByRole('heading', { level: 1, name: 'Danh mục tuyến' })).toBeVisible();
 
   await page.goto('/routes/route-a');
   await expect(page.getByRole('banner')).toBeVisible();
