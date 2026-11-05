@@ -17,11 +17,11 @@ Hệ thống là một modular monolith gồm ba module logic, chạy chung mộ
 |---|---|---|---|
 | **M01 — Route Planning & Preparation** | Chọn ngôn ngữ, xem và gợi ý tuyến, tải gói offline, bắt đầu chuyến đi | [Spec v3.2](docs/spec/spec-M01.md) | ✅ Xong ([gói 001](specs/001-m01-route-planning-preparation/), 106/106 task) |
 | **M02 — Field Quest Experience** | Phiên thực địa, quét QR, hiển thị nội dung, kết thúc chuyến, đồng bộ ẩn danh | [Spec v3.3](docs/spec/spec-M02.md) | ✅ Xong trên stack local ([gói 002](specs/002-m02-field-quest-experience/), 106/106 task); còn checklist trên thiết bị thật |
-| **M03 — Operations & Content Administration** | Đăng nhập quản trị, tuyến, thư viện điểm dừng, mã QR, xem lại và xuất bản, đóng/mở, báo cáo, nhật ký | [Spec v3.7](docs/spec/spec-M03.md) | ✅ Frontend và backend xong trên stack local ([gói 003](specs/003-m03-operations-content-administration/), 201/210 task; còn lại là Phase 16) |
+| **M03 — Operations & Content Administration** | Đăng nhập quản trị, tuyến, thư viện điểm dừng, mã QR, xem lại và xuất bản, đóng/mở, báo cáo, nhật ký | [Spec v3.7](docs/spec/spec-M03.md) | ✅ Frontend và backend xong trên stack local ([gói 003](specs/003-m03-operations-content-administration/), 203/210 task; còn lại là Phase 16) |
 
 Ngoài ba module còn **AI Integration** — một năng lực dùng cho M03, không phải module thứ tư: nút "→" dịch ô tiếng Việt sang ô tiếng Anh trong các editor M03 ([Spec v1.0](docs/spec/spec-AI_integration.md), priority Could, [gói 004](specs/004-ai-translation/), 34/34 task).
 
-**Đang làm:** đưa lên cloud (Vercel + Supabase Cloud) theo [change brief CHG-M03-2026-11-05-01](specs/003-m03-operations-content-administration/change-brief-CHG-M03-2026-11-05-01-deployment.md) (M03 Phase 16). Chưa có gì được deploy; hiện mọi thứ chạy trên máy local.
+**Đang làm:** đưa lên cloud (Vercel + Supabase Cloud) theo [change brief CHG-M03-2026-11-05-01](specs/003-m03-operations-content-administration/change-brief-CHG-M03-2026-11-05-01-deployment.md) (M03 Phase 16). Chưa có gì được deploy; hiện mọi thứ chạy trên máy local. Các bước cho người vận hành cloud: [cloud-runbook.md](specs/003-m03-operations-content-administration/cloud-runbook.md).
 
 Phạm vi Must/Should/Could/Won't: [MVP-Scope.md](MVP-Scope.md).
 

@@ -82,6 +82,8 @@ Speed Insights là số liệu bổ sung, không thay phép đo LCP bằng Light
 |---|---|---|
 | `vercel.json` | Rewrite về `/index.html`, header cache theo T202 | T202 |
 | `src/app/**`, `package.json`, `package-lock.json` | Nạp có điều kiện hai gói đo và hàm `beforeSend` theo §6 | T210 (mới) |
+| `supabase/functions/_shared/publishableKey.ts`, `supabase/functions/admin-accounts/index.ts`, `supabase/functions/translate/index.ts` | Đọc `SUPABASE_PUBLISHABLE_KEYS` trước `SUPABASE_ANON_KEY` (legacy trên cloud); không đổi hành vi. Bổ sung 2026-11-05, xem validation-report D-138 | T205 |
+| `specs/003-m03-operations-content-administration/cloud-runbook.md` | Lệnh soạn sẵn cho người vận hành cloud, chỉ dùng placeholder | T203–T209 |
 | `docs/spec/spec-M03.md` | Chỉ BR-M03-B04 và dòng lịch sử phiên bản (§5) | T201 |
 | `docs/architecture/environment.md`, `docs/architecture/tech-stack.md` | §4: địa chỉ `vercel.app` và ràng buộc; SMTP Gmail; hai gói đo; hiện trạng Free và backup thủ công | T201 |
 | `specs/003-m03-operations-content-administration/spec.md`, `plan.md` | Đồng bộ câu về domain (spec.md dòng 326, 344; plan.md dòng 217) | T201 |

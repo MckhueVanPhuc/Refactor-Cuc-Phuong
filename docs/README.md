@@ -72,7 +72,7 @@ Mỗi gói là bản dẫn xuất từ spec của module, gồm spec, plan, rese
 |---|---|---|
 | [001-m01-route-planning-preparation](../specs/001-m01-route-planning-preparation/) | M01 | Đã cài đặt (106/106 task) |
 | [002-m02-field-quest-experience](../specs/002-m02-field-quest-experience/) | M02 | Đã cài đặt (106/106 task) |
-| [003-m03-operations-content-administration](../specs/003-m03-operations-content-administration/) | M03 | Đã cài đặt trên stack local (201/210 task); Phase 16 — đưa lên cloud — đang làm theo change brief CHG-M03-2026-11-05-01 |
+| [003-m03-operations-content-administration](../specs/003-m03-operations-content-administration/) | M03 | Đã cài đặt trên stack local (203/210 task); Phase 16 — đưa lên cloud — đang làm theo change brief CHG-M03-2026-11-05-01 |
 | [004-ai-translation](../specs/004-ai-translation/) | AI Integration (dùng cho M03) | Đã cài đặt (34/34 task); deploy lên cloud trong M03 Phase 16 |
 
 Quy tắc chung của repo: [AGENTS.md](../AGENTS.md); constitution: [.specify/memory/constitution.md](../.specify/memory/constitution.md).

@@ -848,3 +848,36 @@ Branch `docs/sync-status-docs` tạo từ `main` @ `34daa6f`. Chỉ sửa tài l
 | Brief §4, Q9 | Làm rõ: người vận hành cloud merge PR từ khi nối Vercel (T203), theo quyết định của chủ dự án về PR #39 |
 | Xóa log run 41463656516 (`DELETE /actions/runs/{id}/logs`) | Exit 0; `gh run view --log` trả 0 dòng (D-134) |
 | Quét `sb_secret_…` chưa bị che trong log: 5 run `workflow_dispatch` còn lại và 2 run `push` vào `main` trước 2026-11-02T15:00Z | 0 dòng |
+
+## 25. Đợt 2026-11-05 — Chuẩn bị bàn giao Phase 16 (T202, T210, runbook)
+
+Branch `feat/m03-phase16-prep` tạo từ `main` @ `21ca50a`. Không có lệnh cloud nào được chạy.
+
+### 25.1 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm install --save-exact @vercel/analytics@2.0.1 @vercel/speed-insights@2.0.0` | 0 | Thêm hai gói vào `dependencies`, cập nhật lockfile |
+| `npm run ci` | 0 | lint 644 pass; test 2120 pass, 133 skipped; build xong |
+| `npx playwright test --workers=4` | 0 | 113 pass, 46 skipped |
+| Quét build thường (`dist/`) tìm `_vercel/insights`, `_vercel/speed-insights` | — | Không có |
+| `VERCEL_ENV=production npx vite build` vào thư mục tạm (đã xóa) | 0 | Chỉ chunk `startAnalytics-*.js` chứa `_vercel/insights` |
+| Đối chiếu `vercel.json` bằng regex và `minimatch` | — | `/q/abc`, `/routes/x`, `/trip`, `/admin/login`, `/` khớp rewrite; `/assets/a.js` không khớp. `main` khớp `main`; `feat/x`, `docs/a/b` chỉ khớp `**` nên không deploy |
+| `gh workflow run ci.yml --ref feat/m03-phase16-prep` (run 42060558523, commit `c3d31fa`) | 0 | `verify`, `e2e`, `local-stack` success: pgTAP PASS; contract 114 pass, 19 skipped; E2E `m03-local-stack` 68 pass; thêm hai project local-stack 5 pass và 9 pass; log không có `sb_secret_…` chưa bị che |
+
+### 25.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| `vercel.json` trên Vercel thật (rewrite, header, chặn deploy nhánh khác) | Chưa có Vercel project; kiểm ở T206 và T208 theo [cloud-runbook.md](cloud-runbook.md) |
+| Analytics và Speed Insights gửi sự kiện thật | Chỉ chạy trên Vercel; kiểm ở T208 |
+| `publishableKeyFromEnv` trên project cloud | Chưa có project cloud; trên stack local đã chạy qua E2E M03; kiểm ở T205, T207, T208 |
+| Các lệnh trong runbook | Agent không chạy lệnh cloud; Supabase CLI không cài trên máy này. Lệnh và cờ đối chiếu với tài liệu CLI, chưa chạy thử trên cloud |
+
+### 25.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-138 | Tài liệu Supabase xếp `SUPABASE_ANON_KEY` vào nhóm legacy trên hosted project, không nói rõ project mới có còn biến này không. `admin-accounts` và `translate` đọc biến này cho client của người gọi, nên có thể hỏng trên cloud | Thêm `_shared/publishableKey.ts`: đọc `SUPABASE_PUBLISHABLE_KEYS` trước, biến legacy sau; bổ sung vào brief §7.1 |
+| D-139 | T202 ghi "mọi đường dẫn không khớp file tĩnh" về `/index.html`. Nếu `/assets/*` cũng rewrite, chunk cũ bị thiếu sẽ nhận HTML với header `immutable`, cache sai suốt một năm | Loại `/assets/` khỏi rewrite, trả 404. Thêm `git.deploymentEnabled` để chỉ `main` được deploy (brief Q4). Không có route nào của app nằm dưới `/assets/` |
+| D-140 | `vite.config.ts` có `manifest.icons` rỗng, chờ chủ dự án cung cấp icon vuông 192 và 512 px; agent không tự tạo asset. Có thể ảnh hưởng checklist M7 (cài app lên màn hình chính) | Báo chủ dự án, chưa sửa |
