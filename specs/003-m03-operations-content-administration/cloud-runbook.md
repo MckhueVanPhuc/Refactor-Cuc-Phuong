@@ -1,6 +1,6 @@
 # Runbook đưa Cúc Phương Quest lên cloud (T203–T209)
 
-Dành cho **người vận hành cloud**: người giữ owner trên Supabase và Vercel, tự chạy mọi lệnh dưới đây. Làm tuần tự, xong bước trước mới sang bước sau. Phạm vi và rủi ro đã chấp nhận: [change brief CHG-M03-2026-11-05-01](change-brief-CHG-M03-2026-11-05-01-deployment.md), nên đọc §4, §7.2 và §9 trước.
+Dành cho **người vận hành cloud**: người giữ owner trên Supabase và Vercel, tự chạy mọi lệnh dưới đây và tự kiểm trên thiết bị thật ở T209. Làm tuần tự, xong bước trước mới sang bước sau. Phạm vi và rủi ro đã chấp nhận: [change brief CHG-M03-2026-11-05-01](change-brief-CHG-M03-2026-11-05-01-deployment.md), nên đọc §4, §7.2 và §9 trước.
 
 ## Quy tắc không được phá
 
@@ -19,11 +19,10 @@ Lệnh trong runbook viết theo cú pháp Bash, nên trên Windows hãy chạy 
 
 | Cần có | Lấy ở đâu | Dùng ở bước |
 |---|---|---|
-| Quyền collaborator trên GitHub repo | Chủ dự án cấp | T203 |
-| Tên Vercel project | Chủ dự án đã chọn | T203 |
+| Tên Vercel project | Tự chọn; tên này quyết định địa chỉ Production, về sau không đổi được khi tem QR đã dán | T203 |
 | Tài khoản Gmail riêng của dự án, bật xác minh 2 bước, có [mật khẩu ứng dụng](https://support.google.com/accounts/answer/185833) | Tự tạo | T203 |
 | Khóa Gemini gói miễn phí | [Google AI Studio](https://aistudio.google.com/apikey) | T205 |
-| Email của hai Reviewer | Chủ dự án gửi riêng | T207 |
+| Email của hai Reviewer (chủ dự án và người vận hành cloud) | Tự chuẩn bị, không ghi vào repo | T207 |
 
 Cất mọi giá trị bí mật trong trình quản lý mật khẩu. Thư mục backup phải nằm **ngoài** thư mục repo.
 
@@ -32,7 +31,7 @@ Cất mọi giá trị bí mật trong trình quản lý mật khẩu. Thư mụ
 ### Vercel
 
 1. Liên kết GitHub vào tài khoản Vercel (Account Settings → Login Connections).
-2. New Project → import repo → đặt đúng tên đã chọn. Framework Preset: Vite. Chưa cần đặt biến môi trường.
+2. New Project → import repo → đặt đúng tên đã chọn. Framework Preset: Vite. Chưa cần đặt biến môi trường. Nếu repo không hiện trong danh sách: Vercel GitHub App chưa được cài trên repo, nên nhờ chủ dự án cài vì repo thuộc tài khoản của họ.
 3. Deploy. Trang web có thể báo lỗi cấu hình vì chưa có biến ở T206, đây là điều bình thường.
 4. Ghi lại origin Production dạng `https://<tên>.vercel.app`, sau đây gọi là `<ORIGIN>`.
 
@@ -165,14 +164,16 @@ Không tạo dữ liệu giả. Ghi kết quả qua PR vào [validation-report.m
 - Chạy hết một chuyến, kết thúc và thấy "Đã gửi về hệ thống"; phiên hiện trong báo cáo.
 - Dashboard Vercel Analytics có số liệu, `/q/{id}` hiện thành `/q/[id]`.
 
-## T209 — Release gate (chủ dự án)
+## T209 — Release gate
 
-Chủ dự án kiểm trên Android Chrome và iOS Safari thật, trên tuyến thật đầu tiên:
+Người vận hành cloud kiểm trên Android Chrome và iOS Safari thật, trên tuyến thật đầu tiên:
 
 - Checklist M01 T100 trong [validation-report M01](../001-m01-route-planning-preparation/validation-report.md).
 - Checklist M1–M10 trong [validation-report M02](../002-m02-field-quest-experience/validation-report.md). Chỉ in số tem cần cho checklist.
 - LCP của `/q/{id}` bằng Lighthouse profile di động, mục tiêu ≤ 2,5 s.
 - Xác nhận timeout 8 s và các giới hạn §5.3 không gây chậm.
+
+Icon app: manifest chưa có icon 192 và 512 px, nên Chrome không coi app là cài được (DV-03 trong validation-report M01). MVP không khuyến khích cài app (spec-M01 §9.2), nên việc này không chặn phát hành; khi chạy M7, ghi lại kết quả thực tế. Nếu muốn có icon, tự chuẩn bị hai file PNG vuông, khai báo trong `manifest.icons` ở `vite.config.ts` rồi mở PR.
 
 Tem chỉ được in hàng loạt và dán ra thực địa sau khi T209 đạt.
 

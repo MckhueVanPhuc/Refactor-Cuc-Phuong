@@ -37,12 +37,12 @@
 | Q7 — Đo sau phát hành | Dùng Vercel Web Analytics và Speed Insights theo điều kiện §6. Không dùng Google Analytics |
 | Q8 — Reviewer | Chủ dự án và một thành viên nhóm. Email chỉ dùng khi chạy lệnh, không ghi vào repo, log hay tài liệu |
 | Q9 — Deploy | Nối GitHub, tự deploy khi merge vào `main`. Từ khi nối Vercel (T203), người vận hành cloud là người merge PR, chỉ dùng kiểu "Create a merge commit", để tác giả commit trên `main` là owner của Vercel project (§9). PR có migration: người vận hành cloud apply trước khi merge, và migration phải tương thích với bản frontend đang chạy (environment.md §11) |
-| Q10 — Release gate | Chủ dự án kiểm trên Android Chrome và iOS Safari thật. Giữ `SOURCE_REQUEST_TIMEOUT_SECONDS` = 8, `LOOKUP_TIMEOUT_SECONDS` = 8 và các giới hạn §5.3, chỉ đổi nếu đo thực địa thấy chậm |
+| Q10 — Release gate | Người vận hành cloud kiểm trên Android Chrome và iOS Safari thật (chủ dự án đổi người kiểm ngày 2026-11-06). Giữ `SOURCE_REQUEST_TIMEOUT_SECONDS` = 8, `LOOKUP_TIMEOUT_SECONDS` = 8 và các giới hạn §5.3, chỉ đổi nếu đo thực địa thấy chậm |
 | Dữ liệu trên production | Production bắt đầu sạch: migration không tạo nội dung, không seed. Không tạo dữ liệu giả; phần kiểm thử cần dữ liệu chạy trên tuyến thật đầu tiên do Reviewer nhập. Phiên thử được giữ trong báo cáo |
 
 Gói Vercel: Hobby. Điều khoản Hobby chỉ cho phép dùng cá nhân, phi thương mại; project môn học phù hợp. Nếu dự án chuyển sang dùng thương mại thì phải xem lại gói.
 
-Repo: chủ dự án chuyển GitHub repo sang public trước T203 (tài liệu Vercel: "Collaboration is free for public repositories"). Người kiểm trên thiết bị thật và người duyệt brief là chủ dự án.
+Repo: chủ dự án chuyển GitHub repo sang public trước T203 (tài liệu Vercel: "Collaboration is free for public repositories"). Người duyệt brief là chủ dự án. Từ 2026-11-06, người vận hành cloud cũng tự chọn tên Vercel project, chuẩn bị email Reviewer và kiểm trên thiết bị thật.
 
 ## 5. Thay đổi BR-M03-B04
 
@@ -113,7 +113,7 @@ Cấu hình T203 đặt trực tiếp trên dashboard. Không dùng `supabase co
 | T205 | Thêm `translate` và `GEMINI_API_KEY` |
 | T206 | `VITE_QR_PUBLIC_BASE_URL` là địa chỉ `vercel.app` cố định |
 | T208 | Chia hai đợt: đợt 1 sau T207, không cần dữ liệu; đợt 2 đọc media và gửi phiên, sau khi có tuyến thật đầu tiên |
-| T209 | Chạy trên tuyến thật đầu tiên; thêm đo LCP của `/q/{id}` (M02 T096); người kiểm là chủ dự án; chỉ in số tem cần cho checklist |
+| T209 | Chạy trên tuyến thật đầu tiên; thêm đo LCP của `/q/{id}` (M02 T096); người kiểm là người vận hành cloud; chỉ in số tem cần cho checklist |
 | T210 (mới) | Vercel Web Analytics và Speed Insights theo §6, làm trước T206 |
 
 ## 9. Rủi ro chủ dự án chấp nhận

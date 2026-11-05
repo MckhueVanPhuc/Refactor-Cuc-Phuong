@@ -880,4 +880,10 @@ Branch `feat/m03-phase16-prep` tạo từ `main` @ `21ca50a`. Không có lệnh 
 |---|---|---|
 | D-138 | Tài liệu Supabase xếp `SUPABASE_ANON_KEY` vào nhóm legacy trên hosted project, không nói rõ project mới có còn biến này không. `admin-accounts` và `translate` đọc biến này cho client của người gọi, nên có thể hỏng trên cloud | Thêm `_shared/publishableKey.ts`: đọc `SUPABASE_PUBLISHABLE_KEYS` trước, biến legacy sau; bổ sung vào brief §7.1 |
 | D-139 | T202 ghi "mọi đường dẫn không khớp file tĩnh" về `/index.html`. Nếu `/assets/*` cũng rewrite, chunk cũ bị thiếu sẽ nhận HTML với header `immutable`, cache sai suốt một năm | Loại `/assets/` khỏi rewrite, trả 404. Thêm `git.deploymentEnabled` để chỉ `main` được deploy (brief Q4). Không có route nào của app nằm dưới `/assets/` |
-| D-140 | `vite.config.ts` có `manifest.icons` rỗng, chờ chủ dự án cung cấp icon vuông 192 và 512 px; agent không tự tạo asset. Có thể ảnh hưởng checklist M7 (cài app lên màn hình chính) | Báo chủ dự án, chưa sửa |
+| D-140 | `vite.config.ts` có `manifest.icons` rỗng; agent không tự tạo asset. Đã ghi ở DV-03 của M01: Chrome không coi app là cài được, và spec-M01 §9.2 không khuyến khích cài app, nên không chặn phát hành. Checklist M7 vẫn chạy ở T209 | Không sửa code. Người vận hành cloud ghi kết quả M7 và tự quyết định có thêm icon không (runbook T209) |
+
+## 26. Đổi người làm các việc bàn giao (2026-11-06)
+
+Chủ dự án giao cho người vận hành cloud: chọn tên Vercel project, chuẩn bị email Reviewer, quyết định về icon và kiểm trên thiết bị thật (T209). Đã cập nhật brief §4, §8, T209 trong `tasks.md` và runbook. Quyền collaborator đã có từ trước, nên bỏ khỏi danh sách chuẩn bị. Chủ dự án vẫn là người duyệt brief và Reviewer. Vercel GitHub App, nếu Vercel yêu cầu, vẫn do chủ dự án cài (brief §7.2).
+
+Theo yêu cầu của chủ dự án, thay đổi này chỉ gồm tài liệu và được push thẳng lên `main`, không qua PR. `npm run ci` và `npm run e2e`: NOT RUN, vì không đổi code.
