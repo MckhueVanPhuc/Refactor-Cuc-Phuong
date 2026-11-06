@@ -907,11 +907,18 @@ Agent chỉ gửi request đọc công khai tới website và tới Supabase b�
 | Auth settings | **FAIL:** `disable_signup` là `false`, `mailer_autoconfirm` là `false`; runbook T203 yêu cầu tắt đăng ký và tắt Confirm email (D-145) |
 | `npm run ci` sau khi sửa `parseEnv` | exit 0: lint 644 pass; test 2121 pass, 133 skipped; build xong. `npm run e2e` không chạy trên máy, để CI chạy trên `main` |
 
+Kiểm lại cùng ngày, sau khi chủ dự án sửa hai biến và Redeploy, người vận hành cloud sửa Auth:
+
+| Kiểm tra | Kết quả |
+|---|---|
+| Giá trị biến trong bundle | PASS: URL Supabase không có `/` ở cuối; địa chỉ QR khớp chính xác, không có tab |
+| Mở `/`, `/admin/login`, `/q/kiem-tra` bằng Chromium headless | PASS: console không báo lỗi; hiện màn chọn ngôn ngữ, màn đăng nhập, và thông báo mã không tồn tại cho mã thử |
+| Auth settings | PASS: `disable_signup` và `mailer_autoconfirm` đều là `true` |
+
 ### 27.2 `NOT RUN`
 
 | Mục | Lý do |
 |---|---|
-| Kiểm lại website sau khi sửa biến (T206) | Chờ chủ dự án sửa hai biến và Redeploy |
 | SMTP, email mời, tạo Reviewer đầu tiên, đăng nhập (T207) | Chờ người vận hành cloud; agent không có tài khoản |
 | Smoke check T208, release gate T209 | Chờ các bước trên và tuyến thật đầu tiên |
 | Analytics gửi sự kiện thật | Chờ website hết lỗi cấu hình |
@@ -921,8 +928,8 @@ Agent chỉ gửi request đọc công khai tới website và tới Supabase b�
 | # | Mục | Trạng thái |
 |---|---|---|
 | D-141 | Vercel của người vận hành cloud chỉ thấy tài khoản GitHub của chính họ, nên không nối được repo ở tài khoản cá nhân của chủ dự án, dù đã là collaborator | Chủ dự án quyết định giữ Vercel, người vận hành cloud giữ Supabase và secret. Đã cập nhật brief, `tasks.md`, runbook, `AGENTS.md`. Chủ dự án merge PR. Thay phần liên quan ở §26 |
-| D-142 | Bản Production có `VITE_SUPABASE_URL` thừa `/` ở cuối và `VITE_QR_PUBLIC_BASE_URL` thừa tab ở đầu. `/` làm app báo lỗi cấu hình. Tab lọt qua kiểm tra vì `new URL()` tự bỏ khoảng trắng hai đầu, trong khi giá trị gốc được dùng để tạo link in trên tem QR. Màn chọn ngôn ngữ vẫn hiện nên chỉ mở trang chủ không phát hiện được | `parseEnv` từ chối khoảng trắng và tab ở hai đầu, có unit test; runbook T206 kiểm bằng `/q/kiem-tra`. Chủ dự án sửa hai biến và Redeploy |
+| D-142 | Bản Production có `VITE_SUPABASE_URL` thừa `/` ở cuối và `VITE_QR_PUBLIC_BASE_URL` thừa tab ở đầu. `/` làm app báo lỗi cấu hình. Tab lọt qua kiểm tra vì `new URL()` tự bỏ khoảng trắng hai đầu, trong khi giá trị gốc được dùng để tạo link in trên tem QR. Màn chọn ngôn ngữ vẫn hiện nên chỉ mở trang chủ không phát hiện được | `parseEnv` từ chối khoảng trắng và tab ở hai đầu, có unit test; runbook T206 kiểm bằng `/q/kiem-tra`. Chủ dự án đã sửa hai biến và Redeploy; đã kiểm lại |
 | D-143 | Header `immutable` ở `/assets/*` cũng áp dụng cho response 404. `vercel.json` không đặt được header theo status, chỉ legacy `routes` mới làm được và không thử trước được ngoài Production. Tên file có hash không bao giờ trở lại, trừ khi Instant Rollback | Chấp nhận, không sửa. Sau Instant Rollback, trình duyệt từng nhận 404 cho chunk đó có thể cần xóa cache |
 | D-144 | Dashboard yêu cầu trả phí để bật Speed Insights trên project này | Không bật. Giữ code T210 vì script tải bình thường và không ảnh hưởng app; LCP vẫn đo bằng Lighthouse (M02 T096) |
-| D-145 | Auth trên Supabase còn mở đăng ký công khai và còn bật Confirm email | Người vận hành cloud sửa trên dashboard theo runbook T203 và kiểm bằng lệnh `curl` trong runbook |
+| D-145 | Auth trên Supabase còn mở đăng ký công khai và còn bật Confirm email | Người vận hành cloud đã sửa trên dashboard; đã kiểm lại |
 | D-146 | Vercel đưa `VITE_VERCEL_*` (commit message, project ID) vào bundle vì `env.ts` đọc cả `import.meta.env`. Không có secret, nhưng chunk `env` đổi hash ở mỗi commit, nên commit chỉ sửa tài liệu cũng tạo bản PWA mới | Không sửa trong đợt này; hạn chế push lên `main` khi đã có người dùng thật |
