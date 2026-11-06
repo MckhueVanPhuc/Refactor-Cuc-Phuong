@@ -26,6 +26,8 @@ async function createServices(): Promise<AdminServices> {
     fake.registerFakeTestHooks(store, services.translator);
     return services;
   }
+  // Chụp URL trước mọi await: link mời/khôi phục mang token trong `#…`, supabase-js xóa nó khi tạo client
+  const landing = typeof window === 'undefined' ? null : { path: window.location.pathname, urlPart: window.location.search + window.location.hash };
   const [{ createSupabaseAdminApi }, { createSupabaseAuthService }, { createSupabaseClient }, { createSupabaseTranslator }] =
     await Promise.all([
       import('./supabaseAdminApi'),
@@ -36,7 +38,7 @@ async function createServices(): Promise<AdminServices> {
   const client = createSupabaseClient();
   return {
     api: createSupabaseAdminApi(client),
-    auth: createSupabaseAuthService(client),
+    auth: createSupabaseAuthService(client, landing ?? undefined),
     translator: createSupabaseTranslator(client),
   };
 }

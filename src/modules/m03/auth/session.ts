@@ -15,7 +15,19 @@ function classify(error: ProviderError, fallback: AuthError['kind']): AuthError 
 
 const LINK_MARKERS = /(access_token|token_hash|code|error_code|type=(invite|recovery))=?/;
 
-export function createSupabaseAuthService(supabase: SupabaseClient<any, 'api'>): AuthService {
+/** URL lúc tải trang, chụp trước khi tạo client: supabase-js xóa `#access_token=…` khỏi URL sau khi tạo phiên */
+export type LandingUrl = { path: string; urlPart: string };
+
+export function createSupabaseAuthService(
+  supabase: SupabaseClient<any, 'api'>,
+  landing: LandingUrl = { path: '', urlPart: '' },
+): AuthService {
+  // Trang lazy có thể hiện ra sau khi provider đã xóa token khỏi URL: vẫn ở trang tải ban đầu thì đọc thêm bản chụp
+  const withLanding = (urlPart: string) =>
+    typeof window !== 'undefined' && landing.path !== '' && window.location.pathname === landing.path
+      ? `${urlPart}${landing.urlPart}`
+      : urlPart;
+
   return {
     async signInWithPassword(email, password) {
       try {
@@ -42,10 +54,10 @@ export function createSupabaseAuthService(supabase: SupabaseClient<any, 'api'>):
       if (error && classify(error, 'UNKNOWN').kind === 'NETWORK') throw new AuthError('NETWORK');
     },
 
-    hasLinkInUrl: (urlPart) => LINK_MARKERS.test(urlPart),
+    hasLinkInUrl: (urlPart) => LINK_MARKERS.test(withLanding(urlPart)),
 
     async consumeLink(_kind, urlPart) {
-      if (/error(_code)?=/.test(urlPart)) return 'INVALID';
+      if (/error(_code)?=/.test(withLanding(urlPart))) return 'INVALID';
       const { data } = await supabase.auth.getSession();
       return data.session ? 'OK' : 'INVALID';
     },
