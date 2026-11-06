@@ -15,8 +15,15 @@ export type AppEnv = {
 // Stack Supabase local in ra 127.0.0.1, nên cả hai tên máy local đều được nhận ở build không phải Production
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1']);
 
+const SURROUNDING_SPACE_MESSAGE = 'không được có khoảng trắng hoặc tab ở đầu, cuối';
+
 function baseUrl(isProductionBuild: boolean) {
   return z.string().superRefine((value, ctx) => {
+    // new URL() tự bỏ khoảng trắng và tab ở hai đầu, trong khi giá trị gốc đi thẳng vào link in trên tem QR
+    if (value !== value.trim()) {
+      ctx.addIssue({ code: 'custom', message: SURROUNDING_SPACE_MESSAGE });
+      return;
+    }
     let url: URL;
     try {
       url = new URL(value);
@@ -36,7 +43,10 @@ function baseUrl(isProductionBuild: boolean) {
   });
 }
 
-const required = z.string().min(1, 'thiếu giá trị');
+const required = z
+  .string()
+  .min(1, 'thiếu giá trị')
+  .refine((value) => value === value.trim(), SURROUNDING_SPACE_MESSAGE);
 
 function envSchema(isProductionBuild: boolean) {
   return z.object({

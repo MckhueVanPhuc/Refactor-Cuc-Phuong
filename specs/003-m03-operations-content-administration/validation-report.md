@@ -887,3 +887,42 @@ Branch `feat/m03-phase16-prep` tạo từ `main` @ `21ca50a`. Không có lệnh 
 Chủ dự án giao cho người vận hành cloud: chọn tên Vercel project, chuẩn bị email Reviewer, quyết định về icon và kiểm trên thiết bị thật (T209). Đã cập nhật brief §4, §8, T209 trong `tasks.md` và runbook. Quyền collaborator đã có từ trước, nên bỏ khỏi danh sách chuẩn bị. Chủ dự án vẫn là người duyệt brief và Reviewer. Vercel GitHub App, nếu Vercel yêu cầu, vẫn do chủ dự án cài (brief §7.2).
 
 Theo yêu cầu của chủ dự án, thay đổi này chỉ gồm tài liệu và được push thẳng lên `main`, không qua PR. `npm run ci` và `npm run e2e`: NOT RUN, vì không đổi code.
+
+## 27. Kiểm tra sau khi tạo Vercel project (2026-11-06)
+
+Agent chỉ gửi request đọc công khai tới website và tới Supabase bằng publishable key đã có trong bundle, không dùng secret và không ghi dữ liệu. Địa chỉ Production và project ref không ghi ở đây.
+
+### 27.1 Kết quả
+
+| Kiểm tra | Kết quả |
+|---|---|
+| Deploy Production từ `main` với commit của chủ dự án | Ready, không bị Vercel chặn |
+| `/q/kiem-tra`, `/routes/x`, `/trip`, `/admin`, `/admin/login`, `/` | 200, `text/html`, `no-cache`; `vercel.json` rewrite đúng |
+| `/assets/khong-co.js` | 404, nhưng mang header cache dài (D-143) |
+| `/sw.js`, `/manifest.webmanifest` | 200, đúng loại nội dung; `sw.js` có `no-cache` |
+| Bundle | Có URL project, publishable key và địa chỉ Production; không có `sb_secret_…` hay URL local |
+| Mở `/`, `/admin/login`, `/q/kiem-tra` bằng Chromium headless | **FAIL:** console báo `Cấu hình ứng dụng không hợp lệ`, `/q/kiem-tra` hiện lỗi này ra màn hình (D-142) |
+| Data API | Schema `api` trả 200 và danh sách tuyến rỗng; schema `public` bị từ chối (406) |
+| Edge Function `session-intake`, `admin-accounts`, `translate` | Đã deploy: GET trả 405; function không tồn tại trả 404 |
+| Auth settings | **FAIL:** `disable_signup` là `false`, `mailer_autoconfirm` là `false`; runbook T203 yêu cầu tắt đăng ký và tắt Confirm email (D-145) |
+| `npm run ci` sau khi sửa `parseEnv` | exit 0: lint 644 pass; test 2121 pass, 133 skipped; build xong. `npm run e2e` không chạy trên máy, để CI chạy trên `main` |
+
+### 27.2 `NOT RUN`
+
+| Mục | Lý do |
+|---|---|
+| Kiểm lại website sau khi sửa biến (T206) | Chờ chủ dự án sửa hai biến và Redeploy |
+| SMTP, email mời, tạo Reviewer đầu tiên, đăng nhập (T207) | Chờ người vận hành cloud; agent không có tài khoản |
+| Smoke check T208, release gate T209 | Chờ các bước trên và tuyến thật đầu tiên |
+| Analytics gửi sự kiện thật | Chờ website hết lỗi cấu hình |
+
+### 27.3 Lệch và quyết định
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-141 | Vercel của người vận hành cloud chỉ thấy tài khoản GitHub của chính họ, nên không nối được repo ở tài khoản cá nhân của chủ dự án, dù đã là collaborator | Chủ dự án quyết định giữ Vercel, người vận hành cloud giữ Supabase và secret. Đã cập nhật brief, `tasks.md`, runbook, `AGENTS.md`. Chủ dự án merge PR. Thay phần liên quan ở §26 |
+| D-142 | Bản Production có `VITE_SUPABASE_URL` thừa `/` ở cuối và `VITE_QR_PUBLIC_BASE_URL` thừa tab ở đầu. `/` làm app báo lỗi cấu hình. Tab lọt qua kiểm tra vì `new URL()` tự bỏ khoảng trắng hai đầu, trong khi giá trị gốc được dùng để tạo link in trên tem QR. Màn chọn ngôn ngữ vẫn hiện nên chỉ mở trang chủ không phát hiện được | `parseEnv` từ chối khoảng trắng và tab ở hai đầu, có unit test; runbook T206 kiểm bằng `/q/kiem-tra`. Chủ dự án sửa hai biến và Redeploy |
+| D-143 | Header `immutable` ở `/assets/*` cũng áp dụng cho response 404. `vercel.json` không đặt được header theo status, chỉ legacy `routes` mới làm được và không thử trước được ngoài Production. Tên file có hash không bao giờ trở lại, trừ khi Instant Rollback | Chấp nhận, không sửa. Sau Instant Rollback, trình duyệt từng nhận 404 cho chunk đó có thể cần xóa cache |
+| D-144 | Dashboard yêu cầu trả phí để bật Speed Insights trên project này | Không bật. Giữ code T210 vì script tải bình thường và không ảnh hưởng app; LCP vẫn đo bằng Lighthouse (M02 T096) |
+| D-145 | Auth trên Supabase còn mở đăng ký công khai và còn bật Confirm email | Người vận hành cloud sửa trên dashboard theo runbook T203 và kiểm bằng lệnh `curl` trong runbook |
+| D-146 | Vercel đưa `VITE_VERCEL_*` (commit message, project ID) vào bundle vì `env.ts` đọc cả `import.meta.env`. Không có secret, nhưng chunk `env` đổi hash ở mỗi commit, nên commit chỉ sửa tài liệu cũng tạo bản PWA mới | Không sửa trong đợt này; hạn chế push lên `main` khi đã có người dùng thật |

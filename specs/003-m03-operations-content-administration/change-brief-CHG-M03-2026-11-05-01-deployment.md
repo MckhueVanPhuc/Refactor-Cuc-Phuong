@@ -17,7 +17,7 @@
 
 | Hiện tại | Mong muốn |
 |---|---|
-| AGENTS.md §2 chưa cho phép apply migration, deploy Edge Function, cấu hình hoặc secret cloud, deploy website. Code của bốn package chỉ chạy trên stack Supabase local. Tasks M03 T201–T209 bị chặn | Sản phẩm chạy trên Single Vercel Project và Single Supabase Cloud Project, theo phạm vi §7 và non-goals §10. Người vận hành cloud (§4, Q5) tự chạy mọi lệnh có secret hoặc tác động cloud |
+| AGENTS.md §2 chưa cho phép apply migration, deploy Edge Function, cấu hình hoặc secret cloud, deploy website. Code của bốn package chỉ chạy trên stack Supabase local. Tasks M03 T201–T209 bị chặn | Sản phẩm chạy trên Single Vercel Project và Single Supabase Cloud Project, theo phạm vi §7 và non-goals §10. Chủ dự án và người vận hành cloud (§4, Q5) tự chạy phần của mình |
 
 ## 3. Rationale
 
@@ -32,17 +32,17 @@
 | Q2 — Domain | Không mua domain. `QR_PUBLIC_BASE_URL` là địa chỉ Production cố định trên `vercel.app`, dùng ngay từ T206. Bỏ bước chuyển domain trước khi in tem |
 | Q3 — Email Auth | SMTP riêng qua một tài khoản Gmail dành riêng cho dự án, dùng mật khẩu ứng dụng, do người vận hành cloud giữ. Không dùng Resend, không dùng dịch vụ email mặc định của Supabase |
 | Q4 — Preview | (Chốt 2026-11-02) Chỉ deploy Production từ `main`; biến Supabase chỉ đặt ở scope Production, nên preview không có backend |
-| Q5 — Quyền và người chạy lệnh | Một thành viên nhóm do chủ dự án chỉ định (sau đây gọi là **người vận hành cloud**) giữ owner trên cả Supabase và Vercel, tự chạy CLI login, link, db push, đặt secret và tạo Reviewer đầu tiên. Thay quyết định 2026-11-02 về người chạy lệnh. Agent chỉ soạn lệnh |
+| Q5 — Quyền và người chạy lệnh | Đổi 2026-11-06: chủ dự án giữ Single Vercel Project, tự tạo project và đặt biến, vì Vercel của người khác không nối được repo ở tài khoản GitHub cá nhân của chủ dự án (validation-report D-141). Một thành viên nhóm do chủ dự án chỉ định (sau đây gọi là **người vận hành cloud**) giữ owner trên Supabase, tự chạy CLI login, link, db push, đặt secret và tạo Reviewer đầu tiên. Thay quyết định 2026-11-02 về người chạy lệnh. Agent chỉ soạn lệnh |
 | Q6 — Function dịch | Deploy `translate` cùng đợt, dùng khóa Gemini gói miễn phí do người vận hành cloud cấp và giữ |
-| Q7 — Đo sau phát hành | Dùng Vercel Web Analytics và Speed Insights theo điều kiện §6. Không dùng Google Analytics |
+| Q7 — Đo sau phát hành | Dùng Vercel Web Analytics theo điều kiện §6. Không bật Speed Insights trên dashboard vì yêu cầu trả phí (2026-11-06, validation-report D-144). Không dùng Google Analytics |
 | Q8 — Reviewer | Chủ dự án và một thành viên nhóm. Email chỉ dùng khi chạy lệnh, không ghi vào repo, log hay tài liệu |
-| Q9 — Deploy | Nối GitHub, tự deploy khi merge vào `main`. Từ khi nối Vercel (T203), người vận hành cloud là người merge PR, chỉ dùng kiểu "Create a merge commit", để tác giả commit trên `main` là owner của Vercel project (§9). PR có migration: người vận hành cloud apply trước khi merge, và migration phải tương thích với bản frontend đang chạy (environment.md §11) |
+| Q9 — Deploy | Nối GitHub, tự deploy khi merge vào `main`. Từ khi nối Vercel (T203), chủ dự án là người merge PR, chỉ dùng kiểu "Create a merge commit", để tác giả commit trên `main` là owner của Vercel project (§9). PR có migration: người vận hành cloud apply trước khi merge, và migration phải tương thích với bản frontend đang chạy (environment.md §11) |
 | Q10 — Release gate | Người vận hành cloud kiểm trên Android Chrome và iOS Safari thật (chủ dự án đổi người kiểm ngày 2026-11-06). Giữ `SOURCE_REQUEST_TIMEOUT_SECONDS` = 8, `LOOKUP_TIMEOUT_SECONDS` = 8 và các giới hạn §5.3, chỉ đổi nếu đo thực địa thấy chậm |
 | Dữ liệu trên production | Production bắt đầu sạch: migration không tạo nội dung, không seed. Không tạo dữ liệu giả; phần kiểm thử cần dữ liệu chạy trên tuyến thật đầu tiên do Reviewer nhập. Phiên thử được giữ trong báo cáo |
 
 Gói Vercel: Hobby. Điều khoản Hobby chỉ cho phép dùng cá nhân, phi thương mại; project môn học phù hợp. Nếu dự án chuyển sang dùng thương mại thì phải xem lại gói.
 
-Repo: chủ dự án chuyển GitHub repo sang public trước T203 (tài liệu Vercel: "Collaboration is free for public repositories"). Người duyệt brief là chủ dự án. Từ 2026-11-06, người vận hành cloud cũng tự chọn tên Vercel project, chuẩn bị email Reviewer và kiểm trên thiết bị thật.
+Repo: chủ dự án chuyển GitHub repo sang public trước T203 (tài liệu Vercel: "Collaboration is free for public repositories"). Người duyệt brief là chủ dự án. Từ 2026-11-06, người vận hành cloud cũng chuẩn bị email Reviewer và kiểm trên thiết bị thật.
 
 ## 5. Thay đổi BR-M03-B04
 
@@ -72,7 +72,7 @@ Ràng buộc đi kèm, ghi vào environment.md §4: địa chỉ `vercel.app` l�
 4. Không dùng custom event, không thêm màn hình, không thêm tham số vào link QR (BR-M03-B04).
 5. Lỗi tải script (offline, chặn quảng cáo) không được ảnh hưởng tới app. T208 kiểm đường offline trên bản đã deploy.
 
-Speed Insights là số liệu bổ sung, không thay phép đo LCP bằng Lighthouse của M02 T096.
+Speed Insights là số liệu bổ sung, không thay phép đo LCP bằng Lighthouse của M02 T096. Từ 2026-11-06 không bật trên dashboard; gói vẫn còn trong code và không ảnh hưởng app.
 
 ## 7. Phạm vi được phép
 
@@ -83,23 +83,24 @@ Speed Insights là số liệu bổ sung, không thay phép đo LCP bằng Light
 | `vercel.json` | Rewrite về `/index.html`, header cache theo T202 | T202 |
 | `src/app/**`, `package.json`, `package-lock.json` | Nạp có điều kiện hai gói đo và hàm `beforeSend` theo §6 | T210 (mới) |
 | `supabase/functions/_shared/publishableKey.ts`, `supabase/functions/admin-accounts/index.ts`, `supabase/functions/translate/index.ts` | Đọc `SUPABASE_PUBLISHABLE_KEYS` trước `SUPABASE_ANON_KEY` (legacy trên cloud); không đổi hành vi. Bổ sung 2026-11-05, xem validation-report D-138 | T205 |
-| `specs/003-m03-operations-content-administration/cloud-runbook.md` | Lệnh soạn sẵn cho người vận hành cloud, chỉ dùng placeholder | T203–T209 |
+| `src/shared/config/env.ts`, `src/shared/config/env.test.ts` | Từ chối biến có khoảng trắng hoặc tab ở hai đầu. Bổ sung 2026-11-06, xem validation-report D-142 | T206 |
+| `specs/003-m03-operations-content-administration/cloud-runbook.md` | Lệnh soạn sẵn cho chủ dự án và người vận hành cloud, chỉ dùng placeholder | T203–T209 |
 | `docs/spec/spec-M03.md` | Chỉ BR-M03-B04 và dòng lịch sử phiên bản (§5) | T201 |
 | `docs/architecture/environment.md`, `docs/architecture/tech-stack.md` | §4: địa chỉ `vercel.app` và ràng buộc; SMTP Gmail; hai gói đo; hiện trạng Free và backup thủ công | T201 |
 | `specs/003-m03-operations-content-administration/spec.md`, `plan.md` | Đồng bộ câu về domain (spec.md dòng 326, 344; plan.md dòng 217) | T201 |
 | `specs/003-m03-operations-content-administration/tasks.md`, `validation-report.md` | Sửa T203–T206, T209 và thêm T210 theo §8; ghi tham chiếu và kết quả | T201, T208, T209 |
 | `AGENTS.md` | §2, §4: mở phạm vi cloud theo brief này | T201 |
 
-### 7.2 Thao tác trên cloud (chỉ người vận hành cloud chạy)
+### 7.2 Thao tác trên cloud (chỉ người phụ trách theo Q5 chạy)
 
-Điều kiện trước T203: repo đã public, người vận hành cloud có quyền collaborator để merge PR, và tài khoản Vercel đã liên kết GitHub. Chủ dự án là người cấp quyền repo, và cài Vercel GitHub App trên repo nếu Vercel yêu cầu.
+Điều kiện trước T203: repo đã public và tài khoản Vercel của chủ dự án đã liên kết GitHub.
 
 | Task | Thao tác |
 |---|---|
-| T203 | Tạo Single Vercel Project trước để có origin Production. Supabase: Data API chỉ mở schema `api`, tắt đăng ký công khai, `site_url` là origin Production, redirect URL `/admin/invitation` và `/admin/recovery`, SMTP Gmail |
+| T203 | Chủ dự án tạo Single Vercel Project trước để có origin Production. Người vận hành cloud cấu hình Supabase: Data API chỉ mở schema `api`, tắt đăng ký công khai, `site_url` là origin Production, redirect URL `/admin/invitation` và `/admin/recovery`, SMTP Gmail |
 | T204 | Kiểm project ref, xem danh sách migration, dry-run, dump đủ ba phần (roles, schema, data) lưu ngoài repo, rồi apply. Cấm seed và reset |
 | T205 | Đặt `APP_BACKEND_SECRET_KEY`, `GEMINI_API_KEY`. Deploy `session-intake`, `admin-accounts`, `translate` với `verify_jwt = false` |
-| T206 | Đặt `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_QR_PUBLIC_BASE_URL` ở scope Production; bật Analytics, Speed Insights; xác nhận không còn dấu "BẢN THỬ" |
+| T206 | Chủ dự án đặt `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_QR_PUBLIC_BASE_URL` ở scope Production; bật Analytics; xác nhận không còn dấu "BẢN THỬ" |
 | T207 | Tạo Reviewer đầu tiên; người này mời Reviewer dự phòng |
 
 Cấu hình T203 đặt trực tiếp trên dashboard. Không dùng `supabase config push`, vì `supabase/config.toml` là cấu hình local (`site_url` trỏ localhost) và có thể ghi đè cấu hình cloud.
@@ -124,13 +125,13 @@ Cấu hình T203 đặt trực tiếp trên dashboard. Không dùng `supabase co
 | Free không có backup tự động; dump không gồm file Storage | Mất dữ liệu nếu sự cố, không có bản sao tự động. environment.md §12 về thực hành restore định kỳ không được thực hiện cho MVP | Dump đủ ba phần trước mỗi lần apply và sau mỗi đợt nhập nội dung lớn, lưu ngoài repo vì repo public và dump có thể chứa email tài khoản; giữ bản gốc ảnh và media |
 | Kiểm thử trên nội dung thật, MVP không có hard delete, không được reset trên cloud | Phiên thử ở T208, T209 nằm vĩnh viễn trong báo cáo; tuyến đầu tiên xuất hiện công khai từ lúc xuất bản | Chấp nhận; chỉ tạo số phiên thử cần cho checklist |
 | Free giới hạn 500 MB database, 1 GB file | Vượt mức thì không tải thêm được media | Người vận hành cloud theo dõi dung lượng khi nhập nội dung |
-| Địa chỉ `vercel.app` phụ thuộc tài khoản Vercel của người vận hành cloud | Mất project hoặc tài khoản thì mọi tem đã dán hỏng | Ràng buộc ở §5 |
+| Địa chỉ `vercel.app` phụ thuộc tài khoản Vercel của chủ dự án | Mất project hoặc tài khoản thì mọi tem đã dán hỏng | Ràng buộc ở §5 |
 | Repo public: toàn bộ code, tài liệu và lịch sử commit (gồm email tác giả commit) ai cũng đọc được | Secret từng lọt vào lịch sử git sẽ bị lộ, và ẩn repo lại không thu hồi được | Quét lịch sử trước khi public (§12); secret từng lọt phải được thu hồi |
-| Quy tắc deploy của Vercel Hobby với tác giả commit chưa được kiểm chứng trên repo public | Deploy tự động có thể bị chặn | Người vận hành cloud merge bằng merge commit và kiểm tra ở T206; nếu vẫn bị chặn thì dừng và chủ dự án chọn: deploy thủ công bằng Vercel CLI hoặc nâng Pro |
+| Quy tắc deploy của Vercel Hobby với tác giả commit: commit của chủ dự án đã deploy được (2026-11-06); commit của người khác chưa kiểm chứng trên repo public | Deploy tự động có thể bị chặn | Chủ dự án merge bằng merge commit; nếu vẫn bị chặn thì dừng và chủ dự án chọn: deploy thủ công bằng Vercel CLI hoặc nâng Pro |
 | Gmail SMTP: mật khẩu ứng dụng, không có cam kết gửi thư | Đổi mật khẩu Gmail làm thu hồi mật khẩu ứng dụng, email ngừng gửi; thư có thể vào spam. Giới hạn 500 email/ngày của Gmail, 30 email/giờ mặc định của Supabase | Tài khoản riêng, bật xác minh 2 bước; khi đổi mật khẩu thì cập nhật lại Supabase; báo trước cho nhân sự M03 |
 | Gemini gói miễn phí: nội dung gửi lên được Google dùng để cải thiện sản phẩm; có hạn mức (xem trong AI Studio) | Văn bản nháp được dịch đi qua Google; vượt hạn mức thì nút dịch báo MSG-AI-FAILED | Không đưa thông tin cá nhân hay nội dung nhạy cảm vào trường cần dịch |
-| Vercel Hobby: 50.000 event/tháng Web Analytics, 10.000 event/30 ngày Speed Insights | Vượt mức thì ngừng thu số liệu, app không ảnh hưởng | Chấp nhận |
-| Một người giữ toàn bộ quyền cloud và secret | Người vận hành cloud vắng mặt thì không ai xử lý được sự cố cloud, kể cả chủ dự án | Chấp nhận cho MVP |
+| Vercel Hobby: 50.000 event/tháng Web Analytics | Vượt mức thì ngừng thu số liệu, app không ảnh hưởng | Chấp nhận |
+| Mỗi người giữ một phần: chủ dự án giữ Vercel, người vận hành cloud giữ Supabase và mọi secret | Một người vắng mặt thì người còn lại không xử lý được sự cố ở phần kia | Chấp nhận cho MVP |
 
 ## 10. Explicit non-goals
 
@@ -146,7 +147,7 @@ Cấu hình T203 đặt trực tiếp trên dashboard. Không dùng `supabase co
 
 1. PR tài liệu: spec, architecture, tasks, AGENTS.md (T201).
 2. PR `vercel.json` (T202) và PR hai gói đo (T210).
-3. T203 → T204 → T205 → T206 → T207, người vận hành cloud chạy theo lệnh soạn sẵn, từng bước một.
+3. T203 → T204 → T205 → T206 → T207, chủ dự án và người vận hành cloud chạy phần của mình theo lệnh soạn sẵn, từng bước một.
 4. T208 đợt 1: smoke check không cần dữ liệu, ghi vào validation-report.md.
 5. Reviewer nhập và xuất bản tuyến thật đầu tiên qua M03.
 6. T208 đợt 2: đọc media, gửi phiên.
@@ -161,7 +162,7 @@ Dừng ngay nếu project ref không khớp, dry-run có migration ngoài dự k
 - Trước mỗi PR: `npm run ci`, `npm run e2e`. Tích hợp thật: job `local-stack`.
 - T202: trên bản đã deploy, mở trực tiếp `/q/{id}`, `/routes/{id}`, `/trip`, `/admin` không ra 404; kiểm header cache.
 - T205: gọi thử `translate` từ editor M03 trả bản dịch; `dist/` không chứa chuỗi khóa (SC-AI-004).
-- T206: deploy đầu tiên từ `main`, là merge commit do người vận hành cloud tạo, không bị Vercel chặn vì tác giả commit. Nếu bị chặn, dừng và làm theo §9.
+- T206: deploy từ `main` không bị Vercel chặn vì tác giả commit. Nếu bị chặn, dừng và làm theo §9.
 - T208 đợt 1: đọc công khai, đăng nhập và phân quyền M03, đường offline; `/admin` không phát sinh event Analytics. T208 đợt 2: đọc media, gửi phiên.
 - T209: M01 T100, M02 T100 (M1–M10), LCP của `/q/{id}` ≤ 2,5 s, xác nhận các giá trị tạm.
 - Lệnh chưa chạy ghi `NOT RUN` kèm lý do.

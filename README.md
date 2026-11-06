@@ -21,7 +21,7 @@ Hệ thống là một modular monolith gồm ba module logic, chạy chung mộ
 
 Ngoài ba module còn **AI Integration** — một năng lực dùng cho M03, không phải module thứ tư: nút "→" dịch ô tiếng Việt sang ô tiếng Anh trong các editor M03 ([Spec v1.0](docs/spec/spec-AI_integration.md), priority Could, [gói 004](specs/004-ai-translation/), 34/34 task).
 
-**Đang làm:** đưa lên cloud (Vercel + Supabase Cloud) theo [change brief CHG-M03-2026-11-05-01](specs/003-m03-operations-content-administration/change-brief-CHG-M03-2026-11-05-01-deployment.md) (M03 Phase 16). Chưa có gì được deploy; hiện mọi thứ chạy trên máy local. Các bước cho người vận hành cloud: [cloud-runbook.md](specs/003-m03-operations-content-administration/cloud-runbook.md).
+**Đang làm:** đưa lên cloud (Vercel + Supabase Cloud) theo [change brief CHG-M03-2026-11-05-01](specs/003-m03-operations-content-administration/change-brief-CHG-M03-2026-11-05-01-deployment.md) (M03 Phase 16). Website đã có bản deploy đầu tiên trên Vercel, chưa phát hành; đang hoàn tất T203–T209. Các bước: [cloud-runbook.md](specs/003-m03-operations-content-administration/cloud-runbook.md).
 
 Phạm vi Must/Should/Could/Won't: [MVP-Scope.md](MVP-Scope.md).
 

@@ -104,7 +104,7 @@ Database constraints và server-side authorization vẫn phải enforce invarian
 | Web client | Single Vercel Project | Một website/PWA chứa public và protected routes của M01/M02/M03 | Selected — project/deployment state not verified |
 | Backend/data | Single Supabase Cloud Project | Shared PostgreSQL, Auth, RLS, Storage, Edge Functions, RPC và Data API | Selected — not implemented |
 | Browser runtime | Standards-based browser/PWA platform | UI, Cache Storage, IndexedDB, camera/QR interaction và network access | Selected runtime |
-| Traffic and performance measurement | Vercel Web Analytics (`@vercel/analytics`), Speed Insights (`@vercel/speed-insights`) | Số liệu vận hành cho người vận hành, chỉ build Production; không thay RPT-01, RPT-02 | Selected — not implemented (CHG-M03-2026-11-05-01; tasks M03 T210) |
+| Traffic and performance measurement | Vercel Web Analytics (`@vercel/analytics`), Speed Insights (`@vercel/speed-insights`) | Số liệu vận hành cho người vận hành, chỉ build Production; không thay RPT-01, RPT-02 | Implemented; chỉ bật Web Analytics, Speed Insights không bật trên dashboard vì yêu cầu trả phí (CHG-M03-2026-11-05-01; tasks M03 T210; validation-report M03 D-144) |
 
 ## 8. Development Tooling
 

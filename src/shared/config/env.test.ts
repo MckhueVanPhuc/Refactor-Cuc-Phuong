@@ -27,6 +27,18 @@ describe('parseEnv (research R-14)', () => {
     );
   });
 
+  it('từ chối giá trị có tab hoặc khoảng trắng ở hai đầu', () => {
+    expect(() => parseEnv({ ...valid, VITE_QR_PUBLIC_BASE_URL: '\thttps://quest.example' }, true)).toThrow(
+      /VITE_QR_PUBLIC_BASE_URL/,
+    );
+    expect(() => parseEnv({ ...valid, VITE_SUPABASE_URL: 'https://project.supabase.example ' }, true)).toThrow(
+      /VITE_SUPABASE_URL/,
+    );
+    expect(() => parseEnv({ ...valid, VITE_SUPABASE_PUBLISHABLE_KEY: ' publishable-key' }, true)).toThrow(
+      /VITE_SUPABASE_PUBLISHABLE_KEY/,
+    );
+  });
+
   it('bắt buộc HTTPS khi IS_PRODUCTION_BUILD', () => {
     expect(() => parseEnv({ ...valid, VITE_QR_PUBLIC_BASE_URL: 'http://quest.example' }, true)).toThrow(
       /VITE_QR_PUBLIC_BASE_URL/,

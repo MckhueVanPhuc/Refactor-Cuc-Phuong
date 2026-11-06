@@ -1,6 +1,6 @@
 # Runbook đưa Cúc Phương Quest lên cloud (T203–T209)
 
-Dành cho **người vận hành cloud**: người giữ owner trên Supabase và Vercel, tự chạy mọi lệnh dưới đây và tự kiểm trên thiết bị thật ở T209. Làm tuần tự, xong bước trước mới sang bước sau. Phạm vi và rủi ro đã chấp nhận: [change brief CHG-M03-2026-11-05-01](change-brief-CHG-M03-2026-11-05-01-deployment.md), nên đọc §4, §7.2 và §9 trước.
+Chia việc (đổi 2026-11-06): **chủ dự án** giữ Vercel, làm phần Vercel của T203 và T206. **Người vận hành cloud** giữ owner trên Supabase và mọi secret, tự chạy các lệnh Supabase và tự kiểm trên thiết bị thật ở T209. Làm tuần tự, xong bước trước mới sang bước sau. Phạm vi và rủi ro đã chấp nhận: [change brief CHG-M03-2026-11-05-01](change-brief-CHG-M03-2026-11-05-01-deployment.md), nên đọc §4, §7.2 và §9 trước.
 
 ## Quy tắc không được phá
 
@@ -8,7 +8,7 @@ Dành cho **người vận hành cloud**: người giữ owner trên Supabase v�
 - **Cấm trên cloud:** `supabase db reset`, `supabase config push`, `supabase db push --include-seed`, chạy `supabase/seed.sql`, test phá hủy, tạo dữ liệu giả.
 - **Dữ liệu không xóa được.** Database từ chối `DELETE` và `TRUNCATE`; nội dung và phiên thử sẽ ở lại vĩnh viễn.
 - **Dừng lại và báo chủ dự án** nếu project ref không khớp, dry-run có migration ngoài dự kiến, hoặc một kết quả khác với mô tả.
-- **Merge PR:** chỉ dùng **Create a merge commit**. Từ khi nối Vercel, người vận hành cloud là người merge.
+- **Merge PR:** chỉ dùng **Create a merge commit**. Chủ dự án là người merge, vì Vercel project ở gói Hobby của chủ dự án.
 - **Không xóa Vercel project và không đổi địa chỉ Production** khi tem QR còn dán.
 
 ## Chuẩn bị
@@ -19,7 +19,7 @@ Lệnh trong runbook viết theo cú pháp Bash, nên trên Windows hãy chạy 
 
 | Cần có | Lấy ở đâu | Dùng ở bước |
 |---|---|---|
-| Tên Vercel project | Tự chọn; tên này quyết định địa chỉ Production, về sau không đổi được khi tem QR đã dán | T203 |
+| Địa chỉ Production `<ORIGIN>` | Chủ dự án gửi riêng | T203 |
 | Tài khoản Gmail riêng của dự án, bật xác minh 2 bước, có [mật khẩu ứng dụng](https://support.google.com/accounts/answer/185833) | Tự tạo | T203 |
 | Khóa Gemini gói miễn phí | [Google AI Studio](https://aistudio.google.com/apikey) | T205 |
 | Email của hai Reviewer (chủ dự án và người vận hành cloud) | Tự chuẩn bị, không ghi vào repo | T207 |
@@ -28,16 +28,16 @@ Cất mọi giá trị bí mật trong trình quản lý mật khẩu. Thư mụ
 
 ## T203 — Tạo project và cấu hình
 
-### Vercel
+### Vercel (chủ dự án)
 
-1. Liên kết GitHub vào tài khoản Vercel (Account Settings → Login Connections).
-2. New Project → import repo → đặt đúng tên đã chọn. Framework Preset: Vite. Chưa cần đặt biến môi trường. Nếu repo không hiện trong danh sách: Vercel GitHub App chưa được cài trên repo, nên nhờ chủ dự án cài vì repo thuộc tài khoản của họ.
-3. Deploy. Trang web có thể báo lỗi cấu hình vì chưa có biến ở T206, đây là điều bình thường.
-4. Ghi lại origin Production dạng `https://<tên>.vercel.app`, sau đây gọi là `<ORIGIN>`.
+Vercel chỉ cho nối repo của tài khoản GitHub mà người đó đăng nhập, nên project phải nằm ở tài khoản Vercel của chủ dự án; quyền collaborator không đủ.
 
-Nếu Vercel báo chặn deploy vì tác giả commit: dừng và báo chủ dự án để chọn deploy thủ công bằng Vercel CLI hoặc nâng Pro.
+1. Add New → Project → import repo → đặt tên project. Framework Preset: Vite. Ở màn Optional Integrations, **không** thêm Supabase, vì nó tạo project Supabase thứ hai. Chưa cần đặt biến môi trường.
+2. Deploy. Lấy địa chỉ Production dạng `https://<tên>.vercel.app` ở thẻ Domains của trang Overview, sau đây gọi là `<ORIGIN>`, rồi gửi riêng cho người vận hành cloud.
 
-### Supabase
+Nếu Vercel báo chặn deploy vì tác giả commit: dừng lại, chọn deploy thủ công bằng Vercel CLI hoặc nâng Pro.
+
+### Supabase (người vận hành cloud)
 
 Tạo project gói Free, chọn region gần Việt Nam (ví dụ Singapore). Lưu mật khẩu database. Tên mục trên dashboard có thể khác đôi chút.
 
@@ -58,6 +58,14 @@ Tạo project gói Free, chọn region gần Việt Nam (ví dụ Singapore). L�
 | SMTP: Sender email, Sender name | Địa chỉ Gmail của dự án, `Cúc Phương Quest` |
 
 Đổi mật khẩu Gmail sẽ làm mật khẩu ứng dụng mất hiệu lực và email ngừng gửi; khi đó phải tạo mật khẩu ứng dụng mới và cập nhật lại ở đây.
+
+Kiểm tra sau khi lưu; kết quả phải có `"disable_signup":true` và `"mailer_autoconfirm":true`:
+
+```bash
+curl -s -H "apikey: <PUBLISHABLE_KEY>" https://<PROJECT_REF>.supabase.co/auth/v1/settings
+```
+
+Sau đó gửi riêng cho chủ dự án URL project và publishable key `sb_publishable_…` cho T206. Không gửi `sb_secret_…`.
 
 ## T204 — Backup và apply migration
 
@@ -107,9 +115,9 @@ supabase functions list                     # ba function ở trạng thái ACTI
 
 `--no-verify-jwt` là đúng thiết kế: các function tự xác minh người gọi.
 
-## T206 — Biến môi trường Vercel
+## T206 — Biến môi trường Vercel (chủ dự án)
 
-Project Settings → Environment Variables, **chỉ chọn scope Production**:
+Project Settings → Environment Variables, Type **Config**, **chỉ chọn scope Production**. Giá trị không có khoảng trắng hay tab ở hai đầu, nên cẩn thận khi dán:
 
 | Biến | Giá trị |
 |---|---|
@@ -117,7 +125,7 @@ Project Settings → Environment Variables, **chỉ chọn scope Production**:
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Publishable key `sb_publishable_…` |
 | `VITE_QR_PUBLIC_BASE_URL` | `<ORIGIN>`, không có `/` ở cuối |
 
-Bật **Analytics** và **Speed Insights** trong tab của project, rồi Redeploy bản Production mới nhất, vì biến `VITE_*` được đọc lúc build.
+Bật **Analytics** trong tab của project, rồi Redeploy bản Production mới nhất, vì biến `VITE_*` được đọc lúc build. Không bật Speed Insights, vì dashboard yêu cầu trả phí (validation-report D-144).
 
 Kiểm tra:
 
@@ -127,7 +135,7 @@ curl -sI <ORIGIN>/assets/khong-co.js | head -1            # 404
 curl -sI <ORIGIN>/sw.js | grep -i cache-control           # no-cache
 ```
 
-Mở `<ORIGIN>`: app chạy, không báo lỗi cấu hình. Từ T207 trở đi, ảnh QR trong M03 phải không còn dấu "BẢN THỬ".
+Mở `<ORIGIN>/q/kiem-tra`: không được hiện `Cấu hình ứng dụng không hợp lệ`. Chỉ mở trang chủ thì chưa đủ, vì màn chọn ngôn ngữ vẫn hiện khi cấu hình sai. Từ T207 trở đi, ảnh QR trong M03 phải không còn dấu "BẢN THỬ".
 
 ## T207 — Tạo Reviewer đầu tiên
 
@@ -181,7 +189,7 @@ Tem chỉ được in hàng loạt và dán ra thực địa sau khi T209 đạt
 
 | Dấu hiệu | Kiểm tra |
 |---|---|
-| App báo lỗi cấu hình và nêu tên biến | Biến thiếu, sai scope, có `/` ở cuối, hoặc chưa Redeploy |
+| App báo lỗi cấu hình và nêu tên biến | Biến thiếu, sai scope, có `/` ở cuối, có khoảng trắng hoặc tab ở hai đầu, hoặc chưa Redeploy |
 | Website đột nhiên không tải được dữ liệu | Supabase Free tạm dừng sau 7 ngày ít hoạt động: vào dashboard và Restore. Kiểm tra trước mỗi buổi demo |
 | Lời mời báo `INVITE_FAILED`, hoặc không nhận được email | Cấu hình SMTP, mật khẩu ứng dụng, mục spam; giới hạn mặc định của Supabase là 30 email/giờ, Gmail 500 email/ngày |
 | Link trong email về sai địa chỉ | Site URL và Redirect URLs ở T203 |
