@@ -933,3 +933,15 @@ Kiểm lại cùng ngày, sau khi chủ dự án sửa hai biến và Redeploy, 
 | D-144 | Dashboard yêu cầu trả phí để bật Speed Insights trên project này | Không bật. Giữ code T210 vì script tải bình thường và không ảnh hưởng app; LCP vẫn đo bằng Lighthouse (M02 T096) |
 | D-145 | Auth trên Supabase còn mở đăng ký công khai và còn bật Confirm email | Người vận hành cloud đã sửa trên dashboard; đã kiểm lại |
 | D-146 | Vercel đưa `VITE_VERCEL_*` (commit message, project ID) vào bundle vì `env.ts` đọc cả `import.meta.env`. Không có secret, nhưng chunk `env` đổi hash ở mỗi commit, nên commit chỉ sửa tài liệu cũng tạo bản PWA mới | Không sửa trong đợt này; hạn chế push lên `main` khi đã có người dùng thật |
+
+## 28. Sự cố khi tạo Reviewer trên Production (T207, 2026-11-07)
+
+Người vận hành cloud đã gửi được lời mời; cả hai Reviewer đã nhận lời mời và đăng nhập. Khi làm T207 gặp ba sự cố. Email, project ref và secret không ghi ở đây.
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-147 | Gửi lời mời trả `500 Error sending invite email`; log Auth: Gmail `535 5.7.8 Username and Password not accepted`. Ô Password của SMTP chưa phải mật khẩu ứng dụng | Người vận hành cloud tạo mật khẩu ứng dụng mới và lưu lại SMTP; đã gửi được |
+| D-148 | Link mời của Reviewer thứ hai báo `One-time token not found` ngay lần bấm đầu, rồi "Gửi lại lời mời" trả `MSG-INVITE-FAILED` vì provider báo `422 email_exists`: user Auth đã được xác nhận nhưng chưa nối với tài khoản `INVITATION_PENDING`. Link đã bị dùng trước, nhiều khả năng do trình quét link của hộp thư. Bước nối chỉ chạy ở trang nhận lời mời, nên tài khoản kẹt | Gỡ thủ công: người vận hành cloud xóa user Auth đó trên dashboard (không có FK từ `app.admin_accounts`), rồi gửi lại lời mời. Chưa sửa code; chủ dự án chọn hướng: link `token_hash`, hoặc "Gửi lại" tự xử lý user đã xác nhận mà chưa nối |
+| D-149 | Bấm link trong email khôi phục thì về form "Gửi yêu cầu khôi phục" thay vì form đặt mật khẩu mới. `RecoveryPage` chọn chế độ theo URL lúc trang lazy hiện ra, nhưng supabase-js đã tạo phiên và xóa `#access_token=…` khỏi URL trước đó. Trang nhận lời mời không bị vì nó dựa vào phiên | Sửa: `AdminApiProvider` chụp URL trước khi tạo client; `session.ts` đọc thêm bản chụp khi còn ở trang tải ban đầu; unit test `session.test.ts`. Kiểm lại trên Production sau khi merge |
+
+Kiểm chứng: `npm run ci` PASS (2127 test, 133 skipped). `npm run e2e`: NOT RUN, vì e2e chạy với auth giả, không có luồng hash của Supabase. Kiểm lại khôi phục mật khẩu trên Production: chờ deploy.
