@@ -67,6 +67,8 @@ test('V10 — offline: Q1a có gói → chữ + ảnh từ gói, không media; Q
   await expect(page.locator('audio, video')).toHaveCount(0);
 
   await page.getByRole('link', { name: vi.content.back }).click();
+  // Hook quét luôn tồn tại, còn handler chỉ có khi SCR-M02-001 đã mount: chờ màn về rồi mới quét
+  await expect(page.getByRole('button', { name: vi.trip.scan, exact: true })).toBeVisible();
   await scan(page, 'Q2');
   // Điểm ONLINE_AVAILABLE không có nội dung offline (US-M02-03 mục 3; bảng copy SCR-M02-002)
   await expect(page.getByRole('alert')).toContainText(vi.content.needsNetwork);
