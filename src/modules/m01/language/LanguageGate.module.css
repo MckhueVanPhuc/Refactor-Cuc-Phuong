@@ -25,12 +25,15 @@
     var(--color-m01-deep);
 }
 
+/* Logo trên thẻ trắng: vòng hổ phách cùng màu đường phân cách, bóng tách thẻ khỏi ảnh nền */
 .emblem {
   margin-bottom: var(--space-6);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   background: var(--color-white);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-modal);
+  box-shadow:
+    0 0 0 var(--border-width-thick) color-mix(in srgb, var(--color-m01-amber) 85%, transparent),
+    var(--shadow-modal);
 }
 
 .logo {
@@ -161,7 +164,7 @@
 
   .emblem {
     margin-bottom: var(--space-4);
-    padding: var(--space-1) var(--space-2);
+    padding: var(--space-2) var(--space-3);
   }
 
   .logo {
