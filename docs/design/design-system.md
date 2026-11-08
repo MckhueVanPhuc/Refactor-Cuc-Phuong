@@ -325,6 +325,7 @@ Hệ quả cho thiết kế: các cặp trên 4.5:1 dùng được cho chữ th�
 - Icon đi kèm chữ ở nơi truyền đạt trạng thái (Status chip, thông báo lỗi); không dùng icon hay màu làm tín hiệu duy nhất.
 - Màu icon lấy từ token màu của mục 2, không hard-code.
 - Nút dịch "→" của M03 dùng ký tự chữ, không phải icon, nên không cần file trong assets/icons/ (quyết định người dùng 2026-11-03, Spec AI Integration OD-AI-18).
+- Ngoại lệ do người dùng duyệt 2026-11-08 cho bước chọn ngôn ngữ của SCR-M01-001: agent vẽ `flag-vi.svg`, `flag-en.svg` và `divider-mountain.svg` trong assets/icons/. Hai cờ giữ màu của chính lá cờ; hình núi chỉ dùng làm mask, màu lấy từ token. Cờ chỉ để trang trí, không thay chữ "Tiếng Việt"/"English".
 
 ---
 

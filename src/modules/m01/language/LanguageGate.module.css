@@ -1,64 +1,185 @@
 /*
- * Bước chọn ngôn ngữ của SCR-M01-001 (E-SCR-M01-001-01): panel chặn toàn trang trên nền deep,
- * tiêu đề serif như hero discovery (design-system §3, §5.1). Đây là khoảnh khắc nhận diện của lần đầu mở app.
+ * Bước chọn ngôn ngữ của SCR-M01-001 (E-SCR-M01-001-01): panel chặn toàn trang, song ngữ, đặt trên ảnh rừng
+ * Cúc Phương (assets/background_mobile.jpg). Lớp phủ deep giữ chữ paper đọc được trên ảnh; mất ảnh (offline,
+ * ảnh không nằm trong precache) thì còn nền deep. Màu, cỡ, khoảng cách lấy từ token (design-system §2–§5).
  */
 .panel {
   --focus-ring-color: var(--color-m01-amber);
+  --scrim-strong: color-mix(in srgb, var(--color-m01-deep) 80%, transparent);
+  --scrim-soft: color-mix(in srgb, var(--color-m01-deep) 58%, transparent);
+  --scrim-edge: color-mix(in srgb, var(--color-m01-deep) 20%, transparent);
 
-  display: grid;
-  align-content: center;
-  justify-items: start;
-  gap: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   min-height: 100vh;
-  padding: var(--space-8) var(--space-5);
+  min-height: 100svh;
+  padding: max(var(--space-6), env(safe-area-inset-top)) var(--space-5) max(var(--space-5), env(safe-area-inset-bottom));
+  text-align: center;
   color: var(--color-paper);
-  background: var(--color-m01-deep);
+  background:
+    radial-gradient(ellipse 96% 50% at 50% 46%, var(--scrim-strong) 0%, var(--scrim-soft) 70%, transparent 100%),
+    linear-gradient(var(--scrim-edge), var(--scrim-soft) 65%, var(--scrim-edge)),
+    url('../../../../assets/background_mobile.jpg') center / cover no-repeat,
+    var(--color-m01-deep);
+}
+
+.emblem {
+  margin-bottom: var(--space-6);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
 }
 
 .logo {
   display: block;
-  height: calc(var(--space-8) + var(--space-2));
-  width: auto;
-  border-radius: var(--radius-sm);
+  width: clamp(calc(var(--space-8) * 3.5), 32vw, calc(var(--space-8) * 4.5));
+  height: auto;
 }
 
 .title {
-  max-width: 14em;
   font-family: var(--font-serif);
-  font-size: calc(var(--font-size-page-heading) + var(--space-2));
-  font-weight: var(--font-weight-regular);
+  font-size: clamp(calc(var(--font-size-page-heading-mobile) * 1.4), 10vw, calc(var(--font-size-page-heading) * 1.5));
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-page-heading-mobile);
+  font-style: italic;
   line-height: var(--line-height-heading);
+  color: var(--color-m01-line);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: min(65%, calc(var(--space-8) * 7));
+  margin: var(--space-5) 0 var(--space-4);
+  color: var(--color-m01-amber);
+}
+
+.rule {
+  flex: 1;
+  border-top: var(--border-width-thin) solid currentColor;
+}
+
+/* Hình núi là mask: màu theo token qua currentColor, không nằm trong file SVG (design-system §7) */
+.mountain {
+  flex: none;
+  width: calc(var(--space-6) * 1.6);
+  height: var(--space-6);
+  background: currentColor;
+  mask: url('../../../../assets/icons/divider-mountain.svg') center / contain no-repeat;
+}
+
+.lead,
+.leadEn {
+  max-width: 22em;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  text-wrap: balance;
+}
+
+.leadEn {
+  margin-top: var(--space-2);
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--color-m01-line);
 }
 
 .choices {
   display: grid;
   gap: var(--space-3);
   width: 100%;
-  max-width: calc(var(--space-8) * 10);
+  max-width: calc(var(--space-8) * 11);
+  margin-top: var(--space-8);
 }
 
 .choice {
-  min-height: var(--touch-target-m01-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: calc(var(--touch-target-m01-primary) + var(--space-3));
   padding: 0 var(--space-5);
-  font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
-  text-align: left;
-  color: var(--color-m01-ink);
-  background: var(--color-m01-amber);
-  border: 0;
+  font: var(--font-weight-semibold) calc(var(--font-size-body) * 1.25) / 1.2 var(--font-sans);
+  border: var(--border-width-thin) solid transparent;
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-modal);
   cursor: pointer;
 }
 
-.choice:hover {
-  box-shadow: inset 0 0 0 100vmax var(--overlay-fill-hover);
+.choice[data-language='vi'] {
+  color: var(--color-paper);
+  background: var(--color-m01-forest);
+  border-color: color-mix(in srgb, var(--color-m01-line) 60%, transparent);
 }
 
-.choice:active {
-  box-shadow: inset 0 0 0 100vmax var(--overlay-fill-pressed);
+.choice[data-language='en'] {
+  color: var(--color-m01-ink);
+  background: var(--color-paper);
+}
+
+/* Lớp phủ hover/pressed theo §5.4; giữ bóng ngoài của nút */
+.choice[data-language='vi']:hover {
+  box-shadow: inset 0 0 0 100vmax var(--overlay-fill-hover), var(--shadow-modal);
+}
+
+.choice[data-language='vi']:active {
+  box-shadow: inset 0 0 0 100vmax var(--overlay-fill-pressed), var(--shadow-modal);
+}
+
+.choice[data-language='en']:hover {
+  box-shadow: inset 0 0 0 100vmax var(--overlay-surface-hover), var(--shadow-modal);
+}
+
+.choice[data-language='en']:active {
+  box-shadow: inset 0 0 0 100vmax var(--overlay-surface-pressed), var(--shadow-modal);
+}
+
+.flag {
+  flex: none;
+  width: calc(var(--space-6) * 1.5);
+  height: var(--space-6);
+  object-fit: cover;
+  border-radius: var(--border-width-thick);
+  box-shadow: var(--shadow-card);
+}
+
+/* Màn thấp (điện thoại nhỏ, bàn phím ảo): thu khoảng cách để hai nút vẫn trong màn hình */
+@media (max-height: 44em) {
+  .panel {
+    justify-content: flex-start;
+  }
+
+  .emblem {
+    margin-bottom: var(--space-4);
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .logo {
+    width: calc(var(--space-8) * 3.25);
+  }
+
+  .divider {
+    margin: var(--space-3) 0;
+  }
+
+  .choices {
+    margin-top: var(--space-5);
+  }
 }
 
 @media (min-width: 48em) {
-  .panel {
-    padding-inline: calc(var(--space-8) * 3);
+  .choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: calc(var(--space-8) * 20);
   }
 }

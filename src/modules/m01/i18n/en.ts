@@ -18,7 +18,8 @@ export const en: M01Messages = {
   },
   language: {
     groupLabel: 'Language',
-    chooseTitle: 'Choose your language (Tiếng Việt / English)',
+    chooseTitle: 'Choose your language',
+    chooseLead: 'Choose a language to begin your journey through Cuc Phuong National Park.',
   },
 
   catalog: {

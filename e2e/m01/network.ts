@@ -2,7 +2,7 @@
 // `/rest/v1/active_journey_snapshots`) và Storage (`/storage/v1/object/sign/…`) bằng fixture synthetic.
 // Hình dạng request/response theo supabase-js: PostgREST trả mảng (hoặc object với Accept vnd.pgrst.object);
 // createSignedUrls POST trả `[{ path, signedURL, error }]` với `signedURL` tương đối so với `/storage/v1`.
-import type { Page, Route } from '@playwright/test';
+import { expect, type Page, type Route } from '@playwright/test';
 import {
   journeySnapshotRow,
   publicationFixture,
@@ -100,7 +100,11 @@ export async function mockPublication(page: Page, mock: PublicationMock = defaul
   return mock;
 }
 
-/** Qua panel chọn ngôn ngữ của lần mở đầu tiên. */
+/**
+ * Qua panel chọn ngôn ngữ của lần mở đầu tiên. Chờ panel biến mất (LanguagePreference đã ghi xong) để
+ * `page.goto` ngay sau đó không chạy trước lúc ghi IndexedDB hoàn tất.
+ */
 export async function chooseLanguage(page: Page, label: 'Tiếng Việt' | 'English' = 'Tiếng Việt'): Promise<void> {
   await page.getByRole('button', { name: label }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Chọn ngôn ngữ' })).toHaveCount(0);
 }

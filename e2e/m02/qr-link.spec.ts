@@ -31,7 +31,7 @@ test('V20 — /q/Q1a không phiên, thiết bị vi-VN chưa có preference → 
   await expect(page.getByText(vi.notice.freeVisitor)).toBeVisible();
   await expect(page.getByRole('link', { name: vi.qrLink.chooseRoute })).toHaveAttribute('href', '/');
   // Không có bước chọn ngôn ngữ của M01 trước nội dung
-  await expect(page.getByText('Chọn ngôn ngữ (Tiếng Việt / English)')).toHaveCount(0);
+  await expect(page.getByText('Chọn ngôn ngữ', { exact: true })).toHaveCount(0);
   expect(requests).toEqual([{ p_qr_identifier: 'Q1a' }]);
   expect(await m02StoreCounts(page)).toEqual([0, 0, 0]);
 });
