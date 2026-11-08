@@ -55,7 +55,8 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | Tiêu đề màn | Danh mục tuyến | Routes |
 | Nhãn điều hướng | Danh mục tuyến · Gợi ý tuyến · Tài nguyên offline | Routes · Route suggestions · Offline downloads |
 | Nhãn nhóm điều khiển ngôn ngữ | Ngôn ngữ | Language |
-| Bước chọn ngôn ngữ | Chọn ngôn ngữ (Tiếng Việt / English) | Choose your language (Tiếng Việt / English) |
+| Bước chọn ngôn ngữ — tiêu đề (panel hiện cả hai dòng cùng lúc, tiếng Việt trước, vì chưa có ngôn ngữ đã chọn; quyết định người dùng 2026-11-08) | Chọn ngôn ngữ | Choose your language |
+| Bước chọn ngôn ngữ — lời dẫn (hiện cả hai dòng như tiêu đề) | Chọn ngôn ngữ để bắt đầu hành trình khám phá Vườn quốc gia Cúc Phương. | Choose a language to begin your journey through Cuc Phuong National Park. |
 | Dấu cần tải trước | Cần tải trước | Download first |
 | Số điểm dừng / quãng đường / thời lượng | {n} điểm dừng · {km} km · {phút} phút | {n} stops · {km} km · {min} min |
 | Danh sách trống | Hiện chưa có tuyến nào để chọn. | No routes are available right now. |
@@ -120,7 +121,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | ID | Question | Blocking | Status | Resolution |
 |---|---|---|---|---|
 | OQ-SCR-M01-001-001 | Thứ tự hiển thị các thẻ tuyến trong danh mục | No | Resolved | Thẻ tuyến sắp theo tên tuyến A→Z theo ngôn ngữ đang chọn. Đây là thứ tự trình bày trung tính, không chấm điểm hay xếp hạng (Spec M01 §4.2). |
-| OQ-SCR-M01-001-003 | Cách trình bày bước chọn ngôn ngữ (màn riêng, dialog hay panel) | No | Resolved | Panel chặn toàn trang trước danh mục, hai nút "Tiếng Việt" và "English"; không có lựa chọn bỏ qua. |
+| OQ-SCR-M01-001-003 | Cách trình bày bước chọn ngôn ngữ (màn riêng, dialog hay panel) | No | Resolved | Panel chặn toàn trang trước danh mục, hai nút "Tiếng Việt" và "English"; không có lựa chọn bỏ qua. Mỗi nút kèm cờ trang trí, tên nút vẫn là chữ trên nút (quyết định người dùng 2026-11-08). |
 
 ## Completion checklist
 

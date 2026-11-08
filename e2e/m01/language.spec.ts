@@ -10,7 +10,8 @@ test.use({ locale: 'vi-VN' });
 
 test('V1 — mở / lần đầu: panel chọn ngôn ngữ chặn trang; chọn English → lưu en, UI tiếng Anh', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1, name: 'Chọn ngôn ngữ (Tiếng Việt / English)' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Chọn ngôn ngữ' })).toBeVisible();
+  await expect(page.getByText('Choose your language', { exact: true })).toBeVisible();
   await expect(page.getByRole('banner')).toHaveCount(0);
 
   await page.getByRole('button', { name: 'English' }).click();
@@ -38,7 +39,7 @@ for (const { locale, heading } of [
       await mockStorage(page);
       await page.goto('/q/Q1a');
       await expect(page.getByRole('heading', { name: heading })).toBeVisible();
-      await expect(page.getByText('Chọn ngôn ngữ (Tiếng Việt / English)')).toHaveCount(0);
+      await expect(page.getByText('Chọn ngôn ngữ', { exact: true })).toHaveCount(0);
       await expect(page.locator('html')).toHaveAttribute('lang', locale.slice(0, 2));
       expect((await dumpStores(page, ['languagePreference'])).languagePreference).toEqual([]);
     });

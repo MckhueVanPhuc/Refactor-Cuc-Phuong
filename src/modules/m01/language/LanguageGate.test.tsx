@@ -30,6 +30,16 @@ describe('LanguageGate', () => {
     expect(screen.queryByRole('heading', { name: 'Trang M01' })).toBeNull();
   });
 
+  it('panel song ngữ: tiêu đề tiếng Việt, dòng tiếng Anh kèm lang="en" (bảng copy SCR-M01-001)', async () => {
+    renderAt('/');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Chọn ngôn ngữ' })).toBeTruthy();
+    expect(screen.getByText('Choose your language').getAttribute('lang')).toBe('en');
+    expect(screen.getByText('Chọn ngôn ngữ để bắt đầu hành trình khám phá Vườn quốc gia Cúc Phương.')).toBeTruthy();
+    expect(
+      screen.getByText('Choose a language to begin your journey through Cuc Phuong National Park.').getAttribute('lang'),
+    ).toBe('en');
+  });
+
   it('chọn English → lưu en và vào trang', async () => {
     renderAt('/');
     await userEvent.click(await screen.findByRole('button', { name: 'English' }));

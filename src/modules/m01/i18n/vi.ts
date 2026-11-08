@@ -19,8 +19,9 @@ export const vi = {
   },
   language: {
     groupLabel: 'Ngôn ngữ',
-    // SCR-M01-001: bước chọn ngôn ngữ
-    chooseTitle: 'Chọn ngôn ngữ (Tiếng Việt / English)',
+    // SCR-M01-001: bước chọn ngôn ngữ (panel hiện cả bản vi lẫn en; bảng copy 2026-11-08)
+    chooseTitle: 'Chọn ngôn ngữ',
+    chooseLead: 'Chọn ngôn ngữ để bắt đầu hành trình khám phá Vườn quốc gia Cúc Phương.',
   },
 
   // SCR-M01-001

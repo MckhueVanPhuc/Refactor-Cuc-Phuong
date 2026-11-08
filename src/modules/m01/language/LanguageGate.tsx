@@ -1,18 +1,20 @@
 // Guard ngôn ngữ của route M01 (US-M01-01 mục 1; visitor-ui-flow §1): chưa có LanguagePreference → panel chọn
 // chặn toàn trang; chọn xong mới vào. Chỉ bọc route M01; trang link QR của M02 không qua gate (BR-M02-024).
 import type { ReactNode } from 'react';
-import logoUrl from '../../../../assets/icons/icon.png';
+import flagEnUrl from '../../../../assets/icons/flag-en.svg';
+import flagViUrl from '../../../../assets/icons/flag-vi.svg';
+// Logo dùng chung của app: bản sạch của icon.png (validation-report DV-64)
+import logoUrl from '../../../../assets/icons/logo-emblem.png';
 import type { LanguageCode } from '../../../shared/contracts/languagePreference';
 import { messagesFor } from '../i18n';
 import { writeLanguagePreference } from '../storage/languageWriter';
 import styles from './LanguageGate.module.css';
-import { deviceLanguage, resolveDisplayLanguage } from './resolveDisplayLanguage';
 import { useLanguagePreferenceState } from './useLanguagePreference';
 
-// Tên tự gọi của hai ngôn ngữ, như trong câu copy "Chọn ngôn ngữ (Tiếng Việt / English)"
-const CHOICES: readonly { code: LanguageCode; label: string }[] = [
-  { code: 'vi', label: 'Tiếng Việt' },
-  { code: 'en', label: 'English' },
+// Tên tự gọi của hai ngôn ngữ; cờ chỉ trang trí nên tên nút vẫn là chữ (SCR-M01-001 OQ-SCR-M01-001-003)
+const CHOICES: readonly { code: LanguageCode; label: string; flagUrl: string }[] = [
+  { code: 'vi', label: 'Tiếng Việt', flagUrl: flagViUrl },
+  { code: 'en', label: 'English', flagUrl: flagEnUrl },
 ];
 
 export function LanguageGate({ children }: { children: ReactNode }) {
@@ -20,21 +22,40 @@ export function LanguageGate({ children }: { children: ReactNode }) {
   if (state.status === 'loading') return null;
   if (state.value) return children;
 
-  // Chưa chọn: tiêu đề theo ngôn ngữ thiết bị, chưa ghi gì
-  const messages = messagesFor(resolveDisplayLanguage(null, deviceLanguage()));
+  // Chưa chọn: panel song ngữ, tiếng Việt trước (bảng copy SCR-M01-001); chưa ghi gì cho tới khi bấm
+  const vi = messagesFor('vi').language;
+  const en = messagesFor('en').language;
   return (
-    <main className={styles.panel}>
-      <img className={styles.logo} src={logoUrl} alt="" />
-      <h1 className={styles.title}>{messages.language.chooseTitle}</h1>
+    <main className={styles.panel} aria-labelledby="language-gate-title">
+      <div className={styles.emblem}>
+        <img className={styles.logo} src={logoUrl} alt="" />
+      </div>
+      <h1 id="language-gate-title" className={styles.title}>
+        {vi.chooseTitle}
+      </h1>
+      <p className={styles.subtitle} lang="en">
+        {en.chooseTitle}
+      </p>
+      <div className={styles.divider} aria-hidden="true">
+        <span className={styles.rule} />
+        <span className={styles.mountain} />
+        <span className={styles.rule} />
+      </div>
+      <p className={styles.lead}>{vi.chooseLead}</p>
+      <p className={styles.leadEn} lang="en">
+        {en.chooseLead}
+      </p>
       <div className={styles.choices}>
         {CHOICES.map((choice) => (
           <button
             key={choice.code}
             type="button"
             className={styles.choice}
+            data-language={choice.code}
             lang={choice.code}
             onClick={() => void writeLanguagePreference(choice.code)}
           >
+            <img className={styles.flag} src={choice.flagUrl} alt="" />
             {choice.label}
           </button>
         ))}

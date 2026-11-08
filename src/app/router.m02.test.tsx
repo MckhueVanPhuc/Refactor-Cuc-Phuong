@@ -31,7 +31,7 @@ describe('route M02', () => {
   it('/q/… không đi qua LanguageGate: không hiện bước chọn ngôn ngữ (BR-M02-024)', async () => {
     renderAt('/q/Q1a');
     await screen.findByRole('main');
-    expect(screen.queryByText('Chọn ngôn ngữ (Tiếng Việt / English)')).toBeNull();
+    expect(screen.queryByText('Chọn ngôn ngữ')).toBeNull();
   });
 
   it.each([

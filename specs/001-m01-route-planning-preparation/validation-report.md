@@ -504,3 +504,28 @@ Branch `test/m01-qr-link-followups`. Trang `/q/{qrIdentifier}` (SCR-M02-004) đ�
 ### 13.4 Còn mở
 
 T100 (thiết bị thật).
+
+## 14. Đợt 2026-11-08 — Làm lại giao diện bước chọn ngôn ngữ (SCR-M01-001, E-SCR-M01-001-01)
+
+Chỉ đổi hình thức theo mockup người dùng đưa; luồng gate, `writeLanguagePreference` và `LanguagePreference` giữ nguyên.
+
+### 14.1 Lệch và quyết định
+
+| ID | Nội dung | Kết quả |
+|---|---|---|
+| DV-60 | Thay phần "Tiêu đề panel theo ngôn ngữ thiết bị" của DV-22: panel hiện cả tiêu đề lẫn lời dẫn bằng hai ngôn ngữ cùng lúc, tiếng Việt trước. Chữ mới đưa vào bảng copy SCR-M01-001 trước khi sửa `i18n/` (người dùng chọn 2026-11-08). Nút vẫn tên "Tiếng Việt"/"English" | Áp dụng |
+| DV-61 | Cờ hai nút và hình núi ở đường phân cách do agent vẽ, đặt trong `assets/icons/` (người dùng duyệt ngoại lệ 2026-11-08; design-system §7). Ảnh nền `assets/background_mobile.jpg` do người dùng đưa; chỉ thiết kế cho mobile | Áp dụng |
+| DV-62 | Màu chỉ dùng token sẵn có; lớp phủ trên ảnh pha từ `--color-m01-deep` bằng `color-mix`, không thêm token. Ảnh `.jpg` không nằm trong precache PWA (`globPatterns`), nên khi offline panel hiện trên nền deep | Áp dụng |
+| DV-64 | `assets/icons/logo-emblem.png` là bản sạch của `icon.png` theo yêu cầu người dùng 2026-11-08: nền xám `#E6E6E6` thành trắng, cắt vạch đen ở mép trên, thu về 480 px (232 KB thay vì 568 KB). Theo yêu cầu người dùng, bản này thay `icon.png` ở mọi chỗ dùng: favicon (`index.html`), thanh app M01 (`VisitorLayout`), panel chọn ngôn ngữ và mockup SCR-M01-003. File `icon.png` gốc vẫn giữ trong repo làm nguồn. Manifest PWA vẫn chưa có icon (T007). Thẻ logo ở panel có vòng hổ phách. Không chuyển sang SVG: ảnh gốc là bản phóng to bị nhòe, tự dò nét sẽ làm méo chữ và hình voọc | Áp dụng |
+| DV-63 | Helper E2E `chooseLanguage` chờ panel biến mất sau khi bấm: trước đó `page.goto` ngay sau click có thể chạy trước khi IndexedDB ghi xong (V11, V12, V15, V21 lỗi chập chờn) | Áp dụng |
+
+### 14.2 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run typecheck` | 0 | sạch |
+| `npm run lint` | 0 | 645 pass |
+| `npm test` | 0 | 2128 pass, 133 skipped |
+| `npx playwright test --project=m01` (sau DV-63) | 0 | 29 pass; một lượt `--repeat-each=2` có 1 lần V14 lỗi, chạy lại V14 `--repeat-each=10` 10 pass |
+| `npx playwright test --project=m02` | 0 | 46 pass |
+| `git diff --check` | 0 | không lỗi khoảng trắng |

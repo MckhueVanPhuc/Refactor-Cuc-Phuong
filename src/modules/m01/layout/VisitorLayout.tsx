@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, NavLink, Outlet } from 'react-router';
-import logoUrl from '../../../../assets/icons/icon.png';
+import logoUrl from '../../../../assets/icons/logo-emblem.png';
 import { PATHS } from '../../../app/paths';
 import { useM01Messages } from '../i18n/useM01Messages';
 import { LanguageControl } from '../language/LanguageControl';
