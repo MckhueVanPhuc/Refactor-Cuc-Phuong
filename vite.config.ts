@@ -1,4 +1,5 @@
-import { defineConfig, loadEnv } from 'vite';
+import { readFileSync } from 'node:fs';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json' with { type: 'json' };
@@ -38,6 +39,22 @@ function chunkPrefix(facadeModuleId: string | null | undefined, moduleIds: reado
   return CHUNK_ALIASES[prefix] ?? prefix;
 }
 
+// Icon cài đặt PWA: manifest cần URL cố định, còn ảnh Vite xử lý thì mang hash. Chép nguyên file từ
+// assets/icons/ (nơi duy nhất chứa icon, design-system §7) vào `pwa/` của bản build; precache nhận theo globPatterns.
+const PWA_ICONS = ['pwa-192.png', 'pwa-512.png', 'pwa-maskable-512.png'];
+
+function pwaIcons(): Plugin {
+  return {
+    name: 'cuc-phuong:pwa-icons',
+    apply: 'build',
+    generateBundle() {
+      for (const file of PWA_ICONS) {
+        this.emitFile({ type: 'asset', fileName: `pwa/${file}`, source: readFileSync(`assets/icons/${file}`) });
+      }
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
   const appVersion = env.VITE_APP_VERSION || pkg.version;
@@ -45,6 +62,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
+      pwaIcons(),
       VitePWA({
         strategies: 'generateSW',
         // Cập nhật kiểu prompt: không tự reload, update coordinator quyết định lúc áp (research R-22)
@@ -56,14 +74,23 @@ export default defineConfig(({ mode }) => {
           lang: 'vi',
           start_url: '/',
           display: 'standalone',
-          // Để trống cho tới khi chủ dự án cung cấp icon vuông 192/512 px (tasks M01 T007; không tự tạo asset)
-          icons: [],
+          // Thanh tiêu đề khi chạy như app cài đặt = --color-m01-deep; màn chờ nền trắng như nền icon.
+          // Manifest không đọc được CSS variable nên giữ literal (thay mặc định #42b883 của plugin).
+          theme_color: '#163c2d',
+          background_color: '#ffffff',
+          // Icon vuông dựng từ logo-emblem.png theo yêu cầu chủ dự án 2026-11-08 (thay chỗ trống của T007; DV-65)
+          icons: [
+            { src: '/pwa/pwa-192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/pwa/pwa-512.png', sizes: '512x512', type: 'image/png' },
+            { src: '/pwa/pwa-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          ],
         },
         workbox: {
           // App shell offline: mọi JS/CSS/HTML/font/icon của build, gồm chunk lazy của M01 và M02 (research M01 R-14)
           globPatterns: ['**/*.{js,css,html,woff,woff2,png,svg,ico,webmanifest}'],
           // M03 chỉ online: không precache màn quản trị và thư viện in QR (M03 R-24)
-          globIgnores: ['**/node_modules/**/*', 'assets/m03-*', 'assets/qrcode-*'],
+          // Icon cài đặt trong `pwa/` do trình duyệt tự tải lúc cài, không cần nằm trong app shell offline
+          globIgnores: ['**/node_modules/**/*', 'assets/m03-*', 'assets/qrcode-*', 'pwa/**'],
           // `/q/{qrIdentifier}` và mọi route SPA mở từ app shell khi offline (spec-M01 §9.3; BR-M02-025)
           navigateFallback: '/index.html',
           // Service worker đầu tiên điều khiển trang ngay, để chunk chưa nạp vẫn lấy được từ precache nếu mất mạng
