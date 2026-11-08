@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import flagEnUrl from '../../../../assets/icons/flag-en.svg';
 import flagViUrl from '../../../../assets/icons/flag-vi.svg';
-// Bản sạch của icon.png: nền xám và viền đen ở mép đã bỏ, thu nhỏ (validation-report DV-64)
+// Logo dùng chung của app: bản sạch của icon.png (validation-report DV-64)
 import logoUrl from '../../../../assets/icons/logo-emblem.png';
 import type { LanguageCode } from '../../../shared/contracts/languagePreference';
 import { messagesFor } from '../i18n';
