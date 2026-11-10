@@ -68,13 +68,13 @@
 | SF-M03-003-01 | Generate an unguessable QR identity. | First save of a new visit point form | `QRCode NHAP` with `qrIdentifier` | At least 16 random URL-safe characters; collision silently regenerated | FR-M03-003 |
 | SF-M03-003-02 | Store the installation note. | Visit point form save | Internal placement note | Not visitor content | FR-M03-003 |
 | SF-M03-003-03 | Support multiple active QR per checkpoint. | Additional visit point | Expanded active QR set | Each QR has its own content; at most 20 QR objects that are not `THU_HOI` per checkpoint | FR-M03-003 |
-| SF-M03-003-04 | Reprint QR without identity change. | Damaged/faded code | Same link and content | Audit only; no snapshot version change | FR-M03-003 |
+| SF-M03-003-04 | Reprint QR without identity change. | Damaged/faded code | Same link and content | Download the same image again; nothing is recorded; no snapshot version change | FR-M03-003 |
 | SF-M03-003-07 | Revoke QR. | Either role with reason | `THU_HOI` terminal; new versions for listing routes | Blocked for the last active QR of an active checkpoint | FR-M03-003, 011 |
 | SF-M03-003-08 | Publish changed QR set. | Active QR set changes | New JourneySnapshot for every listing route | Applies to both connectivity modes | FR-M03-009 |
 | SF-M03-003-09 | Add a visit point only to a checkpoint with a saved mode. | "Thêm điểm tham quan" | Empty form; record created at first save | Before a mode is saved the action shows the mode-required message | FR-M03-003 |
 | SF-M03-003-10 | Encode the permanent public QR link. | Printable image generation | `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` | No other parameter; Production base is permanent; non-Production codes never installed | FR-M03-003 |
 | SF-M03-003-11 | Offer the printable code image. | Download request | SVG and PNG with fixed print settings, last six characters, offline warning line, test-environment mark | Unpublished visit point shows the unpublished warning | FR-M03-003 |
-| SF-M03-003-12 | Identify visit points in lists and editors. | List/editor display | Name or "chưa đặt tên {số}", status, readiness, "Mã …{6 ký tự}", creation feedback | Only the last six characters of a code are shown | FR-M03-003 |
+| SF-M03-003-12 | Identify visit points in lists and editors. | List/editor display | Name or "chưa đặt tên {số}", status, readiness, creation feedback; revoked items hidden behind "Hiện mục đã thu hồi" | No part of a code is shown; the printed label carries the visit point name | FR-M03-003 |
 | SF-M03-003-13 | Discard a never-published visit point. | Discard action | `NHAP → THU_HOI` | Reason optional; identifier never reused | FR-M03-003 |
 | SF-M03-003-14 | Remind to reprint after a mode change. | Review of a checkpoint mode change | Reprint reminder | Printed warning line depends on the mode | FR-M03-003 |
 

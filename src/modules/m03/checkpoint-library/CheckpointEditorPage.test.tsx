@@ -70,7 +70,7 @@ describe('SCR-M03-008 editor điểm dừng (BR-M03-D02, D03, D09, E15, E16)', (
     expect((screen.getByLabelText('Tên điểm dừng (tiếng Việt)') as HTMLInputElement).value).toBe('hang con MOONG');
   });
 
-  it('danh sách điểm tham quan: tên hoặc "chưa đặt tên {số}", trạng thái, readiness, "Mã …xxxxxx" (BR-M03-E16)', async () => {
+  it('danh sách điểm tham quan: tên hoặc "chưa đặt tên {số}", trạng thái, readiness; không hiện phần nào của mã (BR-M03-E16)', async () => {
     const store = new FakeStore();
     const seeded = await seedCheckpoint(store, {
       name: 'Hang Con Moong',
@@ -83,12 +83,32 @@ describe('SCR-M03-008 editor điểm dừng (BR-M03-D02, D03, D09, E15, E16)', (
     const named = table.getByRole('row', { name: /Cây chò/ });
     expect(within(named).getByText('Nháp')).toBeTruthy();
     expect(within(named).getByText('Sẵn sàng')).toBeTruthy();
-    expect(within(named).getByText(`Mã …${first.slice(-6)}`)).toBeTruthy();
     const unnamed = table.getByRole('row', { name: /Điểm tham quan chưa đặt tên 2/ });
     expect(within(unnamed).getByText(/^Chưa đủ: /)).toBeTruthy();
-    expect(within(unnamed).getByText(`Mã …${second.slice(-6)}`)).toBeTruthy();
-    // Không lộ identifier đầy đủ (BR-M03-L10)
-    expect(document.body.textContent).not.toContain(first);
+    // Không lộ identifier, cả bản rút gọn (BR-M03-L10, E16)
+    expect(document.body.textContent).not.toContain(first.slice(-6));
+    expect(document.body.textContent).not.toContain(second.slice(-6));
+    expect(document.body.textContent).not.toMatch(/Mã …/);
+  });
+
+  it('điểm tham quan đã thu hồi ẩn mặc định; "Hiện mục đã thu hồi" hiện lại, chỉ để xem (BR-M03-E16)', async () => {
+    const store = new FakeStore();
+    const seeded = await seedCheckpoint(store, {
+      name: 'Hang Con Moong',
+      mode: 'OFFLINE_REQUIRED',
+      visitPoints: [{ name: 'Cây chò', ready: true }, { name: 'Cây lim', ready: true }],
+    });
+    store.state.qrCodes.get(seeded.qrIdentifiers[1]!)!.status = 'THU_HOI';
+    await openExisting(store, seeded.checkpointId, 'Hang Con Moong');
+    const table = () => within(screen.getByRole('table', { name: 'Điểm tham quan' }));
+    expect(table().getByRole('row', { name: /Cây chò/ })).toBeTruthy();
+    expect(table().queryByRole('row', { name: /Cây lim/ })).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Hiện mục đã thu hồi (1)' }));
+    expect(within(table().getByRole('row', { name: /Cây lim/ })).getByText('Đã thu hồi')).toBeTruthy();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ẩn mục đã thu hồi' }));
+    expect(table().queryByRole('row', { name: /Cây lim/ })).toBeNull();
   });
 
   it('điểm tham quan vừa lưu được tô sáng khi quay lại danh sách', async () => {

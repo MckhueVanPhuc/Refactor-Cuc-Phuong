@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatBytes, formatDate, formatMegabytes, formatTime, parseDisplayDate, qrSuffix, vietnamDayStartUtc } from './format';
+import { formatBytes, formatDate, formatMegabytes, formatTime, parseDisplayDate, vietnamDayStartUtc } from './format';
 
 // Kết quả không phụ thuộc múi giờ của máy: mọi hàm cố định Asia/Ho_Chi_Minh (environment.md §8; research R-17)
 describe('định dạng hiển thị', () => {
@@ -38,10 +38,5 @@ describe('định dạng hiển thị', () => {
   it('vietnamDayStartUtc: 00:00 giờ Việt Nam của ngày YYYY-MM-DD, dạng UTC', () => {
     expect(vietnamDayStartUtc('2026-11-01')).toBe('2026-10-31T17:00:00.000Z');
     expect(vietnamDayStartUtc('2026-11-01', 1)).toBe('2026-11-01T17:00:00.000Z');
-  });
-
-  it('qrSuffix lấy 6 ký tự cuối', () => {
-    expect(qrSuffix('AbCdEf0123456789')).toBe('456789');
-    expect(qrSuffix('abc')).toBe('abc');
   });
 });

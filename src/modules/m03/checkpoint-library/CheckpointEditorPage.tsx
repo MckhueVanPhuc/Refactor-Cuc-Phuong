@@ -29,7 +29,6 @@ import { ItemHistoryPanel } from '../history/ItemHistoryPanel';
 import { formatMessage } from '../messages/catalog';
 import { DISPLAY_NAMES, readinessLabel } from '../messages/displayNames';
 import { FIELD_LABELS } from '../messages/fieldLabels';
-import { qrSuffix } from '../messages/format';
 import { OperationActions, OperationDialogs, useOperationLauncher } from '../operations/OperationLauncher';
 import { ADMIN_PATHS } from '../paths';
 import { checkpointPublishIssues, checkpointSaveIssues } from '../validation/checkpoint';
@@ -86,6 +85,8 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
   const [flash, clearFlash] = useFlash();
   const [editor, setEditor] = useState<CheckpointEditor | null>(null);
   const [loadError, setLoadError] = useState<AdminApiError | null>(null);
+  // Điểm tham quan đã thu hồi ẩn mặc định (BR-M03-E16)
+  const [showRevoked, setShowRevoked] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [actionOutcome, setActionOutcome] = useState<CommandResult<unknown> | null>(null);
@@ -206,6 +207,8 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
   const { state, update } = form;
   const savedMode = (editor?.draft ?? editor?.published)?.content.connectivityMode;
   const openVisitPoints = editor?.visitPoints.filter((vp) => vp.status !== 'THU_HOI') ?? [];
+  const revokedCount = (editor?.visitPoints.length ?? 0) - openVisitPoints.length;
+  const listedVisitPoints = showRevoked ? (editor?.visitPoints ?? []) : openVisitPoints;
   const readyCount = openVisitPoints.filter((vp) => vp.readiness.ready).length;
   const limitReached = openVisitPoints.length >= CHECKPOINT_QR_MAX_ITEMS;
   const archived = editor?.status === 'LUU_TRU';
@@ -354,7 +357,7 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
               )}
             </div>
             {addBlocked && !archived ? <p className={layout.note}>{addBlocked}</p> : null}
-            {editor && editor.visitPoints.length > 0 ? (
+            {editor && listedVisitPoints.length > 0 ? (
               <div className={layout.tableWrap}>
                 <table className={layout.table} aria-label="Điểm tham quan">
                   <thead>
@@ -362,11 +365,10 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
                       <th scope="col">Tên</th>
                       <th scope="col">Trạng thái</th>
                       <th scope="col">Sẵn sàng</th>
-                      <th scope="col">Mã</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {editor.visitPoints.map((vp) => (
+                    {listedVisitPoints.map((vp) => (
                       <tr key={vp.qrIdentifier} aria-current={vp.qrIdentifier === highlightQr ? 'true' : undefined}>
                         <td>
                           <Link className={layout.rowLink} to={ADMIN_PATHS.visitPoint(editor.checkpointId, vp.qrIdentifier)}>
@@ -377,14 +379,22 @@ function CheckpointEditor({ checkpointId }: { checkpointId: string | undefined }
                           <span className={`${layout.status} ${layout[vp.status]}`}>{DISPLAY_NAMES.qrStatus[vp.status]}</span>
                         </td>
                         <td className={vp.readiness.ready ? layout.ready : layout.notReady}>{readinessLabel(vp.readiness.missing)}</td>
-                        <td className={layout.code}>Mã …{qrSuffix(vp.qrIdentifier)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : editor ? (
-              <p className={layout.empty}>Chưa có điểm tham quan nào.</p>
+              <p className={layout.empty}>
+                {revokedCount > 0 ? 'Không có điểm tham quan nào đang dùng.' : 'Chưa có điểm tham quan nào.'}
+              </p>
+            ) : null}
+            {revokedCount > 0 ? (
+              <div>
+                <Button onClick={() => setShowRevoked((shown) => !shown)}>
+                  {showRevoked ? 'Ẩn mục đã thu hồi' : `Hiện mục đã thu hồi (${revokedCount})`}
+                </Button>
+              </div>
             ) : null}
           </section>
         </div>

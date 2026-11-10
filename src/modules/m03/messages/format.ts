@@ -1,4 +1,4 @@
-import { BYTES_PER_MB, QR_CODE_DISPLAY_SUFFIX_CHARS } from '../config/limits';
+import { BYTES_PER_MB } from '../config/limits';
 
 // Giờ hiển thị cố định Asia/Ho_Chi_Minh, không phụ thuộc múi giờ của máy (environment.md §8; research R-17)
 const TIME_ZONE = 'Asia/Ho_Chi_Minh';
@@ -65,9 +65,4 @@ export function formatMegabytes(bytes: number): string {
 /** Dung lượng kèm đơn vị, ví dụ "1,5 MB" */
 export function formatBytes(bytes: number): string {
   return `${formatMegabytes(bytes)} MB`;
-}
-
-/** Ký tự cuối của mã QR hiện cho nhân viên ("Mã …xxxxxx", BR-M03-E16) */
-export function qrSuffix(qrIdentifier: string): string {
-  return qrIdentifier.slice(-QR_CODE_DISPLAY_SUFFIX_CHARS);
 }

@@ -61,7 +61,7 @@ Mọi màn đã đăng nhập có nút đăng xuất ở header ([auth-account-c
 - Upload nhiều tệp theo [media-storage-contract.md](media-storage-contract.md) §1; tick quyền **từng tệp**; chọn ngôn ngữ nói từng tệp AV (Tiếng Việt / Tiếng Anh / Không lời).
 - Sau lần lưu đầu: MSG-QR-CREATED với hành động "Thêm điểm tham quan khác"; mục vừa lưu được tô sáng trong danh sách; ảnh in có ngay từ lúc này (BR-M03-E16, B02).
 - "Xem trước như du khách" (§5): Should.
-- Vòng đời: In lại (C-17), Thu hồi (C-16, lý do, MSG-CONFIRM-REVOKE-QR), Hủy (C-07).
+- Vòng đời: Thu hồi (C-16, lý do, MSG-CONFIRM-REVOKE-QR), Hủy (C-07). Không có nút "In lại" (CHG-M03-2026-11-10-01): in lại tem hỏng là tải lại ảnh.
 
 ### SCR-M03-004 Xem lại & Xuất bản
 
@@ -87,10 +87,10 @@ Lọc theo tuyến (tùy chọn) và khoảng ngày (dd/mm/yyyy; mặc định 3
 | Nội dung mã | đúng `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}`; không có tham số khác |
 | Định dạng | SVG và PNG; PNG ≥ `QR_PRINT_PNG_MIN_PX` px (provisional 1024) |
 | Mã hóa | mức sửa lỗi `QR_PRINT_ERROR_CORRECTION` (`Q`); quiet zone `QR_PRINT_QUIET_ZONE_MODULES` (4) module |
-| Chữ dưới mã | "Mã …{6 ký tự cuối}" (`QR_CODE_DISPLAY_SUFFIX_CHARS` = 6) |
+| Chữ dưới mã | Tên tiếng Việt đã lưu của điểm tham quan lúc tải ảnh (bản nháp nếu có, không thì bản đã xuất bản), tối đa 2 dòng, dài hơn thì cắt bằng "…"; không lưu lại (CHG-M03-2026-11-10-01) |
 | Điểm dừng `OFFLINE_REQUIRED` | thêm dòng "Khu vực không có sóng — hãy tải dữ liệu tuyến trước khi đến / No signal here — download the route data before you come" |
 | Ngoài Production | thêm dấu "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA". Hiện khi `IS_PRODUCTION_BUILD` là false ([research.md](../research.md) R-13) |
-| Màn tải xuống | ghi độ rộng in tối thiểu `QR_PRINT_MIN_SIZE_CM` (3 cm); QR chưa `HOAT_DONG` → MSG-QR-PRINT-UNPUBLISHED |
+| Màn tải xuống | chưa lưu tên tiếng Việt → hai nút tải bị tắt, kèm MSG-MISSING-FIELD ("Còn thiếu: Tên đối tượng (tiếng Việt)."); QR chưa `HOAT_DONG` → MSG-QR-PRINT-UNPUBLISHED; tên tệp `ma-qr-{tên bỏ dấu}`; không có nút "In lại" (in lại = tải lại ảnh) |
 | Thư viện | `qrcode` 1.5.x, lazy-load chỉ ở màn này |
 
 ## 5. Xem trước như du khách (BR-M03-F12; Should)
