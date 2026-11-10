@@ -10,11 +10,12 @@ import { TextField } from '../../../shared/ui/TextField';
 import { useAdminApi } from '../api/AdminApiProvider';
 import { AdminApiError } from '../api/errors';
 import { useSessionExpiry } from '../auth/useSessionExpiry';
-import type { AuditLogFilter, AuditLogPage as AuditLogPageData, SubjectType } from '../contracts/adminDtos';
+import type { AuditLogFilter, AuditLogPage as AuditLogPageData, AuditRow, SubjectType } from '../contracts/adminDtos';
 import layout from '../editor/EditorLayout.module.css';
 import { formatMessage } from '../messages/catalog';
 import { formatDate, formatTime, parseDisplayDate, vietnamDayStartUtc } from '../messages/format';
 import { ADMIN_PATHS } from '../paths';
+import { AuditDetail, DetailDialog, detailLines } from './AuditDetail';
 import { actionName, resultName, subjectLabel, SUBJECT_TYPE_NAMES } from './auditFormat';
 import styles from './AuditLogPage.module.css';
 
@@ -50,6 +51,7 @@ export function AuditLogPage() {
   const [page, setPage] = useState(0);
   const [data, setData] = useState<AuditLogPageData | null>(null);
   const [error, setError] = useState<AdminApiError | null>(null);
+  const [opened, setOpened] = useState<AuditRow | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -94,7 +96,16 @@ export function AuditLogPage() {
       {data && data.rows.length === 0 ? <p className={layout.empty}>Không có dòng nhật ký nào khớp.</p> : null}
       {data && data.rows.length > 0 ? (
         <div className={layout.tableWrap}>
-          <table className={layout.table} aria-label="Nhật ký">
+          <table className={`${layout.table} ${styles.auditTable}`} aria-label="Nhật ký">
+            {/* Năm cột đầu rộng bằng nhau, "Chi tiết" lấy phần còn lại */}
+            <colgroup>
+              <col className={styles.colShort} />
+              <col className={styles.colShort} />
+              <col className={styles.colShort} />
+              <col className={styles.colShort} />
+              <col className={styles.colShort} />
+              <col className={styles.colDetail} />
+            </colgroup>
             <thead>
               <tr>
                 <th scope="col">Thời gian</th>
@@ -119,16 +130,31 @@ export function AuditLogPage() {
                   </td>
                   <td className={row.result === 'SUCCESS' ? layout.ready : styles.failure}>{resultName(row.result)}</td>
                   <td className={styles.wrap}>
-                    {row.reason ? <p>Lý do: {row.reason}</p> : null}
-                    {row.changeLines.map((line) => (
-                      <p key={line}>{line}</p>
-                    ))}
+                    <AuditDetail lines={detailLines(row)} onOpen={() => setOpened(row)} />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      ) : null}
+
+      {opened ? (
+        <DetailDialog
+          title={`${actionName(opened.action)} – ${subjectLabel(opened)}`}
+          meta={
+            <>
+              <span>
+                {formatDate(opened.occurredAt)} {formatTime(opened.occurredAt)}
+              </span>
+              <span>{opened.actorEmail}</span>
+              <span className={opened.result === 'SUCCESS' ? layout.ready : styles.failure}>{resultName(opened.result)}</span>
+              {opened.selfPublished ? <span className={styles.badge}>Tự xuất bản</span> : null}
+            </>
+          }
+          lines={detailLines(opened)}
+          onClose={() => setOpened(null)}
+        />
       ) : null}
 
       {data && (page > 0 || data.hasMore) ? (

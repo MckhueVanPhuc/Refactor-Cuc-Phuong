@@ -9,17 +9,84 @@
   white-space: nowrap;
 }
 
+/* Chỉ ngắt giữa từ khi một chuỗi (ví dụ email) dài hơn cả cột */
 .wrap {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
-/* Dấu "tự xuất bản" luôn bằng chữ, nằm trên chính dòng xuất bản */
+/* Bảng nhật ký: năm cột đầu bằng nhau, "Chi tiết" lấy phần còn lại; màn hẹp thì cuộn ngang trong tableWrap */
+.auditTable {
+  table-layout: fixed;
+  min-width: 60rem;
+}
+
+.auditTable td {
+  vertical-align: top;
+}
+
+.colShort {
+  width: 12%;
+}
+
+.colDetail {
+  width: 40%;
+}
+
+/* Dấu "tự xuất bản" luôn bằng chữ, nằm trên chính dòng xuất bản; trong bảng thì xuống dòng riêng */
 .badge {
-  display: inline-block;
-  margin-left: var(--space-2);
+  display: block;
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
   color: var(--color-warning);
+}
+
+/* Cột "Chi tiết": tối đa 3 dòng chữ */
+.detailClamp {
+  max-height: calc(3 * var(--line-height-body) * 1em);
+  overflow: hidden;
+}
+
+.detailClamp p,
+.detailBody p {
+  margin: 0;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 0;
+  font: inherit;
+  color: var(--color-m03-accent);
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Hộp thoại xem đủ chi tiết: rộng hơn hộp xác nhận vì có nhiều dòng "trước → sau" */
+.detailPanel {
+  max-width: 48rem;
+}
+
+.detailMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+.detailMeta .badge {
+  display: inline;
+}
+
+.detailBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow-wrap: break-word;
 }
 
 .failure {

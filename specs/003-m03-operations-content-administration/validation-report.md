@@ -945,3 +945,13 @@ Người vận hành cloud đã gửi được lời mời; cả hai Reviewer đ
 | D-149 | Bấm link trong email khôi phục thì về form "Gửi yêu cầu khôi phục" thay vì form đặt mật khẩu mới. `RecoveryPage` chọn chế độ theo URL lúc trang lazy hiện ra, nhưng supabase-js đã tạo phiên và xóa `#access_token=…` khỏi URL trước đó. Trang nhận lời mời không bị vì nó dựa vào phiên | Sửa: `AdminApiProvider` chụp URL trước khi tạo client; `session.ts` đọc thêm bản chụp khi còn ở trang tải ban đầu; unit test `session.test.ts`. Kiểm lại trên Production sau khi merge |
 
 Kiểm chứng: `npm run ci` PASS (2127 test, 133 skipped). `npm run e2e`: NOT RUN, vì e2e chạy với auth giả, không có luồng hash của Supabase. Kiểm lại khôi phục mật khẩu trên Production: chờ deploy.
+
+## 29. Bố cục bảng Nhật ký hệ thống (SCR-M03-009, 2026-11-10)
+
+Trên Production, cột "Chi tiết" của dòng xuất bản tuyến dài khoảng 20 dòng; bảng tự co theo nội dung nên email, tên mục, thao tác và kết quả bị ép xuống dòng 3–5 lần. Chủ dự án quyết định cách hiển thị mới.
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| D-150 | Bảng nhật ký không cố định độ rộng cột; Chi tiết hiện đủ mọi dòng ngay trong bảng | Sửa: năm cột đầu mỗi cột 12%, Chi tiết 40%, `table-layout: fixed`, `min-width: 60rem` (màn hẹp cuộn ngang trong vùng bảng). Chi tiết tối đa 3 dòng; dài hơn thì nút "…Xem thêm" mở hộp thoại chỉ đọc (`AuditDetail.tsx`) có đủ lý do và mọi dòng trước → sau, nút "Đóng", Esc đóng, trả focus. Dấu "Tự xuất bản" xuống dòng riêng trong cột Thao tác. Cập nhật design-system §5.3 (thay quy tắc 2 dòng + `aria-expanded`) và screen-spec SCR-M03-009 (E-12, tương tác 5, OQ-003 thay cách cắt 200 ký tự) |
+
+Kiểm chứng: `npm run ci` PASS (2132 test, 133 skipped). `npx playwright test e2e/m03/history.spec.ts e2e/m03/forbidden-words.spec.ts` PASS (4 test). Xem trên trình duyệt thật với tuyến thật: chờ deploy.
