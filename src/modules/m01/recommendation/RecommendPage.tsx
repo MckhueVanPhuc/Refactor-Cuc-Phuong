@@ -5,6 +5,7 @@ import { useId, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { experienceTag, groupTag, timeTag } from '../../../shared/contracts/publishedRoute';
+import { TintIcon } from '../../../shared/ui/Icon';
 import { useM01Services } from '../api/services';
 import { useCatalog } from '../catalog/catalogStore';
 import { RouteCard } from '../catalog/RouteCard';
@@ -15,6 +16,25 @@ import { recommend, type RecommendationCriteria, type RecommendationResult } fro
 import styles from './RecommendPage.module.css';
 
 type GroupKey = keyof RecommendationCriteria;
+
+const GROUP_ICONS: Record<GroupKey, string> = { time: 'clock', group: 'people', experience: 'tree' };
+
+/** Cho phép xuống dòng ngay sau "/" (ví dụ "Cá nhân/người lớn") mà không đổi chữ đọc được. */
+function breakAfterSlash(text: string) {
+  return text.split('/').flatMap((part, index) => (index === 0 ? [part] : ['/', <wbr key={index} />, part]));
+}
+
+/** Nhãn có phần trong ngoặc (ví dụ "Ngắn (đến 90 phút)") xuống dòng phần ngoặc; chữ đọc được vẫn y nguyên. */
+function OptionLabel({ label }: { label: string }) {
+  const cut = label.indexOf(' (');
+  if (cut < 0) return <span className={styles.optionText}>{breakAfterSlash(label)}</span>;
+  return (
+    <span className={styles.optionText}>
+      {label.slice(0, cut)}{' '}
+      <span className={styles.optionNote}>{label.slice(cut + 1)}</span>
+    </span>
+  );
+}
 
 function ChoiceGroup({
   name,
@@ -33,6 +53,7 @@ function ChoiceGroup({
   return (
     <div className={styles.group} role="radiogroup" aria-labelledby={titleId}>
       <p className={styles.groupTitle} id={titleId}>
+        <TintIcon name={GROUP_ICONS[name]} />
         {title}
       </p>
       <div className={styles.options}>
@@ -45,7 +66,7 @@ function ChoiceGroup({
               checked={value === option.value}
               onChange={() => onChange(option.value)}
             />
-            <span>{option.label}</span>
+            <OptionLabel label={option.label} />
           </label>
         ))}
       </div>
@@ -101,7 +122,10 @@ export function RecommendPage() {
 
   return (
     <>
-      <h1 className={styles.title}>{messages.screenTitle.recommend}</h1>
+      <h1 className={styles.title}>
+        <TintIcon name="leaf" className={styles.leaf} />
+        {messages.screenTitle.recommend}
+      </h1>
       {catalog.status === 'unavailable' && <p className={styles.message}>{messages.recommend.sourceUnavailable}</p>}
       <form
         className={styles.form}
@@ -122,6 +146,7 @@ export function RecommendPage() {
           />
         ))}
         <button type="submit" className={styles.submit} disabled={!complete || catalog.status !== 'ready'}>
+          <TintIcon name="send" />
           {messages.recommend.submit}
         </button>
       </form>
@@ -145,6 +170,7 @@ export function RecommendPage() {
                   {messages.recommend.changeChoices}
                 </button>
                 <Link className={styles.secondary} to={PATHS.catalog}>
+                  <TintIcon name="star" />
                   {messages.recommend.seeAllRoutes}
                 </Link>
               </div>
@@ -153,8 +179,9 @@ export function RecommendPage() {
         </section>
       )}
       {results?.kind !== 'results' && (
-        <div className={styles.actions}>
-          <Link className={styles.secondary} to={PATHS.catalog}>
+        <div className={`${styles.actions} ${styles.footerActions}`}>
+          <Link className={`${styles.secondary} ${styles.wide}`} to={PATHS.catalog}>
+            <TintIcon name="star" />
             {messages.recommend.seeAllRoutes}
           </Link>
         </div>

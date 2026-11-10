@@ -1,11 +1,11 @@
 /*
  * Journey map trên bề mặt scanner (mockup-SCR-M02-001 "Hành trình"). Điểm nhận diện của màn: một dải số thứ tự nối
- * nhau bằng đường mảnh như lối mòn trong rừng; điểm đã quét có số tô màu success của scanner. Trạng thái luôn có nhãn
- * chữ, không chỉ màu (design-system §5 "M02 — Field Experience").
+ * nhau bằng đường mảnh như lối mòn trong rừng; điểm đã quét có số tô màu success của scanner. Mỗi điểm là thẻ kính mờ
+ * trên ảnh nền. Trạng thái luôn có nhãn chữ, không chỉ màu (design-system §5 "M02 — Field Experience").
  */
 .journey {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .header {
@@ -18,15 +18,16 @@
 
 .heading {
   margin: 0;
-  font-size: var(--font-size-row-title);
+  font-size: var(--font-size-m01-route-title);
   font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  color: var(--color-m02-scanner-success);
 }
 
 .progress {
   margin: 0;
   font-size: var(--font-size-meta);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-m02-scanner-success);
+  color: var(--color-m02-scanner-secondary);
 }
 
 .list {
@@ -39,33 +40,46 @@
 .item {
   position: relative;
   display: grid;
-  grid-template-columns: calc(var(--space-8) - var(--space-1)) 1fr;
-  gap: var(--space-3);
-  align-items: start;
-  padding-bottom: var(--space-3);
+  grid-template-columns: var(--journey-dot) 1fr;
+  gap: var(--space-4);
+  align-items: center;
+  padding-bottom: var(--journey-gap);
+  --journey-dot: calc(var(--space-8) + var(--space-1));
+  --journey-gap: var(--space-4);
 }
 
-/* Lối mòn: đường mảnh nối số thứ tự của điểm này với điểm kế tiếp */
-.item:not(:last-child)::before {
+/* Lối mòn: đường mảnh nối các vòng số. Số nằm giữa thẻ theo chiều dọc và thẻ cao thấp khác nhau, nên mỗi điểm vẽ
+   nửa trên (từ mép trên tới vòng số) và nửa dưới (từ vòng số tới mép dưới) của riêng nó */
+.item:not(:first-child)::before,
+.item:not(:last-child)::after {
   content: '';
   position: absolute;
-  top: calc(var(--space-8) - var(--space-1));
-  bottom: 0;
-  left: calc((var(--space-8) - var(--space-1)) / 2);
+  left: calc(var(--journey-dot) / 2);
   border-left: var(--border-width-thin) dashed var(--color-m02-scanner-secondary);
+}
+
+.item:not(:first-child)::before {
+  top: 0;
+  height: calc((100% - var(--journey-gap)) / 2 - var(--journey-dot) / 2);
+}
+
+.item:not(:last-child)::after {
+  top: calc((100% - var(--journey-gap)) / 2 + var(--journey-dot) / 2);
+  bottom: 0;
 }
 
 .number {
   display: inline-grid;
   place-items: center;
-  width: calc(var(--space-8) - var(--space-1));
-  height: calc(var(--space-8) - var(--space-1));
-  font-size: var(--font-size-meta);
-  font-weight: var(--font-weight-semibold);
+  position: relative;
+  width: var(--journey-dot);
+  height: var(--journey-dot);
+  font-size: var(--font-size-body);
   color: var(--color-m02-scanner-text);
-  background: var(--color-m02-scanner-bg);
+  background: var(--m02-surface);
+  backdrop-filter: var(--m02-glass-blur, none);
   border: var(--border-width-thin) solid var(--color-m02-scanner-secondary);
-  border-radius: var(--radius-lg);
+  border-radius: 50%;
 }
 
 .item:has(.open) .number {
@@ -79,13 +93,14 @@
   display: grid;
   gap: var(--space-1);
   min-height: var(--touch-target);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-4) var(--space-5);
   text-align: left;
   color: inherit;
   font: inherit;
-  background: var(--color-m02-scanner-surface);
-  border: var(--border-width-thin) solid transparent;
-  border-radius: var(--radius-md);
+  background: var(--m02-surface);
+  backdrop-filter: var(--m02-glass-blur, none);
+  border: var(--border-width-thin) solid var(--m02-surface-frame);
+  border-radius: var(--radius-lg);
 }
 
 .open {
@@ -106,7 +121,9 @@
 }
 
 .name {
+  font-size: calc(var(--font-size-body) * 1.125);
   font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
 }
 
 .status {

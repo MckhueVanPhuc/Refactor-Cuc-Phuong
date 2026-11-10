@@ -3,6 +3,7 @@
 // việc lọc lại sau mỗi lần đọc thành công.
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
+import { TintIcon } from '../../../shared/ui/Icon';
 import { useM01Services } from '../api/services';
 import { useM01Messages } from '../i18n/useM01Messages';
 import { useDisplayLanguage } from '../language/useLanguagePreference';
@@ -31,9 +32,15 @@ export function CatalogPage() {
   return (
     <>
       <div className={styles.hero}>
-        <h1 className={styles.title}>{messages.screenTitle.catalog}</h1>
+        <TintIcon name="hills" className={styles.hills} />
+        <h1 className={styles.title}>
+          <TintIcon name="leaf" className={styles.leaf} />
+          {messages.screenTitle.catalog}
+        </h1>
         <Link className={styles.recommendLink} to={PATHS.recommend}>
+          <TintIcon name="compass" />
           {messages.nav.recommend}
+          <TintIcon name="chevron-right" className={styles.chevron} />
         </Link>
       </div>
 

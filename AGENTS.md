@@ -92,7 +92,7 @@ Không đổi tên contract, bỏ suffix/version hoặc hợp nhất transport s
 | vercel.json | Rewrite SPA và header cache của Single Vercel Project | Theo tasks M03 T202 và CHG-M03-2026-11-05-01 |
 | supabase/config.toml, supabase/seed.sql | Cấu hình và dữ liệu synthetic cho Supabase local | Chỉ local; không seed lên cloud, không dùng `supabase config push` |
 | supabase/migrations/, supabase/functions/, supabase/tests/, supabase/scripts/ | Backend M03 giai đoạn B: migration, RPC, Edge Function, pgTAP, script operator; Edge Function dịch của AI Integration | Agent chỉ chạy trên stack local theo CHG-M03-2026-10-30-01 (và CHG-AI-2026-11-03-01, duyệt 2026-11-03, cho function dịch); theo Physical Schema và tasks M03; `link`/`db push`/deploy chỉ do người vận hành cloud chạy theo CHG-M03-2026-11-05-01 |
-| assets/ | Static assets dùng chung (hiện có assets/icons/) | Chỉ thêm file do người dùng cung cấp; không tự tạo hay vẽ asset |
+| assets/ | Static assets dùng chung (hiện có assets/icons/) | Ảnh và asset khác: chỉ thêm file do người dùng cung cấp. Icon: agent được vẽ icon SVG mới trong assets/icons/ (người dùng cho phép 2026-11-10), theo design-system §7 |
 | data/01-entity-dictionary.md | S1 canonical entity vocabulary | Không thêm entity từ implementation convenience |
 | data/02-crud-matrix.md | S2 FN-level direct CRUD evidence | Không gán CRUD từ indirect/delegated effect |
 | data/03-erd.mmd | Canonical S3 Mermaid ERD source | Không đổi semantics để chữa lỗi render |

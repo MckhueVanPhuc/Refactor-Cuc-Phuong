@@ -1,29 +1,31 @@
 /*
- * Thẻ tuyến (design-system §5.2, §5.3): ảnh dẫn đầu, tên trước, metadata bên dưới; tên và metadata đọc được khi
- * không có ảnh. Thẻ là một liên kết duy nhất tới chi tiết tuyến.
+ * Thẻ tuyến (design-system §5.2, §5.3): ảnh dẫn đầu, thân thẻ trắng vồng lên mép dưới ảnh như sườn đồi; tên serif có
+ * dấu ghim, metadata có icon, độ khó và dấu "Cần tải trước" dạng viên thuốc. Tên và metadata đọc được khi không có
+ * ảnh. Thẻ là một liên kết duy nhất tới chi tiết tuyến.
  */
 .card {
   display: grid;
+  grid-template-rows: auto 1fr;
   height: 100%;
   overflow: hidden;
   color: var(--color-m01-ink);
   text-decoration: none;
   background: var(--color-white);
   border: var(--border-width-thin) solid var(--color-m01-line);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
 }
 
 .card:hover .body {
-  background: var(--overlay-surface-hover);
+  background-image: linear-gradient(var(--overlay-surface-hover), var(--overlay-surface-hover));
 }
 
 .card:active .body {
-  background: var(--overlay-surface-pressed);
+  background-image: linear-gradient(var(--overlay-surface-pressed), var(--overlay-surface-pressed));
 }
 
 .media {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   background: var(--color-m01-line);
 }
 
@@ -34,22 +36,42 @@
   object-fit: cover;
 }
 
+/* Mép trên của thân thẻ là một vòm thấp phủ lên đáy ảnh */
 .body {
+  position: relative;
   display: grid;
   align-content: start;
-  gap: var(--space-2);
-  padding: var(--space-4);
+  gap: var(--space-3);
+  margin-top: calc(var(--space-6) * -1);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  background: var(--color-white);
+  border-radius: 50% 50% 0 0 / var(--space-6) var(--space-6) 0 0;
 }
 
 .name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   font-family: var(--font-serif);
   font-size: var(--font-size-m01-route-title);
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
   color: var(--color-m01-deep);
 }
 
+.pin {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: calc(var(--space-8) + var(--space-1));
+  height: calc(var(--space-8) + var(--space-1));
+  color: var(--color-m01-forest);
+  background: color-mix(in srgb, var(--color-m01-forest) 12%, transparent);
+  border-radius: 50%;
+}
+
 .description {
-  color: var(--color-m01-secondary);
+  color: var(--color-m01-ink);
 }
 
 .stats {
@@ -57,26 +79,64 @@
   color: var(--color-m01-secondary);
 }
 
+.statItems {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: var(--space-1);
+}
+
+/* Ba mục cách nhau bằng vạch dọc mảnh, thay cho dấu "·" của chuỗi copy */
+.statItem {
+  --icon-size: calc(var(--space-4) + var(--space-1));
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-3);
+}
+
+.statItem:first-child {
+  padding-left: 0;
+}
+
+.statItem + .statItem {
+  border-left: var(--border-width-thin) solid var(--color-m01-line);
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--space-2);
   margin-top: var(--space-1);
 }
 
-.chip {
+.difficulty,
+.offlineChip {
   display: inline-flex;
   align-items: center;
-  min-height: calc(var(--space-6) + var(--space-1));
-  padding: 0 var(--space-2);
+  gap: var(--space-2);
+  min-height: calc(var(--space-8) + var(--space-1));
+  padding: 0 var(--space-4);
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
-  border: var(--border-width-thin) solid var(--color-m01-secondary);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
 }
 
-/* "Cần tải trước": chữ và viền forest (8.50:1 trên nền sáng), không chỉ dựa vào màu nhờ nhãn chữ */
-.offlineChip {
+.difficulty {
+  --icon-size: var(--space-5);
+
   color: var(--color-m01-forest);
-  border-color: var(--color-m01-forest);
+  background: color-mix(in srgb, var(--color-m01-forest) 10%, transparent);
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-m01-forest) 22%, transparent);
+}
+
+/* "Cần tải trước": chữ và viền ink (nền trắng), không chỉ dựa vào màu nhờ nhãn chữ */
+.offlineChip {
+  --icon-size: var(--space-4);
+
+  color: var(--color-m01-ink);
+  border: var(--border-width-thin) solid var(--color-m01-ink);
 }

@@ -2,6 +2,7 @@
 // bảng copy; chỉ điều hướng sang M02 sau khi context đã commit (startRoute).
 import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { TintIcon } from '../../../shared/ui/Icon';
 import { useM01Services } from '../api/services';
 import { useM01Messages } from '../i18n/useM01Messages';
 import { browserLocks, createStartRoute, type StartResult } from '../start/startRoute';
@@ -53,6 +54,7 @@ export function StartPanel({
   return (
     <div className={styles.panel}>
       <button type="button" className={styles.start} disabled={running} aria-busy={running} onClick={() => void onStart()}>
+        <TintIcon name="start" />
         {messages.start}
       </button>
       {error && (

@@ -6,3 +6,12 @@
   object-fit: contain;
   vertical-align: middle;
 }
+
+.tint {
+  display: inline-block;
+  flex: none;
+  width: var(--icon-size, var(--space-5));
+  height: var(--icon-size, var(--space-5));
+  background: currentColor;
+  mask: var(--icon-url) center / contain no-repeat;
+}

@@ -13,6 +13,8 @@ import { usePackageImageUrl } from '../media/usePackageImageUrl';
 import { useSignedUrls } from '../media/useSignedUrls';
 import { onlineDetailView, savedDetailView, type DetailView } from './detailView';
 import type { JourneySnapshot } from '../../../shared/contracts/journeySnapshot';
+import { TintIcon } from '../../../shared/ui/Icon';
+import { DifficultyBars } from '../layout/DifficultyBars';
 import { maybeUpdatePackage } from '../offline-package/lazyUpdate';
 import { needsPackage } from '../offline-package/needsPackage';
 import type { PackageOpResult } from '../offline-package/packageOps';
@@ -74,16 +76,19 @@ function DetailBody({ view }: { view: DetailView }) {
       {view.facts && (
         <dl className={styles.facts}>
           <div className={styles.fact}>
+            <TintIcon name="distance" className={styles.factIcon} />
             <dt>{sections.distance}</dt>
             <dd>{messages.routeDetail.distanceValue({ km: formatDistanceKm(view.facts.distanceKm, language) })}</dd>
           </div>
           <div className={styles.fact}>
+            <TintIcon name="clock" className={styles.factIcon} />
             <dt>{sections.duration}</dt>
             <dd>{messages.routeDetail.durationValue({ min: view.facts.durationMin })}</dd>
           </div>
           <div className={styles.fact}>
+            <DifficultyBars difficulty={view.facts.difficulty} className={styles.factIcon} />
             <dt>{sections.difficulty}</dt>
-            <dd>{messages.labels.difficulty[view.facts.difficulty]}</dd>
+            <dd className={styles.difficultyValue}>{messages.labels.difficulty[view.facts.difficulty]}</dd>
           </div>
         </dl>
       )}

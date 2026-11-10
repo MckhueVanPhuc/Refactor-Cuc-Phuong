@@ -321,11 +321,12 @@ Hệ quả cho thiết kế: các cặp trên 4.5:1 dùng được cho chữ th�
 ## 7. Icon
 
 - Icon chỉ lấy từ [assets/icons/](../../assets/icons/); đây là nơi duy nhất chứa icon của dự án.
-- Không tự vẽ icon; không lấy icon từ thư viện khác khi chưa được phê duyệt.
+- Từ 2026-11-10 người dùng cho phép agent vẽ icon SVG mới trong assets/icons/: nét đơn sắc trên lưới 24×24, dùng làm mask để màu lấy từ token. Không lấy icon từ thư viện khác khi chưa được phê duyệt.
 - Icon đi kèm chữ ở nơi truyền đạt trạng thái (Status chip, thông báo lỗi); không dùng icon hay màu làm tín hiệu duy nhất.
 - Màu icon lấy từ token màu của mục 2, không hard-code.
 - Nút dịch "→" của M03 dùng ký tự chữ, không phải icon, nên không cần file trong assets/icons/ (quyết định người dùng 2026-11-03, Spec AI Integration OD-AI-18).
 - Ngoại lệ do người dùng duyệt 2026-11-08 cho bước chọn ngôn ngữ của SCR-M01-001: agent vẽ `flag-vi.svg`, `flag-en.svg` và `divider-mountain.svg` trong assets/icons/. Hai cờ giữ màu của chính lá cờ; hình núi chỉ dùng làm mask, màu lấy từ token. Cờ chỉ để trang trí, không thay chữ "Tiếng Việt"/"English".
+- Ngoại lệ do người dùng duyệt 2026-11-10 cho nút Quét của SCR-M02-001: agent vẽ `qr-scan.svg` (camera trong khung quét) trong assets/icons/. Chỉ dùng làm mask, màu theo chữ của nút; icon đứng trước chữ "Quét QR", không thay chữ.
 - Logo dùng chung là `logo-emblem.png`, bản sạch của `icon.png` (nền trắng, bỏ vạch đen ở mép), dùng cho favicon, thanh app và panel chọn ngôn ngữ. Icon cài đặt `pwa-192.png`, `pwa-512.png`, `pwa-maskable-512.png` và `apple-touch-icon.png` là logo này đặt giữa nền trắng vuông; bản maskable giữ logo trong vòng tròn an toàn 80%. Tất cả do agent dựng theo yêu cầu người dùng 2026-11-08.
 
 ---

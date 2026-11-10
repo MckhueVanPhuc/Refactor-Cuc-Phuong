@@ -165,6 +165,7 @@ export function TripPage() {
       {entry.status === 'done' && (
         <div className={styles.actions}>
           <button type="button" className={styles.scan} onClick={() => setScanning(true)} disabled={lookingUp}>
+            <span className={styles.scanIcon} aria-hidden="true" />
             {messages.trip.scan}
           </button>
           {session && finalVisited && (

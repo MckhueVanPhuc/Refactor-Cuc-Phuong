@@ -1,38 +1,78 @@
-/* SCR-M01-001 — hero serif gọn trên điện thoại để hành động khám phá dễ tìm (design-system §3, §5.1) */
+/*
+ * SCR-M01-001 — hero serif có lá non và dải đồi nhạt ở góc phải (design-system §3, §5.1). Đồi và lá chỉ trang trí;
+ * hành động khám phá "Gợi ý tuyến" là viên thuốc trắng có la bàn, dễ tìm trên điện thoại.
+ */
 .hero {
+  position: relative;
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5);
   justify-items: start;
   margin-bottom: var(--space-6);
+  padding-top: var(--space-2);
+}
+
+/* Đồi nằm cạnh nút "Gợi ý tuyến", không đè lên tiêu đề dài */
+.hills {
+  --icon-size: calc(var(--space-8) * 4);
+
+  position: absolute;
+  right: calc(var(--space-2) * -1);
+  bottom: 0;
+  height: calc(var(--space-8) * 2);
+  color: color-mix(in srgb, var(--color-m01-forest) 22%, transparent);
+  pointer-events: none;
 }
 
 .title {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   font-family: var(--font-serif);
   font-size: calc(var(--font-size-page-heading) + var(--space-2));
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
   color: var(--color-m01-deep);
 }
 
+.leaf {
+  --icon-size: var(--space-8);
+
+  color: var(--color-m01-forest);
+}
+
 .recommendLink {
+  --icon-size: var(--space-5);
+
+  position: relative;
   display: inline-flex;
   align-items: center;
-  min-height: var(--touch-target);
+  gap: var(--space-2);
+  min-height: calc(var(--touch-target) + var(--space-1));
   padding: 0 var(--space-4);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-m01-forest);
+  color: var(--color-m01-ink);
   text-decoration: none;
-  border: var(--border-width-thin) solid var(--color-m01-forest);
-  border-radius: var(--radius-md);
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m01-ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
 .recommendLink:hover {
-  background: var(--overlay-surface-hover);
+  background-image: linear-gradient(var(--overlay-surface-hover), var(--overlay-surface-hover));
+}
+
+.chevron {
+  --icon-size: var(--space-4);
+
+  margin-left: var(--space-1);
 }
 
 .list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
-  gap: var(--space-4);
+  gap: var(--space-5);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -46,7 +86,7 @@
 .placeholderCard {
   aspect-ratio: 4 / 3;
   background: var(--color-m01-line);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   animation: pulse var(--duration-pulse) var(--ease-in-out) infinite alternate;
 }
 

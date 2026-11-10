@@ -4,7 +4,8 @@ import { useId } from 'react';
 import { useM01Messages } from '../i18n/useM01Messages';
 import type { PackageOpResult } from '../offline-package/packageOps';
 import { activeStatusOf, candidateStatusOf, statusLabel } from '../offline-package/packageStatus';
-import styles from '../offline-package/OfflinePage.module.css';
+import { TintIcon } from '../../../shared/ui/Icon';
+import styles from './PackagePanel.module.css';
 import type { PackageEntry } from '../storage/readers';
 
 export function PackagePanel({
@@ -37,6 +38,7 @@ export function PackagePanel({
   return (
     <section className={styles.row} aria-labelledby={titleId}>
       <h2 className={styles.name} id={titleId}>
+        <TintIcon name="map-download" className={styles.titleIcon} />
         {messages.offline.panelTitle}
       </h2>
       <p className={styles.chips}>
@@ -46,7 +48,12 @@ export function PackagePanel({
             {statusLabel(candidate, messages)}
           </span>
         )}
-        {!active && !candidate && <span className={styles.chip}>{messages.offline.status.notDownloaded}</span>}
+        {!active && !candidate && (
+          <span className={styles.chip}>
+            <TintIcon name="alert-circle" className={styles.alertIcon} />
+            {messages.offline.status.notDownloaded}
+          </span>
+        )}
       </p>
       {active === 'readyOutdated' && <p className={styles.note}>{messages.routeDetail.outdated}</p>}
       {!active && candidate === 'incomplete' && failure !== 'storage' && (
@@ -68,6 +75,7 @@ export function PackagePanel({
       {action && (
         <div className={styles.actions}>
           <button type="button" className={styles.action} onClick={onDownload}>
+            <TintIcon name="download" />
             {action}
           </button>
         </div>

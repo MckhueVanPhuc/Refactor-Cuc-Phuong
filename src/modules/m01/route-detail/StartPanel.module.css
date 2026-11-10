@@ -1,17 +1,26 @@
-/* Vùng Start của SCR-M01-003: CTA chính M01 (--touch-target-m01-primary), nền forest chữ paper (design-system §5.3) */
+/* Vùng Start của SCR-M01-003: CTA chính M01 trên ảnh rừng, nền xanh rêu (forest pha amber, chữ paper 5.1:1) viền amber */
 .panel {
   display: grid;
   gap: var(--space-3);
 }
 
 .start {
-  min-height: var(--touch-target-m01-primary);
+  --icon-size: var(--space-6);
+  --start-fill: color-mix(in srgb, var(--color-m01-forest) 75%, var(--color-m01-amber));
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: calc(var(--touch-target-m01-primary) + var(--space-3));
   padding: 0 var(--space-6);
-  font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
+  font: var(--font-weight-semibold) calc(var(--font-size-body) * 1.25) var(--font-sans);
   color: var(--color-paper);
-  background: var(--color-m01-forest);
-  border: 0;
-  border-radius: var(--radius-md);
+  background: var(--start-fill);
+  border: var(--border-width-thin) solid var(--color-m01-amber);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
   cursor: pointer;
 }
 

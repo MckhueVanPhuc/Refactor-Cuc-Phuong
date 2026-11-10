@@ -1,0 +1,106 @@
+/*
+ * Khối gói tải trước trên chi tiết tuyến (design-system §5.2 "Package panel"): lớp kính tối trên ảnh rừng, tiêu đề có
+ * icon bản đồ tải về, trạng thái dạng viên thuốc, nút tải viền paper. Màn /offline vẫn dùng thẻ sáng của OfflinePage.
+ */
+.row {
+  /* Trạng thái và nút tải chung một hàng khi không có dòng ghi chú xen giữa */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  color: var(--color-paper);
+  background: color-mix(in srgb, var(--color-m01-deep) 55%, transparent);
+  backdrop-filter: blur(var(--space-2));
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 28%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+.name,
+.meta,
+.note,
+.error {
+  flex-basis: 100%;
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-m01-route-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  color: var(--color-m01-line);
+}
+
+.titleIcon {
+  --icon-size: var(--space-8);
+
+  color: var(--color-m01-amber);
+}
+
+.meta,
+.note {
+  font-size: var(--font-size-meta);
+  color: var(--color-m01-line);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  background: color-mix(in srgb, var(--color-m01-deep) 50%, transparent);
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 30%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+.alertIcon {
+  color: var(--color-m02-scanner-warning);
+}
+
+/* Lỗi trên nền tối: chữ paper trong khung màu lỗi sáng của bề mặt tối */
+.error {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-meta);
+  border: var(--border-width-thin) solid var(--color-m02-scanner-error);
+  border-radius: var(--radius-md);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: auto;
+  gap: var(--space-2);
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-5);
+  font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
+  color: var(--color-paper);
+  background: transparent;
+  border: var(--border-width-thin) solid var(--color-m01-amber);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+
+.action:hover {
+  background: var(--overlay-scanner-hover);
+}
+
+.action:active {
+  background: var(--overlay-scanner-pressed);
+}
