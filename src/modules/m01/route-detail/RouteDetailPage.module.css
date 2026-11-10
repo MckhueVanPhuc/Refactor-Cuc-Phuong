@@ -105,9 +105,11 @@
   scroll-snap-align: start;
 }
 
+/* Chú thích ảnh căn giữa dưới khung ảnh */
 .caption {
   font-size: var(--font-size-meta);
   color: var(--color-m01-line);
+  text-align: center;
 }
 
 .facts {

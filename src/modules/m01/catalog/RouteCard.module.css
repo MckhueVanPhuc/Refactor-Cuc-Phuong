@@ -86,14 +86,16 @@
   row-gap: var(--space-1);
 }
 
-/* Ba mục cách nhau bằng vạch dọc mảnh, thay cho dấu "·" của chuỗi copy */
+/* Ba mục cách nhau bằng vạch dọc mảnh, thay cho dấu "·" của chuỗi copy. Icon và khoảng đệm gọn để cả ba vừa một
+   hàng từ khổ 375 px (iPhone SE); mỗi mục không tự xuống dòng bên trong */
 .statItem {
-  --icon-size: calc(var(--space-4) + var(--space-1));
+  --icon-size: var(--space-4);
 
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 0 var(--space-3);
+  padding: 0 var(--space-2);
+  white-space: nowrap;
 }
 
 .statItem:first-child {
