@@ -141,3 +141,9 @@ Chạy 2026-11-04 trên máy ở §1, Docker 29.9.2, Supabase CLI (stack local, 
 | DV-3 | V24 mất response và V25 dùng `page.route()` để bỏ response, giữ `PENDING`, hoặc sửa `contentVersion` trên đường đi. Phiên khác nội dung của 409 gửi phía Node qua chính `session-intake` | Không có cách tự nhiên để mất response hay có bản ghi bị từ chối; mọi kết quả 200 / 409 / 422 vẫn do Edge và DB thật trả |
 
 Ngoài T105: V13 (mã ngoài hành trình), V6–V7 (mã thêm sau), audio/video và các nhánh offline chỉ kiểm bằng mock (cột "Tích hợp thật" ghi `NOT RUN`).
+
+## 9. Lỗi phát hiện khi kiểm trên Production (2026-11-10)
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| P-1 | Quét QR trên điện thoại: phần giới thiệu điểm tham quan (SCR-M02-002) gộp thành một khối, mất các dấu xuống dòng tác giả gõ trong M03. Màn xem trước của M03 giữ đúng xuống dòng nên tác giả không thấy lỗi. `ScanContent.module.css` `.introduction` thiếu `white-space: pre-line`, trong khi `VisitorPreview.module.css` `.intro` và `RouteDetailPage.module.css` `.text` (M01) đều có | Sửa: thêm `white-space: pre-line`. Test `src/modules/m02/content/lineBreaks.test.ts` kiểm quy tắc này ở cả ba file (jsdom không áp CSS); test đỏ khi bỏ bản sửa. `npm run ci` PASS (2132 test), `npx playwright test e2e/m02` PASS (47 test). Kiểm lại trên điện thoại thật sau khi deploy |
