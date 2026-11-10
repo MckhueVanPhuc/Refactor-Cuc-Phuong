@@ -1,6 +1,7 @@
 /*
  * Layout du khách M01 — catalog kiểu field-guide rừng (design-system §5.1; mockup SCR-M01-003).
- * Điểm nhận diện duy nhất là thanh app màu deep; phần nội dung giữ yên trên nền paper.
+ * Điểm nhận diện duy nhất là thanh app màu deep; phần nội dung giữ yên trên nền kem vàng (paper pha amber, như
+ * mockup Route list) để thẻ trắng nổi lên.
  */
 .shell {
   --control-accent: var(--color-m01-forest);
@@ -11,7 +12,7 @@
   flex-direction: column;
   min-height: 100vh;
   color: var(--color-m01-ink);
-  background: var(--color-paper);
+  background: color-mix(in srgb, var(--color-paper) 78%, var(--color-m01-amber));
 }
 
 .appBar {
