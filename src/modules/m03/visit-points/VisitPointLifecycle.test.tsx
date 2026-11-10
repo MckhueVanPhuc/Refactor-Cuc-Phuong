@@ -22,14 +22,12 @@ async function open(seed: Omit<SeedCheckpoint, 'name'>, index = 0) {
 }
 
 describe('vòng đời điểm tham quan (BR-M03-E07, E09–E11; SC-M03-004)', () => {
-  it('In lại chỉ gọi C-17: một dòng audit QR_REPRINTED, không đổi gì khác', async () => {
-    const { store, qrIdentifier } = await open({ visitPoints: [{ name: 'Cây chò', ready: true }], publish: true });
+  it('không có nút "In lại" (CHG-M03-2026-11-10-01): in lại tem hỏng là tải lại ảnh, không ghi gì', async () => {
+    const { store } = await open({ visitPoints: [{ name: 'Cây chò', ready: true }], publish: true });
     const before = store.audit.length;
-    const qr = structuredClone(store.state.qrCodes.get(qrIdentifier));
-    await userEvent.click(screen.getByRole('button', { name: 'In lại' }));
-    await waitFor(() => expect(store.audit.length).toBe(before + 1));
-    expect(store.audit.at(-1)).toMatchObject({ action: 'QR_REPRINTED', result: 'SUCCESS' });
-    expect(store.state.qrCodes.get(qrIdentifier)).toEqual(qr);
+    expect(screen.queryByRole('button', { name: 'In lại' })).toBeNull();
+    expect((screen.getByRole('button', { name: 'Tải ảnh SVG' }) as HTMLButtonElement).disabled).toBe(false);
+    await waitFor(() => expect(store.audit.length).toBe(before));
   });
 
   it('Thu hồi cần lý do và hộp xác nhận MSG-CONFIRM-REVOKE-QR; QR hoạt động cuối → MSG-LAST-QR', async () => {

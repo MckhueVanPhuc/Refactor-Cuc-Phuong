@@ -1,29 +1,32 @@
-// Màn tải ảnh in (admin-ui-flow §4; BR-M03-B02, B05, E07): tải SVG/PNG bất cứ lúc nào sau lần lưu đầu;
-// QR chưa hoạt động thì cảnh báo MSG-QR-PRINT-UNPUBLISHED. "In lại" chỉ ghi nhận C-17.
+// Màn tải ảnh in (admin-ui-flow §4; BR-M03-B02, B05, E07): tải SVG/PNG khi đã lưu tên tiếng Việt; tem in tên đó.
+// QR chưa hoạt động thì cảnh báo MSG-QR-PRINT-UNPUBLISHED. In lại tem hỏng = tải lại ảnh (không có nút riêng).
 import { useId, useState } from 'react';
 import { Banner } from '../../../../shared/ui/Banner';
 import { Button } from '../../../../shared/ui/Button';
-import { QR_PRINT_MIN_SIZE_CM } from '../../config/limits';
 import type { ConnectivityMode, QrStatus } from '../../contracts/adminDtos';
 import { formatMessage } from '../../messages/catalog';
-import { qrSuffix } from '../../messages/format';
-import { downloadFile, renderQrPng, renderQrSvg } from './renderQr';
+import { FIELD_LABELS } from '../../messages/fieldLabels';
+import { downloadFile, qrFileName, renderQrPng, renderQrSvg } from './renderQr';
 import styles from './QrPrintPanel.module.css';
+
+/** Ô phải lưu trước khi tải ảnh: tem in tên tiếng Việt (BR-M03-B05) */
+const NAME_FIELD = `${FIELD_LABELS.QRCODE.objectName} (tiếng Việt)`;
 
 export type QrPrintPanelProps = {
   qrIdentifier: string;
+  /** Tên tiếng Việt đã lưu (bản nháp nếu có, không thì bản đã xuất bản); rỗng thì chưa tải được ảnh */
+  name: string;
   status: QrStatus;
   connectivityMode?: ConnectivityMode | undefined;
-  onReprint: () => void;
-  reprintDisabled?: boolean;
 };
 
-export function QrPrintPanel({ qrIdentifier, status, connectivityMode, onReprint, reprintDisabled }: QrPrintPanelProps) {
+export function QrPrintPanel({ qrIdentifier, name, status, connectivityMode }: QrPrintPanelProps) {
   const [failed, setFailed] = useState(false);
   const titleId = useId();
-  const input = { qrIdentifier, connectivityMode };
-  // Tên tệp chỉ dùng 6 ký tự cuối như trên tem
-  const fileName = `ma-qr-${qrSuffix(qrIdentifier)}`;
+  const noteId = useId();
+  const printName = name.trim();
+  const input = { qrIdentifier, name: printName, connectivityMode };
+  const fileName = qrFileName(printName);
 
   async function download(kind: 'svg' | 'png') {
     setFailed(false);
@@ -40,17 +43,19 @@ export function QrPrintPanel({ qrIdentifier, status, connectivityMode, onReprint
       <h2 id={titleId} className={styles.title}>
         Mã QR để in
       </h2>
-      <p className={styles.code}>Mã …{qrSuffix(qrIdentifier)}</p>
       {status !== 'HOAT_DONG' ? <Banner tone="warning">{formatMessage('MSG-QR-PRINT-UNPUBLISHED')}</Banner> : null}
-      <p className={styles.note}>Khi in, mã phải rộng ít nhất {QR_PRINT_MIN_SIZE_CM} cm.</p>
+      {printName ? null : (
+        <p id={noteId} className={styles.note}>
+          {formatMessage('MSG-MISSING-FIELD', { 'tên ô': NAME_FIELD })}
+        </p>
+      )}
       <div className={styles.actions}>
-        <Button onClick={() => void download('svg')}>Tải ảnh SVG</Button>
-        <Button onClick={() => void download('png')}>Tải ảnh PNG</Button>
-        {status === 'HOAT_DONG' ? (
-          <Button onClick={onReprint} disabled={reprintDisabled}>
-            In lại
-          </Button>
-        ) : null}
+        <Button onClick={() => void download('svg')} disabled={!printName} aria-describedby={printName ? undefined : noteId}>
+          Tải ảnh SVG
+        </Button>
+        <Button onClick={() => void download('png')} disabled={!printName} aria-describedby={printName ? undefined : noteId}>
+          Tải ảnh PNG
+        </Button>
       </div>
       {failed ? <Banner tone="error">{formatMessage('MSG-GENERIC')}</Banner> : null}
     </section>

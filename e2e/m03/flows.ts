@@ -22,12 +22,12 @@ export async function createCheckpoint(page: Page, name: string, mode: 'Cần t�
   await expect(page.getByRole('button', { name: 'Thêm điểm tham quan' })).toBeEnabled();
 }
 
-/** Thêm điểm tham quan sẵn sàng (tên, giới thiệu song ngữ, một ảnh đã tick quyền); trả "Mã …xxxxxx" */
+/** Thêm điểm tham quan sẵn sàng (tên, giới thiệu song ngữ, một ảnh đã tick quyền) */
 export async function addReadyVisitPoint(page: Page, name: string) {
   await page.getByRole('button', { name: 'Thêm điểm tham quan' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Điểm tham quan mới' })).toBeVisible();
-  // Chưa có mã QR trước lần lưu đầu (SC-M03-034)
-  await expect(page.getByText(/^Mã …/)).toHaveCount(0);
+  // Chưa có mã QR trước lần lưu đầu (SC-M03-034): chưa có khung ảnh in
+  await expect(page.getByRole('button', { name: 'Tải ảnh SVG' })).toHaveCount(0);
   await page.getByLabel('Tên đối tượng (tiếng Việt)').fill(name);
   await page.getByLabel('Tên đối tượng (tiếng Anh)').fill(`${name} (en)`);
   await page.getByLabel('Giới thiệu (tiếng Việt)').fill(INTRO);
@@ -37,7 +37,6 @@ export async function addReadyVisitPoint(page: Page, name: string) {
   await page.getByRole('button', { name: 'Lưu bản nháp' }).click();
   await expect(page.getByText(`Đã thêm điểm tham quan "${name}".`)).toBeVisible();
   await expect(page.getByRole('heading', { level: 1, name: `Đang sửa: ${name}` })).toBeVisible();
-  return (await page.locator('h1 + p').getByText(/^Mã …/).first().textContent()) ?? '';
 }
 
 export async function backToCheckpoint(page: Page) {

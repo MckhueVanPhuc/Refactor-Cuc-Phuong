@@ -63,7 +63,7 @@ describe('SCR-M03-003 điểm tham quan (BR-M03-B01, E14–E16, F11)', () => {
     expect(screen.getByText('Điểm dừng cần tải trước chỉ nhận chữ và ảnh.')).toBeTruthy();
   });
 
-  it('lần lưu đầu: MSG-QR-CREATED + "Thêm điểm tham quan khác"; ở lại form, có "Mã …" và ảnh in', async () => {
+  it('lần lưu đầu: MSG-QR-CREATED + "Thêm điểm tham quan khác"; ở lại form, có ảnh in, không hiện phần nào của mã', async () => {
     const { store, checkpointId } = await setup();
     const { router } = await openNew(store, checkpointId);
     await userEvent.type(screen.getByLabelText('Tên đối tượng (tiếng Việt)'), 'Cây chò');
@@ -74,9 +74,9 @@ describe('SCR-M03-003 điểm tham quan (BR-M03-B01, E14–E16, F11)', () => {
       expect(router.state.location.pathname).toBe(`/admin/checkpoints/${checkpointId}/visit-points/${qrIdentifier}`),
     );
     expect(await screen.findByRole('heading', { level: 1, name: 'Đang sửa: Cây chò' })).toBeTruthy();
-    // Ở đầu trang và trên panel ảnh in
-    expect(screen.getAllByText(`Mã …${qrIdentifier!.slice(-6)}`).length).toBeGreaterThan(0);
-    expect(screen.getByRole('button', { name: 'Tải ảnh SVG' })).toBeTruthy();
+    // Không hiện phần nào của mã (BR-M03-E16); tên đã lưu nên tải được ảnh tem
+    expect(document.body.textContent).not.toContain(qrIdentifier!.slice(-6));
+    expect((screen.getByRole('button', { name: 'Tải ảnh SVG' }) as HTMLButtonElement).disabled).toBe(false);
 
     await userEvent.click(screen.getByRole('button', { name: 'Thêm điểm tham quan khác' }));
     await screen.findByRole('heading', { level: 1, name: 'Điểm tham quan mới' });

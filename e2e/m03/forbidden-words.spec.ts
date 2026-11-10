@@ -55,7 +55,7 @@ test('bộ quét bắt được mẫu vi phạm và bỏ qua chữ hợp lệ', 
   for (const bad of ['Trạng thái: HOAT_DONG', 'giá trị null', 'Lỗi JSON', 'MSG-GENERIC', 'Tên: {tên}', 'HTTP 500', 'xung đột trạng thái', 'Mã Ab3dE5fG7hJ9kL1mN2pQ']) {
     expect(caught(bad), bad).not.toEqual([]);
   }
-  for (const good of ['Đang hoạt động', 'Mã …a1b2c3', 'Quãng đường (km): 4,5', '120/300', 'Chuyến đi', 'Nhãn thời gian: Vừa']) {
+  for (const good of ['Đang hoạt động', 'Quãng đường (km): 4,5', '120/300', 'Chuyến đi', 'Nhãn thời gian: Vừa']) {
     expect(caught(good), good).toEqual([]);
   }
 });

@@ -6,13 +6,13 @@ import { addReadyVisitPoint, backToCheckpoint, createCheckpoint, image, publishC
 
 const MB = 1_048_576;
 
-test('Q6 — điểm dừng "Cần tải trước": hai điểm tham quan có ảnh; âm thanh bị từ chối; danh sách hiện "Mã …xxxxxx"', async ({
+test('Q6 — điểm dừng "Cần tải trước": hai điểm tham quan có ảnh; âm thanh bị từ chối; danh sách không hiện mã', async ({
   page,
   signInAs,
 }) => {
   await signInAs('CONTENT_STAFF');
   await createCheckpoint(page, 'Hang Con Moong');
-  const first = await addReadyVisitPoint(page, 'Cây chò');
+  await addReadyVisitPoint(page, 'Cây chò');
   await expect(page.getByLabel('Âm thanh/video')).toHaveCount(0);
   await expect(page.getByText('Điểm dừng cần tải trước chỉ nhận chữ và ảnh.')).toBeVisible();
   // Âm thanh chọn vào ô ảnh bị từ chối từng tệp
@@ -21,11 +21,13 @@ test('Q6 — điểm dừng "Cần tải trước": hai điểm tham quan có �
   await expect(page.getByText(/Tệp "tieng\.mp3" không đúng định dạng/)).toBeVisible();
 
   await backToCheckpoint(page);
-  const second = await addReadyVisitPoint(page, 'Cây lim');
+  await addReadyVisitPoint(page, 'Cây lim');
   await backToCheckpoint(page);
   const table = page.getByRole('table', { name: 'Điểm tham quan' });
-  await expect(table.getByRole('row', { name: /Cây chò/ })).toContainText(first);
-  await expect(table.getByRole('row', { name: /Cây lim/ })).toContainText(second);
+  await expect(table.getByRole('row', { name: /Cây chò/ })).toContainText('Sẵn sàng');
+  await expect(table.getByRole('row', { name: /Cây lim/ })).toContainText('Sẵn sàng');
+  // Không hiện phần nào của mã QR (BR-M03-E16, CHG-M03-2026-11-10-01)
+  await expect(table.getByText(/Mã …/)).toHaveCount(0);
   // Mục vừa lưu được tô sáng
   await expect(table.getByRole('row', { name: /Cây lim/ })).toHaveAttribute('aria-current', 'true');
 });
@@ -70,13 +72,17 @@ test('Q8 — xuất bản điểm dừng lần đầu khi một điểm tham qua
 test('Q9 — tải ảnh in SVG và PNG trên build local', async ({ page, signInAs }) => {
   await signInAs('CONTENT_STAFF');
   await createCheckpoint(page, 'Hang Con Moong');
-  const code = await addReadyVisitPoint(page, 'Cây chò');
+  await addReadyVisitPoint(page, 'Cây chò');
   await expect(page.getByText('Điểm tham quan này chưa xuất bản. Nếu dán mã ra thực địa, người quét sẽ thấy mã không hợp lệ.')).toBeVisible();
-  await expect(page.getByText('Khi in, mã phải rộng ít nhất 3 cm.')).toBeVisible();
+  await expect(page.getByText(/rộng ít nhất/)).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'In lại' })).toHaveCount(0);
 
   const [svgDownload] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Tải ảnh SVG' }).click()]);
+  // Tem in tên điểm tham quan; tên tệp theo tên bỏ dấu (CHG-M03-2026-11-10-01)
+  expect(svgDownload.suggestedFilename()).toBe('ma-qr-cay-cho.svg');
   const svg = await readFile((await svgDownload.path()) ?? '', 'utf8');
-  expect(svg).toContain(code);
+  expect(svg).toContain('Cây chò');
+  expect(svg).not.toContain('Mã …');
   expect(svg).toContain('Khu vực không có sóng — hãy tải dữ liệu tuyến trước khi đến');
   expect(svg).toContain('No signal here — download the route data before you come');
   expect(svg).toContain('BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA');

@@ -32,11 +32,9 @@ const SPEC_5_3: Record<string, unknown> = {
   VIDEO_MAX_MB: 30,
   OFFLINE_PACKAGE_MAX_MB: 50,
   EMAIL_MAX_CHARS: 254,
-  QR_CODE_DISPLAY_SUFFIX_CHARS: 6,
   QR_PRINT_ERROR_CORRECTION: 'Q',
   QR_PRINT_PNG_MIN_PX: 1024,
   QR_PRINT_QUIET_ZONE_MODULES: 4,
-  QR_PRINT_MIN_SIZE_CM: 3,
 };
 
 describe('giới hạn provisional (spec-M03 §5.3)', () => {

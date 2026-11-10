@@ -77,7 +77,7 @@ Cột "Roles": **B** = cả hai role (BR-M03-A02); **R** = chỉ `REVIEWER` (BR-
 | C-14 | Lưu trữ tuyến | `api.archive_route` | R | `routeId`, `reason`, expected | `LUU_TRU` (terminal) | BLOCKED nếu không `TAM_DONG`; FORBIDDEN | có | H09, T07 |
 | C-15 | Lưu trữ điểm dừng | `api.archive_checkpoint` | R | `checkpointId`, `reason`, expected | `LUU_TRU`; QR → `THU_HOI`; không có version mới | BLOCKED MSG-CHECKPOINT-IN-USE (nêu tên tuyến), không `TAM_DONG`; FORBIDDEN | có | D10, G05 |
 | C-16 | Thu hồi mã QR | `api.revoke_visit_point` | B | `qrIdentifier`, `reason`, expected | `THU_HOI`; snapshot mới cho mọi tuyến liệt kê điểm dừng; không bị trần chặn | BLOCKED MSG-LAST-QR; BUSY; FAILED | có | E09, E11, X02, G10 |
-| C-17 | Ghi nhận in lại | `api.record_reprint` | B | `qrIdentifier` | chỉ một dòng audit; identifier và nội dung không đổi | — | không | E07 |
+| C-17 | Ghi nhận in lại | `api.record_reprint` | B | `qrIdentifier` | chỉ một dòng audit; identifier và nội dung không đổi. Từ CHG-M03-2026-11-10-01 giao diện không gọi nữa; RPC giữ lại để không phải viết migration | — | không | E07 |
 | C-18 | Đổi role tài khoản | `api.change_account_role` | R | `email`, `role`, expected | role mới | BLOCKED MSG-LAST-REVIEWER; STALE | khóa bảng (Physical §8) | K03; [auth-account-contract.md](auth-account-contract.md) |
 | C-19 | Khóa / mở khóa tài khoản | `api.set_account_status` | R | `email`, `status` ∈ `ACTIVE`/`DEACTIVATED`, expected | status mới | BLOCKED MSG-LAST-REVIEWER; STALE | khóa bảng | K03 |
 
