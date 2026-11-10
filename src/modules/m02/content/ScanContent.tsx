@@ -2,15 +2,17 @@
 // T082; screen spec SCR-M02-002 §3–§6, SCR-M02-004 E-02). Nội dung là của đúng mã đã quét (BR-M02-014). Online `VALID` →
 // nội dung live + audio/video lọc theo ngôn ngữ; lỗi nguồn → nội dung gói, không bao giờ có media (BR-M02-016). Lỗi ảnh
 // hay media không gỡ lượt ghé đã ghi (SC-M02-004). Lượt ghé điểm cuối vừa ghi lần đầu → câu hỏi kết thúc chuyến một lần.
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
+import { TintIcon } from '../../../shared/ui/Icon';
 import { FinalPrompt } from '../end/FinalPrompt';
 import { useEndTrip } from '../end/useEndTrip';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { FieldNotice } from '../layout/FieldLayout';
 import { FreeVisitorHint } from '../qr-link/FreeVisitorHint';
 import type { ScanResult } from '../scan/processScan';
+import { Gallery } from './Gallery';
 import { filterMedia } from './mediaFilter';
 import { MediaList } from './MediaList';
 import styles from './ScanContent.module.css';
@@ -47,11 +49,14 @@ function LiveArticle({ view }: { view: Extract<ContentView, { kind: 'LIVE' }> })
   return (
     <>
       <ArticleHeader checkpointName={view.checkpointName[language]} objectName={objectName} />
-      {view.images.map((ref) => (
-        <ImageOrPlaceholder key={ref} src={urls === undefined ? undefined : (urls.get(ref) ?? null)} alt={objectName} />
-      ))}
-      <p className={styles.introduction}>{view.introduction[language].introductionText}</p>
       {urls && <MediaList items={media} urls={urls} />}
+      <Gallery
+        slides={view.images.map((ref) => ({
+          key: ref,
+          node: <ImageOrPlaceholder src={urls === undefined ? undefined : (urls.get(ref) ?? null)} alt={objectName} />,
+        }))}
+      />
+      <About objectName={objectName} text={view.introduction[language].introductionText} />
     </>
   );
 }
@@ -62,20 +67,42 @@ function PackageArticle({ view }: { view: Extract<ContentView, { kind: 'PACKAGE'
   return (
     <>
       <ArticleHeader checkpointName={view.checkpointName[language]} objectName={objectName} />
-      {view.images.sourceRefs.map((ref) => (
-        <PackageImage key={ref} routeId={view.images.routeId} contentVersion={view.images.contentVersion} sourceRef={ref} alt={objectName} />
-      ))}
-      <p className={styles.introduction}>{view.introduction[language].introductionText}</p>
+      <Gallery
+        slides={view.images.sourceRefs.map((ref) => ({
+          key: ref,
+          node: <PackageImage routeId={view.images.routeId} contentVersion={view.images.contentVersion} sourceRef={ref} alt={objectName} />,
+        }))}
+      />
+      <About objectName={objectName} text={view.introduction[language].introductionText} />
     </>
   );
 }
 
+/** Đầu trang trên ảnh rừng: tên điểm dừng dạng viên có ghim, tên đối tượng cỡ lớn (E-SCR-M02-002-02, -03). */
 function ArticleHeader({ checkpointName, objectName }: { checkpointName: string; objectName: string }) {
   return (
-    <div className={styles.header}>
-      <p className={styles.checkpoint}>{checkpointName}</p>
+    <div className={styles.hero}>
+      <p className={styles.checkpoint}>
+        <TintIcon name="map-pin" />
+        {checkpointName}
+      </p>
       <h1 className={styles.object}>{objectName}</h1>
     </div>
+  );
+}
+
+/** Phần giới thiệu (E-SCR-M02-002-04): tiêu đề "Giới thiệu {tên}" có icon, giữ dấu xuống dòng tác giả gõ. */
+function About({ objectName, text }: { objectName: string; text: string }) {
+  const messages = useM02Messages();
+  const titleId = useId();
+  return (
+    <section className={styles.about} aria-labelledby={titleId}>
+      <h2 className={styles.sectionTitle} id={titleId}>
+        <TintIcon name="document" />
+        {messages.content.aboutTitle({ name: objectName })}
+      </h2>
+      <p className={styles.introduction}>{text}</p>
+    </section>
   );
 }
 

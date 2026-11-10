@@ -72,6 +72,10 @@ export const vi = {
     back: 'Quay lại',
     audioLabel: ({ n }: { n: number }) => `Âm thanh ${n}`,
     videoLabel: ({ n }: { n: number }) => `Video ${n}`,
+    galleryTitle: 'Thư viện ảnh',
+    aboutTitle: ({ name }: { name: string }) => `Giới thiệu ${name}`,
+    previousPhoto: 'Ảnh trước',
+    nextPhoto: 'Ảnh tiếp',
   },
   // SCR-M02-003
   end: {

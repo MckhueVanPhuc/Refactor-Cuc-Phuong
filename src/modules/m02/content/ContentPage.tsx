@@ -34,7 +34,7 @@ export function ContentPage() {
   };
 
   return (
-    <FieldLayout surface="reader">
+    <FieldLayout surface="article">
       <ScanContent scan={scan} qrIdentifier={qrIdentifier} showBack onPromptContinue={rewriteState} />
     </FieldLayout>
   );

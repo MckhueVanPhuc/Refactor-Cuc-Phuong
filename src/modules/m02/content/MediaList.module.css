@@ -1,30 +1,58 @@
-/* Audio/video trên bề mặt reader sáng: mỗi tệp một hàng có nhãn chữ, điều khiển gốc của trình duyệt. */
+/*
+ * Audio/video của nội dung live: audio là thẻ kính trắng có icon tai nghe, video là nhãn có icon phía trên khung bo
+ * lớn. Điều khiển gốc của trình duyệt; mỗi tệp có nhãn chữ.
+ */
 .list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-5);
 }
 
 .item {
   display: grid;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-white);
-  border: var(--border-width-thin) solid var(--color-m03-border);
-  border-radius: var(--radius-md);
+  gap: var(--space-3);
+}
+
+.audio {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  background: color-mix(in srgb, var(--color-white) 72%, transparent);
+  backdrop-filter: blur(var(--space-2));
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-white) 85%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
 .label {
-  font-size: var(--font-size-meta);
+  --icon-size: var(--space-5);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
+  color: var(--color-ink);
+}
+
+.video .label {
+  --icon-size: var(--space-6);
+
+  gap: var(--space-3);
+  font-size: calc(var(--font-size-body) * 1.125);
 }
 
 .player {
+  display: block;
   width: 100%;
+}
+
+.video .player {
+  aspect-ratio: 16 / 9;
   max-height: calc(var(--space-8) * 8);
-  border-radius: var(--radius-sm);
+  background: var(--color-ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
 .player:focus-visible {

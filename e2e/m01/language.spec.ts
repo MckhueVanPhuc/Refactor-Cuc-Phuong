@@ -38,7 +38,7 @@ for (const { locale, heading } of [
       await mockLookup(page);
       await mockStorage(page);
       await page.goto('/q/Q1a');
-      await expect(page.getByRole('heading', { name: heading })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
       await expect(page.getByText('Chọn ngôn ngữ', { exact: true })).toHaveCount(0);
       await expect(page.locator('html')).toHaveAttribute('lang', locale.slice(0, 2));
       expect((await dumpStores(page, ['languagePreference'])).languagePreference).toEqual([]);

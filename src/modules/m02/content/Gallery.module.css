@@ -1,0 +1,113 @@
+/*
+ * Thư viện ảnh: tiêu đề có icon, dải ảnh bo lớn trượt ngang (ảnh kế tiếp ló ra ở mép phải để báo còn ảnh), hai nút
+ * tròn trắng ở hai mép và chấm vị trí bên dưới. Một ảnh thì ảnh chiếm cả bề ngang, không có nút và chấm.
+ */
+.gallery {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.title {
+  --icon-size: var(--space-6);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: calc(var(--font-size-body) * 1.125);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink);
+}
+
+.frame {
+  position: relative;
+}
+
+.track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 78%;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.track[data-count='1'] {
+  grid-auto-columns: 100%;
+}
+
+.slide {
+  scroll-snap-align: start;
+}
+
+/* Ảnh trong dải: khung bo lớn, bóng nhẹ tách khỏi nền */
+.slide > * {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.nav {
+  --icon-size: var(--space-5);
+
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: var(--shadow-modal);
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.prev {
+  left: calc(var(--space-2) * -1);
+}
+
+.next {
+  right: calc(var(--space-2) * -1);
+}
+
+.nav:hover:not(:disabled) {
+  background-image: linear-gradient(var(--overlay-surface-pressed), var(--overlay-surface-pressed));
+}
+
+.nav:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Đầu hoặc cuối dải: nút ẩn đi, không chiếm thao tác */
+.nav:disabled {
+  visibility: hidden;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.dot {
+  width: var(--space-2);
+  height: var(--space-2);
+  background: color-mix(in srgb, var(--color-ink) 22%, transparent);
+  border-radius: 50%;
+}
+
+.dot[data-active] {
+  background: var(--color-m01-forest);
+}

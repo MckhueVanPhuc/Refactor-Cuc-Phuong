@@ -57,6 +57,9 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | Thời điểm ghé | Quét lúc {thời điểm} | Scanned at {time} |
 | Nút quay lại | Quay lại | Back |
 | Nhãn tệp audio/video | Âm thanh {n} · Video {n} | Audio {n} · Video {n} |
+| Tiêu đề khối ảnh | Thư viện ảnh | Photo gallery |
+| Tiêu đề phần giới thiệu | Giới thiệu {tên đối tượng} | About {object name} |
+| Nút chuyển ảnh | Ảnh trước · Ảnh tiếp | Previous photo · Next photo |
 
 ## 4. States
 

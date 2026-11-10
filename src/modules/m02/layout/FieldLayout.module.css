@@ -57,6 +57,11 @@
   --control-border-color: var(--color-ink-secondary);
 }
 
+/* Nội dung một mã QR: nền xanh xô thơm (màu đường kẻ M01) để ảnh đầu trang mờ dần vào nền, thẻ trắng nổi lên */
+.article {
+  --m02-bg: var(--color-m01-line);
+}
+
 /* Ảnh nằm trên lớp cố định phía sau nội dung: cuộn danh sách dài thì ảnh đứng yên (kể cả iOS, không cần
    background-attachment: fixed) */
 .scanner {
