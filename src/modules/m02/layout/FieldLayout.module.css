@@ -13,13 +13,23 @@
   background: var(--m02-bg);
 }
 
+/*
+ * Scanner đặt trên ảnh lối mòn Cúc Phương (assets/back_ground_2.jpg). Lớp phủ màu nền scanner giữ chữ đọc được trên
+ * ảnh; mất ảnh (offline, ảnh không nằm trong precache) thì còn nền scanner. Thẻ và thông báo là lớp kính mờ trên ảnh.
+ */
 .scanner {
   --m02-bg: var(--color-m02-scanner-bg);
   --m02-fg: var(--color-m02-scanner-text);
   --m02-fg-secondary: var(--color-m02-scanner-secondary);
-  --m02-surface: var(--color-m02-scanner-surface);
+  --m02-surface: color-mix(in srgb, var(--color-m02-scanner-bg) 62%, transparent);
+  --m02-surface-frame: color-mix(in srgb, var(--color-m02-scanner-text) 26%, transparent);
+  --m02-glass-blur: blur(var(--space-2));
   --m02-line: var(--color-m02-scanner-secondary);
-  --m02-info: var(--color-m02-scanner-secondary);
+  --m02-info: var(--color-m01-amber);
+  /* Thông báo trên ảnh: khung mảnh đều bốn cạnh, bo lớn */
+  --m02-notice-frame: var(--border-width-thin);
+  --m02-notice-stripe: var(--border-width-thin);
+  --m02-notice-radius: var(--radius-lg);
   --m02-success: var(--color-m02-scanner-success);
   --m02-warning: var(--color-m02-scanner-warning);
   --m02-error: var(--color-m02-scanner-error);
@@ -38,9 +48,35 @@
   --m02-success: var(--color-success);
   --m02-warning: var(--color-warning);
   --m02-error: var(--color-error);
+  /* Thông báo trên paper: chỉ vạch màu semantic ở cạnh trái */
+  --m02-notice-frame: 0;
+  --m02-notice-stripe: var(--border-width-thick);
+  --m02-notice-radius: var(--radius-sm);
   --focus-ring-color: var(--color-ink);
   --control-accent: var(--color-ink);
   --control-border-color: var(--color-ink-secondary);
+}
+
+/* Ảnh nằm trên lớp cố định phía sau nội dung: cuộn danh sách dài thì ảnh đứng yên (kể cả iOS, không cần
+   background-attachment: fixed) */
+.scanner {
+  position: relative;
+  isolation: isolate;
+}
+
+.scanner::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--color-m02-scanner-bg) 62%, transparent),
+      color-mix(in srgb, var(--color-m02-scanner-bg) 40%, transparent) 45%,
+      color-mix(in srgb, var(--color-m02-scanner-bg) 78%, transparent)
+    ),
+    url('../../../../assets/back_ground_2.jpg') center / cover no-repeat,
+    var(--color-m02-scanner-bg);
 }
 
 .appBar {
@@ -62,11 +98,28 @@
   background: var(--m02-surface);
 }
 
+/* Scanner: header nằm thẳng trên ảnh, không dải nền, không đường kẻ; cuộn theo trang để không che danh sách */
+.scanner .appBar {
+  position: static;
+  padding-top: max(var(--space-5), env(safe-area-inset-top));
+  background: transparent;
+  border-bottom: 0;
+}
+
 .title {
   margin: 0;
   font-size: var(--font-size-page-heading-mobile);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
+}
+
+/* Tiêu đề scanner: serif lớn như cổng ngôn ngữ, là điểm nhấn duy nhất của màn */
+.scanner .title {
+  font-family: var(--font-serif);
+  font-size: clamp(calc(var(--font-size-page-heading-mobile) * 1.4), 9vw, calc(var(--font-size-page-heading) * 1.4));
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  text-shadow: 0 var(--space-1) var(--space-4) var(--color-m02-scanner-bg);
 }
 
 .notices:empty {
@@ -87,6 +140,13 @@
   padding: var(--space-5) var(--space-5) var(--space-8);
 }
 
+/* Scanner: cột dọc để vùng hành động của màn bám đáy màn hình (margin-top: auto) dù danh sách ngắn */
+.scanner .main {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
+}
+
 .main:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: calc(var(--focus-ring-offset) * -1);
@@ -97,6 +157,8 @@
   margin: 0;
   padding: var(--space-3) var(--space-4);
   background: var(--m02-surface);
-  border-left: var(--border-width-thick) solid var(--m02-info);
-  border-radius: var(--radius-sm);
+  backdrop-filter: var(--m02-glass-blur, none);
+  border: var(--m02-notice-frame) solid var(--m02-info);
+  border-left-width: var(--m02-notice-stripe);
+  border-radius: var(--m02-notice-radius);
 }

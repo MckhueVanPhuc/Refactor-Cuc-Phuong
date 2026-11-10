@@ -56,7 +56,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | Tình huống | Tiếng Việt | English |
 |---|---|---|
 | Tiêu đề màn (E-SCR-M02-001-02) | Chuyến đi | Your trip |
-| Nút quét | Quét | Scan |
+| Nút quét | Quét QR | Scan QR |
 | Nhãn đã quét | Đã quét QR | QR scanned |
 | Tiêu đề hành trình | Hành trình | Journey |
 | Nhãn chưa quét | Chưa quét | Not scanned |

@@ -1,6 +1,7 @@
 /*
  * Thông báo kết quả quét trên cả hai bề mặt M02: nền surface của bề mặt, vạch màu semantic ở cạnh trái (biến
- * `--m02-*` do FieldLayout đặt theo scanner/reader), chữ luôn nói rõ tình huống — không chỉ dựa vào màu.
+ * `--m02-*` do FieldLayout đặt theo scanner/reader), chữ luôn nói rõ tình huống — không chỉ dựa vào màu. Trên scanner
+ * vạch trái thành khung mảnh đều bốn cạnh trên lớp kính mờ.
  */
 .notice {
   display: grid;
@@ -8,8 +9,10 @@
   padding: var(--space-3) var(--space-4);
   font-size: var(--font-size-body);
   background: var(--m02-surface);
-  border-left: var(--border-width-thick) solid var(--notice-accent);
-  border-radius: var(--radius-sm);
+  backdrop-filter: var(--m02-glass-blur, none);
+  border: var(--m02-notice-frame) solid var(--notice-accent);
+  border-left-width: var(--m02-notice-stripe);
+  border-radius: var(--m02-notice-radius);
 }
 
 .info {

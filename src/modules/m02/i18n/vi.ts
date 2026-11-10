@@ -32,7 +32,7 @@ export const vi = {
   },
   // SCR-M02-001
   trip: {
-    scan: 'Quét',
+    scan: 'Quét QR',
     scanned: 'Đã quét QR',
     lookingUp: 'Đang kiểm tra mã QR…',
     visitRecorded: 'Đã ghi nhận lượt quét.',

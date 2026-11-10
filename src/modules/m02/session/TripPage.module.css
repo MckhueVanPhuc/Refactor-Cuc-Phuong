@@ -1,19 +1,21 @@
 /*
- * SCR-M02-001 trên bề mặt scanner tối (mockup-SCR-M02-001). Thông báo phân biệt bằng nhãn chữ và một vạch màu
- * semantic của scanner ở cạnh trái, không chỉ dựa vào màu (design-system §5 "M02 — Field Experience").
- * Nút Quét luôn trong tầm với ở đáy màn.
+ * SCR-M02-001 trên bề mặt scanner: ảnh lối mòn rừng phía sau (FieldLayout), thông báo và thẻ là lớp kính mờ. Thông
+ * báo phân biệt bằng nhãn chữ và màu khung semantic của scanner, không chỉ dựa vào màu (design-system §5
+ * "M02 — Field Experience"). Nút Quét luôn trong tầm với ở đáy màn.
  */
 .notice {
   margin: 0;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-4) var(--space-5);
   font-size: var(--font-size-body);
-  background: var(--color-m02-scanner-surface);
-  border-left: var(--border-width-thick) solid var(--notice-accent);
-  border-radius: var(--radius-sm);
+  background: var(--m02-surface);
+  backdrop-filter: var(--m02-glass-blur, none);
+  border: var(--m02-notice-frame) solid var(--notice-accent);
+  border-left-width: var(--m02-notice-stripe);
+  border-radius: var(--m02-notice-radius);
 }
 
 .info {
-  --notice-accent: var(--color-m02-scanner-secondary);
+  --notice-accent: var(--m02-info);
 }
 
 .warning {
@@ -51,17 +53,17 @@
 .journey {
   display: grid;
   gap: var(--space-3);
+  padding-top: var(--space-3);
   padding-bottom: var(--space-6);
 }
 
+/* Đáy màn: không dải nền đặc; lớp chuyển tối dần để nút đọc được khi danh sách cuộn bên dưới */
 .actions {
   position: sticky;
   bottom: 0;
-  margin: 0 calc(var(--space-5) * -1);
-  padding: var(--space-3) var(--space-5);
-  background: var(--color-m02-scanner-bg);
-  border-top: var(--border-width-thin) solid var(--color-m02-scanner-secondary);
-  box-shadow: var(--shadow-bottom-nav);
+  margin: auto calc(var(--space-5) * -1) 0;
+  padding: var(--space-6) var(--space-5) max(var(--space-4), env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, color-mix(in srgb, var(--color-m02-scanner-bg) 82%, transparent) 55%);
   display: grid;
   gap: var(--space-2);
 }
@@ -76,9 +78,10 @@
   padding: 0 var(--space-4);
   font: var(--font-weight-semibold) var(--font-size-body) / 1 var(--font-sans);
   color: var(--color-m02-scanner-text);
-  background: transparent;
-  border: var(--border-width-thin) solid var(--color-m02-scanner-secondary);
-  border-radius: var(--radius-md);
+  background: var(--m02-surface);
+  backdrop-filter: var(--m02-glass-blur, none);
+  border: var(--border-width-thin) solid var(--m02-surface-frame);
+  border-radius: var(--radius-lg);
   cursor: pointer;
 }
 
@@ -91,19 +94,33 @@
   outline-offset: var(--focus-ring-offset);
 }
 
+/* Quét: xanh rêu (forest pha amber, chữ paper 5.1:1) như màu lá dưới tán rừng trên ảnh nền */
 .scan {
+  --scan-fill: color-mix(in srgb, var(--color-m01-forest) 75%, var(--color-m01-amber));
+
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-3);
   width: 100%;
-  min-height: var(--touch-target-m01-primary);
+  min-height: calc(var(--touch-target-m01-primary) + var(--space-3));
   padding: 0 var(--space-4);
-  font: var(--font-weight-semibold) var(--font-size-body) / 1 var(--font-sans);
-  color: var(--color-m02-scanner-bg);
-  background: var(--color-m02-scanner-success);
-  border: var(--border-width-thin) solid var(--color-m02-scanner-success);
-  border-radius: var(--radius-md);
+  font: var(--font-weight-semibold) calc(var(--font-size-body) * 1.125) / 1 var(--font-sans);
+  color: var(--color-paper);
+  background: var(--scan-fill);
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-m01-amber) 35%, var(--scan-fill));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
   cursor: pointer;
+}
+
+/* Icon quét QR là mask: màu theo chữ của nút qua currentColor, kể cả khi nút bị khóa (design-system §7) */
+.scanIcon {
+  flex: none;
+  width: var(--space-6);
+  height: var(--space-6);
+  background: currentColor;
+  mask: url('../../../../assets/icons/qr-scan.svg') center / contain no-repeat;
 }
 
 .scan:hover:not(:disabled) {
@@ -122,6 +139,7 @@
 .scan:disabled {
   cursor: not-allowed;
   color: var(--color-m02-scanner-secondary);
-  background: transparent;
+  background: var(--m02-surface);
   border-color: var(--color-m02-scanner-secondary);
+  box-shadow: none;
 }

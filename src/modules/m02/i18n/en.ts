@@ -27,7 +27,7 @@ export const en: M02Messages = {
     continue: 'Continue',
   },
   trip: {
-    scan: 'Scan',
+    scan: 'Scan QR',
     scanned: 'QR scanned',
     lookingUp: 'Checking the QR code…',
     visitRecorded: 'Scan recorded.',
