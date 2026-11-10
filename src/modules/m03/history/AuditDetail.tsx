@@ -1,9 +1,10 @@
-// Cột "Chi tiết" của SCR-M03-009: tối đa 3 dòng; dài hơn thì nút "…Xem thêm" mở hộp thoại xem đủ (chỉ đọc).
+// Chi tiết của một dòng nhật ký (cột "Chi tiết" của SCR-M03-009 và panel "Nhật ký của mục"): tối đa 3 dòng;
+// dài hơn thì nút "…Xem thêm" mở hộp thoại xem đủ (chỉ đọc).
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Button } from '../../../shared/ui/Button';
 import dialogStyles from '../../../shared/ui/Dialog.module.css';
 import type { AuditRow } from '../contracts/adminDtos';
-import styles from './AuditLogPage.module.css';
+import styles from './AuditDetail.module.css';
 
 /** Các dòng chi tiết của một dòng nhật ký: lý do trước, rồi "Trường: trước → sau" */
 export function detailLines(row: Pick<AuditRow, 'reason' | 'changeLines'>): string[] {
@@ -30,7 +31,7 @@ export function AuditDetail({ lines, onOpen }: { lines: string[]; onOpen: () => 
   if (lines.length === 0) return null;
   return (
     <>
-      <div ref={clampRef} className={styles.detailClamp}>
+      <div ref={clampRef} className={styles.clamp}>
         {lines.map((line, index) => (
           <p key={`${index}-${line}`}>{line}</p>
         ))}
@@ -94,7 +95,7 @@ export function DetailDialog({
     <div className={dialogStyles.backdrop}>
       <div
         ref={panelRef}
-        className={`${dialogStyles.panel} ${styles.detailPanel}`}
+        className={`${dialogStyles.panel} ${styles.panel}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -104,8 +105,8 @@ export function DetailDialog({
         <h2 id={titleId} className={dialogStyles.title}>
           {title}
         </h2>
-        <div className={styles.detailMeta}>{meta}</div>
-        <div id={bodyId} className={`${dialogStyles.body} ${styles.detailBody}`}>
+        <div className={styles.meta}>{meta}</div>
+        <div id={bodyId} className={`${dialogStyles.body} ${styles.body}`}>
           {lines.map((line, index) => (
             <p key={`${index}-${line}`}>{line}</p>
           ))}

@@ -946,12 +946,14 @@ Người vận hành cloud đã gửi được lời mời; cả hai Reviewer đ
 
 Kiểm chứng: `npm run ci` PASS (2127 test, 133 skipped). `npm run e2e`: NOT RUN, vì e2e chạy với auth giả, không có luồng hash của Supabase. Kiểm lại khôi phục mật khẩu trên Production: chờ deploy.
 
-## 29. Bố cục bảng Nhật ký hệ thống (SCR-M03-009, 2026-11-10)
+## 29. Bố cục nhật ký và trường song ngữ trong M03 (2026-11-10)
 
 Trên Production, cột "Chi tiết" của dòng xuất bản tuyến dài khoảng 20 dòng; bảng tự co theo nội dung nên email, tên mục, thao tác và kết quả bị ép xuống dòng 3–5 lần. Chủ dự án quyết định cách hiển thị mới.
 
 | # | Mục | Trạng thái |
 |---|---|---|
 | D-150 | Bảng nhật ký không cố định độ rộng cột; Chi tiết hiện đủ mọi dòng ngay trong bảng | Sửa: năm cột đầu mỗi cột 12%, Chi tiết 40%, `table-layout: fixed`, `min-width: 60rem` (màn hẹp cuộn ngang trong vùng bảng). Chi tiết tối đa 3 dòng; dài hơn thì nút "…Xem thêm" mở hộp thoại chỉ đọc (`AuditDetail.tsx`) có đủ lý do và mọi dòng trước → sau, nút "Đóng", Esc đóng, trả focus. Dấu "Tự xuất bản" xuống dòng riêng trong cột Thao tác. Cập nhật design-system §5.3 (thay quy tắc 2 dòng + `aria-expanded`) và screen-spec SCR-M03-009 (E-12, tương tác 5, OQ-003 thay cách cắt 200 ký tự) |
+| D-151 | Editor tuyến, bước Chi tiết: bốn trường song ngữ có câu gợi ý §5.5 chỉ dưới nhãn ô tiếng Việt, nên ô tiếng Việt thấp hơn ô tiếng Anh một hai dòng và hai cột lệch nhau | Sửa: `BilingualField` hiện cùng câu gợi ý dưới nhãn cả hai ô (không thêm câu mới, vẫn đúng danh sách §5.5 của BR-M03-L12); test kiểm hai câu và `aria-describedby` của ô tiếng Anh. Cập nhật SR-SCR-M03-002-012 |
+| D-152 | Panel "Nhật ký của mục" trong editor (SCR-M03-002, 003, 008) hiện đủ mọi dòng trước/sau, một lần xuất bản tuyến dài hơn một màn hình | Sửa: dùng chung `AuditDetail` với SCR-M03-009 (3 dòng, "…Xem thêm", hộp thoại chỉ đọc); style chuyển sang `AuditDetail.module.css`. Cập nhật design-system §5.3 và E-31/E-26/E-21 của ba screen-spec |
 
-Kiểm chứng: `npm run ci` PASS (2132 test, 133 skipped). `npx playwright test e2e/m03/history.spec.ts e2e/m03/forbidden-words.spec.ts` PASS (4 test). Xem trên trình duyệt thật với tuyến thật: chờ deploy.
+Kiểm chứng: `npm run ci` PASS (2135 test, 133 skipped). `npx playwright test e2e/m03` PASS (37 test). Xem trên trình duyệt thật với tuyến thật: chờ deploy.

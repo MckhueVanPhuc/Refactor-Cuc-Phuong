@@ -91,13 +91,17 @@ describe('SCR-M03-002 biên tập tuyến (BR-M03-B01, C01, C03, C07, C08, C16, 
     expect(screen.queryByRole('checkbox', { name: /Dài|Ngắn|Vừa/ })).toBeNull();
   });
 
-  it('câu gợi ý dưới các trường theo §5.5; cảnh báo an toàn nhắc dùng Đóng tạm (BR-M03-C07, C08)', async () => {
+  it('câu gợi ý dưới các trường theo §5.5, ở cả ô tiếng Việt và tiếng Anh; cảnh báo an toàn nhắc dùng Đóng tạm (BR-M03-C07, C08)', async () => {
     renderAdmin('/admin/routes/new', { signedInAs: 'CONTENT_STAFF' });
     await screen.findByRole('heading', { level: 1, name: 'Tuyến mới' });
     await step(/Chi tiết/);
     for (const hint of [HINTS.participationRequirements, HINTS.preparation, HINTS.bestTime, HINTS.safetyWarning]) {
-      expect(screen.getByText(hint)).toBeTruthy();
+      // Cùng một câu dưới hai ô để hai ô thẳng hàng
+      expect(screen.getAllByText(hint)).toHaveLength(2);
     }
+    const english = screen.getByLabelText('Cần chuẩn bị (tiếng Anh)');
+    const describedBy = (english.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean);
+    expect(describedBy.map((id) => document.getElementById(id)?.textContent)).toContain(HINTS.preparation);
   });
 
   it('Khó + "Gia đình có trẻ nhỏ" bị chặn khi lưu với MSG-TAG-CONFLICT (BR-M03-C12)', async () => {

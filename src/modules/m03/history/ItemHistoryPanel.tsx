@@ -4,12 +4,13 @@
 import { useEffect, useId, useState } from 'react';
 import { useAdminApi } from '../api/AdminApiProvider';
 import { AdminApiError } from '../api/errors';
-import type { ItemHistory, SubjectType } from '../contracts/adminDtos';
+import type { AuditRow, ItemHistory, SubjectType } from '../contracts/adminDtos';
 import type { CommandResult } from '../contracts/commandResult';
 import layout from '../editor/EditorLayout.module.css';
 import { formatMessage } from '../messages/catalog';
 import { DISPLAY_NAMES } from '../messages/displayNames';
 import { formatDate, formatTime } from '../messages/format';
+import { AuditDetail, DetailDialog, detailLines } from './AuditDetail';
 import { actionName, resultName } from './auditFormat';
 import { RestoreButton } from './RestoreButton';
 import styles from './ItemHistoryPanel.module.css';
@@ -31,6 +32,7 @@ export function ItemHistoryPanel({ subjectType, subjectId, version, restoreDisab
   const api = useAdminApi();
   const [history, setHistory] = useState<ItemHistory | null>(null);
   const [error, setError] = useState<AdminApiError | null>(null);
+  const [opened, setOpened] = useState<AuditRow | null>(null);
   const publishedTitleId = useId();
   const auditTitleId = useId();
 
@@ -111,17 +113,30 @@ export function ItemHistoryPanel({ subjectType, subjectId, version, restoreDisab
                 <p className={styles.meta}>
                   {when(row.occurredAt)}, {row.actorEmail}
                 </p>
-                {row.reason ? <p className={styles.detail}>Lý do: {row.reason}</p> : null}
-                {row.changeLines.map((line) => (
-                  <p key={line} className={styles.detail}>
-                    {line}
-                  </p>
-                ))}
+                <div className={styles.detail}>
+                  <AuditDetail lines={detailLines(row)} onOpen={() => setOpened(row)} />
+                </div>
               </li>
             ))}
           </ul>
         )}
       </section>
+
+      {opened ? (
+        <DetailDialog
+          title={actionName(opened.action)}
+          meta={
+            <>
+              <span>{when(opened.occurredAt)}</span>
+              <span>{opened.actorEmail}</span>
+              <span className={opened.result === 'SUCCESS' ? layout.ready : styles.failure}>{resultName(opened.result)}</span>
+              {opened.selfPublished ? <span className={styles.badge}>Tự xuất bản</span> : null}
+            </>
+          }
+          lines={detailLines(opened)}
+          onClose={() => setOpened(null)}
+        />
+      ) : null}
     </>
   );
 }

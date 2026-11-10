@@ -15,7 +15,10 @@ const LANGUAGES = [
   { key: 'en', name: 'tiếng Anh' },
 ] as const;
 
-/** Câu gợi ý (nếu có) chỉ đặt dưới nhãn ô tiếng Việt; form chỉ đọc thì không có nút dịch (BR-AI-07) */
+/**
+ * Câu gợi ý (nếu có) đặt dưới nhãn của cả hai ô, cùng một câu của §5.5, để hai ô thẳng hàng (quyết định chủ dự án
+ * 2026-11-10); form chỉ đọc thì không có nút dịch (BR-AI-07)
+ */
 export function BilingualField({
   fieldKey,
   label,
@@ -59,7 +62,7 @@ export function BilingualField({
       fieldKey: `${fieldKey}.${key}`,
       lang: key,
       disabled: readOnly,
-      ...(hint && key === 'vi' ? { hint } : {}),
+      ...(hint ? { hint } : {}),
       ...(key === 'en' && translation.status !== 'idle' ? { extraDescribedBy: statusId } : {}),
     };
     const change = (text: string) => {
