@@ -1,0 +1,57 @@
+/*
+ * Toast nổi giữa, ngay dưới thanh app (cao bằng vùng chạm + đệm), trên mọi nội dung. Thẻ trắng bo lớn, bóng modal,
+ * icon dấu tích màu success; trượt nhẹ xuống khi hiện và mờ đi khi ẩn, bỏ chuyển động nếu người dùng giảm chuyển động.
+ */
+.toast {
+  position: fixed;
+  top: calc(var(--touch-target) + var(--space-3) * 3);
+  right: var(--space-5);
+  left: var(--space-5);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: calc(var(--space-8) * 14);
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-ink);
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  animation: toast-in var(--duration-toast-enter) var(--ease-out) both;
+}
+
+.toast[data-leaving] {
+  animation: toast-out var(--duration-toast-exit) var(--ease-in) both;
+}
+
+.icon {
+  --icon-size: var(--space-6);
+
+  color: var(--color-success);
+}
+
+.text {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--space-2) * -1));
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast[data-leaving] {
+    animation: none;
+  }
+}

@@ -4,6 +4,7 @@
 // thông báo một lần mà màn đặt vào bằng <FieldNotice>.
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import logoUrl from '../../../../assets/icons/logo-emblem.png';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { LanguageControl } from '../m01Port';
 import { useAutoEndNotice } from '../session/autoEnd';
@@ -41,8 +42,12 @@ export function FieldLayout({ surface, title, children }: { surface: FieldSurfac
   return (
     <div className={`${styles.shell} ${SURFACE_CLASS[surface] ?? ''}`} data-surface={surface}>
       <header className={styles.appBar}>
-        {title ? <h1 className={styles.title}>{title}</h1> : <span />}
-        <LanguageControl tone={surface === 'scanner' ? 'onDark' : 'onLight'} />
+        <div className={styles.brand}>
+          {/* Nội dung một mã QR: logo vườn trên thanh app deep như M01; chỉ trang trí, không phải liên kết */}
+          {surface === 'article' && <img className={styles.logo} src={logoUrl} alt="" />}
+          {title && <h1 className={styles.title}>{title}</h1>}
+        </div>
+        <LanguageControl tone={surface === 'reader' ? 'onLight' : 'onDark'} />
       </header>
       <div className={styles.notices} role="status" ref={setNoticeSlot}>
         {autoEnded && (

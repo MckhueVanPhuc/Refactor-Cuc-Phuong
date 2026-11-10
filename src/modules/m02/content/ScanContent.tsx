@@ -10,6 +10,7 @@ import { FinalPrompt } from '../end/FinalPrompt';
 import { useEndTrip } from '../end/useEndTrip';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { FieldNotice } from '../layout/FieldLayout';
+import { Toast } from '../layout/Toast';
 import { FreeVisitorHint } from '../qr-link/FreeVisitorHint';
 import type { ScanResult } from '../scan/processScan';
 import { Gallery } from './Gallery';
@@ -106,7 +107,7 @@ function About({ objectName, text }: { objectName: string; text: string }) {
   );
 }
 
-function Notice({ tone, children, role = 'status' }: { tone: 'info' | 'warning' | 'success'; children: ReactNode; role?: 'status' | 'alert' }) {
+function Notice({ tone, children, role = 'status' }: { tone: 'info' | 'warning'; children: ReactNode; role?: 'status' | 'alert' }) {
   return (
     <div className={`${styles.notice} ${styles[tone]}`} role={role}>
       {children}
@@ -118,12 +119,10 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
   const messages = useM02Messages();
   const language = useM02DisplayLanguage();
   return (
-    <FieldNotice>
-      {scan.visitCreated && (
-        <Notice tone="success">
-          <p className={styles.noticeText}>{messages.trip.visitRecorded}</p>
-        </Notice>
-      )}
+    <>
+      {/* Lượt ghé vừa ghi: toast nổi, không đẩy nội dung xuống */}
+      {scan.visitCreated && <Toast key={scan.visit?.checkedInAt ?? scan.qrIdentifier}>{messages.trip.visitRecorded}</Toast>}
+      <FieldNotice>
       {scan.display.kind === 'PACKAGE' && (
         <Notice tone="info">
           <p className={styles.noticeText}>{messages.notice.sourceFailureInJourney}</p>
@@ -145,7 +144,8 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
         </Notice>
       )}
       {(view?.kind === 'CLOSED' || view?.kind === 'INVALID' || view?.kind === 'CONNECTION_NEEDED') && <ScanNotice kind={view.kind} />}
-    </FieldNotice>
+      </FieldNotice>
+    </>
   );
 }
 

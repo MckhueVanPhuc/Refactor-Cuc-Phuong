@@ -103,6 +103,31 @@
   background: var(--m02-surface);
 }
 
+/* Nội dung một mã QR: thanh app deep có logo vườn, như thanh app M01; focus amber trên nền deep */
+.article .appBar {
+  --focus-ring-color: var(--color-m01-amber);
+
+  color: var(--color-paper);
+  background: var(--color-m01-deep);
+  border-bottom: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.logo {
+  display: block;
+  flex: none;
+  /* Cao như logo trên thanh app M01: ghép từ spacing */
+  height: calc(var(--space-8) + var(--space-2));
+  width: auto;
+  border-radius: var(--radius-sm);
+}
+
 /* Scanner: header nằm thẳng trên ảnh, không dải nền, không đường kẻ; cuộn theo trang để không che danh sách */
 .scanner .appBar {
   position: static;
@@ -166,4 +191,9 @@
   border: var(--m02-notice-frame) solid var(--m02-info);
   border-left-width: var(--m02-notice-stripe);
   border-radius: var(--m02-notice-radius);
+}
+
+/* Tên sản phẩm cạnh logo (SCR-M02-004): nhỏ hơn tiêu đề màn để vừa một hàng với VI/EN trên điện thoại */
+.article .title {
+  font-size: calc(var(--font-size-body) * 1.125);
 }
