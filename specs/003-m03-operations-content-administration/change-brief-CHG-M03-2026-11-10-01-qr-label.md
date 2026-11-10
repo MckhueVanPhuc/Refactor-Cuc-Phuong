@@ -3,7 +3,7 @@
 | Trường | Nội dung |
 |---|---|
 | Change ID | CHG-M03-2026-11-10-01 |
-| Trạng thái | **Chờ chủ dự án duyệt**. Người vận hành cloud chốt nội dung ngày 2026-11-10; chủ dự án duyệt bằng việc merge PR #46 |
+| Trạng thái | **Chờ chủ dự án duyệt**. Người vận hành cloud chốt nội dung ngày 2026-11-10; chủ dự án duyệt bằng việc merge PR mang commit này (PR #46 đã merge trước khi commit được đẩy lên) |
 | Người đề xuất | Người vận hành cloud |
 | Người duyệt | MckhueVanPhuc (chủ dự án) |
 | Loại thay đổi | Đổi quy tắc giao diện M03 và nội dung ảnh tem. Không đổi dữ liệu, contract, quyền hay cơ chế định danh |
@@ -60,6 +60,6 @@ Schema, migration, RPC, Edge Function, contract M01/M02, live lookup, quyền, c
 
 | Kiểm | Kết quả |
 |---|---|
-| `npm run ci` | PASS (2133 test, 133 skipped) |
-| `npx playwright test e2e/m03` | PASS (37 test) |
+| `npm run ci` | PASS (2146 test, 133 skipped), trên `main` sau #45, #46, #47 |
+| `npx playwright test e2e/m03 e2e/m02` | PASS (84 test) |
 | Tải tem thật trên Production và quét bằng điện thoại | Chờ deploy |
