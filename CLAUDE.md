@@ -19,6 +19,6 @@ Skill Spec-Kit dựa trên `.specify/`; quy trình dùng chúng theo M03_Documen
 - Khi xây dựng hoặc sửa giao diện, dùng skill `frontend-design`.
 - Màu, font, khoảng cách và bo góc lấy từ [docs/design/design-system.md](docs/design/design-system.md).
   Không hard-code giá trị màu/khoảng cách trong component; dùng token.
-- Icon chỉ lấy từ [assets/icons/](assets/icons/). Không tự vẽ icon và không lấy icon từ
-  thư viện khác nếu chưa được phê duyệt.
+- Icon chỉ lấy từ [assets/icons/](assets/icons/). Agent được vẽ icon SVG mới vào thư mục này
+  (người dùng cho phép 2026-11-10) theo design-system §7; không lấy icon từ thư viện khác nếu chưa được phê duyệt.
 - Hành vi, validation và quyền lấy từ spec (docs/spec/); design system chỉ định nghĩa hình thức.
