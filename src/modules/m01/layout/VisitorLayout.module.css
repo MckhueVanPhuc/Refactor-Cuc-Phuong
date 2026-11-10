@@ -91,7 +91,7 @@
 }
 
 /*
- * Chi tiết tuyến (SCR-M01-003): ảnh rừng nắng sớm (assets/background_mobile.jpg) trên lớp cố định phía sau, phủ deep
+ * Chi tiết tuyến (SCR-M01-003) và Gợi ý tuyến (SCR-M01-002): ảnh rừng nắng sớm (assets/background_mobile.jpg) trên lớp cố định phía sau, phủ deep
  * đậm dần xuống dưới để chữ paper đọc được; mất ảnh thì còn nền deep. Thanh app trong suốt, cuộn theo trang.
  */
 .immersive {
@@ -116,6 +116,18 @@
       color-mix(in srgb, var(--color-m01-deep) 88%, transparent)
     ),
     url('../../../../assets/background_mobile.jpg') center / cover no-repeat,
+    var(--color-m01-deep);
+}
+
+/* Gợi ý tuyến: con đường rợp bóng cây (assets/background_recommend.jpg, bản JPG nén từ ảnh PNG người dùng cung cấp) */
+.recommendPhoto::before {
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--color-m01-deep) 62%, transparent),
+      color-mix(in srgb, var(--color-m01-deep) 55%, transparent) 45%,
+      color-mix(in srgb, var(--color-m01-deep) 82%, transparent)
+    ),
+    url('../../../../assets/background_recommend.jpg') center / cover no-repeat,
     var(--color-m01-deep);
 }
 

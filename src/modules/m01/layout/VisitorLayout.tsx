@@ -23,8 +23,14 @@ export function VisitorLayout() {
   const messages = useM01Messages();
   const language = useDisplayLanguage();
   const [noticeSlot, setNoticeSlot] = useState<HTMLElement | null>(null);
-  // Chi tiết tuyến đặt trên ảnh rừng: thanh app trong suốt, nội dung là lớp kính tối (mockup Route details)
-  const immersive = useMatch('/routes/:routeId') !== null;
+  // Chi tiết tuyến và Gợi ý tuyến đặt trên ảnh rừng: thanh app trong suốt, nội dung là lớp kính tối (mockup Route
+  // details, Recommendation); mỗi màn một ảnh
+  const onDetail = useMatch('/routes/:routeId') !== null;
+  const onRecommend = useMatch(PATHS.recommend) !== null;
+  const immersive = onDetail || onRecommend;
+  const shellClass = [styles.shell, immersive && styles.immersive, onRecommend && styles.recommendPhoto]
+    .filter(Boolean)
+    .join(' ');
 
   // Trình đọc màn hình đọc đúng ngôn ngữ đang hiển thị
   useEffect(() => {
@@ -32,7 +38,7 @@ export function VisitorLayout() {
   }, [language]);
 
   return (
-    <div className={immersive ? `${styles.shell} ${styles.immersive}` : styles.shell} data-surface={immersive ? 'forest' : 'paper'}>
+    <div className={shellClass} data-surface={immersive ? 'forest' : 'paper'}>
       <header className={styles.appBar}>
         <Link className={styles.brand} to={PATHS.catalog}>
           <img className={styles.logo} src={logoUrl} alt={messages.nav.catalog} />

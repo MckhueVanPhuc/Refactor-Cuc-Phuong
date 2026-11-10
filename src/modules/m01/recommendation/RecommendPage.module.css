@@ -1,103 +1,168 @@
-/* SCR-M01-002 — ba nhóm chip chọn một (radio), kết quả dùng lại thẻ tuyến của danh mục (design-system §5.1) */
+/*
+ * SCR-M01-002 — trên ảnh con đường rợp cây (VisitorLayout `.immersive`): tiêu đề serif paper có lá và một gạch chân
+ * mảnh; mỗi nhóm có nhãn dạng viên thuốc kèm icon, các lựa chọn là ô kính mờ ba cột; lựa chọn đang chọn nền amber
+ * chữ ink và viền dày, không chỉ dựa vào màu. Kết quả dùng lại thẻ tuyến trắng của danh mục (design-system §5.1).
+ */
 .title {
-  margin-bottom: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-self: start;
+  width: fit-content;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
   font-family: var(--font-serif);
-  font-size: var(--font-size-page-heading-mobile);
-  font-weight: var(--font-weight-regular);
-  color: var(--color-m01-deep);
+  font-size: calc(var(--font-size-page-heading) + var(--space-2));
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  color: var(--color-paper);
+  text-shadow: 0 var(--space-1) var(--space-5) var(--color-m01-deep);
+  border-bottom: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 55%, transparent);
+}
+
+.leaf {
+  --icon-size: var(--space-8);
+
+  color: var(--color-m01-line);
 }
 
 .form {
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-6);
   margin-bottom: var(--space-6);
 }
 
 .group {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .groupTitle {
-  font-size: var(--font-size-body);
+  --icon-size: var(--space-6);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-self: start;
+  min-height: calc(var(--touch-target) + var(--space-1));
+  padding: 0 var(--space-5);
+  font-size: calc(var(--font-size-body) * 1.125);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-m01-deep);
+  color: var(--color-paper);
+  background: color-mix(in srgb, var(--color-m01-line) 30%, transparent);
+  backdrop-filter: blur(var(--space-2));
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 35%, transparent);
+  border-radius: var(--radius-lg);
 }
 
 .options {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-2);
 }
 
-/* Chip là nhãn của radio thật: bàn phím và trình đọc màn hình dùng radio gốc */
+/* Ô là nhãn của radio thật: bàn phím và trình đọc màn hình dùng radio gốc */
 .option {
   position: relative;
-  display: inline-flex;
+  display: grid;
 }
 
+/* Radio trong suốt nằm trên ô (z-index): lớp kính mờ của ô tạo stacking context riêng, không được che radio */
 .option input {
   position: absolute;
+  z-index: 1;
   opacity: 0;
   inset: 0;
   margin: 0;
-}
-
-.option span {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--touch-target);
-  padding: 0 var(--space-4);
-  font-size: var(--font-size-meta);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-m01-ink);
-  background: var(--color-white);
-  border: var(--border-width-thin) solid var(--color-m01-secondary);
-  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
-/* Đã chọn: nền forest chữ paper, kèm viền dày để không chỉ dựa vào màu */
-.option input:checked + span {
+.optionText {
+  display: grid;
+  place-content: center;
+  min-height: calc(var(--touch-target) + var(--space-3));
+  padding: var(--space-2);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  text-align: center;
   color: var(--color-paper);
-  background: var(--color-m01-forest);
-  border: var(--border-width-thick) solid var(--color-m01-deep);
+  background: color-mix(in srgb, var(--color-m01-deep) 40%, transparent);
+  backdrop-filter: blur(var(--space-2));
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 75%, transparent);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
 }
 
-.option input:focus-visible + span {
+.optionNote {
+  display: block;
+  font-weight: var(--font-weight-regular);
+}
+
+.option:hover .optionText {
+  background-color: color-mix(in srgb, var(--color-m01-deep) 60%, transparent);
+}
+
+/* Đã chọn: nền amber chữ ink, kèm viền dày để không chỉ dựa vào màu */
+.option input:checked + .optionText {
+  color: var(--color-m01-ink);
+  background: var(--color-m01-amber);
+  border: var(--border-width-thick) solid var(--color-paper);
+}
+
+.option input:focus-visible + .optionText {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
 
-.submit {
-  justify-self: start;
-  min-height: var(--touch-target-m01-primary);
+.submit,
+.wide {
+  --icon-size: var(--space-6);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  justify-self: center;
+  width: min(100%, calc(var(--space-8) * 11));
+  min-height: calc(var(--touch-target-m01-primary) + var(--space-3));
   padding: 0 var(--space-6);
-  font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
+  border-radius: var(--radius-lg);
+}
+
+.submit {
+  margin-top: var(--space-2);
+  font: var(--font-weight-semibold) calc(var(--font-size-body) * 1.125) var(--font-sans);
   color: var(--color-paper);
-  background: var(--color-m01-forest);
-  border: 0;
-  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-m01-forest) 75%, var(--color-m01-amber));
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 75%, transparent);
+  box-shadow: var(--shadow-modal);
   cursor: pointer;
 }
 
-/* Vô hiệu: đổi nền và con trỏ, không chỉ giảm độ mờ (§5.3) */
+.submit:hover:not(:disabled) {
+  background-image: linear-gradient(var(--overlay-fill-hover), var(--overlay-fill-hover));
+}
+
+/* Vô hiệu: nền kính tối, chữ nhạt và viền đứt, không chỉ giảm độ mờ (§5.3) */
 .submit:disabled {
-  color: var(--color-m01-secondary);
-  background: var(--color-m01-line);
+  color: var(--color-m01-line);
+  background: color-mix(in srgb, var(--color-m01-deep) 55%, transparent);
+  border-style: dashed;
+  box-shadow: none;
   cursor: not-allowed;
 }
 
 .summary {
   margin-bottom: var(--space-4);
   font-size: var(--font-size-meta);
-  color: var(--color-m01-secondary);
+  color: var(--color-m01-line);
 }
 
 .list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
-  gap: var(--space-4);
+  gap: var(--space-5);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -107,6 +172,10 @@
   display: grid;
   gap: var(--space-3);
   justify-items: start;
+  padding: var(--space-4) var(--space-5);
+  background: color-mix(in srgb, var(--color-m01-deep) 55%, transparent);
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 28%, transparent);
+  border-radius: var(--radius-lg);
 }
 
 .actions {
@@ -115,20 +184,32 @@
   gap: var(--space-2);
 }
 
+.footerActions {
+  justify-content: center;
+}
+
 .secondary {
+  --icon-size: var(--space-5);
+
   display: inline-flex;
   align-items: center;
+  gap: var(--space-2);
   min-height: var(--touch-target);
   padding: 0 var(--space-4);
-  font: var(--font-weight-semibold) var(--font-size-meta) var(--font-sans);
-  color: var(--color-m01-forest);
+  font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
+  color: var(--color-paper);
   text-decoration: none;
-  background: transparent;
-  border: var(--border-width-thin) solid var(--color-m01-forest);
-  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-m01-deep) 40%, transparent);
+  backdrop-filter: blur(var(--space-2));
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 75%, transparent);
+  border-radius: var(--radius-lg);
   cursor: pointer;
 }
 
+.secondary:hover {
+  background-color: color-mix(in srgb, var(--color-m01-deep) 60%, transparent);
+}
+
 .message {
-  color: var(--color-m01-secondary);
+  color: var(--color-m01-line);
 }
