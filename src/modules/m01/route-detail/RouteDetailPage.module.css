@@ -1,44 +1,54 @@
 /*
- * SCR-M01-003 — hero deep với tên tuyến serif (mockup SCR-M01-003; design-system §5.1), rồi nội dung trên paper.
- * Hero tràn hết bề ngang cột nội dung bằng margin âm bằng đúng padding của main.
+ * SCR-M01-003 — chi tiết tuyến đặt trên ảnh rừng (VisitorLayout `.immersive`): tên tuyến serif paper, các khối là
+ * lớp kính deep mờ với viền paper mảnh, điểm nhấn amber (design-system §5.1, §5.3). Cảnh báo an toàn giữ nền amber
+ * chữ ink để nổi bật nhất trang.
  */
 .hero {
-  --focus-ring-color: var(--color-m01-amber);
-
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
   justify-items: start;
-  margin: calc(var(--space-6) * -1) calc(var(--space-5) * -1) var(--space-5);
-  padding: var(--space-6) var(--space-5);
-  color: var(--color-paper);
-  background: var(--color-m01-deep);
+  margin-bottom: var(--space-6);
 }
 
 .backLink {
   display: inline-flex;
   align-items: center;
   min-height: var(--touch-target);
+  padding: 0 var(--space-4);
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
   color: var(--color-m01-amber);
+  text-decoration: none;
+  background: color-mix(in srgb, var(--color-m01-deep) 45%, transparent);
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-m01-amber) 60%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+.backLink:hover {
+  background-color: color-mix(in srgb, var(--color-m01-deep) 70%, transparent);
 }
 
 .title {
   font-family: var(--font-serif);
-  font-size: calc(var(--font-size-page-heading) + var(--space-2));
-  font-weight: var(--font-weight-regular);
+  font-size: clamp(calc(var(--font-size-page-heading) + var(--space-2)), 10vw, calc(var(--font-size-page-heading) * 1.6));
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--color-paper);
+  text-shadow: 0 var(--space-1) var(--space-5) var(--color-m01-deep);
 }
 
 .heroChip {
   display: inline-flex;
   align-items: center;
-  min-height: calc(var(--space-6) + var(--space-1));
-  padding: 0 var(--space-2);
-  font-size: var(--font-size-meta);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--color-m01-amber);
+  background: color-mix(in srgb, var(--color-m01-deep) 45%, transparent);
   border: var(--border-width-thin) solid var(--color-m01-amber);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
 }
 
 .content {
@@ -66,8 +76,14 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: var(--radius-md);
-  background: var(--color-m01-line);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-m01-deep) 55%, transparent);
+}
+
+/* Ảnh trong bộ ảnh có viền amber mảnh như khung tranh */
+.gallery .cover {
+  aspect-ratio: 4 / 3;
+  border: var(--border-width-thick) solid color-mix(in srgb, var(--color-m01-amber) 75%, transparent);
 }
 
 .gallery {
@@ -84,51 +100,71 @@
 
 .gallery li {
   display: grid;
-  gap: var(--space-1);
+  align-content: start;
+  gap: var(--space-2);
   scroll-snap-align: start;
 }
 
 .caption {
   font-size: var(--font-size-meta);
-  color: var(--color-m01-secondary);
+  color: var(--color-m01-line);
 }
 
 .facts {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin: 0;
 }
 
 .fact {
   display: grid;
+  justify-items: center;
+  align-content: start;
   gap: var(--space-1);
-  padding: var(--space-3) var(--space-2);
+  padding: var(--space-4) var(--space-1);
   text-align: center;
-  background: var(--color-white);
-  border: var(--border-width-thin) solid var(--color-m01-line);
-  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-m01-deep) 55%, transparent);
+  backdrop-filter: blur(var(--space-2));
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 28%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+.factIcon {
+  --icon-size: var(--space-8);
+
+  margin-bottom: var(--space-1);
+  color: var(--color-m01-amber);
 }
 
 .fact dt {
-  order: 2;
   font-size: var(--font-size-meta);
-  color: var(--color-m01-secondary);
+  color: var(--color-m01-line);
 }
 
 .fact dd {
   margin: 0;
+  font-size: calc(var(--font-size-body) * 1.125);
   font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+}
+
+.fact .difficultyValue {
+  color: var(--color-m01-amber);
 }
 
 /* Cảnh báo an toàn: hổ phách làm nền với chữ ink (§5.3), nổi bật nhất trang */
 .safety {
   display: grid;
   gap: var(--space-2);
-  padding: var(--space-4);
+  padding: var(--space-4) var(--space-5);
   color: var(--color-m01-ink);
   background: var(--color-m01-amber);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
+}
+
+.safety .sectionTitle {
+  color: var(--color-m01-ink);
 }
 
 .section {
@@ -137,8 +173,9 @@
 }
 
 .sectionTitle {
-  font-size: var(--font-size-body);
-  color: var(--color-m01-deep);
+  font-size: var(--font-size-m01-route-title);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-amber);
 }
 
 .text {
@@ -164,20 +201,21 @@
   align-items: center;
   gap: var(--space-3);
   min-height: var(--touch-target);
-  padding: var(--space-2) var(--space-3);
-  background: var(--color-white);
-  border: var(--border-width-thin) solid var(--color-m01-line);
-  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  background: color-mix(in srgb, var(--color-m01-deep) 55%, transparent);
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 22%, transparent);
+  border-radius: var(--radius-lg);
 }
 
 .stopNumber {
   display: inline-grid;
+  flex: none;
   place-items: center;
   min-width: calc(var(--space-6) + var(--space-1));
   height: calc(var(--space-6) + var(--space-1));
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
-  border: var(--border-width-thin) solid var(--color-m01-secondary);
+  border: var(--border-width-thin) solid var(--color-m01-line);
   border-radius: 50%;
 }
 
@@ -188,9 +226,9 @@
 }
 
 .message {
-  color: var(--color-m01-secondary);
+  color: var(--color-m01-line);
 }
 
 .startArea {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-5);
 }

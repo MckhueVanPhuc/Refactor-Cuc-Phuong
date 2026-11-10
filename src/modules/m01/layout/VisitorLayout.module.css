@@ -54,6 +54,7 @@
 .navLink {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-2);
   min-height: var(--touch-target);
   padding: 0 var(--space-2);
   font-size: var(--font-size-meta);
@@ -86,4 +87,39 @@
   /* Cột đọc khoảng 70 ký tự trên màn rộng; trên điện thoại dùng toàn bộ bề ngang */
   max-width: calc(var(--space-8) * 22);
   padding: var(--space-6) var(--space-5) var(--space-8);
+}
+
+/*
+ * Chi tiết tuyến (SCR-M01-003): ảnh rừng nắng sớm (assets/background_mobile.jpg) trên lớp cố định phía sau, phủ deep
+ * đậm dần xuống dưới để chữ paper đọc được; mất ảnh thì còn nền deep. Thanh app trong suốt, cuộn theo trang.
+ */
+.immersive {
+  --focus-ring-color: var(--color-m01-amber);
+  --control-accent: var(--color-m01-amber);
+
+  position: relative;
+  isolation: isolate;
+  color: var(--color-paper);
+  background: var(--color-m01-deep);
+}
+
+.immersive::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--color-m01-deep) 55%, transparent),
+      color-mix(in srgb, var(--color-m01-deep) 72%, transparent) 40%,
+      color-mix(in srgb, var(--color-m01-deep) 88%, transparent)
+    ),
+    url('../../../../assets/background_mobile.jpg') center / cover no-repeat,
+    var(--color-m01-deep);
+}
+
+.immersive .appBar {
+  position: static;
+  padding-top: max(var(--space-3), env(safe-area-inset-top));
+  background: transparent;
 }

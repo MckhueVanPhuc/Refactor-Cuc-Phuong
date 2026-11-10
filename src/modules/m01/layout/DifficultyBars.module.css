@@ -1,0 +1,32 @@
+/* Vạch độ khó: màu theo chữ quanh nó (currentColor), vạch chưa đạt mờ đi; cỡ theo --icon-size như icon */
+.bars {
+  display: inline-flex;
+  flex: none;
+  align-items: flex-end;
+  justify-content: center;
+  gap: calc(var(--icon-size, var(--space-4)) / 8);
+  width: var(--icon-size, var(--space-4));
+  height: var(--icon-size, var(--space-4));
+}
+
+.bar {
+  flex: 1;
+  background: color-mix(in srgb, currentColor 28%, transparent);
+  border-radius: var(--border-width-thin);
+}
+
+.bar:nth-child(1) {
+  height: 45%;
+}
+
+.bar:nth-child(2) {
+  height: 72%;
+}
+
+.bar:nth-child(3) {
+  height: 100%;
+}
+
+.bar[data-filled] {
+  background: currentColor;
+}
