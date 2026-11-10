@@ -18,9 +18,10 @@ afterEach(() => {
 describe('route M02', () => {
   it.each([
     ['/trip', 'scanner'],
-    ['/trip/qr/Q1a', 'reader'],
+    // Nội dung một mã QR: bề mặt `article` (reader nền xanh xô thơm) cho SCR-M02-002 và SCR-M02-004
+    ['/trip/qr/Q1a', 'article'],
     ['/trip/end', 'reader'],
-    ['/q/Q1a', 'reader'],
+    ['/q/Q1a', 'article'],
   ])('%s mở layout M02 (%s) với nút VI/EN của M01', async (path, surface) => {
     const { container } = renderAt(path);
     await screen.findByRole('main');
