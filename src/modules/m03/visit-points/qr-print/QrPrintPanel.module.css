@@ -12,13 +12,6 @@
   font-size: var(--font-size-body);
 }
 
-/* 6 ký tự cuối giống hệt chữ trên tem, để đối chiếu tại thực địa */
-.code {
-  font-size: var(--font-size-row-title);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.04em;
-}
-
 .note {
   font-size: var(--font-size-meta);
   color: var(--color-ink-secondary);

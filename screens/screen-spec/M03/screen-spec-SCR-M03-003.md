@@ -32,7 +32,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-003.html](../../html/mockup-SCR-M03-003.html)
 | 2 | E-SCR-M03-003-02 | Editor heading | Header text | "Đang sửa: {tên}" (hoặc "Điểm tham quan chưa đặt tên {số}" khi chưa có tên, đánh số theo thứ tự tạo trong điểm dừng) | Yes | Nêu đúng điểm tham quan đang sửa (BR-M03-E16) |
 | 3 | E-SCR-M03-003-03 | Version label | Text | MSG-VERSION-DRAFT ("Bản nháp — du khách chưa thấy.") hoặc MSG-VERSION-PUBLISHED ("Đang hiển thị cho du khách.") | Yes | Luôn nêu bản nào đang trên màn hình |
 | 4 | E-SCR-M03-003-04 | Status and readiness | Text | Trạng thái (Nháp / Đang hoạt động / Đã thu hồi) và "Sẵn sàng" hoặc "Chưa đủ: {điều còn thiếu}" | Yes | Tên hiển thị §5.4; sẵn sàng khi đủ tên, giới thiệu hai ngôn ngữ, media trong giới hạn và đúng loại kết nối, đã xác nhận quyền, mọi audio/video đã chọn ngôn ngữ nói (BR-M03-E05) |
-| 5 | E-SCR-M03-003-05 | Code suffix | Text | "Mã …{6 ký tự}" (6 ký tự cuối của mã QR) | Conditional | Hiện sau lần lưu đầu; không hiện mã đầy đủ hay định danh nào khác |
+| 5 | E-SCR-M03-003-05 | ~~Code suffix~~ | — | Bỏ theo CHG-M03-2026-11-10-01: không hiện phần nào của mã QR | — | — |
 | 6 | E-SCR-M03-003-06 | Object name (vi/en) | Input ×2 | Tên đối tượng | Yes (xuất bản) | Một dòng, tối đa 100 ký tự mỗi ngôn ngữ; MSG-LIMIT-TEXT; thiếu một ngôn ngữ → MSG-MISSING-LANGUAGE khi xuất bản |
 | 7 | E-SCR-M03-003-07 | Introduction (vi/en) | Textarea ×2 | Giới thiệu hiện cho du khách | Yes (xuất bản) | 30 đến 2000 ký tự mỗi ngôn ngữ sau khi cắt khoảng trắng đầu/cuối; cho phép xuống dòng; MSG-LIMIT-TEXT khi vượt tối đa |
 | 8 | E-SCR-M03-003-08 | Image upload | File input (nhiều tệp) | Ảnh của điểm tham quan | No | Tối đa 5 ảnh (MSG-COUNT-IMAGES), mỗi ảnh ≤ 2 MB (MSG-FILE-TOO-BIG), JPEG/PNG/WebP (MSG-FILE-TYPE); xác nhận quyền sử dụng từng ảnh |
@@ -46,10 +46,10 @@ Mockup HTML tĩnh: [mockup-SCR-M03-003.html](../../html/mockup-SCR-M03-003.html)
 | 16 | E-SCR-M03-003-16 | Action: Lưu bản nháp | Button | Lưu cả form: hai ngôn ngữ, danh sách media thứ tự kèm tick quyền, ghi chú | Yes | Lần lưu đầu tạo điểm tham quan và mã QR; vô hiệu khi form còn trống; MSG-SAVED chỉ khi toàn bộ đã lưu; thêm vượt 20 điểm tham quan chưa thu hồi trong điểm dừng → chặn bằng MSG-LIMIT-QR |
 | 17 | E-SCR-M03-003-17 | First-save message + action | Toast + Button | MSG-QR-CREATED ("Đã thêm điểm tham quan "{tên}"."), nút "Thêm điểm tham quan khác" | Conditional | Hiện sau lần lưu đầu; điểm vừa lưu được tô sáng trong danh sách |
 | 18 | E-SCR-M03-003-18 | Action: Xem trước như du khách | Button | Xem bản nháp như du khách: tên điểm dừng, tên đối tượng, giới thiệu, ảnh, audio/video theo ngôn ngữ cộng tệp không lời (điểm dừng có mạng) | Yes (Should) | Có chuyển Tiếng Việt/Tiếng Anh và nhãn MSG-PREVIEW-DRAFT; không ghi gì, không dùng tra cứu live, không hiện cho du khách (BR-M03-F12) |
-| 19 | E-SCR-M03-003-19 | Code image download | Buttons | Tải ảnh mã QR dạng SVG và PNG (≥ 1024 px, mức sửa lỗi Q, vùng trống 4 module) | Conditional | Tải được từ lần lưu đầu; màn hình nêu mã in phải rộng ít nhất 3 cm (BR-M03-B05) |
+| 19 | E-SCR-M03-003-19 | Code image download | Buttons | Tải ảnh mã QR dạng SVG và PNG (≥ 1024 px, mức sửa lỗi Q, vùng trống 4 module) | Conditional | Tải được khi đã lưu tên tiếng Việt; chưa có thì hai nút tắt, kèm MSG-MISSING-FIELD ("Còn thiếu: Tên đối tượng (tiếng Việt)."). Tên tệp `ma-qr-{tên bỏ dấu}` (BR-M03-B05) |
 | 20 | E-SCR-M03-003-20 | Unpublished code warning | Text | MSG-QR-PRINT-UNPUBLISHED | Conditional | Hiện khi tải ảnh mã của điểm tham quan chưa xuất bản |
-| 21 | E-SCR-M03-003-21 | Print-image notes | Text | Ảnh mã có dưới mã "Mã …{6 ký tự}"; với điểm dừng "Cần tải trước" có dòng "Khu vực không có sóng — hãy tải dữ liệu tuyến trước khi đến / No signal here — download the route data before you come"; ảnh tạo ngoài Production có "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA" | Conditional | Theo BR-M03-B05; mã chứa liên kết công khai `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` và không gì khác |
-| 22 | E-SCR-M03-003-22 | Action: In lại | Button | In lại mã bị hỏng/phai | Conditional | Cả hai role; giữ nguyên mã và nội dung, chỉ ghi nhật ký (BR-M03-E07) |
+| 21 | E-SCR-M03-003-21 | Print-image notes | Text | Ảnh mã có dưới mã tên tiếng Việt đã lưu của điểm tham quan lúc tải (tối đa 2 dòng, dài hơn cắt bằng "…"); với điểm dừng "Cần tải trước" có dòng "Khu vực không có sóng — hãy tải dữ liệu tuyến trước khi đến / No signal here — download the route data before you come"; ảnh tạo ngoài Production có "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA" | Conditional | Theo BR-M03-B05; mã chứa liên kết công khai `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` và không gì khác |
+| 22 | E-SCR-M03-003-22 | ~~Action: In lại~~ | — | Bỏ theo CHG-M03-2026-11-10-01: in lại tem hỏng = tải lại ảnh ở E-19; không ghi nhật ký (BR-M03-E07) | — | — |
 | 23 | E-SCR-M03-003-23 | Action: Thu hồi mã QR | Button + dialog | Thu hồi điểm tham quan đang hoạt động; dialog dùng MSG-CONFIRM-REVOKE-QR: "Thu hồi mã QR của \"{tên}\": người quét mã này sẽ thấy mã không hợp lệ; gói tải trước của du khách ở các tuyến liên quan cần cập nhật." | Conditional | Cả hai role; lý do bắt buộc, tối đa 300 ký tự; chặn mã QR cuối của điểm dừng đang hoạt động bằng MSG-LAST-QR |
 | 24 | E-SCR-M03-003-24 | Action: Hủy | Button + dialog | Hủy điểm tham quan chưa từng xuất bản; dialog dùng MSG-CONFIRM-DISCARD-QR: "Hủy điểm tham quan \"{tên}\": mã QR của nó sẽ không bao giờ được dùng lại." | Conditional | Cả hai role; lý do tùy chọn (tối đa 300 ký tự); điểm tham quan thành Đã thu hồi, mã không bao giờ dùng lại |
 | 25 | E-SCR-M03-003-25 | Action: Xuất bản | Button | Mở SCR-M03-004 cho đơn vị "Điểm tham quan (một mã QR)" | Yes | Kiểm tra sẵn sàng trước; thiếu thì liệt kê |
@@ -94,7 +94,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-003.html](../../html/mockup-SCR-M03-003.html)
 | 4 | Thêm điểm tham quan khác | Tap | Mở form trống mới (kiểm tra giới hạn 20) | `SCR-M03-003` (new) |
 | 5 | Xem trước như du khách | Tap | Hiện bản xem trước hai ngôn ngữ | Preview |
 | 6 | Tải ảnh mã QR | Tap | Tạo SVG/PNG theo cài đặt in; cảnh báo nếu chưa xuất bản | Download |
-| 7 | In lại | Tap | Ghi nhật ký; mã không đổi | Audit only |
+| 7 | ~~In lại~~ | — | Bỏ theo CHG-M03-2026-11-10-01; dùng Tải ảnh SVG/PNG | — |
 | 8 | Thu hồi mã QR | Xác nhận | Điểm tham quan Đã thu hồi; tạo phiên bản hành trình mới cho các tuyến liên quan; chặn nếu là mã cuối | State update |
 | 9 | Hủy | Xác nhận | Điểm tham quan chưa xuất bản thành Đã thu hồi | State update |
 | 10 | Xuất bản | Tap | Kiểm tra sẵn sàng; mở màn xem lại | `SCR-M03-004` |
@@ -122,7 +122,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-003.html](../../html/mockup-SCR-M03-003.html)
 | SR-SCR-M03-003-013 | Điểm tham quan không chuyển sang điểm dừng khác; muốn chuyển thì tạo mới và thu hồi cũ | BR-M03-E12 |
 | SR-SCR-M03-003-014 | Sửa điểm tham quan đã xuất bản tạo bản nháp; bản công khai giữ đến khi xuất bản; điểm dừng "Cần tải trước" đang hoạt động tạo phiên bản hành trình mới khi xuất bản | BR-M03-E06, G04 |
 | SR-SCR-M03-003-015 | Điểm tham quan thêm vào điểm dừng đã hoạt động được xuất bản riêng từng cái; không xuất bản hàng loạt | BR-M03-E13 |
-| SR-SCR-M03-003-016 | Nhận diện điểm tham quan bằng tên, trạng thái, sẵn sàng và 6 ký tự cuối mã; không hiện định danh khác | BR-M03-E16, L10 |
+| SR-SCR-M03-003-016 | Nhận diện điểm tham quan bằng tên, trạng thái và sẵn sàng; không hiện phần nào của mã QR; tem in tên điểm tham quan | BR-M03-E16, L10 |
 | SR-SCR-M03-003-017 | Mọi màn đã đăng nhập có nút Đăng xuất; đăng xuất kết thúc phiên nhà cung cấp và không thay đổi vai trò/trạng thái; sau đó mọi request được bảo vệ cần đăng nhập lại | BR-M03-K06, SC-M03-040 |
 | SR-SCR-M03-003-018 | Chỉ bấm "→" mới dịch; gõ, rời ô, mở form, xóa ô tiếng Anh hay đổi ô tiếng Việt không tự dịch và không đổi ô tiếng Anh. Ô tiếng Anh luôn sửa được. Bản dịch chỉ điền form; lưu, kiểm tra (kể cả giới thiệu tối thiểu 30 ký tự) và xuất bản giữ nguyên quy tắc M03; không có hộp xác nhận mới | BR-AI-01 đến BR-AI-06, BR-M03-F11, L12 |
 

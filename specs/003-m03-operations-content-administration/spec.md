@@ -65,7 +65,7 @@ Tạo điểm dừng trong thư viện dùng chung, độc lập với tuyến, 
 9. **Given** chọn nhiều tệp trong một thao tác, **Then** mỗi tệp được kiểm tra và tải riêng, hiện trạng thái riêng; tệp tải thành công được giữ khi tệp khác lỗi; quyền sử dụng xác nhận từng tệp; tệp đã tải nhưng chưa bao giờ được lưu vào bản nháp không công khai và không được dọn tự động (BR-M03-E14).
 10. **Given** trước khi xuất bản, **Then** có thể "Xem trước như du khách" bản nháp ở cả hai ngôn ngữ (BR-M03-F12) — thuộc nhóm Should theo MVP-Scope §3.4.
 11. **Given** mỗi mã in là link công khai cố định `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}`, **Then** ảnh in tải xuống được bất cứ lúc nào (SVG/PNG), cảnh báo khi điểm tham quan chưa xuất bản, và điểm dừng `OFFLINE_REQUIRED` mang dòng cảnh báo song ngữ; ảnh ngoài Production mang nhãn "BẢN THỬ — KHÔNG DÁN RA THỰC ĐỊA" (BR-M03-B04, B05).
-12. **Given** in lại (mã hỏng/mờ), **Then** giữ identifier và nội dung, chỉ ghi audit (BR-M03-E07); thu hồi (revoke) cần lý do và bị chặn nếu là QR hoạt động cuối của điểm dừng hoạt động (BR-M03-E09); lưu trữ điểm dừng chỉ Reviewer, chỉ khi `TAM_DONG` và không tuyến nào chưa lưu trữ liệt kê nó (BR-M03-D10).
+12. **Given** in lại (mã hỏng/mờ), **Then** tải lại cùng ảnh: giữ identifier và nội dung, không ghi gì (BR-M03-E07, CHG-M03-2026-11-10-01); thu hồi (revoke) cần lý do và bị chặn nếu là QR hoạt động cuối của điểm dừng hoạt động (BR-M03-E09); lưu trữ điểm dừng chỉ Reviewer, chỉ khi `TAM_DONG` và không tuyến nào chưa lưu trữ liệt kê nó (BR-M03-D10).
 
 ---
 
@@ -127,7 +127,7 @@ Mọi vấn đề hiện ngay dưới trường liên quan bằng tiếng Việt
 4. **Given** lưu lỗi, **Then** không mất những gì người dùng đã gõ (BR-M03-L06).
 5. **Given** lưu stale, **Then** nêu ai sửa và khi nào, kèm hành động Tải lại.
 6. **Given** "Lưu bản nháp", **Then** lưu mọi thứ trong form (cả hai ngôn ngữ, danh sách media) hoặc không gì; "Đã lưu bản nháp" chỉ hiện khi tất cả được lưu; không autosave (BR-M03-F11).
-7. **Given** mọi màn hình, **Then** không hiện JSON, tên trường, mã trạng thái, mã HTTP hay identifier nội bộ (ngoại lệ: 6 ký tự cuối của mã QR); mọi thông báo lấy từ danh mục §5.6 (BR-M03-L10, L11, L13).
+7. **Given** mọi màn hình, **Then** không hiện JSON, tên trường, mã trạng thái, mã HTTP hay identifier nội bộ; mọi thông báo lấy từ danh mục §5.6 (BR-M03-L10, L11, L13).
 8. **Given** một trường, **Then** câu gợi ý chỉ có cho danh sách cố định §5.5, mỗi câu một dòng ngắn; hộp xác nhận chỉ có khi đóng, mở lại, lưu trữ, thu hồi, hủy mục chưa từng xuất bản, xuất bản và rời editor còn thay đổi chưa lưu, gồm một câu hậu quả và hai nút (BR-M03-L12; spec-M03 v3.7 clarification 7).
 
 ---
@@ -298,7 +298,7 @@ Giữ nguyên SC-M03-001…040 (spec-M03 §7), trừ SC-M03-018 và SC-M03-027 �
 - **SC-M03-023**: Lookup QR trong điểm dừng/tuyến đóng trả `TEMPORARILY_CLOSED` và không có nội dung ghé.
 - **SC-M03-024**: Ước tính dung lượng snapshot không tính audio/video; thiếu ước tính không chặn tải.
 - **SC-M03-025**: Audio/video không bao giờ gắn vào QR object của điểm dừng `OFFLINE_REQUIRED`; điểm dừng không đổi sang offline khi còn audio/video.
-- **SC-M03-026**: Không màn hình nào hiện JSON, tên trường, mã trạng thái, mã HTTP hay identifier nội bộ (trừ 6 ký tự cuối của mã QR); mọi thông báo từ danh mục.
+- **SC-M03-026**: Không màn hình nào hiện JSON, tên trường, mã trạng thái, mã HTTP hay identifier nội bộ; mọi thông báo từ danh mục.
 - **SC-M03-028**: Điểm dừng được tạo và xuất bản một lần, nhiều tuyến liệt kê được; nội dung không bị nhân bản theo tuyến.
 - **SC-M03-029**: Một thay đổi trên điểm dừng dùng chung cập nhật mọi tuyến liệt kê nó cùng lúc hoặc không tuyến nào.
 - **SC-M03-030**: Tuyến `HOAT_DONG` luôn có ít nhất một điểm dừng hoạt động; ngược lại bị đóng.
@@ -334,7 +334,7 @@ Tất cả là hằng cấu hình **provisional**, phải kiểm chứng trên g
 - Tên (tuyến, điểm dừng, QR object, mỗi ngôn ngữ): `NAME_MAX_CHARS` = 100. Mô tả ngắn: 160. Mô tả đầy đủ: 2000. Điểm xuất phát: 500. Yêu cầu tham gia: 300. Chuẩn bị: 500. Thời điểm phù hợp: 200. Cảnh báo an toàn: 500. Điểm nhấn: 5 mục × 80 ký tự. Chú thích: 200. Ghi chú/lý do: `NOTE_MAX_CHARS` = 300. Giới thiệu QR: 30 đến 2000.
 - Ảnh gallery tối đa 8; quãng đường tối đa 100 km (một chữ số thập phân); thời lượng tối đa 1440 phút; điểm dừng mỗi tuyến tối đa 30; QR mỗi điểm dừng (không `THU_HOI`) tối đa 20; ảnh/QR tối đa 5; tệp audio-video/QR tối đa 3; khoảng báo cáo tối đa 366 ngày.
 - Kích thước tệp: ảnh 2 MB, audio 5 MB, video 30 MB (1 MB = 1 048 576 byte). `OFFLINE_PACKAGE_MAX_MB` = 50. Email tối đa 254 ký tự sau chuẩn hóa. `QR_CODE_DISPLAY_SUFFIX_CHARS` = 6.
-- In mã: sửa lỗi mức `Q`, PNG tối thiểu 1024 px, quiet zone 4 module, rộng tối thiểu in 3 cm. Loại tệp hỗ trợ: JPEG, PNG, WebP; MP3, M4A; MP4.
+- In mã: sửa lỗi mức `Q`, PNG tối thiểu 1024 px, quiet zone 4 module; dưới mã in tên tiếng Việt của điểm tham quan (CHG-M03-2026-11-10-01). Loại tệp hỗ trợ: JPEG, PNG, WebP; MP3, M4A; MP4.
 - `QR_PUBLIC_BASE_URL` là cấu hình môi trường (xem Open clarifications bên dưới).
 
 ### Open clarifications

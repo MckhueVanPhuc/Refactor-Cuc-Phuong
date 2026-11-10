@@ -59,8 +59,6 @@ export const VIDEO_MAX_MB = 30;
 export const OFFLINE_PACKAGE_MAX_MB = 50;
 /** provisional — §5.3: email quản trị sau chuẩn hóa */
 export const EMAIL_MAX_CHARS = 254;
-/** provisional — §5.3: số ký tự cuối của mã QR hiện cho nhân viên */
-export const QR_CODE_DISPLAY_SUFFIX_CHARS = 6;
 /** provisional — §5.3: mức sửa lỗi của mã in */
 export const QR_PRINT_ERROR_CORRECTION = 'Q';
 /** provisional — §5.3: độ rộng PNG tối thiểu của mã in, px */
@@ -68,7 +66,6 @@ export const QR_PRINT_PNG_MIN_PX = 1024;
 /** provisional — §5.3: lề trống quanh mã in, module */
 export const QR_PRINT_QUIET_ZONE_MODULES = 4;
 /** provisional — §5.3: độ rộng in tối thiểu ghi trên màn tải xuống, cm */
-export const QR_PRINT_MIN_SIZE_CM = 3;
 
 /** §5.3: 1 MB = 1 048 576 byte */
 export const BYTES_PER_MB = 1_048_576;

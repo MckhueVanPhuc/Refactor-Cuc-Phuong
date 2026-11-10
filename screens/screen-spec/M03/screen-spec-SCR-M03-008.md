@@ -37,7 +37,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-008.html](../../html/mockup-SCR-M03-008.html)
 | 7 | E-SCR-M03-008-07 | Connectivity mode selector | Selector | "Cần tải trước" / "Dùng được khi có mạng" | Yes | Không có mặc định, phải chọn rõ; đổi từ "Dùng được khi có mạng" sang "Cần tải trước" bị chặn khi điểm tham quan nào (đã xuất bản hoặc bản nháp) còn âm thanh/video: MSG-MODE-HAS-AV; chiều ngược lại luôn được phép (BR-M03-D02) |
 | 8 | E-SCR-M03-008-08 | Field-verification tick | Checkbox | "Đã khảo sát thực địa, có sóng ổn định" | Conditional | Bắt buộc tick để chọn "Dùng được khi có mạng"; hệ thống ghi ai xác nhận và lúc nào; đổi khỏi chế độ này thì xóa xác nhận; thiếu → MSG-ONLINE-NOT-VERIFIED khi xuất bản |
 | 9 | E-SCR-M03-008-09 | Location note | Textarea | Ghi chú vị trí nội bộ | No | Tối đa 300 ký tự; không bao giờ hiện cho du khách; lưu cùng form, không cần xuất bản, không tạo phiên bản hành trình |
-| 10 | E-SCR-M03-008-10 | Visit point list | Table | Mỗi điểm tham quan: tên (hoặc "Điểm tham quan chưa đặt tên {số}"), trạng thái (Nháp / Đang hoạt động / Đã thu hồi), "Sẵn sàng" hoặc "Chưa đủ: …", "Mã …{6 ký tự}" | Yes (khi mở một điểm dừng) | Điểm vừa lưu được tô sáng (BR-M03-E16) |
+| 10 | E-SCR-M03-008-10 | Visit point list | Table | Mỗi điểm tham quan: tên (hoặc "Điểm tham quan chưa đặt tên {số}"), trạng thái (Nháp / Đang hoạt động / Đã thu hồi), "Sẵn sàng" hoặc "Chưa đủ: …" | Yes (khi mở một điểm dừng) | Điểm vừa lưu được tô sáng. Mục "Đã thu hồi" ẩn mặc định; nút "Hiện mục đã thu hồi ({số})" / "Ẩn mục đã thu hồi" (BR-M03-E16, CHG-M03-2026-11-10-01) |
 | 11 | E-SCR-M03-008-11 | Action: Thêm điểm tham quan | Button | Mở form trống ở SCR-M03-003 | Yes | Chỉ sau khi điểm dừng đã lưu loại kết nối; chưa thì hiện MSG-MODE-REQUIRED-FIRST; đã đủ 20 điểm tham quan chưa thu hồi thì MSG-LIMIT-QR (BR-M03-E15, E02) |
 | 12 | E-SCR-M03-008-12 | Action: Lưu bản nháp | Button | Lưu cả form điểm dừng (hai ngôn ngữ, loại kết nối và tick khảo sát, ghi chú vị trí) nguyên tử | Yes | MSG-SAVED chỉ khi toàn bộ đã lưu; thiếu nội dung không chặn lưu; giá trị rõ ràng không hợp lệ chặn lưu (BR-M03-F11, L01) |
 | 13 | E-SCR-M03-008-13 | Action: Xuất bản | Button | Mở SCR-M03-004 cho đơn vị điểm dừng | Yes | Lần đầu cần tên hai ngôn ngữ, loại kết nối (kèm xác nhận khảo sát nếu cần), ít nhất một điểm tham quan sẵn sàng, và với "Cần tải trước" mọi ảnh của điểm tham quan sẵn sàng đã được lưu và đọc được (MSG-IMAGE-NOT-READABLE) |
@@ -127,7 +127,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-008.html](../../html/mockup-SCR-M03-008.html)
 | FR ID | How the screen supports it |
 |---|---|
 | FR-M03-002 | Thư viện điểm dừng, tên duy nhất, loại kết nối |
-| FR-M03-003 | Danh sách điểm tham quan, mã …6 ký tự, thêm điểm tham quan |
+| FR-M03-003 | Danh sách điểm tham quan, ẩn/hiện mục đã thu hồi, thêm điểm tham quan |
 | FR-M03-005 | Sẵn sàng/Chưa đủ, kiểm tra hai mức |
 | FR-M03-007 | Một bản nháp, stale write, khôi phục, thao tác tuần tự |
 | FR-M03-008 | Xuất bản điểm dừng lần đầu độc lập với tuyến |

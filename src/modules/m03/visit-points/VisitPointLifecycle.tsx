@@ -1,4 +1,4 @@
-// Vòng đời điểm tham quan (tasks T091; BR-M03-E07, E09–E11): ảnh in + In lại (C-17), Thu hồi (C-16, lý do,
+// Vòng đời điểm tham quan (tasks T091; BR-M03-E07, E09–E11): ảnh in (in lại = tải lại ảnh), Thu hồi (C-16, lý do,
 // MSG-CONFIRM-REVOKE-QR), Hủy mục chưa từng xuất bản (C-07, lý do tùy chọn, MSG-CONFIRM-DISCARD-QR).
 import { useState } from 'react';
 import { Button } from '../../../shared/ui/Button';
@@ -50,11 +50,10 @@ export function VisitPointLifecycle({ editor, displayName, onOutcome, onTranspor
     <>
       <QrPrintPanel
         qrIdentifier={editor.qrIdentifier}
+        // Tên đã lưu, không phải ô đang gõ: tem khớp dữ liệu (BR-M03-B05)
+        name={(editor.draft ?? editor.published)?.content.objectName?.vi ?? ''}
         status={editor.status}
         connectivityMode={editor.checkpointMode}
-        reprintDisabled={busy}
-        // In lại cùng mã: chỉ ghi nhận, mã và nội dung không đổi (BR-M03-E07)
-        onReprint={() => void run(() => api.recordReprint({ qrIdentifier: editor.qrIdentifier }))}
       />
       {editor.status === 'HOAT_DONG' || neverPublished ? (
         <div className={layout.formActions}>

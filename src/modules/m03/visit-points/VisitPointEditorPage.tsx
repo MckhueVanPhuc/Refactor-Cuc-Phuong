@@ -1,5 +1,5 @@
 // SCR-M03-003 Điểm tham quan (QR) & Nội dung (tasks T089; Q-07, C-03, C-04; BR-M03-B01, B02, E02–E05,
-// E14–E17, F11, F12). Ảnh in, In lại, Thu hồi, Hủy ở VisitPointLifecycle (T091).
+// E14–E17, F11, F12). Ảnh in, Thu hồi, Hủy ở VisitPointLifecycle (T091).
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { Banner } from '../../../shared/ui/Banner';
@@ -44,7 +44,6 @@ import type { UploadItem } from '../media/useUploadQueue';
 import { formatMessage, formatMessageFromServer } from '../messages/catalog';
 import { DISPLAY_NAMES, readinessLabel } from '../messages/displayNames';
 import { FIELD_LABELS } from '../messages/fieldLabels';
-import { qrSuffix } from '../messages/format';
 import { HINTS } from '../messages/hints';
 import { ADMIN_PATHS } from '../paths';
 import {
@@ -378,7 +377,6 @@ function VisitPointEditorView({ checkpointId, qrIdentifier }: { checkpointId: st
                   Trạng thái: <strong className={`${layout.status} ${layout[editor.status]}`}>{DISPLAY_NAMES.qrStatus[editor.status]}</strong>
                 </span>
                 <span>{readinessLabel(editor.readiness.missing)}</span>
-                <span className={layout.code}>Mã …{qrSuffix(editor.qrIdentifier)}</span>
               </>
             ) : null}
           </p>
