@@ -58,7 +58,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html)
 | 28 | E-SCR-M03-002-28 | Action: Tạo điểm dừng mới | Link | Mở SCR-M03-008 để tạo rồi quay lại | Yes | Điểm dừng mới chỉ chọn được sau khi đã xuất bản |
 | 29 | E-SCR-M03-002-29 | Action: Lưu bản nháp | Button | Lưu cả editor (mọi ngôn ngữ, danh sách ảnh với quyền sử dụng, danh sách điểm dừng) hoặc không gì cả | Yes | MSG-SAVED chỉ hiện khi toàn bộ đã lưu; chặn khi giá trị rõ ràng không hợp lệ; thiếu nội dung không chặn lưu (BR-M03-C03, F11) |
 | 30 | E-SCR-M03-002-30 | Action: Xuất bản | Button | Mở SCR-M03-004 | Yes | Kiểm tra đầy đủ trước; thiếu gì thì liệt kê và không xuất bản (BR-M03-F01) |
-| 31 | E-SCR-M03-002-31 | Version / history panel | Panel | Lịch sử bản đã xuất bản; nhãn bản đang xem | Conditional | Cả hai role xem được |
+| 31 | E-SCR-M03-002-31 | Version / history panel | Panel | Lịch sử bản đã xuất bản; nhãn bản đang xem; nhật ký của mục, chi tiết mỗi dòng tối đa 3 dòng, dài hơn thì "…Xem thêm" mở hộp thoại chỉ đọc (như SCR-M03-009) | Conditional | Cả hai role xem được |
 | 32 | E-SCR-M03-002-32 | Action: Khôi phục bản đã xuất bản trước đó | Button | Tạo bản nháp từ bản cũ; từ chối với MSG-RESTORE-BLOCKED nếu bản cũ vi phạm giới hạn hiện hành | Conditional | Chặn khi đã có bản nháp: MSG-DRAFT-EXISTS |
 | 33 | E-SCR-M03-002-33 | Action: Bỏ thay đổi | Button | Bỏ bản nháp | Conditional | Bản đã xuất bản giữ nguyên |
 | 34 | E-SCR-M03-002-34 | Stale banner + Tải lại | Banner + Button | MSG-STALE nêu ai sửa và lúc nào | Conditional | Nội dung đang gõ vẫn giữ trên màn hình để sao chép; không tự gộp |
@@ -122,7 +122,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html)
 | SR-SCR-M03-002-009 | Một nút "Lưu bản nháp" lưu cả form nguyên tử; tệp đã tải chỉ vào bản nháp khi lưu; không tự lưu | BR-M03-F11, E14 |
 | SR-SCR-M03-002-010 | Tick sơ đồ offline chỉ khi có ảnh sơ đồ; gỡ ảnh thì tự bỏ tick và báo MSG-MAP-TICK-CLEARED | BR-M03-C16 |
 | SR-SCR-M03-002-011 | Mỗi tệp ảnh cần xác nhận quyền sử dụng riêng trước khi xuất bản | BR-M03-C14, E14 |
-| SR-SCR-M03-002-012 | Dưới mỗi ô chỉ hiện đúng hint cố định của §5.5; không có hint khác | BR-M03-L12 |
+| SR-SCR-M03-002-012 | Dưới mỗi ô chỉ hiện đúng hint cố định của §5.5; không có hint khác. Trường song ngữ có hint thì cùng một câu hiện dưới nhãn của cả ô tiếng Việt và ô tiếng Anh, để hai ô thẳng hàng (chủ dự án quyết định 2026-11-10) | BR-M03-L12 |
 | SR-SCR-M03-002-013 | Lưu hoặc xuất bản dữ liệu lỗi thời bị từ chối bằng MSG-STALE; không tự gộp; nội dung đang gõ giữ nguyên | BR-M03-F06, L05, SC-M03-005 |
 | SR-SCR-M03-002-014 | Quản trị viên nào cũng xuất bản được bản nháp của mình, chỉ qua màn xem lại; không có hàng đợi duyệt hay trạng thái chờ duyệt | BR-M03-A05, F01 |
 | SR-SCR-M03-002-015 | Thay đổi thông tin tuyến (không phải danh sách, thứ tự, sơ đồ offline) không tạo phiên bản hành trình mới | BR-M03-C15, G05 |

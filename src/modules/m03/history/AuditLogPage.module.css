@@ -9,14 +9,32 @@
   white-space: nowrap;
 }
 
+/* Chỉ ngắt giữa từ khi một chuỗi (ví dụ email) dài hơn cả cột */
 .wrap {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
-/* Dấu "tự xuất bản" luôn bằng chữ, nằm trên chính dòng xuất bản */
+/* Bảng nhật ký: năm cột đầu bằng nhau, "Chi tiết" lấy phần còn lại; màn hẹp thì cuộn ngang trong tableWrap */
+.auditTable {
+  table-layout: fixed;
+  min-width: 60rem;
+}
+
+.auditTable td {
+  vertical-align: top;
+}
+
+.colShort {
+  width: 12%;
+}
+
+.colDetail {
+  width: 40%;
+}
+
+/* Dấu "tự xuất bản" luôn bằng chữ, nằm trên chính dòng xuất bản; trong bảng thì xuống dòng riêng */
 .badge {
-  display: inline-block;
-  margin-left: var(--space-2);
+  display: block;
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
   color: var(--color-warning);

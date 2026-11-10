@@ -1,7 +1,7 @@
 // Panel lịch sử của một mục (tasks T143; BR-M03-F09, L10, L11): các bản đã xuất bản (số, email người xuất bản,
 // thời gian, dấu "tự xuất bản"); nhật ký của mục với trước/sau dạng "{nhãn}: {trước} → {sau}", không JSON.
-import { beforeAll, describe, expect, it } from 'vitest';
-import { screen, within } from '@testing-library/react';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { FakeStore } from '../api/fake/store';
 import { renderAdmin } from '../testing/renderAdmin';
 import { asRole } from '../testing/seedOperations';
@@ -54,5 +54,31 @@ describe('ItemHistoryPanel (BR-M03-F09, L10)', { timeout: PAGE_TEST_TIMEOUT }, (
     expect(log.getAllByText('Thành công').length).toBeGreaterThan(0);
     const text = log.getByRole('list').textContent ?? '';
     expect(text).not.toMatch(/PUBLISHED|ROUTE_DRAFT_SAVED|SUCCESS|[{}]/);
+  });
+
+  it('nhật ký dài chỉ hiện 3 dòng; "…Xem thêm" mở hộp thoại đủ mọi dòng, "Đóng" trả focus về nút', async () => {
+    // jsdom không dàn trang: giả lập khối chi tiết cao hơn 3 dòng
+    const scroll = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(200);
+    const client = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(40);
+    try {
+      const { store, routeId } = await routePublishedTwice();
+      renderAdmin(`/admin/routes/${routeId}`, { store, signedInAs: 'CONTENT_STAFF' });
+      const region = await screen.findByRole('region', { name: 'Nhật ký của mục' }, { timeout: 5_000 });
+      await within(region).findByText('Quãng đường (km): 4,5 → 6');
+      const entry = within(region)
+        .getAllByRole('listitem')
+        .find((item) => item.textContent?.includes('Quãng đường (km): 4,5 → 6'))!;
+      const more = within(entry).getByRole('button', { name: '…Xem thêm' });
+      more.focus();
+      fireEvent.click(more);
+      const dialog = screen.getByRole('dialog');
+      expect(within(dialog).getByText('Quãng đường (km): 4,5 → 6')).toBeTruthy();
+      fireEvent.click(within(dialog).getByRole('button', { name: 'Đóng' }));
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(document.activeElement).toBe(more);
+    } finally {
+      scroll.mockRestore();
+      client.mockRestore();
+    }
   });
 });

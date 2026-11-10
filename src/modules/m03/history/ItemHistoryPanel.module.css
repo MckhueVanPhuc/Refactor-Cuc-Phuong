@@ -35,7 +35,12 @@
 .detail {
   font-size: var(--font-size-meta);
   color: var(--color-ink-secondary);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+}
+
+/* Chi tiết chiếm cả bề ngang panel để đếm 3 dòng đúng */
+.detail {
+  align-self: stretch;
 }
 
 /* Dấu "tự xuất bản" luôn bằng chữ */

@@ -39,6 +39,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-009.html](../../html/mockup-SCR-M03-009.html)
 | 9 | E-SCR-M03-009-09 | Empty / loading / error states | Panel | Chưa có dòng nhật ký, đang tải, lỗi | Conditional | Lỗi bất ngờ dùng MSG-GENERIC |
 | 10 | E-SCR-M03-009-10 | Permission feedback | Text | MSG-NO-PERMISSION | Conditional | Hiện nếu Nhân viên nội dung truy cập |
 | 11 | E-SCR-M03-009-11 | Action: Quay lại | Button | Về SCR-M03-001 | Yes | None |
+| 12 | E-SCR-M03-009-12 | Action: Xem thêm chi tiết | Button | Nút chữ "…Xem thêm" dưới cột Chi tiết; mở hộp thoại chỉ đọc có đủ lý do và mọi dòng trước → sau, nút "Đóng" | Conditional | Chỉ hiện khi Chi tiết dài hơn 3 dòng |
 
 ## 4. States
 
@@ -59,6 +60,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-009.html](../../html/mockup-SCR-M03-009.html)
 | 2 | Mở mục liên quan | Tap | Mở màn của mục | `SCR-M03-001` / `SCR-M03-002` / `SCR-M03-003` / `SCR-M03-008` |
 | 3 | Quay lại | Tap | Về danh sách tuyến | `SCR-M03-001` |
 | 4 | Đăng xuất | Tap | Kết thúc phiên đăng nhập; không đổi vai trò hay trạng thái; không ghi nhật ký | `SCR-M03-000` |
+| 5 | "…Xem thêm" | Tap / Enter | Mở hộp thoại xem đủ chi tiết của dòng; Esc hoặc "Đóng" đóng lại và trả focus về nút | Hộp thoại trên cùng màn |
 
 ## 6. Screen-level rules
 
@@ -92,7 +94,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-009.html](../../html/mockup-SCR-M03-009.html)
 |---|---|---|---|---|
 | OQ-SCR-M03-009-001 | Tiêu chí lọc cụ thể của nhật ký | No | Resolved | Lọc theo người thực hiện, loại mục (Tuyến / Điểm dừng / Điểm tham quan / Tài khoản), kết quả (Thành công / Không thành công) và khoảng ngày. |
 | OQ-SCR-M03-009-002 | Phân trang/sắp xếp dòng nhật ký | No | Resolved | Mới nhất trước; 50 dòng mỗi trang với nút "Trang trước" / "Trang sau". |
-| OQ-SCR-M03-009-003 | Cách hiển thị trước/sau với nội dung dài hoặc ảnh | No | Resolved | Tóm tắt bằng chữ: tên ô và giá trị trước → sau; văn bản dài cắt ở 200 ký tự kèm "Xem đầy đủ"; ảnh hiện tên tệp. Không JSON hay dữ liệu thô (BR-M03-L10). |
+| OQ-SCR-M03-009-003 | Cách hiển thị trước/sau với nội dung dài hoặc ảnh | No | Resolved | Tóm tắt bằng chữ: tên ô và giá trị trước → sau; ảnh hiện tên tệp. Không JSON hay dữ liệu thô (BR-M03-L10). Cột Chi tiết hiện tối đa 3 dòng; dài hơn thì nút "…Xem thêm" mở hộp thoại chỉ đọc có đủ nội dung. Năm cột đầu rộng bằng nhau, Chi tiết lấy phần còn lại (chủ dự án quyết định 2026-11-10, thay cách cắt 200 ký tự kèm "Xem đầy đủ"). |
 
 ## Completion checklist
 

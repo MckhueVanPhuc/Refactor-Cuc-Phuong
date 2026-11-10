@@ -1,0 +1,46 @@
+/* Chi tiết của một dòng nhật ký (SCR-M03-009 và panel "Nhật ký của mục"): tối đa 3 dòng chữ, nút "…Xem thêm" */
+.clamp {
+  max-height: calc(3 * var(--line-height-body) * 1em);
+  overflow: hidden;
+}
+
+.clamp p,
+.body p {
+  margin: 0;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 0;
+  font: inherit;
+  color: var(--color-m03-accent);
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Hộp thoại xem đủ chi tiết: rộng hơn hộp xác nhận vì có nhiều dòng "trước → sau". Thêm [role] để thắng
+   max-width của Dialog.module.css bất kể thứ tự nạp CSS */
+.panel[role='dialog'] {
+  max-width: 48rem;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow-wrap: break-word;
+}
