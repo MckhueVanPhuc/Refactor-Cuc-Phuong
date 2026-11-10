@@ -62,7 +62,7 @@ test('V10 — offline: Q1a có gói → chữ + ảnh từ gói, không media; Q
 
   await scan(page, 'Q1a');
   await expect(page.getByText(vi.notice.sourceFailureInJourney)).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Q1a (gói)' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Q1a (gói)' })).toBeVisible();
   await expect(page.getByRole('img', { name: 'Q1a (gói)' })).toBeVisible();
   await expect(page.locator('audio, video')).toHaveCount(0);
 
@@ -96,7 +96,7 @@ test('V11 — gói A v2 OUTDATED, phiên v3, offline quét Q1a → nội dung g�
   await startTrip(page, readyPackage(2, 'OUTDATED'));
   await goOffline(page);
   await scan(page, 'Q1a');
-  await expect(page.getByRole('heading', { name: 'Q1a (gói)' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Q1a (gói)' })).toBeVisible();
   await expect(page.getByText(vi.content.outdatedPackage)).toBeVisible();
   await context.setOffline(false);
 });
@@ -107,7 +107,7 @@ test('V12 — lookup không trả lời trong 8 s với Q1a → lỗi nguồn, l
   await startTrip(page, readyPackage());
   await scan(page, 'Q1a');
   await expect(page.getByText(vi.notice.sourceFailureInJourney)).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Q1a (gói)' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Q1a (gói)' })).toBeVisible();
   await expect(page.getByText(vi.notice.invalid)).toHaveCount(0);
   const visits = (await dumpStores(page, ['checkpointVisits'])).checkpointVisits as { checkpointId: string }[];
   expect(visits.map((v) => v.checkpointId)).toEqual(['C1']);

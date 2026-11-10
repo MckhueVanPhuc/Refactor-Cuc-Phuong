@@ -1,30 +1,80 @@
 /*
- * SCR-M02-002 trên bề mặt reader sáng (mockup-SCR-M02-004 "article"): tên điểm dừng nhỏ phía trên tên đối tượng,
- * ảnh tràn cột đọc, đoạn giới thiệu dài khoảng 62 ký tự mỗi dòng. Thông báo dùng nhãn chữ + vạch màu semantic.
+ * SCR-M02-002 / -004 trên bề mặt `article` (nền xanh xô thơm): đầu trang tràn bề ngang trên ảnh rừng
+ * (assets/background_mobile.jpg) mờ dần vào nền, tên điểm dừng dạng viên có ghim, tên đối tượng cỡ lớn chữ paper; khối
+ * đầu tiên bên dưới phủ lên phần ảnh đã mờ. Sau đó là audio/video, thư viện ảnh và phần giới thiệu có tiêu đề kèm icon.
+ * Mất ảnh (offline, ảnh không nằm trong precache) thì còn dải màu deep. Thông báo dùng nhãn chữ + vạch màu semantic.
  */
 .article {
   display: grid;
-  gap: var(--space-4);
-  max-width: 62ch;
+  gap: var(--space-6);
   font-size: var(--font-size-body);
 }
 
-.header {
+/* Tràn hết cột nội dung bằng margin âm đúng bằng padding của main (FieldLayout) */
+.hero {
   display: grid;
-  gap: var(--space-1);
+  align-content: start;
+  justify-items: start;
+  gap: var(--space-3);
+  margin: calc(var(--space-5) * -1) calc(var(--space-5) * -1) calc(var(--space-8) * -1.5);
+  padding: var(--space-5) var(--space-5) calc(var(--space-8) * 2.5);
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--color-m01-deep) 55%, transparent),
+      color-mix(in srgb, var(--color-m01-deep) 18%, transparent) 50%,
+      var(--m02-bg) 100%
+    ),
+    url('../../../../assets/background_mobile.jpg') center 30% / cover no-repeat,
+    var(--color-m01-deep);
+}
+
+/* Khối ngay sau đầu trang nằm trên phần ảnh đã mờ */
+.hero + * {
+  position: relative;
 }
 
 .checkpoint {
+  --icon-size: var(--space-4);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
+  min-height: calc(var(--space-6) + var(--space-2));
+  padding: 0 var(--space-3);
   font-size: var(--font-size-meta);
-  color: var(--color-ink-secondary);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-paper);
+  background: color-mix(in srgb, var(--color-m01-deep) 45%, transparent);
+  backdrop-filter: blur(var(--space-1));
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 45%, transparent);
+  border-radius: var(--radius-lg);
 }
 
 .object {
   margin: 0;
-  font-size: var(--font-size-page-heading-mobile);
+  font-size: clamp(calc(var(--font-size-page-heading) + var(--space-1)), 9vw, calc(var(--font-size-page-heading) * 1.4));
   font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-heading);
+  line-height: 1.12;
+  color: var(--color-paper);
+  text-shadow: 0 var(--space-1) var(--space-5) var(--color-m01-deep);
+}
+
+.about {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.sectionTitle {
+  --icon-size: var(--space-6);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: calc(var(--font-size-body) * 1.125);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink);
 }
 
 .image,
@@ -33,7 +83,7 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--color-m03-muted);
 }
 
@@ -41,8 +91,9 @@
   border: var(--border-width-thin) dashed var(--color-m03-control-border);
 }
 
-/* Giữ dấu xuống dòng tác giả gõ trong M03, như màn xem trước của M03 và trang tuyến M01 */
+/* Giữ dấu xuống dòng tác giả gõ trong M03, như màn xem trước của M03 và trang tuyến M01; dòng đọc khoảng 62 ký tự */
 .introduction {
+  max-width: 62ch;
   margin: 0;
   line-height: var(--line-height-body);
   white-space: pre-line;
@@ -86,8 +137,7 @@
   margin-top: var(--space-1);
 }
 
-.noticeLink,
-.back {
+.noticeLink {
   display: inline-flex;
   align-items: center;
   min-height: var(--touch-target);
@@ -97,8 +147,23 @@
   text-underline-offset: var(--space-1);
 }
 
+/* Quay lại: viên viền forest ở cuối trang */
 .back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
   margin-top: var(--space-6);
+  padding: 0 var(--space-5);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-forest);
+  text-decoration: none;
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m01-forest);
+  border-radius: var(--radius-lg);
+}
+
+.back:hover {
+  background-image: linear-gradient(var(--overlay-surface-hover), var(--overlay-surface-hover));
 }
 
 .noticeLink:focus-visible,

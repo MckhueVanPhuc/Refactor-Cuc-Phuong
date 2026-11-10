@@ -9,7 +9,14 @@ import { LanguageControl } from '../m01Port';
 import { useAutoEndNotice } from '../session/autoEnd';
 import styles from './FieldLayout.module.css';
 
-export type FieldSurface = 'scanner' | 'reader';
+/** `article`: reader cho nội dung một mã QR (SCR-M02-002, -004), nền xanh xô thơm dưới ảnh đầu trang. */
+export type FieldSurface = 'scanner' | 'reader' | 'article';
+
+const SURFACE_CLASS: Record<FieldSurface, string | undefined> = {
+  scanner: styles.scanner,
+  reader: styles.reader,
+  article: `${styles.reader} ${styles.article}`,
+};
 
 const NoticeSlotContext = createContext<HTMLElement | null>(null);
 
@@ -32,7 +39,7 @@ export function FieldLayout({ surface, title, children }: { surface: FieldSurfac
   }, [language]);
 
   return (
-    <div className={`${styles.shell} ${surface === 'scanner' ? styles.scanner : styles.reader}`} data-surface={surface}>
+    <div className={`${styles.shell} ${SURFACE_CLASS[surface] ?? ''}`} data-surface={surface}>
       <header className={styles.appBar}>
         {title ? <h1 className={styles.title}>{title}</h1> : <span />}
         <LanguageControl tone={surface === 'scanner' ? 'onDark' : 'onLight'} />

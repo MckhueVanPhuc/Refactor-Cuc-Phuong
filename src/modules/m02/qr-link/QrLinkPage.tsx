@@ -46,7 +46,7 @@ export function QrLinkPage() {
   }, [qrIdentifier]);
 
   return (
-    <FieldLayout surface="reader" title={messages.screenTitle.qrLink}>
+    <FieldLayout surface="article" title={messages.screenTitle.qrLink}>
       <ScanContent scan={scan} qrIdentifier={qrIdentifier} showBack={Boolean(scan?.session)} />
     </FieldLayout>
   );

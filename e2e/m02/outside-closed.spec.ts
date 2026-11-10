@@ -31,7 +31,7 @@ test('V13 — online quét QX (ngoài tuyến) → nội dung live, không lư�
   await startTrip(page);
   await scan(page, 'QX');
   await expect(page).toHaveURL(/\/trip\/qr\/QX$/);
-  await expect(page.getByRole('heading', { name: 'Đối tượng QX' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng QX' })).toBeVisible();
   await expect(page.getByText(vi.trip.visitRecorded)).toHaveCount(0);
   expect(await visits(page)).toEqual([]);
   await page.goto('/trip');

@@ -26,7 +26,7 @@ test('V20 — /q/Q1a không phiên, thiết bị vi-VN chưa có preference → 
   const requests = await mockLookup(page);
   await mockStorage(page);
   await page.goto('/q/Q1a');
-  await expect(page.getByRole('heading', { name: 'Đối tượng Q1a' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q1a' })).toBeVisible();
   await expect(page.getByText('Giới thiệu trực tuyến Q1a.')).toBeVisible();
   await expect(page.getByText(vi.notice.freeVisitor)).toBeVisible();
   await expect(page.getByRole('link', { name: vi.qrLink.chooseRoute })).toHaveAttribute('href', '/');
@@ -62,7 +62,7 @@ test.describe('V22 — offline, đã từng mở app (shell đã cache)', () => 
     await context.setOffline(true);
     await page.goto('/q/Q1a');
     await expect(page.getByText(vi.notice.sourceFailureInJourney)).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Q1a (gói)' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Q1a (gói)' })).toBeVisible();
     const visits = (await dumpStores(page, ['checkpointVisits'])).checkpointVisits as { checkpointId: string }[];
     expect(visits.map((v) => v.checkpointId)).toEqual(['C1']);
     await context.setOffline(false);

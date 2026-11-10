@@ -65,6 +65,10 @@ export const en: M02Messages = {
     back: 'Back',
     audioLabel: ({ n }) => `Audio ${n}`,
     videoLabel: ({ n }) => `Video ${n}`,
+    galleryTitle: 'Photo gallery',
+    aboutTitle: ({ name }) => `About ${name}`,
+    previousPhoto: 'Previous photo',
+    nextPhoto: 'Next photo',
   },
   end: {
     title: 'Your trip has ended.',

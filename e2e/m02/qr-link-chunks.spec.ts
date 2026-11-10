@@ -24,7 +24,7 @@ test('/q/Q1a không tải chunk scanner, chunk màn M01 hay M03', async ({ page 
   });
 
   await page.goto('/q/Q1a');
-  await expect(page.getByRole('heading', { name: 'Đối tượng Q1a' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q1a' })).toBeVisible();
   await page.waitForLoadState('networkidle');
 
   const paths = scripts.map((response) => new URL(response.url()).pathname);

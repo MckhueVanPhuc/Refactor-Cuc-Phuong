@@ -70,7 +70,7 @@ test('V16 — quét Q3 lần đầu: câu hỏi một lần; [Đi tiếp] → Fi
   await back(page);
   await expect(page.getByRole('button', { name: vi.trip.finish })).toBeVisible();
   await scan(page, 'Q3');
-  await expect(page.getByRole('heading', { name: 'Đối tượng Q3' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q3' })).toBeVisible();
   await expect(page.getByRole('alertdialog')).toHaveCount(0);
   expect((await stores(page)).sessions.map((s) => s.status)).toEqual(['DANG_DIEN_RA']);
 });

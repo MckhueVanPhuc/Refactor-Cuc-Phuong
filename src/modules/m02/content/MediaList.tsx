@@ -2,6 +2,7 @@
 // Chỉ phát khi bấm: `controls`, `preload="none"`, không autoplay. Mỗi tệp gắn key theo `sourceRef`, nên tệp bị bỏ khi
 // đổi VI/EN được gỡ khỏi DOM và dừng phát. Tệp không ký được hoặc không phát được → thông báo lỗi tệp.
 import { useState } from 'react';
+import { TintIcon } from '../../../shared/ui/Icon';
 import { useM02Messages } from '../i18n/useM02Messages';
 import type { MediaItem } from './mediaFilter';
 import styles from './MediaList.module.css';
@@ -12,8 +13,11 @@ function MediaEntry({ item, url }: { item: MediaItem; url: string | undefined })
   const broken = failed || !url;
   const Player = item.resource.type === 'AUDIO' ? 'audio' : 'video';
   return (
-    <li className={styles.item} data-media={item.resource.sourceRef}>
-      <span className={styles.label}>{item.label}</span>
+    <li className={`${styles.item} ${item.resource.type === 'AUDIO' ? styles.audio : styles.video}`} data-media={item.resource.sourceRef}>
+      <span className={styles.label}>
+        <TintIcon name={item.resource.type === 'AUDIO' ? 'headphones' : 'video'} />
+        {item.label}
+      </span>
       {broken ? (
         <p className={styles.error}>{messages.content.mediaError}</p>
       ) : (

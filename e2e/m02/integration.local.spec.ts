@@ -151,7 +151,7 @@ test('V5 + T103 — Start từ M01 → phiên mới; online Q1a rồi Q1b: một
   const firstTime = await scannedAt.textContent();
 
   await page.goto(`/q/${world.q1b}`);
-  await expect(page.getByRole('heading', { name: NAMES.q1bObject })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: NAMES.q1bObject })).toBeVisible();
   await expect(page.getByText(NAMES.q1bIntro)).toBeVisible();
   await expect(page.getByText(vi.trip.visitRecorded)).toHaveCount(0);
   await expect(page.getByText(/^Quét lúc /)).toHaveText(firstTime!);
