@@ -51,13 +51,17 @@
   gap: var(--space-2);
 }
 
+/* Trạng thái và nút tải gọn (chữ meta, padding hẹp) để chữ tiếng Anh dài vẫn chung một hàng trên điện thoại */
 .chip {
+  --icon-size: var(--space-4);
+
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   min-height: var(--touch-target);
-  padding: 0 var(--space-4);
-  font-size: var(--font-size-body);
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-meta);
+  white-space: nowrap;
   font-weight: var(--font-weight-semibold);
   background: color-mix(in srgb, var(--color-m01-deep) 50%, transparent);
   border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 30%, transparent);
@@ -84,12 +88,15 @@
 }
 
 .action {
+  --icon-size: var(--space-4);
+
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   min-height: var(--touch-target);
-  padding: 0 var(--space-5);
-  font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
+  padding: 0 var(--space-3);
+  font: var(--font-weight-semibold) var(--font-size-meta) var(--font-sans);
+  white-space: nowrap;
   color: var(--color-paper);
   background: transparent;
   border: var(--border-width-thin) solid var(--color-m01-amber);
