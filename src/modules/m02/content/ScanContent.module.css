@@ -41,9 +41,11 @@
   border: var(--border-width-thin) dashed var(--color-m03-control-border);
 }
 
+/* Giữ dấu xuống dòng tác giả gõ trong M03, như màn xem trước của M03 và trang tuyến M01 */
 .introduction {
   margin: 0;
   line-height: var(--line-height-body);
+  white-space: pre-line;
 }
 
 .visitTime,
