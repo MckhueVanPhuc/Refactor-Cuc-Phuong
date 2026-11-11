@@ -32,7 +32,7 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | 2 | E-SCR-M02-003-02 | Action: Kết thúc | Button | VI: "Kết thúc" (EN: "End") | Yes | Tác dụng giống xác nhận Finish: phiên thành `HOAN_TAT` (BR-M02-007) |
 | 3 | E-SCR-M02-003-03 | Action: Đi tiếp | Button | VI: "Đi tiếp" (EN: "Continue") | Yes | Không đổi gì; Finish vẫn khả dụng đến khi phiên kết thúc |
 | 4 | E-SCR-M02-003-04 | Finish confirmation | Dialog | Xác nhận kết thúc khi dùng Finish | Conditional | Finish chỉ khả dụng khi đã quét điểm có `sequence` lớn nhất |
-| 5 | E-SCR-M02-003-05 | Visit summary | List | Các điểm đã quét: tên theo ngôn ngữ, thứ tự, `checkedInAt` | Yes | Từ `PlaySession` và `CheckpointVisit` local; nhãn "Đã quét QR", không phải "đã đến" (SC-M02-013) |
+| 5 | E-SCR-M02-003-05 | Visit summary | List | Các điểm đã quét: tên theo ngôn ngữ, thứ tự, `checkedInAt` | Yes | Từ `PlaySession` và `CheckpointVisit` local; nhãn "Đã tham quan" kèm giờ quét, không phải "đã đến" (SC-M02-013, spec-M02 3.3 clarification 3) |
 | 6 | E-SCR-M02-003-06 | Completion result | Text | Phiên đã hoàn tất kèm danh sách điểm đã quét | Conditional | Hiện sau [Kết thúc]; không yêu cầu quét 100% điểm (FR-M02-016) |
 | 7 | E-SCR-M02-003-07 | Sync status | Text/badge | Trạng thái đồng bộ: chờ đồng bộ, đã đồng bộ, conflict/bị từ chối | Conditional | Theo `PendingSyncItem.syncStatus` (`PENDING`/`SYNCED`/`CONFLICT`); không có trang hàng đợi sync |
 | 8 | E-SCR-M02-003-08 | Sync error message | Banner | Lỗi khi M03 báo conflict hoặc từ chối record | Conditional | Dừng retry tự động; không sửa payload bất biến; không có thao tác thử lại hay xóa của du khách (BR-M02-011) |
@@ -42,8 +42,12 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 
 | Tình huống | Tiếng Việt | English |
 |---|---|---|
-| Tiêu đề kết quả | Chuyến đi đã kết thúc. | Your trip has ended. |
+| Tiêu đề kết quả | Chuyến đi đã kết thúc! | Your trip has ended! |
+| Lời cảm ơn | Cảm ơn bạn đã tham quan Vườn quốc gia Cúc Phương! | Thank you for visiting Cuc Phuong National Park! |
+| Lời chúc | Hy vọng bạn đã có những trải nghiệm tuyệt vời tại Cúc Phương! | We hope you had a wonderful time at Cuc Phuong! |
+| Lời hẹn gặp lại | Hẹn gặp lại bạn trong những hành trình tiếp theo! | See you on your next journey! |
 | Tiêu đề danh sách | Các điểm đã quét | Points scanned |
+| Nhãn điểm trong danh sách | Đã tham quan | Visited |
 | Đồng bộ: chờ | Chờ gửi về hệ thống | Waiting to be sent |
 | Đồng bộ: xong | Đã gửi về hệ thống | Sent |
 | Đồng bộ: conflict/bị từ chối | Chuyến đi này không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này. | This trip could not be sent to the system. It is still saved on this device. |

@@ -117,7 +117,7 @@ describe('kết thúc chuyến', () => {
     expect(items).toHaveLength(2);
     expect(items[0]).toContain('Cổng rừng');
     expect(items[1]).toContain('Động Người Xưa');
-    for (const item of items) expect(item).toContain(viMessages.trip.scanned);
+    for (const item of items) expect(item).toContain(viMessages.end.visited);
     expect(await screen.findByText(viMessages.end.syncPending)).toBeTruthy();
     expect(screen.getByRole('link', { name: viMessages.end.backToRoutes }).getAttribute('href')).toBe('/');
   });

@@ -71,8 +71,12 @@ export const en: M02Messages = {
     nextPhoto: 'Next photo',
   },
   end: {
-    title: 'Your trip has ended.',
+    title: 'Your trip has ended!',
+    thanks: 'Thank you for visiting Cuc Phuong National Park!',
+    wish: 'We hope you had a wonderful time at Cuc Phuong!',
+    farewell: 'See you on your next journey!',
     listTitle: 'Points scanned',
+    visited: 'Visited',
     syncPending: 'Waiting to be sent',
     syncSynced: 'Sent',
     syncConflict: 'This trip could not be sent to the system. It is still saved on this device.',

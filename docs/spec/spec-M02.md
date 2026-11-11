@@ -6,7 +6,7 @@
 | Version | 3.3 |
 | Status | MVP implementation baseline — aligned to M03 v3.7 and M01 v3.2 |
 | Supersedes | 3.2 (previous repository baseline: 2.0) |
-| Last updated | 2026-11-04 |
+| Last updated | 2026-11-11 |
 | Inputs | M01 handoff/language/package; M03 live QR lookup |
 | Output | Terminal anonymous `SessionSyncRecord` to M03 |
 
@@ -541,7 +541,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 | SC-M02-010 | An expired or version 2 handoff never creates a session, and an existing session is never ended by handoff expiry. |
 | SC-M02-011 | Audio/video controls never appear for an offline-required checkpoint or for package content. |
 | SC-M02-012 | A missing offline resource is never reported as an invalid QR. |
-| SC-M02-013 | No screen words a visit as proof that the visitor was physically at the place: a visit is labelled only "Đã quét QR" / "QR scanned", and no fixed message or label states or implies arrival or presence (for example "đã đến", "có mặt", "arrived"). |
+| SC-M02-013 | No screen words a visit as proof that the visitor was physically at the place: a visit is labelled only "Đã quét QR" / "QR scanned" (the trip result list of SCR-M02-003 labels it "Đã tham quan" / "Visited"), and no fixed message or label states or implies arrival or presence (for example "đã đến", "có mặt", "arrived"). |
 | SC-M02-014 | While online, a code added later to a journey checkpoint records that checkpoint's visit once, so a code change during a trip never prevents Finish when the device is online. |
 | SC-M02-015 | Recording the final checkpoint's visit always shows the end-of-trip prompt once. |
 | SC-M02-016 | After the app is opened, no session older than 24 hours stays in progress; it becomes `HOAN_TAT` or `BO_DO` by the rule of BR-M02-022 and is synchronized like any terminal session. |
@@ -625,6 +625,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.3 (clarification 3) | 2026-11-11 | SC-M02-013: user decision for the end-screen redesign: the trip result list (SCR-M02-003) labels a visit "Đã tham quan" / "Visited"; every other screen keeps "Đã quét QR" / "QR scanned", and the presence words stay banned. Wording only; no behavior or contract change. |
 | 3.3 (clarification 2) | 2026-11-04 | SC-M02-013: the English visit label is "QR scanned" (was "Scanned"), matching the screen copy table and the "QR" of the Vietnamese "Đã quét QR". Wording only; no behavior or contract change. |
 | 3.3 (clarification) | 2026-10-29 | Review-checklist decisions: the end-of-trip prompt says "đã quét điểm cuối" instead of "đã đến điểm cuối" so that no text implies presence (BR-M02-005, SC-M02-013); new fixed camera message and rule (BR-M02-023); two tabs share one session (BR-M02-002); no visitor action on a `CONFLICT` record (BR-M02-011); online lookup failure behaves as offline (BR-M02-018); what counts as "opened or brought back" (BR-M02-022); SC-M02-013 and SC-M02-017 made verifiable; project owner validates `LOOKUP_TIMEOUT_SECONDS`; performance left to design. No contract change. |
 | 3.3 | 2026-10-28 | Aligned to M03 v3.7. Language of audio/video: `LiveStationContent.mediaResources[].spokenLanguage` (`vi` / `en` / `NONE`); new BR-M02-026 and SC-M02-019; US-M02-03 item 4 and FR-M02-014 updated; only the files of the current language plus those without speech are shown, and switching VI/EN switches them at once. |

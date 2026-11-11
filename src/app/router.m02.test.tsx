@@ -20,7 +20,8 @@ describe('route M02', () => {
     ['/trip', 'scanner'],
     // Nội dung một mã QR: bề mặt `article` (reader nền xanh xô thơm) cho SCR-M02-002 và SCR-M02-004
     ['/trip/qr/Q1a', 'article'],
-    ['/trip/end', 'reader'],
+    // Màn kết quả chuyến: bề mặt `finish` (ảnh rừng phủ cả màn, thanh app deep có logo) cho SCR-M02-003
+    ['/trip/end', 'finish'],
     ['/q/Q1a', 'article'],
   ])('%s mở layout M02 (%s) với nút VI/EN của M01', async (path, surface) => {
     const { container } = renderAt(path);
