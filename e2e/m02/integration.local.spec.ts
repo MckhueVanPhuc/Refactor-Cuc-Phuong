@@ -117,7 +117,7 @@ const pageVisibleAgain = (page: Page) => page.evaluate(() => document.dispatchEv
 test('V20 + T103 — /q/{Q1a} không phiên, vi-VN chưa có preference: nội dung thật, gợi ý khách tự do, không routeId, không ghi gì; VI/EN ghi qua M01', async ({ page }) => {
   const lookups = recordLookups(page);
   await page.goto(`/q/${world.q1a}`);
-  await expect(page.getByRole('heading', { name: `Vật ở ${NAMES.c1}` })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: `Vật ở ${NAMES.c1}` })).toBeVisible();
   await expect(page.getByText(vi.notice.freeVisitor)).toBeVisible();
   await expect(page.getByRole('link', { name: vi.qrLink.chooseRoute })).toHaveAttribute('href', '/');
   expect(lookups.length).toBeGreaterThan(0);
@@ -129,7 +129,7 @@ test('V20 + T103 — /q/{Q1a} không phiên, vi-VN chưa có preference: nội d
   // Nút VI/EN là LanguageControl của M01: lựa chọn được ghi vào store của M01, trang đổi chữ ngay
   await page.getByRole('button', { name: 'EN', exact: true }).click();
   await expect(page.getByRole('button', { name: 'EN', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByRole('heading', { name: `Vật ở ${NAMES.c1} (en)` })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: `Vật ở ${NAMES.c1} (en)` })).toBeVisible();
   expect((await dumpStores(page, ['languagePreference'])).languagePreference).toMatchObject([{ languageCode: 'en' }]);
 });
 
@@ -141,7 +141,7 @@ test('V5 + T103 — Start từ M01 → phiên mới; online Q1a rồi Q1b: một
 
   await page.goto(`/q/${world.q1a}`);
   await expect(page.getByText(vi.trip.visitRecorded)).toBeVisible();
-  await expect(page.getByRole('heading', { name: `Vật ở ${NAMES.c1}` })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: `Vật ở ${NAMES.c1}` })).toBeVisible();
   await expect(page.getByText(vi.notice.freeVisitor)).toHaveCount(0);
   const first = await visits(page);
   expect(first).toHaveLength(1);
