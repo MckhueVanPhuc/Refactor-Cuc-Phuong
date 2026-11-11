@@ -103,8 +103,9 @@
   background: var(--m02-surface);
 }
 
-/* Nội dung một mã QR: thanh app deep có logo vườn, như thanh app M01; focus amber trên nền deep */
-.article .appBar {
+/* Nội dung một mã QR và màn kết quả: thanh app deep có logo vườn, như thanh app M01; focus amber trên nền deep */
+.article .appBar,
+.finish .appBar {
   --focus-ring-color: var(--color-m01-amber);
 
   color: var(--color-paper);
@@ -196,4 +197,39 @@
 /* Tên sản phẩm cạnh logo (SCR-M02-004): nhỏ hơn tiêu đề màn để vừa một hàng với VI/EN trên điện thoại */
 .article .title {
   font-size: calc(var(--font-size-body) * 1.125);
+}
+
+/*
+ * Màn kết quả chuyến (SCR-M02-003): ảnh rừng Cúc Phương (assets/background_route_finished.jpg) nằm trên lớp cố định sau
+ * nội dung như scanner. Lớp phủ deep đậm ở nửa trên giữ chữ sáng của phần lời chào đọc được trên ảnh, rồi nhạt dần
+ * sang paper ở đáy để danh sách và nút nằm trên nền sáng. Mất ảnh (offline) thì còn dải màu deep → paper.
+ */
+.finish {
+  --m02-bg: var(--color-paper);
+
+  position: relative;
+  isolation: isolate;
+}
+
+.finish::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--color-m01-deep) 72%, transparent),
+      color-mix(in srgb, var(--color-m01-deep) 58%, transparent) 30%,
+      color-mix(in srgb, var(--color-m01-deep) 56%, transparent) 50%,
+      color-mix(in srgb, var(--color-paper) 70%, transparent) 80%,
+      var(--color-paper)
+    ),
+    url('../../../../assets/background_route_finished.jpg') center top / cover no-repeat,
+    var(--color-m01-deep);
+}
+
+/* Kết quả chuyến căn giữa như một tấm thiệp, cả trên màn rộng */
+.finish .main {
+  margin-inline: auto;
+  padding-top: var(--space-8);
 }

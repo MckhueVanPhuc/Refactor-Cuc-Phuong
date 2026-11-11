@@ -79,8 +79,12 @@ export const vi = {
   },
   // SCR-M02-003
   end: {
-    title: 'Chuyến đi đã kết thúc.',
+    title: 'Chuyến đi đã kết thúc!',
+    thanks: 'Cảm ơn bạn đã tham quan Vườn quốc gia Cúc Phương!',
+    wish: 'Hy vọng bạn đã có những trải nghiệm tuyệt vời tại Cúc Phương!',
+    farewell: 'Hẹn gặp lại bạn trong những hành trình tiếp theo!',
     listTitle: 'Các điểm đã quét',
+    visited: 'Đã tham quan',
     syncPending: 'Chờ gửi về hệ thống',
     syncSynced: 'Đã gửi về hệ thống',
     syncConflict: 'Chuyến đi này không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này.',

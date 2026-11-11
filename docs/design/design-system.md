@@ -327,6 +327,7 @@ Hệ quả cho thiết kế: các cặp trên 4.5:1 dùng được cho chữ th�
 - Nút dịch "→" của M03 dùng ký tự chữ, không phải icon, nên không cần file trong assets/icons/ (quyết định người dùng 2026-11-03, Spec AI Integration OD-AI-18).
 - Ngoại lệ do người dùng duyệt 2026-11-08 cho bước chọn ngôn ngữ của SCR-M01-001: agent vẽ `flag-vi.svg`, `flag-en.svg` và `divider-mountain.svg` trong assets/icons/. Hai cờ giữ màu của chính lá cờ; hình núi chỉ dùng làm mask, màu lấy từ token. Cờ chỉ để trang trí, không thay chữ "Tiếng Việt"/"English".
 - Ngoại lệ do người dùng duyệt 2026-11-10 cho nút Quét của SCR-M02-001: agent vẽ `qr-scan.svg` (camera trong khung quét) trong assets/icons/. Chỉ dùng làm mask, màu theo chữ của nút; icon đứng trước chữ "Quét QR", không thay chữ.
+- Ngoại lệ do người dùng duyệt 2026-11-11 cho màn kết quả chuyến SCR-M02-003 (theo ảnh mẫu người dùng cung cấp): agent vẽ `check.svg` (dấu tích của huy hiệu hoàn thành), `heart.svg` (thẻ hẹn gặp lại) và `home.svg` (nút "Về danh sách tuyến") trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; luôn đi kèm chữ, không thay chữ.
 - Logo dùng chung là `logo-emblem.png`, bản sạch của `icon.png` (nền trắng, bỏ vạch đen ở mép), dùng cho favicon, thanh app và panel chọn ngôn ngữ. Icon cài đặt `pwa-192.png`, `pwa-512.png`, `pwa-maskable-512.png` và `apple-touch-icon.png` là logo này đặt giữa nền trắng vuông; bản maskable giữ logo trong vòng tròn an toàn 80%. Tất cả do agent dựng theo yêu cầu người dùng 2026-11-08.
 
 ---

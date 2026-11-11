@@ -10,14 +10,21 @@ import { LanguageControl } from '../m01Port';
 import { useAutoEndNotice } from '../session/autoEnd';
 import styles from './FieldLayout.module.css';
 
-/** `article`: reader cho nội dung một mã QR (SCR-M02-002, -004), nền xanh xô thơm dưới ảnh đầu trang. */
-export type FieldSurface = 'scanner' | 'reader' | 'article';
+/**
+ * `article`: reader cho nội dung một mã QR (SCR-M02-002, -004), nền xanh xô thơm dưới ảnh đầu trang.
+ * `finish`: màn kết quả chuyến (SCR-M02-003), ảnh rừng Cúc Phương phủ cả màn, thẻ sáng nổi trên ảnh.
+ */
+export type FieldSurface = 'scanner' | 'reader' | 'article' | 'finish';
 
 const SURFACE_CLASS: Record<FieldSurface, string | undefined> = {
   scanner: styles.scanner,
   reader: styles.reader,
   article: `${styles.reader} ${styles.article}`,
+  finish: `${styles.reader} ${styles.finish}`,
 };
+
+/** Bề mặt có thanh app deep mang logo vườn, như thanh app M01 */
+const BRANDED: ReadonlySet<FieldSurface> = new Set(['article', 'finish']);
 
 const NoticeSlotContext = createContext<HTMLElement | null>(null);
 
@@ -43,8 +50,8 @@ export function FieldLayout({ surface, title, children }: { surface: FieldSurfac
     <div className={`${styles.shell} ${SURFACE_CLASS[surface] ?? ''}`} data-surface={surface}>
       <header className={styles.appBar}>
         <div className={styles.brand}>
-          {/* Nội dung một mã QR: logo vườn trên thanh app deep như M01; chỉ trang trí, không phải liên kết */}
-          {surface === 'article' && <img className={styles.logo} src={logoUrl} alt="" />}
+          {/* Nội dung một mã QR và màn kết quả: logo vườn trên thanh app deep như M01; chỉ trang trí, không phải liên kết */}
+          {BRANDED.has(surface) && <img className={styles.logo} src={logoUrl} alt="" />}
           {title && <h1 className={styles.title}>{title}</h1>}
         </div>
         <LanguageControl tone={surface === 'reader' ? 'onLight' : 'onDark'} />
