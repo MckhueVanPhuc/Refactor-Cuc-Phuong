@@ -10,7 +10,7 @@ import { FinalPrompt } from '../end/FinalPrompt';
 import { useEndTrip } from '../end/useEndTrip';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { FieldNotice } from '../layout/FieldLayout';
-import { Toast } from '../layout/Toast';
+import { Toast } from '../../../shared/ui/Toast';
 import { FreeVisitorHint } from '../qr-link/FreeVisitorHint';
 import type { ScanResult } from '../scan/processScan';
 import { Gallery } from './Gallery';
@@ -121,7 +121,11 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
   return (
     <>
       {/* Lượt ghé vừa ghi: toast nổi, không đẩy nội dung xuống */}
-      {scan.visitCreated && <Toast key={scan.visit?.checkedInAt ?? scan.qrIdentifier}>{messages.trip.visitRecorded}</Toast>}
+      {scan.visitCreated && (
+        <Toast key={scan.visit?.checkedInAt ?? scan.qrIdentifier} closeLabel={messages.toast.close}>
+          {messages.trip.visitRecorded}
+        </Toast>
+      )}
       <FieldNotice>
       {scan.display.kind === 'PACKAGE' && (
         <Notice tone="info">
