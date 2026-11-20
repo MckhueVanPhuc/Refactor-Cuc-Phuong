@@ -5,6 +5,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import logoUrl from '../../../../assets/icons/logo-emblem.png';
+import { emitMascotEvent } from '../../../shared/mascot/index';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { LanguageControl } from '../m01Port';
 import { useAutoEndNotice } from '../session/autoEnd';
@@ -40,6 +41,13 @@ export function FieldLayout({ surface, title, children }: { surface: FieldSurfac
   // Chuyến trước vừa tự kết thúc (BR-M02-022): thông báo một lần trên màn M02 đang mở
   const autoEnded = useAutoEndNotice();
   const [noticeSlot, setNoticeSlot] = useState<HTMLElement | null>(null);
+
+  // Mila im lặng khi có thông báo tự kết thúc chuyến trước (MAS-B-035; specs/005 T030). Chỉ phát tín hiệu.
+  useEffect(() => {
+    if (!autoEnded) return undefined;
+    emitMascotEvent({ type: 'm02.notice.autoEndShown' });
+    return () => emitMascotEvent({ type: 'm02.notice.autoEndHidden' });
+  }, [autoEnded]);
 
   // Trình đọc màn hình đọc đúng ngôn ngữ đang hiển thị
   useEffect(() => {

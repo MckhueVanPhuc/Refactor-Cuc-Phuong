@@ -84,16 +84,16 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T024 [P] [US3] Thêm vào `src/shared/mascot/rules.test.ts` các ca MAS-B-045 (CLOSED → `SUPPRESSED`, xóa hàng đợi, cả `m02.notice.closedShown`), MAS-B-058 (media), MAS-B-035 (thông báo tự kết thúc → chỉ P0–P1), MAS-B-082 (ảnh lỗi → `HIDDEN`), MAS-B-083 (đổi màn hủy bong bóng/hẹn giờ, giữ P4 vừa phát), MAS-B-084 (trang ẩn), dialog `OTHER` chặn, dialog `FINAL_PROMPT` không chặn
-- [ ] T025 [P] [US3] Viết `e2e/m02/mascot-safety.spec.ts`: Q7 (lookup giả `TEMPORARILY_CLOSED` → không có `[data-mascot-slot] img`, thông báo cố định nguyên văn), Q8 (phát audio → không `[data-mascot-message]`), Q13 (`page.emulateMedia({ reducedMotion: 'reduce' })` → `getAnimations()` của phần tử mascot rỗng)
-- [ ] T026 [P] [US3] Viết `e2e/m02/mascot-layout.spec.ts` và `e2e/m01/mascot-layout.spec.ts`: ở 320/360/390/430 px, với mọi `[data-mascot-slot]` đang hiện, `boundingBox` không giao nút hành động, khung quét, vùng thông báo, toast, dialog, bài đọc; không cuộn ngang ở 320 px (SC-MAS-002; chạy lại sau mỗi story)
+- [X] T024 [P] [US3] Thêm vào `src/shared/mascot/rules.test.ts` các ca MAS-B-045 (CLOSED → `SUPPRESSED`, xóa hàng đợi, cả `m02.notice.closedShown`), MAS-B-058 (media), MAS-B-035 (thông báo tự kết thúc → chỉ P0–P1), MAS-B-082 (ảnh lỗi → `HIDDEN`), MAS-B-083 (đổi màn hủy bong bóng/hẹn giờ, giữ P4 vừa phát), MAS-B-084 (trang ẩn), dialog `OTHER` chặn, dialog `FINAL_PROMPT` không chặn
+- [X] T025 [P] [US3] Viết `e2e/m02/mascot-safety.spec.ts`: Q7 (lookup giả `TEMPORARILY_CLOSED` → không có `[data-mascot-slot] img`, thông báo cố định nguyên văn), Q8 (phát audio → không `[data-mascot-message]`), Q13 (`page.emulateMedia({ reducedMotion: 'reduce' })` → `getAnimations()` của phần tử mascot rỗng)
+- [X] T026 [P] [US3] Viết `e2e/m02/mascot-layout.spec.ts` và `e2e/m01/mascot-layout.spec.ts`: ở 320/360/390/430 px, với mọi `[data-mascot-slot]` đang hiện, `boundingBox` không giao nút hành động, khung quét, vùng thông báo, toast, dialog, bài đọc; không cuộn ngang ở 320 px (SC-MAS-002; chạy lại sau mỗi story)
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Cài các luật MAS-B-035, 045, 058, 082, 083, 084 và chặn dialog trong `src/shared/mascot/rules.ts`; host gỡ mascot khỏi DOM (không chỉ ẩn CSS) khi `SUPPRESSED` do CLOSED
-- [ ] T028 [P] [US3] Phát `m02.notice.closedShown` trong `src/modules/m02/content/ScanNotice.tsx` khi `kind = 'CLOSED'` (một lời gọi trong effect)
-- [ ] T029 [P] [US3] Phát `m02.media.playing` / `m02.media.stopped` từ sự kiện `play`, `pause`, `ended` trong `src/modules/m02/content/MediaList.tsx`
-- [ ] T030 [P] [US3] Phát `m02.notice.autoEndShown` / `Hidden` theo `useAutoEndNotice` trong `src/modules/m02/layout/FieldLayout.tsx`
+- [X] T027 [US3] Cài các luật MAS-B-035, 045, 058, 082, 083, 084 và chặn dialog trong `src/shared/mascot/rules.ts`; host gỡ mascot khỏi DOM (không chỉ ẩn CSS) khi `SUPPRESSED` do CLOSED
+- [X] T028 [P] [US3] Phát `m02.notice.closedShown` trong `src/modules/m02/content/ScanNotice.tsx` khi `kind = 'CLOSED'` (một lời gọi trong effect)
+- [X] T029 [P] [US3] Phát `m02.media.playing` / `m02.media.stopped` từ sự kiện `play`, `pause`, `ended` trong `src/modules/m02/content/MediaList.tsx`
+- [X] T030 [P] [US3] Phát `m02.notice.autoEndShown` / `Hidden` theo `useAutoEndNotice` trong `src/modules/m02/layout/FieldLayout.tsx`
 
 **Checkpoint**: Mọi luật an toàn có test; các story sau không thể đặt Mila sai chỗ mà không đỏ T026.
 
