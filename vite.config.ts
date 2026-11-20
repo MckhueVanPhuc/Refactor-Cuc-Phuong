@@ -17,6 +17,8 @@ const MODULE_DIR = /(?:^|\/)src\/modules\/(m0\d)\/([^/]+)\//;
 const M02_SCANNER_VENDOR = /\/node_modules\/(?:@zxing\/|ts-custom-error\/)/;
 // Màn `/trip` nằm ở session/ nhưng contract gọi chunk là `m02-trip` (field-ui-flow-contract §1)
 const CHUNK_ALIASES: Record<string, string> = { 'm02-session': 'm02-trip' };
+// Mascot Mila: chunk lazy của host (và engine khi chỉ host dùng) tên `mascot` (specs/005 research R-09)
+const MASCOT_DIR = /(?:^|\/)src\/(?:app|shared)\/mascot\//;
 
 function chunkPrefix(facadeModuleId: string | null | undefined, moduleIds: readonly string[]): string | undefined {
   if (facadeModuleId) return chunkPrefix(null, [facadeModuleId]);
@@ -28,6 +30,7 @@ function chunkPrefix(facadeModuleId: string | null | undefined, moduleIds: reado
   if (ids.some((id) => id.includes('/node_modules/qrcode/')) && ids.every((id) => id.includes('/node_modules/'))) {
     return 'qrcode';
   }
+  if (ids.every((id) => MASCOT_DIR.test(id))) return 'mascot';
   const matches = ids.map((id) => MODULE_DIR.exec(id));
   if (matches.some((match) => !match)) return undefined;
   const modules = new Set(matches.map((match) => match![1]));
@@ -87,7 +90,8 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           // App shell offline: mọi JS/CSS/HTML/font/icon của build, gồm chunk lazy của M01 và M02 (research M01 R-14)
-          globPatterns: ['**/*.{js,css,html,woff,woff2,png,svg,ico,webmanifest}'],
+          // Ảnh Mila: chỉ cỡ 240 vào precache, cỡ 480 nạp khi cần (specs/005 research R-09; MAS-NFR-01)
+          globPatterns: ['**/*.{js,css,html,woff,woff2,png,svg,ico,webmanifest}', 'assets/ma-*-240-*.webp'],
           // M03 chỉ online: không precache màn quản trị và thư viện in QR (M03 R-24)
           // Icon cài đặt trong `pwa/` do trình duyệt tự tải lúc cài, không cần nằm trong app shell offline
           globIgnores: ['**/node_modules/**/*', 'assets/m03-*', 'assets/qrcode-*', 'pwa/**'],

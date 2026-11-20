@@ -54,6 +54,9 @@ function envSchema(isProductionBuild: boolean) {
     VITE_SUPABASE_PUBLISHABLE_KEY: required,
     VITE_APP_VERSION: required,
     VITE_QR_PUBLIC_BASE_URL: baseUrl(isProductionBuild),
+    // Công tắc phát hành mascot Mila (spec-Mascot OD-MAS-15; environment.md). Tùy chọn, thiếu = tắt; đọc ở
+    // src/shared/mascot/flag.ts. Kiểm ở đây để giá trị sai báo lỗi khởi động như các biến khác.
+    VITE_FEATURE_MASCOT: z.enum(['on', 'off']).optional(),
   });
 }
 

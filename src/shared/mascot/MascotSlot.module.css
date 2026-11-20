@@ -1,0 +1,19 @@
+/* Chỗ giữ sẵn cho Mila (design-system §9.2). Không viền, không nền: chỉ là khoảng trống cho host portal vào. */
+.slot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.slot[data-mascot-size='sm'] {
+  min-height: var(--mascot-size-sm);
+}
+
+.slot[data-mascot-size='md'] {
+  min-height: var(--mascot-size-md);
+}
+
+.slot[data-mascot-size='lg'] {
+  min-height: var(--mascot-size-lg);
+}

@@ -9,6 +9,8 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_PUBLISHABLE_KEY: string;
   readonly VITE_APP_VERSION: string;
   readonly VITE_QR_PUBLIC_BASE_URL: string;
+  /** Công tắc phát hành mascot Mila (spec-Mascot OD-MAS-15); thiếu = tắt */
+  readonly VITE_FEATURE_MASCOT?: 'on' | 'off';
 }
 
 interface ImportMeta {
