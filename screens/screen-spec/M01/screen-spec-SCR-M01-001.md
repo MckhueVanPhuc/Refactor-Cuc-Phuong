@@ -8,9 +8,9 @@
 | Actor | Visitor |
 | Priority | Must |
 | Mockup | Chưa có |
-| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.0](../../../docs/spec/spec-Mascot.md) cho Mila |
 
-Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md) (Published Route input theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
+Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md) (Published Route input theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
 Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
@@ -47,6 +47,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 17 | E-SCR-M01-001-17 | Loading state | Spinner | Đang đọc nguồn | Conditional | Hiện khi đang tải |
 | 18 | E-SCR-M01-001-18 | Empty state | Text | Không có tuyến nào chọn được | Conditional | Hiện khi nguồn trả về nhưng không có tuyến `HOAT_DONG` hợp lệ |
 | 19 | E-SCR-M01-001-19 | Source unavailable | Text | Không đọc được nguồn và không có local view | Conditional | Request lỗi dù trình duyệt báo online vẫn coi là nguồn không khả dụng |
+| 20 | E-SCR-M01-001-20 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Hero (INTRO, DOCK); trạng thái rỗng và lỗi nguồn (INLINE). Không có Mila trên bước chọn ngôn ngữ. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17) |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới.
 
@@ -66,6 +67,14 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | Nút áp dụng bản mới | Cập nhật | Update |
 | Nút hoãn | Để sau | Later |
 | Cập nhật bị hoãn (đang tải gói hoặc có chuyến đi đang diễn ra) | Ứng dụng đang tải gói hoặc có chuyến đi đang diễn ra. Hãy thử cập nhật lại sau khi xong. | A route download or trip is in progress. Please try updating again when it finishes. |
+| Mila giới thiệu (1/2), sau lần chọn ngôn ngữ đầu tiên (MSG-MAS-001) | Chào bạn! Mình là Mila, rái cá thám hiểm của Cúc Phương. | Hi! I'm Mila, Cúc Phương's otter explorer. |
+| Mila giới thiệu (2/2) (MSG-MAS-002) | Mình sẽ đi cùng bạn suốt hành trình. Chọn một tuyến nhé! | I'll be with you all the way. Let's pick a route! |
+| Mila chào du khách quay lại (MSG-MAS-004) | Chào mừng bạn quay lại! Hôm nay mình đi tuyến nào đây? | Welcome back! Which route are we taking today? |
+| Mila khi danh mục tải lâu (MSG-MAS-005) | Mình đang mở bản đồ các tuyến… | Unfolding the route map… |
+| Mila gợi ý khi chưa chọn tuyến (nút "Gợi ý tuyến") (MSG-MAS-008) | Chưa biết chọn tuyến nào? Để mình gợi ý cho. | Not sure which route? Let me suggest one. |
+| Chạm Mila (màn M01) (MSG-MAS-009) | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
+| Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
+| Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
 
 ## 4. States
 
@@ -101,6 +110,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | SR-SCR-M01-001-004 | Khi mất nguồn chỉ hiển thị local view, có nhãn dữ liệu cũ, không khẳng định là mới nhất | FR-M01-002 |
 | SR-SCR-M01-001-005 | Trường tùy chọn vắng không thay bằng placeholder văn bản; chỉ ảnh lỗi dùng placeholder trung tính | FR-M01-002, FR-M01-003 |
 | SR-SCR-M01-001-006 | Màn hình không ghi dữ liệu M03 và không đụng session M02 | BR-M01-010 |
+| SR-SCR-M01-001-007 | Mila chỉ hiện trong slot của màn và không che nút, vùng thông báo, toast, dialog hay nội dung; câu cố định của màn giữ nguyên; Mila không đổi hành vi hay dữ liệu của màn và không có nút ẩn | BR-MAS-01, BR-MAS-02, BR-MAS-03, BR-MAS-08, BR-MAS-11 |
 
 ## 7. Linked requirements
 
@@ -109,6 +119,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | FR-M01-001 | Chọn/đổi `vi`/`en`, control dùng chung |
 | FR-M01-002 | Thẻ tuyến, làm mới nguồn, giữ local view khi offline, bỏ tuyến không khả dụng |
 | FR-M01-013 | `LanguagePreference` được công bố cho M02 |
+| FR-MAS-001, FR-MAS-002, FR-MAS-003, FR-MAS-009 | Mascot Mila: slot, phản ứng theo sự kiện, lời thoại theo ngôn ngữ, không đổi hành vi của màn (Spec Mascot) |
 
 ## 8. Responsive and accessibility notes
 

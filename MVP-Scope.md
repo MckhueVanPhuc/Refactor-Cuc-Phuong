@@ -4,9 +4,9 @@
 
 | Thuộc tính | Giá trị |
 |---|---|
-| Phạm vi | MVP cho M01–M03 và năng lực AI Integration dùng cho M03 |
-| Trạng thái | Implementation baseline — đồng bộ Spec M01 v3.2, M02 v3.3, M03 v3.7, AI Integration v1.0 |
-| Cập nhật | 2026-11-03 |
+| Phạm vi | MVP cho M01–M03, năng lực AI Integration dùng cho M03 và mascot Mila cho màn du khách M01/M02 |
+| Trạng thái | Implementation baseline — đồng bộ Spec M01 v3.2, M02 v3.3, M03 v3.7, AI Integration v1.0, Mascot v1.0 |
+| Cập nhật | 2026-11-21 |
 | Nguồn hành vi và contract | Ba module spec |
 
 Tài liệu này chỉ tóm tắt ranh giới MVP. Khi có khác biệt, module spec tương ứng là nguồn sự thật duy nhất.
@@ -101,6 +101,18 @@ Tài liệu này chỉ tóm tắt ranh giới MVP. Khi có khác biệt, module 
 
 Hai function này đi cùng một increment. Thiếu chúng thì admin vẫn gõ tay tiếng Anh như hiện tại; không chặn luồng `Must` nào.
 
+### 3.6 Mascot — Mila đồng hành cùng du khách
+
+| Function ID | Function | Phạm vi MVP | Priority |
+|---|---|---|---|
+| FN-MAS-001 | Companion Presence | Mila hiện trong slot cố định của SCR-M01-001…004 và SCR-M02-001…004, không che nội dung hay nút, không có nút ẩn; chạy offline; tôn trọng giảm chuyển động. | Could |
+| FN-MAS-002 | Event Reaction & Arbitration | Phản ứng theo sự kiện thật của M01/M02, chọn theo ưu tiên, cooldown và giới hạn câu chủ động; lời thoại VI/EN theo `LanguagePreference`. | Could |
+| FN-MAS-003 | Onboarding & Guidance | Lời giới thiệu sau lần chọn ngôn ngữ đầu tiên, gợi ý chọn tuyến, nhắc đọc cảnh báo an toàn, nhắc cất máy và ứng xử với thiên nhiên, chạm Mila để nhận một câu gợi ý của màn. | Could |
+| FN-MAS-004 | Scanner Assistance & Recovery | Hướng dẫn quét, nhắc khi scanner mở lâu, giải thích lỗi lặp lại, mất sóng, tải gói lỗi, mã ngoài hành trình. | Could |
+| FN-MAS-005 | Celebration & Progress | Ăn mừng lượt ghé mới với "{k}/{n}", rung nhẹ, mốc nửa số điểm, ăn mừng kết thúc chuyến, trạng thái chờ gửi khi mất sóng. | Could |
+
+Năm function đi cùng một increment. Thiếu chúng thì app chạy như hiện tại; không chặn luồng `Must` nào. Mila không thêm điểm, huy hiệu hay phần thưởng: dòng "Hint chain, hidden message, điểm, huy hiệu hoặc leaderboard" ở §4 giữ nguyên.
+
 ## 4. Won't — ngoài MVP
 
 | Capability | Phạm vi | Ghi chú |
@@ -149,3 +161,5 @@ Hai function này đi cùng một increment. Thiếu chúng thì admin vẫn gõ
 - [Function List M03](docs/function%20list/function-list-M03.md)
 - [Specification AI Integration](docs/spec/spec-AI_integration.md) v1.0
 - [Function List AI](docs/function%20list/function-list-AI.md)
+- [Specification Mascot](docs/spec/spec-Mascot.md) v1.0
+- [Function List Mascot](docs/function%20list/function-list-Mascot.md)

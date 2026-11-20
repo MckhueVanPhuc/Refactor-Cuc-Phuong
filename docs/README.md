@@ -2,7 +2,7 @@
 
 Chỉ mục toàn bộ tài liệu của Cúc Phương Quest V2. Bộ tài liệu V2 đã hoàn tất đợt rebaseline theo [M03 Documentation Refactor Runbook v2](../M03_Documentation_Refactor_Runbook_v2.md) (2026-10-28); từ đó repo đã có code cho M01, M02 và M03 (xem [README gốc](../README.md) §1 về trạng thái và cách chạy).
 
-Spec M01, M02, M03 và Spec AI Integration là behavioral/contract baseline (nguồn sự thật duy nhất). Architecture, function list, screen specs và data model là tài liệu dẫn xuất.
+Spec M01, M02, M03, Spec AI Integration và Spec Mascot là behavioral/contract baseline (nguồn sự thật duy nhất). Architecture, function list, screen specs và data model là tài liệu dẫn xuất.
 
 ---
 
@@ -13,6 +13,7 @@ Spec M01, M02, M03 và Spec AI Integration là behavioral/contract baseline (ngu
 - [Spec M02 — Field Quest Experience](spec/spec-M02.md)
 - [Spec M03 — Operations & Content Administration](spec/spec-M03.md)
 - [Spec AI Integration — Dịch theo yêu cầu cho M03](spec/spec-AI_integration.md)
+- [Spec Mascot — Mila đồng hành cùng du khách M01/M02](spec/spec-Mascot.md) ([bộ thiết kế](mascot/README.md))
 
 ---
 
@@ -34,6 +35,7 @@ Spec M01, M02, M03 và Spec AI Integration là behavioral/contract baseline (ngu
 - [Function List M02](function%20list/function-list-M02.md)
 - [Function List M03](function%20list/function-list-M03.md)
 - [Function List AI](function%20list/function-list-AI.md)
+- [Function List Mascot](function%20list/function-list-Mascot.md)
 
 ---
 
@@ -74,5 +76,6 @@ Mỗi gói là bản dẫn xuất từ spec của module, gồm spec, plan, rese
 | [002-m02-field-quest-experience](../specs/002-m02-field-quest-experience/) | M02 | Đã cài đặt (106/106 task) |
 | [003-m03-operations-content-administration](../specs/003-m03-operations-content-administration/) | M03 | Đã cài đặt trên stack local (203/210 task); Phase 16 — đưa lên cloud — đang làm theo change brief CHG-M03-2026-11-05-01 |
 | [004-ai-translation](../specs/004-ai-translation/) | AI Integration (dùng cho M03) | Đã cài đặt (34/34 task); deploy lên cloud trong M03 Phase 16 |
+| [005-visitor-mascot](../specs/005-visitor-mascot/) | Mascot Mila (màn du khách M01/M02) | Change brief CHG-MASCOT-2026-11-21-01 đã duyệt; chưa có gói Spec-Kit, chưa cài đặt |
 
 Quy tắc chung của repo: [AGENTS.md](../AGENTS.md); constitution: [.specify/memory/constitution.md](../.specify/memory/constitution.md).

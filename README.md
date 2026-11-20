@@ -21,6 +21,8 @@ Hệ thống là một modular monolith gồm ba module logic, chạy chung mộ
 
 Ngoài ba module còn **AI Integration** — một năng lực dùng cho M03, không phải module thứ tư: nút "→" dịch ô tiếng Việt sang ô tiếng Anh trong các editor M03 ([Spec v1.0](docs/spec/spec-AI_integration.md), priority Could, [gói 004](specs/004-ai-translation/), 34/34 task).
 
+Ngoài ra có **Mascot Mila** — rái cá đồng hành của du khách trên các màn M01/M02, chỉ ở frontend ([Spec v1.0](docs/spec/spec-Mascot.md), priority Could, [bộ thiết kế](docs/mascot/README.md), [gói 005](specs/005-visitor-mascot/): change brief đã duyệt, chưa có code).
+
 **Đang làm:** đưa lên cloud (Vercel + Supabase Cloud) theo [change brief CHG-M03-2026-11-05-01](specs/003-m03-operations-content-administration/change-brief-CHG-M03-2026-11-05-01-deployment.md) (M03 Phase 16). Website đã có bản deploy đầu tiên trên Vercel, chưa phát hành; đang hoàn tất T203–T209. Các bước: [cloud-runbook.md](specs/003-m03-operations-content-administration/cloud-runbook.md).
 
 Phạm vi Must/Should/Could/Won't: [MVP-Scope.md](MVP-Scope.md).
@@ -119,10 +121,11 @@ React + TypeScript + Vite (PWA, React Router data mode, CSS Modules với design
 - [Spec M02 — Field Quest Experience](docs/spec/spec-M02.md)
 - [Spec M03 — Operations & Content Administration](docs/spec/spec-M03.md)
 - [Spec AI Integration — dịch theo yêu cầu cho M03](docs/spec/spec-AI_integration.md)
+- [Spec Mascot — Mila đồng hành cùng du khách M01/M02](docs/spec/spec-Mascot.md)
 - [MVP Scope](MVP-Scope.md)
 
 ### B. Function list
-- [M01](docs/function%20list/function-list-M01.md) · [M02](docs/function%20list/function-list-M02.md) · [M03](docs/function%20list/function-list-M03.md) · [AI](docs/function%20list/function-list-AI.md)
+- [M01](docs/function%20list/function-list-M01.md) · [M02](docs/function%20list/function-list-M02.md) · [M03](docs/function%20list/function-list-M03.md) · [AI](docs/function%20list/function-list-AI.md) · [Mascot](docs/function%20list/function-list-Mascot.md)
 
 ### C. Kiến trúc
 - [Tổng quan kiến trúc](docs/architecture/README.md)
@@ -144,7 +147,7 @@ React + TypeScript + Vite (PWA, React Router data mode, CSS Modules với design
 - [Physical Schema](data/06-physical-schema.md) — thiết kế; đã hiện thực bằng migration trên stack local, chưa áp lên cloud
 
 ### F. Gói triển khai (Spec-Kit)
-- [001 — M01](specs/001-m01-route-planning-preparation/) · [002 — M02](specs/002-m02-field-quest-experience/) · [003 — M03](specs/003-m03-operations-content-administration/) · [004 — AI Integration](specs/004-ai-translation/)
+- [001 — M01](specs/001-m01-route-planning-preparation/) · [002 — M02](specs/002-m02-field-quest-experience/) · [003 — M03](specs/003-m03-operations-content-administration/) · [004 — AI Integration](specs/004-ai-translation/) · [005 — Mascot Mila](specs/005-visitor-mascot/)
 - Mỗi gói có `validation-report.md` ghi lệnh đã chạy thật và phần `NOT RUN`.
 
 ---

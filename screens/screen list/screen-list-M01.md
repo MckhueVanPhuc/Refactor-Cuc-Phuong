@@ -2,7 +2,7 @@
 
 ## 1. Baseline và phạm vi
 
-- Baseline: [Spec M01 v3.2](../../docs/spec/spec-M01.md), [Function List M01](../../docs/function%20list/function-list-M01.md).
+- Baseline: [Spec M01 v3.2](../../docs/spec/spec-M01.md), [Function List M01](../../docs/function%20list/function-list-M01.md). Mascot Mila: [Spec Mascot v1.0](../../docs/spec/spec-Mascot.md), [Function List Mascot](../../docs/function%20list/function-list-Mascot.md).
 - Release priority: [MVP Scope](../../MVP-Scope.md). Priority dưới đây theo function scope; không thay requirement trong spec.
 - Cập nhật: 2026-10-28. Status: screen inventory và screen specification (Draft) đồng bộ baseline v3.2; chỉ có mockup tĩnh cho SCR-M01-003 (screens/html/); chưa có route implementation.
 - Quy ước chung: [Screen index](README.md).
@@ -16,6 +16,8 @@
 | SCR-M01-002 | Gợi ý tuyến | Visitor | FN-M01-001, FN-M01-003 | Should |
 | SCR-M01-003 | Chi tiết tuyến & Chuẩn bị | Visitor | FN-M01-001, FN-M01-002, FN-M01-004, FN-M01-005, FN-M01-006, FN-M01-007 | Must; chuẩn bị offline Should* |
 | SCR-M01-004 | Quản lý tài nguyên offline | Visitor | FN-M01-001, FN-M01-005, FN-M01-007 | Should* |
+
+**Mascot Mila** (FN-MAS-001…005, priority Could): xuất hiện trên SCR-M01-001…004 theo slot của Spec Mascot §5.1; không thêm màn mới và không đổi function hay priority của các màn trên.
 
 \* Theo [MVP Scope](../../MVP-Scope.md) §3.1, gói offline là Should nhưng phải nâng lên Must nếu increment phát hành có điểm dừng `OFFLINE_REQUIRED` hoặc sơ đồ tuyến cần dùng offline. Nút đổi ngôn ngữ là control dùng chung, không nâng priority của màn gợi ý/tài nguyên. Xóa package không xóa context hoặc session M02.
 
