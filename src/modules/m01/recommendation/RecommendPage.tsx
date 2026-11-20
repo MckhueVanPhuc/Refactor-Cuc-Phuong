@@ -2,7 +2,7 @@
 // được bằng bàn phím (OQ-SCR-M01-002-002); nút lọc vô hiệu khi thiếu tiêu chí; bấm thì mở trang kết quả riêng
 // (RecommendResultsPage). Nguồn không đọc được thì báo nguồn. Tiêu chí chỉ ở React state của layout (HC-007).
 import { useEffect, useId, useRef } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { useM01Services } from '../api/services';
@@ -122,12 +122,6 @@ export function RecommendPage() {
           {messages.recommend.submit}
         </button>
       </form>
-      <div className={`${styles.actions} ${styles.footerActions}`}>
-        <Link className={`${styles.secondary} ${styles.wide}`} to={PATHS.catalog}>
-          <TintIcon name="star" />
-          {messages.recommend.seeAllRoutes}
-        </Link>
-      </div>
     </>
   );
 }

@@ -101,6 +101,9 @@
   /* §3 Button/Status chip: nút phụ nhìn 36 px (vùng chạm vẫn --touch-target), chip chỉ để đọc 28 px */
   --control-height-compact: 36px;
   --chip-height: 28px;
+  /* §5 Tab bar du khách: cao thanh (chưa tính vùng an toàn) và nút Quét tròn nổi ở giữa */
+  --tab-bar-height: 72px;
+  --tab-scan-size: 60px;
   /* §5.1 — sidebar M03 khoảng 200–220px */
   --m03-sidebar-width: 212px;
 

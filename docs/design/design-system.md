@@ -155,6 +155,7 @@ Spacing không có `--space-7` . Các giá trị sau chưa có tên token; dùng
 | Component | Hướng hình ảnh |
 |---|---|
 | Header/navigation | Vị trí rõ, nhãn ngắn, focus nhìn thấy được, padding safe-area. |
+| Tab bar (du khách M01) | Thanh cố định ở đáy mọi màn M01 (người dùng duyệt 2026-11-21): ba cột Tuyến · Quét QR · Tài nguyên, chú thích ngắn 14px dưới icon. Nền `white`, viền trên `line`, bóng `--shadow-bottom-nav`, chừa vùng an toàn. Nút Quét ở giữa là đĩa tròn 60px nền `forest` icon `paper`, viền trắng, nổi nửa thân trên mép thanh. Tab đang mở dùng `forest`, chữ đậm và vạch trên, không chỉ đổi màu; mỗi tab là vùng chạm ≥ 44px. Không có trên màn chọn ngôn ngữ và các màn M02. |
 | Route card | Chiều cao linh hoạt, thumbnail tùy chọn, tên trước, metadata được hỗ trợ bên dưới. Độ khó dùng tên category. |
 | Journey item | Nhãn checkpoint, thứ tự và chỉ báo đã ghé; nội dung được chọn có highlight riêng. |
 | Status chip | Nhãn ngắn và icon tùy chọn; dùng từ vựng trạng thái của entity nguồn. |

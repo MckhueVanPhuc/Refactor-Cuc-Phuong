@@ -18,6 +18,7 @@ File này không tạo màn hình, trường hay trạng thái mới: mỗi dòn
 | `/routes/:routeId` | SCR-M01-003 Chi tiết tuyến & Chuẩn bị | `m01-route-detail` | như trên |
 | `/offline` | SCR-M01-004 Quản lý tài nguyên offline | `m01-offline-package` | như trên |
 | `PATHS.m02SessionEntry` | SCR-M02-001 (package 002) | — | M01 chỉ điều hướng sau khi commit context (SF-M01-006-08) |
+| `PATHS.scan` | SCR-M02-005 (package 002) | — | thanh tab của mọi màn M01 (2026-11-21); M01 chỉ dẫn link, không import code M02 |
 
 Trang `/q/{qrIdentifier}` thuộc M02 và không bao giờ qua guard ngôn ngữ (BR-M02-024); nó đặt `LanguageControl` của M01 ([language-preference-contract.md](language-preference-contract.md) §3).
 

@@ -153,6 +153,7 @@ export function ScanContent({
   scan,
   qrIdentifier,
   showBack,
+  backTo = PATHS.m02SessionEntry,
   onPromptContinue,
 }: {
   /** `undefined` = đang tra cứu */
@@ -160,6 +161,8 @@ export function ScanContent({
   qrIdentifier: string;
   /** "Quay lại" về phiên (SCR-M02-001); khách tự do ở `/q/…` không có phiên để quay lại */
   showBack: boolean;
+  /** Đích của "Quay lại"; mặc định là hành trình của phiên */
+  backTo?: string;
   /** Việc thêm khi chọn [Đi tiếp] (ContentPage ghi đè router state để không hỏi lại) */
   onPromptContinue?: () => void;
 }) {
@@ -198,7 +201,7 @@ export function ScanContent({
       {/* Gợi ý khách tự do sau nội dung, như mockup-SCR-M02-004: du khách thấy nội dung trước */}
       {scan?.freeVisitor && <FreeVisitorHint />}
       {showBack && (
-        <Link className={styles.back} to={PATHS.m02SessionEntry}>
+        <Link className={styles.back} to={backTo}>
           {messages.content.back}
         </Link>
       )}

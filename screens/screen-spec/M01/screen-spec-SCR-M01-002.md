@@ -41,6 +41,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 11 | E-SCR-M01-002-11 | Action: Đổi tiêu chí | Button | Quay lại form ba selector, giữ lựa chọn hiện tại | Conditional | None |
 | 12 | E-SCR-M01-002-12 | Action: Về danh mục | Button | Mở SCR-M01-001 | Yes | None |
 | 13 | E-SCR-M01-002-13 | Loading / source unavailable | Panel | Đang đọc nguồn, hoặc không đọc được nguồn | Conditional | Không báo "không có tuyến" khi thực chất nguồn không đọc được |
+| 14 | E-SCR-M01-002-14 | Tab bar | Thanh tab cố định ở đáy (design-system §5.2; 2026-11-21) | Như E-SCR-M01-001-20: Tuyến · Quét QR · Tài nguyên | Yes | Tab của màn đang mở được đánh dấu, không chỉ bằng màu |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Bảng nhãn dưới đây áp dụng cho mọi màn du khách của M01 (thẻ tuyến, chi tiết, gợi ý): nhãn tiếng Việt lấy theo tên hiển thị của Spec M03 §5.1/§5.4, nhãn tiếng Anh là bản dịch chốt tại đây; mã enum không bao giờ hiện cho du khách.
 
@@ -91,6 +92,7 @@ Chữ cố định khác của màn này:
 | 3 | Result route card | Tap | Mở chi tiết tuyến | `SCR-M01-003` |
 | 4 | Đổi tiêu chí | Tap | Quay về form, giữ lựa chọn hiện tại | Form của màn này |
 | 5 | Về danh mục | Tap | Quay về danh mục | `SCR-M01-001` |
+| 6 | Thanh tab | Tap Tuyến / Quét QR / Tài nguyên | Mở màn tương ứng; Quét QR bật camera ngay | `SCR-M01-001` / `SCR-M02-005` / `SCR-M01-004` |
 
 ## 6. Screen-level rules
 

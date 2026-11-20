@@ -10,6 +10,11 @@ export const vi = {
     catalog: 'Danh mục tuyến',
     recommend: 'Gợi ý tuyến',
     offline: 'Tài nguyên offline',
+    // Thanh tab dưới (bảng copy SCR-M01-001, 2026-11-21): chú thích ngắn dưới icon
+    tabBarLabel: 'Điều hướng chính',
+    tabRoutes: 'Tuyến',
+    tabScan: 'Quét QR',
+    tabResources: 'Tài nguyên',
   },
   screenTitle: {
     catalog: 'Danh mục tuyến',

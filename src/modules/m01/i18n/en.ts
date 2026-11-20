@@ -9,6 +9,10 @@ export const en: M01Messages = {
     catalog: 'Routes',
     recommend: 'Route suggestions',
     offline: 'Offline downloads',
+    tabBarLabel: 'Main navigation',
+    tabRoutes: 'Routes',
+    tabScan: 'Scan QR',
+    tabResources: 'Resources',
   },
   screenTitle: {
     catalog: 'Routes',

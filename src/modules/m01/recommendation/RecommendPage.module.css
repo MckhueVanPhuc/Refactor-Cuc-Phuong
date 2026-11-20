@@ -113,8 +113,7 @@
   outline-offset: var(--focus-ring-offset);
 }
 
-.submit,
-.wide {
+.submit {
   --icon-size: var(--space-5);
 
   display: flex;
@@ -127,9 +126,6 @@
   min-height: var(--touch-target-m01-primary);
   padding: 0 var(--space-5);
   border-radius: var(--radius-md);
-}
-
-.submit {
   margin-top: var(--space-1);
   font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
   color: var(--color-paper);
@@ -216,10 +212,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-}
-
-.footerActions {
-  justify-content: center;
 }
 
 .secondary {
