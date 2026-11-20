@@ -9,6 +9,7 @@ import { TintIcon } from '../../../shared/ui/Icon';
 import { useM01Messages } from '../i18n/useM01Messages';
 import { LanguageControl } from '../language/LanguageControl';
 import { useDisplayLanguage } from '../language/useLanguagePreference';
+import { RecommendationCriteriaProvider } from '../recommendation/criteriaContext';
 import styles from './VisitorLayout.module.css';
 
 const NoticeSlotContext = createContext<HTMLElement | null>(null);
@@ -26,7 +27,8 @@ export function VisitorLayout() {
   // Chi tiết tuyến và Gợi ý tuyến đặt trên ảnh rừng: thanh app trong suốt, nội dung là lớp kính tối (mockup Route
   // details, Recommendation); mỗi màn một ảnh
   const onDetail = useMatch('/routes/:routeId') !== null;
-  const onRecommend = useMatch(PATHS.recommend) !== null;
+  // Form và trang kết quả gợi ý dùng chung ảnh nền
+  const onRecommend = useMatch({ path: PATHS.recommend, end: false }) !== null;
   const immersive = onDetail || onRecommend;
   const shellClass = [styles.shell, immersive && styles.immersive, onRecommend && styles.recommendPhoto]
     .filter(Boolean)
@@ -54,7 +56,9 @@ export function VisitorLayout() {
       <div className={styles.notices} role="status" ref={setNoticeSlot} />
       <main className={styles.main} id="m01-main" tabIndex={-1}>
         <NoticeSlotContext.Provider value={noticeSlot}>
-          <Outlet />
+          <RecommendationCriteriaProvider>
+            <Outlet />
+          </RecommendationCriteriaProvider>
         </NoticeSlotContext.Provider>
       </main>
     </div>

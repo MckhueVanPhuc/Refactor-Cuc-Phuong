@@ -152,10 +152,45 @@
   cursor: not-allowed;
 }
 
-.summary {
-  margin-bottom: var(--space-4);
+/* Trang kết quả: "Đổi tiêu chí" là link chữ có mũi tên như quay lại ở chi tiết tuyến; vùng chạm 44 px */
+.backLink {
+  --icon-size: var(--space-4);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  justify-self: start;
+  min-height: var(--touch-target);
+  padding: 0;
+  font: var(--font-weight-semibold) var(--font-size-meta) var(--font-sans);
+  color: var(--color-m01-amber);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+/* Tóm tắt tiêu chí đã chọn: chip hổ phách chữ ink (§5.3), chỉ để đọc */
+.criteria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.criterion {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--chip-height);
+  padding: 0 var(--space-3);
   font-size: var(--font-size-meta);
-  color: var(--color-m01-line);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-ink);
+  background: var(--color-m01-amber);
+  border-radius: var(--radius-sm);
 }
 
 .list {

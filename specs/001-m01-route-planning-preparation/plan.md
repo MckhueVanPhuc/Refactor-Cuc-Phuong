@@ -12,7 +12,7 @@ M01 cho du khách chọn ngôn ngữ `vi`/`en`, duyệt và xem chi tiết tuy�
 
 Cách làm kỹ thuật:
 
-- **Frontend:** SPA React + TypeScript + Vite trong website/PWA dùng chung. M01 là các route công khai `/`, `/recommend`, `/routes/:routeId`, `/offline`, lazy-load ([research.md](research.md) R-03).
+- **Frontend:** SPA React + TypeScript + Vite trong website/PWA dùng chung. M01 là các route công khai `/`, `/recommend` (và trang kết quả `/recommend/results`), `/routes/:routeId`, `/offline`, lazy-load ([research.md](research.md) R-03).
 - **Lưu trữ cục bộ:** Dexie trên IndexedDB, database `cuc-phuong-quest`, đúng store của Physical §11; byte ảnh là `Blob`; kích hoạt gói và ghi context trong một transaction ngắn, network ngoài transaction (R-07, R-08, R-11).
 - **Nguồn:** chỉ đọc view `api.*` qua Data API và signed URL của bucket private; timeout `SOURCE_REQUEST_TIMEOUT_SECONDS` = 8 (**provisional**) (R-05, R-06).
 - **App shell:** `vite-plugin-pwa` `generateSW`, cập nhật kiểu prompt, không runtime cache dữ liệu API (R-14).

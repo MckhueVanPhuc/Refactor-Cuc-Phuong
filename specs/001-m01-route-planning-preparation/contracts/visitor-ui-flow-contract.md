@@ -13,7 +13,8 @@ File này không tạo màn hình, trường hay trạng thái mới: mỗi dòn
 | Path | Màn hình | Lazy chunk | Guard |
 |---|---|---|---|
 | `/` | SCR-M01-001 Danh mục tuyến | `m01-catalog` | chưa có `LanguagePreference` → panel chọn ngôn ngữ chặn toàn trang (SR-SCR-M01-001-002) |
-| `/recommend` | SCR-M01-002 Gợi ý tuyến | `m01-recommendation` | như trên |
+| `/recommend` | SCR-M01-002 Gợi ý tuyến (form) | `m01-recommendation` | như trên |
+| `/recommend/results` | SCR-M01-002 Gợi ý tuyến (trang kết quả, 2026-11-21) | `m01-recommendation` | như trên; chưa đủ tiêu chí trong bộ nhớ → về `/recommend` |
 | `/routes/:routeId` | SCR-M01-003 Chi tiết tuyến & Chuẩn bị | `m01-route-detail` | như trên |
 | `/offline` | SCR-M01-004 Quản lý tài nguyên offline | `m01-offline-package` | như trên |
 | `PATHS.m02SessionEntry` | SCR-M02-001 (package 002) | — | M01 chỉ điều hướng sau khi commit context (SF-M01-006-08) |
@@ -26,7 +27,7 @@ Trang `/q/{qrIdentifier}` thuộc M02 và không bao giờ qua guard ngôn ngữ
 |---|---|---|---|---|
 | 001 | mở / làm mới | đọc R1 ([m03-publication-consumer-contract.md](m03-publication-consumer-contract.md) §2); lọc tuyến chọn được; sắp A→Z theo ngôn ngữ; cập nhật local view trong bộ nhớ; thu hồi/`OUTDATED`/essentials (R-10, R-11) | Language required, Loading, Has routes, Empty, Stale/offline, Source unavailable, Image failed, Route removed | FR-M01-002; BR-M01-002, 011 |
 | 001 | thẻ tuyến | hiển thị thumbnail (signed URL), tên, mô tả ngắn, quãng đường, thời lượng, độ khó, `checkpointCount`, dấu "cần tải trước" khi một trong hai cờ là `true` | — | FR-M01-002; BR-M01-012 |
-| 002 | chọn chip mỗi nhóm, chạy gợi ý | hàm thuần exact-match trên tuyến chọn được; A→Z | thiếu tiêu chí, 0 kết quả, có kết quả | FR-M01-004; BR-M01-003 |
+| 002 | chọn chip mỗi nhóm, chạy gợi ý | hàm thuần exact-match trên tuyến chọn được; A→Z; kết quả mở trên trang riêng `/recommend/results`, "Đổi tiêu chí" về form giữ lựa chọn | thiếu tiêu chí, 0 kết quả, có kết quả | FR-M01-004; BR-M01-003 |
 | 003 | mở online | đọc R2; hiện đủ trường bắt buộc; ẩn trường tùy chọn vắng; tên điểm dừng theo `checkpointSummaries`, đánh số liên tục 1, 2, 3… (OQ-SCR-M01-003-003); có gói → làm mới essentials, có thể dựng candidate (R-10) | route unavailable/revoked, nguồn lỗi, thiếu gói, đang tải, ready/outdated, incomplete | FR-M01-003, 005, 010, 014 |
 | 003 | mở offline có gói | essentials đã lưu + câu "Thông tin được lưu lúc {thời điểm}, có thể không phải bản mới nhất"; tên điểm dừng từ `manifest` của gói (OQ-SCR-M01-003-002); ảnh chưa lưu → placeholder | — | FR-M01-003, 014; SC-M01-008 |
 | 003 | "Bắt đầu" khi cần gói mà chưa có gói `SAN_SANG` | dialog quyết định offline: tên các checkpoint `OFFLINE_REQUIRED` theo ngôn ngữ du khách, dung lượng ước tính hoặc "Chưa có thông tin dung lượng.", một dòng hướng dẫn quét bằng nút Quét trong app; ba nút Tải / Tiếp tục không tải / Quay lại | — | FR-M01-006; BR-M01-007, 016; SF-M01-004-04…08 |

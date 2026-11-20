@@ -63,6 +63,8 @@ export const vi = {
   // SCR-M01-002
   recommend: {
     submit: 'Xem tuyến phù hợp',
+    // Tiêu đề trang kết quả (bảng copy SCR-M01-002, 2026-11-21)
+    resultsTitle: 'Tuyến phù hợp',
     noMatch: 'Chưa có tuyến phù hợp với lựa chọn của bạn. Bạn có thể đổi tiêu chí hoặc xem tất cả tuyến.',
     changeChoices: 'Đổi tiêu chí',
     seeAllRoutes: 'Xem tất cả tuyến',

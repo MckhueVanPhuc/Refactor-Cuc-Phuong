@@ -140,7 +140,7 @@ Các manifest (`SelectedRouteContext v3.routeJourneyManifest`, `OfflinePackage.m
 
 | State | Nơi giữ | Ghi chú |
 |---|---|---|
-| `RecommendationContext` (một giá trị mỗi nhóm tag) | React state của SCR-M01-002 | HC-007; DAC-M01-018 |
+| `RecommendationContext` (một giá trị mỗi nhóm tag) | React state trong layout M01, dùng chung cho form và trang kết quả của SCR-M01-002; không lên URL, không lưu | HC-007; DAC-M01-018 |
 | Local view danh mục gần nhất + cờ "dữ liệu cũ" | module state của M01 (bộ nhớ) | R-13; không lưu bền |
 | Trạng thái nguồn (`đang đọc` / `khả dụng` / `không khả dụng`) | React state theo màn | R-05 |
 | Dialog quyết định offline (mở/đóng, lựa chọn) | React state của SCR-M01-003 | FR-M01-006; không chọn ngầm |
