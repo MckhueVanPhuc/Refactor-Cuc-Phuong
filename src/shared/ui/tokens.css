@@ -69,6 +69,8 @@
   --font-size-body: 16px;
   --font-size-row-title: 16px;
   --font-size-m01-route-title: 22px;
+  /* Tiêu đề mục trên màn du khách (§3 "Section title") */
+  --font-size-section-title: 18px;
   --font-size-page-heading-mobile: 24px;
   --font-size-page-heading: 28px;
 
@@ -96,6 +98,9 @@
   --focus-ring-offset: 2px;
   --touch-target: 44px;
   --touch-target-m01-primary: 48px;
+  /* §3 Button/Status chip: nút phụ nhìn 36 px (vùng chạm vẫn --touch-target), chip chỉ để đọc 28 px */
+  --control-height-compact: 36px;
+  --chip-height: 28px;
   /* §5.1 — sidebar M03 khoảng 200–220px */
   --m03-sidebar-width: 212px;
 

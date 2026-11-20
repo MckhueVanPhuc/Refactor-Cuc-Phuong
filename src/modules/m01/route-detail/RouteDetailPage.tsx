@@ -224,10 +224,16 @@ export function RouteDetailPage() {
     <>
       <div className={styles.hero}>
         <Link className={styles.backLink} to={PATHS.catalog}>
+          <TintIcon name="chevron-left" />
           {messages.nav.catalog}
         </Link>
         <h1 className={styles.title}>{title}</h1>
-        {view?.needsPackage && <span className={styles.heroChip}>{messages.catalog.offlineNeeded}</span>}
+        {view?.needsPackage && (
+          <span className={styles.heroChip}>
+            <TintIcon name="hiker" />
+            {messages.catalog.offlineNeeded}
+          </span>
+        )}
       </div>
 
       {(data.status === 'saved' || data.status === 'localView') && (

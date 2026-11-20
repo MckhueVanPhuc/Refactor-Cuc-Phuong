@@ -6,13 +6,14 @@
 .title {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   justify-self: start;
   width: fit-content;
-  margin-bottom: var(--space-6);
-  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-2);
   font-family: var(--font-serif);
-  font-size: calc(var(--font-size-page-heading) + var(--space-2));
+  /* Gợi ý tuyến: tiêu đề trang 24 px (design-system §3) */
+  font-size: var(--font-size-page-heading-mobile);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
   color: var(--color-paper);
@@ -21,38 +22,35 @@
 }
 
 .leaf {
-  --icon-size: var(--space-8);
+  --icon-size: var(--space-5);
 
   color: var(--color-m01-line);
 }
 
 .form {
   display: grid;
-  gap: var(--space-6);
+  gap: var(--space-5);
   margin-bottom: var(--space-6);
 }
 
 .group {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
+/* Nhãn nhóm chỉ để đọc (không phải nút): chữ 14 px đậm kèm icon, không khung */
 .groupTitle {
-  --icon-size: var(--space-6);
+  --icon-size: var(--space-5);
 
   display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   justify-self: start;
-  min-height: calc(var(--touch-target) + var(--space-1));
-  padding: 0 var(--space-5);
-  font-size: calc(var(--font-size-body) * 1.125);
+  font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
   color: var(--color-paper);
-  background: color-mix(in srgb, var(--color-m01-line) 30%, transparent);
-  backdrop-filter: blur(var(--space-2));
-  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 35%, transparent);
-  border-radius: var(--radius-lg);
+  text-shadow: 0 var(--space-1) var(--space-3) var(--color-m01-deep);
 }
 
 .options {
@@ -80,8 +78,8 @@
 .optionText {
   display: grid;
   place-content: center;
-  min-height: calc(var(--touch-target) + var(--space-3));
-  padding: var(--space-2);
+  min-height: var(--touch-target-m01-primary);
+  padding: var(--space-1) var(--space-2);
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
@@ -90,7 +88,7 @@
   background: color-mix(in srgb, var(--color-m01-deep) 40%, transparent);
   backdrop-filter: blur(var(--space-2));
   border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 75%, transparent);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
 
@@ -117,22 +115,23 @@
 
 .submit,
 .wide {
-  --icon-size: var(--space-6);
+  --icon-size: var(--space-5);
 
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   justify-self: center;
   width: min(100%, calc(var(--space-8) * 11));
-  min-height: calc(var(--touch-target-m01-primary) + var(--space-3));
-  padding: 0 var(--space-6);
-  border-radius: var(--radius-lg);
+  /* CTA chính M01: cao 48 px, chữ 16 px (design-system §3) */
+  min-height: var(--touch-target-m01-primary);
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-md);
 }
 
 .submit {
-  margin-top: var(--space-2);
-  font: var(--font-weight-semibold) calc(var(--font-size-body) * 1.125) var(--font-sans);
+  margin-top: var(--space-1);
+  font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
   color: var(--color-paper);
   background: color-mix(in srgb, var(--color-m01-forest) 75%, var(--color-m01-amber));
   border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 75%, transparent);
@@ -189,20 +188,20 @@
 }
 
 .secondary {
-  --icon-size: var(--space-5);
+  --icon-size: var(--space-4);
 
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   min-height: var(--touch-target);
   padding: 0 var(--space-4);
-  font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
+  font: var(--font-weight-semibold) var(--font-size-meta) var(--font-sans);
   color: var(--color-paper);
   text-decoration: none;
   background: color-mix(in srgb, var(--color-m01-deep) 40%, transparent);
   backdrop-filter: blur(var(--space-2));
   border: var(--border-width-thin) solid color-mix(in srgb, var(--color-paper) 75%, transparent);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
 

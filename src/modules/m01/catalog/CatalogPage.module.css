@@ -5,10 +5,10 @@
 .hero {
   position: relative;
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-4);
   justify-items: start;
-  margin-bottom: var(--space-6);
-  padding-top: var(--space-2);
+  margin-bottom: var(--space-5);
+  padding-top: var(--space-1);
 }
 
 /* Đồi nằm cạnh nút "Gợi ý tuyến", không đè lên tiêu đề dài */
@@ -27,16 +27,23 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   font-family: var(--font-serif);
-  font-size: calc(var(--font-size-page-heading) + var(--space-2));
+  /* Tiêu đề trang 28 px trên điện thoại, tối đa 36 px màn rộng (design-system §3) */
+  font-size: var(--font-size-page-heading);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
   color: var(--color-m01-deep);
 }
 
+@media (min-width: 48em) {
+  .title {
+    font-size: calc(var(--font-size-page-heading) + var(--space-2));
+  }
+}
+
 .leaf {
-  --icon-size: var(--space-8);
+  --icon-size: var(--space-6);
 
   color: var(--color-m01-forest);
 }
@@ -48,14 +55,15 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: calc(var(--touch-target) + var(--space-1));
+  min-height: var(--touch-target);
   padding: 0 var(--space-4);
+  font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
   color: var(--color-m01-ink);
   text-decoration: none;
   background: var(--color-white);
   border: var(--border-width-thin) solid var(--color-m01-ink);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
 }
 

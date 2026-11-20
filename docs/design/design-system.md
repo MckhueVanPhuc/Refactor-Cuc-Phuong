@@ -74,12 +74,14 @@ Dùng Segoe UI/system sans cho điều khiển và nội dung. Tiêu đề disco
 
 | Vai trò | Quy tắc production được chọn |
 |---|---|
-| M01 discovery hero | 36–46px trên điện thoại, tối đa 58px màn rộng; chiều cao linh hoạt cho vi/en và zoom |
-| Page heading | 24–28px; M03 28px desktop / 24px mobile |
+| M01 discovery hero | 28px trên điện thoại, tối đa 36px màn rộng; chiều cao linh hoạt cho vi/en và zoom (người dùng duyệt 2026-11-21: tiêu đề cũ 36–46px quá to trên điện thoại) |
+| Page heading | 24–28px; M03 28px desktop / 24px mobile; màn du khách M01/M02 28px (Gợi ý tuyến và trang kết quả 24px) |
+| Section title | 18px semibold trên màn du khách (mục chi tiết tuyến, nhóm tiêu chí, khối gói tải trước, hành trình) |
 | Route title | 22px M01; 16px semibold cho tên hàng M03 |
 | Body/form | 16px, line-height tối thiểu 1.5 |
 | Metadata/badge/navigation | 14px; không đặt thông tin có ý nghĩa ở cỡ 9–12px |
-| Button | 14–16px, semibold; vùng chạm tối thiểu 44px, CTA chính M01 là 48px |
+| Button | 14–16px, semibold; vùng chạm tối thiểu 44px, CTA chính M01 là 48px (chữ 16px). Nút phụ có thể nhìn cao 36px khi vùng chạm vẫn 44px |
+| Status chip | 14px; chip chỉ để đọc (không bấm được) cao 28px, không cần vùng chạm 44px |
 
 Thẩm mỹ đã duyệt không miễn kiểm tra khả năng đọc. Mức tối thiểu ở trên là lựa chọn thiết kế được ủy quyền.
 
