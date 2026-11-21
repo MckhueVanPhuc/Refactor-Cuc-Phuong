@@ -90,8 +90,8 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           // App shell offline: mọi JS/CSS/HTML/font/icon của build, gồm chunk lazy của M01 và M02 (research M01 R-14)
-          // Ảnh Mila: chỉ cỡ 240 vào precache, cỡ 480 nạp khi cần (specs/005 research R-09; MAS-NFR-01)
-          globPatterns: ['**/*.{js,css,html,woff,woff2,png,svg,ico,webmanifest}', 'assets/ma-*-240-*.webp'],
+          // Ảnh Mila: cỡ nhỏ vào precache (240; avatar 96), cỡ lớn 480/192 nạp khi cần (specs/005 research R-09; MAS-NFR-01)
+          globPatterns: ['**/*.{js,css,html,woff,woff2,png,svg,ico,webmanifest}', 'assets/ma-*-240-*.webp', 'assets/ma-11-avatar-96-*.webp'],
           // M03 chỉ online: không precache màn quản trị và thư viện in QR (M03 R-24)
           // Icon cài đặt trong `pwa/` do trình duyệt tự tải lúc cài, không cần nằm trong app shell offline
           globIgnores: ['**/node_modules/**/*', 'assets/m03-*', 'assets/qrcode-*', 'pwa/**'],

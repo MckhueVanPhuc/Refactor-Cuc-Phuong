@@ -1,14 +1,16 @@
-// Layout chung của bốn màn M01 (tasks T033; design-system §5.1): thanh app có logo về danh mục, liên kết tới
-// /offline (vào được cả khi không có nguồn, research R-13), LanguageControl (US1) và vùng thông báo nguồn.
+// Layout chung của bốn màn M01 (tasks T033; design-system §5.1): thanh app có logo về danh mục và LanguageControl (US1),
+// vùng thông báo nguồn, và thanh tab dưới Tuyến · Quét QR · Tài nguyên (2026-11-21; /offline vào được cả khi không có
+// nguồn, research R-13).
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, NavLink, Outlet, useMatch } from 'react-router';
+import { Link, Outlet, useMatch } from 'react-router';
 import logoUrl from '../../../../assets/icons/logo-emblem.png';
 import { PATHS } from '../../../app/paths';
-import { TintIcon } from '../../../shared/ui/Icon';
 import { useM01Messages } from '../i18n/useM01Messages';
 import { LanguageControl } from '../language/LanguageControl';
 import { useDisplayLanguage } from '../language/useLanguagePreference';
+import { RecommendationCriteriaProvider } from '../recommendation/criteriaContext';
+import { TabBar } from './TabBar';
 import styles from './VisitorLayout.module.css';
 
 const NoticeSlotContext = createContext<HTMLElement | null>(null);
@@ -26,7 +28,8 @@ export function VisitorLayout() {
   // Chi tiết tuyến và Gợi ý tuyến đặt trên ảnh rừng: thanh app trong suốt, nội dung là lớp kính tối (mockup Route
   // details, Recommendation); mỗi màn một ảnh
   const onDetail = useMatch('/routes/:routeId') !== null;
-  const onRecommend = useMatch(PATHS.recommend) !== null;
+  // Form và trang kết quả gợi ý dùng chung ảnh nền
+  const onRecommend = useMatch({ path: PATHS.recommend, end: false }) !== null;
   const immersive = onDetail || onRecommend;
   const shellClass = [styles.shell, immersive && styles.immersive, onRecommend && styles.recommendPhoto]
     .filter(Boolean)
@@ -43,20 +46,17 @@ export function VisitorLayout() {
         <Link className={styles.brand} to={PATHS.catalog}>
           <img className={styles.logo} src={logoUrl} alt={messages.nav.catalog} />
         </Link>
-        <nav className={styles.nav}>
-          <NavLink className={styles.navLink ?? ''} to={PATHS.offline}>
-            {messages.nav.offline}
-            <TintIcon name="offline" />
-          </NavLink>
-        </nav>
         <LanguageControl tone="onDark" />
       </header>
       <div className={styles.notices} role="status" ref={setNoticeSlot} />
       <main className={styles.main} id="m01-main" tabIndex={-1}>
         <NoticeSlotContext.Provider value={noticeSlot}>
-          <Outlet />
+          <RecommendationCriteriaProvider>
+            <Outlet />
+          </RecommendationCriteriaProvider>
         </NoticeSlotContext.Provider>
       </main>
+      <TabBar />
     </div>
   );
 }

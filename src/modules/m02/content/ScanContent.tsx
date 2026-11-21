@@ -10,7 +10,7 @@ import { FinalPrompt } from '../end/FinalPrompt';
 import { useEndTrip } from '../end/useEndTrip';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { FieldNotice } from '../layout/FieldLayout';
-import { Toast } from '../layout/Toast';
+import { Toast } from '../../../shared/ui/Toast';
 import { FreeVisitorHint } from '../qr-link/FreeVisitorHint';
 import type { ScanResult } from '../scan/processScan';
 import { Gallery } from './Gallery';
@@ -121,7 +121,11 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
   return (
     <>
       {/* Lượt ghé vừa ghi: toast nổi, không đẩy nội dung xuống */}
-      {scan.visitCreated && <Toast key={scan.visit?.checkedInAt ?? scan.qrIdentifier}>{messages.trip.visitRecorded}</Toast>}
+      {scan.visitCreated && (
+        <Toast key={scan.visit?.checkedInAt ?? scan.qrIdentifier} closeLabel={messages.toast.close}>
+          {messages.trip.visitRecorded}
+        </Toast>
+      )}
       <FieldNotice>
       {scan.display.kind === 'PACKAGE' && (
         <Notice tone="info">
@@ -153,6 +157,7 @@ export function ScanContent({
   scan,
   qrIdentifier,
   showBack,
+  backTo = PATHS.m02SessionEntry,
   onPromptContinue,
 }: {
   /** `undefined` = đang tra cứu */
@@ -160,6 +165,8 @@ export function ScanContent({
   qrIdentifier: string;
   /** "Quay lại" về phiên (SCR-M02-001); khách tự do ở `/q/…` không có phiên để quay lại */
   showBack: boolean;
+  /** Đích của "Quay lại"; mặc định là hành trình của phiên */
+  backTo?: string;
   /** Việc thêm khi chọn [Đi tiếp] (ContentPage ghi đè router state để không hỏi lại) */
   onPromptContinue?: () => void;
 }) {
@@ -198,7 +205,7 @@ export function ScanContent({
       {/* Gợi ý khách tự do sau nội dung, như mockup-SCR-M02-004: du khách thấy nội dung trước */}
       {scan?.freeVisitor && <FreeVisitorHint />}
       {showBack && (
-        <Link className={styles.back} to={PATHS.m02SessionEntry}>
+        <Link className={styles.back} to={backTo}>
           {messages.content.back}
         </Link>
       )}

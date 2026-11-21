@@ -45,7 +45,7 @@ test('V6 — mất mạng sau khi đã mở danh mục: local view có nhãn d�
   await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
 
   await context.setOffline(true);
-  await page.getByRole('link', { name: 'Tài nguyên offline' }).click();
+  await page.getByRole('link', { name: 'Tài nguyên' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Quản lý tài nguyên offline' })).toBeVisible();
   await page.getByRole('link', { name: 'Danh mục tuyến' }).click();
   await expect(page.getByText('Dữ liệu đã lưu, có thể chưa phải bản mới nhất.')).toBeVisible();
@@ -54,7 +54,7 @@ test('V6 — mất mạng sau khi đã mở danh mục: local view có nhãn d�
   // Mở lạnh khi offline: app shell từ service worker, không có local view
   await page.reload();
   await expect(page.getByText('Chưa tải được danh sách tuyến. Hãy kiểm tra kết nối và thử lại.')).toBeVisible();
-  await page.getByRole('link', { name: 'Tài nguyên offline' }).click();
+  await page.getByRole('link', { name: 'Tài nguyên' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Quản lý tài nguyên offline' })).toBeVisible();
   await context.setOffline(false);
 });

@@ -123,4 +123,31 @@ export function resetMascotEventsForTest(): void {
   listeners.clear();
   pending = [];
   everSubscribed = false;
+  holds.clear();
+}
+
+export type HoldKey = 'dialog' | 'media';
+const holds = new Map<HoldKey, number>();
+
+/**
+ * Tín hiệu "đang có X" từ nhiều nguồn cùng lúc (nhiều hộp thoại, nhiều tệp đang phát). Chỉ phát `start` khi nguồn đầu
+ * tiên giữ và `end` khi nguồn cuối cùng nhả, nên một nguồn kết thúc không gỡ trạng thái của nguồn khác còn mở
+ * (BR-MAS-08). Trả hàm nhả; gọi nhiều lần chỉ tính một.
+ */
+export function holdMascotSignal(key: HoldKey, start: MascotEvent, end: MascotEvent): () => void {
+  const count = holds.get(key) ?? 0;
+  holds.set(key, count + 1);
+  if (count === 0) emitMascotEvent(start);
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    const left = (holds.get(key) ?? 1) - 1;
+    if (left > 0) {
+      holds.set(key, left);
+      return;
+    }
+    holds.delete(key);
+    emitMascotEvent(end);
+  };
 }

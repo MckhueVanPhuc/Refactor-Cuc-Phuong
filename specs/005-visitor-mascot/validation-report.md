@@ -55,6 +55,24 @@ Branch `feat/mascot-foundation`, tách từ `docs/mascot-baseline` (PR #52). Tas
 
 Checkpoint Phase 2 **đạt**: engine, host, slot, catalog có test; app chạy như cũ khi bật Mila (chưa có luật nên chưa hiện gì).
 
+### 1.6 Sửa sau review PR #55 (2026-11-21)
+
+| # | Vấn đề | Sửa |
+|---|---|---|
+| RV-1 | Precache chỉ có cỡ 240; avatar (MA-11) chỉ có cỡ 96/192 nên ảnh AVATAR không có khi offline → `onError` → Mila ẩn tới khi tải lại trang | Thêm mẫu `assets/ma-11-avatar-96-*.webp` vào `globPatterns`; cập nhật research R-09, quickstart, T004, T067 |
+| RV-2 | `Dialog` phát mở/đóng theo từng hộp: hai hộp chồng nhau, đóng một hộp là gỡ chặn dù hộp kia còn mở | `holdMascotSignal` trong `events.ts` đếm số nguồn: chỉ phát khi hộp đầu tiên mở và hộp cuối cùng đóng; contract §3 dòng `app.dialog.changed` cập nhật |
+| RV-3 | Chống trùng 500 ms (BR-MAS-06) nuốt tín hiệu trạng thái lặp lại: mở → đóng → mở hộp thoại (hoặc phát → dừng → phát) trong 500 ms thì lần mở thứ hai bị bỏ, Mila nói khi đang có hộp thoại | `machine.ts`: `app.dialog.changed`, `m02.media.playing/stopped`, `m02.notice.autoEndShown/Hidden` không chống trùng (engine áp chúng idempotent) |
+
+Test mới: `events.test.ts` (holdMascotSignal), `machine.test.ts` (tín hiệu trạng thái không chống trùng), `Dialog.test.tsx` (hai hộp thoại). Lệnh: xem §1.7.
+
+### 1.7 Lệnh kiểm chứng sau review
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx vitest run src/shared/mascot src/shared/ui/Dialog.test.tsx src/app` | 0 | 15 file, 103 test pass |
+| `npm run ci` (sau khi merge `main` qua PR #52) | 0 | lint token 721 pass; 165 file pass + 1 skipped, 2289 pass, 133 skipped; build precache 94 mục |
+| Mẫu `ma-11-avatar-96-*.webp` khớp tệp trong `dist/` | NOT RUN | Chưa có ảnh production (OD-MAS-06); kiểm ở T067/T070 |
+
 ## 2. Đợt 2026-11-21 — Phase 3: US3 "Mila tránh đường" (US-MAS-05)
 
 Branch `feat/mascot-us3`, tách từ `feat/mascot-foundation` (PR #55). Task: T024–T030.

@@ -3,6 +3,7 @@
 // chung với trang mở từ camera điện thoại (SCR-M02-004).
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
+import { PATHS } from '../../../app/paths';
 import { FieldLayout } from '../layout/FieldLayout';
 import type { ScanResult } from '../scan/processScan';
 import { viewScannedPoint } from '../scan/viewScannedPoint';
@@ -30,12 +31,19 @@ export function ContentPage() {
 
   // [Đi tiếp]: ghi đè router state để quay lại / tải lại trang không hỏi lần nữa
   const rewriteState = () => {
-    if (scan) navigate(location.pathname, { replace: true, state: { scan: { ...scan, finalPromptNeeded: false } } satisfies ContentRouteState });
+    if (scan) navigate(location.pathname, { replace: true, state: { ...state, scan: { ...scan, finalPromptNeeded: false } } satisfies ContentRouteState });
   };
 
   return (
     <FieldLayout surface="article">
-      <ScanContent scan={scan} qrIdentifier={qrIdentifier} showBack onPromptContinue={rewriteState} />
+      <ScanContent
+        scan={scan}
+        qrIdentifier={qrIdentifier}
+        showBack
+        // Có phiên → về hành trình (SCR-M02-001); khách tự do quét từ thanh tab → về màn đã mở thanh tab
+        backTo={scan?.session || !state.returnTo ? PATHS.m02SessionEntry : state.returnTo}
+        onPromptContinue={rewriteState}
+      />
     </FieldLayout>
   );
 }

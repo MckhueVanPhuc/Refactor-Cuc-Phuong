@@ -16,6 +16,7 @@
 | SCR-M02-002 | Nội dung điểm tham quan | Visitor; khách tự do | FN-M02-004, FN-M02-005, FN-M02-008 | Must |
 | SCR-M02-003 | Kết thúc phiên | Visitor có phiên | FN-M02-006, FN-M02-007 | Must; trạng thái đồng bộ Should |
 | SCR-M02-004 | Trang mở từ mã QR | Bất kỳ ai quét mã bằng camera điện thoại | FN-M02-004, FN-M02-005, FN-M02-006, FN-M02-008 | Must |
+| SCR-M02-005 | Quét QR (từ thanh tab M01) | Visitor có phiên; khách tự do | FN-M02-004, FN-M02-008 | Must |
 
 **Mascot Mila** (FN-MAS-001…005, priority Could): xuất hiện trên SCR-M02-001…004 theo slot của Spec Mascot §5.1; không thêm màn mới và không đổi function hay priority của các màn trên.
 
@@ -59,6 +60,15 @@ Khách tự do không có tiến độ hoặc Finish; không tạo visitor accou
 | Actions / exit | Tự đóng phiên quá 24 giờ trước; có phiên trong cùng trình duyệt → xử lý y như quét trong app (ghi lượt ghé khi được chấp nhận, câu hỏi kết thúc) rồi hiển thị nội dung như SCR-M02-002; không có phiên → chế độ khách tự do, hiển thị nội dung kèm câu gợi ý và link sang danh mục tuyến (SCR-M01-001); đổi ngôn ngữ bằng nút VI/EN. |
 | States / guards | Không bao giờ tạo phiên; `INVALID`, `TEMPORARILY_CLOSED`, cần kết nối mạng; offline chỉ mở được nếu trình duyệt này từng mở app (app shell đã cache), nếu không trình duyệt tự báo không có kết nối. Phiên ở trình duyệt khác hoặc app đã cài không được nhận diện. |
 
+### SCR-M02-005 — Quét QR (thêm 2026-11-21)
+
+| Nội dung | Mô tả |
+|---|---|
+| Entry | Nút Quét QR ở giữa thanh tab của các màn M01; camera bật ngay, không cần bấm thêm. |
+| Data | Chuỗi trình quét đọc được; phiên đang chạy trong cùng trình duyệt nếu có. |
+| Actions / exit | Tự đóng phiên quá 24 giờ trước; mã đọc được xử lý y như trình quét trong app của 001 (BR-M02-023): có phiên → ghi lượt ghé khi được chấp nhận, rồi nội dung 002; không có phiên → chế độ khách tự do, nội dung 002 kèm câu gợi ý. Đóng camera → về màn M01 đã mở thanh tab. |
+| States / guards | Không bao giờ tạo phiên; camera denied/unavailable; mã không phải link QR của môi trường hiện tại; `INVALID`, `TEMPORARILY_CLOSED`, cần kết nối mạng hiện ngay trên màn này. |
+
 ## 4. Embedded và background behavior
 
 Scanner là vùng/fullscreen mode trong 001; camera permission do browser cấp, UI chỉ giải thích trạng thái và cách thử lại. Câu hỏi kết thúc chuyến là dialog mở 003. Sync là background với status trong phiên/kết quả, không có trang sync queue. Tự đóng phiên quá 24 giờ chạy khi mở app hoặc quay lại màn hình. Nút đổi ngôn ngữ gọi control của M01; M02 không tự ghi preference.
@@ -70,6 +80,10 @@ flowchart LR
     A["M01 Start"] --> B["001 Phiên và Scanner"]
     F["Khách tự do: nút Quét"] --> B
     Q["Camera điện thoại"] --> G["004 Trang mở từ mã QR"]
+    T["Thanh tab M01: Quét QR"] --> S["005 Quét QR"]
+    S -->|"Có phiên: lượt quét của phiên"| C
+    S -->|"Không có phiên: khách tự do"| C
+    S -->|"Đóng camera"| T
     G -->|"Có phiên: như quét trong app"| C["002 Nội dung"]
     G -->|"Không có phiên: khách tự do"| C
     G -->|"Chọn tuyến"| H["SCR-M01-001"]
@@ -91,8 +105,8 @@ Screen suffix trong bảng mang prefix `SCR-M02-`; background coverage được 
 | FR-M02-003 | 001 + local transaction | UUID `sessionId` và unique `sourceHandoffId`. |
 | FR-M02-004 | 001 + local storage | Copy manifest thành frozen journey. |
 | FR-M02-005 | 001 | Resume cùng phiên/lượt ghé sau reload. |
-| FR-M02-006 | 001, 004 | Lấy `qrIdentifier` từ link; phân giải qua tra cứu online hoặc frozen journey khi offline. |
-| FR-M02-007 | 001, 002, 004 | Ghi lượt ghé một lần cho lần quét được chấp nhận, trước khi hiển thị nội dung. |
+| FR-M02-006 | 001, 004, 005 | Lấy `qrIdentifier` từ link; phân giải qua tra cứu online hoặc frozen journey khi offline. |
+| FR-M02-007 | 001, 002, 004, 005 | Ghi lượt ghé một lần cho lần quét được chấp nhận, trước khi hiển thị nội dung. |
 | FR-M02-008 | 001 | Check-in không bắt thứ tự; hiển thị đã quét. |
 | FR-M02-009 | 001, 002 | Quét lại hiển thị nội dung mã đó và thời điểm cũ. |
 | FR-M02-010 | 002 | Tài nguyên offline theo mã QR, kể cả package cũ phù hợp. |
@@ -104,7 +118,7 @@ Screen suffix trong bảng mang prefix `SCR-M02-`; background coverage được 
 | FR-M02-016 | 003 | Hoàn tất khi xác nhận. |
 | FR-M02-017 | 001 + local transaction | Phiên mới + `BO_DO` phiên cũ là một operation. |
 | FR-M02-018 | 001, 003 + sync background | Frozen terminal queue; retry success/conflict/rejected. |
-| FR-M02-019 | 001, 002, 004 chế độ khách tự do | Không tạo phiên/lượt ghé/dữ liệu báo cáo. |
+| FR-M02-019 | 001, 002, 004, 005 chế độ khách tự do | Không tạo phiên/lượt ghé/dữ liệu báo cáo. |
 | FR-M02-020 | Tất cả + data adapters | Dữ liệu M01/M03 chỉ đọc. |
 | FR-M02-021 | 002, 004 | Thông báo khu vực tạm đóng, không nội dung, không lượt ghé. |
 | FR-M02-022 | 001, 004 | Mã thêm sau khi chuyến bắt đầu được nhận diện qua tra cứu online. |
@@ -121,3 +135,4 @@ Screen suffix trong bảng mang prefix `SCR-M02-`; background coverage được 
 | SCR-M02-002 | [screen-spec-SCR-M02-002.md](../screen-spec/M02/screen-spec-SCR-M02-002.md) | Draft — đồng bộ Spec M02 v3.3 |
 | SCR-M02-003 | [screen-spec-SCR-M02-003.md](../screen-spec/M02/screen-spec-SCR-M02-003.md) | Draft — đồng bộ Spec M02 v3.3 |
 | SCR-M02-004 | [screen-spec-SCR-M02-004.md](../screen-spec/M02/screen-spec-SCR-M02-004.md) | Draft — đồng bộ Spec M02 v3.3 |
+| SCR-M02-005 | [screen-spec-SCR-M02-005.md](../screen-spec/M02/screen-spec-SCR-M02-005.md) | Draft — đồng bộ Spec M02 v3.3 (thêm 2026-11-21) |

@@ -1,6 +1,6 @@
 // Event bus của Mila (specs/005 tasks T007; contracts/mascot-event-contract.md §1; research R-03).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { emitMascotEvent, resetMascotEventsForTest, subscribeMascotEvents } from './events';
+import { emitMascotEvent, holdMascotSignal, resetMascotEventsForTest, subscribeMascotEvents } from './events';
 
 beforeEach(() => {
   resetMascotEventsForTest();
@@ -95,6 +95,31 @@ describe('sự kiện phát trước khi host đăng ký (host nạp lazy)', () 
     const off = subscribeMascotEvents((event) => seen.push(event));
     await flush();
     expect(seen).toEqual([]);
+    off();
+  });
+});
+
+describe('holdMascotSignal', () => {
+  const start = { type: 'app.dialog.changed', open: true, kind: 'OTHER' } as const;
+  const end = { type: 'app.dialog.changed', open: false, kind: 'OTHER' } as const;
+
+  it('nhiều nguồn: chỉ phát khi nguồn đầu tiên giữ và nguồn cuối cùng nhả (BR-MAS-08)', async () => {
+    vi.stubEnv('VITE_FEATURE_MASCOT', 'on');
+    const seen: boolean[] = [];
+    const off = subscribeMascotEvents((event) => {
+      if (event.type === 'app.dialog.changed') seen.push(event.open);
+    });
+    const releaseA = holdMascotSignal('dialog', start, end);
+    const releaseB = holdMascotSignal('dialog', start, end);
+    await flush();
+    expect(seen).toEqual([true]);
+    releaseA();
+    releaseA();
+    await flush();
+    expect(seen).toEqual([true]);
+    releaseB();
+    await flush();
+    expect(seen).toEqual([true, false]);
     off();
   });
 });

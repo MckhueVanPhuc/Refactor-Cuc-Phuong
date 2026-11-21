@@ -20,12 +20,17 @@ test('V23 — TIME_VUA + GROUP_GIA_DINH_CO_TRE + INTEREST_KHAM_PHA; tổ hợp k
   await choose(page, 'Đối tượng', 'Gia đình có trẻ nhỏ');
   await expect(submit).toBeDisabled();
 
-  // Đủ ba nhóm → mọi kết quả chứa cả ba tag (fixture: chỉ tuyến A)
+  // Đủ ba nhóm → trang kết quả riêng; mọi kết quả chứa cả ba tag (fixture: chỉ tuyến A)
   await choose(page, 'Trải nghiệm', 'Khám phá');
   await submit.click();
+  await expect(page).toHaveURL(/\/recommend\/results$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Tuyến phù hợp' })).toBeVisible();
   await expect(page.getByRole('listitem').getByRole('heading')).toHaveText(['Tuyến thử Bách Thảo']);
 
-  // Tổ hợp không khớp → rỗng, không nới tiêu chí
+  // "Đổi tiêu chí" về form với lựa chọn còn nguyên; tổ hợp không khớp → rỗng, không nới tiêu chí
+  await page.getByRole('button', { name: 'Đổi tiêu chí' }).click();
+  await expect(page).toHaveURL(/\/recommend$/);
+  await expect(page.getByRole('radio', { name: 'Gia đình có trẻ nhỏ' })).toBeChecked();
   await choose(page, 'Thời gian', 'Dài (trên 180 phút)');
   await submit.click();
   await expect(
