@@ -57,6 +57,22 @@ describe('MediaList', () => {
     expect(seen).toEqual(['m02.media.playing:AUDIO', 'm02.media.stopped', 'm02.media.playing:AUDIO', 'm02.media.stopped']);
   });
 
+  it('hai tệp cùng phát: dừng một tệp chưa báo stopped; dừng tệp cuối mới báo', async () => {
+    const two = [...items, { resource: { type: 'VIDEO' as const, sourceRef: 'media/b.mp4', spokenLanguage: 'vi' as const }, label: 'Video 1' }];
+    const twoUrls = new Map([...urls, ['media/b.mp4', 'https://media.example/b.mp4']]);
+    const { container } = render(<MediaList items={two} urls={twoUrls} />);
+    const audio = container.querySelector('audio')!;
+    const video = container.querySelector('video')!;
+    fireEvent.play(audio);
+    fireEvent.play(video);
+    fireEvent.pause(audio);
+    await flush();
+    expect(seen).toEqual(['m02.media.playing:AUDIO']);
+    fireEvent.ended(video);
+    await flush();
+    expect(seen).toEqual(['m02.media.playing:AUDIO', 'm02.media.stopped']);
+  });
+
   it('bị gỡ khỏi DOM khi đang phát (đổi VI/EN) → stopped', async () => {
     const { container, unmount } = render(<MediaList items={items} urls={urls} />);
     fireEvent.play(container.querySelector('audio')!);
