@@ -2,7 +2,7 @@
 // ngang. Chạy lại sau mỗi story thêm slot.
 import { expect, test, type Page } from '@playwright/test';
 import { vi } from '../../src/modules/m02/i18n/vi';
-import { checkLayoutAcrossWidths } from '../mascot-helpers';
+import { checkLayoutAcrossWidths, expectMascotOverlapsNothing, expectNoHorizontalScroll } from '../mascot-helpers';
 import { seedValidContext } from './helpers';
 import { mockIntakeUnavailable, mockLookup, mockStorage } from './network';
 
@@ -42,8 +42,9 @@ test('SCR-M02-001 chuyến đi và SCR-M02-002 nội dung', async ({ page }) => 
   });
 });
 
-test('SCR-M02-003 màn kết quả', async ({ page }) => {
+test('SCR-M02-003 màn kết quả: lúc ăn mừng ở 320 px, rồi hình tĩnh cạnh huy hiệu ở mọi chiều rộng', async ({ page }) => {
   await prepare(page);
+  await page.setViewportSize({ width: 320, height: 780 });
   await page.goto('/');
   await seedValidContext(page);
   await page.goto('/trip');
@@ -54,9 +55,16 @@ test('SCR-M02-003 màn kết quả', async ({ page }) => {
   });
   await page.getByRole('button', { name: vi.endPrompt.end, exact: true }).click();
   await expect(page).toHaveURL(/\/trip\/end$/);
+  // Chỗ hẹp nhất lúc Mila lớn nhất (CELEBRATE, bong bóng trên Mila)
+  await expect(page.locator('[data-mascot-slot="end-hero"] [data-mascot-mode="CELEBRATE"] [data-mascot-message]')).toBeVisible();
+  await expectMascotOverlapsNothing(page);
+  await expectNoHorizontalScroll(page);
+  await page.screenshot({ path: 'test-results/mascot-end-celebrate-320.png' });
+  await expect(page.locator('[data-mascot-slot="end-hero"] [data-mascot-mode="DOCK"]')).toBeVisible({ timeout: 10_000 });
   await checkLayoutAcrossWidths(page, async () => {
     await expect(page.getByRole('heading', { name: vi.end.title })).toBeVisible();
   });
+  await page.screenshot({ path: 'test-results/mascot-end-dock-430.png' });
 });
 
 test('SCR-M02-004 trang mở từ mã QR (khách tự do)', async ({ page }) => {

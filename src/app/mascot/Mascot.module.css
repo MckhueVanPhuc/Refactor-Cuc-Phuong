@@ -16,8 +16,10 @@
   align-items: flex-start;
 }
 
+/* CELEBRATE: như INTRO, bong bóng trên Mila — slot đứng cạnh huy hiệu nên bề ngang hẹp */
 .mascot[data-mascot-mode='CELEBRATE'] {
-  justify-content: center;
+  flex-direction: column-reverse;
+  align-items: center;
 }
 
 /* —— Hình —— */
@@ -109,6 +111,12 @@ button.figure:focus-visible {
   top: auto;
   bottom: calc(var(--space-2) * -1);
   left: var(--space-8);
+}
+
+/* Đuôi bong bóng chỉ xuống giữa Mila */
+.mascot[data-mascot-mode='CELEBRATE'] .bubble::before {
+  bottom: calc(var(--space-2) * -1);
+  left: calc(50% - var(--space-2));
 }
 
 .text {

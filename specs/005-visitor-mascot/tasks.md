@@ -151,13 +151,13 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T043 [P] [US4] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-062 (chỉ khi `justEnded` và `HOAN_TAT`, ≤ 2 400 ms, chạm kết thúc), 063 (mở lại → tĩnh), 070 (`PENDING` + offline), 071 (`PENDING → SYNCED` → `AN-THUMB`, không chữ "đã gửi"), 072 (`CONFLICT` → chỉ figure, không CTA)
-- [ ] T044 [P] [US4] Viết `e2e/m02/mascot-end.spec.ts`: Q12 (CELEBRATE rồi tĩnh; reload chỉ tĩnh; huy hiệu và nội dung màn như ảnh mẫu 2026-11-11), kết thúc khi offline → MSG-MAS-070, `CONFLICT` (giả lập 409 như V25 hiện có) → không nút thử lại
+- [X] T043 [P] [US4] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-062 (chỉ khi `justEnded` và `HOAN_TAT`, ≤ 2 400 ms, chạm kết thúc), 063 (mở lại → tĩnh), 070 (`PENDING` + offline), 071 (`PENDING → SYNCED` → `AN-THUMB`, không chữ "đã gửi"), 072 (`CONFLICT` → chỉ figure, không CTA)
+- [X] T044 [P] [US4] Viết `e2e/m02/mascot-end.spec.ts`: Q12 (CELEBRATE rồi tĩnh; reload chỉ tĩnh; huy hiệu và nội dung màn như ảnh mẫu 2026-11-11), kết thúc khi offline → MSG-MAS-070, `CONFLICT` (giả lập 409 như V25 hiện có) → không nút thử lại
 
 ### Implementation for User Story 4
 
-- [ ] T045 [US4] Cài MAS-B-062, 063, 070, 071, 072 trong `src/shared/mascot/rules.ts`; lá rơi 12 phần tử dùng `TintIcon name="leaf"` trong `src/app/mascot/Mascot.tsx` / `Mascot.module.css`
-- [ ] T046 [US4] Trong `src/modules/m02/end/EndPage.tsx` (+ `EndPage.module.css`, skill `frontend-design`): `<MascotSlot id="end-hero" modes={['CELEBRATE','DOCK']} />` cạnh huy hiệu (giữ bố cục đã duyệt); phát `m02.trip.ended { status, k, justEnded }` và `m02.sync.statusChanged { status, online }`; `<MascotFigure pose="confused" />` cạnh banner `CONFLICT`
+- [X] T045 [US4] Cài MAS-B-062, 063, 070, 071, 072 trong `src/shared/mascot/rules.ts`; lá rơi 12 phần tử dùng `TintIcon name="leaf"` trong `src/app/mascot/Mascot.tsx` / `Mascot.module.css`
+- [X] T046 [US4] Trong `src/modules/m02/end/EndPage.tsx` (+ `EndPage.module.css`, skill `frontend-design`): `<MascotSlot id="end-hero" modes={['CELEBRATE','DOCK']} />` cạnh huy hiệu (giữ bố cục đã duyệt); phát `m02.trip.ended { status, k, justEnded }` và `m02.sync.statusChanged { status, online }`; `<MascotFigure pose="confused" />` cạnh banner `CONFLICT`
 
 **Checkpoint (mốc pilot G5)**: US3 + US1 + US2 + US4 xong → người dùng thử trên điện thoại; cờ Production vẫn `off`.
 

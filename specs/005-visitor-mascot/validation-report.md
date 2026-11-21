@@ -193,3 +193,50 @@ Merge `feat/mascot-us3` (đã có `main` qua #53, #54, #57, #59; US1 qua #58; s�
 | DV-26 | Chống trùng 500 ms dùng payload làm khóa nên `route.changed` về `/trip` trong vòng 500 ms sau lần trước ở `/trip` (quét rồi "Quay lại" nhanh) bị nuốt; Mila kẹt ở màn cũ rồi mất trên màn chuyến đi. Q4/Q5 đạt hay không tùy tốc độ máy. Sửa: đổi sang path khác không bị chống trùng; màn mới bắt đầu với bảng chống trùng sạch. Cùng hướng với RV-3 (tín hiệu trạng thái không chống trùng). Tìm ra ở US4, đưa xuống đây để PR US2 tự đạt | Áp dụng |
 | DV-27 | Trọng tài: ý định không lời (chỉ tư thế) mà slot chưa đăng ký thì đặt luôn vào view, host vẽ khi slot có; không giành chỗ duy nhất của hàng đợi với câu đang chờ (ví dụ 051 mang sang `/trip`). Bổ sung DV-18 | Áp dụng |
 | DV-32 | Môi trường: sau khi kéo `main` (icon mới `close.svg`), Vitest dùng transform cũ trong `node_modules/.vitest-cache` của `import.meta.glob`, 14 test báo thiếu icon `close`. Xóa cache thì đạt; không phải lỗi code (cùng loại DV-5) | Ghi nhận |
+
+## 5. Đợt 2026-11-21 — Phase 6: US4 "Kết thúc chuyến cùng Mila" (US-MAS-08) — hết pilot (G5)
+
+Branch `feat/mascot-us4`, tách từ `feat/mascot-us2` (PR #61). Task: T043–T046.
+
+### 5.1 Test viết trước
+
+| Test | Kết quả trước khi cài |
+|---|---|
+| `rules.test.ts` US4 (062 rồi 063, chạm đóng → tĩnh, 063 mở lại / BO_DO, 070 offline, 071 `PENDING → SYNCED`, SYNCED ngay từ đầu, 072) | FAIL 6 ca; ca 072 (CONFLICT không câu) đạt ngay vì không có luật nào là đúng |
+| `e2e/m02/mascot-end.spec.ts` (Q12, offline → 070, 409 CONFLICT) | Viết trước; chạy sau khi có slot và điểm phát |
+
+### 5.2 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx vitest run src/shared src/app src/modules` | 0 | 2299 pass, 133 skipped |
+| `npx tsc -b` | 0 | — |
+| `npx playwright test` (cổng 4173/5174 đã kiểm trống, DV-19) | 0 | 131 pass, 46 skipped (local/integration như trước) |
+| `npx playwright test --project=m02 mascot-visit mascot-end --repeat-each=3` | 0 | 15/15 |
+| `npm run ci` | 0 | lint 708; 2299 pass, 133 skipped; build OK |
+| Chụp màn hình (trong `e2e/m02/mascot-layout.spec.ts`) | — | 320 px lúc ăn mừng: bong bóng 062 trên Mila, Mila cạnh huy hiệu, không cuộn ngang. 430 px sau đó: Mila DOCK nhỏ cạnh huy hiệu, nhành lá của huy hiệu không chạm Mila; lời chào, thẻ hẹn gặp lại, danh sách giữ nguyên bố cục duyệt 2026-11-11 |
+
+### 5.3 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-25 | "Vừa kết thúc" (MAS-B-062) không lấy từ router state như Behavior Matrix ghi: trình duyệt giữ `history.state` qua lần tải lại, nên tải lại sẽ ăn mừng lần nữa (sai Q12). Thay bằng cờ trong bộ nhớ `takeEndedHere(sessionId)` ở `useEndTrip.ts`, đặt khi `finishSession` trả `FINISHED` và chỉ lấy được một lần; tải lại thì mất. Không ghi dữ liệu, không đổi thứ tự ghi của M02 | Áp dụng; cập nhật Behavior Matrix ở T071 |
+| DV-26, DV-27 | Tìm ra ở US4 nhưng là lỗi có sẵn của US2: đã chuyển xuống US2, xem §4.4 | Áp dụng (ở US2) |
+| DV-28 | CELEBRATE kéo dài bằng thời gian đọc câu 062 (tối thiểu 3 s theo §5.4), không cắt ở 2,4 s; chuyển động (AN-CELEBRATE, lá rơi) vẫn ≤ `--duration-mascot-celebrate` 2 400 ms. Cắt ở 2,4 s sẽ làm câu biến mất trước khi đọc xong | Áp dụng |
+| DV-29 | MAS-B-070 hiện ở slot `end-hero` (DOCK, tư thế ba lô), không ở AVATAR trong thẻ danh sách: màn chỉ có một slot để không thêm chỗ trống vào thẻ. Câu chờ sau phần ăn mừng (khoảng 4 s, còn bong bóng thì thử lại mỗi 1 s) thay vì 1 s, vì P5 không được chen vào câu P4 đang hiện | Áp dụng |
+| DV-30 | CELEBRATE đặt bong bóng trên Mila (như INTRO), đuôi chỉ xuống giữa: slot đứng cạnh huy hiệu nên bề ngang hẹp ở 320 px | Áp dụng |
+| DV-31 | Banner CONFLICT thành khối `data-end-conflict` chứa `MascotFigure confused` (sm, `aria-hidden`) và đoạn chữ `role="alert"`; chữ thông báo không đổi | Áp dụng |
+
+### 5.4 Đồng bộ với `main` và các sửa review (2026-11-21)
+
+Merge `feat/mascot-us2` (đã có `main` mới: tab bar M01, màn Quét QR `/scan`, trang kết quả gợi ý, toast dùng chung, cỡ chữ mới; US1; RV-1…RV-4; DV-26/27) vào `feat/mascot-us4`. Xung đột: báo cáo này và `machine.ts`/`machine.test.ts` (cùng bản sửa DV-26/27 ở hai phía; lấy bản của US2, đã gồm RV-3).
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 724; 2333 pass, 133 skipped; build OK |
+| `npx playwright test` (cổng 4173/5174 đã kiểm trống) | 0 | 133 pass, 46 skipped |
+| Ảnh 320 px lúc ăn mừng (cỡ chữ mới của `main`) | — | Không đè, không cuộn ngang; bố cục như §5.2 |
+
+### 5.5 Pilot (Phase 1–6) đã xong
+
+US3, US1, US2, US4 đã cài; hình Mila vẫn là hình giữ chỗ (đĩa xanh có lá) cho tới khi có ảnh và xác nhận quyền sử dụng (OD-MAS-06/07, T070). US5–US8 và Polish chỉ làm khi người dùng yêu cầu.

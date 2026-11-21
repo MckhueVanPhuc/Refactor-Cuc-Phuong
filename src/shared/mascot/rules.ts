@@ -83,4 +83,61 @@ const US2: Rule[] = [
   })),
 ];
 
-export const RULES: readonly Rule[] = [...US1, ...US2];
+// —— US4: Kết thúc chuyến cùng Mila (US-MAS-08) ——
+
+/** Lời "đã lưu trên máy" chờ sau phần ăn mừng; còn bong bóng thì thử lại sau 1 giây. */
+const PENDING_NOTE_DELAY_MS = 4_000;
+const PENDING_NOTE_RETRY_MS = 1_000;
+
+/** MAS-B-063: hình tĩnh cạnh huy hiệu. Chuyến tự kết thúc (BO_DO) chỉ nghỉ, không mừng. */
+const endDock = (status: 'HOAN_TAT' | 'BO_DO'): Intent => ({
+  behaviorId: 'MAS-B-063',
+  priority: 7,
+  mode: 'DOCK',
+  pose: status === 'HOAN_TAT' ? 'cheer' : 'rest',
+});
+
+const US4: Rule[] = [
+  // MAS-B-062 → 063: vừa bấm Kết thúc trong lần tải trang này → ăn mừng một lần với số điểm đã quét, rồi về hình tĩnh.
+  // Mở lại hoặc tải lại màn kết quả: chỉ hình tĩnh (Q12). Đóng bong bóng sớm → về hình tĩnh ngay (đích `then` không lời).
+  on('MAS-B-062', 'm02.trip.ended', (event) =>
+    event.justEnded && event.status === 'HOAN_TAT'
+      ? {
+          intents: [
+            {
+              behaviorId: 'MAS-B-062',
+              priority: 4,
+              mode: 'CELEBRATE',
+              pose: 'cheer',
+              animation: 'celebrate',
+              message: { id: 'MSG-MAS-062', params: { k: event.k } },
+              then: endDock(event.status),
+            },
+          ],
+        }
+      : { intents: [{ ...endDock(event.status), animation: 'enter' }] },
+  ),
+  // MAS-B-070: chuyến chờ gửi vì mất sóng → sau phần ăn mừng, một lần nói chuyến đã lưu trên máy (không nói "đã gửi").
+  // MAS-B-071: chờ gửi rồi gửi xong khi màn đang mở → giơ ngón cái, không có câu. MAS-B-072 (CONFLICT): không luật nào —
+  // màn chỉ đặt hình Mila cạnh thông báo, không câu, không nút (BR-M02-011).
+  on('MAS-B-070', 'm02.sync.statusChanged', (event, { state }) => {
+    if (event.status === 'PENDING') {
+      return { counters: { syncPending: 1 }, timers: event.online || state.once['PENDING_NOTE'] ? {} : { pendingNote: PENDING_NOTE_DELAY_MS } };
+    }
+    const wasPending = Boolean(state.counters['syncPending']);
+    const reset = { counters: { syncPending: null }, timers: { pendingNote: null } };
+    if (event.status === 'SYNCED' && wasPending) {
+      return { ...reset, intents: [{ behaviorId: 'MAS-B-071', priority: 7, mode: 'DOCK', pose: 'thumbsUp', animation: 'thumb' }] };
+    }
+    return reset;
+  }),
+  onTimer('MAS-B-070:show', 'pendingNote', ({ state }) =>
+    state.bubble
+      ? { timers: { pendingNote: PENDING_NOTE_RETRY_MS } }
+      : {
+          intents: [{ behaviorId: 'MAS-B-070', priority: 5, mode: 'DOCK', pose: 'backpack', animation: 'pack', message: { id: 'MSG-MAS-070' }, once: 'PENDING_NOTE' }],
+        },
+  ),
+];
+
+export const RULES: readonly Rule[] = [...US1, ...US2, ...US4];
