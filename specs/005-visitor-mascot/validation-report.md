@@ -72,3 +72,80 @@ Test mới: `events.test.ts` (holdMascotSignal), `machine.test.ts` (tín hiệu 
 | `npx vitest run src/shared/mascot src/shared/ui/Dialog.test.tsx src/app` | 0 | 15 file, 103 test pass |
 | `npm run ci` (sau khi merge `main` qua PR #52) | 0 | lint token 721 pass; 165 file pass + 1 skipped, 2289 pass, 133 skipped; build precache 94 mục |
 | Mẫu `ma-11-avatar-96-*.webp` khớp tệp trong `dist/` | NOT RUN | Chưa có ảnh production (OD-MAS-06); kiểm ở T067/T070 |
+
+## 2. Đợt 2026-11-21 — Phase 3: US3 "Mila tránh đường" (US-MAS-05)
+
+Branch `feat/mascot-us3`, tách từ `feat/mascot-foundation` (PR #55). Task: T024–T030.
+
+### 2.1 Test viết trước
+
+| Test | Kết quả trước khi cài |
+|---|---|
+| `src/modules/m02/content/mascotSignals.test.tsx` (ScanNotice, MediaList), `src/modules/m02/layout/FieldLayout.mascot.test.tsx` | FAIL: không có sự kiện nào được phát |
+| `src/shared/mascot/rules.test.ts` (US3: MAS-B-035, 045, 058, 082, 083, 084, dialog) | PASS ngay: các luật an toàn nằm trong máy trạng thái từ Phase 2 (T016, State Machine T9/T10), không cần luật riêng trong `rules.ts` (DV-10) |
+| `e2e/m02/mascot-safety.spec.ts`, `e2e/m02/mascot-layout.spec.ts`, `e2e/m01/mascot-layout.spec.ts` | Chưa có slot nào nên các khẳng định "không có Mila", "không đè" đạt ngay; chúng có ý nghĩa từ US1/US2 khi slot xuất hiện và được chạy lại ở mỗi story (DV-11) |
+
+### 2.2 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx vitest run src/modules/m02 src/shared/mascot` | 0 | 46 file, 305 pass |
+| `npx playwright test --project=m01 --project=m02 e2e/m02/mascot-safety.spec.ts e2e/m02/mascot-layout.spec.ts e2e/m01/mascot-layout.spec.ts` | 0 | 6 pass (sau hai lần sửa test, DV-12) |
+| `npm run ci` | 0 | lint 708 pass; 165 file pass + 1 skipped, 2273 pass, 133 skipped; build OK |
+
+### 2.3 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-10 | T027: luật MAS-B-035, 045, 058, 082, 083, 084 và chặn dialog đã nằm trong `machine.ts` (Phase 2) vì là hành vi của engine, không phụ thuộc sự kiện cụ thể; `rules.ts` không thêm dòng nào cho US3. Host đã gỡ Mila khỏi DOM khi `view = null` | Áp dụng |
+| DV-11 | E2E an toàn/bố cục của US3 chưa có Mila để kiểm; giữ để chạy lại ở mỗi story có slot (T026). Q13 (giảm chuyển động) chuyển sang E2E của US1 khi INTRO có trên màn | Áp dụng |
+| DV-12 | Test E2E: phải chờ nút "Quét QR" (khớp chính xác tên, vì mục hành trình đã quét có chữ "Đã quét QR") trước khi gọi hook quét | Áp dụng |
+| DV-13 | `MediaList`: tệp bị gỡ khỏi DOM khi đang phát (đổi VI/EN) cũng phát `m02.media.stopped`, để Mila không im mãi | Áp dụng |
+
+### 2.4 Sửa sau review PR #56 (2026-11-21)
+
+| # | Vấn đề | Sửa |
+|---|---|---|
+| RV-4 | `MediaList` phát playing/stopped theo từng tệp: hai tệp cùng phát, dừng một tệp là gỡ chặn dù tệp kia còn phát | Dùng `holdMascotSignal('media', …)` (§1.6 RV-2): `playing` khi tệp đầu tiên phát, `stopped` khi tệp cuối cùng dừng hoặc bị gỡ; contract §3 dòng `m02.media.*` cập nhật. Test mới trong `mascotSignals.test.tsx` |
+
+Lệnh: `npx vitest run src/modules/m02/content src/shared/mascot` → 15 file, 101 test pass; `npm run ci`: xem §3.4.
+
+## 3. Đợt 2026-11-21 — Phase 4: US1 "Làm quen với Mila" (US-MAS-01)
+
+Branch `feat/mascot-us1`, tách từ `feat/mascot-us3` (PR #56). Task: T031–T036.
+
+### 3.1 Test viết trước
+
+| Test | Kết quả trước khi cài |
+|---|---|
+| `rules.test.ts` US1 (MAS-B-001→002→003, đóng sớm, MAS-B-004) | FAIL 3 ca; 2 ca (không giới thiệu trên `/q/…`, MAS-B-080) đạt ngay vì là hành vi mặc định |
+| `e2e/m01/mascot-intro.spec.ts` Q1, Q2 | FAIL (không có bong bóng) — lần đầu sau khi cài cũng FAIL, phát hiện DV-14 |
+| `events.test.ts` (giữ tạm sự kiện trước khi host đăng ký) | FAIL 2 ca |
+
+### 3.2 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx vitest run src/shared src/app src/modules` | 0 | 165 file pass + 1 skipped; 2281 pass |
+| `npx playwright test --project=m01 e2e/m01/mascot-intro.spec.ts` | 0 | 3 pass (Q1, Q2, Q13) |
+| `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` | 0 | 88 pass: toàn bộ E2E cũ + mới, gồm bố cục M01/M02 (T026) và Q3 trang QR |
+| `npm run ci` | 0 | lint 708; 2281 pass, 133 skipped; build OK |
+| Chụp màn hình 320/390 px (spec tạm, đã xóa) | — | INTRO: bong bóng có đuôi trên Mila, danh mục bị đẩy xuống một lần, không đè. DOCK: Mila cạnh "Gợi ý tuyến" trên dải đồi |
+
+### 3.3 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-14 | Bus giữ tạm tối đa 20 sự kiện trong 5 giây khi **chưa từng** có listener (host nạp lazy), giao cho listener đầu tiên với thời điểm gốc. Không có bộ đệm này thì chọn ngôn ngữ ngay khi trang vừa mở (hay mạng yếu, chunk `mascot` tải chậm) làm mất lời giới thiệu. Sau lần đăng ký đầu, không listener → bỏ như contract. Thêm `resetMascotEventsForTest()` cho test | Áp dụng; cập nhật contract §1 ở T071 |
+| DV-15 | MAS-B-001 hiện sau 300 ms bằng hẹn giờ của luật (danh mục và slot chưa render lúc sự kiện tới) | Áp dụng (đúng Delay của Behavior Matrix) |
+| DV-16 | Hero danh mục: nút "Gợi ý tuyến" và slot `catalog-hero` cùng một hàng (`heroActions`), xuống dòng khi hẹp; INTRO đẩy danh mục xuống trong lúc giới thiệu (không đè) | Áp dụng |
+| DV-17 | `MAS-B-004` "ngôn ngữ có từ trước khi tải trang" suy ra từ việc không có `m01.language.selected` trong lần tải trang (không đọc dữ liệu M01) | Áp dụng |
+
+### 3.4 Lệnh kiểm chứng sau review (PR #55, #56)
+
+Branch `feat/mascot-us3` sau khi merge `feat/mascot-foundation` (đã có `main` qua PR #52) và sửa RV-4.
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` (typecheck → lint → test → build) | 0 | lint token 724 pass; 168 file pass + 1 skipped, 2315 pass, 133 skipped; build precache 96 mục |
+| E2E (`npx playwright test`) | NOT RUN ở máy local | Chạy trên CI của PR |

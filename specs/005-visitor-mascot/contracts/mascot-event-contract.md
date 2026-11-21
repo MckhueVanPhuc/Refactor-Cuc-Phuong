@@ -43,7 +43,7 @@ Quy tắc bắt buộc cho mọi điểm phát:
 | `m02.scanner.detected` | — | `TripPage.tsx` — đầu `handleText` | MAS-B-043, 044 |
 | `m02.scan.resolved` | `{ display: ScanDisplay['kind'], hasSession, freeVisitor, visitCreated, inJourney, finalPromptNeeded }` | `TripPage.tsx` (kết quả ở lại màn) và `src/modules/m02/content/ScanContent.tsx` (dùng chung cho `ContentPage` và `QrLinkPage`, nên `QrLinkPage.tsx` **không** phát riêng) | MAS-B-045…054 |
 | `m02.visit.recorded` | `{ sessionRef, visitRef, k, n, isFinal }` | `ScanContent.tsx` — khi `scan.visitCreated` (lượt ghé đã commit trước khi điều hướng). `visitRef` = ref opaque của (phiên, điểm dừng, `checkedInAt`); `ScanContent` mount lại từ router state (lùi/tiến, tải lại) phát lại cùng `visitRef`, engine chỉ phản ứng một lần mỗi `visitRef` trong một lần tải trang | MAS-B-050, 051, 055 |
-| `m02.media.playing` / `m02.media.stopped` | `{ type: 'AUDIO' \| 'VIDEO' }` | `src/modules/m02/content/MediaList.tsx` — `play` / `pause` / `ended` | MAS-B-058 |
+| `m02.media.playing` / `m02.media.stopped` | `{ type: 'AUDIO' \| 'VIDEO' }` | `src/modules/m02/content/MediaList.tsx` — `play` / `pause` / `ended`; đếm qua `holdMascotSignal`: `playing` khi tệp đầu tiên phát, `stopped` khi tệp cuối cùng dừng | MAS-B-058 |
 | `m02.notice.closedShown` | — | `ScanNotice.tsx` khi `kind = CLOSED` | MAS-B-045 (dự phòng cho `scan.resolved`) |
 | `m02.notice.autoEndShown` / `Hidden` | — | `src/modules/m02/layout/FieldLayout.tsx` — `useAutoEndNotice` | MAS-B-035 |
 | `m02.finalPrompt.opened` / `continued` / `ended` | — | `src/modules/m02/end/FinalPrompt.tsx` | MAS-B-060, 061 |
