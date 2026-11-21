@@ -1,0 +1,406 @@
+/*
+ * Mila trong slot (design-system §4.3, §5.3, §9). Chỉ token; chỉ animate transform/opacity; vòng chờ hữu hạn ≤ 10 s.
+ * Khi giảm chuyển động, component không gắn data-mascot-animation và mọi --duration-mascot-* = 0ms.
+ */
+.mascot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  max-width: 100%;
+}
+
+/* INTRO: bong bóng trên, Mila dưới, để vừa màn hẹp */
+.mascot[data-mascot-mode='INTRO'] {
+  flex-direction: column-reverse;
+  align-items: flex-start;
+}
+
+.mascot[data-mascot-mode='CELEBRATE'] {
+  justify-content: center;
+}
+
+/* —— Hình —— */
+.figure {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--mascot-size-md);
+  height: var(--mascot-size-md);
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+}
+
+button.figure {
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  cursor: pointer;
+}
+
+button.figure:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.mascot[data-mascot-mode='AVATAR'] .figure {
+  width: var(--mascot-size-sm);
+  height: var(--mascot-size-sm);
+}
+
+.mascot[data-mascot-mode='INTRO'] .figure,
+.mascot[data-mascot-mode='CELEBRATE'] .figure {
+  width: var(--mascot-size-lg);
+  height: var(--mascot-size-lg);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Hình giữ chỗ khi chưa có ảnh production: đĩa tròn có lá, không phải nhân vật */
+.placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-paper);
+  background: var(--color-m01-forest);
+  border-radius: 50%;
+}
+
+.placeholderLeaf {
+  --icon-size: 50%;
+}
+
+/* —— Bong bóng: điểm nhấn duy nhất, đuôi chỉ về Mila —— */
+.bubble {
+  position: relative;
+  display: grid;
+  flex: 0 1 auto;
+  gap: var(--space-2);
+  min-width: 0;
+  max-width: var(--mascot-bubble-max-width);
+  padding: var(--space-3);
+  padding-right: calc(var(--touch-target) + var(--space-1));
+  color: var(--color-ink);
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.bubble::before {
+  position: absolute;
+  bottom: var(--space-3);
+  left: calc(var(--space-2) * -1);
+  width: var(--space-4);
+  height: var(--space-4);
+  content: '';
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+.mascot[data-mascot-mode='INTRO'] .bubble::before {
+  top: auto;
+  bottom: calc(var(--space-2) * -1);
+  left: var(--space-8);
+}
+
+.text {
+  position: relative;
+  margin: 0;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  text-wrap: pretty;
+}
+
+.actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.primary,
+.secondary {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  font: inherit;
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.primary {
+  color: var(--color-paper);
+  background: var(--color-m01-forest);
+  border: 0;
+}
+
+.secondary {
+  color: var(--color-m01-forest);
+  background: transparent;
+  border: var(--border-width-thin) solid var(--color-m01-secondary);
+}
+
+.close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  font-size: var(--font-size-m01-route-title);
+  line-height: 1;
+  color: var(--color-ink-secondary);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.close:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@media (hover: hover) {
+  .close:hover,
+  .secondary:hover {
+    background: var(--overlay-surface-hover);
+  }
+
+  .primary:hover {
+    box-shadow: inset 0 0 0 100vmax var(--overlay-fill-hover);
+  }
+}
+
+/* Bong bóng trên bề mặt tối của scanner (design-system §9.3) */
+:global([data-mascot-slot='scanner-bottom']) .bubble {
+  color: var(--color-m02-scanner-text);
+  background: var(--color-m02-scanner-surface);
+  border: var(--border-width-thin) solid var(--color-m02-scanner-secondary);
+  box-shadow: none;
+}
+
+:global([data-mascot-slot='scanner-bottom']) .close {
+  color: var(--color-m02-scanner-secondary);
+}
+
+/* —— Lá rơi khi ăn mừng (chỉ SCR-M02-003, một lần) —— */
+.leaves {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.leaf {
+  --icon-size: var(--space-4);
+
+  position: absolute;
+  top: 0;
+  color: var(--color-m01-forest);
+  opacity: 0;
+  animation: mascot-leaf var(--duration-mascot-celebrate) var(--ease-out) both;
+}
+
+.leaf:nth-child(3n) {
+  color: var(--color-m01-amber);
+}
+
+.leaf:nth-child(1) { left: 5%; animation-delay: 0ms; }
+.leaf:nth-child(2) { left: 15%; animation-delay: 120ms; }
+.leaf:nth-child(3) { left: 25%; animation-delay: 60ms; }
+.leaf:nth-child(4) { left: 35%; animation-delay: 200ms; }
+.leaf:nth-child(5) { left: 45%; animation-delay: 30ms; }
+.leaf:nth-child(6) { left: 55%; animation-delay: 160ms; }
+.leaf:nth-child(7) { left: 65%; animation-delay: 90ms; }
+.leaf:nth-child(8) { left: 75%; animation-delay: 240ms; }
+.leaf:nth-child(9) { left: 85%; animation-delay: 140ms; }
+.leaf:nth-child(10) { left: 95%; animation-delay: 40ms; }
+.leaf:nth-child(11) { left: 20%; animation-delay: 280ms; }
+.leaf:nth-child(12) { left: 70%; animation-delay: 320ms; }
+
+@keyframes mascot-leaf {
+  0% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(calc(var(--mascot-size-lg) * 1.25)) rotate(220deg);
+  }
+}
+
+/* —— Animation AN-* (Asset spec §6) —— */
+.mascot[data-mascot-animation='enter'] {
+  animation: mascot-enter var(--duration-mascot-enter) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='intro'] {
+  animation: mascot-intro var(--duration-mascot-enter) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='shrink'] .figure {
+  animation: mascot-shrink var(--duration-mascot-enter) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='pop'] .bubble,
+.mascot[data-mascot-animation='hop'] .bubble,
+.mascot[data-mascot-animation='tilt'] .bubble {
+  animation: mascot-pop var(--duration-mascot-pop) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='pop'] .figure {
+  animation: mascot-pop var(--duration-mascot-pop) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='hop'] .figure,
+.mascot[data-mascot-animation='celebrate'] .figure {
+  animation: mascot-hop var(--duration-mascot-hop) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='thumb'] .figure {
+  animation: mascot-pop var(--duration-mascot-pop) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='tilt'] .figure {
+  animation: mascot-tilt var(--duration-mascot-pop) var(--ease-in-out) 2 both;
+}
+
+.mascot[data-mascot-animation='look'] .figure {
+  animation: mascot-look var(--duration-mascot-loop) var(--ease-in-out) both;
+}
+
+/* Vòng chờ: số vòng hữu hạn (≤ 10 s) rồi đứng yên */
+.mascot[data-mascot-animation='breathe'] .figure {
+  animation: mascot-breathe calc(var(--duration-mascot-loop) * 2.5) var(--ease-in-out) 3;
+}
+
+.mascot[data-mascot-animation='search'] .figure,
+.mascot[data-mascot-animation='pack'] .figure {
+  animation: mascot-sway var(--duration-mascot-loop) var(--ease-in-out) 8;
+}
+
+@keyframes mascot-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-2));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mascot-intro {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-6));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mascot-shrink {
+  from {
+    transform: scale(1.6);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@keyframes mascot-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mascot-hop {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  25%,
+  75% {
+    transform: translateY(calc(var(--space-2) * -1.25)) scaleY(1.03);
+  }
+
+  50% {
+    transform: scaleY(0.97);
+  }
+}
+
+@keyframes mascot-tilt {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  50% {
+    transform: rotate(-4deg);
+  }
+}
+
+@keyframes mascot-look {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  30%,
+  60% {
+    transform: scaleX(-1);
+  }
+}
+
+@keyframes mascot-breathe {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  50% {
+    transform: scaleY(1.015);
+  }
+}
+
+@keyframes mascot-sway {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  50% {
+    transform: rotate(2deg);
+  }
+}

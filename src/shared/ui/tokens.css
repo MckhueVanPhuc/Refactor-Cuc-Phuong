@@ -118,6 +118,19 @@
   --ease-out: ease-out;
   --ease-in: ease-in;
   --ease-in-out: ease-in-out;
+
+  /* §9.2 — mascot Mila (spec-Mascot §5.1; specs/005 mascot-ui-contract §4) */
+  --mascot-size-sm: 40px;
+  --mascot-size-md: 72px;
+  --mascot-size-lg: 160px;
+  --mascot-bubble-max-width: 280px;
+  /* §4.3 — chuyển động của Mila */
+  --duration-mascot-enter: 250ms;
+  --duration-mascot-exit: 200ms;
+  --duration-mascot-pop: 200ms;
+  --duration-mascot-hop: 600ms;
+  --duration-mascot-celebrate: 2400ms;
+  --duration-mascot-loop: 1200ms;
 }
 
 /* §4.3 — tôn trọng prefers-reduced-motion */
@@ -130,5 +143,11 @@
     --duration-toast-exit: 0ms;
     --duration-scanner-frame: 0ms;
     --duration-dialog: 0ms;
+    --duration-mascot-enter: 0ms;
+    --duration-mascot-exit: 0ms;
+    --duration-mascot-pop: 0ms;
+    --duration-mascot-hop: 0ms;
+    --duration-mascot-celebrate: 0ms;
+    --duration-mascot-loop: 0ms;
   }
 }
