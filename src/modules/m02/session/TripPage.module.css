@@ -5,8 +5,8 @@
  */
 .notice {
   margin: 0;
-  padding: var(--space-4) var(--space-5);
-  font-size: var(--font-size-body);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-meta);
   background: var(--m02-surface);
   backdrop-filter: var(--m02-glass-blur, none);
   border: var(--m02-notice-frame) solid var(--notice-accent);
@@ -101,11 +101,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   width: 100%;
-  min-height: calc(var(--touch-target-m01-primary) + var(--space-3));
+  /* CTA chính: cao 48 px, chữ 16 px (design-system §3) */
+  min-height: var(--touch-target-m01-primary);
   padding: 0 var(--space-4);
-  font: var(--font-weight-semibold) calc(var(--font-size-body) * 1.125) / 1 var(--font-sans);
+  font: var(--font-weight-semibold) var(--font-size-body) / 1 var(--font-sans);
   color: var(--color-paper);
   background: var(--scan-fill);
   border: var(--border-width-thin) solid color-mix(in srgb, var(--color-m01-amber) 35%, var(--scan-fill));
@@ -117,8 +118,8 @@
 /* Icon quét QR là mask: màu theo chữ của nút qua currentColor, kể cả khi nút bị khóa (design-system §7) */
 .scanIcon {
   flex: none;
-  width: var(--space-6);
-  height: var(--space-6);
+  width: var(--space-5);
+  height: var(--space-5);
   background: currentColor;
   mask: url('../../../../assets/icons/qr-scan.svg') center / contain no-repeat;
 }

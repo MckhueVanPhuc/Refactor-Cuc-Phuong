@@ -12,7 +12,7 @@ M02 tạo một phiên thực địa từ handoff hợp lệ của M01, hiển t
 
 Cách làm kỹ thuật:
 
-- **Frontend:** SPA React + TypeScript + Vite trong website/PWA dùng chung; route công khai `/trip`, `/trip/qr/:qrIdentifier`, `/trip/end`, `/q/:qrIdentifier`, lazy-load; scanner `@zxing/browser` lazy, đã precache ([research.md](research.md) R-03, R-13).
+- **Frontend:** SPA React + TypeScript + Vite trong website/PWA dùng chung; route công khai `/trip`, `/trip/qr/:qrIdentifier`, `/trip/end`, `/q/:qrIdentifier`, `/scan` (SCR-M02-005, 2026-11-21), lazy-load; scanner `@zxing/browser` lazy, đã precache ([research.md](research.md) R-03, R-13).
 - **Lưu trữ cục bộ:** 3 store M02 trong database Dexie dùng chung `cuc-phuong-quest` (khai báo bởi M01); mọi bước nghiệp vụ là một transaction ngắn: tạo/thay phiên, ghi lượt ghé, chuyển terminal + xếp hàng đợi (R-06, R-08, R-09).
 - **Nguồn:** RPC `api.lookup_qr` với timeout `LOOKUP_TIMEOUT_SECONDS` = 8 (**provisional**); Edge `session-intake` cho đồng bộ; signed URL cho media (R-08, R-11, R-12).
 - **Phạm vi:** M02 không có backend riêng. Tích hợp thật phụ thuộc M03 giai đoạn B (bị chặn) và package 001 (R-01).
@@ -146,6 +146,7 @@ e2e/m02/                              # Playwright (+ e2e/fixtures/*.y4m); phạ
 - **Kết thúc:** một transaction: trạng thái terminal + `endedAt` + `PendingSyncItem` với `SessionSyncRecord` bất biến.
 - **Đồng bộ:** tab giữ lock `cpq:m02:sync` gửi từng mục `PENDING` tới Edge `session-intake`; chỉ `syncStatus` đổi.
 - **Trang `/q/…`:** tự đóng → có phiên: `processScan('link')`; không: khách tự do, không ghi gì.
+- **Màn `/scan` (SCR-M02-005):** mở từ thanh tab M01; tự đóng phiên quá 24 giờ khi mở màn, rồi mỗi mã đọc được đi qua `processScannedText` như trình quét của `/trip`.
 - **Không có** ghi vào store M01, không lưu kết quả lookup, không gửi gì khác lên backend.
 
 ## Integration Contracts

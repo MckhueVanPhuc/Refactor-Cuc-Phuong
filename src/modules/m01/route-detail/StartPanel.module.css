@@ -5,21 +5,22 @@
 }
 
 .start {
-  --icon-size: var(--space-6);
+  --icon-size: var(--space-5);
   --start-fill: color-mix(in srgb, var(--color-m01-forest) 75%, var(--color-m01-amber));
 
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   width: 100%;
-  min-height: calc(var(--touch-target-m01-primary) + var(--space-3));
-  padding: 0 var(--space-6);
-  font: var(--font-weight-semibold) calc(var(--font-size-body) * 1.25) var(--font-sans);
+  /* CTA chính M01: cao 48 px, chữ 16 px (design-system §3) */
+  min-height: var(--touch-target-m01-primary);
+  padding: 0 var(--space-5);
+  font: var(--font-weight-semibold) var(--font-size-body) var(--font-sans);
   color: var(--color-paper);
   background: var(--start-fill);
   border: var(--border-width-thin) solid var(--color-m01-amber);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-modal);
   cursor: pointer;
 }

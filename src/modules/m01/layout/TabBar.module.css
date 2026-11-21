@@ -1,0 +1,107 @@
+/*
+ * Thanh tab dưới (design-system §5 "Tab bar"): nền trắng cố định ở đáy, bóng --shadow-bottom-nav, chừa vùng an toàn của
+ * điện thoại. Ba cột bằng nhau; nút Quét tròn forest nổi lên giữa, viền trắng. Chú thích 14 px dưới icon (§3).
+ */
+.bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  height: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px));
+  padding: 0 var(--space-2) calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+  background: var(--color-white);
+  border-top: var(--border-width-thin) solid var(--color-m01-line);
+  box-shadow: var(--shadow-bottom-nav);
+}
+
+.tab,
+.scan {
+  --focus-ring-color: var(--color-m01-forest);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  min-height: var(--touch-target);
+  font-size: var(--font-size-meta);
+  line-height: var(--line-height-heading);
+  text-align: center;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+
+.tab {
+  height: calc(var(--tab-bar-height) - var(--space-4));
+  color: var(--color-m01-secondary);
+}
+
+.icon {
+  --icon-size: var(--space-6);
+}
+
+/* Tab đang mở: forest, chữ đậm và vạch trên (không chỉ dựa vào màu, §5.3) */
+.tab[aria-current='page'] {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-forest);
+}
+
+.tab[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--space-2) * -1);
+  width: calc(var(--space-6) + var(--space-1));
+  height: calc(var(--border-width-thick) + var(--border-width-thin));
+  background: var(--color-m01-forest);
+  border-radius: var(--radius-sm);
+}
+
+.tab:hover {
+  color: var(--color-m01-forest);
+}
+
+.scan {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-forest);
+}
+
+/* Nút Quét nổi nửa thân trên mép thanh */
+.disc {
+  display: grid;
+  place-items: center;
+  width: var(--tab-scan-size);
+  height: var(--tab-scan-size);
+  margin-top: calc(var(--tab-scan-size) / -2);
+  color: var(--color-paper);
+  background: var(--color-m01-forest);
+  border: calc(var(--border-width-thick) * 2) solid var(--color-white);
+  border-radius: 50%;
+  box-shadow: var(--shadow-modal);
+}
+
+.scan:hover .disc {
+  background-image: linear-gradient(var(--overlay-fill-hover), var(--overlay-fill-hover));
+}
+
+.scan:active .disc {
+  background-image: linear-gradient(var(--overlay-fill-pressed), var(--overlay-fill-pressed));
+}
+
+.scanIcon {
+  --icon-size: calc(var(--space-6) + var(--space-1));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .disc {
+    transition: transform var(--duration-expand) var(--ease-out);
+  }
+
+  .scan:active .disc {
+    transform: scale(0.96);
+  }
+}

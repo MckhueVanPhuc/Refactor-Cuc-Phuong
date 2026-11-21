@@ -61,7 +61,7 @@
 
 ## 4. Embedded và background behavior
 
-Nút đổi ngôn ngữ VI/EN là control dùng chung có mặt trên mọi màn du khách (kể cả trang mở từ mã QR của M02); M01 là nơi duy nhất ghi `LanguagePreference`. Download progress, cảnh báo tiếp tục không tải và xác nhận xóa là panel/dialog trên 003/004. Handoff, kiểm tra package và làm mới chữ cốt lõi là background, không tạo màn hình thành công riêng.
+Nút đổi ngôn ngữ VI/EN là control dùng chung có mặt trên mọi màn du khách (kể cả trang mở từ mã QR của M02); M01 là nơi duy nhất ghi `LanguagePreference`. Thanh tab cố định ở đáy mọi màn M01 (2026-11-21) có ba mục Tuyến (001), Quét QR (SCR-M02-005) và Tài nguyên (004); đây là đường giữa 001/002/003 và 004, thay liên kết "Tài nguyên offline" trên thanh app. Download progress, cảnh báo tiếp tục không tải và xác nhận xóa là panel/dialog trên 003/004. Handoff, kiểm tra package và làm mới chữ cốt lõi là background, không tạo màn hình thành công riêng.
 
 ## 5. Navigation
 
@@ -74,6 +74,8 @@ flowchart LR
     C <--> D
     D --> C
     C -->|"Start hợp lệ"| E["SCR-M02-001"]
+    B --> D
+    A & B & C & D -->|"Tab Quét QR"| F["SCR-M02-005"]
 ```
 
 ## 6. FR coverage
