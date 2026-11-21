@@ -111,16 +111,19 @@ describe('step — chuyển trạng thái nền', () => {
     expect(shown.bubble?.messageId).toBe('MSG-MAS-051');
   });
 
-  it('không có slot cho mode: P6 bị bỏ; P4 chờ tối đa 4 giây (BR-MAS-05)', () => {
+  it('slot của màn chưa đăng ký: ý định mọi mức chờ tối đa 4 giây, hiện khi slot có (cuộc đua render)', () => {
     const noSlot = { ...CTX, availableModes: [] as const };
     const rules = [
       rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } })),
       rule('m02.scanner.closed', say({ priority: 4, message: { id: 'MSG-MAS-051' } })),
+      rule('m02.scanner.opened', say({ priority: 7, pose: 'binoculars' })),
     ];
     const p6 = step(initialState(), { type: 'm02.scanner.detected', at: 0 }, noSlot, rules).state;
-    expect(p6.queued).toBeNull();
+    expect(p6.queued).toMatchObject({ reason: 'slot' });
+    expect(step(p6, { type: 'mascot.slots.changed', at: 50 }, CTX, rules).state.bubble?.messageId).toBe('MSG-MAS-030');
+    const p7 = step(initialState(), { type: 'm02.scanner.opened', hasSession: true, k: 0, at: 0 }, noSlot, rules).state;
+    expect(step(p7, { type: 'mascot.slots.changed', at: 50 }, CTX, rules).state.view).toMatchObject({ pose: 'binoculars' });
     const p4 = step(initialState(), { type: 'm02.scanner.closed', at: 0 }, noSlot, rules).state;
-    expect(p4.queued).not.toBeNull();
     const late = step(p4, { type: 'mascot.slots.changed', at: 4_001 }, CTX, rules).state;
     expect(late).toMatchObject({ queued: null, bubble: null });
   });

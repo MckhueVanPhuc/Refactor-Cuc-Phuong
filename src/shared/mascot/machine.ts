@@ -105,6 +105,7 @@ function applyRules(s: MascotState, event: StampedEvent, ctx: StepContext, rules
       else s.timers[name] = event.at + delay;
     }
     for (const key of result.once ?? []) s.once[key] = true;
+    for (const effect of result.effects ?? []) if (!(effect.kind === 'vibrate' && ctx.reducedMotion)) effects.push(effect);
     intents.push(...(result.intents ?? []));
   }
   intents.sort((a, b) => a.priority - b.priority);

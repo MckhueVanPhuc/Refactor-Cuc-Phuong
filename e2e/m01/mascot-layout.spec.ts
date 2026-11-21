@@ -4,6 +4,9 @@ import { expect, test } from '@playwright/test';
 import { checkLayoutAcrossWidths } from '../mascot-helpers';
 import { chooseLanguage, mockPublication } from './network';
 
+// Bốn chiều rộng × nhiều màn: lâu hơn mức 30 s mặc định khi máy tải nặng
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ locale: 'vi-VN' });
 
 test('SCR-M01-001…004', async ({ page }) => {

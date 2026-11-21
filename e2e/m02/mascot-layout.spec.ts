@@ -23,6 +23,9 @@ async function scan(page: Page, qr: string) {
   await page.evaluate((text) => (window as unknown as M02TestWindow).__cpqTestHooks!.m02!.scan!(text), `${BASE}/q/${qr}`);
 }
 
+// Bốn chiều rộng × nhiều màn: lâu hơn mức 30 s mặc định khi máy tải nặng
+test.describe.configure({ timeout: 120_000 });
+
 test('SCR-M02-001 chuyến đi và SCR-M02-002 nội dung', async ({ page }) => {
   await prepare(page);
   await page.goto('/');

@@ -114,3 +114,37 @@ Branch `feat/mascot-us1`, tách từ `feat/mascot-us3` (PR #56). Task: T031–T0
 | DV-15 | MAS-B-001 hiện sau 300 ms bằng hẹn giờ của luật (danh mục và slot chưa render lúc sự kiện tới) | Áp dụng (đúng Delay của Behavior Matrix) |
 | DV-16 | Hero danh mục: nút "Gợi ý tuyến" và slot `catalog-hero` cùng một hàng (`heroActions`), xuống dòng khi hẹp; INTRO đẩy danh mục xuống trong lúc giới thiệu (không đè) | Áp dụng |
 | DV-17 | `MAS-B-004` "ngôn ngữ có từ trước khi tải trang" suy ra từ việc không có `m01.language.selected` trong lần tải trang (không đọc dữ liệu M01) | Áp dụng |
+
+## 4. Đợt 2026-11-21 — Phase 5: US2 "Mila ăn mừng tiến độ có thật" (US-MAS-02)
+
+Branch `feat/mascot-us2`, tách từ `feat/mascot-us1` (PR #58). Task: T037–T042.
+
+### 4.1 Test viết trước
+
+| Test | Kết quả trước khi cài |
+|---|---|
+| `rules.test.ts` US2 (051, 055, 050 xoay câu cổ vũ, điểm cuối chỉ rung, 033 tư thế theo tiến độ, 061) | FAIL 6 ca; 3 ca "không làm gì" (053 phát lại cùng lượt ghé, giảm chuyển động không rung, khách tự do) đạt ngay |
+| `e2e/m02/mascot-visit.spec.ts` Q4–Q6 | FAIL trước khi có slot và điểm phát |
+| `machine.test.ts` ca "slot chưa đăng ký" (DV-18) | Sửa test và mã **cùng một lượt**, không chạy riêng bước FAIL |
+
+### 4.2 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx vitest run src/shared/mascot` | 0 | 76 pass |
+| `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` (server mới, DV-19) | 0 | 91 pass |
+| `npx playwright test --project=m01 <spec trace tạm> --repeat-each=10` | 0 | 10/10 lần có lời giới thiệu (spec và đoạn trace tạm đã gỡ) |
+| `npm run ci` | 0 | lint 708; 2290 pass, 133 skipped; build OK |
+| Chụp màn hình 390 px (spec tạm, đã xóa) | — | Chuyến đi: Mila DOCK "ống nhòm" trên nút Quét QR. Nội dung: bong bóng 051 dưới ảnh đầu trang, toast cũ giữ nguyên phía trên, không đè |
+
+### 4.3 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-18 | Trọng tài: ý định bị chặn **chỉ vì slot của màn chưa đăng ký** (cuộc đua render: sự kiện tới trước khi slot mount) được chờ trong hàng đợi, mọi mức ưu tiên, TTL 4 s; hiện ngay khi slot có. Quy tắc "P5–P7 không chờ" (BR-MAS-05) giữ nguyên cho trường hợp đang có bong bóng khác (`queued.reason = 'busy'`). Không có thay đổi này, tư thế DOCK khi quay về `/trip` và lời giới thiệu đôi khi bị bỏ | Áp dụng; cập nhật State Machine §5.2 ở T071 |
+| DV-19 | Hai server Vite (`dev:fake` 5174, `preview:e2e` 4173) của một lượt E2E bị ngắt giữa chừng còn chạy; `reuseExistingServer` khiến các lượt sau dùng **bản build cũ**, gây lỗi giả. Đã dừng hai tiến trình (kiểm dòng lệnh trước), chạy lại toàn bộ trên server mới. Từ đây kiểm cổng 4173/5174 trống trước khi chạy E2E | Ghi nhận |
+| DV-20 | `RuleResult.effects`: luật trả hiệu ứng không kèm lời (rung ở điểm cuối, BR-MAS-19); rung bị bỏ khi giảm chuyển động | Áp dụng |
+| DV-21 | Slot `content-toast` nằm dưới ảnh đầu trang, không ở đầu trang: toast cũ là lớp cố định dưới thanh app nên đặt trên sẽ đè | Áp dụng |
+| DV-22 | MAS-B-061 chọn slot đang có: DOCK ở `/trip`, AVATAR ở trang nội dung (câu hỏi cuối chuyến thường hiện ở trang nội dung) | Áp dụng |
+| DV-23 | E2E giới thiệu (US1) ghi lại mọi câu Mila nói bằng MutationObserver và khẳng định thứ tự, thay vì nhìn một thời điểm (câu 001 chỉ hiện ~3,8 s). Thử `page.clock` không dùng được: đồng hồ giả làm treo phần đọc IndexedDB và nạp danh mục | Áp dụng |
+| DV-24 | Spec bố cục (4 chiều rộng × nhiều màn) đặt timeout 120 s | Áp dụng |

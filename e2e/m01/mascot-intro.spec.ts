@@ -1,35 +1,67 @@
 // Làm quen với Mila (specs/005 tasks T032; US-MAS-01; Q1, Q2, Q13). Build `preview:e2e` bật VITE_FEATURE_MASCOT.
-import { expect, test } from '@playwright/test';
+// Câu 001 chỉ hiện ~3,8 s; máy tải nặng có thể bỏ lỡ nếu chỉ nhìn một thời điểm. Một MutationObserver ghi lại mọi câu
+// Mila đã nói theo thứ tự (`window.__mascotSeen`), nên test khẳng định thứ tự mà không phụ thuộc giờ.
+import { expect, test, type Page } from '@playwright/test';
 import { chooseLanguage, mockPublication } from './network';
 
 test.use({ locale: 'vi-VN' });
 
-const bubble = (page: import('@playwright/test').Page, id: string) => page.locator(`[data-mascot-message="${id}"]`);
+type SeenWindow = { __mascotSeen?: Array<{ id: string; text: string }> };
 
-test('Q1 — chọn ngôn ngữ lần đầu: Mila giới thiệu 001 rồi 002, danh mục vẫn bấm được; đổi EN giữ câu', async ({ page }) => {
+async function recordMascot(page: Page) {
+  await page.addInitScript(() => {
+    const seen: Array<{ id: string; text: string }> = [];
+    (window as unknown as SeenWindow).__mascotSeen = seen;
+    new MutationObserver(() => {
+      for (const element of document.querySelectorAll('[data-mascot-message]')) {
+        const id = element.getAttribute('data-mascot-message') ?? '';
+        const text = element.textContent ?? '';
+        const last = seen[seen.length - 1];
+        if (!last || last.id !== id || last.text !== text) seen.push({ id, text });
+      }
+    }).observe(document, { subtree: true, childList: true, characterData: true, attributes: true });
+  });
+}
+
+const seenIds = (page: Page) => page.evaluate(() => ((window as unknown as SeenWindow).__mascotSeen ?? []).map((entry) => entry.id));
+
+test('Q1 — chọn ngôn ngữ lần đầu: Mila giới thiệu 001 rồi 002 rồi về DOCK; danh mục vẫn bấm được', async ({ page }) => {
+  await recordMascot(page);
   await mockPublication(page);
   await page.goto('/');
   await chooseLanguage(page);
-  await expect(bubble(page, 'MSG-MAS-001')).toHaveText('Chào bạn! Mình là Mila, rái cá thám hiểm của Cúc Phương.');
-  await expect(page.locator('[data-mascot-mode="INTRO"]')).toBeVisible();
   await expect(page.getByRole('link', { name: /Tuyến thử Ao Hồ/ })).toBeVisible();
+  await expect.poll(() => seenIds(page), { timeout: 20_000 }).toEqual(['MSG-MAS-001', 'MSG-MAS-002']);
+  await expect(page.locator('[data-mascot-slot="catalog-hero"] [data-mascot-mode="DOCK"]')).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator('[data-mascot-message]')).toHaveCount(0);
+  const texts = await page.evaluate(() => (window as unknown as SeenWindow).__mascotSeen!.map((entry) => entry.text));
+  expect(texts[0]).toBe('Chào bạn! Mình là Mila, rái cá thám hiểm của Cúc Phương.');
+});
 
+test('Q1b — đổi EN khi Mila đang giới thiệu: cùng câu, chữ tiếng Anh', async ({ page }) => {
+  await recordMascot(page);
+  await mockPublication(page);
+  await page.goto('/');
+  await chooseLanguage(page);
+  const intro = page.locator('[data-mascot-mode="INTRO"] [data-mascot-message]');
+  await expect(intro).toBeVisible();
+  const id = await intro.getAttribute('data-mascot-message');
   await page.getByRole('button', { name: 'EN', exact: true }).click();
-  await expect(bubble(page, 'MSG-MAS-001')).toHaveText("Hi! I'm Mila, Cúc Phương's otter explorer.");
-  await expect(bubble(page, 'MSG-MAS-002')).toBeVisible({ timeout: 10_000 });
-  await expect(page.locator('[data-mascot-mode="DOCK"]')).toBeVisible({ timeout: 10_000 });
+  const english = { 'MSG-MAS-001': "Hi! I'm Mila, Cúc Phương's otter explorer.", 'MSG-MAS-002': "I'll be with you all the way. Let's pick a route!" };
+  await expect(page.locator(`[data-mascot-message="${id}"]`)).toHaveText(english[id as keyof typeof english]);
 });
 
 test('Q2 — tải lại (đã có ngôn ngữ): không giới thiệu, chào mừng quay lại một lần', async ({ page }) => {
+  await recordMascot(page);
   await mockPublication(page);
   await page.goto('/');
   await chooseLanguage(page);
-  await expect(bubble(page, 'MSG-MAS-001')).toBeVisible();
+  await expect.poll(() => seenIds(page)).toContain('MSG-MAS-001');
   await page.reload();
-  await expect(bubble(page, 'MSG-MAS-004')).toBeVisible();
-  await expect(bubble(page, 'MSG-MAS-001')).toHaveCount(0);
+  await expect(page.locator('[data-mascot-message="MSG-MAS-004"]')).toBeVisible();
+  expect(await seenIds(page)).toEqual(['MSG-MAS-004']);
   await page.getByRole('button', { name: 'Đóng lời nhắn' }).click();
-  await expect(bubble(page, 'MSG-MAS-004')).toHaveCount(0);
+  await expect(page.locator('[data-mascot-message]')).toHaveCount(0);
   await expect(page.locator('[data-mascot-mode="DOCK"]')).toBeVisible();
 });
 

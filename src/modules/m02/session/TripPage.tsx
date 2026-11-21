@@ -5,6 +5,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { PATHS } from '../../../app/paths';
+import { emitMascotEvent, MascotFigure, MascotSlot } from '../../../shared/mascot/index';
 import { ScanNotice, type ScanNoticeKind } from '../content/ScanNotice';
 import { FinalPrompt } from '../end/FinalPrompt';
 import { useEndTrip } from '../end/useEndTrip';
@@ -68,6 +69,7 @@ function EntryNotice({ result }: { result: EntryResult }) {
     case 'FREE':
       return (
         <div className={`${styles.notice} ${styles.warning}`} role="alert">
+          <MascotFigure pose="confused" size="sm" />
           <p className={styles.noticeText}>
             {result.kind === 'FREE' ? messages.handoff.none : messages.handoff[REJECT_MESSAGE[result.reason]]}
           </p>
@@ -111,6 +113,7 @@ export function TripPage() {
 
   const finalId = session ? finalCheckpointId(session) : undefined;
   const finalVisited = visits.status === 'ready' && visits.value.some((visit) => visit.checkpointId === finalId);
+  useTripMascotSignals(entry, session?.journeyCheckpoints.length ?? null, visits.status === 'ready' ? visits.value.length : null, finalVisited);
 
   const handleText = useCallback(
     async (text: string) => {
@@ -164,6 +167,10 @@ export function TripPage() {
       </div>
       {entry.status === 'done' && (
         <div className={styles.actions}>
+          {/* Mila đứng trên nút Quét, tư thế theo tiến độ (MAS-B-033; specs/005 T042) */}
+          <div className={styles.dock}>
+            <MascotSlot id="trip-dock" modes={['DOCK']} />
+          </div>
           <button type="button" className={styles.scan} onClick={() => setScanning(true)} disabled={lookingUp}>
             <span className={styles.scanIcon} aria-hidden="true" />
             {messages.trip.scan}
@@ -185,4 +192,23 @@ export function TripPage() {
       )}
     </FieldLayout>
   );
+}
+
+/**
+ * Tín hiệu cho Mila (specs/005 contracts/mascot-event-contract.md §3; T042): kết quả vào chuyến (một lần mỗi lần mở
+ * màn) và tiến độ hành trình mỗi khi đổi. `journeyLength` null = không có phiên; `visitCount` null = đang đọc.
+ */
+function useTripMascotSignals(entry: EntryState, journeyLength: number | null, visitCount: number | null, finalVisited: boolean) {
+  const hasSession = journeyLength !== null;
+  const ready = entry.status === 'done' && (!hasSession || visitCount !== null);
+  const entered = useRef(false);
+  useEffect(() => {
+    if (!ready || entered.current || entry.status !== 'done') return;
+    entered.current = true;
+    emitMascotEvent({ type: 'm02.trip.entered', kind: entry.result.kind, hasSession, k: visitCount ?? 0, n: journeyLength ?? 0 });
+  }, [ready, entry, hasSession, visitCount, journeyLength]);
+  useEffect(() => {
+    if (!ready) return;
+    emitMascotEvent({ type: 'm02.trip.shown', hasSession, k: visitCount ?? 0, n: journeyLength ?? 0, finalVisited });
+  }, [ready, hasSession, visitCount, journeyLength, finalVisited]);
 }
