@@ -33,7 +33,7 @@
 
 .name {
   font-family: var(--font-serif);
-  font-size: var(--font-size-m01-route-title);
+  font-size: var(--font-size-section-title);
   font-weight: var(--font-weight-regular);
   color: var(--color-m01-deep);
 }
@@ -52,7 +52,7 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  min-height: calc(var(--space-6) + var(--space-1));
+  min-height: var(--chip-height);
   padding: 0 var(--space-2);
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
@@ -92,10 +92,12 @@
 }
 
 .action {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  min-height: var(--touch-target);
-  padding: 0 var(--space-4);
+  /* Nút phụ nhìn cao 36 px; ::after giữ vùng chạm 44 px (design-system §3 Button) */
+  min-height: var(--control-height-compact);
+  padding: 0 var(--space-3);
   font: var(--font-weight-semibold) var(--font-size-meta) var(--font-sans);
   color: var(--color-m01-forest);
   text-decoration: none;
@@ -103,6 +105,12 @@
   border: var(--border-width-thin) solid var(--color-m01-forest);
   border-radius: var(--radius-md);
   cursor: pointer;
+}
+
+.action::after {
+  content: '';
+  position: absolute;
+  inset: calc((var(--control-height-compact) - var(--touch-target)) / 2) 0;
 }
 
 .action:hover {

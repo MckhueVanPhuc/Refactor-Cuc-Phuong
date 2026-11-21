@@ -1,0 +1,90 @@
+/*
+ * SCR-M02-005 Quét QR trên bề mặt scanner (FieldLayout): khi camera đóng hoặc kết quả ở lại màn này, thông báo là lớp
+ * kính mờ có khung semantic, nút Quét lại và Quay lại ở đáy màn như SCR-M02-001 (design-system §5 "M02").
+ */
+.notice {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-meta);
+  background: var(--m02-surface);
+  backdrop-filter: var(--m02-glass-blur, none);
+  border: var(--m02-notice-frame) solid var(--m02-info);
+  border-left-width: var(--m02-notice-stripe);
+  border-radius: var(--m02-notice-radius);
+}
+
+.actions {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  gap: var(--space-2);
+  margin: auto calc(var(--space-5) * -1) 0;
+  padding: var(--space-6) var(--space-5) max(var(--space-4), env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, color-mix(in srgb, var(--color-m02-scanner-bg) 82%, transparent) 55%);
+}
+
+/* Quét lại: CTA chính như nút Quét của SCR-M02-001 (cao 48 px, chữ 16 px) */
+.scan {
+  --scan-fill: color-mix(in srgb, var(--color-m01-forest) 75%, var(--color-m01-amber));
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--touch-target-m01-primary);
+  padding: 0 var(--space-4);
+  font: var(--font-weight-semibold) var(--font-size-body) / 1 var(--font-sans);
+  color: var(--color-paper);
+  background: var(--scan-fill);
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-m01-amber) 35%, var(--scan-fill));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  cursor: pointer;
+}
+
+.scanIcon {
+  flex: none;
+  width: var(--space-5);
+  height: var(--space-5);
+  background: currentColor;
+  mask: url('../../../../assets/icons/qr-scan.svg') center / contain no-repeat;
+}
+
+.scan:hover:not(:disabled) {
+  background-image: linear-gradient(var(--overlay-fill-hover), var(--overlay-fill-hover));
+}
+
+.scan:disabled {
+  cursor: not-allowed;
+  color: var(--color-m02-scanner-secondary);
+  background: var(--m02-surface);
+  border-color: var(--color-m02-scanner-secondary);
+  box-shadow: none;
+}
+
+.back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  font: var(--font-weight-semibold) var(--font-size-body) / 1 var(--font-sans);
+  color: var(--color-m02-scanner-text);
+  background: var(--m02-surface);
+  backdrop-filter: var(--m02-glass-blur, none);
+  border: var(--border-width-thin) solid var(--m02-surface-frame);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+
+.back:hover {
+  background-image: linear-gradient(var(--overlay-scanner-hover), var(--overlay-scanner-hover));
+}
+
+.scan:focus-visible,
+.back:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}

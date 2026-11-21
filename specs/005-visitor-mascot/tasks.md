@@ -35,7 +35,7 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 - [X] T001 [P] Thêm biến tùy chọn `VITE_FEATURE_MASCOT` (`on` | `off`, thiếu = `off`) vào schema trong `src/shared/config/env.ts` và tạo `src/shared/mascot/flag.ts` export `isMascotEnabled(): boolean`; test trong `src/shared/config/env.test.ts` (thiếu → off; giá trị lạ → lỗi khởi động nêu tên biến như các biến khác) (research R-13)
 - [X] T002 [P] Thêm `VITE_FEATURE_MASCOT` vào `.env.example` (`off`, kèm chú thích "công tắc phát hành Mila, không phải secret"), `.env.fake` (`on`) và `.env.e2e` (`on`)
 - [X] T003 [P] Thêm token `--mascot-size-sm/md/lg`, `--mascot-bubble-max-width`, `--duration-mascot-enter/-exit/-pop/-hop/-celebrate/-loop` vào `src/shared/ui/tokens.css` theo [mascot-ui-contract §4](contracts/mascot-ui-contract.md), và đặt mọi `--duration-mascot-*` = 0ms trong khối `@media (prefers-reduced-motion: reduce)` hiện có
-- [X] T004 [P] Trong `vite.config.ts`: (a) `chunkPrefix` trả `mascot` khi mọi module id nằm dưới `src/shared/mascot/` hoặc `src/app/mascot/`; (b) thêm `assets/ma-*-240-*.webp` vào `workbox.globPatterns`, không thêm `webp` chung (research R-09)
+- [X] T004 [P] Trong `vite.config.ts`: (a) `chunkPrefix` trả `mascot` khi mọi module id nằm dưới `src/shared/mascot/` hoặc `src/app/mascot/`; (b) thêm `assets/ma-*-240-*.webp` và `assets/ma-11-avatar-96-*.webp` vào `workbox.globPatterns`, không thêm `webp` chung (research R-09)
 - [X] T005 [P] Tạo `assets/mascot/README.md` ghi quy ước thư mục `source/` (PNG gốc người dùng cung cấp) và `web/` (WebP 240/480 do agent xuất), tên `ma-<nn>-<name>-<size>.webp` ([Asset spec](../../docs/mascot/MASCOT_ASSET_SPECIFICATION.md) §3, §5); chưa thêm ảnh nào
 
 ---
@@ -249,7 +249,7 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ## Phase 11: Polish & Cross-Cutting Concerns
 
-- [ ] T067 [P] Viết `e2e/m01/mascot-precache.spec.ts`: tải `/sw.js` của `preview:e2e`, khẳng định có chunk `mascot` và (khi có ảnh) chỉ `ma-*-240-*.webp`, không `-480-`, không `.jpg` (MAS-TC-062, 090)
+- [ ] T067 [P] Viết `e2e/m01/mascot-precache.spec.ts`: tải `/sw.js` của `preview:e2e`, khẳng định có chunk `mascot` và (khi có ảnh) chỉ `ma-*-240-*.webp` cùng `ma-11-avatar-96-*.webp`, không `-480-`, không `-192-`, không `.jpg` (MAS-TC-062, 090)
 - [ ] T068 [P] Chạy `VITE_FEATURE_MASCOT=off npx vitest run` và một test component `src/app/App.mascot.test.tsx` khẳng định cờ off không `import()` host và không có `[data-mascot-slot]` có nội dung (Q17, MAS-TC-045)
 - [ ] T069 Rà toàn bộ bằng skill `frontend-design` trên `dev:fake` ở 320/390 px: bong bóng, DOCK, INTRO, CELEBRATE đúng design-system §9; không đổi bố cục đã duyệt của SCR-M02-001/002/003
 - [ ] T070 **(Chặn bởi OD-MAS-06, 07)** Khi người dùng giao PNG gốc vào `assets/mascot/source/` và xác nhận quyền: xuất `assets/mascot/web/ma-*-{240,480}.webp` (avatar 96/192) bằng công cụ chạy ngoài repo, không thêm dependency; đo dung lượng từng tệp và tổng precache so với MAS-NFR-01; kiểm viền alpha; ghi số đo vào validation report

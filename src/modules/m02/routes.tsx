@@ -1,5 +1,6 @@
-// Bốn route của M02, nạp lazy theo màn (tasks T024; field-ui-flow-contract §1). Tên chunk theo thư mục
-// (`m02-trip`, `m02-content`, `m02-end`, `m02-qr-link`; vite.config.ts). Không route nào đi qua LanguageGate của M01:
+// Route của M02, nạp lazy theo màn (tasks T024; field-ui-flow-contract §1). Tên chunk theo thư mục
+// (`m02-trip`, `m02-content`, `m02-end`, `m02-qr-link`, `m02-scan`; vite.config.ts). `/scan` là màn Quét QR mở từ thanh
+// tab M01 (SCR-M02-005, 2026-11-21). Không route nào đi qua LanguageGate của M01:
 // trang mở từ camera điện thoại phải hiện nội dung ngay theo ngôn ngữ thiết bị (BR-M02-024).
 import { lazy, Suspense, type ComponentType, type ReactNode } from 'react';
 import { Route } from 'react-router';
@@ -13,6 +14,7 @@ const TripPage = lazyNamed(() => import('./session/TripPage'), 'TripPage');
 const ContentPage = lazyNamed(() => import('./content/ContentPage'), 'ContentPage');
 const EndPage = lazyNamed(() => import('./end/EndPage'), 'EndPage');
 const QrLinkPage = lazyNamed(() => import('./qr-link/QrLinkPage'), 'QrLinkPage');
+const ScanPage = lazyNamed(() => import('./scan/ScanPage'), 'ScanPage');
 
 function Lazy({ children }: { children: ReactNode }) {
   return <Suspense fallback={null}>{children}</Suspense>;
@@ -26,5 +28,6 @@ export const m02Routes = (
       <Route path="end" element={<Lazy><EndPage /></Lazy>} />
     </Route>
     <Route path="/q/:qrIdentifier" element={<Lazy><QrLinkPage /></Lazy>} />
+    <Route path={PATHS.scan} element={<Lazy><ScanPage /></Lazy>} />
   </>
 );

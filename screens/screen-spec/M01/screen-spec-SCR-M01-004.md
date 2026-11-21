@@ -46,7 +46,8 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 16 | E-SCR-M01-004-16 | Storage failure note | Text | Lỗi lưu trữ cục bộ | Conditional | Bỏ candidate, giữ package sẵn sàng hiện có; báo tải chưa hoàn tất và cho thử lại (spec-M01 §5.4) |
 | 17 | E-SCR-M01-004-17 | Scan hint line | Text | Một dòng: không có mạng thì check-in bằng nút Quét trong ứng dụng | Conditional | Hiện khi có package sẵn sàng (US-M01-03 mục 5) |
 | 18 | E-SCR-M01-004-18 | Empty state | Text | Chưa có package nào | Conditional | Hiện khi không có package local |
-| 19 | E-SCR-M01-004-19 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Panel gói (AVATAR, INLINE); trạng thái rỗng (INLINE). Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17) |
+| 19 | E-SCR-M01-004-19 | Tab bar | Thanh tab cố định ở đáy (design-system §5.2; 2026-11-21) | Như E-SCR-M01-001-20: Tuyến · Quét QR · Tài nguyên | Yes | Tab của màn đang mở được đánh dấu, không chỉ bằng màu |
+| 20 | E-SCR-M01-004-20 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Panel gói (AVATAR, INLINE); trạng thái rỗng (INLINE). Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17) |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới.
 
@@ -103,6 +104,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 4 | Xác nhận xóa | Tap | Xóa package và dữ liệu cục bộ đi kèm; trạng thái về chưa tải | State: `CHUA_TAI` |
 | 5 | Hủy xác nhận | Tap | Đóng dialog, không đổi gì | Previous state |
 | 6 | Language control | Đổi VI/EN | Cập nhật preference | State update |
+| 7 | Thanh tab | Tap Tuyến / Quét QR / Tài nguyên | Mở màn tương ứng; Quét QR bật camera ngay | `SCR-M01-001` / `SCR-M02-005` / `SCR-M01-004` |
 
 ## 6. Screen-level rules
 

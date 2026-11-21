@@ -80,7 +80,7 @@ describe('CatalogPage', () => {
     expect(
       await screen.findByText('Chưa tải được danh sách tuyến. Hãy kiểm tra kết nối và thử lại.'),
     ).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Tài nguyên offline' }).getAttribute('href')).toBe('/offline');
+    expect(screen.getByRole('link', { name: 'Tài nguyên' }).getAttribute('href')).toBe('/offline');
   });
 
   it('Stale/offline: đã có local view, làm mới lỗi → giữ danh sách kèm nhãn dữ liệu cũ', async () => {

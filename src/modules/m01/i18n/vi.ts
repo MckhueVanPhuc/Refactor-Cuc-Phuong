@@ -10,6 +10,11 @@ export const vi = {
     catalog: 'Danh mục tuyến',
     recommend: 'Gợi ý tuyến',
     offline: 'Tài nguyên offline',
+    // Thanh tab dưới (bảng copy SCR-M01-001, 2026-11-21): chú thích ngắn dưới icon
+    tabBarLabel: 'Điều hướng chính',
+    tabRoutes: 'Tuyến',
+    tabScan: 'Quét QR',
+    tabResources: 'Tài nguyên',
   },
   screenTitle: {
     catalog: 'Danh mục tuyến',
@@ -63,6 +68,8 @@ export const vi = {
   // SCR-M01-002
   recommend: {
     submit: 'Xem tuyến phù hợp',
+    // Tiêu đề trang kết quả (bảng copy SCR-M01-002, 2026-11-21)
+    resultsTitle: 'Tuyến phù hợp',
     noMatch: 'Chưa có tuyến phù hợp với lựa chọn của bạn. Bạn có thể đổi tiêu chí hoặc xem tất cả tuyến.',
     changeChoices: 'Đổi tiêu chí',
     seeAllRoutes: 'Xem tất cả tuyến',

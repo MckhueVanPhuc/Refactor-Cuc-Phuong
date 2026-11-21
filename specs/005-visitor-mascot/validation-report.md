@@ -55,6 +55,24 @@ Branch `feat/mascot-foundation`, tách từ `docs/mascot-baseline` (PR #52). Tas
 
 Checkpoint Phase 2 **đạt**: engine, host, slot, catalog có test; app chạy như cũ khi bật Mila (chưa có luật nên chưa hiện gì).
 
+### 1.6 Sửa sau review PR #55 (2026-11-21)
+
+| # | Vấn đề | Sửa |
+|---|---|---|
+| RV-1 | Precache chỉ có cỡ 240; avatar (MA-11) chỉ có cỡ 96/192 nên ảnh AVATAR không có khi offline → `onError` → Mila ẩn tới khi tải lại trang | Thêm mẫu `assets/ma-11-avatar-96-*.webp` vào `globPatterns`; cập nhật research R-09, quickstart, T004, T067 |
+| RV-2 | `Dialog` phát mở/đóng theo từng hộp: hai hộp chồng nhau, đóng một hộp là gỡ chặn dù hộp kia còn mở | `holdMascotSignal` trong `events.ts` đếm số nguồn: chỉ phát khi hộp đầu tiên mở và hộp cuối cùng đóng; contract §3 dòng `app.dialog.changed` cập nhật |
+| RV-3 | Chống trùng 500 ms (BR-MAS-06) nuốt tín hiệu trạng thái lặp lại: mở → đóng → mở hộp thoại (hoặc phát → dừng → phát) trong 500 ms thì lần mở thứ hai bị bỏ, Mila nói khi đang có hộp thoại | `machine.ts`: `app.dialog.changed`, `m02.media.playing/stopped`, `m02.notice.autoEndShown/Hidden` không chống trùng (engine áp chúng idempotent) |
+
+Test mới: `events.test.ts` (holdMascotSignal), `machine.test.ts` (tín hiệu trạng thái không chống trùng), `Dialog.test.tsx` (hai hộp thoại). Lệnh: xem §1.7.
+
+### 1.7 Lệnh kiểm chứng sau review
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx vitest run src/shared/mascot src/shared/ui/Dialog.test.tsx src/app` | 0 | 15 file, 103 test pass |
+| `npm run ci` (sau khi merge `main` qua PR #52) | 0 | lint token 721 pass; 165 file pass + 1 skipped, 2289 pass, 133 skipped; build precache 94 mục |
+| Mẫu `ma-11-avatar-96-*.webp` khớp tệp trong `dist/` | NOT RUN | Chưa có ảnh production (OD-MAS-06); kiểm ở T067/T070 |
+
 ## 2. Đợt 2026-11-21 — Phase 3: US3 "Mila tránh đường" (US-MAS-05)
 
 Branch `feat/mascot-us3`, tách từ `feat/mascot-foundation` (PR #55). Task: T024–T030.
@@ -83,6 +101,14 @@ Branch `feat/mascot-us3`, tách từ `feat/mascot-foundation` (PR #55). Task: T0
 | DV-11 | E2E an toàn/bố cục của US3 chưa có Mila để kiểm; giữ để chạy lại ở mỗi story có slot (T026). Q13 (giảm chuyển động) chuyển sang E2E của US1 khi INTRO có trên màn | Áp dụng |
 | DV-12 | Test E2E: phải chờ nút "Quét QR" (khớp chính xác tên, vì mục hành trình đã quét có chữ "Đã quét QR") trước khi gọi hook quét | Áp dụng |
 | DV-13 | `MediaList`: tệp bị gỡ khỏi DOM khi đang phát (đổi VI/EN) cũng phát `m02.media.stopped`, để Mila không im mãi | Áp dụng |
+
+### 2.4 Sửa sau review PR #56 (2026-11-21)
+
+| # | Vấn đề | Sửa |
+|---|---|---|
+| RV-4 | `MediaList` phát playing/stopped theo từng tệp: hai tệp cùng phát, dừng một tệp là gỡ chặn dù tệp kia còn phát | Dùng `holdMascotSignal('media', …)` (§1.6 RV-2): `playing` khi tệp đầu tiên phát, `stopped` khi tệp cuối cùng dừng hoặc bị gỡ; contract §3 dòng `m02.media.*` cập nhật. Test mới trong `mascotSignals.test.tsx` |
+
+Lệnh: `npx vitest run src/modules/m02/content src/shared/mascot` → 15 file, 101 test pass; `npm run ci`: xem §3.4.
 
 ## 3. Đợt 2026-11-21 — Phase 4: US1 "Làm quen với Mila" (US-MAS-01)
 
@@ -114,6 +140,15 @@ Branch `feat/mascot-us1`, tách từ `feat/mascot-us3` (PR #56). Task: T031–T0
 | DV-15 | MAS-B-001 hiện sau 300 ms bằng hẹn giờ của luật (danh mục và slot chưa render lúc sự kiện tới) | Áp dụng (đúng Delay của Behavior Matrix) |
 | DV-16 | Hero danh mục: nút "Gợi ý tuyến" và slot `catalog-hero` cùng một hàng (`heroActions`), xuống dòng khi hẹp; INTRO đẩy danh mục xuống trong lúc giới thiệu (không đè) | Áp dụng |
 | DV-17 | `MAS-B-004` "ngôn ngữ có từ trước khi tải trang" suy ra từ việc không có `m01.language.selected` trong lần tải trang (không đọc dữ liệu M01) | Áp dụng |
+
+### 3.4 Lệnh kiểm chứng sau review (PR #55, #56)
+
+Branch `feat/mascot-us3` sau khi merge `feat/mascot-foundation` (đã có `main` qua PR #52) và sửa RV-4.
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` (typecheck → lint → test → build) | 0 | lint token 724 pass; 168 file pass + 1 skipped, 2315 pass, 133 skipped; build precache 96 mục |
+| E2E (`npx playwright test`) | NOT RUN ở máy local | Chạy trên CI của PR |
 
 ## 4. Đợt 2026-11-21 — Phase 5: US2 "Mila ăn mừng tiến độ có thật" (US-MAS-02)
 
@@ -149,6 +184,16 @@ Branch `feat/mascot-us2`, tách từ `feat/mascot-us1` (PR #58). Task: T037–T0
 | DV-23 | E2E giới thiệu (US1) ghi lại mọi câu Mila nói bằng MutationObserver và khẳng định thứ tự, thay vì nhìn một thời điểm (câu 001 chỉ hiện ~3,8 s). Thử `page.clock` không dùng được: đồng hồ giả làm treo phần đọc IndexedDB và nạp danh mục | Áp dụng |
 | DV-24 | Spec bố cục (4 chiều rộng × nhiều màn) đặt timeout 120 s | Áp dụng |
 
+### 4.4 Đồng bộ với `main` và các sửa review (2026-11-21)
+
+Merge `feat/mascot-us3` (đã có `main` qua #53, #54, #57, #59; US1 qua #58; sửa review RV-1…RV-4) vào `feat/mascot-us2`. Một xung đột chữ (báo cáo này, giữ cả hai phía). Không xung đột code; code US2 không đụng `Dialog`, `MediaList`.
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-26 | Chống trùng 500 ms dùng payload làm khóa nên `route.changed` về `/trip` trong vòng 500 ms sau lần trước ở `/trip` (quét rồi "Quay lại" nhanh) bị nuốt; Mila kẹt ở màn cũ rồi mất trên màn chuyến đi. Q4/Q5 đạt hay không tùy tốc độ máy. Sửa: đổi sang path khác không bị chống trùng; màn mới bắt đầu với bảng chống trùng sạch. Cùng hướng với RV-3 (tín hiệu trạng thái không chống trùng). Tìm ra ở US4, đưa xuống đây để PR US2 tự đạt | Áp dụng |
+| DV-27 | Trọng tài: ý định không lời (chỉ tư thế) mà slot chưa đăng ký thì đặt luôn vào view, host vẽ khi slot có; không giành chỗ duy nhất của hàng đợi với câu đang chờ (ví dụ 051 mang sang `/trip`). Bổ sung DV-18 | Áp dụng |
+| DV-32 | Môi trường: sau khi kéo `main` (icon mới `close.svg`), Vitest dùng transform cũ trong `node_modules/.vitest-cache` của `import.meta.glob`, 14 test báo thiếu icon `close`. Xóa cache thì đạt; không phải lỗi code (cùng loại DV-5) | Ghi nhận |
+
 ## 5. Đợt 2026-11-21 — Phase 6: US4 "Kết thúc chuyến cùng Mila" (US-MAS-08) — hết pilot (G5)
 
 Branch `feat/mascot-us4`, tách từ `feat/mascot-us2` (PR #61). Task: T043–T046.
@@ -159,7 +204,6 @@ Branch `feat/mascot-us4`, tách từ `feat/mascot-us2` (PR #61). Task: T043–T0
 |---|---|
 | `rules.test.ts` US4 (062 rồi 063, chạm đóng → tĩnh, 063 mở lại / BO_DO, 070 offline, 071 `PENDING → SYNCED`, SYNCED ngay từ đầu, 072) | FAIL 6 ca; ca 072 (CONFLICT không câu) đạt ngay vì không có luật nào là đúng |
 | `e2e/m02/mascot-end.spec.ts` (Q12, offline → 070, 409 CONFLICT) | Viết trước; chạy sau khi có slot và điểm phát |
-| `machine.test.ts` "đổi màn nhanh A → B → A" (DV-26) và "câu mang sang không đẩy mất DOCK" (DV-27) | FAIL trước khi sửa |
 
 ### 5.2 Lệnh kiểm chứng
 
@@ -177,8 +221,7 @@ Branch `feat/mascot-us4`, tách từ `feat/mascot-us2` (PR #61). Task: T043–T0
 | # | Mục | Trạng thái |
 |---|---|---|
 | DV-25 | "Vừa kết thúc" (MAS-B-062) không lấy từ router state như Behavior Matrix ghi: trình duyệt giữ `history.state` qua lần tải lại, nên tải lại sẽ ăn mừng lần nữa (sai Q12). Thay bằng cờ trong bộ nhớ `takeEndedHere(sessionId)` ở `useEndTrip.ts`, đặt khi `finishSession` trả `FINISHED` và chỉ lấy được một lần; tải lại thì mất. Không ghi dữ liệu, không đổi thứ tự ghi của M02 | Áp dụng; cập nhật Behavior Matrix ở T071 |
-| DV-26 | Chống trùng 500 ms dùng payload làm khóa, nên `route.changed` về `/trip` trong vòng 500 ms sau lần trước ở `/trip` (quét rồi bấm "Quay lại" nhanh) bị nuốt, Mila kẹt ở màn cũ rồi mất trên màn chuyến đi. Đây là lỗi có sẵn từ US2: test Q4/Q5 đạt hay không tùy tốc độ máy. Sửa: `route.changed` sang path khác không bị chống trùng, và màn mới bắt đầu với bảng chống trùng sạch | Áp dụng; cập nhật State Machine ở T071 |
-| DV-27 | Trọng tài: ý định không lời (chỉ tư thế) mà slot chưa đăng ký thì đặt luôn vào view, host vẽ khi slot có; ý định này không giành chỗ duy nhất của hàng đợi với câu đang chờ (ví dụ câu 051 mang sang `/trip`). Bổ sung cho DV-18 | Áp dụng |
+| DV-26, DV-27 | Tìm ra ở US4 nhưng là lỗi có sẵn của US2: đã chuyển xuống US2, xem §4.4 | Áp dụng (ở US2) |
 | DV-28 | CELEBRATE kéo dài bằng thời gian đọc câu 062 (tối thiểu 3 s theo §5.4), không cắt ở 2,4 s; chuyển động (AN-CELEBRATE, lá rơi) vẫn ≤ `--duration-mascot-celebrate` 2 400 ms. Cắt ở 2,4 s sẽ làm câu biến mất trước khi đọc xong | Áp dụng |
 | DV-29 | MAS-B-070 hiện ở slot `end-hero` (DOCK, tư thế ba lô), không ở AVATAR trong thẻ danh sách: màn chỉ có một slot để không thêm chỗ trống vào thẻ. Câu chờ sau phần ăn mừng (khoảng 4 s, còn bong bóng thì thử lại mỗi 1 s) thay vì 1 s, vì P5 không được chen vào câu P4 đang hiện | Áp dụng |
 | DV-30 | CELEBRATE đặt bong bóng trên Mila (như INTRO), đuôi chỉ xuống giữa: slot đứng cạnh huy hiệu nên bề ngang hẹp ở 320 px | Áp dụng |

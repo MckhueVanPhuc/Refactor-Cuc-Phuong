@@ -53,9 +53,10 @@
 
 .object {
   margin: 0;
-  font-size: clamp(calc(var(--font-size-page-heading) + var(--space-1)), 9vw, calc(var(--font-size-page-heading) * 1.4));
+  /* Tên đối tượng: tiêu đề trang 28 px (design-system §3) */
+  font-size: var(--font-size-page-heading);
   font-weight: var(--font-weight-semibold);
-  line-height: 1.12;
+  line-height: var(--line-height-heading);
   color: var(--color-paper);
   text-shadow: 0 var(--space-1) var(--space-5) var(--color-m01-deep);
 }
@@ -66,13 +67,13 @@
 }
 
 .sectionTitle {
-  --icon-size: var(--space-6);
+  --icon-size: var(--space-5);
 
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   margin: 0;
-  font-size: calc(var(--font-size-body) * 1.125);
+  font-size: var(--font-size-section-title);
   font-weight: var(--font-weight-semibold);
   color: var(--color-ink);
 }

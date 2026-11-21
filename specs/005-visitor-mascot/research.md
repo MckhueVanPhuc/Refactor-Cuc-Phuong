@@ -57,7 +57,7 @@ Mỗi mục: **Decision** / **Rationale** / **Alternatives considered**. Nguồn
 
 ## R-09 — Precache
 
-- **Decision**: thêm vào `workbox.globPatterns` một mẫu hẹp `assets/ma-*-240-*.webp` (chỉ cỡ 240); cỡ 480 không precache. JS của engine/host nằm trong `**/*.js` đã có. Đặt tên chunk `mascot` bằng một nhánh mới trong `chunkPrefix` cho `src/shared/mascot/` và `src/app/mascot/`.
+- **Decision**: thêm vào `workbox.globPatterns` hai mẫu hẹp `assets/ma-*-240-*.webp` (cỡ 240) và `assets/ma-11-avatar-96-*.webp` (avatar chỉ có cỡ 96/192, dùng ở AVATAR khi quét ngoài thực địa); cỡ 480 và avatar 192 không precache. JS của engine/host nằm trong `**/*.js` đã có. Đặt tên chunk `mascot` bằng một nhánh mới trong `chunkPrefix` cho `src/shared/mascot/` và `src/app/mascot/`.
 - **Rationale**: MAS-NFR-01 (ngân sách precache); ảnh nền JPG không bị kéo vào; Constitution VI.
 - **Alternatives**: thêm `webp` vào mẫu chung (kéo mọi webp tương lai vào precache).
 
@@ -103,4 +103,4 @@ Mỗi mục: **Decision** / **Rationale** / **Alternatives considered**. Nguồn
 ## Upstream có nguy cơ stale
 
 - `docs/mascot/MASCOT_TECHNICAL_SPECIFICATION.md` §2 đặt `MascotSlot` ở `src/app/mascot/`; plan này chuyển sang `src/shared/mascot/` (R-02) và tách INLINE thành `MascotFigure` (R-07). Cập nhật bộ thiết kế khi code xong (tài liệu dẫn xuất, không chặn).
-- `docs/mascot/MASCOT_ASSET_SPECIFICATION.md` §3 ghi mẫu precache `assets/mascot-*.webp`; tên thật theo Vite là `assets/ma-*-240-*.webp` (R-09).
+- `docs/mascot/MASCOT_ASSET_SPECIFICATION.md` §3 ghi mẫu precache `assets/mascot-*.webp`; tên thật theo Vite là `assets/ma-*-240-*.webp` và `assets/ma-11-avatar-96-*.webp` (R-09).
