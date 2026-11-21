@@ -10,6 +10,17 @@ export { readingTimeMs } from './arbiter';
 export type { Effect, Intent, MascotState, Mode, PoseId, Rule, RuleResult, RuleView, StepContext, StepResult } from './types';
 
 const INTERNAL: ReadonlySet<MascotEventType> = new Set(['mascot.tick', 'mascot.timer', 'mascot.slots.changed', 'mascot.asset.failed']);
+/**
+ * Tín hiệu trạng thái (đang có hộp thoại, đang phát, đang có thông báo tự kết thúc): engine áp chúng idempotent, nên
+ * không chống trùng. Chống trùng ở đây sẽ nuốt lần "phát" thứ hai của chuỗi phát → dừng → phát trong 500 ms.
+ */
+const STATE_SIGNALS: ReadonlySet<MascotEventType> = new Set([
+  'app.dialog.changed',
+  'm02.media.playing',
+  'm02.media.stopped',
+  'm02.notice.autoEndShown',
+  'm02.notice.autoEndHidden',
+]);
 const DEDUPE_KEEP_MS = 5_000;
 
 export function initialState(): MascotState {
@@ -117,7 +128,8 @@ function applyRules(s: MascotState, event: StampedEvent, ctx: StepContext, rules
 
 export function step(state: MascotState, event: StampedEvent, ctx: StepContext, rules: readonly Rule[] = RULES): StepResult {
   const now = event.at;
-  if (!INTERNAL.has(event.type)) {
+  const dedupe = !INTERNAL.has(event.type) && !STATE_SIGNALS.has(event.type);
+  if (dedupe) {
     const { at: _at, ...payload } = event;
     const key = JSON.stringify(payload);
     const last = state.lastEventAt[key];
@@ -128,7 +140,7 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
   const effects: Effect[] = [];
   let pumpQueue = true;
 
-  if (!INTERNAL.has(event.type)) {
+  if (dedupe) {
     for (const [key, at] of Object.entries(s.lastEventAt)) if (now - at > DEDUPE_KEEP_MS) delete s.lastEventAt[key];
     const { at: _at, ...payload } = event;
     s.lastEventAt[JSON.stringify(payload)] = now;

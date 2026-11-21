@@ -16,6 +16,7 @@ File này không tạo màn hình, trường hay trạng thái mới; mỗi dòn
 | `/trip/qr/:qrIdentifier` | SCR-M02-002 | `m02-content` | nhận kết quả quét qua router state; không có → xem lại (scan-resolution §4) |
 | `/trip/end` | SCR-M02-003 | `m02-end` | phiên lấy từ router state (vừa kết thúc hoặc đang chờ xác nhận); không có (ví dụ tải lại trang) thì dùng chuyến kết thúc gần nhất |
 | `/q/:qrIdentifier` | SCR-M02-004 | `m02-qr-link` | không guard ngôn ngữ; tự đóng phiên quá 24 giờ trước (BR-M02-024) |
+| `/scan` | SCR-M02-005 (2026-11-21) | `m02-scan` | mở từ thanh tab M01; tự đóng phiên quá 24 giờ trước (BR-M02-022); mã đọc được → `processScannedText` như trình quét của `/trip`, nội dung ở `/trip/qr/:qrIdentifier` |
 
 Không màn M02 nào có bước chọn ngôn ngữ; mọi màn đặt `LanguageControl` của M01.
 

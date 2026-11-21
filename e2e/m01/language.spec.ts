@@ -16,7 +16,7 @@ test('V1 — mở / lần đầu: panel chọn ngôn ngữ chặn trang; chọn 
 
   await page.getByRole('button', { name: 'English' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Routes' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Offline downloads' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Resources' })).toBeVisible();
   expect((await dumpStores(page, ['languagePreference'])).languagePreference).toEqual([
     { slot: 'current', languageCode: 'en' },
   ]);

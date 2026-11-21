@@ -24,7 +24,7 @@ test('V22 — context A AUTHORIZED; A chuyển TAM_DONG; làm mới danh mục: 
 
   // M03 tạm đóng tuyến A; du khách làm mới danh mục
   mock.routes = mock.routes.map((route) => (route.routeId === 'route-a' ? { ...route, status: 'TAM_DONG' } : route));
-  await page.getByRole('link', { name: 'Tài nguyên offline' }).click();
+  await page.getByRole('link', { name: 'Tài nguyên' }).click();
   // Chờ màn /offline hiện (chunk lazy) để màn danh mục thật sự mount lại và làm mới nguồn
   await expect(page.getByRole('heading', { level: 1, name: 'Quản lý tài nguyên offline' })).toBeVisible();
   await page.getByRole('link', { name: 'Danh mục tuyến' }).click();

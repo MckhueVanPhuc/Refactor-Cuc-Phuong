@@ -90,6 +90,32 @@ describe('step — chuyển trạng thái nền', () => {
     expect(finalPrompt.bubble).not.toBeNull();
   });
 
+  it('tín hiệu trạng thái không bị chống trùng: phát → dừng → phát trong 500 ms vẫn chặn', () => {
+    const rules = [rule('m02.scanner.detected', say({ mode: 'DOCK', message: { id: 'MSG-MAS-030' } }))];
+    const media = run(
+      [
+        { type: 'm02.media.playing', mediaType: 'AUDIO', at: 0 },
+        { type: 'm02.media.stopped', at: 100 },
+        { type: 'm02.media.playing', mediaType: 'AUDIO', at: 200 },
+        { type: 'm02.scanner.detected', at: 900 },
+      ],
+      rules,
+    );
+    expect(media.blockers).toEqual(['MEDIA']);
+    expect(media.bubble).toBeNull();
+    const dialog = run(
+      [
+        { type: 'app.dialog.changed', open: true, kind: 'OTHER', at: 0 },
+        { type: 'app.dialog.changed', open: false, kind: 'OTHER', at: 100 },
+        { type: 'app.dialog.changed', open: true, kind: 'OTHER', at: 200 },
+        { type: 'm02.scanner.detected', at: 900 },
+      ],
+      rules,
+    );
+    expect(dialog.blockers).toEqual(['DIALOG']);
+    expect(dialog.bubble).toBeNull();
+  });
+
   it('mở dialog khác hoặc ẩn trang khi đang nói → bỏ bong bóng', () => {
     const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } }))];
     const state = run([{ type: 'm02.scanner.detected', at: 0 }, { type: 'app.dialog.changed', open: true, kind: 'OTHER', at: 50 }], rules);

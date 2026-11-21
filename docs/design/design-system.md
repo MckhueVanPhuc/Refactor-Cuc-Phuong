@@ -74,12 +74,14 @@ Dùng Segoe UI/system sans cho điều khiển và nội dung. Tiêu đề disco
 
 | Vai trò | Quy tắc production được chọn |
 |---|---|
-| M01 discovery hero | 36–46px trên điện thoại, tối đa 58px màn rộng; chiều cao linh hoạt cho vi/en và zoom |
-| Page heading | 24–28px; M03 28px desktop / 24px mobile |
+| M01 discovery hero | 28px trên điện thoại, tối đa 36px màn rộng; chiều cao linh hoạt cho vi/en và zoom (người dùng duyệt 2026-11-21: tiêu đề cũ 36–46px quá to trên điện thoại) |
+| Page heading | 24–28px; M03 28px desktop / 24px mobile; màn du khách M01/M02 28px (Gợi ý tuyến và trang kết quả 24px) |
+| Section title | 18px semibold trên màn du khách (mục chi tiết tuyến, nhóm tiêu chí, khối gói tải trước, hành trình) |
 | Route title | 22px M01; 16px semibold cho tên hàng M03 |
 | Body/form | 16px, line-height tối thiểu 1.5 |
 | Metadata/badge/navigation | 14px; không đặt thông tin có ý nghĩa ở cỡ 9–12px |
-| Button | 14–16px, semibold; vùng chạm tối thiểu 44px, CTA chính M01 là 48px |
+| Button | 14–16px, semibold; vùng chạm tối thiểu 44px, CTA chính M01 là 48px (chữ 16px). Nút phụ có thể nhìn cao 36px khi vùng chạm vẫn 44px |
+| Status chip | 14px; chip chỉ để đọc (không bấm được) cao 28px, không cần vùng chạm 44px |
 
 Thẩm mỹ đã duyệt không miễn kiểm tra khả năng đọc. Mức tối thiểu ở trên là lựa chọn thiết kế được ủy quyền.
 
@@ -158,6 +160,7 @@ Spacing không có `--space-7` . Các giá trị sau chưa có tên token; dùng
 | Component | Hướng hình ảnh |
 |---|---|
 | Header/navigation | Vị trí rõ, nhãn ngắn, focus nhìn thấy được, padding safe-area. |
+| Tab bar (du khách M01) | Thanh cố định ở đáy mọi màn M01 (người dùng duyệt 2026-11-21): ba cột Tuyến · Quét QR · Tài nguyên, chú thích ngắn 14px dưới icon. Nền `white`, viền trên `line`, bóng `--shadow-bottom-nav`, chừa vùng an toàn. Nút Quét ở giữa là đĩa tròn 60px nền `forest` icon `paper`, viền trắng, nổi nửa thân trên mép thanh. Tab đang mở dùng `forest`, chữ đậm và vạch trên, không chỉ đổi màu; mỗi tab là vùng chạm ≥ 44px. Không có trên màn chọn ngôn ngữ và các màn M02. |
 | Route card | Chiều cao linh hoạt, thumbnail tùy chọn, tên trước, metadata được hỗ trợ bên dưới. Độ khó dùng tên category. |
 | Journey item | Nhãn checkpoint, thứ tự và chỉ báo đã ghé; nội dung được chọn có highlight riêng. |
 | Status chip | Nhãn ngắn và icon tùy chọn; dùng từ vựng trạng thái của entity nguồn. |
@@ -190,7 +193,7 @@ Các quy tắc sau chỉ ghép từ token đã có, để thống nhất khi tri
 | Placeholder | Không thay nhãn. Nếu dùng, màu `secondary` của bề mặt (đạt ≥ 4.5:1, xem bảng 6.1). |
 | Thông báo trạng thái (toast, banner) | Lỗi cần xử lý dùng `role="alert"`; kết quả thành công và tiến trình dùng `role="status"`, để trình đọc màn hình đọc được mà không chuyển focus. Thông báo chứa lỗi hoặc hành động không tự đóng. |
 | Vùng thông báo | Một vùng ở đầu nội dung. Kết quả tra cứu QR (đóng tạm, không hợp lệ, cần kết nối) loại trừ nhau nên chỉ hiện một. Thứ tự từ trên xuống: kết quả tra cứu, lỗi nguồn nội dung, thông báo tự kết thúc chuyến trước. |
-| Xác nhận lượt ghé và toast | Xác nhận lượt ghé hiển thị inline, không tự đóng và được thay khi có lượt quét tiếp theo. Toast thường (thành công, không chứa lỗi hay hành động) tự đóng sau 6 giây, có nút đóng và tạm dừng khi hover hoặc focus. |
+| Xác nhận lượt ghé và toast | Xác nhận lượt ghé ("Đã ghi nhận lượt quét.") là toast nổi ngay dưới thanh app, không đẩy nội dung, ở mọi màn có nó (người dùng duyệt 2026-11-21). Toast thường (thành công, không chứa lỗi hay hành động) dùng một component chung: `role="status"`, tự đóng sau 6 giây, có nút đóng (vùng chạm 44px), tạm dừng khi hover hoặc focus; lượt quét tiếp theo thay toast cũ. Lỗi và thông báo có hành động vẫn là banner, không tự đóng. |
 | Nhóm hành động (M03) | Ba nhóm tách rõ: chính (Lưu bản nháp, Xuất bản); vòng đời (Đóng tạm, Mở lại); không hoàn tác (Lưu trữ, Hủy) ở cuối, xa hai nhóm kia, luôn qua dialog xác nhận riêng. Trên màn hẹp, thanh hành động cố định phía dưới (`--shadow-bottom-nav`) chỉ chứa nhóm chính. |
 | Nội dung dài trong bảng (M03) | Ô Chi tiết của nhật ký (lý do và trước/sau), cả ở SCR-M03-009 lẫn panel "Nhật ký của mục" trong editor, rút gọn tối đa 3 dòng; dài hơn thì nút chữ "…Xem thêm" (`aria-haspopup="dialog"`, vùng chạm 44px) mở hộp thoại chỉ đọc có đủ nội dung và một nút "Đóng". Cột kết quả luôn bằng chữ. |
 | Hover/pressed | Không thêm màu mới; dùng lớp phủ trong suốt lên màu nền sẵn có, xem 5.4. |
@@ -334,6 +337,7 @@ Hệ quả cho thiết kế: các cặp trên 4.5:1 dùng được cho chữ th�
 - Ngoại lệ do người dùng duyệt 2026-11-10 cho nút Quét của SCR-M02-001: agent vẽ `qr-scan.svg` (camera trong khung quét) trong assets/icons/. Chỉ dùng làm mask, màu theo chữ của nút; icon đứng trước chữ "Quét QR", không thay chữ.
 - Ngoại lệ do người dùng duyệt 2026-11-11 cho màn kết quả chuyến SCR-M02-003 (theo ảnh mẫu người dùng cung cấp): agent vẽ `check.svg` (dấu tích của huy hiệu hoàn thành), `heart.svg` (thẻ hẹn gặp lại) và `home.svg` (nút "Về danh sách tuyến") trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; luôn đi kèm chữ, không thay chữ.
 - Ảnh mascot Mila không phải icon: nằm trong `assets/mascot/`, bản gốc do người dùng cung cấp (§9). Hiệu ứng lá rơi của Mila dùng lại `leaf.svg` làm mask, màu từ token.
+- Ngoại lệ do người dùng duyệt 2026-11-21 cho toast dùng chung và thanh tab: agent vẽ `close.svg` (dấu ✕ của nút đóng toast) trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; nút có tên truy cập bằng chữ.
 - Logo dùng chung là `logo-emblem.png`, bản sạch của `icon.png` (nền trắng, bỏ vạch đen ở mép), dùng cho favicon, thanh app và panel chọn ngôn ngữ. Icon cài đặt `pwa-192.png`, `pwa-512.png`, `pwa-maskable-512.png` và `apple-touch-icon.png` là logo này đặt giữa nền trắng vuông; bản maskable giữ logo trong vòng tròn an toàn 80%. Tất cả do agent dựng theo yêu cầu người dùng 2026-11-08.
 
 ---
