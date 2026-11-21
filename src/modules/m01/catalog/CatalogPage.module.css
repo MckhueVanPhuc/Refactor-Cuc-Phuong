@@ -41,17 +41,6 @@
   color: var(--color-m01-forest);
 }
 
-/* Nút "Gợi ý tuyến" và chỗ của Mila cùng một hàng; màn hẹp thì xuống dòng (spec-Mascot §5.1) */
-.heroActions {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-3);
-  width: 100%;
-}
-
 .recommendLink {
   --icon-size: var(--space-5);
 

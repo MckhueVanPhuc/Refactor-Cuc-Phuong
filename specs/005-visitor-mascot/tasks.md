@@ -107,15 +107,15 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests for User Story 1 ⚠️
 
-- [X] T031 [P] [US1] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-001 → 002 → 003 (INTRO hai câu rồi DOCK; × hoặc `m01.catalog.interacted` kết thúc sớm), MAS-B-004 (chỉ khi ngôn ngữ có trước khi tải trang, một lần), MAS-B-080 (đổi ngôn ngữ giữ `messageId`)
-- [X] T032 [P] [US1] Viết `e2e/m01/mascot-intro.spec.ts` (Q1: chọn "Tiếng Việt" → MSG-MAS-001 rồi 002, danh mục bấm được; Q2: reload → không INTRO, có MSG-MAS-004; đổi EN khi bong bóng hiện → chữ tiếng Anh cùng `data-mascot-message`) và `e2e/m02/mascot-qr-link.spec.ts` (Q3: context mới mở `/q/Q1a` → không `INTRO`, có `[data-mascot-figure]` cạnh gợi ý khách tự do, nội dung hiện như trước)
+- [ ] T031 [P] [US1] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-001 → 002 → 003 (INTRO hai câu rồi DOCK; × hoặc `m01.catalog.interacted` kết thúc sớm), MAS-B-004 (chỉ khi ngôn ngữ có trước khi tải trang, một lần), MAS-B-080 (đổi ngôn ngữ giữ `messageId`)
+- [ ] T032 [P] [US1] Viết `e2e/m01/mascot-intro.spec.ts` (Q1: chọn "Tiếng Việt" → MSG-MAS-001 rồi 002, danh mục bấm được; Q2: reload → không INTRO, có MSG-MAS-004; đổi EN khi bong bóng hiện → chữ tiếng Anh cùng `data-mascot-message`) và `e2e/m02/mascot-qr-link.spec.ts` (Q3: context mới mở `/q/Q1a` → không `INTRO`, có `[data-mascot-figure]` cạnh gợi ý khách tự do, nội dung hiện như trước)
 
 ### Implementation for User Story 1
 
-- [X] T033 [US1] Cài MAS-B-001…004, 080 trong `src/shared/mascot/rules.ts`
-- [X] T034 [P] [US1] Phát `m01.language.selected` sau khi `writeLanguagePreference` resolve trong `src/modules/m01/language/LanguageGate.tsx`; phát `m01.language.changed` trong `src/modules/m01/language/LanguageControl.tsx`
-- [X] T035 [US1] Trong `src/modules/m01/catalog/CatalogPage.tsx` (+ `CatalogPage.module.css`, dùng skill `frontend-design`): đặt `<MascotSlot id="catalog-hero" modes={['INTRO','DOCK']} />` trong hero; phát `m01.catalog.loaded` theo `catalog.status` và `m01.catalog.interacted` ở lần cuộn đầu / mở thẻ đầu
-- [X] T036 [P] [US1] Đặt `<MascotFigure pose="map" />` cạnh gợi ý khách tự do trong `src/modules/m02/qr-link/FreeVisitorHint.tsx` (+ `.module.css`) (OD-MAS-14)
+- [ ] T033 [US1] Cài MAS-B-001…004, 080 trong `src/shared/mascot/rules.ts`
+- [ ] T034 [P] [US1] Phát `m01.language.selected` sau khi `writeLanguagePreference` resolve trong `src/modules/m01/language/LanguageGate.tsx`; phát `m01.language.changed` trong `src/modules/m01/language/LanguageControl.tsx`
+- [ ] T035 [US1] Trong `src/modules/m01/catalog/CatalogPage.tsx` (+ `CatalogPage.module.css`, dùng skill `frontend-design`): đặt `<MascotSlot id="catalog-hero" modes={['INTRO','DOCK']} />` trong hero; phát `m01.catalog.loaded` theo `catalog.status` và `m01.catalog.interacted` ở lần cuộn đầu / mở thẻ đầu
+- [ ] T036 [P] [US1] Đặt `<MascotFigure pose="map" />` cạnh gợi ý khách tự do trong `src/modules/m02/qr-link/FreeVisitorHint.tsx` (+ `.module.css`) (OD-MAS-14)
 
 **Checkpoint**: US1 kiểm độc lập được bằng Q1–Q3.
 

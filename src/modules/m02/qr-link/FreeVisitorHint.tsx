@@ -2,7 +2,6 @@
 // ghi vào chuyến đi, kèm liên kết "Chọn tuyến" sang danh mục (SCR-M01-001). Hiện với mọi kết quả khi không có phiên.
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
-import { MascotFigure } from '../../../shared/mascot/index';
 import { useM02Messages } from '../i18n/useM02Messages';
 import styles from './FreeVisitorHint.module.css';
 
@@ -10,8 +9,6 @@ export function FreeVisitorHint() {
   const messages = useM02Messages();
   return (
     <div className={styles.hint} data-free-visitor="">
-      {/* Mila chỉ là hình cạnh gợi ý, không bong bóng (OD-MAS-14) */}
-      <MascotFigure pose="map" size="sm" />
       <p className={styles.text}>{messages.notice.freeVisitor}</p>
       <Link className={styles.link} to={PATHS.catalog}>
         {messages.qrLink.chooseRoute}
