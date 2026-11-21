@@ -128,11 +128,12 @@ function applyRules(s: MascotState, event: StampedEvent, ctx: StepContext, rules
 
 export function step(state: MascotState, event: StampedEvent, ctx: StepContext, rules: readonly Rule[] = RULES): StepResult {
   const now = event.at;
-  const dedupe = !INTERNAL.has(event.type) && !STATE_SIGNALS.has(event.type);
-  if (dedupe) {
-    const { at: _at, ...payload } = event;
-    const key = JSON.stringify(payload);
-    const last = state.lastEventAt[key];
+  const { at: _at, ...payload } = event;
+  const dedupeKey = INTERNAL.has(event.type) || STATE_SIGNALS.has(event.type) ? null : JSON.stringify(payload);
+  // Đổi sang màn khác là trạng thái, không phải tín hiệu lặp: A → B → A trong 500 ms vẫn phải về A
+  const newScreen = event.type === 'app.route.changed' && event.path !== state.path;
+  if (dedupeKey !== null && !newScreen) {
+    const last = state.lastEventAt[dedupeKey];
     if (last !== undefined && now - last < MASCOT_DEDUPE_MS) return { state, effects: [] };
   }
 
@@ -140,10 +141,11 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
   const effects: Effect[] = [];
   let pumpQueue = true;
 
-  if (dedupe) {
+  if (dedupeKey !== null) {
     for (const [key, at] of Object.entries(s.lastEventAt)) if (now - at > DEDUPE_KEEP_MS) delete s.lastEventAt[key];
-    const { at: _at, ...payload } = event;
-    s.lastEventAt[JSON.stringify(payload)] = now;
+    // Màn mới bắt đầu với bảng chống trùng sạch: tín hiệu của màn không bị so với lần trước du khách ở màn đó
+    if (newScreen) s.lastEventAt = {};
+    s.lastEventAt[dedupeKey] = now;
   }
   if ('hasSession' in event) s.hasSession = event.hasSession;
 

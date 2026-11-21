@@ -154,6 +154,33 @@ describe('step — chuyển trạng thái nền', () => {
     expect(late).toMatchObject({ queued: null, bubble: null });
   });
 
+  it('đổi màn nhanh A → B → A trong 500 ms: không bị coi là trùng; màn mới không chống trùng với lần trước ở màn đó', () => {
+    const rules = [rule('m02.scanner.opened', say({ priority: 7, mode: 'DOCK', pose: 'map' }))];
+    const opened = { type: 'm02.scanner.opened', hasSession: true, k: 1 } as const;
+    let s = step(initialState(), { type: 'app.route.changed', path: '/trip', at: 0 }, CTX, rules).state;
+    s = step(s, { ...opened, at: 10 }, CTX, rules).state;
+    s = step(s, { type: 'app.route.changed', path: '/trip/qr/Q1a', at: 100 }, CTX, rules).state;
+    s = step(s, { type: 'app.route.changed', path: '/trip', at: 300 }, CTX, rules).state;
+    expect(s).toMatchObject({ path: '/trip', view: null });
+    s = step(s, { ...opened, at: 320 }, CTX, rules).state;
+    expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
+  });
+
+  it('câu mang sang đang chờ slot không đẩy mất tư thế DOCK của màn mới (quay lại chuyến đi ngay sau câu 051)', () => {
+    const dockOnly = { ...CTX, availableModes: ['DOCK'] as const };
+    const rules = [
+      rule('m02.scanner.closed', say({ priority: 4, mode: 'AVATAR', message: { id: 'MSG-MAS-051' } })),
+      rule('m02.scanner.opened', say({ priority: 7, mode: 'DOCK', pose: 'map' })),
+    ];
+    let s = step(initialState(), { type: 'm02.scanner.closed', at: 0 }, CTX, rules).state;
+    s = step(s, { type: 'app.route.changed', path: '/trip', at: 300 }, { ...CTX, availableModes: [] }, rules).state;
+    expect(s.queued).toMatchObject({ carried: true });
+    s = step(s, { type: 'm02.scanner.opened', hasSession: true, k: 1, at: 320 }, { ...CTX, availableModes: [] }, rules).state;
+    s = step(s, { type: 'mascot.slots.changed', at: 340 }, dockOnly, rules).state;
+    expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
+  });
+
+
   it('INTRO nối câu: `then` chạy khi bong bóng đầu hết', () => {
     const rules = [
       rule('m01.language.selected', {
