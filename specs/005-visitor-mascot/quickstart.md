@@ -16,7 +16,7 @@
 | Unit với cờ tắt (không hồi quy) | `VITE_FEATURE_MASCOT=off npx vitest run` |
 | E2E M01, M02 (gồm `mascot-*.spec.ts`) | `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` |
 | Xem bằng mắt | `npm run dev:fake` → `http://localhost:5174` |
-| Precache | sau `npm run build`: `dist/sw.js` chứa `ma-*-240-*.webp`, không chứa `-480-` hay `.jpg` |
+| Precache | sau `npm run build`: `dist/sw.js` chứa `ma-*-240-*.webp` và `ma-11-avatar-96-*.webp`, không chứa `-480-`, `-192-` hay `.jpg` |
 
 ## 3. Kịch bản
 

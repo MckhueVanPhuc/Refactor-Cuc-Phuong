@@ -49,7 +49,7 @@ Quy tắc bắt buộc cho mọi điểm phát:
 | `m02.finalPrompt.opened` / `continued` / `ended` | — | `src/modules/m02/end/FinalPrompt.tsx` | MAS-B-060, 061 |
 | `m02.trip.ended` | `{ status: 'HOAN_TAT' \| 'BO_DO', k, justEnded }` | `src/modules/m02/end/EndPage.tsx` — mount (`justEnded` khi có `state.sessionId`) | MAS-B-062, 063 |
 | `m02.sync.statusChanged` | `{ status: 'PENDING' \| 'SYNCED' \| 'CONFLICT', online }` | `EndPage.tsx` — `useSyncStatus` đổi | MAS-B-070…072 |
-| `app.dialog.changed` | `{ open, kind: 'FINAL_PROMPT' \| 'OTHER' }` | `src/shared/ui/Dialog.tsx` (mở/đóng; `OTHER`) và `FinalPrompt.tsx` (`FINAL_PROMPT`) | Chặn bong bóng khi có dialog khác dialog cuối chuyến (BR-MAS-08) |
+| `app.dialog.changed` | `{ open, kind: 'FINAL_PROMPT' \| 'OTHER' }` | `src/shared/ui/Dialog.tsx` (`OTHER`: `open: true` khi hộp thoại đầu tiên mở, `open: false` khi hộp cuối cùng đóng, qua `holdMascotSignal`) và `FinalPrompt.tsx` (`FINAL_PROMPT`) | Chặn bong bóng khi có dialog khác dialog cuối chuyến (BR-MAS-08) |
 | `app.route.changed` | `{ path }` | Host (từ `pathname` App truyền vào) | MAS-B-083 |
 | `app.visibility.changed` | `{ visible }` | Host (listener) | MAS-B-034, 084 |
 | `app.network.changed` | `{ online }` | Host (listener) | MAS-B-074, 075 |

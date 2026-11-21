@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 'react';
-import { emitMascotEvent } from '../mascot/events';
+import { holdMascotSignal } from '../mascot/events';
 import { Button } from './Button';
 import styles from './Dialog.module.css';
 
@@ -42,11 +42,15 @@ export function Dialog({
     return () => previouslyFocused?.focus();
   }, [open]);
 
-  // Mila im lặng khi có hộp thoại (spec-Mascot BR-MAS-08); chỉ phát tín hiệu, không đổi hành vi hộp thoại
+  // Mila im lặng khi có hộp thoại (spec-Mascot BR-MAS-08); chỉ phát tín hiệu, không đổi hành vi hộp thoại. Đếm theo
+  // số hộp thoại đang mở: đóng một hộp khi hộp khác còn mở thì Mila vẫn im.
   useEffect(() => {
     if (!open) return undefined;
-    emitMascotEvent({ type: 'app.dialog.changed', open: true, kind: 'OTHER' });
-    return () => emitMascotEvent({ type: 'app.dialog.changed', open: false, kind: 'OTHER' });
+    return holdMascotSignal(
+      'dialog',
+      { type: 'app.dialog.changed', open: true, kind: 'OTHER' },
+      { type: 'app.dialog.changed', open: false, kind: 'OTHER' },
+    );
   }, [open]);
 
   if (!open) return null;
