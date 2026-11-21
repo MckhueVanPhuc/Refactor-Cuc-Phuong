@@ -36,6 +36,9 @@ export const en: M02Messages = {
     // Nút Finish (E-SCR-M02-001-19)
     finish: 'End trip',
   },
+  toast: {
+    close: 'Dismiss',
+  },
   // SCR-M02-001: journey và scanner
   journey: {
     heading: 'Journey',

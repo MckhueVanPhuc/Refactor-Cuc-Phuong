@@ -141,7 +141,7 @@ test('V16 — xóa gói A ở SCR-M01-004 khi đã có context A: dialog xác nh
   const context = contextFromSnapshot(publicationFixture().snapshots.A);
   await callM01Hook(page, 'seedContext', context);
 
-  await page.getByRole('link', { name: 'Tài nguyên offline' }).click();
+  await page.getByRole('link', { name: 'Tài nguyên' }).click();
   await page.getByRole('button', { name: 'Xóa' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toContainText('Xóa gói tải trước của tuyến "Tuyến thử Bách Thảo"?');

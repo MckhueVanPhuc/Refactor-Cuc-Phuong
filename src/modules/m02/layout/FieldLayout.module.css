@@ -144,12 +144,11 @@
   line-height: var(--line-height-heading);
 }
 
-/* Tiêu đề scanner: serif lớn như cổng ngôn ngữ, là điểm nhấn duy nhất của màn */
+/* Tiêu đề scanner: serif, tiêu đề trang 28 px (design-system §3), là điểm nhấn duy nhất của màn */
 .scanner .title {
   font-family: var(--font-serif);
-  font-size: clamp(calc(var(--font-size-page-heading-mobile) * 1.4), 9vw, calc(var(--font-size-page-heading) * 1.4));
-  line-height: 1.12;
-  letter-spacing: -0.02em;
+  font-size: var(--font-size-page-heading);
+  line-height: var(--line-height-heading);
   text-shadow: 0 var(--space-1) var(--space-4) var(--color-m02-scanner-bg);
 }
 

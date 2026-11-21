@@ -18,7 +18,7 @@
 
 .heading {
   margin: 0;
-  font-size: var(--font-size-m01-route-title);
+  font-size: var(--font-size-section-title);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
   color: var(--color-m02-scanner-success);
@@ -93,7 +93,7 @@
   display: grid;
   gap: var(--space-1);
   min-height: var(--touch-target);
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-3) var(--space-4);
   text-align: left;
   color: inherit;
   font: inherit;
@@ -121,7 +121,7 @@
 }
 
 .name {
-  font-size: calc(var(--font-size-body) * 1.125);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
 }

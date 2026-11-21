@@ -41,6 +41,10 @@ export const vi = {
     // Nút Finish (E-SCR-M02-001-19)
     finish: 'Kết thúc chuyến',
   },
+  // Nút đóng toast dùng chung (bảng copy SCR-M02-001, 2026-11-21)
+  toast: {
+    close: 'Đóng thông báo',
+  },
   // SCR-M02-001: journey và scanner
   journey: {
     heading: 'Hành trình',
