@@ -211,3 +211,53 @@ describe('US2 — Mila ăn mừng tiến độ có thật (US-MAS-02)', () => {
     expect(state.bubble).toBeNull();
   });
 });
+
+describe('US4 — Kết thúc chuyến cùng Mila (US-MAS-08)', () => {
+  const end: Stamped = { type: 'app.route.changed', path: '/trip/end', at: 0 };
+  const ended = (justEnded: boolean, status: 'HOAN_TAT' | 'BO_DO' = 'HOAN_TAT'): Stamped => ({ type: 'm02.trip.ended', status, k: 3, justEnded, at: 10 });
+  const sync = (status: 'PENDING' | 'SYNCED' | 'CONFLICT', online: boolean, at: number): Stamped => ({ type: 'm02.sync.statusChanged', status, online, at });
+
+  it('MAS-B-062: vừa kết thúc HOAN_TAT → ăn mừng một lần với {k} rồi về hình tĩnh cạnh huy hiệu (MAS-B-063)', () => {
+    let { state } = play([end, ended(true)]);
+    expect(state.view).toMatchObject({ mode: 'CELEBRATE', pose: 'cheer', animation: 'celebrate' });
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-062', params: { k: 3 } });
+    state = play([{ type: 'mascot.tick', at: state.bubble!.expiresAt! }], [], CTX, state).state;
+    expect(state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'cheer', animation: null } });
+  });
+
+  it('chạm đóng khi đang ăn mừng → về hình tĩnh ngay', () => {
+    const shown = play([end, ended(true)]).state;
+    const after = play([{ type: 'mascot.user.closedBubble', at: 500 }], [], CTX, shown).state;
+    expect(after).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'cheer' } });
+  });
+
+  it('MAS-B-063: mở lại màn kết quả → chỉ hình tĩnh; chuyến tự kết thúc (BO_DO) → không ăn mừng', () => {
+    expect(play([end, ended(false)]).state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'cheer' } });
+    expect(play([end, ended(false, 'BO_DO')]).state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'rest' } });
+    expect(play([end, ended(true, 'BO_DO')]).state.bubble).toBeNull();
+  });
+
+  it('MAS-B-070: PENDING khi offline → sau phần ăn mừng nói chuyến đã lưu; không nói khi online', () => {
+    let { state } = play([end, ended(true), sync('PENDING', false, 20)]);
+    expect(state.timers).toHaveProperty('pendingNote');
+    state = play([{ type: 'mascot.user.closedBubble', at: 1_000 }, { type: 'mascot.tick', at: 4_020 }], [], CTX, state).state;
+    expect(state.bubble?.messageId).toBe('MSG-MAS-070');
+    expect(play([end, ended(true), sync('PENDING', true, 20)]).state.timers).not.toHaveProperty('pendingNote');
+  });
+
+  it('MAS-B-071: PENDING → SYNCED khi màn đang mở → giơ ngón cái, không có câu "đã gửi"', () => {
+    const { state } = play([end, ended(false), sync('PENDING', true, 20), sync('SYNCED', true, 900)]);
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'thumbsUp', animation: 'thumb' });
+    expect(state.bubble).toBeNull();
+  });
+
+  it('SYNCED ngay từ đầu (không qua PENDING) → không giơ ngón cái', () => {
+    const { state } = play([end, ended(false), sync('SYNCED', true, 20)]);
+    expect(state.view).toMatchObject({ pose: 'cheer' });
+  });
+
+  it('MAS-B-072: CONFLICT → không có câu hay nút nào của Mila (BR-M02-011)', () => {
+    const { state } = play([end, ended(false), sync('CONFLICT', true, 20)]);
+    expect(state.bubble).toBeNull();
+  });
+});

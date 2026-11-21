@@ -51,6 +51,12 @@ export function admit(s: MascotState, intent: Intent, ctx: StepContext, now: num
     if (s.proactiveLog.length >= MASCOT_PROACTIVE_LIMIT) return false;
   }
   if (!ctx.availableModes.includes(intent.mode)) {
+    // Ý định không lời chỉ là tư thế: đặt luôn, host vẽ khi slot của mode đăng ký. Nó không giành chỗ duy nhất của hàng
+    // đợi với câu nói đang chờ (ví dụ câu 051 mang sang màn chuyến đi), nếu không Mila mất hẳn trên màn mới.
+    if (!intent.message && !s.bubble) {
+      apply(s, intent, ctx, now, effects);
+      return true;
+    }
     enqueue(s, intent, now, 'slot');
     return false;
   }
