@@ -1,5 +1,18 @@
 ﻿<!--
 SYNC IMPACT REPORT
+Version change: 2.1.0 → 2.2.0 (MINOR: a fifth behavioral source added; no contract added)
+Modified principles:
+  I. Spec-First Behavioral Authority — docs/spec/spec-Mascot.md added as a source of truth for the
+     mascot Mila on the M01/M02 visitor screens (not a logical module; it changes no spec-M01 or
+     spec-M02 rule).
+Other sections: Governance (authority and guidance table list spec-Mascot.md).
+Added sections: none. Removed sections: none.
+Source: AGENTS.md §2, §3.1, §4 amended 2026-11-21 by user decision; change brief CHG-MASCOT-2026-11-21-01.
+Follow-up TODOs: none.
+-->
+
+<!--
+SYNC IMPACT REPORT
 Version change: 2.0.2 → 2.1.0 (MINOR: a fourth behavioral source and one new contract added)
 Modified principles:
   I. Spec-First Behavioral Authority — docs/spec/spec-AI_integration.md added as a source of truth for
@@ -70,7 +83,8 @@ Follow-up TODOs: none.
 
 ### I. Spec-First Behavioral Authority
 
-The three module specifications and the AI Integration specification are the **sole source of truth**
+The three module specifications, the AI Integration specification and the Mascot specification are the
+**sole source of truth**
 for product behavior and contracts:
 
 - docs/spec/spec-M01.md — Route Planning & Preparation
@@ -79,6 +93,9 @@ for product behavior and contracts:
 - docs/spec/spec-AI_integration.md — vi → en translation on request for the M03 editors. It is a
   capability used by M03, not a fourth logical module, and it MUST NOT change any spec-M03 rule;
   such a change requires amending spec-M03.
+- docs/spec/spec-Mascot.md — mascot Mila accompanying visitors on the M01/M02 screens. It is a
+  visitor experience capability, not a logical module, and it MUST NOT change any spec-M01 or
+  spec-M02 rule; such a change requires amending the module spec.
 
 **Rules:**
 
@@ -355,7 +372,7 @@ Validation in this phase focuses on:
 
 **Authority:** This constitution governs engineering process, quality, security, and implementation
 discipline. It does not override product behavior or contract definitions in
-docs/spec/spec-M01.md, spec-M02.md, spec-M03.md or spec-AI_integration.md. Technical implementation details not
+docs/spec/spec-M01.md, spec-M02.md, spec-M03.md, spec-AI_integration.md or spec-Mascot.md. Technical implementation details not
 covered by the module specs follow the architecture documents in priority order:
 system-configuration.md, tech-stack.md, environment.md.
 
@@ -383,7 +400,7 @@ system-configuration.md, tech-stack.md, environment.md.
 
 | Purpose | File |
 |---------|------|
-| Behavioral and contract baseline | docs/spec/spec-M01.md, spec-M02.md, spec-M03.md, spec-AI_integration.md |
+| Behavioral and contract baseline | docs/spec/spec-M01.md, spec-M02.md, spec-M03.md, spec-AI_integration.md, spec-Mascot.md |
 | Agent workspace rules | AGENTS.md |
 | Product scope boundaries | MVP-Scope.md |
 | Data model source of truth | data/04-data-model.md |
@@ -395,4 +412,4 @@ system-configuration.md, tech-stack.md, environment.md.
 
 ---
 
-**Version**: 2.1.0 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-11-03
+**Version**: 2.2.0 | **Ratified**: 2026-10-02 | **Last Amended**: 2026-11-21
