@@ -1,5 +1,6 @@
 // Bảng luật của Mila: mỗi luật mang ID hành vi `MAS-B-*` của Behavior Matrix (docs/mascot) và dẫn tới BR-MAS của
 // spec-Mascot. Luật an toàn (MAS-B-035, 045, 058, 082–084, hộp thoại) nằm trong machine.ts vì không phụ thuộc màn.
+import { MASCOT_VIBRATION_MS } from './config';
 import type { MascotEvent } from './events';
 import type { Intent, Rule, RuleResult, RuleView } from './types';
 
@@ -50,4 +51,36 @@ const US1: Rule[] = [
   })),
 ];
 
-export const RULES: readonly Rule[] = [...US1];
+// —— US2: Mila ăn mừng tiến độ có thật (US-MAS-02) ——
+
+const US2: Rule[] = [
+  // MAS-B-050, 051, 055: lượt ghé được ghi lần đầu. Mỗi lượt ghé chỉ một phản ứng (VISIT:<visitRef>), kể cả khi trang
+  // nội dung mount lại từ router state (lùi/tiến, tải lại). Điểm cuối: hộp thoại cuối chuyến hiện ngay, Mila chỉ rung.
+  on('MAS-B-050', 'm02.visit.recorded', (event, { state }) => {
+    const once = `VISIT:${event.visitRef}`;
+    if (state.once[once]) return null;
+    if (event.isFinal) return { once: [once], effects: [{ kind: 'vibrate', ms: MASCOT_VIBRATION_MS }] };
+    const base = { priority: 4, mode: 'AVATAR', pose: 'cheer', animation: 'hop', vibrate: true, once } as const;
+    if (event.k === 1) return { intents: [{ ...base, behaviorId: 'MAS-B-051', message: { id: 'MSG-MAS-051' } }] };
+    if (event.n >= 4 && event.k === Math.ceil(event.n / 2)) {
+      return { intents: [{ ...base, behaviorId: 'MAS-B-055', priority: 5, message: { id: 'MSG-MAS-055' } }] };
+    }
+    const cheer = state.counters['cheer'] ?? 0;
+    return {
+      counters: { cheer: cheer + 1 },
+      intents: [{ ...base, behaviorId: 'MAS-B-050', pose: 'thumbsUp', message: { id: 'MSG-MAS-050', params: { k: event.k, n: event.n, cheer } } }],
+    };
+  }),
+  // MAS-B-033: DOCK trên màn chuyến đi, tư thế theo tiến độ (State Machine §3.1)
+  on('MAS-B-033', 'm02.trip.shown', (event) =>
+    event.hasSession
+      ? { intents: [{ behaviorId: 'MAS-B-033', priority: 7, mode: 'DOCK', pose: event.finalVisited ? 'thumbsUp' : event.k > 0 ? 'map' : 'binoculars', animation: 'enter' }] }
+      : null,
+  ),
+  // MAS-B-061: "Đi tiếp" ở câu hỏi cuối chuyến — câu nằm ở slot đang có (DOCK ở chuyến đi, AVATAR ở trang nội dung)
+  on('MAS-B-061', 'm02.finalPrompt.continued', (_event, { ctx }) => ({
+    intents: [{ behaviorId: 'MAS-B-061', priority: 5, mode: ctx.availableModes.includes('DOCK') ? 'DOCK' : 'AVATAR', pose: 'thumbsUp', animation: 'pop', message: { id: 'MSG-MAS-061' } }],
+  })),
+];
+
+export const RULES: readonly Rule[] = [...US1, ...US2];

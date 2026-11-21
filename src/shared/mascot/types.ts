@@ -59,7 +59,8 @@ export type MascotState = {
   bubble: BubbleState | null;
   hold: { until: number; then?: Intent; status?: 'BUSY' | 'CELEBRATING' } | null;
   /** `carried`: câu mang sang từ màn trước, không kiểm lại một lần/cooldown */
-  queued: { intent: Intent; at: number; carried?: boolean } | null;
+  /** `reason`: `slot` = slot của màn chưa đăng ký (mọi mức chờ); `busy` = đang có bong bóng khác (chỉ P0–P4 chờ) */
+  queued: { intent: Intent; at: number; carried?: boolean; reason?: 'slot' | 'busy' } | null;
   lastShownAt: Record<string, number>;
   proactiveLog: number[];
   lastEventAt: Record<string, number>;
@@ -91,6 +92,8 @@ export type RuleResult = {
   timers?: Record<string, number | null>;
   /** Đánh dấu khóa "một lần" mà không cần nói */
   once?: string[];
+  /** Hiệu ứng không kèm lời (ví dụ rung ở điểm cuối, BR-MAS-19); rung bị bỏ khi giảm chuyển động */
+  effects?: Effect[];
 };
 
 export type RuleView = { state: MascotState; ctx: StepContext; now: number };

@@ -25,10 +25,14 @@ export function clearPresence(s: MascotState): void {
   s.queued = null;
 }
 
-function enqueue(s: MascotState, intent: Intent, now: number): void {
-  if (intent.priority > 4) return; // P5–P7 không xếp hàng
-  if (s.queued && s.queued.intent.priority <= intent.priority) return;
-  s.queued = { intent, at: now };
+/**
+ * `busy`: đang có bong bóng khác — P5–P7 không chờ (BR-MAS-05). `slot`: slot của màn chưa đăng ký (render chưa xong) —
+ * mọi mức chờ, vì đây là cuộc đua kỹ thuật, không phải tranh lời; câu hiện ngay khi slot có.
+ */
+function enqueue(s: MascotState, intent: Intent, now: number, reason: 'slot' | 'busy'): void {
+  if (reason === 'busy' && intent.priority > 4) return;
+  if (s.queued && s.queued.intent.priority < intent.priority) return;
+  s.queued = { intent, at: now, reason };
 }
 
 /** Thử đưa một ý định ra màn. Trả `false` khi bị bỏ hoặc xếp hàng. */
@@ -47,18 +51,24 @@ export function admit(s: MascotState, intent: Intent, ctx: StepContext, now: num
     if (s.proactiveLog.length >= MASCOT_PROACTIVE_LIMIT) return false;
   }
   if (!ctx.availableModes.includes(intent.mode)) {
-    enqueue(s, intent, now);
+    // Ý định không lời chỉ là tư thế: đặt luôn, host vẽ khi slot của mode đăng ký. Nó không giành chỗ duy nhất của hàng
+    // đợi với câu nói đang chờ (ví dụ câu 051 mang sang màn chuyến đi), nếu không Mila mất hẳn trên màn mới.
+    if (!intent.message && !s.bubble) {
+      apply(s, intent, ctx, now, effects);
+      return true;
+    }
+    enqueue(s, intent, now, 'slot');
     return false;
   }
 
   const current = s.bubble;
   if (current) {
     if (intent.priority > current.priority) {
-      if (intent.message) enqueue(s, intent, now);
+      if (intent.message) enqueue(s, intent, now, 'busy');
       return false;
     }
     if (intent.priority === current.priority && now - current.shownAt < MASCOT_SAME_PRIORITY_MIN_MS) {
-      enqueue(s, intent, now);
+      enqueue(s, intent, now, 'busy');
       return false;
     }
   }
