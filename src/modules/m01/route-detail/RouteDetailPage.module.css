@@ -5,50 +5,60 @@
  */
 .hero {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-3);
   justify-items: start;
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-5);
 }
 
+/* Quay lại danh mục: link chữ có mũi tên, không khung; vùng chạm vẫn 44 px (design-system §3) */
 .backLink {
+  --icon-size: var(--space-4);
+
   display: inline-flex;
   align-items: center;
+  gap: var(--space-1);
   min-height: var(--touch-target);
-  padding: 0 var(--space-4);
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
   color: var(--color-m01-amber);
   text-decoration: none;
-  background: color-mix(in srgb, var(--color-m01-deep) 45%, transparent);
-  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-m01-amber) 60%, transparent);
-  border-radius: var(--radius-lg);
 }
 
 .backLink:hover {
-  background-color: color-mix(in srgb, var(--color-m01-deep) 70%, transparent);
+  text-decoration: underline;
 }
 
+/* Tên tuyến: tiêu đề trang 28 px trên điện thoại, tối đa 36 px màn rộng (design-system §3) */
 .title {
   font-family: var(--font-serif);
-  font-size: clamp(calc(var(--font-size-page-heading) + var(--space-2)), 10vw, calc(var(--font-size-page-heading) * 1.6));
+  font-size: var(--font-size-page-heading);
   font-weight: var(--font-weight-semibold);
-  line-height: 1.12;
-  letter-spacing: -0.02em;
+  line-height: var(--line-height-heading);
   color: var(--color-paper);
   text-shadow: 0 var(--space-1) var(--space-5) var(--color-m01-deep);
 }
 
+@media (min-width: 48em) {
+  .title {
+    font-size: calc(var(--font-size-page-heading) + var(--space-2));
+  }
+}
+
+/* "Cần tải trước" chỉ để đọc: chip 28 px, chữ 14 px (design-system §3 Status chip) */
 .heroChip {
+  --icon-size: var(--space-4);
+
   display: inline-flex;
   align-items: center;
-  min-height: var(--touch-target);
-  padding: 0 var(--space-4);
-  font-size: var(--font-size-body);
+  gap: var(--space-1);
+  min-height: var(--chip-height);
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
   color: var(--color-m01-amber);
   background: color-mix(in srgb, var(--color-m01-deep) 45%, transparent);
   border: var(--border-width-thin) solid var(--color-m01-amber);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
 }
 
 .content {
@@ -124,7 +134,7 @@
   justify-items: center;
   align-content: start;
   gap: var(--space-1);
-  padding: var(--space-4) var(--space-1);
+  padding: var(--space-3) var(--space-1);
   text-align: center;
   background: color-mix(in srgb, var(--color-m01-deep) 55%, transparent);
   backdrop-filter: blur(var(--space-2));
@@ -133,7 +143,7 @@
 }
 
 .factIcon {
-  --icon-size: var(--space-8);
+  --icon-size: var(--space-6);
 
   margin-bottom: var(--space-1);
   color: var(--color-m01-amber);
@@ -146,7 +156,7 @@
 
 .fact dd {
   margin: 0;
-  font-size: calc(var(--font-size-body) * 1.125);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
 }
@@ -175,7 +185,7 @@
 }
 
 .sectionTitle {
-  font-size: var(--font-size-m01-route-title);
+  font-size: var(--font-size-section-title);
   font-weight: var(--font-weight-semibold);
   color: var(--color-m01-amber);
 }

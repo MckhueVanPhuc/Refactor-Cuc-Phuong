@@ -43,7 +43,8 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 13 | E-SCR-M01-001-13 | Offline-needed mark | Badge | Hiện khi `hasOfflineRequiredCheckpoint` hoặc `hasOfflineRouteMap` là `true` | Conditional | Theo BR-M01-012; snapshot tải về mới là nguồn quyết định cuối cùng |
 | 14 | E-SCR-M01-001-14 | Action: Mở chi tiết tuyến | Tap card | Mở SCR-M01-003 với tuyến đã chọn | Yes | Chỉ với tuyến đang chọn được |
 | 15 | E-SCR-M01-001-15 | Action: Gợi ý tuyến | Button | Mở SCR-M01-002 | Yes | None |
-| 16 | E-SCR-M01-001-16 | Action: Tài nguyên offline | Button | Mở SCR-M01-004 | Yes | None |
+| 16 | E-SCR-M01-001-16 | Action: Tài nguyên offline | Tab trên thanh tab dưới (2026-11-21; trước là liên kết trên thanh app) | Mở SCR-M01-004 | Yes | None |
+| 20 | E-SCR-M01-001-20 | Tab bar | Thanh tab cố định ở đáy (design-system §5.2) | Ba mục: Tuyến (SCR-M01-001), Quét QR (SCR-M02-005), Tài nguyên (SCR-M01-004); có trên mọi màn M01 | Yes | Tab của màn đang mở được đánh dấu, không chỉ bằng màu |
 | 17 | E-SCR-M01-001-17 | Loading state | Spinner | Đang đọc nguồn | Conditional | Hiện khi đang tải |
 | 18 | E-SCR-M01-001-18 | Empty state | Text | Không có tuyến nào chọn được | Conditional | Hiện khi nguồn trả về nhưng không có tuyến `HOAT_DONG` hợp lệ |
 | 19 | E-SCR-M01-001-19 | Source unavailable | Text | Không đọc được nguồn và không có local view | Conditional | Request lỗi dù trình duyệt báo online vẫn coi là nguồn không khả dụng |
@@ -54,6 +55,8 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 |---|---|---|
 | Tiêu đề màn | Danh mục tuyến | Routes |
 | Nhãn điều hướng | Danh mục tuyến · Gợi ý tuyến · Tài nguyên offline | Routes · Route suggestions · Offline downloads |
+| Thanh tab — chú thích dưới icon (2026-11-21) | Tuyến · Quét QR · Tài nguyên | Routes · Scan QR · Resources |
+| Thanh tab — tên vùng điều hướng (trình đọc màn hình) | Điều hướng chính | Main navigation |
 | Nhãn nhóm điều khiển ngôn ngữ | Ngôn ngữ | Language |
 | Bước chọn ngôn ngữ — tiêu đề (panel hiện cả hai dòng cùng lúc, tiếng Việt trước, vì chưa có ngôn ngữ đã chọn; quyết định người dùng 2026-11-08) | Chọn ngôn ngữ | Choose your language |
 | Bước chọn ngôn ngữ — lời dẫn (hiện cả hai dòng như tiêu đề) | Chọn ngôn ngữ để bắt đầu hành trình khám phá Vườn quốc gia Cúc Phương. | Choose a language to begin your journey through Cuc Phuong National Park. |
@@ -88,7 +91,9 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 2 | Language control | Đổi VI/EN | Cập nhật `LanguagePreference` ngay; đổi UI và nội dung có sẵn | State update |
 | 3 | Route card | Tap | Mở chi tiết tuyến | `SCR-M01-003` |
 | 4 | Gợi ý tuyến | Tap | Mở màn gợi ý | `SCR-M01-002` |
-| 5 | Tài nguyên offline | Tap | Mở quản lý package | `SCR-M01-004` |
+| 5 | Tài nguyên offline | Tap (tab Tài nguyên) | Mở quản lý package | `SCR-M01-004` |
+| 7 | Tab Quét QR | Tap | Mở màn Quét QR, camera bật ngay | `SCR-M02-005` |
+| 8 | Tab Tuyến | Tap | Về danh mục | `SCR-M01-001` |
 | 6 | Màn hình | Mở/làm mới | Đọc Published Route; thay local view khi thành công | Reload list |
 
 ## 6. Screen-level rules

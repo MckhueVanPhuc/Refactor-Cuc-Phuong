@@ -40,7 +40,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | 10 | E-SCR-M02-001-10 | QR scanner | Camera view (vùng hoặc toàn màn hình) | Đọc nội dung mã QR | Conditional | Chỉ nhận link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` của môi trường hiện tại; mã khác hoặc base khác → thông báo mã không hợp lệ, không tra cứu (FR-M02-026, BR-M02-023) |
 | 11 | E-SCR-M02-001-11 | Camera permission / unavailable state | Panel | Giải thích trạng thái quyền camera và cách thử lại, gồm lựa chọn quét bằng camera điện thoại | Conditional | Quyền do trình duyệt cấp; UI chỉ giải thích (Screen list M02 §4; BR-M02-023) |
 | 12 | E-SCR-M02-001-12 | Lookup in progress | Spinner | Đang tra cứu mã QR | Conditional | Không có phản hồi trong 8 giây (`LOOKUP_TIMEOUT_SECONDS`) = lỗi tra cứu (BR-M02-005) |
-| 13 | E-SCR-M02-001-13 | Check-in feedback | Toast/inline | Xác nhận lượt ghé đã được ghi (kể cả mã thêm sau khi phiên bắt đầu) | Conditional | Ghi một lượt ghé theo `(sessionId, checkpointId)` trước khi hiện nội dung; quét lặp không tạo bản ghi mới (FR-M02-007, FR-M02-009) |
+| 13 | E-SCR-M02-001-13 | Check-in feedback | Toast (design-system §5.3: 6 giây, nút đóng, không đẩy nội dung; 2026-11-21) | Xác nhận lượt ghé đã được ghi (kể cả mã thêm sau khi phiên bắt đầu) | Conditional | Ghi một lượt ghé theo `(sessionId, checkpointId)` trước khi hiện nội dung; quét lặp không tạo bản ghi mới (FR-M02-007, FR-M02-009) |
 | 14 | E-SCR-M02-001-14 | Closure notice | Banner | VI: "Khu vực này đang tạm đóng. Vui lòng dừng lại hoặc quay về theo hướng dẫn của Ban Quản lý." | Conditional | Cùng một thông báo cho `closedScope` `ROUTE` và `CHECKPOINT`; không nội dung, không lượt ghé (BR-M02-015) |
 | 15 | E-SCR-M02-001-15 | Invalid QR message | Banner | VI: "Mã không còn hiệu lực hoặc không tồn tại." | Conditional | Cho `INVALID` hoặc mã không phải link QR của môi trường; không ghi lượt ghé |
 | 16 | E-SCR-M02-001-16 | Connection-needed message | Banner | VI: "Cần có kết nối mạng để kiểm tra mã QR này." | Conditional | Offline hoặc lỗi tra cứu với mã không thuộc journey đóng băng; không phải mã không hợp lệ |
@@ -68,6 +68,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | Nút Finish (E-SCR-M02-001-19) | Kết thúc chuyến | End trip |
 | Đang tra cứu | Đang kiểm tra mã QR… | Checking the QR code… |
 | Đã ghi nhận lượt quét | Đã ghi nhận lượt quét. | Scan recorded. |
+| Nút đóng toast (tên truy cập, 2026-11-21) | Đóng thông báo | Dismiss |
 | Handoff phiên bản 2 | Dữ liệu chuyến đi này thuộc phiên bản cũ. Hãy chọn tuyến và bắt đầu lại. | This trip data is from an older version. Please choose a route and start again. |
 | Handoff đã dùng | Chuyến đi này đã được bắt đầu trước đó. Muốn đi lại, hãy chọn tuyến và bắt đầu lại. | This trip has already been started. To go again, choose a route and start again. |
 | Handoff hết hạn | Lượt bắt đầu này đã hết hạn (quá 24 giờ). Hãy bắt đầu lại từ danh sách tuyến. | This start has expired (over 24 hours). Please start again from the route list. |

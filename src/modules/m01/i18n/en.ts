@@ -9,6 +9,10 @@ export const en: M01Messages = {
     catalog: 'Routes',
     recommend: 'Route suggestions',
     offline: 'Offline downloads',
+    tabBarLabel: 'Main navigation',
+    tabRoutes: 'Routes',
+    tabScan: 'Scan QR',
+    tabResources: 'Resources',
   },
   screenTitle: {
     catalog: 'Routes',
@@ -57,6 +61,7 @@ export const en: M01Messages = {
 
   recommend: {
     submit: 'Show matching routes',
+    resultsTitle: 'Matching routes',
     noMatch: 'No route matches your choices. You can change them or see all routes.',
     changeChoices: 'Change choices',
     seeAllRoutes: 'See all routes',

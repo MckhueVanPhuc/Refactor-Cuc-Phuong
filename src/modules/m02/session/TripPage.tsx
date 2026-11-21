@@ -35,7 +35,8 @@ const REJECT_MESSAGE: Record<RejectReason, keyof M02Messages['handoff']> = {
 /** Đường dẫn nội dung của một mã; kết quả quét đi kèm trong router state (data-model §6). */
 export const contentPath = (qrIdentifier: string) => `${PATHS.m02SessionEntry}/qr/${encodeURIComponent(qrIdentifier)}`;
 
-export type ContentRouteState = { scan?: ScanResult; review?: true };
+/** `returnTo`: màn Quét QR (SCR-M02-005) mở từ thanh tab M01 — khách tự do quay lại đúng màn đó. */
+export type ContentRouteState = { scan?: ScanResult; review?: true; returnTo?: string };
 
 type EntryState = { status: 'entering' } | { status: 'done'; result: EntryResult };
 

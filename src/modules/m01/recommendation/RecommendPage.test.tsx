@@ -62,13 +62,16 @@ describe('RecommendPage', () => {
     expect(
       await screen.findByText('Chưa có tuyến phù hợp với lựa chọn của bạn. Bạn có thể đổi tiêu chí hoặc xem tất cả tuyến.'),
     ).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Xem tất cả tuyến' }).getAttribute('href')).toBe('/');
     await userEvent.click(screen.getByRole('button', { name: 'Đổi tiêu chí' }));
+    await screen.findByRole('radiogroup', { name: 'Thời gian' });
     expect(screen.queryByText(/Chưa có tuyến phù hợp/)).toBeNull();
     expect(radio('Thời gian', 'Dài (trên 180 phút)').checked).toBe(true);
     // Focus về radio đang chọn, không phải radio đầu tiên của nhóm
     expect(document.activeElement).toBe(radio('Thời gian', 'Dài (trên 180 phút)'));
-    await userEvent.click(screen.getByRole('link', { name: 'Xem tất cả tuyến' }));
-    expect(router.state.location.pathname).toBe('/');
+    // Form không còn nút "Xem tất cả tuyến": tab Tuyến của thanh tab thay vai trò này
+    expect(screen.queryByRole('link', { name: 'Xem tất cả tuyến' })).toBeNull();
+    expect(router.state.location.pathname).toBe('/recommend');
   });
 
   it('không đọc được nguồn → báo nguồn, không báo "không có tuyến"', async () => {

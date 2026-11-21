@@ -54,6 +54,7 @@ Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html)
 | 24 | E-SCR-M01-003-24 | Start blocked message | Text | Lý do Start bị chặn: không có nguồn lẫn package sẵn sàng, tuyến không khả dụng/revoked | Conditional | Không thay context cũ khi thất bại (FR-M01-012) |
 | 25 | E-SCR-M01-003-25 | Route unavailable state | Panel | Tuyến không còn `HOAT_DONG` sau làm mới nguồn | Conditional | Chặn Start mới; context hiện tại đánh dấu `REVOKED` (BR-M01-011) |
 | 26 | E-SCR-M01-003-26 | Action: Tài nguyên offline | Link | Mở SCR-M01-004 | Yes | None |
+| 27 | E-SCR-M01-003-27 | Tab bar | Thanh tab cố định ở đáy (design-system §5.2; 2026-11-21) | Như E-SCR-M01-001-20: Tuyến · Quét QR · Tài nguyên | Yes | Tab của màn đang mở được đánh dấu, không chỉ bằng màu |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Nhãn độ khó, thời gian và tag dùng bảng nhãn i18n ở SCR-M01-002.
 
@@ -108,6 +109,7 @@ Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html)
 | 8 | Start | Tap, offline không có package | Chặn Start, giải thích | Start blocked |
 | 9 | Quay lại | Tap | Thoát quyết định, về màn trước | Previous screen |
 | 10 | Tài nguyên offline | Tap | Mở quản lý package | `SCR-M01-004` |
+| 11 | Thanh tab | Tap Tuyến / Quét QR / Tài nguyên | Mở màn tương ứng; Quét QR bật camera ngay | `SCR-M01-001` / `SCR-M02-005` / `SCR-M01-004` |
 
 ## 6. Screen-level rules
 

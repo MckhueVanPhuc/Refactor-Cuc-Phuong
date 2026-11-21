@@ -34,13 +34,14 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 4 | E-SCR-M01-002-04 | Group tag selector | Selector (chọn một) | `GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG` (cần một tuyến đi dễ dàng) | Yes | Đúng một giá trị hợp lệ |
 | 5 | E-SCR-M01-002-05 | Experience tag selector | Selector (chọn một) | `INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA` | Yes | Đúng một giá trị hợp lệ |
 | 6 | E-SCR-M01-002-06 | Action: Xem tuyến phù hợp | Button | Chạy lọc xác định trên tuyến đang chọn được | Yes | Vô hiệu khi thiếu một trong ba tiêu chí (FR-M01-004) |
-| 7 | E-SCR-M01-002-07 | Criteria summary | Text | Ba tiêu chí đã chọn | Conditional | Hiện sau khi lọc |
+| 7 | E-SCR-M01-002-07 | Criteria summary | Text | Ba tiêu chí đã chọn | Conditional | Hiện trên trang kết quả |
 | 8 | E-SCR-M01-002-08 | Result list | List | Mọi tuyến chọn được có `timeTags`, `groupTags` và `experienceTags` đều chứa giá trị đã chọn | Conditional | Khớp cả ba nhóm; 0..N kết quả; không chấm điểm, không sắp theo độ phù hợp, không giới hạn số lượng (BR-M01-003) |
 | 9 | E-SCR-M01-002-09 | Result route card | List item | Cùng trường với thẻ tuyến của SCR-M01-001 (ảnh, tên, mô tả ngắn, quãng đường, thời lượng, độ khó, số điểm dừng, dấu cần tải trước) | Conditional | Như SCR-M01-001; ảnh lỗi → placeholder |
 | 10 | E-SCR-M01-002-10 | Zero-result state | Text + action | Thông báo không có tuyến phù hợp, kèm hành động đổi tiêu chí hoặc về danh mục | Conditional | Không nới lỏng tiêu chí (US-M01-02 mục 3) |
-| 11 | E-SCR-M01-002-11 | Action: Đổi tiêu chí | Button | Quay lại ba selector, giữ lựa chọn hiện tại | Conditional | None |
+| 11 | E-SCR-M01-002-11 | Action: Đổi tiêu chí | Button | Quay lại form ba selector, giữ lựa chọn hiện tại | Conditional | None |
 | 12 | E-SCR-M01-002-12 | Action: Về danh mục | Button | Mở SCR-M01-001 | Yes | None |
 | 13 | E-SCR-M01-002-13 | Loading / source unavailable | Panel | Đang đọc nguồn, hoặc không đọc được nguồn | Conditional | Không báo "không có tuyến" khi thực chất nguồn không đọc được |
+| 14 | E-SCR-M01-002-14 | Tab bar | Thanh tab cố định ở đáy (design-system §5.2; 2026-11-21) | Như E-SCR-M01-001-20: Tuyến · Quét QR · Tài nguyên | Yes | Tab của màn đang mở được đánh dấu, không chỉ bằng màu |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Bảng nhãn dưới đây áp dụng cho mọi màn du khách của M01 (thẻ tuyến, chi tiết, gợi ý): nhãn tiếng Việt lấy theo tên hiển thị của Spec M03 §5.1/§5.4, nhãn tiếng Anh là bản dịch chốt tại đây; mã enum không bao giờ hiện cho du khách.
 
@@ -64,6 +65,7 @@ Chữ cố định khác của màn này:
 | Tình huống | Tiếng Việt | English |
 |---|---|---|
 | Tiêu đề màn | Gợi ý tuyến | Route suggestions |
+| Tiêu đề trang kết quả | Tuyến phù hợp | Matching routes |
 | Nút lọc | Xem tuyến phù hợp | Show matching routes |
 | Không có tuyến khớp | Chưa có tuyến phù hợp với lựa chọn của bạn. Bạn có thể đổi tiêu chí hoặc xem tất cả tuyến. | No route matches your choices. You can change them or see all routes. |
 | Hành động khi 0 kết quả | Đổi tiêu chí · Xem tất cả tuyến | Change choices · See all routes |
@@ -77,8 +79,8 @@ Chữ cố định khác của màn này:
 | Default | Ba selector trống, hành động xem tuyến bị vô hiệu | Mở màn hình, chưa chọn |
 | Partially selected | Một hoặc hai nhóm đã chọn, hành động vẫn vô hiệu | Thiếu tiêu chí |
 | Ready | Đủ ba tiêu chí, hành động được bật | Chọn đủ ba nhóm |
-| Results | Danh sách tuyến khớp cả ba nhóm kèm tóm tắt tiêu chí | Lọc có ít nhất một tuyến |
-| Zero result | Thông báo rỗng với lựa chọn đổi tiêu chí hoặc về danh mục | Lọc không có tuyến |
+| Results | Trang kết quả riêng: danh sách tuyến khớp cả ba nhóm kèm tóm tắt tiêu chí | Lọc có ít nhất một tuyến |
+| Zero result | Trang kết quả riêng: thông báo rỗng với lựa chọn đổi tiêu chí hoặc về danh mục | Lọc không có tuyến |
 | Source unavailable | Thông báo không đọc được nguồn | Request nguồn lỗi |
 
 ## 5. Interactions and navigation
@@ -86,10 +88,11 @@ Chữ cố định khác của màn này:
 | # | Element | User action | System response | Destination screen / result |
 |---|---|---|---|---|
 | 1 | Time/Group/Experience selector | Chọn một giá trị | Cập nhật `RecommendationContext` local; mỗi nhóm đúng một giá trị | State update |
-| 2 | Xem tuyến phù hợp | Tap | Lọc tuyến chọn được theo cả ba nhóm | Show results or zero-result |
+| 2 | Xem tuyến phù hợp | Tap | Lọc tuyến chọn được theo cả ba nhóm | Mở trang kết quả riêng (Results hoặc Zero result); không cuộn xuống dưới form |
 | 3 | Result route card | Tap | Mở chi tiết tuyến | `SCR-M01-003` |
-| 4 | Đổi tiêu chí | Tap | Quay về selector | State update |
+| 4 | Đổi tiêu chí | Tap | Quay về form, giữ lựa chọn hiện tại | Form của màn này |
 | 5 | Về danh mục | Tap | Quay về danh mục | `SCR-M01-001` |
+| 6 | Thanh tab | Tap Tuyến / Quét QR / Tài nguyên | Mở màn tương ứng; Quét QR bật camera ngay | `SCR-M01-001` / `SCR-M02-005` / `SCR-M01-004` |
 
 ## 6. Screen-level rules
 
@@ -120,6 +123,7 @@ Chữ cố định khác của màn này:
 |---|---|---|---|---|
 | OQ-SCR-M01-002-002 | UI pattern cho selector một giá trị (radio, chip, dropdown) | No | Resolved | Mỗi nhóm là một hàng chip chọn một; bấm lại chip đang chọn để bỏ chọn; dùng được bằng bàn phím như radio group. |
 | OQ-SCR-M01-002-003 | Thứ tự hiển thị kết quả | No | Resolved | Kết quả sắp theo tên tuyến A→Z theo ngôn ngữ đang chọn; không chấm điểm, không giới hạn số lượng (BR-M01-003). |
+| OQ-SCR-M01-002-004 | Kết quả hiện ngay dưới form hay trên trang riêng | No | Resolved | Trang riêng (người dùng duyệt 2026-11-21). Vẫn là màn này, không phải màn mới. Tiêu chí chỉ ở bộ nhớ (`RecommendationContext`, HC-007): không đưa lên URL, không lưu; mở thẳng hoặc tải lại trang kết quả khi chưa đủ tiêu chí thì về form. |
 
 ## Completion checklist
 
