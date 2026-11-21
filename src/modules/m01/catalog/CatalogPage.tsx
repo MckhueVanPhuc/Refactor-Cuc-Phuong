@@ -1,8 +1,10 @@
 // SCR-M01-001 Danh mục tuyến (FR-M01-002; US-M01-02; visitor-ui-flow §2). Trạng thái theo screen spec §4:
 // Loading, Has routes, Empty, Stale/offline, Source unavailable, Image failed. "Route removed" (US5) là hệ quả của
 // việc lọc lại sau mỗi lần đọc thành công.
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
+import { emitMascotEvent, MascotSlot } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { useM01Services } from '../api/services';
 import { useM01Messages } from '../i18n/useM01Messages';
@@ -28,6 +30,7 @@ export function CatalogPage() {
     routes.map((route) => route.thumbnail.sourceRef),
   );
   const busy = catalog.status === 'idle' || catalog.status === 'loading' || ('refreshing' in catalog && catalog.refreshing);
+  useCatalogMascotSignals(catalog.status, routes.length, catalog.status === 'ready' && catalog.stale);
 
   return (
     <>
@@ -37,11 +40,15 @@ export function CatalogPage() {
           <TintIcon name="leaf" className={styles.leaf} />
           {messages.screenTitle.catalog}
         </h1>
-        <Link className={styles.recommendLink} to={PATHS.recommend}>
-          <TintIcon name="compass" />
-          {messages.nav.recommend}
-          <TintIcon name="chevron-right" className={styles.chevron} />
-        </Link>
+        <div className={styles.heroActions}>
+          <Link className={styles.recommendLink} to={PATHS.recommend}>
+            <TintIcon name="compass" />
+            {messages.nav.recommend}
+            <TintIcon name="chevron-right" className={styles.chevron} />
+          </Link>
+          {/* Mila: giới thiệu và đứng ở hero (spec-Mascot §5.1; specs/005 T035) */}
+          <MascotSlot id="catalog-hero" modes={['INTRO', 'DOCK']} />
+        </div>
       </div>
 
       {catalog.status === 'ready' && catalog.stale && (
@@ -66,4 +73,26 @@ export function CatalogPage() {
       </ul>
     </>
   );
+}
+
+/**
+ * Tín hiệu cho Mila (specs/005 contracts/mascot-event-contract.md §3): trạng thái danh mục khi đổi, và lần cuộn đầu tiên
+ * (du khách đang xem, Mila thôi gợi ý). Chỉ phát sự kiện, không đổi hành vi danh mục.
+ */
+function useCatalogMascotSignals(status: string, count: number, stale: boolean) {
+  useEffect(() => {
+    if (status === 'ready' || status === 'unavailable') {
+      emitMascotEvent({ type: 'm01.catalog.loaded', status, count, stale, slow: false });
+    }
+  }, [status, count, stale]);
+  const interacted = useRef(false);
+  useEffect(() => {
+    const onScroll = () => {
+      if (interacted.current) return;
+      interacted.current = true;
+      emitMascotEvent({ type: 'm01.catalog.interacted' });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 }
