@@ -227,6 +227,16 @@ Branch `feat/mascot-us4`, tách từ `feat/mascot-us2` (PR #61). Task: T043–T0
 | DV-30 | CELEBRATE đặt bong bóng trên Mila (như INTRO), đuôi chỉ xuống giữa: slot đứng cạnh huy hiệu nên bề ngang hẹp ở 320 px | Áp dụng |
 | DV-31 | Banner CONFLICT thành khối `data-end-conflict` chứa `MascotFigure confused` (sm, `aria-hidden`) và đoạn chữ `role="alert"`; chữ thông báo không đổi | Áp dụng |
 
-### 5.4 Pilot (Phase 1–6) đã xong
+### 5.4 Đồng bộ với `main` và các sửa review (2026-11-21)
+
+Merge `feat/mascot-us2` (đã có `main` mới: tab bar M01, màn Quét QR `/scan`, trang kết quả gợi ý, toast dùng chung, cỡ chữ mới; US1; RV-1…RV-4; DV-26/27) vào `feat/mascot-us4`. Xung đột: báo cáo này và `machine.ts`/`machine.test.ts` (cùng bản sửa DV-26/27 ở hai phía; lấy bản của US2, đã gồm RV-3).
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 724; 2333 pass, 133 skipped; build OK |
+| `npx playwright test` (cổng 4173/5174 đã kiểm trống) | 0 | 133 pass, 46 skipped |
+| Ảnh 320 px lúc ăn mừng (cỡ chữ mới của `main`) | — | Không đè, không cuộn ngang; bố cục như §5.2 |
+
+### 5.5 Pilot (Phase 1–6) đã xong
 
 US3, US1, US2, US4 đã cài; hình Mila vẫn là hình giữ chỗ (đĩa xanh có lá) cho tới khi có ảnh và xác nhận quyền sử dụng (OD-MAS-06/07, T070). US5–US8 và Polish chỉ làm khi người dùng yêu cầu.
