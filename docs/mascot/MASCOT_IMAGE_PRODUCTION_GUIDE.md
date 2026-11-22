@@ -10,7 +10,7 @@ Agent không tạo được ảnh nhân vật. Bạn tạo ảnh bằng công c�
 
 ## 1. Cần bao nhiêu ảnh
 
-**Đợt 1 — đủ cho pilot (8 ảnh):**
+**Đợt 1 — đủ cho pilot (9 ảnh; đã giao 2026-11-22):**
 
 | Tệp | Tư thế | Dùng ở pilot |
 |---|---|---|
@@ -21,9 +21,10 @@ Agent không tạo được ảnh nhân vật. Bạn tạo ảnh bằng công c�
 | `ma-07-thumbs-up.png` | Giơ ngón cái | Quét được mã, đã gửi về hệ thống |
 | `ma-08-cheer.png` | Hai tay giơ cao, nhảy | Mã đầu tiên, điểm cuối, kết thúc chuyến |
 | `ma-09-confused.png` | Gãi đầu, bối rối nhẹ | Lỗi, chuyến không bắt đầu được |
-| `ma-11-avatar.png` | Đầu và vai, chính diện | Bong bóng nhỏ |
+| `ma-11-avatar.png` | Đầu và vai, chính diện | Bong bóng nhỏ (chế độ AVATAR) |
+| `ma-10-rest.png` | Ngồi nghỉ | Chuyến tự kết thúc (MAS-B-063) |
 
-**Đợt 2 — sau pilot (4 ảnh):** `ma-03-think.png` (chống cằm suy nghĩ), `ma-06-magnifier.png` (cầm kính lúp), `ma-10-rest.png` (ngồi nghỉ), `ma-13-point.png` (chỉ tay sang ngang).
+**Đợt 2 — sau pilot (3 ảnh):** `ma-03-think.png` (chống cằm suy nghĩ), `ma-06-magnifier.png` (cầm kính lúp), `ma-13-point.png` (chỉ tay sang ngang). Đính kèm sheet 1 và ảnh `ma-01-wave.png` đã duyệt làm tham chiếu.
 
 Chưa có ảnh nào thì app dùng hình giữ chỗ (đĩa tròn), nên thiếu ảnh không làm hỏng gì.
 
@@ -57,6 +58,7 @@ Character: "Mila", a cute otter explorer mascot, soft 3D cartoon render, chibi p
 Brown fur, cream belly and cream face/muzzle, big glossy dark-brown eyes with white highlights, small black nose, thin whiskers, short rounded ears, short thick tail.
 Wears a green bandana scarf tied around the neck with a white leaf emblem on the front.
 Carries a small moss-green explorer backpack with a rolled blanket on top and brown leather straps.
+Backpack exactly as in the reference: moss-green canvas backpack, a moss-green rolled blanket strapped on top, brown leather straps with brass (gold-colored) buckles.
 Friendly, curious, gentle expression. Warm soft lighting from the top-left, soft shading on the character only.
 Output: one single character, centered, full transparent background (alpha), square 1024x1024, at least 8% empty margin on every side, no ground shadow, no text, no symbols, no extra props, no frame, no background scenery.
 ```
@@ -99,6 +101,5 @@ Dán sau Prompt nhân vật. "Toàn thân" nghĩa là thấy cả bàn chân; "n
 2. Báo lại tệp nào cần tạo lại và vì sao.
 3. Căn các ảnh toàn thân về cùng cỡ và cùng đường chân; cắt bớt lề thừa.
 4. Xuất bản dùng trên web (240 px và 480 px; avatar 96 và 192 px) vào `assets/mascot/web/`, đo dung lượng so với ngân sách. Máy hiện **chưa có công cụ mã hóa WebP**, nên cần một trong hai cách:
-   - Cài công cụ dòng lệnh `cwebp` của Google (libwebp) trên máy, ngoài repo, không phải dependency của dự án. Agent cài được nếu bạn cho phép.
-   - Hoặc dùng bản PNG đã thu nhỏ cho pilot, rồi đổi sang WebP sau. PNG nặng hơn, nên không nên dùng cho phát hành Production.
+   - Đợt 1 (2026-11-22) xuất bằng Chromium của Playwright (devDependency có sẵn): thu nhỏ từng nửa với làm mịn chất lượng cao, mã hóa WebP 0,82. Không cài thêm công cụ; quy trình ghi ở `assets/mascot/README.md`.
 5. Ảnh gốc giữ nguyên trong `assets/mascot/source/`, không sửa.

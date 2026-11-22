@@ -78,17 +78,17 @@ Cột Status: **NEEDED-v1** (tối thiểu cho bản đầu), **v1.1**, **v2**, 
 
 | Asset ID | Name | Category | Expression/Pose | File Format | UI Usage | Trigger (Behavior) | Status |
 |---|---|---|---|---|---|---|---|
-| MA-01 | wave | Tư thế toàn thân | Vẫy tay chào, cười | WebP 240/480 (gốc PNG 1024) | INTRO, DOCK | MAS-B-001, 004, 030, 034 | NEEDED-v1 |
-| MA-02 | map | Tư thế toàn thân | Cầm bản đồ, tò mò | WebP 240/480 | DOCK hero, trip | MAS-B-002, 003, 005, 056 | NEEDED-v1 |
+| MA-01 | wave | Tư thế toàn thân | Vẫy tay chào, cười | WebP 240/480 (gốc PNG 1024) | INTRO, DOCK | MAS-B-001, 004, 030, 034 | READY 2026-11-22 |
+| MA-02 | map | Tư thế toàn thân | Cầm bản đồ, tò mò | WebP 240/480 | DOCK hero, trip | MAS-B-002, 003, 005, 056 | READY 2026-11-22 |
 | MA-03 | think | Nửa thân | Tay chống cằm, nghiêng đầu | WebP 240/480 | AVATAR, INLINE | MAS-B-010, 012, 052 | NEEDED-v1 |
-| MA-04 | backpack | Tư thế toàn thân | Kéo quai ba lô, sẵn sàng | WebP 240/480 | Panel gói, dialog offline | MAS-B-016, 020, 026, 054, 070, 074 | NEEDED-v1 |
-| MA-05 | binoculars | Tư thế toàn thân | Nhìn ống nhòm | WebP 240/480 | DOCK trip (chưa quét), scanner idle | MAS-B-033, 041 | NEEDED-v1 |
+| MA-04 | backpack | Tư thế toàn thân | Kéo quai ba lô, sẵn sàng | WebP 240/480 | Panel gói, dialog offline | MAS-B-016, 020, 026, 054, 070, 074 | READY 2026-11-22 |
+| MA-05 | binoculars | Tư thế toàn thân | Nhìn ống nhòm | WebP 240/480 | DOCK trip (chưa quét), scanner idle | MAS-B-033, 041 | READY 2026-11-22 |
 | MA-06 | magnifier | Nửa thân | Cầm kính lúp | WebP 240/480 | BUSY khi tra mã | MAS-B-043, 044 | NEEDED-v1 |
-| MA-07 | thumbs-up | Nửa thân | Giơ ngón cái, cười | WebP 240/480 | Thành công | MAS-B-011, 021, 050, 061, 071, 075 | NEEDED-v1 |
-| MA-08 | cheer | Tư thế toàn thân | Hai tay giơ cao, nhảy | WebP 240/480 | Ăn mừng | MAS-B-051, 055, 060, 062, 063 | NEEDED-v1 |
-| MA-09 | confused | Nửa thân | Gãi đầu, bối rối nhẹ (không buồn bã) | WebP 240/480 | Lỗi, INLINE | MAS-B-007, 015, 022, 024, 025, 031, 038, 046, 047, 072 | NEEDED-v1 |
-| MA-10 | rest | Tư thế toàn thân | Ngồi nghỉ, thư thái | WebP 240/480 | Trạng thái rỗng, nhắc nghỉ | MAS-B-006, 023, 049, 057 | NEEDED-v1 |
-| MA-11 | avatar | Avatar tròn | Mặt cười, khăn, nền tròn xanh | WebP 96/192 | Đầu bong bóng AVATAR | MAS-B-010, 014, 040, 050 (AVATAR) | NEEDED-v1 |
+| MA-07 | thumbs-up | Nửa thân | Giơ ngón cái, cười | WebP 240/480 | Thành công | MAS-B-011, 021, 050, 061, 071, 075 | READY 2026-11-22 |
+| MA-08 | cheer | Tư thế toàn thân | Hai tay giơ cao, nhảy | WebP 240/480 | Ăn mừng | MAS-B-051, 055, 060, 062, 063 | READY 2026-11-22 |
+| MA-09 | confused | Nửa thân | Gãi đầu, bối rối nhẹ (không buồn bã) | WebP 240/480 | Lỗi, INLINE | MAS-B-007, 015, 022, 024, 025, 031, 038, 046, 047, 072 | READY 2026-11-22 |
+| MA-10 | rest | Tư thế toàn thân | Ngồi nghỉ, thư thái | WebP 240/480 | Trạng thái rỗng, nhắc nghỉ | MAS-B-006, 023, 049, 057 | READY 2026-11-22 |
+| MA-11 | avatar | Avatar tròn | Mặt cười, khăn, nền tròn xanh | WebP 96/192 | Đầu bong bóng AVATAR | MAS-B-010, 014, 040, 050 (AVATAR) | READY 2026-11-22 |
 | MA-13 | point | Nửa thân | Chỉ tay sang ngang | WebP 240/480 | Hướng dẫn | MAS-B-008, 009, 013, 014, 032, 040, 042, 048, 059 | NEEDED-v1 |
 | MA-12 | sorry | Nửa thân | Buồn nhẹ, xin lỗi | WebP 240/480 | `CONFLICT` | MAS-B-072 (v1 dùng MA-09) | v1.1 |
 | MA-20 | blink | Khung phụ | Mắt nhắm của MA-02 và MA-05 | WebP | Chớp mắt ở DOCK | — | v2 |
@@ -99,6 +99,8 @@ Cột Status: **NEEDED-v1** (tối thiểu cho bản đầu), **v1.1**, **v2**, 
 | — | laptop, megaphone, warning-sign, shield | Đạo cụ | — | — | — | — | DROP (lạc chủ đề / an toàn) |
 
 **Tối thiểu v1: 12 ảnh tư thế (MA-01…11, MA-13); lá rơi dùng lại `leaf.svg`.** Ngân sách mục tiêu: 12 × ~25 KB (cỡ 480) + 12 × ~10 KB (cỡ 240) ≈ 420 KB nếu precache cả hai cỡ. Vì vậy đề xuất **chỉ precache cỡ 240** cho DOCK/AVATAR/INLINE, còn cỡ 480 nạp khi cần cho INTRO/CELEBRATE (có fallback về cỡ 240 khi offline). Con số thật đo khi có asset (MAS-NFR-01).
+
+**Số đo đợt 1 (2026-11-22, 9 ảnh, WebP chất lượng 0,82):** cỡ 240 từ 10,1 đến 15,7 KB, avatar 96 là 5,0 KB; precache (8 × 240 + avatar 96) **101,5 KB**. Cỡ lớn (8 × 480 + avatar 192) 266,2 KB, nạp khi cần. Chi tiết: specs/005 validation-report §6.
 
 ## 5. Đặc tả gửi người tạo ảnh production
 

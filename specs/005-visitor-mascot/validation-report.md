@@ -239,4 +239,53 @@ Merge `feat/mascot-us2` (đã có `main` mới: tab bar M01, màn Quét QR `/sca
 
 ### 5.5 Pilot (Phase 1–6) đã xong
 
-US3, US1, US2, US4 đã cài; hình Mila vẫn là hình giữ chỗ (đĩa xanh có lá) cho tới khi có ảnh và xác nhận quyền sử dụng (OD-MAS-06/07, T070). US5–US8 và Polish chỉ làm khi người dùng yêu cầu.
+US3, US1, US2, US4 đã cài. Ảnh Mila đợt 1: xem §6. US5–US8 và Polish chỉ làm khi người dùng yêu cầu.
+
+## 6. Đợt 2026-11-22 — Ảnh Mila đợt 1 (T070) và precache (T067)
+
+Branch `feat/mascot-assets`, tách từ `feat/mascot-us4` (PR #62). Người dùng tự thiết kế 9 ảnh, chép vào `assets/mascot/source/` và xác nhận quyền sử dụng (OD-MAS-06, 07).
+
+### 6.1 Kiểm ảnh gốc
+
+| Mục | Kết quả |
+|---|---|
+| Định dạng | 9 PNG RGBA nền trong suốt thật; 1254×1254, riêng `ma-09-confused` 1230×1278 (đệm thành vuông khi xuất) |
+| Viền | Điểm đỏ thuần quanh mép có alpha 1–15/255 (tàn dư nền cũ), không thấy trên nền tối, sáng, xanh rừng; khi xuất bỏ điểm alpha ≤ 3 |
+| Mảng rời | Mỗi ảnh 9–65 hạt li ti (alpha ≤ 12); riêng `ma-09-confused` có dấu "?" tách rời (trái hướng dẫn §2 mục 6) → bỏ khi xuất, không vẽ lại nhân vật |
+| Nhất quán | Cùng nhân vật, khăn xanh lá trắng, ba lô xanh rêu có cuộn chăn cùng màu, khóa đồng (ảnh cheer tạo lại theo câu mô tả ba lô) |
+
+### 6.2 Xuất và số đo (WebP chất lượng 0,82; quy trình: `assets/mascot/README.md`)
+
+| Ảnh | 240 (avatar 96) | 480 (avatar 192) |
+|---|---|---|
+| ma-01-wave | 11,3 KB | 28,0 KB |
+| ma-02-map | 10,9 KB | 27,5 KB |
+| ma-04-backpack | 11,5 KB | 31,3 KB |
+| ma-05-binoculars | 10,7 KB | 27,3 KB |
+| ma-07-thumbs-up | 12,8 KB | 34,8 KB |
+| ma-08-cheer | 10,1 KB | 25,1 KB |
+| ma-09-confused | 13,5 KB | 39,5 KB |
+| ma-10-rest | 15,7 KB | 40,9 KB |
+| ma-11-avatar | 5,0 KB | 11,7 KB |
+| **Tổng** | **101,5 KB (precache)** | 266,2 KB (nạp khi cần) |
+
+Trong ngân sách Asset spec §3 (~420 KB cho 12 ảnh cả hai cỡ; precache chỉ cỡ nhỏ).
+
+### 6.3 Code
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-33 | Chế độ AVATAR (40 px) dùng ảnh `ma-11-avatar` (Asset spec §3, MA-11 "đầu bong bóng AVATAR"); trước đó vẽ ảnh tư thế toàn thân, quá nhỏ để đọc. `data-mascot-pose` vẫn là tư thế của luật | Áp dụng; test `src/app/mascot/Mascot.test.tsx` FAIL trước khi sửa |
+| DV-34 | Đợt 1 có 9 ảnh, thêm `ma-10-rest` (MAS-B-063 dùng khi chuyến tự kết thúc); đợt 2 còn 3 ảnh (think, magnifier, point) — các tư thế này hiện chưa có luật pilot nào dùng | Áp dụng; hướng dẫn tạo ảnh §1 cập nhật |
+| DV-35 | Xuất bằng Chromium của Playwright thay cho `cwebp`: không cài công cụ ngoài | Áp dụng |
+
+### 6.4 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx vitest run src/app/mascot/Mascot.test.tsx src/shared/mascot/assets.test.ts` (trước khi sửa) | 1 | 1 FAIL (AVATAR), 5 pass |
+| `npm run ci` | 0 | lint token 726; 2341 pass, 133 skipped; build precache 106 mục |
+| `dist/sw.js` | — | Đúng 8 × `ma-*-240-*.webp` + `ma-11-avatar-96-*.webp`; không 480, 192 |
+| `npx playwright test` (cổng 4173/5174 đã kiểm trống) | 0 | 133 pass, 46 skipped |
+| `npx playwright test e2e/m01/mascot-precache.spec.ts` (T067) | 0 | 1 pass |
+| Chụp 390 px (spec tạm, đã xóa) | — | Danh mục (INTRO, DOCK), chuyến đi, trang nội dung (avatar cạnh 051), câu hỏi cuối chuyến, màn kết quả (ăn mừng, DOCK), CONFLICT, khách tự do: ảnh thật, không đè |

@@ -36,7 +36,8 @@ function ctaLabel(cta: CtaId, labels: ReturnType<typeof labelsFor>): string {
 }
 
 function Pose({ view, onAssetError }: { view: ViewState; onAssetError: () => void }) {
-  const asset = poseAsset(view.pose);
+  // AVATAR (40 px) dùng ảnh đầu và vai MA-11 (Asset spec §3): ảnh toàn thân quá nhỏ để đọc ở cỡ này
+  const asset = (view.mode === 'AVATAR' ? poseAsset('avatar') : null) ?? poseAsset(view.pose);
   const large = view.mode === 'INTRO' || view.mode === 'CELEBRATE';
   if (!asset) {
     return (

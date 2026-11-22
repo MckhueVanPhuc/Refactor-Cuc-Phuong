@@ -1,0 +1,22 @@
+// Precache của Mila (specs/005 tasks T067; MAS-TC-062, 090; research R-09): service worker của `preview:e2e` có chunk
+// `mascot`, và chỉ ảnh cỡ nhỏ (240, avatar 96) — cỡ lớn 480/192 nạp khi cần cho INTRO/CELEBRATE.
+import { expect, test } from '@playwright/test';
+
+test('sw.js precache: chunk mascot, đủ ảnh 240 và avatar 96, không cỡ lớn', async ({ request }) => {
+  const response = await request.get('/sw.js');
+  expect(response.ok()).toBe(true);
+  const sw = await response.text();
+  expect(sw).toMatch(/assets\/mascot-[\w-]+\.js/);
+  const images = [...sw.matchAll(/assets\/(ma-[\w-]+?)-[\w-]{8}\.(?:webp|png|jpg)/g)].map((m) => m[1]).sort();
+  expect(images).toEqual([
+    'ma-01-wave-240',
+    'ma-02-map-240',
+    'ma-04-backpack-240',
+    'ma-05-binoculars-240',
+    'ma-07-thumbs-up-240',
+    'ma-08-cheer-240',
+    'ma-09-confused-240',
+    'ma-10-rest-240',
+    'ma-11-avatar-96',
+  ]);
+});

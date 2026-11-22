@@ -339,8 +339,8 @@ No new screen. Screen specs are derived documents and are updated only after thi
 | OD-MAS-03 | Offer a hide/minimize button or a quiet mode? | **Decided 2026-11-21:** no; Mila is always present where a slot exists (BR-MAS-11). |
 | OD-MAS-04 | Let the visitor tap Mila for help? | **Decided 2026-11-21:** yes, simply: one fixed sentence per screen (BR-MAS-12). |
 | OD-MAS-05 | Nature reminders | **Decided 2026-11-21:** accepted; wording approved by Park Management before release (BR-MAS-13). |
-| OD-MAS-06 | Who produces the release images? | **Decided 2026-11-21:** the user, later, following the asset specification. |
-| OD-MAS-07 | Usage rights of the image generation tool | **Decided 2026-11-21:** the user confirms when delivering the images; no image enters the repository before. |
+| OD-MAS-06 | Who produces the release images? | **Decided 2026-11-21:** the user, later, following the asset specification. **Delivered 2026-11-22:** first batch of 9 poses, designed by the user. |
+| OD-MAS-07 | Usage rights of the image generation tool | **Decided 2026-11-21:** the user confirms when delivering the images; no image enters the repository before. **Confirmed 2026-11-22:** the user designed the images and confirmed the usage rights. |
 | OD-MAS-08 | MVP priority | **Decided 2026-11-21:** Could (no Must flow depends on Mila). |
 | OD-MAS-09 | A short vibration when a visit is recorded? | **Decided 2026-11-21:** yes, 30 ms, where supported (BR-MAS-19). |
 | OD-MAS-10 | On SCR-M02-003, does Mila stand next to the approved completion badge or replace it? | **Decided 2026-11-21:** next to it; the badge stays (§5.1). |
