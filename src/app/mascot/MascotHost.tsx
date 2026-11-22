@@ -43,12 +43,14 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
 
   const [state, setState] = useState<MascotState>(initialState);
   const stateRef = useRef(state);
-  const ctxRef = useRef<StepContext>({ availableModes: modesOf(slots), reducedMotion, language });
+  // Chữ hiện dần khi được phép chuyển động (R-20); công tắc "Chuyển động" (Phase 13) sẽ tắt thêm ở đây
+  const typing = !reducedMotion;
+  const ctxRef = useRef<StepContext>({ availableModes: modesOf(slots), reducedMotion, language, typing });
   const broken = useRef(false);
 
   useLayoutEffect(() => {
-    ctxRef.current = { availableModes: modesOf(slots), reducedMotion, language };
-  }, [slots, reducedMotion, language]);
+    ctxRef.current = { availableModes: modesOf(slots), reducedMotion, language, typing };
+  }, [slots, reducedMotion, language, typing]);
 
   const dispatch = useCallback(
     (event: StampedEvent) => {
@@ -129,6 +131,7 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
       bubble={bubble}
       language={language}
       reducedMotion={reducedMotion}
+      typing={typing}
       onTap={() => send({ type: 'mascot.user.tapped' })}
       onClose={() => send({ type: 'mascot.user.closedBubble' })}
       onCta={onCta}

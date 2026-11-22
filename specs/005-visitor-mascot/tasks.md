@@ -266,15 +266,15 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests ⚠️
 
-- [ ] T075 [P] [US9] Thêm vào `src/app/mascot/Mascot.test.tsx`: bong bóng có dòng tên "Mila" (`aria-hidden`), nút "Đóng lời nhắn"; chữ hiện dần theo `MASCOT_TYPE_CPS` (đồng hồ giả + `requestAnimationFrame` giả); chạm bong bóng hiện hết; `motion` off hoặc giảm chuyển động → hiện ngay; bản đầy đủ `.visually-hidden` giữ `lang`/`role` (R-20)
-- [ ] T076 [P] [US9] Thêm vào `src/shared/mascot/machine.test.ts`: `expiresAt` cộng thời gian gõ khi `ctx.typing` bật, không cộng khi tắt (R-20)
-- [ ] T077 [P] [US9] Cập nhật `e2e/m01/mascot-layout.spec.ts`, `e2e/m02/mascot-layout.spec.ts`: đo cỡ hình DOCK 112 / 128 / 104 px, AVATAR 56 px, CELEBRATE 200 px; không đè, không cuộn ngang ở 320–430 px với bong bóng kiểu A (MAS-TC-121)
+- [X] T075 [P] [US9] Thêm vào `src/app/mascot/Mascot.test.tsx`: bong bóng có dòng tên "Mila" (`aria-hidden`), nút "Đóng lời nhắn"; chữ hiện dần theo `MASCOT_TYPE_CPS` (đồng hồ giả + `requestAnimationFrame` giả); chạm bong bóng hiện hết; `motion` off hoặc giảm chuyển động → hiện ngay; bản đầy đủ `.visually-hidden` giữ `lang`/`role` (R-20)
+- [X] T076 [P] [US9] Thêm vào `src/shared/mascot/machine.test.ts`: `expiresAt` cộng thời gian gõ khi `ctx.typing` bật, không cộng khi tắt (R-20)
+- [X] T077 [P] [US9] Cập nhật `e2e/m01/mascot-layout.spec.ts`, `e2e/m02/mascot-layout.spec.ts`: đo cỡ hình DOCK 112 / 128 / 104 px, AVATAR 56 px, CELEBRATE 200 px; không đè, không cuộn ngang ở 320–430 px với bong bóng kiểu A (MAS-TC-121)
 
 ### Implementation
 
-- [ ] T078 [US9] `src/shared/ui/tokens.css`: `--mascot-size-sm` 56px, `--mascot-size-dock-catalog/-trip/-end`, `--mascot-size-xl`, `--mascot-bubble-max-width` 240px, `--mascot-bubble-surface`, thời lượng mới (contracts/mascot-ui-contract.md §4); lint token PASS
-- [ ] T079 [US9] `src/shared/mascot/MascotSlot.tsx` (+ CSS): prop `size` → `data-mascot-dock`; truyền `size` ở `CatalogPage.tsx` (`catalog`), `TripPage.tsx` (`trip`), `EndPage.tsx` (`end`). Sửa hình đồi trang trí lộ sau bong bóng ở hero danh mục (`CatalogPage.module.css`, chỉ CSS)
-- [ ] T080 [US9] `src/app/mascot/Mascot.tsx` + `Mascot.module.css` + hook `useTypewriter` (skill `frontend-design`): bong bóng kiểu A theo design-system §9.3, đuôi và góc 6px theo `data-mascot-tail`; ảnh DOCK lớn dùng `srcSet` 480; engine `expiresAt` theo R-20 (`StepContext.typing`)
+- [X] T078 [US9] `src/shared/ui/tokens.css`: `--mascot-size-sm` 56px, `--mascot-size-dock-catalog/-trip/-end`, `--mascot-size-xl`, `--mascot-bubble-max-width` 240px, `--mascot-bubble-surface`, thời lượng mới (contracts/mascot-ui-contract.md §4); lint token PASS
+- [X] T079 [US9] `src/shared/mascot/MascotSlot.tsx` (+ CSS): prop `size` → `data-mascot-dock`; truyền `size` ở `CatalogPage.tsx` (`catalog`), `TripPage.tsx` (`trip`), `EndPage.tsx` (`end`). Sửa hình đồi trang trí lộ sau bong bóng ở hero danh mục (`CatalogPage.module.css`, chỉ CSS)
+- [X] T080 [US9] `src/app/mascot/Mascot.tsx` + `Mascot.module.css` + hook `useTypewriter` (skill `frontend-design`): bong bóng kiểu A theo design-system §9.3, đuôi và góc 6px theo `data-mascot-tail`; ảnh DOCK lớn dùng `srcSet` 480; engine `expiresAt` theo R-20 (`StepContext.typing`)
 
 **Checkpoint**: T026/T077 PASS; ảnh chụp đưa chủ dự án duyệt.
 

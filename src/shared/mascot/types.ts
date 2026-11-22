@@ -80,7 +80,8 @@ export type MascotState = {
 };
 
 /** Ngữ cảnh host đưa vào mỗi bước */
-export type StepContext = { availableModes: readonly Mode[]; reducedMotion: boolean; language: Language };
+/** `typing`: chữ bong bóng hiện dần (chuyển động bật, không giảm chuyển động) — thời gian tự ẩn cộng thời gian gõ (R-20). */
+export type StepContext = { availableModes: readonly Mode[]; reducedMotion: boolean; language: Language; typing?: boolean };
 
 export type Effect = { kind: 'vibrate'; ms: number };
 

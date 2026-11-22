@@ -47,7 +47,7 @@ export function CatalogPage() {
             <TintIcon name="chevron-right" className={styles.chevron} />
           </Link>
           {/* Mila: giới thiệu và đứng ở hero (spec-Mascot §5.1; specs/005 T035) */}
-          <MascotSlot id="catalog-hero" modes={['INTRO', 'DOCK']} />
+          <MascotSlot id="catalog-hero" modes={['INTRO', 'DOCK']} size="catalog" />
         </div>
       </div>
 

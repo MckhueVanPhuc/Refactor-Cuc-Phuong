@@ -1,5 +1,5 @@
 /*
- * Mila trong slot (design-system §4.3, §5.3, §9). Chỉ token; chỉ animate transform/opacity; vòng chờ hữu hạn ≤ 10 s.
+ * Mila trong slot (design-system §4.3, §5.3, §9; v1.1). Chỉ token; chỉ animate transform/opacity; vòng chờ hữu hạn.
  * Khi giảm chuyển động, component không gắn data-mascot-animation và mọi --duration-mascot-* = 0ms.
  */
 .mascot {
@@ -48,15 +48,28 @@ button.figure:focus-visible {
   outline-offset: var(--focus-ring-offset);
 }
 
+/* DOCK theo slot (v1.1, design-system §9.2): slot đặt --mascot-dock-size */
+.mascot[data-mascot-mode='DOCK'] .figure {
+  width: var(--mascot-dock-size, var(--mascot-size-md));
+  height: var(--mascot-dock-size, var(--mascot-size-md));
+}
+
 .mascot[data-mascot-mode='AVATAR'] .figure {
   width: var(--mascot-size-sm);
   height: var(--mascot-size-sm);
 }
 
+/* INTRO/CELEBRATE cỡ xl, co lại khi slot hẹp (cạnh huy hiệu ở màn hẹp nhất) để không tràn ngang */
 .mascot[data-mascot-mode='INTRO'] .figure,
 .mascot[data-mascot-mode='CELEBRATE'] .figure {
-  width: var(--mascot-size-lg);
-  height: var(--mascot-size-lg);
+  width: min(var(--mascot-size-xl), 100%);
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.mascot[data-mascot-mode='INTRO'],
+.mascot[data-mascot-mode='CELEBRATE'] {
+  width: min(var(--mascot-size-xl), 100%);
 }
 
 .image {
@@ -80,43 +93,69 @@ button.figure:focus-visible {
   --icon-size: 50%;
 }
 
-/* —— Bong bóng: điểm nhấn duy nhất, đuôi chỉ về Mila —— */
+/*
+ * —— Bong bóng "Giấy dã ngoại" (design-system §9.3, chọn 2026-11-22): lời của Mila, không phải hộp hệ thống. Nền giấy,
+ * viền xanh rừng mảnh, bóng đổ phẳng; góc phía Mila nhọn hơn và đuôi chỉ về Mila.
+ */
 .bubble {
   position: relative;
   display: grid;
   flex: 0 1 auto;
-  gap: var(--space-2);
+  gap: var(--space-1);
   min-width: 0;
   max-width: var(--mascot-bubble-max-width);
   padding: var(--space-3);
-  padding-right: calc(var(--touch-target) + var(--space-1));
-  color: var(--color-ink);
-  background: var(--color-white);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
+  padding-right: calc(var(--touch-target) - var(--space-1));
+  color: var(--color-m01-ink);
+  background: var(--mascot-bubble-surface);
+  border: var(--mascot-bubble-border) solid var(--color-m01-forest);
+  border-radius: var(--mascot-bubble-radius) var(--mascot-bubble-radius) var(--mascot-bubble-radius) var(--mascot-bubble-radius-tail);
+  box-shadow: var(--mascot-bubble-shadow);
 }
 
+/* Đuôi trái (DOCK, AVATAR: Mila đứng bên trái bong bóng): hình vuông xoay, hai cạnh có viền hướng về Mila */
 .bubble::before {
   position: absolute;
   bottom: var(--space-3);
   left: calc(var(--space-2) * -1);
-  width: var(--space-4);
-  height: var(--space-4);
+  width: var(--space-3);
+  height: var(--space-3);
   content: '';
   background: inherit;
+  border-bottom: var(--mascot-bubble-border) solid var(--color-m01-forest);
+  border-left: var(--mascot-bubble-border) solid var(--color-m01-forest);
   transform: rotate(45deg);
 }
 
-.mascot[data-mascot-mode='INTRO'] .bubble::before {
-  top: auto;
-  bottom: calc(var(--space-2) * -1);
-  left: var(--space-8);
+/* INTRO, CELEBRATE: bong bóng trên Mila, đuôi chỉ xuống */
+.mascot[data-mascot-mode='INTRO'] .bubble,
+.mascot[data-mascot-mode='CELEBRATE'] .bubble {
+  border-radius: var(--mascot-bubble-radius);
 }
 
-/* Đuôi bong bóng chỉ xuống giữa Mila */
+.mascot[data-mascot-mode='INTRO'] .bubble::before,
 .mascot[data-mascot-mode='CELEBRATE'] .bubble::before {
   bottom: calc(var(--space-2) * -1);
+  left: var(--space-8);
+  border-left: 0;
+  border-right: var(--mascot-bubble-border) solid var(--color-m01-forest);
+}
+
+.mascot[data-mascot-mode='CELEBRATE'] .bubble::before {
   left: calc(50% - var(--space-2));
+}
+
+.name {
+  font-size: var(--font-size-mascot-name);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  color: var(--color-m01-forest);
+}
+
+/* Lớp phủ chữ hiện dần nằm đúng trên đoạn gốc; đoạn gốc trong suốt cho tới khi hiện xong. Cùng font và cách xuống dòng
+   (không `text-wrap: pretty` lúc đang hiện) để phần đã hiện ngắt dòng giống câu đầy đủ */
+.textWrap {
+  position: relative;
 }
 
 .text {
@@ -125,6 +164,20 @@ button.figure:focus-visible {
   font-size: var(--font-size-body);
   line-height: var(--line-height-body);
   text-wrap: pretty;
+}
+
+.text[data-typing] {
+  color: transparent;
+  text-wrap: wrap;
+}
+
+.typed {
+  position: absolute;
+  inset: 0;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  text-wrap: wrap;
+  pointer-events: none;
 }
 
 .actions {
@@ -166,9 +219,9 @@ button.figure:focus-visible {
   width: var(--touch-target);
   height: var(--touch-target);
   padding: 0;
-  font-size: var(--font-size-m01-route-title);
+  font-size: var(--font-size-section-title);
   line-height: 1;
-  color: var(--color-ink-secondary);
+  color: var(--color-m01-secondary);
   background: none;
   border: 0;
   border-radius: var(--radius-md);
@@ -201,7 +254,12 @@ button.figure:focus-visible {
   box-shadow: none;
 }
 
-:global([data-mascot-slot='scanner-bottom']) .close {
+:global([data-mascot-slot='scanner-bottom']) .bubble::before {
+  border-color: var(--color-m02-scanner-secondary);
+}
+
+:global([data-mascot-slot='scanner-bottom']) .close,
+:global([data-mascot-slot='scanner-bottom']) .name {
   color: var(--color-m02-scanner-secondary);
 }
 

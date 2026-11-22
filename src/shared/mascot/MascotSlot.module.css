@@ -10,10 +10,22 @@
   min-height: var(--mascot-size-sm);
 }
 
-.slot[data-mascot-size='md'] {
-  min-height: var(--mascot-size-md);
+.slot[data-mascot-dock='catalog'] {
+  --mascot-dock-size: var(--mascot-size-dock-catalog);
 }
 
-.slot[data-mascot-size='lg'] {
-  min-height: var(--mascot-size-lg);
+.slot[data-mascot-dock='trip'] {
+  --mascot-dock-size: var(--mascot-size-dock-trip);
+}
+
+.slot[data-mascot-dock='end'] {
+  --mascot-dock-size: var(--mascot-size-dock-end);
+}
+
+.slot[data-mascot-size='md'] {
+  min-height: var(--mascot-dock-size, var(--mascot-size-md));
+}
+
+.slot[data-mascot-size='xl'] {
+  min-height: var(--mascot-size-xl);
 }

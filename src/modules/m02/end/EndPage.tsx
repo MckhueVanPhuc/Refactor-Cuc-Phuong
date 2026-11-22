@@ -76,7 +76,7 @@ export function EndPage() {
                 <TintIcon name="check" className={styles.check} />
                 <TintIcon name="leaf" className={styles.sprig} />
               </span>
-              <MascotSlot id="end-hero" modes={END_MODES} />
+              <MascotSlot id="end-hero" modes={END_MODES} size="end" />
             </div>
             <h1 className={styles.title}>{messages.end.title}</h1>
             <p className={styles.thanks}>{messages.end.thanks}</p>

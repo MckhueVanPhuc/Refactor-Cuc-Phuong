@@ -45,6 +45,15 @@ describe('step — chuyển trạng thái nền', () => {
     expect(readingTimeMs('x'.repeat(200))).toBe(7_000);
   });
 
+  it('chữ hiện dần (v1.1, R-20): thời gian tự ẩn tính từ khi chữ hiện đủ; không hiện dần thì như cũ', () => {
+    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } }))];
+    const text = 'Ở mỗi điểm dừng, tìm tem QR rồi bấm Quét QR nhé.';
+    const typed = step(initialState(), { type: 'm02.scanner.detected', at: 0 }, { ...CTX, typing: true }, rules).state;
+    expect(typed.bubble!.expiresAt).toBe(Math.ceil((text.length * 1000) / 30) + readingTimeMs(text));
+    const instant = step(initialState(), { type: 'm02.scanner.detected', at: 0 }, CTX, rules).state;
+    expect(instant.bubble!.expiresAt).toBe(readingTimeMs(text));
+  });
+
   it('T9: thông báo tạm đóng → SUPPRESSED, xóa hàng đợi; câu sau bị bỏ tới khi đổi màn', () => {
     const rules = [
       rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } })),

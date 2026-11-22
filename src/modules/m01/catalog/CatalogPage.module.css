@@ -23,6 +23,11 @@
   pointer-events: none;
 }
 
+/* Khi Mila đứng ở hero, Mila thay dải đồi trang trí (đồi lộ ra sau bong bóng trông như lỗi — thử trên điện thoại 2026-11-22) */
+.hero:has([data-mascot-mode]) .hills {
+  display: none;
+}
+
 .title {
   position: relative;
   display: flex;

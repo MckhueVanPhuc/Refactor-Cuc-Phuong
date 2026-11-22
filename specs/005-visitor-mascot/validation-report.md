@@ -322,3 +322,35 @@ Branch `specs/mascot-v1.1`, tách từ `docs/mascot-v1.1` (PR #64). Chỉ tài l
 | Constitution: không dependency, không dữ liệu bền vững, module chỉ import `shared/mascot` qua `index.ts` | R-17…R-25; test kiến trúc hiện có | Không vi phạm |
 
 Không phát hiện mâu thuẫn chặn. Tổng task: 96 (74 cũ + 22 mới).
+
+## 8. Đợt 2026-11-22 — Phase 12: bong bóng "Giấy dã ngoại", chữ hiện dần, cỡ mới (v1.1)
+
+Branch `feat/mascot-v11-bubble`, tách từ `specs/mascot-v1.1` (PR #65). Task: T075–T080.
+
+### 8.1 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `src/app/mascot/Mascot.test.tsx` (dòng tên, chữ hiện dần, chạm hiện hết, không hiện dần, srcset DOCK, lùi về ảnh 240) | FAIL 4 ca; 2 ca "không hiện dần" đạt ngay |
+| `src/shared/mascot/machine.test.ts` (thời gian tự ẩn cộng thời gian gõ) | FAIL |
+| `src/shared/mascot/MascotSlot.test.tsx` (`data-mascot-dock`, chỗ giữ CELEBRATE `xl`) | FAIL 2 ca |
+
+### 8.2 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 727; 2349 pass, 133 skipped; build OK |
+| `npx playwright test e2e/m01/mascot-layout.spec.ts e2e/m02/mascot-layout.spec.ts` | 0 | 6 pass: cỡ đo được DOCK 112 / 128 / 104 px, AVATAR 56 px, CELEBRATE ở 320 px trong 120–200 px; không đè, không cuộn ngang ở 320–430 px |
+| `npx playwright test` (cổng đã kiểm trống) | 1 | 132 pass, 4 fail, 46 skipped; lượt chạy 3,5 phút (thường 1,8 phút) |
+| Chạy lại 4 spec fail (`m03/forbidden-words`, `m03/checkpoints`, `m03/translate`, `m02/content`) | 0 | 23 pass — fail trước là do máy quá tải; 3/4 ở M03, không bị đụng |
+| Ảnh chụp 390 px (spec tạm, đã xóa) | — | Bong bóng kiểu A ở danh mục, chuyến đi, nội dung, kết quả; chữ hiện dần giữa chừng giữ nguyên cỡ bong bóng; dải đồi không còn lộ |
+
+### 8.3 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-36 | Chữ hiện dần làm bằng **lớp phủ** `aria-hidden` trên đoạn gốc (đoạn gốc giữ câu đầy đủ, trong suốt khi đang gõ) thay cho bản `.visually-hidden` riêng như R-20 ghi: trình đọc màn hình vẫn đọc một lần, bong bóng đủ cỡ từ đầu (không giật), `textContent` của `[data-mascot-message]` không đổi nên E2E hiện có giữ nguyên | Áp dụng; cập nhật R-20 khi đồng bộ tài liệu |
+| DV-37 | DOCK cỡ lớn dùng `srcset` 480 cho 2×; ảnh 480/192 ngoài precache nên tải hỏng (offline) thì **lùi về ảnh 240** thay vì báo lỗi ảnh (trước đó INTRO/CELEBRATE offline có thể làm Mila biến mất). Test mới trong `Mascot.test.tsx` | Áp dụng |
+| DV-38 | INTRO/CELEBRATE `min(200px, chỗ còn lại)`: cạnh huy hiệu ở 320 px không đủ 200 px | Áp dụng |
+| DV-39 | Dải đồi trang trí của hero danh mục ẩn khi Mila có mặt (`:has`), thay vì dời vị trí | Áp dụng |
+| DV-40 | Test "DOCK không srcset" của PR #63 đổi thành "DOCK có srcset 480" theo design-system v1.1 §9.2 | Ghi nhận |

@@ -50,6 +50,7 @@ export const en: MascotDialogue = {
   },
   cheers: CHEERS,
   labels: {
+    name: NAME,
     ask: `Ask ${NAME}`,
     dismiss: 'Dismiss message',
     notNow: 'Not now',

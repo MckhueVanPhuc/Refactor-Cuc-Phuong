@@ -170,7 +170,7 @@ export function TripPage() {
         <div className={styles.actions}>
           {/* Mila đứng trên nút Quét, tư thế theo tiến độ (MAS-B-033; specs/005 T042) */}
           <div className={styles.dock}>
-            <MascotSlot id="trip-dock" modes={['DOCK']} />
+            <MascotSlot id="trip-dock" modes={['DOCK']} size="trip" />
           </div>
           <button type="button" className={styles.scan} onClick={() => setScanning(true)} disabled={lookingUp}>
             <span className={styles.scanIcon} aria-hidden="true" />

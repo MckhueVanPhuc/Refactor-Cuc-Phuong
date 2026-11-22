@@ -5,6 +5,7 @@ import {
   MASCOT_PROACTIVE_WINDOW_MS,
   MASCOT_QUEUE_TTL_MS,
   MASCOT_SAME_PRIORITY_MIN_MS,
+  MASCOT_TYPE_CPS,
   MASCOT_VIBRATION_MS,
 } from './config';
 import { MESSAGE_META, messageText } from './dialogue/catalog';
@@ -13,6 +14,11 @@ import type { Effect, Intent, MascotState, StepContext } from './types';
 /** Thời gian đọc bong bóng không có nút: 3–7 giây (spec-Mascot §5.4). */
 export function readingTimeMs(text: string): number {
   return Math.min(7_000, Math.max(3_000, 1_200 + 45 * text.length));
+}
+
+/** Thời gian chữ hiện dần hết câu (spec-Mascot v1.1 §5.4, `MASCOT_TYPE_CPS`). */
+export function typingTimeMs(text: string): number {
+  return Math.ceil((text.length * 1000) / MASCOT_TYPE_CPS);
 }
 
 const isProactive = (intent: Intent) => intent.priority >= 5 && Boolean(intent.message);
@@ -97,7 +103,8 @@ function apply(s: MascotState, intent: Intent, ctx: StepContext, now: number, ef
       ...(intent.message.params ? { params: intent.message.params } : {}),
       priority: intent.priority,
       shownAt: now,
-      expiresAt: meta.autoHide ? now + readingTimeMs(text) : null,
+      // Thời gian đọc tính từ khi chữ hiện đủ (Dialogue Library §2, v1.1)
+      expiresAt: meta.autoHide ? now + (ctx.typing ? typingTimeMs(text) : 0) + readingTimeMs(text) : null,
       ...(intent.then && intent.holdMs === undefined ? { then: intent.then } : {}),
       intent,
     };

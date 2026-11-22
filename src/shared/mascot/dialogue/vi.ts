@@ -53,6 +53,8 @@ export const vi = {
   } satisfies Record<string, Text>,
   cheers: CHEERS,
   labels: {
+    /** Dòng tên trên bong bóng (design-system §9.3) */
+    name: NAME,
     ask: `Hỏi ${NAME}`,
     dismiss: 'Đóng lời nhắn',
     notNow: 'Chưa',
