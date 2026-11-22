@@ -289,3 +289,36 @@ Trong ngân sách Asset spec §3 (~420 KB cho 12 ảnh cả hai cỡ; precache c
 | `npx playwright test` (cổng 4173/5174 đã kiểm trống) | 0 | 133 pass, 46 skipped |
 | `npx playwright test e2e/m01/mascot-precache.spec.ts` (T067) | 0 | 1 pass |
 | Chụp 390 px (spec tạm, đã xóa) | — | Danh mục (INTRO, DOCK), chuyến đi, trang nội dung (avatar cạnh 051), câu hỏi cuối chuyến, màn kết quả (ăn mừng, DOCK), CONFLICT, khách tự do: ảnh thật, không đè |
+
+## 7. Đợt 2026-11-22 — Cập nhật gói theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02)
+
+Branch `specs/mascot-v1.1`, tách từ `docs/mascot-v1.1` (PR #64). Chỉ tài liệu của gói; chưa có code.
+
+### 7.1 Thay đổi
+
+| Tệp | Nội dung |
+|---|---|
+| `spec.md` | Nguồn v1.1; US8 chạm theo ngữ cảnh + chạm nhiều lần; US9 mới; FR-MAS-005, 008 sửa; FR-MAS-011, 012; SC-MAS-011…014; traceability |
+| `research.md` | R-17 công tắc (store trong bộ nhớ), R-18 cử chỉ tự động (RNG tiêm qua `StepContext`), R-19 "đang thao tác" (listener ở host, không sửa module), R-20 chữ hiện dần (bản đầy đủ `.visually-hidden`), R-21 cỡ theo slot, R-22 chạm, R-23 ba cấp (`trip.ended` thêm `n`), R-24 chớp mắt, R-25 vòng lặp ≤ 5 s |
+| `plan.md` | Nguồn v1.1; trình tự G8b |
+| `data-model.md` | Trạng thái mới trong bộ nhớ (`motion`, `lastActivityAt`, `lastGesture`, `lastTapAt`, `tapLog`, `helpCursor`, tiến độ theo màn); `Intent.source` |
+| `contracts/` | Sự kiện `mascot.motion.changed`, `app.user.activity` (nội bộ); `m02.trip.ended` thêm `n`; UI: `MascotSlot size`, `MascotMotionToggle`, bong bóng kiểu A, token mới |
+| `quickstart.md` | Q18…Q26 |
+| `tasks.md` | T063–T065 sửa theo chạm v1.1; Phase 12–17 mới (T075–T096); phụ thuộc; chiến lược G8b |
+
+### 7.2 Rà phủ (analyze, thủ công)
+
+| Yêu cầu v1.1 | Task | Kết quả |
+|---|---|---|
+| BR-MAS-12 chạm theo ngữ cảnh | T063, T064, T065 | Có |
+| BR-MAS-17 công tắc khởi đầu tắt khi giảm chuyển động | T082 | Có |
+| BR-MAS-20 ngữ cảnh hoạt động | T093, T094 | Có |
+| BR-MAS-21 cử chỉ tự động, công tắc, vòng lặp ≤ 5 s | T081–T086 | Có |
+| BR-MAS-22 chạm nhiều lần | T087, T088 | Có |
+| BR-MAS-23 ba cấp ăn mừng | T089–T092 | Có |
+| SC-MAS-011 / 012 / 013 / 014 | T083 / T081, T093 / T087 / T083 | Có |
+| Bong bóng kiểu A, chữ hiện dần, cỡ mới (design-system §9) | T075–T080 | Có |
+| Chớp mắt (MA-20), ảnh đợt 2 | T095, T096 (chặn bởi ảnh) | Có |
+| Constitution: không dependency, không dữ liệu bền vững, module chỉ import `shared/mascot` qua `index.ts` | R-17…R-25; test kiến trúc hiện có | Không vi phạm |
+
+Không phát hiện mâu thuẫn chặn. Tổng task: 96 (74 cũ + 22 mới).

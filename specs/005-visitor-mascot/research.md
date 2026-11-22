@@ -1,6 +1,6 @@
 # Research — 005 Mascot Mila
 
-**Package**: `specs/005-visitor-mascot/` · **Date**: 2026-11-21 · **Spec**: [spec.md](spec.md) (dẫn xuất spec-Mascot v1.0)
+**Package**: `specs/005-visitor-mascot/` · **Date**: 2026-11-21; bổ sung R-17…R-25 ngày 2026-11-22 · **Spec**: [spec.md](spec.md) (dẫn xuất spec-Mascot v1.1)
 
 Mỗi mục: **Decision** / **Rationale** / **Alternatives considered**. Nguồn kỹ thuật đầu vào: [Technical spec](../../docs/mascot/MASCOT_TECHNICAL_SPECIFICATION.md), [State Machine](../../docs/mascot/MASCOT_STATE_MACHINE.md), [Asset spec](../../docs/mascot/MASCOT_ASSET_SPECIFICATION.md). Spec canonical không có `NEEDS CLARIFICATION` (clarify 2026-11-21: 0 câu hỏi); các mục dưới đây là quyết định kỹ thuật.
 
@@ -104,3 +104,57 @@ Mỗi mục: **Decision** / **Rationale** / **Alternatives considered**. Nguồn
 
 - `docs/mascot/MASCOT_TECHNICAL_SPECIFICATION.md` §2 đặt `MascotSlot` ở `src/app/mascot/`; plan này chuyển sang `src/shared/mascot/` (R-02) và tách INLINE thành `MascotFigure` (R-07). Cập nhật bộ thiết kế khi code xong (tài liệu dẫn xuất, không chặn).
 - `docs/mascot/MASCOT_ASSET_SPECIFICATION.md` §3 ghi mẫu precache `assets/mascot-*.webp`; tên thật theo Vite là `assets/ma-*-240-*.webp` và `assets/ma-11-avatar-96-*.webp` (R-09).
+
+## Bổ sung v1.1 (spec-Mascot v1.1; CHG-MASCOT-2026-11-22-02, APPROVED 2026-11-22)
+
+Các mục R-17…R-25 là quyết định kỹ thuật cho BR-MAS-12, 17, 20–23. Không thêm dependency (R-01 giữ nguyên); không dữ liệu bền vững (R-03).
+
+## R-17 — Công tắc "Chuyển động"
+
+- **Decision**: một store nhỏ trong bộ nhớ `src/shared/mascot/motion.ts` (`getMotion`, `setMotion`, `subscribeMotion`, `useMotion`, cùng kiểu `slots.ts`); giá trị đầu = `off` nếu `matchMedia('(prefers-reduced-motion: reduce)')`, ngược lại `on`; không ghi `localStorage`. Component `MascotMotionToggle` (export ở `src/shared/mascot/index.ts`, như `MascotSlot`) render `<button aria-pressed>` khi cờ Mila bật; layout của M01 (`VisitorLayout`) và M02 (`FieldLayout`) đặt nó cạnh nhóm VI/EN. Đổi trạng thái phát `mascot.motion.changed { on }` để engine dừng / chạy lại lịch cử chỉ. Host đọc `useMotion()`: `off` → không gắn `data-mascot-animation`, không lá rơi, chữ hiện ngay.
+- **Rationale**: BR-MAS-21 (WCAG 2.2.2); BR-MAS-18 (không lưu); kiến trúc hiện có (module chỉ import `shared/mascot` qua `index.ts`).
+- **Alternatives**: nút trong slot của Mila (trùng vai trò "Hỏi Mila", và không có ở màn không có DOCK); lưu `localStorage` (trái BR-MAS-18).
+
+## R-18 — Cử chỉ tự động
+
+- **Decision**: hẹn giờ `ambient` của engine (cùng `nextDeadline`, một `setTimeout`). Khoảng cách lấy từ `ctx.random()` — hàm ngẫu nhiên **được tiêm qua `StepContext`** (host: `Math.random`; test: dãy cố định) để reducer vẫn tất định. Mỗi lượt kiểm điều kiện MAS-B-086; không đạt thì hẹn lại, không xếp hàng. Cử chỉ là `Intent` P7 không lời, `source: 'ambient'`, có thể đổi tư thế tạm qua `holdMs` (≤ 1 500 ms) rồi `then` về tư thế ngữ cảnh đang có. Không lặp cử chỉ vừa dùng (`lastGesture`). Không tính vào BR-MAS-07.
+- **Rationale**: BR-MAS-21; R-11 (một hẹn giờ); test được bằng đồng hồ và RNG giả.
+- **Alternatives**: `setInterval` trong component (khó tắt theo ngữ cảnh, khó test); CSS `animation-delay` ngẫu nhiên (không biết ngữ cảnh, không dừng theo luật).
+
+## R-19 — Phát hiện "đang thao tác"
+
+- **Decision**: host lắng nghe `pointerdown`, `keydown`, `scroll` (capture, passive, gộp 250 ms) trên `window` và gửi sự kiện nội bộ `app.user.activity` thẳng vào reducer (không qua bus, không vào chống trùng). Reducer ghi `lastActivityAt`. Trọng tài bỏ ý định có `source` là `timer` hoặc `ambient` nếu `now − lastActivityAt < MASCOT_INTERACTION_GRACE_MS`; ý định do sự kiện của chính thao tác (`mascot.user.*`, `m0x.*` kết quả) không bị bỏ. Hẹn giờ không hoạt động của scanner/danh mục tiếp tục reset như R-11.
+- **Rationale**: BR-MAS-20; không cần sửa module M01/M02.
+- **Alternatives**: phát từ từng màn (nhiều điểm sửa trong module, dễ sót).
+
+## R-20 — Chữ hiện dần
+
+- **Decision**: hook `useTypewriter(text, enabled)` trong `src/app/mascot/` hiện dần `MASCOT_TYPE_CPS` ký tự/giây bằng `requestAnimationFrame`; chạm bong bóng hiện hết. Phần chữ hiện dần `aria-hidden`; một bản đầy đủ ẩn thị giác (lớp `visually-hidden` hiện có) giữ `lang` và `role` cũ, nên trình đọc màn hình đọc câu một lần. Engine cộng thời gian gõ vào `expiresAt` khi `ctx.typing` bật (motion on và không giảm chuyển động): `expiresAt = shownAt + ceil(length / CPS) + readingTime`.
+- **Rationale**: design-system §9.3; Dialogue Library §2 (thời lượng tính từ khi chữ hiện đủ); MAS-TC-120.
+- **Alternatives**: CSS `steps()` với `width` (không chuẩn với chữ Việt nhiều dòng, không biết khi nào xong).
+
+## R-21 — Cỡ theo slot và bong bóng kiểu A
+
+- **Decision**: token mới `--mascot-size-dock-catalog/-trip/-end` (112/128/104), `--mascot-size-sm` 56, `--mascot-size-xl` 200, `--mascot-bubble-max-width` 240, `--mascot-bubble-surface` #fffaf0. `MascotSlot` nhận prop `size?: 'catalog' | 'trip' | 'end'` → `data-mascot-dock`; CSS của slot đặt biến `--mascot-dock-size` theo token, `Mascot` dùng `var(--mascot-dock-size, var(--mascot-size-md))` cho DOCK. Bong bóng: góc 6 px phía Mila theo hướng (`data-mascot-tail="start|end"`), tên "Mila" là dòng đầu (`aria-hidden`, vì nút đã có tên "Hỏi Mila"). Ảnh DOCK > 120 px dùng `srcSet` 480 cho 2×.
+- **Rationale**: design-system §9.2, §9.3, §9.5; lint token.
+- **Alternatives**: cỡ cố định theo mode (không phân biệt hero danh mục với màn chuyến đi).
+
+## R-22 — Chạm theo ngữ cảnh và chạm nhiều lần
+
+- **Decision**: reducer giữ `screen:k`, `screen:n` (từ `m02.trip.shown`, xóa khi đổi màn như bộ đếm `screen:` hiện có) và `scannerOpen`. Luật chạm chọn câu theo BR-MAS-12; danh mục xoay 009 → 012 bằng `helpCursor`. Chạm: `lastTapAt` (bỏ trong `MASCOT_TAP_DEBOUNCE_MS`), `tapLog` (cửa sổ `MASCOT_DIZZY_WINDOW_MS`), cờ `once` `DIZZY`. Câu P3 do chạm bỏ qua cooldown và BR-MAS-07 (`source: 'user'`). Component không chạy lại animation đang chạy: host giữ `key={view.seq}` chỉ tăng khi tư thế hoặc animation thật sự đổi.
+- **Rationale**: BR-MAS-12, 22.
+
+## R-23 — Ba cấp ăn mừng
+
+- **Decision**: animation mới `success` (AN-SUCCESS, nhún 1 lần) và `milestone` (AN-MILESTONE, nhảy 2 lần + 6 lá); thứ tự ưu tiên trong luật `m02.visit.recorded`: đầu tiên > nửa (n ≥ 4) > còn 1 (n ≥ 3) > thường. `m02.trip.ended` thêm `n` (EndPage có `journeyCheckpoints`) để chọn 063 (k = n) hay 062.
+- **Rationale**: BR-MAS-23; payload sự kiện là thông báo trong bộ nhớ, không phải contract liên module.
+
+## R-24 — Chớp mắt
+
+- **Decision**: `assets.ts` thêm `blinkAsset(pose)` từ glob `ma-20-<tư thế>-blink-240.webp`; cử chỉ `blink` chỉ có trong nhóm khi tư thế hiện tại có ảnh mắt nhắm. Host đổi `src` sang ảnh mắt nhắm 120 ms rồi về (ảnh đã nạp sẵn bằng `new Image()` khi tư thế hiện). Mẫu precache `assets/ma-*-240-*.webp` hiện có đã khớp tên này.
+- **Rationale**: Asset spec MA-20, AN-BLINK; MAS-TC-122.
+
+## R-25 — Vòng lặp ≤ 5 s
+
+- **Decision**: `--duration-mascot-loop` giữ 1 200 ms; số lần lặp của AN-SEARCH, AN-PACK, AN-THINK = 4 (4,8 s); AN-BREATHE 2 × 2 400 ms. Test E2E đo `getAnimations()` với `effect.getComputedTiming().endTime ≤ 5000` cho mọi animation của Mila trừ khi công tắc có trên màn.
+- **Rationale**: BR-MAS-21, SC-MAS-014.

@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-21
 
-**Status**: Draft — bản dẫn xuất (Layer 3) từ [docs/spec/spec-Mascot.md](../../docs/spec/spec-Mascot.md) v1.0
+**Status**: Draft — bản dẫn xuất (Layer 3) từ [docs/spec/spec-Mascot.md](../../docs/spec/spec-Mascot.md) v1.1 (cập nhật 2026-11-22 theo [CHG-MASCOT-2026-11-22-02](change-brief-CHG-MASCOT-2026-11-22-02.md))
 
 **Input**: Change Brief [CHG-MASCOT-2026-11-21-01](change-brief-CHG-MASCOT-2026-11-21-01.md) (APPROVED 2026-11-21). Nguồn chuẩn: spec-Mascot v1.0 (mọi quyết định nghiệp vụ đã chốt ở §10, OD-MAS-01…16); [function-list-Mascot.md](../../docs/function%20list/function-list-Mascot.md); ranh giới priority: [MVP-Scope.md](../../MVP-Scope.md) §3.6 (Could). Consumer: màn du khách SCR-M01-001…004, SCR-M02-001…004. Hình thức: [design-system](../../docs/design/design-system.md) §4.3, §9. Bộ thiết kế: [docs/mascot/](../../docs/mascot/README.md). Các rule M01/M02 được trích dẫn và giữ nguyên: spec-M01 v3.2 US-M01-01…06; spec-M02 v3.3 FR-M02-007, 009; BR-M02-005, 006, 007, 008, 009, 011, 015, 016, 021, 022, 023, 024; SC-M02-013; §5.1; §6.4.
 
@@ -154,19 +154,39 @@ Mất sóng giữa chuyến, Mila nói rõ cái gì vẫn dùng được. Mila k
 
 ### User Story 8 - Hỏi Mila và lời nhắc thiên nhiên — US-MAS-06 (Priority: P3)
 
-Chạm vào Mila thì nhận một câu gợi ý cố định của màn. Giữa các điểm dừng, Mila nhắc cất máy ngắm rừng và ứng xử với thiên nhiên.
+Chạm vào Mila thì Mila phản ứng và nói câu gợi ý hợp tình huống của màn (v1.1); chạm nhiều lần có quy tắc riêng. Giữa các điểm dừng, Mila nhắc cất máy ngắm rừng và ứng xử với thiên nhiên.
 
 **Why this priority**: Tương tác chủ động, giao sau khi hành vi thụ động đã được kiểm (FR-MAS-008; BR-MAS-13). Lời nhắc thiên nhiên còn chờ Ban Quản lý duyệt câu chữ.
 
-**Independent Test**: Chạm Mila ở danh mục: MSG-MAS-009; ở SCR-M02-001: MSG-MAS-032; ở màn nội dung: MSG-MAS-059. Quét một điểm mới rồi quay về hành trình: MSG-MAS-056; lần sau: một câu trong MSG-MAS-057a–e.
+**Independent Test**: Chạm Mila ở danh mục: MSG-MAS-009, chạm lần nữa: 012; ở SCR-M02-001 chưa quét: 032, giữa chặng: 033 ("Còn {r} điểm"), scanner mở: 043; ở màn nội dung: 059; ở màn kết quả: 065. Chạm 5 lần trong 3 giây: 085 một lần. Quét một điểm mới rồi quay về hành trình: MSG-MAS-056; lần sau: một câu trong MSG-MAS-057a–e.
 
 **Acceptance Scenarios**:
 
-1. **Given** Mila ở slot DOCK hoặc AVATAR, **When** du khách chạm Mila, **Then** Mila nói câu gợi ý của màn (MSG-MAS-009, 032, 059); không có menu hay hội thoại (BR-MAS-12).
+1. **Given** Mila ở slot DOCK hoặc AVATAR, **When** du khách chạm Mila, **Then** Mila phản ứng (nhún) và nói câu hợp tình huống: 009/012, 032/033/043, 059, 065 (BR-MAS-12, v1.1); câu chạm là P3, không cooldown, không tính vào BR-MAS-07; không có menu hay hội thoại.
+6. **Given** du khách chạm nhiều lần, **Then** chạm trong 400 ms tính một lần, animation đang chạy không chạy lại, không bao giờ hai bong bóng; chạm 5 lần trong 3 giây → chóng mặt (MSG-MAS-085, ảnh bối rối) một lần mỗi lần tải trang (BR-MAS-22).
 2. **Given** du khách quay về SCR-M02-001 từ nội dung của một lượt ghé mới (không phải điểm cuối), **Then** Mila luân phiên MSG-MAS-056 và một câu MSG-MAS-057a–e, theo cooldown và giới hạn câu chủ động (BR-MAS-13, 06, 07).
 3. **Given** câu nhắc thiên nhiên chưa được Ban Quản lý duyệt, **Then** chỉ có MSG-MAS-056 (BR-MAS-13).
 4. **Given** du khách mở lại app sau ít nhất `MASCOT_WELCOME_BACK_MIN` khi phiên còn chạy, **Then** MSG-MAS-034 (không khi đang có thông báo tự kết thúc chuyến).
 5. **Given** chuyến mới bắt đầu, **Then** MSG-MAS-030; câu gợi ý bắt đầu phiên cố định của spec-M02 §5.1 giữ nguyên.
+
+---
+
+### User Story 9 - Mila sống động và tạm dừng được — US-MAS-09 (Priority: P2, v1.1)
+
+Giữa các sự kiện, ở màn Mila đứng chờ, Mila tự làm cử chỉ ngắn; thanh đầu trang có công tắc "Chuyển động" để tạm dừng mọi chuyển động. Bong bóng kiểu "Giấy dã ngoại", chữ hiện dần, Mila lớn hơn; chớp mắt khi có ảnh mắt nhắm.
+
+**Why this priority**: Nhận xét sau khi thử trên điện thoại 2026-11-22 (Mila nhỏ, bong bóng giống hộp hệ thống, trông như ảnh tĩnh). Công tắc là điều kiện để chuyển động kéo dài đạt WCAG 2.2.2.
+
+**Independent Test**: Ở danh mục, không thao tác: trong 16 giây Mila làm ít nhất một cử chỉ. Tắt công tắc: không animation nào của Mila chạy, Mila vẫn hiện, chữ hiện ngay. Thiết bị giảm chuyển động: công tắc khởi đầu ở "tắt".
+
+**Acceptance Scenarios**:
+
+1. **Given** Mila ở DOCK trên SCR-M01-001, SCR-M02-001 (scanner đóng) hoặc SCR-M02-003, không bong bóng, **Then** mỗi 8–15 giây Mila làm một cử chỉ ≤ 1,5 giây, không lặp cử chỉ liền nhau (BR-MAS-21).
+2. **Given** du khách vừa chạm, cuộn hoặc gõ phím trong 2 giây, hoặc đang ở trang đọc bài, phát media, có hộp thoại, **Then** không cử chỉ tự động và không câu do hẹn giờ (BR-MAS-20).
+3. **Given** công tắc tắt, **Then** không animation, không lá rơi, chữ hiện ngay; Mila và bong bóng vẫn hiện (BR-MAS-21).
+4. **Given** bong bóng mới, **Then** chữ hiện dần khoảng 30 ký tự/giây; chạm bong bóng hiện hết; trình đọc màn hình đọc câu đầy đủ một lần; thời lượng tự ẩn tính từ khi chữ hiện đủ.
+5. **Given** có ảnh mắt nhắm của tư thế đang hiện, **Then** chớp mắt là một cử chỉ trong nhóm; thiếu ảnh thì không chớp, không hình giữ chỗ.
+6. Mọi animation tự chạy của một phản ứng dừng trong 5 giây mỗi lượt (SC-MAS-014).
 
 ---
 
@@ -193,11 +213,13 @@ Mỗi dòng giữ nguyên ID của spec-Mascot; BR là tham chiếu nguồn, chi
 - **FR-MAS-002**: Chỉ phản ứng với các sự kiện logic của spec-Mascot §5.2 theo luật §5.3; không hiện gì ngẫu nhiên. (BR-MAS-05, 06, 07, 09, 10)
 - **FR-MAS-003**: Lấy mọi câu trong bong bóng từ catalog spec-Mascot §5.6 theo `LanguagePreference` hiện tại (trang link QR khi chưa có lựa chọn: theo quy tắc ngôn ngữ thiết bị của BR-M02-024); đổi VI/EN thì bong bóng đang hiện đổi ngay. (BR-MAS-02, 04)
 - **FR-MAS-004**: Giới thiệu Mila một lần, sau lần chọn ngôn ngữ đầu tiên ở bước chọn ngôn ngữ. (US-MAS-01)
-- **FR-MAS-005**: Ăn mừng lần ghi lượt ghé đầu tiên và khi kết thúc chuyến hoàn tất, với tiến độ lấy từ phiên. (BR-MAS-14, 19)
+- **FR-MAS-005**: Ăn mừng lần ghi lượt ghé, các mốc tiến trình và khi kết thúc chuyến hoàn tất theo ba cấp, với tiến độ lấy từ phiên. (BR-MAS-14, 19, 23)
 - **FR-MAS-006**: Trợ giúp quét khi không hoạt động và khi lỗi giống nhau lặp lại. (BR-MAS-09, 10)
 - **FR-MAS-007**: Rời màn khi có thông báo tạm đóng; im lặng khi phát media, có dialog hay trang ẩn. (BR-MAS-03, 08)
-- **FR-MAS-008**: Chạm thì hiện một câu gợi ý cố định của màn. (BR-MAS-12)
+- **FR-MAS-008**: Chạm thì phản ứng và hiện câu gợi ý hợp tình huống của màn; chạm nhiều lần theo quy tắc. (BR-MAS-12, 22)
 - **FR-MAS-009**: Không bao giờ đổi, làm chậm, ẩn hay thay hành vi, dữ liệu hay câu cố định nào của spec-M01 hoặc spec-M02. (BR-MAS-01, 02, 16, 18)
+- **FR-MAS-011**: Cử chỉ tự động ở màn Mila đứng chờ và công tắc "Chuyển động" ở thanh đầu trang tạm dừng mọi chuyển động mà không ẩn Mila. (BR-MAS-17, 21)
+- **FR-MAS-012**: Hành xử theo ngữ cảnh hoạt động của du khách. (BR-MAS-20)
 - **FR-MAS-010**: Chạy như nhau khi offline; không phản ứng nào cần mạng. (BR-MAS-15)
 
 ### Slot và chế độ hiển thị (spec-Mascot §5.1)
@@ -245,6 +267,10 @@ Giữ nguyên SC-MAS-001…010 của spec canonical (spec-Mascot §7):
 - **SC-MAS-008**: Khi yêu cầu giảm chuyển động, 0 animation của Mila chạy.
 - **SC-MAS-009**: Khách tự do không bao giờ thấy tiến độ hay ăn mừng.
 - **SC-MAS-010**: Mở link QR công khai hiện nội dung không có lời giới thiệu và không thêm độ trễ.
+- **SC-MAS-011** (v1.1): Công tắc tắt → 0 animation của Mila chạy trên mọi màn, Mila vẫn hiện.
+- **SC-MAS-012** (v1.1): 0 cử chỉ tự động trên trang đọc bài, khi phát media, khi có hộp thoại, hoặc trong 2 giây sau thao tác.
+- **SC-MAS-013** (v1.1): Mọi chuỗi chạm không bao giờ hiện hai bong bóng, không chạy lại animation đang chạy, chóng mặt tối đa một lần mỗi lần tải trang.
+- **SC-MAS-014** (v1.1): Không animation tự chạy nào quá 5 giây nếu màn đó không có công tắc.
 
 ## Assumptions
 
@@ -270,5 +296,7 @@ Không có câu hỏi nghiệp vụ chặn: OD-MAS-01…16 đã chốt (spec-Mas
 | US5 Giúp khi quét khó | US-MAS-03 | FR-MAS-006 | BR-MAS-07, 09, 10 | SC-MAS-002 |
 | US6 Bình tĩnh về mạng và dữ liệu | US-MAS-04 | FR-MAS-010 | BR-MAS-04, 15 | SC-MAS-006, 007 |
 | US7 Chuẩn bị cùng Mila | US-MAS-07 | FR-MAS-002 | BR-MAS-04, 09, 10 | SC-MAS-006 |
-| US8 Hỏi Mila, nhắc thiên nhiên | US-MAS-06 (+ BR-MAS-13) | FR-MAS-008 | BR-MAS-06, 07, 12, 13 | — |
+| US8 Hỏi Mila, nhắc thiên nhiên | US-MAS-06 (+ BR-MAS-13) | FR-MAS-008 | BR-MAS-06, 07, 12, 13, 22 | SC-MAS-013 |
+| US9 Sống động, tạm dừng được (v1.1) | US-MAS-09 | FR-MAS-011, 012 | BR-MAS-17, 20, 21 | SC-MAS-011, 012, 014 |
+| Ba cấp ăn mừng (v1.1, mở rộng US2, US4) | US-MAS-02, 08 | FR-MAS-005 | BR-MAS-23 | — |
 | Xuyên suốt | — | FR-MAS-001, 002, 003, 009 | BR-MAS-01, 16, 18 | SC-MAS-001 |

@@ -46,12 +46,23 @@ Không có slot hay figure ở: bước chọn ngôn ngữ, khối Cảnh báo a
 
 | Token | Giá trị |
 |---|---|
-| `--mascot-size-sm` / `-md` / `-lg` | 40px / 72px / 160px |
-| `--mascot-bubble-max-width` | 280px |
+| `--mascot-size-sm` / `-md` / `-lg` | 56px (v1.1) / 72px / 160px |
+| `--mascot-size-dock-catalog` / `-dock-trip` / `-dock-end` (v1.1) | 112px / 128px / 104px |
+| `--mascot-size-xl` (v1.1) | 200px (INTRO, CELEBRATE) |
+| `--mascot-bubble-max-width` | 240px (v1.1) |
+| `--mascot-bubble-surface` (v1.1) | #fffaf0 |
 | `--duration-mascot-enter` / `-exit` / `-pop` / `-hop` / `-celebrate` | 250ms / 200ms / 200ms / 600ms / 2400ms |
-| `--duration-mascot-loop` | 1200ms (chu kỳ; số vòng hữu hạn ≤ 10 s) |
+| `--duration-mascot-loop` | 1200ms (chu kỳ; v1.1: tối đa 4 vòng ≈ 4,8 s, R-25) |
+| `--duration-mascot-milestone` / `-ambient` / `-blink` (v1.1) | 1200ms / ≤ 1500ms / 120ms |
 
 Mọi `--duration-mascot-*` = 0ms trong khối `@media (prefers-reduced-motion: reduce)` hiện có.
+
+## 4a. Bổ sung v1.1
+
+- `MascotSlot` nhận `size?: 'catalog' | 'trip' | 'end'` → `data-mascot-dock`; slot `catalog-hero` dùng `catalog`, `trip-dock` dùng `trip`, `end-hero` dùng `end` (R-21).
+- `MascotMotionToggle` (export từ `src/shared/mascot/index.ts`): `<button type="button" aria-pressed>` tên "Chuyển động của Mila" / "Mila's motion", chữ "Chuyển động: bật/tắt" (ẩn dưới 360px), icon `pause.svg` / `play.svg` mới trong `assets/icons/`; vùng chạm 44px; không render khi cờ tắt. Đặt trong header của `src/modules/m01/layout/VisitorLayout.tsx` và `src/modules/m02/layout/FieldLayout.tsx`, bên trái VI/EN (design-system §9.5).
+- Bong bóng kiểu A: dòng tên "Mila" (`aria-hidden`), chữ hiện dần (phần hiện dần `aria-hidden`, bản đầy đủ `.visually-hidden` giữ `lang`, `role`), góc 6px phía Mila theo `data-mascot-tail` (R-20, R-21).
+- `motion === 'off'` hoặc giảm chuyển động: không `data-mascot-animation`, không lá rơi, chữ hiện ngay.
 
 ## 5. Catalog (`src/shared/mascot/dialogue/`)
 
@@ -61,4 +72,4 @@ Mọi `--duration-mascot-*` = 0ms trong khối `@media (prefers-reduced-motion: 
 
 ## 6. Ảnh (`assets/mascot/web/`)
 
-`ma-01-wave`, `ma-02-map`, `ma-03-think`, `ma-04-backpack`, `ma-05-binoculars`, `ma-06-magnifier`, `ma-07-thumbs-up`, `ma-08-cheer`, `ma-09-confused`, `ma-10-rest`, `ma-11-avatar`, `ma-13-point`; mỗi tư thế `-240.webp` và `-480.webp` (avatar `-96`/`-192`). Chưa có ảnh production → registry trả hình giữ chỗ CSS (research R-08).
+v1.1: thêm `ma-20-<tư thế>-blink-240.webp` cho map, binoculars, thumbs-up, backpack, rest (R-24). `ma-01-wave`, `ma-02-map`, `ma-03-think`, `ma-04-backpack`, `ma-05-binoculars`, `ma-06-magnifier`, `ma-07-thumbs-up`, `ma-08-cheer`, `ma-09-confused`, `ma-10-rest`, `ma-11-avatar`, `ma-13-point`; mỗi tư thế `-240.webp` và `-480.webp` (avatar `-96`/`-192`). Chưa có ảnh production → registry trả hình giữ chỗ CSS (research R-08).

@@ -40,6 +40,21 @@
 | Q16 | Chạm Mila ở danh mục / chuyến đi / nội dung | MSG-MAS-009 / 032 / 059 | US8 |
 | Q17 | Cờ `off` | Không có `[data-mascot-slot]` hiển thị nội dung, không tải chunk `mascot`; toàn bộ E2E cũ PASS | SC-MAS-001 |
 
+
+### Bổ sung v1.1
+
+| # | Kịch bản | Kỳ vọng |
+|---|---|---|
+| Q18 | Mở danh mục, không thao tác 16 giây | Ít nhất một cử chỉ tự động; không câu chữ |
+| Q19 | Tắt công tắc "Chuyển động" ở danh mục và màn chuyến đi | Không animation nào của Mila chạy; Mila vẫn hiện; bong bóng mới hiện chữ ngay |
+| Q20 | Giảm chuyển động bật trên thiết bị | Công tắc khởi đầu ở "tắt" |
+| Q21 | Chạm Mila ở danh mục 2 lần; ở chuyến đi sau khi quét 1/3 điểm; khi scanner mở; ở màn kết quả | 009 → 012; 033 "Còn 2 điểm nữa…"; 043; 065 |
+| Q22 | Chạm Mila 5 lần trong 3 giây, rồi lặp lại | Chóng mặt một lần (085); lần sau như thường |
+| Q23 | Tuyến 3 điểm: quét điểm 1, điểm 2 | Điểm 1: 051 cấp 2; điểm 2: 058 "Chỉ còn một điểm nữa thôi!" cấp 2 |
+| Q24 | Kết thúc sau khi quét đủ mọi điểm / kết thúc sớm | 063 / 062 |
+| Q25 | Cuộn danh mục liên tục | Không cử chỉ tự động trong lúc cuộn và 2 giây sau |
+| Q26 | Bong bóng ở 320 px | Kiểu "Giấy dã ngoại", không đè, không cuộn ngang; Mila 112 px (danh mục), 128 px (chuyến đi), 104 px (kết quả) |
+
 ## 4. Kiểm thủ công (thiết bị thật — chủ dự án)
 
 Rung trên Android khi quét trong app; đọc được ngoài nắng; một tay; TalkBack/VoiceOver (thông báo tạm đóng đọc một mình, toast không đọc hai lần); Lighthouse `/q/Q1a` không tăng LCP. Ghi `NOT RUN` nếu chưa làm.
