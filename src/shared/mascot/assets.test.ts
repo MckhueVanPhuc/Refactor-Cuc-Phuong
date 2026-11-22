@@ -13,9 +13,10 @@ describe('poseAsset', () => {
     expect(poseAsset('avatar')).toEqual({ src240: expect.stringMatching(/ma-11-avatar-96\.webp$/), src480: expect.stringMatching(/ma-11-avatar-192\.webp$/) });
   });
 
-  it('tư thế đợt 2 chưa có ảnh → null (component dùng hình giữ chỗ)', () => {
-    expect(poseAsset('think')).toBeNull();
-    expect(poseAsset('magnifier')).toBeNull();
-    expect(poseAsset('point')).toBeNull();
+  it('đợt 2 (2026-11-23): think, magnifier, point có ảnh 240/480', () => {
+    for (const pose of ['think', 'magnifier', 'point'] as const) {
+      expect(poseAsset(pose)?.src240, pose).toMatch(/ma-\d\d-[a-z-]+-240\.webp$/);
+      expect(poseAsset(pose)?.src480, pose).toMatch(/ma-\d\d-[a-z-]+-480\.webp$/);
+    }
   });
 });

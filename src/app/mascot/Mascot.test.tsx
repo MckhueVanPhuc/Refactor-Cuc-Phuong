@@ -60,10 +60,26 @@ describe('Mascot — ảnh theo mode', () => {
     expect(onAssetError).toHaveBeenCalledTimes(1);
   });
 
-  it('tư thế chưa có ảnh (đợt 2) → hình giữ chỗ', () => {
-    const { container } = renderMascot(view('DOCK', 'think'));
+  it('tư thế không có ảnh → hình giữ chỗ (mọi tư thế hiện đã có ảnh; giả lập registry trống)', async () => {
+    vi.resetModules();
+    vi.doMock('../../shared/mascot/assets', () => ({ poseAsset: () => null }));
+    const { Mascot: WithoutAssets } = await import('./Mascot');
+    const { container } = render(
+      <WithoutAssets
+        view={view('DOCK', 'think')}
+        bubble={null}
+        language="vi"
+        reducedMotion
+        typing={false}
+        onTap={vi.fn()}
+        onClose={vi.fn()}
+        onCta={vi.fn()}
+        onAssetError={vi.fn()}
+      />,
+    );
     expect(container.querySelector('img')).toBeNull();
     expect(container.querySelector('[data-mascot-placeholder]')).not.toBeNull();
+    vi.doUnmock('../../shared/mascot/assets');
   });
 });
 
