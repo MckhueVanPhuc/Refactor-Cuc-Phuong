@@ -52,6 +52,9 @@ export const en: MascotDialogue = {
   labels: {
     name: NAME,
     ask: `Ask ${NAME}`,
+    motion: `${NAME}'s motion`,
+    motionOn: 'Motion: on',
+    motionOff: 'Motion: off',
     dismiss: 'Dismiss message',
     notNow: 'Not now',
     ctaRecommend: 'Route suggestions',

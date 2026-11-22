@@ -288,15 +288,15 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests ⚠️
 
-- [ ] T081 [P] [US9] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-086 — lịch 8–15 s với `ctx.random` cố định; chỉ ở SCR-M01-001, SCR-M02-001 (scanner đóng), SCR-M02-003; không khi có bong bóng, blocker, motion off, trong grace; không lặp cử chỉ liền nhau; cử chỉ đổi tư thế quay về tư thế ngữ cảnh; không tính vào BR-MAS-07; `mascot.motion.changed { on: false }` hủy lịch (R-18)
-- [ ] T082 [P] [US9] Viết `src/shared/mascot/MascotMotionToggle.test.tsx` và `motion.test.ts`: `aria-pressed`, tên truy cập, chữ bật/tắt; khởi đầu `off` khi giảm chuyển động; không render khi cờ tắt; không ghi `localStorage` (R-17)
-- [ ] T083 [P] [US9] Viết `e2e/m01/mascot-motion.spec.ts`: công tắc có ở header M01 và M02; tắt → `getAnimations()` của Mila rỗng, Mila vẫn hiện (SC-MAS-011); có ít nhất một cử chỉ trong 16 s ở danh mục (quan sát `data-mascot-animation`); mọi animation của phản ứng có `endTime` ≤ 5 000 ms (SC-MAS-014)
+- [X] T081 [P] [US9] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-086 — lịch 8–15 s với `ctx.random` cố định; chỉ ở SCR-M01-001, SCR-M02-001 (scanner đóng), SCR-M02-003; không khi có bong bóng, blocker, motion off, trong grace; không lặp cử chỉ liền nhau; cử chỉ đổi tư thế quay về tư thế ngữ cảnh; không tính vào BR-MAS-07; `mascot.motion.changed { on: false }` hủy lịch (R-18)
+- [X] T082 [P] [US9] Viết `src/shared/mascot/MascotMotionToggle.test.tsx` và `motion.test.ts`: `aria-pressed`, tên truy cập, chữ bật/tắt; khởi đầu `off` khi giảm chuyển động; không render khi cờ tắt; không ghi `localStorage` (R-17)
+- [X] T083 [P] [US9] Viết `e2e/m01/mascot-motion.spec.ts`: công tắc có ở header M01 và M02; tắt → `getAnimations()` của Mila rỗng, Mila vẫn hiện (SC-MAS-011); có ít nhất một cử chỉ trong 16 s ở danh mục (quan sát `data-mascot-animation`); mọi animation của phản ứng có `endTime` ≤ 5 000 ms (SC-MAS-014)
 
 ### Implementation
 
-- [ ] T084 [US9] `src/shared/mascot/motion.ts`, `MascotMotionToggle.tsx` (+ CSS), export ở `index.ts`; icon mới `assets/icons/pause.svg`, `assets/icons/play.svg` theo design-system §7
-- [ ] T085 [US9] Engine: sự kiện `mascot.motion.changed`, hẹn giờ `ambient`, `StepContext.random`, nhóm cử chỉ (nhìn ống nhòm, vẫy, nhún, nghiêng đầu, kéo quai ba lô, thở) trong `rules.ts`/`machine.ts`; animation CSS mới và số vòng lặp ≤ 5 s (R-25); host đọc `useMotion()`
-- [ ] T086 [US9] Đặt `<MascotMotionToggle />` trong header `src/modules/m01/layout/VisitorLayout.tsx` và `src/modules/m02/layout/FieldLayout.tsx` (chỉ thêm phần tử; không đổi hành vi header)
+- [X] T084 [US9] `src/shared/mascot/motion.ts`, `MascotMotionToggle.tsx` (+ CSS), export ở `index.ts`; icon mới `assets/icons/pause.svg`, `assets/icons/play.svg` theo design-system §7
+- [X] T085 [US9] Engine: sự kiện `mascot.motion.changed`, hẹn giờ `ambient`, `StepContext.random`, nhóm cử chỉ (nhìn ống nhòm, vẫy, nhún, nghiêng đầu, kéo quai ba lô, thở) trong `rules.ts`/`machine.ts`; animation CSS mới và số vòng lặp ≤ 5 s (R-25); host đọc `useMotion()`
+- [X] T086 [US9] Đặt `<MascotMotionToggle />` trong header `src/modules/m01/layout/VisitorLayout.tsx` và `src/modules/m02/layout/FieldLayout.tsx` (chỉ thêm phần tử; không đổi hành vi header)
 
 **Checkpoint**: T083 PASS; toàn bộ E2E hiện có PASS (công tắc không đè VI/EN ở 320 px).
 

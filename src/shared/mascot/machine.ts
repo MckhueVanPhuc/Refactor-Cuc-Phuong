@@ -1,7 +1,14 @@
 // Máy trạng thái thuần của Mila (State Machine §7; specs/005 research R-04). Cùng đầu vào → cùng đầu ra; không đọc
 // đồng hồ hệ thống (thời điểm đi trong sự kiện), không DOM, không lưu trữ.
 import { admit, clearPresence, pump } from './arbiter';
-import { MASCOT_DEDUPE_MS, MASCOT_QUEUE_TTL_MS, MASCOT_SAME_PRIORITY_MIN_MS } from './config';
+import {
+  MASCOT_AMBIENT_MAX_MS,
+  MASCOT_AMBIENT_MIN_MS,
+  MASCOT_AMBIENT_PATHS,
+  MASCOT_DEDUPE_MS,
+  MASCOT_QUEUE_TTL_MS,
+  MASCOT_SAME_PRIORITY_MIN_MS,
+} from './config';
 import type { MascotEventType } from './events';
 import { RULES } from './rules';
 import type { Blocker, Effect, Intent, MascotState, Rule, StampedEvent, Status, StepContext, StepResult } from './types';
@@ -20,6 +27,7 @@ const STATE_SIGNALS: ReadonlySet<MascotEventType> = new Set([
   'm02.media.stopped',
   'm02.notice.autoEndShown',
   'm02.notice.autoEndHidden',
+  'mascot.motion.changed',
 ]);
 const DEDUPE_KEEP_MS = 5_000;
 
@@ -42,6 +50,7 @@ export function initialState(): MascotState {
     visible: true,
     hiddenAt: null,
     online: true,
+    motion: true,
     hasSession: false,
     path: '',
   };
@@ -207,6 +216,15 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
     case 'mascot.user.ctaPressed':
       endBubble(s, ctx, now, effects, true);
       break;
+    case 'mascot.motion.changed':
+      s.motion = event.on;
+      break;
+    case 'm02.scanner.opened':
+      s.counters['screen:scanner'] = 1;
+      break;
+    case 'm02.scanner.closed':
+      delete s.counters['screen:scanner'];
+      break;
     case 'mascot.asset.failed':
       clearPresence(s);
       s.failed = true;
@@ -231,6 +249,32 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
 
   applyRules(s, event, ctx, rules, effects);
   if (pumpQueue) pump(s, ctx, now, effects);
+  scheduleAmbient(s, ctx, now);
   s.status = deriveStatus(s);
   return { state: s, effects };
+}
+
+/**
+ * Lịch cử chỉ tự động (BR-MAS-21; research R-18): Mila đứng yên ở DOCK trên màn đứng chờ, không bong bóng, không giữ,
+ * không ngữ cảnh chặn, công tắc bật → có một hẹn `ambient` trong 8–15 s; điều kiện hết → bỏ hẹn.
+ */
+function scheduleAmbient(s: MascotState, ctx: StepContext, now: number): void {
+  const waiting =
+    s.motion &&
+    s.visible &&
+    !s.failed &&
+    !s.closed &&
+    s.view?.mode === 'DOCK' &&
+    !s.bubble &&
+    !s.hold &&
+    s.blockers.length === 0 &&
+    !s.counters['screen:scanner'] &&
+    MASCOT_AMBIENT_PATHS.includes(s.path);
+  if (!waiting) {
+    delete s.timers['ambient'];
+    return;
+  }
+  if (s.timers['ambient'] !== undefined) return;
+  const random = ctx.random ?? Math.random;
+  s.timers['ambient'] = now + MASCOT_AMBIENT_MIN_MS + Math.floor(random() * (MASCOT_AMBIENT_MAX_MS - MASCOT_AMBIENT_MIN_MS));
 }

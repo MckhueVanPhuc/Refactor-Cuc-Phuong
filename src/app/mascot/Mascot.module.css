@@ -354,14 +354,36 @@ button.figure:focus-visible {
   animation: mascot-look var(--duration-mascot-loop) var(--ease-in-out) both;
 }
 
-/* Vòng chờ: số vòng hữu hạn (≤ 10 s) rồi đứng yên */
+/* Cử chỉ tự động "vẫy" (v1.1, AN-AMBIENT): lắc lư nhẹ cùng ảnh vẫy tay */
+.mascot[data-mascot-animation='wave'] .figure {
+  animation: mascot-wave var(--duration-mascot-loop) var(--ease-in-out) both;
+}
+
+/* Vòng chờ: tối đa ~4,8 s mỗi lượt rồi đứng yên (v1.1, BR-MAS-21; research R-25) */
 .mascot[data-mascot-animation='breathe'] .figure {
-  animation: mascot-breathe calc(var(--duration-mascot-loop) * 2.5) var(--ease-in-out) 3;
+  animation: mascot-breathe calc(var(--duration-mascot-loop) * 2) var(--ease-in-out) 2;
 }
 
 .mascot[data-mascot-animation='search'] .figure,
 .mascot[data-mascot-animation='pack'] .figure {
-  animation: mascot-sway var(--duration-mascot-loop) var(--ease-in-out) 8;
+  animation: mascot-sway var(--duration-mascot-loop) var(--ease-in-out) 4;
+}
+
+@keyframes mascot-wave {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  20%,
+  60% {
+    transform: rotate(-4deg);
+  }
+
+  40%,
+  80% {
+    transform: rotate(4deg);
+  }
 }
 
 @keyframes mascot-enter {

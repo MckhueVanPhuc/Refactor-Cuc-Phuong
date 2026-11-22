@@ -62,6 +62,8 @@ export type MascotEvent =
   | { type: 'mascot.user.ctaPressed'; cta: CtaId }
   // Nội bộ host/engine (không module nào phát)
   | { type: 'mascot.tick' }
+  /** Công tắc "Chuyển động" ở thanh đầu trang (v1.1, BR-MAS-21) */
+  | { type: 'mascot.motion.changed'; on: boolean }
   | { type: 'mascot.timer'; name: string }
   | { type: 'mascot.slots.changed' }
   | { type: 'mascot.asset.failed' };

@@ -18,7 +18,8 @@ export type AnimationId =
   | 'search'
   | 'pack'
   | 'thumb'
-  | 'celebrate';
+  | 'celebrate'
+  | 'wave';
 export type Status = 'HIDDEN' | 'INTRO' | 'IDLE' | 'SPEAKING' | 'BUSY' | 'CELEBRATING' | 'SUPPRESSED';
 export type Blocker = 'DIALOG' | 'MEDIA' | 'AUTO_END';
 
@@ -75,13 +76,16 @@ export type MascotState = {
   visible: boolean;
   hiddenAt: number | null;
   online: boolean;
+  /** Công tắc "Chuyển động" (v1.1): tắt thì không cử chỉ tự động (BR-MAS-21) */
+  motion: boolean;
   hasSession: boolean;
   path: string;
 };
 
 /** Ngữ cảnh host đưa vào mỗi bước */
 /** `typing`: chữ bong bóng hiện dần (chuyển động bật, không giảm chuyển động) — thời gian tự ẩn cộng thời gian gõ (R-20). */
-export type StepContext = { availableModes: readonly Mode[]; reducedMotion: boolean; language: Language; typing?: boolean };
+/** `random`: hàm ngẫu nhiên được tiêm vào để reducer vẫn tất định (test truyền dãy cố định; R-18). */
+export type StepContext = { availableModes: readonly Mode[]; reducedMotion: boolean; language: Language; typing?: boolean; random?: () => number };
 
 export type Effect = { kind: 'vibrate'; ms: number };
 

@@ -261,3 +261,72 @@ describe('US4 — Kết thúc chuyến cùng Mila (US-MAS-08)', () => {
     expect(state.bubble).toBeNull();
   });
 });
+
+describe('v1.1 — Cử chỉ tự động (MAS-B-086, BR-MAS-21)', () => {
+  // Hàm ngẫu nhiên cố định: 0 → khoảng cách ngắn nhất (8 s), cử chỉ đầu danh sách
+  const zero = { ...CTX, random: () => 0 };
+  const catalog: Stamped[] = [
+    { type: 'app.route.changed', path: '/', at: 0 },
+    { type: 'm01.catalog.loaded', status: 'ready', count: 3, stale: false, slow: false, at: 10 },
+  ];
+  // Người dùng cũ: catalog.loaded → hẹn chào lại 600 ms; đóng bong bóng chào để Mila đứng yên ở DOCK
+  const settled = () => {
+    let s = play(catalog, [], zero).state;
+    s = play([{ type: 'mascot.tick', at: 700 }], [], zero, s).state;
+    return play([{ type: 'mascot.user.closedBubble', at: 800 }], [], zero, s).state;
+  };
+
+  it('DOCK đứng yên ở danh mục → hẹn cử chỉ sau 8–15 s; tới hạn: một cử chỉ ≤ 1,5 s rồi về tư thế cũ', () => {
+    const s = settled();
+    expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
+    expect(s.timers['ambient']).toBe(800 + 8_000);
+    const gesture = play([{ type: 'mascot.tick', at: 8_800 }], [], zero, s).state;
+    expect(gesture.view).toMatchObject({ mode: 'DOCK', behaviorId: 'MAS-B-086' });
+    expect(gesture.bubble).toBeNull();
+    // Cử chỉ không có lời: không thêm vào giới hạn câu chủ động (mốc 700 là câu chào 004)
+    expect(gesture.proactiveLog).toEqual(s.proactiveLog);
+    expect(gesture.hold!.until - 8_800).toBeLessThanOrEqual(1_500);
+    const back = play([{ type: 'mascot.tick', at: gesture.hold!.until }], [], zero, gesture).state;
+    expect(back.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
+    expect(back.timers['ambient']).toBe(gesture.hold!.until + 8_000);
+  });
+
+  it('khoảng cách lớn nhất 15 s; không lặp cùng cử chỉ hai lần liền', () => {
+    const high = { ...CTX, random: () => 0.999 };
+    let s = play(catalog, [], high).state;
+    s = play([{ type: 'mascot.tick', at: 700 }, { type: 'mascot.user.closedBubble', at: 800 }], [], high, s).state;
+    expect(s.timers['ambient']).toBeLessThanOrEqual(800 + 15_000);
+    const first = play([{ type: 'mascot.tick', at: s.timers['ambient']! }], [], zero, s).state;
+    const firstLook = `${first.view!.pose}/${first.view!.animation}`;
+    let r = play([{ type: 'mascot.tick', at: first.hold!.until }], [], zero, first).state;
+    r = play([{ type: 'mascot.tick', at: r.timers['ambient']! }], [], zero, r).state;
+    expect(`${r.view!.pose}/${r.view!.animation}`).not.toBe(firstLook);
+  });
+
+  it('không cử chỉ khi: có bong bóng, công tắc tắt, scanner mở, trang đọc bài', () => {
+    // Bong bóng đang hiện (chưa đóng câu chào) → không hẹn
+    let s = play(catalog, [], zero).state;
+    s = play([{ type: 'mascot.tick', at: 700 }], [], zero, s).state;
+    expect(s.bubble).not.toBeNull();
+    expect(s.timers['ambient']).toBeUndefined();
+    // Công tắc tắt → hủy lịch; bật lại → hẹn lại
+    const off = play([{ type: 'mascot.motion.changed', on: false, at: 900 }], [], zero, settled()).state;
+    expect(off.timers['ambient']).toBeUndefined();
+    expect(play([{ type: 'mascot.motion.changed', on: true, at: 1_000 }], [], zero, off).state.timers['ambient']).toBe(9_000);
+    // Scanner mở trên màn chuyến đi: tới hạn không có cử chỉ
+    const trip = play(
+      [
+        { type: 'app.route.changed', path: '/trip', at: 0 },
+        { type: 'm02.trip.shown', hasSession: true, k: 0, n: 3, finalVisited: false, at: 10 },
+      ],
+      [],
+      zero,
+    ).state;
+    expect(trip.timers['ambient']).toBe(10 + 8_000);
+    const scanning = play([{ type: 'm02.scanner.opened', hasSession: true, k: 0, at: 20 }], [], zero, trip).state;
+    expect(play([{ type: 'mascot.tick', at: 8_010 }], [], zero, scanning).state.view?.behaviorId).not.toBe('MAS-B-086');
+    // Trang đọc bài: không hẹn
+    const reading = play([{ type: 'app.route.changed', path: '/trip/qr/Q1a', at: 0 }], [], zero).state;
+    expect(reading.timers['ambient']).toBeUndefined();
+  });
+});

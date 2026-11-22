@@ -1,8 +1,8 @@
 // Bảng luật của Mila: mỗi luật mang ID hành vi `MAS-B-*` của Behavior Matrix (docs/mascot) và dẫn tới BR-MAS của
 // spec-Mascot. Luật an toàn (MAS-B-035, 045, 058, 082–084, hộp thoại) nằm trong machine.ts vì không phụ thuộc màn.
-import { MASCOT_VIBRATION_MS } from './config';
+import { MASCOT_AMBIENT_GESTURE_MS, MASCOT_VIBRATION_MS } from './config';
 import type { MascotEvent } from './events';
-import type { Intent, Rule, RuleResult, RuleView } from './types';
+import type { AnimationId, Intent, PoseId, Rule, RuleResult, RuleView } from './types';
 
 type EventOf<T extends MascotEvent['type']> = Extract<MascotEvent, { type: T }>;
 
@@ -47,7 +47,19 @@ const US1: Rule[] = [
     event.status === 'ready' && !state.once['INTRO_REQUESTED'] && !state.once['WELCOME_BACK'] ? { timers: { welcome: 600 } } : null,
   ),
   onTimer('MAS-B-004:show', 'welcome', () => ({
-    intents: [{ behaviorId: 'MAS-B-004', priority: 6, mode: 'DOCK', pose: 'wave', animation: 'pop', message: { id: 'MSG-MAS-004' }, once: 'WELCOME_BACK' }],
+    intents: [
+      {
+        behaviorId: 'MAS-B-004',
+        priority: 6,
+        mode: 'DOCK',
+        pose: 'wave',
+        animation: 'pop',
+        message: { id: 'MSG-MAS-004' },
+        once: 'WELCOME_BACK',
+        // Nói xong (hoặc đóng sớm) thì về tư thế bản đồ của danh mục, không giữ tư thế vẫy tay
+        then: { ...CATALOG_DOCK, animation: 'settle' },
+      },
+    ],
   })),
 ];
 
@@ -140,4 +152,45 @@ const US4: Rule[] = [
   ),
 ];
 
-export const RULES: readonly Rule[] = [...US1, ...US2, ...US4];
+// —— v1.1: cử chỉ tự động (MAS-B-086, BR-MAS-21; research R-18) ——
+
+type Gesture = { id: string; pose?: PoseId; animation: AnimationId };
+
+/** Nhóm cử chỉ ngắn (Asset spec AN-AMBIENT). Cử chỉ đổi tư thế quay về tư thế ngữ cảnh khi hết. */
+const GESTURES: readonly Gesture[] = [
+  { id: 'look', pose: 'binoculars', animation: 'tilt' },
+  { id: 'wave', pose: 'wave', animation: 'wave' },
+  { id: 'hop', animation: 'hop' },
+  { id: 'tilt', animation: 'tilt' },
+  { id: 'pack', pose: 'backpack', animation: 'hop' },
+];
+
+const AMBIENT: Rule[] = [
+  // Lịch do máy trạng thái đặt khi Mila đứng chờ; tới hạn thì chọn một cử chỉ khác cử chỉ trước, không có chữ (P7, không
+  // tính vào giới hạn câu chủ động vì không có lời)
+  onTimer('MAS-B-086', 'ambient', ({ state, ctx }) => {
+    const view = state.view;
+    if (!view || view.mode !== 'DOCK' || state.bubble || state.hold) return null;
+    const random = ctx.random ?? Math.random;
+    const last = state.counters['ambient:last'];
+    const choices = GESTURES.map((_, index) => index).filter((index) => index !== last);
+    const index = choices[Math.min(choices.length - 1, Math.floor(random() * choices.length))]!;
+    const gesture = GESTURES[index]!;
+    return {
+      counters: { 'ambient:last': index },
+      intents: [
+        {
+          behaviorId: 'MAS-B-086',
+          priority: 7,
+          mode: 'DOCK',
+          pose: gesture.pose ?? view.pose,
+          animation: gesture.animation,
+          holdMs: MASCOT_AMBIENT_GESTURE_MS,
+          then: { behaviorId: view.behaviorId, priority: 7, mode: 'DOCK', pose: view.pose, animation: 'settle' },
+        },
+      ],
+    };
+  }),
+];
+
+export const RULES: readonly Rule[] = [...US1, ...US2, ...US4, ...AMBIENT];

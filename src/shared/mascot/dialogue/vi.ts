@@ -56,6 +56,10 @@ export const vi = {
     /** Dòng tên trên bong bóng (design-system §9.3) */
     name: NAME,
     ask: `Hỏi ${NAME}`,
+    /** Công tắc "Chuyển động" ở thanh đầu trang (v1.1, BR-MAS-21) */
+    motion: `Chuyển động của ${NAME}`,
+    motionOn: 'Chuyển động: bật',
+    motionOff: 'Chuyển động: tắt',
     dismiss: 'Đóng lời nhắn',
     notNow: 'Chưa',
     ctaRecommend: 'Gợi ý tuyến',

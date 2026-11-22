@@ -8,6 +8,7 @@ import { MESSAGE_META, messageText } from '../../shared/mascot/dialogue/catalog'
 import { subscribeMascotEvents, type CtaId, type MascotEvent, type StampedEvent } from '../../shared/mascot/events';
 import { initialState, nextDeadline, step, type MascotState, type Mode, type Rule, type StepContext } from '../../shared/mascot/machine';
 import { RULES } from '../../shared/mascot/rules';
+import { useMotion } from '../../shared/mascot/motion';
 import { useSlots, type SlotEntry } from '../../shared/mascot/slots';
 import { PATHS } from '../paths';
 import { Mascot } from './Mascot';
@@ -43,13 +44,15 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
 
   const [state, setState] = useState<MascotState>(initialState);
   const stateRef = useRef(state);
-  // Chữ hiện dần khi được phép chuyển động (R-20); công tắc "Chuyển động" (Phase 13) sẽ tắt thêm ở đây
-  const typing = !reducedMotion;
-  const ctxRef = useRef<StepContext>({ availableModes: modesOf(slots), reducedMotion, language, typing });
+  // Công tắc "Chuyển động" tắt có tác dụng như giảm chuyển động cho Mila: không animation, không lá rơi, chữ hiện ngay (BR-MAS-21)
+  const motion = useMotion();
+  const still = reducedMotion || !motion;
+  const typing = !still;
+  const ctxRef = useRef<StepContext>({ availableModes: modesOf(slots), reducedMotion, language, typing, random: Math.random });
   const broken = useRef(false);
 
   useLayoutEffect(() => {
-    ctxRef.current = { availableModes: modesOf(slots), reducedMotion, language, typing };
+    ctxRef.current = { availableModes: modesOf(slots), reducedMotion, language, typing, random: Math.random };
   }, [slots, reducedMotion, language, typing]);
 
   const dispatch = useCallback(
@@ -81,6 +84,8 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
   useEffect(() => subscribeMascotEvents(dispatch), [dispatch]);
   useEffect(() => send({ type: 'app.route.changed', path: pathname }), [pathname, send]);
   useEffect(() => send({ type: 'mascot.slots.changed' }), [slots, send]);
+  // Engine biết trạng thái công tắc ngay từ đầu (thiết bị giảm chuyển động → tắt) và mỗi lần đổi
+  useEffect(() => send({ type: 'mascot.motion.changed', on: motion }), [motion, send]);
 
   useEffect(() => {
     const onVisibility = () => send({ type: 'app.visibility.changed', visible: document.visibilityState !== 'hidden' });
@@ -130,7 +135,7 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
       view={view}
       bubble={bubble}
       language={language}
-      reducedMotion={reducedMotion}
+      reducedMotion={still}
       typing={typing}
       onTap={() => send({ type: 'mascot.user.tapped' })}
       onClose={() => send({ type: 'mascot.user.closedBubble' })}
