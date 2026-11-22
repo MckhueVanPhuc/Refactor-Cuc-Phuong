@@ -8,7 +8,7 @@
 | Actor | Visitor |
 | Priority | Should |
 | Mockup | Chưa có |
-| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.0](../../../docs/spec/spec-Mascot.md) cho Mila |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.1](../../../docs/spec/spec-Mascot.md) cho Mila |
 
 Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
@@ -42,7 +42,8 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 12 | E-SCR-M01-002-12 | Action: Về danh mục | Button | Mở SCR-M01-001 | Yes | None |
 | 13 | E-SCR-M01-002-13 | Loading / source unavailable | Panel | Đang đọc nguồn, hoặc không đọc được nguồn | Conditional | Không báo "không có tuyến" khi thực chất nguồn không đọc được |
 | 14 | E-SCR-M01-002-14 | Tab bar | Thanh tab cố định ở đáy (design-system §5.2; 2026-11-21) | Như E-SCR-M01-001-20: Tuyến · Quét QR · Tài nguyên | Yes | Tab của màn đang mở được đánh dấu, không chỉ bằng màu |
-| 15 | E-SCR-M01-002-15 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Đầu màn (AVATAR); kết quả rỗng (INLINE). Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17) |
+| 15 | E-SCR-M01-002-15 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Đầu màn (AVATAR); kết quả rỗng (INLINE). Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc E-SCR-M01-002-16 |
+| 16 | E-SCR-M01-002-16 | Công tắc "Chuyển động" của Mila | Nút bật/tắt ở thanh đầu trang, bên trái VI/EN (design-system §9.5) | Luôn có khi Mila được bật | Conditional (Could, MVP-Scope §3.6) | `aria-pressed`, tên truy cập "Chuyển động của Mila", vùng chạm 44px; tắt: Mila đứng yên, chữ hiện ngay, Mila vẫn hiện; khởi đầu tắt khi giảm chuyển động; không lưu qua lần mở app (Spec Mascot BR-MAS-21). Không phải nút ẩn Mila |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Bảng nhãn dưới đây áp dụng cho mọi màn du khách của M01 (thẻ tuyến, chi tiết, gợi ý): nhãn tiếng Việt lấy theo tên hiển thị của Spec M03 §5.1/§5.4, nhãn tiếng Anh là bản dịch chốt tại đây; mã enum không bao giờ hiện cho du khách.
 
@@ -78,6 +79,10 @@ Chữ cố định khác của màn này:
 | Chạm Mila (màn M01) (MSG-MAS-009) | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
 | Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
 | Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
+| Chạm Mila lần nữa (MSG-MAS-012) | Chưa biết chọn tuyến nào? Bấm Gợi ý tuyến nhé. | Not sure which route? Tap Route suggestions. |
+| Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
+| Tên truy cập của công tắc chuyển động | Chuyển động của Mila | Mila's motion |
+| Chữ trên công tắc | Chuyển động: bật / Chuyển động: tắt | Motion: on / Motion: off |
 
 ## 4. States
 

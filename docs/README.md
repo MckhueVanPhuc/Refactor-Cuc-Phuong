@@ -76,6 +76,6 @@ Mỗi gói là bản dẫn xuất từ spec của module, gồm spec, plan, rese
 | [002-m02-field-quest-experience](../specs/002-m02-field-quest-experience/) | M02 | Đã cài đặt (106/106 task) |
 | [003-m03-operations-content-administration](../specs/003-m03-operations-content-administration/) | M03 | Đã cài đặt trên stack local (203/210 task); Phase 16 — đưa lên cloud — đang làm theo change brief CHG-M03-2026-11-05-01 |
 | [004-ai-translation](../specs/004-ai-translation/) | AI Integration (dùng cho M03) | Đã cài đặt (34/34 task); deploy lên cloud trong M03 Phase 16 |
-| [005-visitor-mascot](../specs/005-visitor-mascot/) | Mascot Mila (màn du khách M01/M02) | Change brief CHG-MASCOT-2026-11-21-01 đã duyệt; đang cài đặt (50/74 task: Phase 1–6 — engine, host, US3, US1, US2, US4 — và ảnh Mila đợt 1, T067, T070); công tắc `VITE_FEATURE_MASCOT` mặc định tắt |
+| [005-visitor-mascot](../specs/005-visitor-mascot/) | Mascot Mila (màn du khách M01/M02) | Change brief CHG-MASCOT-2026-11-21-01 đã duyệt; đang cài đặt (50/74 task: Phase 1–6 — engine, host, US3, US1, US2, US4 — và ảnh Mila đợt 1, T067, T070); spec-Mascot v1.1 theo CHG-MASCOT-2026-11-22-02 đã duyệt, gói chưa cập nhật tasks; công tắc `VITE_FEATURE_MASCOT` mặc định tắt |
 
 Quy tắc chung của repo: [AGENTS.md](../AGENTS.md); constitution: [.specify/memory/constitution.md](../.specify/memory/constitution.md).

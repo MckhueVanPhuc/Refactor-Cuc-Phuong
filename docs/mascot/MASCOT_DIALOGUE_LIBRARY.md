@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED** — mọi câu cần người dùng duyệt trước khi đưa vào bảng copy của screen spec |
-| Ngày | 2026-11-20 |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) |
 | Quy ước | Tài liệu này là **nguồn chữ** của mascot. [Behavior Matrix](MASCOT_BEHAVIOR_MATRIX.md) chép lại câu để dễ đọc; khi lệch nhau, tài liệu này thắng |
 
 ## 1. Quy tắc viết
@@ -22,6 +22,8 @@
 - **Bong bóng có CTA** không tự ẩn (design-system §5.3: thông báo có hành động không tự đóng); đóng khi bấm CTA, bấm "×", hoặc khi đổi màn.
 - **Cooldown** tính trong một lần tải trang (bộ nhớ trong RAM, không lưu). "1 lần/tải trang" nghĩa là chỉ hiện lại sau khi tải lại trang.
 - **Pool**: câu có nhiều biến thể thì xoay vòng, không lặp biến thể vừa dùng.
+- **Chữ hiện dần** (v1.1): chữ xuất hiện khoảng 30 ký tự/giây (`MASCOT_TYPE_CPS`); chạm bong bóng hiện hết ngay; công tắc chuyển động tắt hoặc giảm chuyển động thì hiện ngay. Thời lượng tự ẩn tính từ lúc **chữ hiện đủ**. Trình đọc màn hình nhận câu đầy đủ một lần, không đọc từng ký tự.
+- **Câu hướng dẫn khi chạm** (P3, v1.1): không cooldown khi du khách chủ động chạm, không tính vào giới hạn câu chủ động.
 
 Cột **P** là mức ưu tiên ([State Machine](MASCOT_STATE_MACHINE.md) §5): P0 an toàn, P1 lỗi chặn, P2 phản hồi hệ thống, P3 du khách yêu cầu, P4 thành công, P5 tiến độ, P6 hướng dẫn, P7 nền.
 
@@ -103,6 +105,20 @@ Màn đã có câu cố định đủ rõ, nên mascot chỉ đứng cạnh câu
 | MAS-MSG-057d | Đi đúng đường mòn để an toàn cho bạn và cho rừng. | Stay on the trail, it's safer for you and the forest. |
 | MAS-MSG-057e | Đừng cho thú ăn nhé, đồ ăn của người không tốt cho chúng. | Please don't feed the animals, our food isn't good for them. |
 
+### 3.4a Bổ sung v1.1 (spec-Mascot BR-MAS-12, 22, 23)
+
+| Message ID | Trigger | Ngữ cảnh | Tiếng Việt | English | Giọng | Thời lượng | CTA | P | Lặp | Cooldown |
+|---|---|---|---|---|---|---|---|---|---|---|
+| MAS-MSG-012 | Chạm mascot ở màn M01, lần chạm sau khi MAS-MSG-009 còn hiện | Du khách hỏi tiếp | Chưa biết chọn tuyến nào? Bấm Gợi ý tuyến nhé. | Not sure which route? Tap Route suggestions. | Hữu ích | Tự ẩn | — | P3 | Có | — |
+| MAS-MSG-033 | Chạm mascot ở SCR-M02-001, scanner đóng, có lượt ghé, còn r = n − k ≥ 1 | Giữa chặng | Còn {r} điểm nữa. Thấy tem thì bấm Quét QR nhé. | {r} stops to go. Spot a sign? Tap Scan QR. (r = 1: "1 stop to go. Spot a sign? Tap Scan QR.") | Cổ vũ nhẹ | Tự ẩn | — | P3 | Có | — |
+| MAS-MSG-043 | Chạm mascot khi scanner mở | Đang quét | Đưa tem vào giữa khung, giữ máy yên một chút nhé. | Put the sign in the middle of the frame and hold still. | Hướng dẫn | Tự ẩn | — | P3 | Có | — |
+| MAS-MSG-058 | `m02.visit.recorded`, k = n − 1, n ≥ 3, không phải mốc đầu tiên hay nửa | Mốc cấp 2 | Chỉ còn một điểm nữa thôi! | Just one stop to go! | Hào hứng | Tự ẩn | — | P4 | Không | 1 lần/phiên/tải trang |
+| MAS-MSG-063 | `m02.trip.ended{HOAN_TAT}`, vừa kết thúc, k = n | Cấp 3, quét đủ | Bạn đã quét đủ {n} điểm của tuyến. Tuyệt vời! | You scanned all {n} stops of the route. Amazing! | Tự hào | Tự ẩn | — | P4 | Không | 1 lần/phiên |
+| MAS-MSG-065 | Chạm mascot ở SCR-M02-003 | Màn kết quả | Cảm ơn bạn đã đi cùng mình hôm nay! | Thanks for exploring with me today! | Ấm áp | Tự ẩn | — | P3 | Có | — |
+| MAS-MSG-085 | Chạm 5 lần trong 3 s | Đùa nhẹ | Ui, chóng mặt quá! | Whoa, I'm dizzy! | Tinh nghịch | Tự ẩn | — | P3 | Không | 1 lần/tải trang |
+
+Kết thúc sớm (k < n) giữ MAS-MSG-062 — tích cực như khi quét đủ, không có giọng tiếc nuối (BR-MAS-23).
+
 ### 3.5 Nhãn điều khiển của mascot (mới)
 
 | Khóa | Tiếng Việt | English | Ghi chú |
@@ -110,6 +126,8 @@ Màn đã có câu cố định đủ rõ, nên mascot chỉ đứng cạnh câu
 | `mascot.dismiss` | Đóng lời nhắn | Dismiss message | Nút × trên bong bóng |
 | `mascot.notNow` | Chưa | Not now | CTA phụ của MAS-MSG-049 |
 | `mascot.help` | Hỏi {name} | Ask {name} | Tên truy cập khi chạm mascot để nhận gợi ý |
+| `mascot.motion` | Chuyển động của {name} | {name}'s motion | Tên truy cập của công tắc ở thanh đầu trang (v1.1, BR-MAS-21); trạng thái bằng `aria-pressed` |
+| `mascot.motionOn` / `mascot.motionOff` | Chuyển động: bật / Chuyển động: tắt | Motion: on / Motion: off | Chữ hiển thị trên công tắc (v1.1) |
 
 ### 3.6 FUTURE (chưa viết, bị chặn bởi MVP-Scope §4)
 

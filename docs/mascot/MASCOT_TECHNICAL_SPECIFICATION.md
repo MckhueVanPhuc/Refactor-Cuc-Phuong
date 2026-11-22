@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED**. Chưa được phép cài cho tới khi có change brief và gói Spec-Kit được duyệt |
-| Ngày | 2026-11-20 |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) |
 | Nền tảng hiện có | React 19, React Router 8 (data mode), Vite 8 + vite-plugin-pwa (Workbox `generateSW`), Dexie (IndexedDB `visitorDb`), CSS Modules + token (`src/shared/ui/tokens.css`, lint cấm literal màu/px ngoài tokens), i18n tự viết theo module (`vi.ts`/`en.ts`, kiểu `typeof vi`) |
 
 ## 1. Nguyên tắc kiến trúc
@@ -128,7 +128,8 @@ Mỗi điểm phát được thêm kèm một test: test hành vi cũ vẫn PASS
 
 - Ảnh WebP 240 px precache; 480 px nạp bằng `<img srcset>` theo DPR, `loading="lazy"`, `decoding="async"`. Ảnh mascot không bao giờ là phần tử LCP (không có trên `/q/…` lúc đầu, MAS-BR-10).
 - Animation chỉ `transform`/`opacity`, có `will-change` trong lúc chạy rồi gỡ ra.
-- Vòng lặp ≤ 10 s; dừng hết khi `document.hidden`.
+- Vòng lặp của một phản ứng ≤ 5 s mỗi lượt (`MASCOT_LOOP_MAX_MS`); cử chỉ tự động (BR-MAS-21) là một hẹn giờ ngẫu nhiên 8–15 s trong cùng cơ chế `nextDeadline`, không `setInterval`; dừng hết khi `document.hidden` hoặc công tắc chuyển động tắt.
+- Chớp mắt đổi ảnh MA-20 (đã nạp sẵn cùng ảnh tư thế), không tải ảnh lúc chớp.
 - Hẹn giờ không hoạt động dùng một `setTimeout` duy nhất được đặt lại, không dùng `setInterval`.
 - Engine tách chunk `mascot` (vẫn precache), nạp sau khi màn đầu đã hiện (`requestIdleCallback`, có fallback `setTimeout`).
 - Ngân sách: MAS-NFR-01, 02.
@@ -138,8 +139,10 @@ Mỗi điểm phát được thêm kèm một test: test hành vi cũ vẫn PASS
 - Ảnh mascot `alt=""` (trang trí); ý nghĩa luôn có ở chữ.
 - Bong bóng là chữ thật trong DOM, `lang` theo ngôn ngữ. **Không** dùng `aria-live` cho bong bóng P4–P7, để không đọc chồng lên toast hoặc banner đã có `role="status"/"alert"`. Bong bóng P2 có thông tin mới (ví dụ MAS-MSG-046, 048, 052) dùng `role="status"`.
 - Không chiếm focus; nút × và CTA nằm trong thứ tự tab tự nhiên của slot.
-- Tương phản bong bóng: nền `--color-white`, chữ `--color-ink` (17.07:1); trên scanner dùng `--color-m02-scanner-surface` + `--color-m02-scanner-text` (12.86:1) kèm viền `secondary` như quy tắc §5.3.
+- Tương phản bong bóng (v1.1, kiểu "Giấy dã ngoại", design-system §9.3): nền `--mascot-bubble-surface` (#fffaf0), chữ `m01-ink` (14.52:1); trên scanner dùng `--color-m02-scanner-surface` + `--color-m02-scanner-text` (12.86:1) kèm viền `secondary` như quy tắc §5.3.
 - Giảm chuyển động theo MAS-FR-12.
+- Công tắc "Chuyển động" (v1.1, BR-MAS-21) ở thanh đầu trang: `<button aria-pressed>`, tên "Chuyển động của Mila", vùng chạm 44 px; tắt thì engine ngừng lịch cử chỉ và component bỏ `data-mascot-animation`, chữ hiện ngay. Đây là cơ chế tạm dừng cho WCAG 2.2.2.
+- Chữ hiện dần: phần tử chữ hiển thị dần có `aria-hidden`, một bản đầy đủ cho trình đọc màn hình (ẩn thị giác) để câu được đọc một lần.
 - Thông báo tạm đóng: mascot rời DOM (không chỉ ẩn bằng CSS), để trình đọc màn hình chỉ đọc thông báo an toàn.
 
 ## 8. Offline

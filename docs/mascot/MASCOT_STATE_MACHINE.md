@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED** |
-| Ngày | 2026-11-20 |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) |
 | Liên quan | [Behavior Matrix](MASCOT_BEHAVIOR_MATRIX.md), [Dialogue Library](MASCOT_DIALOGUE_LIBRARY.md), [Technical spec](MASCOT_TECHNICAL_SPECIFICATION.md) |
 
 ## 1. Mô hình
@@ -26,15 +26,15 @@ Cảm xúc (vui, bối rối, suy nghĩ…) **không phải trạng thái riêng
 
 | Mode | Mô tả | Kích thước (token đề xuất) | Dùng ở | Kết thúc |
 |---|---|---|---|---|
-| `INTRO` | Mascot cỡ lớn trượt lên từ dưới, có bong bóng, chiếm tối đa 40% chiều cao màn | `--mascot-size-lg` (160 px) | Chỉ MAS-B-001/002 | Chạm ra ngoài hoặc × → `DOCK` |
-| `DOCK` | Mascot nhỏ đứng ở slot cố định trong layout (không nổi lên trên nội dung) | `--mascot-size-md` (72 px) | SCR-M02-001 (trên nút Quét), hero SCR-M01-001 | Luôn hiện khi màn có slot; không có nút ẩn (quyết định 2026-11-21) |
-| `AVATAR` | Avatar tròn kèm bong bóng, xuất hiện tạm thời | `--mascot-size-sm` (40 px) | Scanner (dải dưới), SCR-M02-002/004 (cạnh toast), panel gói | Tự ẩn theo thời lượng hoặc × |
+| `INTRO` | Mascot cỡ lớn trượt lên từ dưới, có bong bóng, chiếm tối đa 40% chiều cao màn | `--mascot-size-xl` (200 px, v1.1) | Chỉ MAS-B-001/002 | Chạm ra ngoài hoặc × → `DOCK` |
+| `DOCK` | Mascot nhỏ đứng ở slot cố định trong layout (không nổi lên trên nội dung) | Theo slot (v1.1): hero SCR-M01-001 112 px, SCR-M02-001 128 px, cạnh huy hiệu SCR-M02-003 104 px | SCR-M02-001 (trên nút Quét), hero SCR-M01-001, SCR-M02-003 | Luôn hiện khi màn có slot; không có nút ẩn (quyết định 2026-11-21) |
+| `AVATAR` | Avatar tròn kèm bong bóng, xuất hiện tạm thời | `--mascot-size-sm` (56 px, v1.1; ảnh avatar MA-11) | Scanner (dải dưới), SCR-M02-002/004 (cạnh toast), panel gói | Tự ẩn theo thời lượng hoặc × |
 | `INLINE` | Minh họa nằm trong luồng nội dung, cạnh câu thông báo; không bong bóng | `--mascot-size-md` | Trạng thái rỗng, lỗi, dialog, màn kết quả | Không cần đóng (là một phần của trạng thái) |
-| `CELEBRATE` | Mascot ăn mừng kèm lá rơi, **không chặn** thao tác, tối đa 2,4 s, chạm để bỏ qua | `--mascot-size-lg` | Chỉ màn kết quả SCR-M02-003 (MAS-B-062) | Tự kết thúc → `INLINE` |
+| `CELEBRATE` | Mascot ăn mừng kèm lá rơi, **không chặn** thao tác, tối đa 2,4 s, chạm để bỏ qua | `--mascot-size-xl` (200 px, v1.1) | Chỉ màn kết quả SCR-M02-003 (MAS-B-062, 064) | Tự kết thúc → `DOCK` cạnh huy hiệu |
 
 Slot là phần tử do layout của màn đặt sẵn và chiếm chỗ thật, nên mascot không bao giờ đè lên nút hay nội dung. Cách đặt slot giống `FieldNotice` hiện có (portal vào vùng định trước). Màn không khai báo slot thì mascot không render.
 
-Kích thước px ở trên là giá trị đề xuất cho token mới trong `tokens.css`, sẽ chốt khi sửa design-system.
+Kích thước px ở trên là giá trị đã chốt 2026-11-22 (design-system §9.2); token nằm trong `tokens.css`.
 
 ## 3. Trạng thái
 
@@ -178,6 +178,35 @@ Cột "Nguồn" chỉ nơi trong code hiện tại sẽ phát sự kiện (chỉ
 | Camera lỗi sau khi bấm Thử lại | Một lần mở scanner | Không thêm chữ: câu cố định đã chỉ cách dùng camera điện thoại (MAS-B-038) |
 | 2 lần tải gói lỗi liên tiếp cùng tuyến | Một lần tải trang | MAS-B-026 |
 | 2 lần gợi ý tuyến 0 kết quả liên tiếp | Một lần ở SCR-M01-002 | MAS-B-013 |
+
+### 6.5 Ngữ cảnh hoạt động (spec-Mascot BR-MAS-20, v1.1)
+
+| Ngữ cảnh | Nhận biết | Mila làm gì | Không làm |
+|---|---|---|---|
+| Đang đọc bài | Ở SCR-M02-002/004 sau phản ứng lúc vừa vào | Chỉ trả lời khi được chạm; P0–P2 | Không câu chủ động, không cử chỉ tự động |
+| Đang nghe audio / xem video | `m02.media.playing` (đếm nguồn, `holdMascotSignal`) | Bong bóng đang hiện đóng ngay; chỉ P0–P1 dạng INLINE | Không bong bóng, không cử chỉ |
+| Đang chờ quét QR | Scanner mở | Hẹn giờ 15/30/90 s và kết quả quét (§6.2) | Không cử chỉ tự động ở DOCK |
+| Đang tải dữ liệu | Danh mục đang tải, tra mã đang chờ, gói đang tải | Báo khi quá ngưỡng (MAS-B-005, 044); AN-THINK/AN-SEARCH/AN-PACK tối đa 5 s mỗi lượt | Không lặp chữ màn đã hiện |
+| Đang thao tác | Chạm, cuộn, phím trong `MASCOT_INTERACTION_GRACE_MS` gần nhất | Phản ứng do chính thao tác đó gây ra vẫn chạy (chạm Mila, kết quả quét) | Bỏ (không xếp hàng) câu do hẹn giờ, lời nhắc, cử chỉ tự động (MAS-B-088) |
+| Đang gặp lỗi | Kết quả lỗi, lỗi tải, camera lỗi | Minh họa INLINE cạnh câu lỗi; gợi ý khi lỗi lặp lại (§6.4) | Không thêm nút trùng nút của màn |
+| Đang rời màn | `app.route.changed` | Hủy bong bóng, hàng đợi, hẹn giờ, lịch cử chỉ của màn cũ; chỉ mang sang câu thành công P4 (§5.2) | — |
+
+### 6.6 Cử chỉ tự động và công tắc chuyển động (BR-MAS-21, v1.1)
+
+- Lịch: sau mỗi cử chỉ, chọn hạn kế tiếp ngẫu nhiên trong `MASCOT_AMBIENT_MIN_MS`–`MASCOT_AMBIENT_MAX_MS` (8–15 s). Một hẹn giờ duy nhất như các hẹn giờ khác (`nextDeadline`).
+- Điều kiện chạy (MAS-B-086): màn SCR-M01-001, SCR-M02-001 khi scanner đóng, SCR-M02-003; Mila ở DOCK; không bong bóng; công tắc bật; không ở ngữ cảnh BR-MAS-08; quá `MASCOT_INTERACTION_GRACE_MS` từ thao tác cuối. Không đạt thì bỏ lượt và hẹn lại, không xếp hàng.
+- Cử chỉ chọn ngẫu nhiên, không lặp cùng cử chỉ hai lần liền; cử chỉ đổi tư thế luôn về tư thế ngữ cảnh (§3.1). Không tính vào giới hạn câu chủ động (BR-MAS-07) vì không có chữ.
+- Công tắc "Chuyển động" (MAS-B-087) ở thanh đầu trang: trạng thái `motion: on | off` trong bộ nhớ của lần tải trang; khởi đầu `off` khi thiết bị yêu cầu giảm chuyển động. `off`: không animation, không lá rơi, chữ hiện ngay, không lịch cử chỉ. Công tắc không đổi `view` hay bong bóng: Mila vẫn hiện.
+
+### 6.7 Chạm nhiều lần (BR-MAS-22, v1.1)
+
+| Tình huống | Xử lý |
+|---|---|
+| Chạm trong 400 ms từ lần chạm trước | Bỏ qua (MAS-B-089) |
+| Chạm khi animation đang chạy | Không chạy lại animation; vẫn xử lý câu |
+| Chạm khi đang hiện câu hướng dẫn | Màn có nhiều câu (danh mục: 009 → 012): câu kế tiếp. Một câu: chỉ nhún nhẹ (AN-SUCCESS), chữ không nháy lại |
+| Chạm khi đang hiện câu khác cấp thấp hơn P3 | Câu hướng dẫn thay vào |
+| Chạm lần thứ 5 trong 3 s | Chóng mặt một lần mỗi lần tải trang (MAS-B-085); sau đó như thường |
 
 ## 7. Bảng chuyển trạng thái
 
