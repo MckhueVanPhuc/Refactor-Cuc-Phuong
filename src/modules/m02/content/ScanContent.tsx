@@ -5,7 +5,7 @@
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
-import { emitMascotEvent, isMascotEnabled, MascotSlot, useMascotConfirms } from '../../../shared/mascot/index';
+import { emitMascotEvent, isMascotEnabled, MascotFigure, MascotSlot, useMascotConfirms } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { FinalPrompt } from '../end/FinalPrompt';
 import { useEndTrip } from '../end/useEndTrip';
@@ -145,7 +145,15 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
       <FieldNotice>
       {scan.display.kind === 'PACKAGE' && (
         <Notice tone="info">
-          <p className={styles.noticeText}>{messages.notice.sourceFailureInJourney}</p>
+          {/* MAS-B-054 (v1.2): Mila với ba lô minh họa cạnh câu nguồn dự phòng; không khi Mila đang xác nhận lượt ghé mới */}
+          {scan.visitCreated ? (
+            <p className={styles.noticeText}>{messages.notice.sourceFailureInJourney}</p>
+          ) : (
+            <div className={styles.withMila}>
+              <MascotFigure pose="backpack" size="sm" />
+              <p className={styles.noticeText}>{messages.notice.sourceFailureInJourney}</p>
+            </div>
+          )}
         </Notice>
       )}
       {view?.kind === 'PACKAGE' && view.outdated && (

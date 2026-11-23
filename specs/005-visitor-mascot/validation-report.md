@@ -697,3 +697,44 @@ Branch `feat/mascot-us5`, tách từ `feat/mascot-us7` (PR #75 chưa merge); PR 
 | DV-80 | Thử camera bị từ chối và camera không đọc được mã bằng cách thay `getUserMedia` trong trang (project `m02`), không thêm ca vào `scan-evil.spec.ts` như T048 ghi: camera giả của `m02-cam-evil` luôn đọc được mã | Ghi nhận |
 | DV-81 | Mila "đang kiểm tra" giữ tối đa 8 s (bằng `LOOKUP_TIMEOUT_SECONDS` của spec-M02 §9, chép thành hằng trong `rules.ts` vì `shared/mascot` không import từ module M02) | Ghi nhận |
 | DV-82 | Chưa thử trên điện thoại thật (camera thật, ánh nắng) | NOT RUN |
+
+---
+
+## 17. Đợt 2026-11-23 — Phase 8: US6 "Bình tĩnh về mạng và dữ liệu" (US-MAS-04)
+
+Branch `feat/mascot-us6`, tách từ `feat/mascot-us5` (PR #76 chưa merge); PR vào `main`, merge sau #75 và #76. Task: T052–T055.
+
+### 17.1 Đã cài
+
+| Mục | Nơi |
+|---|---|
+| Luật MAS-B-074 (mất sóng giữa chuyến → sau 1 s, DOCK, cooldown 10 phút; có sóng lại trước 1 s thì thôi), 075 (có sóng lại trong 30 phút sau 074 → sau 1 s), 052 (có phiên, mã live ngoài hành trình, không lượt ghé → AVATAR, P2). Câu mạng chỉ ở SCR-M02-001 có phiên, Mila ở DOCK, scanner đóng (DV-83) | `src/shared/mascot/rules.ts` |
+| MAS-B-054 (v1.2, chỉ minh họa): `MascotFigure` `backpack` cạnh câu nguồn dự phòng khi nội dung lấy từ gói, trừ khi lượt quét vừa ghi lượt ghé mới (Mila đang xác nhận lượt ghé, P4 thắng P5) | `src/modules/m02/content/ScanContent.tsx` (+ `.module.css`) |
+| T055: payload `inJourney` và `hasSession` của `m02.scan.resolved` đã có từ Phase 5 (`inJourney = visit !== null`; mã ngoài hành trình có phiên → `visit = null`); không đổi code | `ScanContent.tsx` (đã có) |
+
+### 17.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `rules.test.ts` khối US6 (6 ca) | FAIL 3 ca; 3 ca kiểm "không nói" đạt ngay vì chưa có luật |
+| E2E `e2e/m02/mascot-network.spec.ts` (Q11 mất sóng → 074, ảnh Mila tải được khi offline, có sóng lại → 075, không nhắc lại trong cooldown; QX ngoài hành trình → 052, không lượt ghé; mở lại điểm từ gói khi offline → hình `backpack`) | Viết trước khi chạy |
+
+### 17.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx playwright test --project=m02 e2e/m02/mascot-network.spec.ts` | 0 | 3 pass |
+| `npm run ci` | 0 | lint token 742; 2446 pass, 133 skipped; build OK, precache 113 mục |
+| `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` | 1 | 123 pass, 4 fail (m01; chạy riêng 4 ca đó: 4 pass) — DV-85 |
+| `npx playwright test --project=m01` (lặp hai lần trên branch này) | 1 | 49 pass / 4 fail; 48 pass / 5 fail — mỗi lần một nhóm ca khác nhau |
+| Như trên trên code Phase 7 (stash thay đổi Phase 8) | 1 | 49 pass / 4 fail |
+| Như trên trên `main` (aa55027) | 1 | 45 pass / 2 fail (`pwa-offline` V24, `catalog` V4) |
+
+### 17.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-83 | Behavior Matrix liệt kê MAS-B-074/075 ở cả SCR-M02-002, nhưng spec-Mascot BR-MAS-20 ("đang đọc": chỉ câu hỏi giúp và P0–P2) thắng: 074 (P5) và 075 (P7) chỉ nói ở SCR-M02-001. Mất sóng lúc đang đọc rồi quay về hành trình không nói bù | Áp dụng; Behavior Matrix có nguy cơ stale |
+| DV-84 | SC-MAS-007 chỉ kiểm một phần ở E2E: ảnh Mila ở `trip-dock` tải được khi offline. Chưa đi qua lần lượt `scanner-bottom`, `content-toast`, `end-hero` và các `MascotFigure` khi offline như T053 ghi; ảnh đã nằm trong precache (`mascot-precache.spec.ts`) | Ghi nhận |
+| DV-85 | Trên máy này, khi đang tải nặng, E2E m01 chập chờn 2–5 ca mỗi lần chạy (thường do lớp phủ giới thiệu hiện sau 2 s mà `closeMascotIntro` chờ, hoặc hết 30 s), kể cả trên `main` trước các phase này; các ca fail chạy riêng đều pass, nhóm ca fail đổi mỗi lần. Các lượt đầu của Phase 9 và Phase 7 (máy nhẹ hơn) pass toàn bộ, và job `e2e` trên GitHub Actions pass cho PR #75, #76 | Ghi nhận; nên tăng thời gian chờ của `closeMascotIntro` nếu CI cũng gặp |
+| DV-86 | Chưa thử trên điện thoại thật (mất sóng thật giữa rừng) | NOT RUN |
