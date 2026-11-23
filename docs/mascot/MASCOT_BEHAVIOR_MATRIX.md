@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED**. Các dòng có "(FUTURE)" bị chặn bởi MVP-Scope §4 |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04) |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); MAS-B-074, 075 đồng bộ BR-MAS-20 (T071) |
 | Đọc kèm | Sự kiện và ưu tiên: [State Machine](MASCOT_STATE_MACHINE.md). Chữ: [Dialogue Library](MASCOT_DIALOGUE_LIBRARY.md) (thư viện thắng nếu lệch). Tư thế (MA-xx) và animation (AN-xx): [Asset spec](MASCOT_ASSET_SPECIFICATION.md) |
 
 Quy ước:
@@ -78,8 +78,8 @@ Quy ước:
 | MAS-B-071 | M02 | SCR-M02-003 | `m02.sync.statusChanged{PENDING→SYNCED}` | Màn đang mở | 0 | `IDLE` | AN-THUMB, MA-07 | — | — | Nhãn "Đã gửi về hệ thống" như cũ | — | P7 |
 | MAS-B-072 | M02 | SCR-M02-003 | `m02.sync.statusChanged{CONFLICT}` | — | 0 | `IDLE` (INLINE cạnh banner) | MA-09 tĩnh | — | — | Không nút thử lại (BR-M02-011) | Rời màn | P1 |
 | MAS-B-073 | M02 | SCR-M02-001 | Dòng "Chuyến đi trước không gửi được…" đang hiện | — | — | Không đổi | — | — | — | Như cũ | — | — |
-| MAS-B-074 | M02 | SCR-M02-001, 002 | `app.network.changed{online:false}` | Có phiên; không có scanner hay dialog đang mở | 1 s | `SPEAKING` (DOCK hoặc AVATAR) | AN-TILT → AN-POP, MA-04 | Mất sóng rồi. Đừng lo, các điểm trong tuyến vẫn quét được. (074) | Signal's gone, but stops on your route can still be scanned. | — | Tự ẩn | P5 |
-| MAS-B-075 | M02 | SCR-M02-001, 002 | `app.network.changed{online:true}` | MAS-B-074 đã nói trong 30 phút qua | 1 s | `SPEAKING` | AN-POP, MA-07 | Có sóng lại rồi! (075) | Signal's back! | Không nói gì về đồng bộ | Tự ẩn | P7 |
+| MAS-B-074 | M02 | SCR-M02-001 (không ở SCR-M02-002: BR-MAS-20 "đang đọc" chỉ nhận P0–P2, specs/005 DV-83) | `app.network.changed{online:false}` | Có phiên; không có scanner hay dialog đang mở | 1 s | `SPEAKING` (DOCK hoặc AVATAR) | AN-TILT → AN-POP, MA-04 | Mất sóng rồi. Đừng lo, các điểm trong tuyến vẫn quét được. (074) | Signal's gone, but stops on your route can still be scanned. | — | Tự ẩn | P5 |
+| MAS-B-075 | M02 | SCR-M02-001 (không ở SCR-M02-002: BR-MAS-20 "đang đọc" chỉ nhận P0–P2, specs/005 DV-83) | `app.network.changed{online:true}` | MAS-B-074 đã nói trong 30 phút qua | 1 s | `SPEAKING` | AN-POP, MA-07 | Có sóng lại rồi! (075) | Signal's back! | Không nói gì về đồng bộ | Tự ẩn | P7 |
 
 ## 3. Chung (mọi màn có slot)
 

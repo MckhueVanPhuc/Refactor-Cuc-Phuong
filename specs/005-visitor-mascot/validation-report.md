@@ -738,3 +738,37 @@ Branch `feat/mascot-us6`, tách từ `feat/mascot-us5` (PR #76 chưa merge); PR 
 | DV-84 | SC-MAS-007 chỉ kiểm một phần ở E2E: ảnh Mila ở `trip-dock` tải được khi offline. Chưa đi qua lần lượt `scanner-bottom`, `content-toast`, `end-hero` và các `MascotFigure` khi offline như T053 ghi; ảnh đã nằm trong precache (`mascot-precache.spec.ts`) | Ghi nhận |
 | DV-85 | Trên máy này, khi đang tải nặng, E2E m01 chập chờn 2–5 ca mỗi lần chạy (thường do lớp phủ giới thiệu hiện sau 2 s mà `closeMascotIntro` chờ, hoặc hết 30 s), kể cả trên `main` trước các phase này; các ca fail chạy riêng đều pass, nhóm ca fail đổi mỗi lần. Các lượt đầu của Phase 9 và Phase 7 (máy nhẹ hơn) pass toàn bộ, và job `e2e` trên GitHub Actions pass cho PR #75, #76 | Ghi nhận; nên tăng thời gian chờ của `closeMascotIntro` nếu CI cũng gặp |
 | DV-86 | Chưa thử trên điện thoại thật (mất sóng thật giữa rừng) | NOT RUN |
+
+---
+
+## 18. Đợt 2026-11-23 — Phase 11: hoàn thiện (T068, T069, T071, T072)
+
+Branch `feat/mascot-polish`, tách từ `feat/mascot-us6` (PR #77 chưa merge); PR vào `main`, merge sau #75, #76, #77. Sau đợt này mọi task của `tasks.md` đã đánh dấu `[X]`.
+
+### 18.1 Đã làm
+
+| Task | Nội dung | Nơi |
+|---|---|---|
+| T068 | Ca mới: cờ `off` → mọi slot của contract UI §2 và mọi tư thế INLINE màn dùng đều không render (Q17, MAS-TC-045); ca "không `import()` host" đã có | `src/app/App.mascot.test.tsx` |
+| T069 | Rà bằng skill `frontend-design` trên bản build e2e (network mock; cùng code với `dev:fake`, dễ dựng đủ trạng thái hơn) ở 320 và 390 px: lớp phủ INTRO (căn giữa, "Chạm để bắt đầu"), DOCK hero danh mục và bong bóng dưới hero, DOCK trên nút Quét QR và câu 030, AVATAR câu 051 trên trang nội dung, CELEBRATE có lá rơi rồi DOCK cạnh huy hiệu; cùng các ảnh của §15, §16. Khớp design-system §9; bố cục đã duyệt của SCR-M02-001/002/003 không đổi | Ảnh chụp ngoài repo |
+| T071 | Đồng bộ bộ thiết kế với code: Technical spec §2 (cây thư mục thật: `MascotSlot`/`MascotFigure` ở `src/shared/mascot/`, không có `idle.ts`), §5 (slot thật, INLINE bằng `MascotFigure`, slot ưu tiên trong intent, giữ chỗ và ngoại lệ `package-panel`); Asset spec §3 (mẫu precache `assets/ma-*-240-*.webp`, `assets/ma-11-avatar-96-*.webp`; ảnh 480 lùi về 240 khi offline); contract UI §1 (DV-2, DV-68, slot ưu tiên); contract sự kiện §1 (DV-14 bộ đệm, chống trùng DV-67), §3 (`slow`, trang kết quả gợi ý, `downloadWithMascot`, `cameraFailed`, `mediaType`, sự kiện nội bộ, `MascotMotionSwitch`), §4 (CTA 013 không dùng từ v1.2); State Machine §5.2 luật 3 (DV-18), luật 4 (DV-67); Behavior Matrix MAS-B-074/075 (DV-83). DV-25 đã có sẵn trong Behavior Matrix | `docs/mascot/MASCOT_TECHNICAL_SPECIFICATION.md`, `MASCOT_ASSET_SPECIFICATION.md`, `MASCOT_STATE_MACHINE.md`, `MASCOT_BEHAVIOR_MATRIX.md`, `specs/005-visitor-mascot/contracts/*.md` |
+| T072 | Kiểm chứng cuối (§18.2) | — |
+
+### 18.2 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `VITE_FEATURE_MASCOT=off npx vitest run` | 0 | 2447 pass, 133 skipped |
+| `git diff --check` | 0 | Sạch |
+| `npm run ci` | 0 | lint token 742; 2447 pass, 133 skipped; build OK, precache 113 mục (2879,70 KiB) |
+| `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` | 0 | 127 pass (lượt này không có ca chập chờn của DV-85) |
+
+### 18.3 Chưa chạy và còn mở
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-87 | Thiết bị thật (Android, iOS): độ mượt, camera thật, mất sóng thật, ảnh chớp mắt ở 112–128 px | NOT RUN — chờ chủ dự án |
+| DV-88 | TalkBack / VoiceOver đọc bong bóng (`role="status"` của câu xác nhận lượt ghé và câu P2), lớp phủ INTRO `role="dialog"` | NOT RUN |
+| DV-89 | Lighthouse (hiệu năng, truy cập) với cờ bật | NOT RUN |
+| DV-90 | spec-Mascot US-MAS-03 mục 1 vẫn ghi "shows MSG-MAS-040" dù từ v1.2 câu 040 chỉ là minh họa (DV-78). Spec là nguồn canonical nên không sửa trong gói code; cần một chỉnh sửa spec có ghi lịch sử | Chờ chủ dự án |
+| DV-91 | Màn Quét QR SCR-M02-005 không có Mila (DV-77); muốn có thì cần sửa spec-Mascot §5.1 trước | Chờ chủ dự án |

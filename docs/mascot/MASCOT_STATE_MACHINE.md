@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED** |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04) |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); §5.2 luật 3, 4 đồng bộ với code (T071) |
 | Liên quan | [Behavior Matrix](MASCOT_BEHAVIOR_MATRIX.md), [Dialogue Library](MASCOT_DIALOGUE_LIBRARY.md), [Technical spec](MASCOT_TECHNICAL_SPECIFICATION.md) |
 
 ## 1. Mô hình
@@ -135,8 +135,8 @@ Cột "Nguồn" chỉ nơi trong code hiện tại sẽ phát sự kiện (chỉ
 
 1. **Ngắt**: sự kiện có P cao hơn (số nhỏ hơn) ngắt bong bóng đang hiện. Animation hiện tại cắt bằng crossfade 150 ms.
 2. **Cùng mức**: cái mới thay cái cũ nếu cái cũ đã hiện ≥ 1,5 s; nếu chưa, cái mới vào hàng đợi.
-3. **Hàng đợi**: tối đa 1 mục. Mục quá hạn (TTL 4 s) bị bỏ. P5–P7 không bao giờ vào hàng đợi.
-4. **Trùng lặp**: cùng `messageId` trong cooldown → bỏ. Cùng sự kiện phát hai lần trong 500 ms (ví dụ StrictMode chạy effect hai lần ở dev) → bỏ lần sau.
+3. **Hàng đợi**: tối đa 1 mục. Mục quá hạn (TTL 4 s) bị bỏ. P5–P7 không vào hàng đợi khi đang có bong bóng khác. Ngoại lệ: ý định bị chặn **chỉ vì slot của màn chưa đăng ký** (sự kiện tới trước khi slot mount) chờ trong hàng đợi ở mọi mức, hiện ngay khi slot có (specs/005 DV-18).
+4. **Trùng lặp**: cùng `messageId` trong cooldown → bỏ. Cùng sự kiện phát hai lần trong 500 ms (ví dụ StrictMode chạy effect hai lần ở dev) → bỏ lần sau. Không áp cho tín hiệu trạng thái, thao tác của du khách và sự kiện tải gói (mỗi lần bấm là một thao tác thật; specs/005 DV-67).
 5. **Không lặp câu**: pool xoay vòng; câu không lặp hiện tối đa một lần theo phạm vi ghi trong thư viện.
 6. **Đổi màn**: hủy bong bóng, hàng đợi và hẹn giờ của màn cũ. Riêng P4 vừa phát trên màn cũ (ví dụ lượt ghé mới, rồi điều hướng sang nội dung) được mang sang màn mới nếu màn mới có slot.
 7. **Ngữ cảnh chặn**: có hộp thoại (trừ khi mascot là INLINE của chính dialog đó), media đang phát, trang ẩn → chỉ P0–P1 có hiệu lực, và chúng chỉ ở dạng INLINE.

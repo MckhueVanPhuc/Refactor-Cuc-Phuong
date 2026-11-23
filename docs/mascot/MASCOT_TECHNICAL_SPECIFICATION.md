@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED**. Chưa được phép cài cho tới khi có change brief và gói Spec-Kit được duyệt |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04) |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); §2, §5 đồng bộ với code của gói specs/005 ngày 2026-11-23 (T071) |
 | Nền tảng hiện có | React 19, React Router 8 (data mode), Vite 8 + vite-plugin-pwa (Workbox `generateSW`), Dexie (IndexedDB `visitorDb`), CSS Modules + token (`src/shared/ui/tokens.css`, lint cấm literal màu/px ngoài tokens), i18n tự viết theo module (`vi.ts`/`en.ts`, kiểu `typeof vi`) |
 
 ## 1. Nguyên tắc kiến trúc
@@ -20,21 +20,31 @@
 ## 2. Thành phần
 
 ```text
-src/shared/mascot/                    # Engine thuần, không React, không module
-├── events.ts        # (3) MascotEvent (union có kiểu) + emit/subscribe; bus trong bộ nhớ, ~40 dòng
-├── machine.ts       # (4) reducer thuần: (state, event, ctx, now) → { state, effects }
-├── rules.ts         # bảng MAS-B-xxx dạng dữ liệu: điều kiện → intent (messageId, pose, mode, priority)
-├── arbiter.ts       # ưu tiên, hàng đợi 1 mục, cooldown, chống trùng (State Machine §5)
-├── idle.ts          # hẹn giờ không hoạt động; dừng khi trang ẩn (State Machine §6)
+src/shared/mascot/                    # Engine thuần và thành phần màn dùng; module M01/M02 chỉ import index.ts
+├── index.ts         # public entry: emitMascotEvent, holdMascotSignal, isMascotEnabled, MascotSlot, MascotFigure, MascotMotionSwitch, useMascotConfirms
+├── events.ts        # (3) MascotEvent (union có kiểu) + emit/subscribe; bus trong bộ nhớ; giữ tạm sự kiện tới trước host
+├── types.ts         # Mode, PoseId, Intent (kèm `slot` ưu tiên), MascotState, RuleResult (kèm `end`)
+├── machine.ts       # (4) reducer thuần: (state, event, ctx) → { state, effects }; luật an toàn; lịch cử chỉ tự động
+├── rules.ts         # bảng MAS-B-xxx: sự kiện/hẹn giờ → intent (messageId, pose, mode, priority, slot); hẹn giờ không hoạt động của danh mục và scanner nằm ở đây
+├── arbiter.ts       # ưu tiên, hàng đợi 1 mục, cooldown, giới hạn câu chủ động (State Machine §5)
 ├── config.ts        # ngưỡng thời gian (giá trị tạm, MAS-D-11)
-├── assets.ts        # (7) registry: poseId → { src240, src480 } (import ảnh qua Vite)
+├── assets.ts        # (7) registry: poseId → { src240, src480 }, ảnh chớp mắt (import ảnh qua Vite)
+├── flag.ts          # công tắc phát hành VITE_FEATURE_MASCOT
+├── motion.ts        # công tắc "Chuyển động của Mila" (trong bộ nhớ)
+├── slots.ts         # registry slot: màn đăng ký chỗ, host đọc
+├── visitConfirm.ts  # Mila xác nhận lượt ghé thay toast (BR-MAS-24)
+├── MascotSlot.tsx   # chỗ đặt Mila trong layout của màn (host portal vào)
+├── MascotFigure.tsx # hình tĩnh INLINE cạnh câu cố định (không bong bóng, không logic)
+├── MascotMotionSwitch.tsx # công tắc chuyển động ở SCR-M01-004
 └── dialogue/        # (5) catalog.ts + vi.ts + en.ts (Dialogue Library §4)
 
-src/app/mascot/                       # Lớp React, gắn một lần trong App.tsx
-├── MascotHost.tsx   # (1)(6) subscribe bus, chạy machine, render vào slot đang hoạt động; đọc ngôn ngữ, route, visibility, network, reduced motion
-├── MascotSlot.tsx   # Khai báo vị trí trong layout của từng màn (portal giống FieldNotice)
+src/app/mascot/                       # Lớp React gắn một lần trong App.tsx, nạp lazy (chunk `mascot`) khi cờ bật
+├── loadHost.ts      # cờ tắt → không import() host
+├── MascotHost.tsx   # (2)(6) subscribe bus, chạy machine, render vào slot (slot ý định chỉ định, rồi slot đăng ký sau cùng); đọc ngôn ngữ, route, visibility, network, reduced motion, thao tác
 ├── Mascot.tsx       # (1) ảnh + bong bóng (nút × chỉ đóng bong bóng); chạm ảnh → `mascot.user.tapped`; không logic
-├── Mascot.module.css# (6) animation AN-xx bằng token
+├── MascotIntro.tsx  # (1) lớp phủ giới thiệu INTRO (v1.3)
+├── useTypewriter.ts # chữ bong bóng hiện dần
+├── Mascot.module.css, MascotIntro.module.css # (6) animation AN-xx bằng token
 └── MascotBoundary.tsx # error boundary: lỗi → HIDDEN
 ```
 
@@ -47,7 +57,7 @@ Số trong ngoặc là 8 lớp được yêu cầu tách:
 | (3) | Event bus | `events.ts` |
 | (4) | State machine | `machine.ts` |
 | (5) | Dialogue library | `dialogue/` |
-| (6) | Animation manager | Lớp CSS theo `AN-xx`; `MascotHost` chỉ gắn class và nghe `animationend` |
+| (6) | Animation manager | Lớp CSS theo `AN-xx` (`data-mascot-animation`); thời lượng giữ nằm trong intent (`holdMs`), không nghe `animationend` |
 | (7) | Asset registry | `assets.ts` |
 | (8) | Preference | **Không có** (quyết định 2026-11-21: bỏ chế độ yên lặng và nút ẩn). Mascot không lưu gì |
 
@@ -100,28 +110,26 @@ Mỗi điểm phát được thêm kèm một test: test hành vi cũ vẫn PASS
 
 ## 5. Slot và layout
 
-- Màn khai báo `<MascotSlot id="trip-dock" modes={['DOCK']} />` ở chỗ trống thật trong layout (ví dụ hàng chứa nút Quét QR). Mascot render vào slot qua portal, nên **không nổi đè** lên phần tử khác.
-- Slot dự kiến:
+- Màn khai báo `<MascotSlot id="trip-dock" modes={['DOCK']} />` ở chỗ trống thật trong layout (ví dụ hàng chứa nút Quét QR). Mascot render vào slot qua portal, nên **không nổi đè** lên phần tử khác. `MascotSlot` và `MascotFigure` nằm ở `src/shared/mascot/` (module M01/M02 không import `src/app/`).
+- INLINE không phải slot: màn đặt `<MascotFigure pose="…" />` ngay cạnh câu cố định (cờ tắt → không render gì).
+- Slot đang dùng (contract UI §2 của specs/005):
 
-| Slot | Màn | Mode cho phép |
-|---|---|---|
-| `catalog-hero` | SCR-M01-001 | INTRO, DOCK |
-| `catalog-empty` | SCR-M01-001 | INLINE |
-| `recommend-head`, `recommend-empty` | SCR-M01-002 | AVATAR, INLINE |
-| `start-panel` | SCR-M01-003 | AVATAR, INLINE |
-| `offline-dialog` | Dialog quyết định offline | INLINE |
-| `package-panel` | SCR-M01-003/004 | AVATAR, INLINE |
-| `offline-empty` | SCR-M01-004 | INLINE |
-| `trip-dock` | SCR-M02-001 | DOCK |
-| `trip-notice` | SCR-M02-001 (cạnh `FieldNotice`) | INLINE |
-| `scanner-bottom` | Overlay scanner (dải dưới, ngoài khung) | AVATAR, INLINE |
-| `content-toast` | SCR-M02-002/004 (cạnh toast) | AVATAR |
-| `final-prompt` | Dialog cuối chuyến | INLINE |
-| `end-hero` | SCR-M02-003 | CELEBRATE, INLINE |
-| `free-hint` | SCR-M02-004 (cạnh gợi ý khách tự do) | INLINE |
+| Slot | Màn | Mode | INLINE (`MascotFigure`) trên cùng màn |
+|---|---|---|---|
+| `catalog-hero` | SCR-M01-001 | INTRO, DOCK | Câu rỗng (`rest`), lỗi nguồn (`confused`) |
+| `recommend-head` | SCR-M01-002 (form và trang kết quả) | AVATAR | Câu không có kết quả (`think`) |
+| `start-panel` | SCR-M01-003, phía trên nút Bắt đầu | AVATAR | Lỗi Start (`confused`); đầu dialog quyết định offline (`backpack`) |
+| `package-panel` | SCR-M01-003, SCR-M01-004 (dòng gói vừa bấm tải) | AVATAR | Câu lỗi gói (`confused`); SCR-M01-004 rỗng (`rest`) |
+| `trip-dock` | SCR-M02-001 | DOCK | Từ chối handoff / không chuyến; `INVALID`, `CONNECTION_NEEDED` (`confused`) |
+| `scanner-bottom` | Overlay scanner của SCR-M02-001 (dải dưới, ngoài khung) | AVATAR | Câu camera (`confused`) |
+| `content-toast` | SCR-M02-002/004 (cạnh toast) | AVATAR | Câu nguồn dự phòng từ gói (`backpack`); gợi ý khách tự do (`map`) |
+| `end-hero` | SCR-M02-003 | CELEBRATE, DOCK | Dialog cuối chuyến (`cheer`); bản ghi `CONFLICT` (`confused`) |
 
+- Một màn có hai slot cùng mode (SCR-M01-003): luật đặt `slot` trong intent để Mila vào đúng chỗ.
+- Slot giữ chỗ theo mode cố định lớn nhất nó nhận (CELEBRATE `xl`, DOCK `md` hoặc cỡ DOCK riêng, AVATAR `sm`; INTRO không giữ chỗ). Ngoại lệ: `package-panel` chỉ chiếm chỗ khi có Mila (`:empty` → ẩn), để không đẩy nút tải khỏi hàng trạng thái.
+- Màn Quét QR SCR-M02-005 dùng chung scanner nhưng ngoài phạm vi spec-Mascot: không slot, không hình.
 - Bong bóng đặt trong slot, không bao giờ trong `FieldNotice`/`SourceNotice`.
-- Kích thước bằng token mới (`--mascot-size-sm/md/lg`, `--mascot-bubble-max-width`), thêm vào `tokens.css` sau khi design-system được sửa. Lint token hiện có vẫn áp.
+- Kích thước bằng token (`--mascot-size-sm/md/xl`, cỡ DOCK `--mascot-size-dock-*`, `--mascot-bubble-max-width`; design-system §9.2). Lint token vẫn áp.
 - `pointer-events: none` cho phần ảnh khi mascot ở INLINE; ảnh mascot (chạm để nhận gợi ý) và nút × của bong bóng có vùng chạm ≥ 44 px.
 
 ## 6. Hiệu năng và pin

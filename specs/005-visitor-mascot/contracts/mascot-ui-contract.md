@@ -6,11 +6,13 @@
 
 ```tsx
 // chữ ký, không phải mã cuối
-<MascotSlot id={SlotId} modes={Array<'INTRO' | 'DOCK' | 'AVATAR' | 'CELEBRATE'>} onCta?={(cta: CtaId) => void} />
+<MascotSlot id={SlotId} modes={Array<'INTRO' | 'DOCK' | 'AVATAR' | 'CELEBRATE'>} onCta?={(cta: CtaId) => void} size?={'catalog' | 'trip' | 'end'} />
 <MascotFigure pose={PoseId} size="md" />   // INLINE: ảnh tĩnh, không bong bóng, không logic
 ```
 
-- `MascotSlot` giữ chỗ theo kích thước token của mode lớn nhất nó nhận (không nhảy layout khi Mila xuất hiện), đăng ký vào registry, và để trống khi host không dùng. Cờ `off` → không render gì.
+- `MascotSlot` giữ chỗ theo mode cố định lớn nhất nó nhận: CELEBRATE `xl`, DOCK `md` (hoặc cỡ DOCK riêng theo `size`), AVATAR `sm`; slot chỉ có INTRO không giữ chỗ (INTRO là lớp phủ) (DV-2). Đăng ký vào registry, để trống khi host không dùng. Cờ `off` → không render gì.
+- Ngoại lệ giữ chỗ: `package-panel` chỉ chiếm chỗ khi có Mila (`:empty` → ẩn), vì Mila chỉ tới sau khi du khách bấm tải và slot trống không được đẩy nút tải khỏi hàng trạng thái (DV-68).
+- Màn có hai slot cùng mode (SCR-M01-003: `start-panel`, `package-panel`): luật đặt `slot` trong intent; host chọn slot đó, không có thì slot đăng ký sau cùng nhận mode.
 - `MascotFigure` là `<img alt="" aria-hidden="true">` trong khung token; ảnh lỗi → không render. Cờ `off` → không render.
 - Thuộc tính kiểm thử: `data-mascot-slot="<id>"`, `data-mascot-mode`, `data-mascot-pose`, `data-mascot-message="<MSG-MAS-nnn>"` trên bong bóng, `data-mascot-figure="<pose>"`.
 

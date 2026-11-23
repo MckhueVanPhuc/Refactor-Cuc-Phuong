@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED** |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04) |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); §3 đồng bộ mẫu precache với code (T071) |
 | Quy tắc repo | AGENTS.md §4: ảnh (không phải icon) chỉ được thêm khi người dùng cung cấp. Agent chỉ cắt, đổi cỡ, nén (người dùng cho phép tạo bản nén 2026-11-20), không vẽ lại nhân vật |
 
 ## 1. Kiểm tra artwork hiện có (Stage 1)
@@ -69,8 +69,8 @@ assets/mascot/
 
 - Tên: `ma-<số 2 chữ số>-<tên-tiếng-anh-kebab>[-<cỡ>].<đuôi>`.
 - `source/` lưu PNG gốc để xuất lại khi đổi chất lượng nén. Nếu repo không muốn chứa tệp lớn, có thể giữ bên ngoài, nhưng phải ghi rõ nơi lưu (quyết định khi làm change brief).
-- Precache chỉ nhận `assets/mascot-*.webp` sau khi Vite băm tên (sẽ chốt mẫu glob trong plan).
-- AGENTS.md cần thêm dòng sở hữu cho `assets/mascot/` (ảnh do người dùng cung cấp; agent chỉ xuất bản nén).
+- Precache (Workbox `globPatterns` trong `vite.config.ts`, chốt ở specs/005): `assets/ma-*-240-*.webp` và `assets/ma-11-avatar-96-*.webp` sau khi Vite băm tên. Bản 480 (INTRO, CELEBRATE) và avatar 192 không precache; khi offline Mila dùng bản 240 (kiểm ở `e2e/m01/mascot-precache.spec.ts`).
+- AGENTS.md §4 đã có dòng sở hữu cho `assets/mascot/` (ảnh gốc do người dùng cung cấp; agent chỉ cắt, đổi cỡ, nén).
 
 ## 4. Asset inventory
 
