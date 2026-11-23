@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { publicationFixture } from '../../src/shared/contracts/__fixtures__/publication';
 import { contextFromSnapshot, packageFromPublication } from '../../src/modules/m01/testing/packageFixture';
 import { callM01Hook, dumpStores, PACKAGE_STORES } from './helpers';
-import { mockPublication } from './network';
+import { closeMascotIntro, mockPublication } from './network';
 import { mockLookup, mockStorage } from '../m02/network';
 
 test.use({ locale: 'vi-VN' });
@@ -15,6 +15,7 @@ test('V1 — mở / lần đầu: panel chọn ngôn ngữ chặn trang; chọn 
   await expect(page.getByRole('banner')).toHaveCount(0);
 
   await page.getByRole('button', { name: 'English' }).click();
+  await closeMascotIntro(page);
   await expect(page.getByRole('heading', { level: 1, name: 'Routes' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Resources' })).toBeVisible();
   expect((await dumpStores(page, ['languagePreference'])).languagePreference).toEqual([

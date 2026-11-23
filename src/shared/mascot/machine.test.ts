@@ -212,25 +212,25 @@ describe('step — chuyển trạng thái nền', () => {
   });
 
 
-  it('INTRO nối câu: `then` chạy khi bong bóng đầu hết', () => {
+  it('nối câu: `then` chạy khi bong bóng đầu hết', () => {
     const rules = [
       rule('m01.language.selected', {
         intents: [
           {
             behaviorId: 'MAS-B-001',
             priority: 6,
-            mode: 'INTRO',
+            mode: 'DOCK',
             pose: 'wave',
-            message: { id: 'MSG-MAS-001' },
-            then: { behaviorId: 'MAS-B-002', priority: 6, mode: 'INTRO', pose: 'map', message: { id: 'MSG-MAS-002' } },
+            message: { id: 'MSG-MAS-009' },
+            then: { behaviorId: 'MAS-B-004', priority: 6, mode: 'DOCK', pose: 'map', message: { id: 'MSG-MAS-004' } },
           },
         ],
       }),
     ];
     const first = run([{ type: 'm01.language.selected', language: 'vi', at: 0 }], rules);
-    expect(first.bubble?.messageId).toBe('MSG-MAS-001');
+    expect(first.bubble?.messageId).toBe('MSG-MAS-009');
     const second = step(first, { type: 'mascot.tick', at: nextDeadline(first)! }, CTX, rules).state;
-    expect(second.bubble?.messageId).toBe('MSG-MAS-002');
+    expect(second.bubble?.messageId).toBe('MSG-MAS-004');
   });
 
   it('hẹn giờ của luật phát `mascot.timer` khi tới hạn', () => {

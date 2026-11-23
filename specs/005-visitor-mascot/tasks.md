@@ -371,18 +371,18 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests ⚠️
 
-- [ ] T101 [P] [US1] `src/shared/mascot/rules.test.ts`, `dialogue/catalog.test.ts`: MAS-B-001 một bong bóng MSG-MAS-001 không tự ẩn, đóng → DOCK hero (MAS-B-003); 002 không còn trong catalog (47 câu); câu 001 và 056 mới; 001 là ngoại lệ 90 ký tự
-- [ ] T102 [P] [US1] `src/app/mascot/MascotIntro.test.tsx`: lớp phủ `role="dialog"`, focus vào; chạm khi chữ đang hiện → hiện hết; chạm tiếp → `onClose`; Esc → `onClose`; không có nút "Bỏ qua" hay ×; giảm chuyển động: chữ hiện ngay
-- [ ] T103 [P] [US9] `src/shared/mascot/MascotMotionSwitch.test.tsx`: `role="switch"`, `aria-checked` theo store, bấm đổi trạng thái; cờ tắt → không render
-- [ ] T104 [P] [US1] E2E `e2e/m01/mascot-intro.spec.ts` (Q30, Q31), `e2e/m01/mascot-layout.spec.ts` (Q32 ở 320/360/390/430 px), `e2e/m01/mascot-motion.spec.ts` hoặc tương đương (Q33); sửa E2E cũ dựa vào hai câu giới thiệu và nút chuyển động ở header
+- [X] T101 [P] [US1] `src/shared/mascot/rules.test.ts`, `dialogue/catalog.test.ts`: MAS-B-001 một bong bóng MSG-MAS-001 không tự ẩn, đóng → DOCK hero (MAS-B-003); 002 không còn trong catalog (47 câu); câu 001 và 056 mới; 001 là ngoại lệ 90 ký tự
+- [X] T102 [P] [US1] `src/app/mascot/MascotIntro.test.tsx`: lớp phủ `role="dialog"`, focus vào; chạm khi chữ đang hiện → hiện hết; chạm tiếp → `onClose`; Esc → `onClose`; không có nút "Bỏ qua" hay ×; giảm chuyển động: chữ hiện ngay
+- [X] T103 [P] [US9] `src/shared/mascot/MascotMotionSwitch.test.tsx`: `role="switch"`, `aria-checked` theo store, bấm đổi trạng thái; cờ tắt → không render
+- [X] T104 [P] [US1] E2E `e2e/m01/mascot-intro.spec.ts` (Q30, Q31), `e2e/m01/mascot-layout.spec.ts` (Q32 ở 320/360/390/430 px), `e2e/m01/mascot-motion.spec.ts` hoặc tương đương (Q33); sửa E2E cũ dựa vào hai câu giới thiệu và nút chuyển động ở header
 
 ### Implementation
 
-- [ ] T105 [US1] Luật MAS-B-001 một bong bóng; catalog: MSG-MAS-001 mới (`autoHide: false`), bỏ 002, 056 mới; nhãn `introHint`, `motionHint`, bỏ `motionOn/Off` (R-27)
-- [ ] T106 [US1] `src/app/mascot/MascotIntro.tsx` (+ `.module.css`); host vẽ mode `INTRO` bằng lớp phủ portal vào `document.body`, `inert` cho `#root`, focus, Back (mục lịch sử cùng URL), Esc (R-27)
-- [ ] T107 [US1] `src/modules/m01/catalog/CatalogPage.tsx` (+ `.module.css`), `src/app/mascot/Mascot.module.css`, `src/shared/mascot/MascotSlot.module.css`: hero hai cột, dải đồi luôn hiện, bong bóng dưới hero đuôi lên; token `--mascot-size-dock-catalog-narrow` (R-29)
-- [ ] T108 [US9] `MascotMotionSwitch` thay `MascotMotionToggle`; bỏ khỏi `VisitorLayout.tsx`, `FieldLayout.tsx`; thêm vào `OfflinePage.tsx` (R-28)
-- [ ] T109 Chạy `npm run ci`, kiểm cổng, `npx playwright test`; ghi validation report §14
+- [X] T105 [US1] Luật MAS-B-001 một bong bóng; catalog: MSG-MAS-001 mới (`autoHide: false`), bỏ 002, 056 mới; nhãn `introHint`, `motionHint`, bỏ `motionOn/Off` (R-27)
+- [X] T106 [US1] `src/app/mascot/MascotIntro.tsx` (+ `.module.css`); host vẽ mode `INTRO` bằng lớp phủ portal vào `document.body`, `inert` cho `#root`, focus, Back (mục lịch sử cùng URL), Esc (R-27)
+- [X] T107 [US1] `src/modules/m01/catalog/CatalogPage.tsx` (+ `.module.css`), `src/app/mascot/Mascot.module.css`, `src/shared/mascot/MascotSlot.module.css`: hero hai cột, dải đồi luôn hiện, bong bóng dưới hero đuôi lên; token `--mascot-size-dock-catalog-narrow` (R-29)
+- [X] T108 [US9] `MascotMotionSwitch` thay `MascotMotionToggle`; bỏ khỏi `VisitorLayout.tsx`, `FieldLayout.tsx`; thêm vào `OfflinePage.tsx` (R-28)
+- [X] T109 Chạy `npm run ci`, kiểm cổng, `npx playwright test`; ghi validation report §14
 
 
 

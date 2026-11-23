@@ -7,7 +7,6 @@ import { Link, Outlet, useMatch } from 'react-router';
 import logoUrl from '../../../../assets/icons/logo-emblem.png';
 import { PATHS } from '../../../app/paths';
 import { useM01Messages } from '../i18n/useM01Messages';
-import { MascotMotionToggle } from '../../../shared/mascot/index';
 import { LanguageControl } from '../language/LanguageControl';
 import { useDisplayLanguage } from '../language/useLanguagePreference';
 import { RecommendationCriteriaProvider } from '../recommendation/criteriaContext';
@@ -48,7 +47,6 @@ export function VisitorLayout() {
           <img className={styles.logo} src={logoUrl} alt={messages.nav.catalog} />
         </Link>
         {/* Công tắc "Chuyển động" của Mila (spec-Mascot BR-MAS-21; chỉ có khi Mila bật) */}
-        <MascotMotionToggle language={language} tone="onDark" />
         <LanguageControl tone="onDark" />
       </header>
       <div className={styles.notices} role="status" ref={setNoticeSlot} />

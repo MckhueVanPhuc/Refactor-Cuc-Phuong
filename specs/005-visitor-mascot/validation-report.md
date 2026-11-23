@@ -553,3 +553,48 @@ Precache không đổi: 5 ảnh mắt nhắm 240 đã nằm trong 114 mục từ
 |---|---|---|
 | DV-60 | Chớp mắt giữ cả thời gian của một cử chỉ (`MASCOT_AMBIENT_GESTURE_MS`, 1,5 s): ảnh mắt nhắm chỉ hiện 120 ms đầu, phần còn lại Mila đứng yên. Asset spec cho phép "có thể 2 lần liền"; bản này chớp một lần | Ghi nhận |
 | DV-61 | Chưa kiểm trên điện thoại thật (độ mượt khi đổi ảnh, ảnh mắt nhắm khớp ảnh gốc ở cỡ 112–128 px) | NOT RUN — chờ chủ dự án |
+
+---
+
+## 14. Đợt 2026-11-23 — Phase 18: lớp phủ giới thiệu, đầu màn danh mục, công tắc ở Tài nguyên (v1.3)
+
+Branch `feat/mascot-v13-intro`, tách từ `docs/mascot-v1.3` (PR #73). Task: T101–T109. Change brief CHG-MASCOT-2026-11-23-04 (APPROVED). Chủ dự án không yêu cầu thử lại trên điện thoại trước khi đẩy PR.
+
+### 14.1 Đã cài
+
+| Mục | Nơi |
+|---|---|
+| MAS-B-001 một bong bóng MSG-MAS-001 mới (`autoHide: false`), đích `then` là DOCK hero; bỏ MSG-MAS-002 (47 câu); câu 056 mới; nhãn `introHint`, `motionHint`, bỏ `motionOn/Off` | `rules.ts`, `dialogue/*.ts` |
+| `MascotIntro`: lớp phủ `position: fixed` portal vào `document.body`, `role="dialog"`, `aria-modal`; Mila và bong bóng căn giữa; "Chạm để bắt đầu"; chạm / Enter / Space: hiện hết chữ rồi đóng; Esc đóng; Back đóng (mục lịch sử cùng URL, thêm ở lượt sau để StrictMode không sinh `history.back()` thừa); `#root` `inert`; focus vào lớp phủ rồi về tiêu đề | `src/app/mascot/MascotIntro.tsx` (+ `.module.css`), `MascotHost.tsx` |
+| Hero danh mục lưới hai cột; slot và khung Mila `display: contents`; dải đồi luôn hiện; bong bóng dưới hero, đuôi chỉ lên Mila; token `--mascot-size-dock-catalog-narrow` | `CatalogPage.tsx` (+ `.module.css`), `Mascot.module.css`, `MascotSlot.module.css`, `tokens.css` |
+| `MascotMotionSwitch` (`role="switch"`) thay `MascotMotionToggle`; bỏ khỏi `VisitorLayout`, `FieldLayout`; đặt ở `OfflinePage` dưới tiêu đề | `src/shared/mascot/MascotMotionSwitch.tsx` (+ `.module.css`), `index.ts`, layout, `OfflinePage.tsx` |
+| Helper E2E `chooseLanguage` đóng lớp phủ bằng Esc (trừ khi `keepIntro`); `closeMascotIntro` | `e2e/m01/network.ts` |
+
+### 14.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `rules.test.ts` (một bong bóng, không tự ẩn, chạm đóng → DOCK), `catalog.test.ts` (47 câu, 001 và 056 mới, nhãn mới) | FAIL 3 ca |
+| `MascotIntro.test.tsx`, `MascotMotionSwitch.test.tsx` | FAIL (chưa có module) |
+| E2E `mascot-intro` (Q30, Q31, Q1b, Q2, Q13), `mascot-layout` (Q32 ở 320/360/390/430 px), `mascot-motion` (Q19, Q20, Q33) | Viết trước khi chạy; Q32 tìm ra DV-62 |
+
+### 14.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 741; 2414 pass, 133 skipped; build OK, precache 115 mục |
+| `npx playwright test --project=m01 mascot language` (cổng đã kiểm trống) | 1 | 17 pass, 4 fail (Q32: tiêu đề chờm vào Mila ở 320/360 px — DV-62; đo vị trí dính transform; locator dải đồi — DV-63) |
+| `npx playwright test --project=m01 mascot-layout` sau khi sửa | 0 | 5 pass |
+| `npx playwright test` | 0 | 152 pass, 46 skipped |
+
+Ảnh chụp rà soát (390 và 320 px: lớp phủ, hero, bong bóng dưới hero, công tắc ở Tài nguyên) khớp mockup đã duyệt; một vòng focus thừa trên tiêu đề sau khi đóng bằng Esc đã bỏ.
+
+### 14.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-62 | Ở 320 và 360 px, tiêu đề một dòng (font serif) rộng hơn chỗ còn lại cạnh Mila cỡ cố định 88/112 px và chờm vào Mila. Cột trái nay rộng đúng bằng tiêu đề; Mila co trong phần còn lại, **tối đa** cỡ token, tối thiểu `--mascot-size-md` (đo được ≈ 75 px ở 320 px, ≈ 91 px ở 360 px trên Chromium Windows; font serif của Android có thể làm Mila nhỏ hơn chút). Không bao giờ đè tiêu đề | Áp dụng; cần ghi vào design-system §9.3a nếu chủ dự án đồng ý |
+| DV-63 | Test cũ "dải đồi ẩn" dùng `span[style*="hills"]`; bản build nhúng icon dạng data URI nên locator không bao giờ khớp (test cũ qua mà không kiểm gì). Nay chọn span trang trí con trực tiếp của hero | Áp dụng |
+| DV-64 | Kiểm "không đè" chung (`expectMascotOverlapsNothing`) bỏ qua Mila ở hero danh mục vì khung `display: contents` không có hộp; Q32 kiểm riêng: Mila không đè tiêu đề, nút, bong bóng không đè thẻ tuyến | Ghi nhận |
+| DV-65 | Icon `pause.svg`, `play.svg` (Phase 13) không còn dùng; để lại trong `assets/icons/` | Ghi nhận |
+| DV-66 | Chưa thử trên điện thoại thật (chủ dự án không yêu cầu đợt này) | NOT RUN |

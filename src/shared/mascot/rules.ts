@@ -34,7 +34,7 @@ const isQrLinkPage = (path: string) => path.startsWith('/q/');
 /** MAS-B-003: Mila đứng ở hero danh mục (DOCK); cũng là đích cuối của lời giới thiệu. */
 const CATALOG_DOCK: Intent = { behaviorId: 'MAS-B-003', priority: 7, mode: 'DOCK', pose: 'map', animation: 'shrink' };
 
-/** MAS-B-001 → MAS-B-002 → MAS-B-003: hai câu giới thiệu rồi thu về DOCK. */
+/** MAS-B-001 → MAS-B-003 (v1.3): lớp phủ giới thiệu một câu, chờ du khách chạm, rồi Mila về DOCK ở hero. */
 const INTRO: Intent = {
   behaviorId: 'MAS-B-001',
   priority: 6,
@@ -43,7 +43,7 @@ const INTRO: Intent = {
   animation: 'intro',
   message: { id: 'MSG-MAS-001' },
   once: 'INTRO',
-  then: { behaviorId: 'MAS-B-002', priority: 6, mode: 'INTRO', pose: 'map', animation: 'pop', message: { id: 'MSG-MAS-002' }, then: CATALOG_DOCK },
+  then: CATALOG_DOCK,
 };
 
 const US1: Rule[] = [
