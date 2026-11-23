@@ -171,14 +171,14 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests for User Story 5 ⚠️
 
-- [ ] T047 [P] [US5] Thêm vào `src/shared/mascot/rules.test.ts` (đồng hồ giả): MAS-B-040 (chưa có lượt ghé hoặc không phiên; một lần mỗi tải trang; đếm từ `cameraStarted`), 041/042/049 (15/30/90 s, mỗi mức một lần mỗi lần mở; hoạt động reset; trang ẩn dừng), 043/044 (BUSY; 3 s), 046/047/048 (streak 2, reset khi kết quả khác hoặc đổi màn), 038 (camera lỗi → chỉ figure)
-- [ ] T048 [P] [US5] Viết `e2e/m02/mascot-scanner.spec.ts` (project `m02`, camera giả): Q9 với `page.clock`, Q10 (hai mã sai liên tiếp → MSG-MAS-046, câu `INVALID` cố định còn), bấm "Đóng camera" trong MSG-MAS-049 đóng scanner như nút đóng; thêm một ca vào `e2e/m02/scan-evil.spec.ts` (project `m02-cam-evil`): camera từ chối → `[data-mascot-figure="confused"]` cạnh câu camera cố định
+- [X] T047 [P] [US5] Thêm vào `src/shared/mascot/rules.test.ts` (đồng hồ giả): MAS-B-040 (chưa có lượt ghé hoặc không phiên; một lần mỗi tải trang; đếm từ `cameraStarted`), 041/042/049 (15/30/90 s, mỗi mức một lần mỗi lần mở; hoạt động reset; trang ẩn dừng), 043/044 (BUSY; 3 s), 046/047/048 (streak 2, reset khi kết quả khác hoặc đổi màn), 038 (camera lỗi → chỉ figure)
+- [X] T048 [P] [US5] Viết `e2e/m02/mascot-scanner.spec.ts` (project `m02`, camera giả): Q9 với `page.clock`, Q10 (hai mã sai liên tiếp → MSG-MAS-046, câu `INVALID` cố định còn), bấm "Đóng camera" trong MSG-MAS-049 đóng scanner như nút đóng; thêm một ca vào `e2e/m02/scan-evil.spec.ts` (project `m02-cam-evil`): camera từ chối → `[data-mascot-figure="confused"]` cạnh câu camera cố định
 
 ### Implementation for User Story 5
 
-- [ ] T049 [US5] Cài MAS-B-038, 040…044, 046…049 và hẹn giờ scanner trong `src/shared/mascot/rules.ts` / `machine.ts`
-- [ ] T050 [US5] Trong `src/modules/m02/scanner/QrScanner.tsx` (+ `QrScanner.module.css`): `<MascotSlot id="scanner-bottom" modes={['AVATAR']} onCta={...} />` ở dải dưới khung (CTA "Đóng camera" gọi đúng `onClose` hiện có); phát `m02.scanner.cameraStarted` khi `decodeFromConstraints` resolve và `m02.scanner.cameraFailed` khi `setCameraFailed(true)`; `<MascotFigure pose="confused" />` trong panel camera lỗi
-- [ ] T051 [US5] Trong `src/modules/m02/session/TripPage.tsx`: phát `m02.scanner.opened/closed` theo `setScanning`, `m02.scanner.detected` đầu `handleText`, `m02.scan.resolved` cho kết quả ở lại màn; trong `src/modules/m02/content/ScanNotice.tsx`: `<MascotFigure pose="confused" />` cho `INVALID`, `CONNECTION_NEEDED` (không cho `CLOSED`)
+- [X] T049 [US5] Cài MAS-B-038, 040…044, 046…049 và hẹn giờ scanner trong `src/shared/mascot/rules.ts` / `machine.ts`
+- [X] T050 [US5] Trong `src/modules/m02/scanner/QrScanner.tsx` (+ `QrScanner.module.css`): `<MascotSlot id="scanner-bottom" modes={['AVATAR']} onCta={...} />` ở dải dưới khung (CTA "Đóng camera" gọi đúng `onClose` hiện có); phát `m02.scanner.cameraStarted` khi `decodeFromConstraints` resolve và `m02.scanner.cameraFailed` khi `setCameraFailed(true)`; `<MascotFigure pose="confused" />` trong panel camera lỗi
+- [X] T051 [US5] Trong `src/modules/m02/session/TripPage.tsx`: phát `m02.scanner.opened/closed` theo `setScanning`, `m02.scanner.detected` đầu `handleText`, `m02.scan.resolved` cho kết quả ở lại màn; trong `src/modules/m02/content/ScanNotice.tsx`: `<MascotFigure pose="confused" />` cho `INVALID`, `CONNECTION_NEEDED` (không cho `CLOSED`)
 
 **Checkpoint**: US5 kiểm độc lập; T026 vẫn PASS (slot scanner không giao khung).
 

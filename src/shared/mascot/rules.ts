@@ -5,6 +5,10 @@ import {
   MASCOT_CATALOG_HINT_MS,
   MASCOT_DIZZY_TAPS,
   MASCOT_DIZZY_WINDOW_MS,
+  MASCOT_LOOKUP_SLOW_MS,
+  MASCOT_SCANNER_CAMERA_OFF_MS,
+  MASCOT_SCANNER_HELP_MS,
+  MASCOT_SCANNER_LOOK_MS,
   MASCOT_TAP_DEBOUNCE_MS,
   MASCOT_TRIP_START_DELAY_MS,
   MASCOT_VIBRATION_MS,
@@ -180,6 +184,132 @@ const US4: Rule[] = [
           intents: [{ behaviorId: 'MAS-B-070', priority: 5, mode: 'DOCK', pose: 'backpack', animation: 'pack', message: { id: 'MSG-MAS-070' }, once: 'PENDING_NOTE' }],
         },
   ),
+];
+
+// —— US5: Mila giúp khi quét khó (US-MAS-03) ——
+// Hình INLINE cạnh câu camera cố định (MAS-B-038) và cạnh thông báo `INVALID`, `CONNECTION_NEEDED` lần đầu (MAS-B-046, 047)
+// do màn đặt bằng `MascotFigure`.
+
+const SCANNER_SLOT = 'scanner-bottom';
+/** Minh họa khi mở scanner hiện sau khi camera chạy chừng này (Behavior Matrix MAS-B-040) */
+const SCANNER_INTRO_DELAY_MS = 600;
+/** Minh họa không lời ở dải dưới (MAS-B-040, 041) hiện chừng này rồi tự ẩn */
+const SCANNER_GLANCE_MS = 4_000;
+const LOOK_GLANCE_MS = 3_000;
+/** Mila "đang kiểm tra" tối đa bằng `LOOKUP_TIMEOUT_SECONDS` của spec-M02 §9 (8 s); kết quả về sớm hơn thì thôi ngay */
+const LOOKUP_HOLD_MS = 8_000;
+/** Ba mốc chờ của scanner, đếm từ lúc camera chạy hoặc từ lần thao tác cuối (State Machine §6.2; BR-MAS-09) */
+const SCANNER_TIMERS: Record<string, number> = {
+  scanLook: MASCOT_SCANNER_LOOK_MS,
+  scanHelp: MASCOT_SCANNER_HELP_MS,
+  scanOff: MASCOT_SCANNER_CAMERA_OFF_MS,
+};
+const CLEAR_SCANNER_TIMERS = { scanIntro: null, scanLook: null, scanHelp: null, scanOff: null, lookupSlow: null };
+/** Mã lỗi ở lại màn, để đếm hai lần liên tiếp giống nhau (BR-MAS-10) */
+const FAILURE_CODE = { INVALID: 1, CONNECTION_NEEDED: 2 } as const;
+
+/** Mila về DOCK trên nút Quét với tư thế theo tiến độ (State Machine §3.1; giống MAS-B-033) */
+function tripDock(state: RuleView['state'], animation: AnimationId = 'settle'): Intent {
+  const k = state.counters['screen:k'] ?? 0;
+  const pose: PoseId = state.counters['screen:final'] ? 'thumbsUp' : k > 0 ? 'map' : 'binoculars';
+  return { behaviorId: 'MAS-B-033', priority: 7, mode: 'DOCK', pose, animation };
+}
+
+const onTripWithSession = (state: RuleView['state']) => state.hasSession && state.path === '/trip';
+
+const US5: Rule[] = [
+  // MAS-B-040: lần mở đầu trong lần tải trang, chưa có lượt ghé hoặc khách tự do → chờ camera chạy rồi minh họa (v1.2)
+  // Lớp scanner che DOCK: bong bóng đang hiện ở DOCK đóng (BR-MAS-20 "đang chờ quét": chỉ mốc chờ và kết quả quét)
+  on('MAS-B-040', 'm02.scanner.opened', (event, { state }) => ({
+    ...(state.bubble && state.view?.mode === 'DOCK' ? { end: [state.bubble.intent.behaviorId] } : {}),
+    ...(!state.once['SCANNER_INTRO'] && (!event.hasSession || event.k === 0) ? { counters: { 'screen:scannerIntro': 1 } } : {}),
+  })),
+  on('MAS-B-041:armed', 'm02.scanner.cameraStarted', (_event, { state }) => {
+    if (!state.counters['screen:scanner'] || state.counters['screen:scannerArmed']) return null;
+    return {
+      counters: { 'screen:scannerArmed': 1, 'screen:scannerIntro': null },
+      timers: { ...SCANNER_TIMERS, ...(state.counters['screen:scannerIntro'] ? { scanIntro: SCANNER_INTRO_DELAY_MS } : {}) },
+    };
+  }),
+  onTimer('MAS-B-040:show', 'scanIntro', () => ({
+    intents: [
+      { behaviorId: 'MAS-B-040', priority: 6, mode: 'AVATAR', pose: 'point', animation: 'tilt', holdMs: SCANNER_GLANCE_MS, once: 'SCANNER_INTRO', slot: SCANNER_SLOT },
+    ],
+  })),
+  // Thao tác trong lúc quét: các mốc còn chờ đếm lại từ đầu (BR-MAS-09)
+  on('MAS-B-041:activity', 'app.user.activity', (_event, { state }) => {
+    const pending = Object.keys(SCANNER_TIMERS).filter((name) => state.timers[name] !== undefined);
+    return pending.length > 0 ? { timers: Object.fromEntries(pending.map((name) => [name, SCANNER_TIMERS[name]!])) } : null;
+  }),
+  // MAS-B-041: 15 s → nhìn quanh, không chữ; chỉ khi chuyển động được phép
+  onTimer('MAS-B-041', 'scanLook', ({ state }) =>
+    state.motion
+      ? { intents: [{ behaviorId: 'MAS-B-041', priority: 7, mode: 'AVATAR', pose: 'binoculars', animation: 'look', holdMs: LOOK_GLANCE_MS, source: 'timer', slot: SCANNER_SLOT }] }
+      : null,
+  ),
+  // MAS-B-042: 30 s → hỏi giúp một lần mỗi lần mở
+  onTimer('MAS-B-042', 'scanHelp', () => ({
+    intents: [{ behaviorId: 'MAS-B-042', priority: 6, mode: 'AVATAR', pose: 'point', animation: 'pop', message: { id: 'MSG-MAS-042' }, source: 'timer', slot: SCANNER_SLOT }],
+  })),
+  // MAS-B-049: 90 s → gợi ý tắt camera ("Đóng camera" gọi đúng nút đóng của scanner; "Chưa" đóng bong bóng)
+  onTimer('MAS-B-049', 'scanOff', () => ({
+    intents: [{ behaviorId: 'MAS-B-049', priority: 6, mode: 'AVATAR', pose: 'rest', animation: 'pop', message: { id: 'MSG-MAS-049' }, source: 'timer', slot: SCANNER_SLOT }],
+  })),
+  // Đóng scanner: hủy các mốc; Mila về DOCK (trừ khi đang kiểm tra mã vừa đọc). Camera lỗi (MAS-B-038): hủy các mốc.
+  on('MAS-B-041:closed', 'm02.scanner.closed', (_event, { state }) => ({
+    // Hẹn "sóng hơi yếu" (lookupSlow) giữ nguyên: scanner đóng ngay sau khi đọc được mã, lúc tra cứu còn chạy
+    timers: { scanIntro: null, scanLook: null, scanHelp: null, scanOff: null },
+    counters: { 'screen:scannerArmed': null, 'screen:scannerIntro': null },
+    ...(onTripWithSession(state) && state.hold?.status !== 'BUSY' ? { intents: [tripDock(state, 'enter')] } : {}),
+  })),
+  on('MAS-B-038', 'm02.scanner.cameraFailed', () => ({ timers: { scanIntro: null, scanLook: null, scanHelp: null, scanOff: null } })),
+  // MAS-B-043 → 044: đọc được mã → Mila kiểm tra ở DOCK trong lúc tra cứu; quá 3 s → "sóng hơi yếu"
+  on('MAS-B-043', 'm02.scanner.detected', (_event, { state }) => ({
+    timers: { ...CLEAR_SCANNER_TIMERS, ...(onTripWithSession(state) ? { lookupSlow: MASCOT_LOOKUP_SLOW_MS } : {}) },
+    ...(onTripWithSession(state)
+      ? {
+          intents: [
+            { behaviorId: 'MAS-B-043', priority: 5, mode: 'DOCK', pose: 'magnifier', animation: 'search', status: 'BUSY', holdMs: LOOKUP_HOLD_MS, then: tripDock(state) },
+          ],
+        }
+      : {}),
+  })),
+  onTimer('MAS-B-044', 'lookupSlow', ({ state }) =>
+    state.hold?.status === 'BUSY'
+      ? {
+          intents: [
+            {
+              behaviorId: 'MAS-B-044',
+              priority: 5,
+              mode: 'DOCK',
+              pose: 'magnifier',
+              animation: 'search',
+              message: { id: 'MSG-MAS-044' },
+              status: 'BUSY',
+              holdMs: LOOKUP_HOLD_MS - MASCOT_LOOKUP_SLOW_MS,
+              then: tripDock(state),
+            },
+          ],
+        }
+      : null,
+  ),
+  // Kết quả quét ở lại màn: hết "đang kiểm tra"; MAS-B-046 / 048 khi cùng một lỗi lặp lại lần 2 liên tiếp (BR-MAS-10)
+  on('MAS-B-046', 'm02.scan.resolved', (event, { state }) => {
+    if (state.path !== '/trip') return null;
+    const settle = { end: ['MAS-B-043', 'MAS-B-044'], timers: { lookupSlow: null } };
+    const code = event.display === 'INVALID' || event.display === 'CONNECTION_NEEDED' ? FAILURE_CODE[event.display] : 0;
+    const count = code && state.counters['screen:failCode'] === code ? (state.counters['screen:failCount'] ?? 0) + 1 : code ? 1 : 0;
+    const counters = code ? { 'screen:failCode': code, 'screen:failCount': count } : { 'screen:failCode': null, 'screen:failCount': null };
+    const back = onTripWithSession(state) ? tripDock(state) : undefined;
+    const help: Intent | undefined =
+      count === 2
+        ? event.display === 'INVALID'
+          ? { behaviorId: 'MAS-B-046', priority: 2, mode: 'DOCK', pose: 'confused', animation: 'tilt', message: { id: 'MSG-MAS-046' } }
+          : { behaviorId: 'MAS-B-048', priority: 2, mode: 'DOCK', pose: 'point', animation: 'pop', message: { id: 'MSG-MAS-048' } }
+        : undefined;
+    const intents = [...(help ? [{ ...help, ...(back ? { then: back } : {}) }] : []), ...(back && state.hold?.status === 'BUSY' ? [back] : [])];
+    return { ...settle, counters, ...(intents.length ? { intents } : {}) };
+  }),
 ];
 
 // —— US7: Chuẩn bị cùng Mila (US-MAS-07) ——
@@ -423,7 +553,8 @@ const US8: Rule[] = [
     event.kind === 'STARTED' && !state.once['TRIP_START'] ? { timers: { tripStart: MASCOT_TRIP_START_DELAY_MS }, once: ['TRIP_START'] } : null,
   ),
   onTimer('MAS-B-030:show', 'tripStart', ({ state }) =>
-    state.view?.mode === 'DOCK'
+    // Du khách đã mở scanner (đúng điều câu này gợi ý): không nói sau lớp scanner
+    state.view?.mode === 'DOCK' && !state.counters['screen:scanner']
       ? {
           intents: [
             {
@@ -487,4 +618,4 @@ const US8: Rule[] = [
   }),
 ];
 
-export const RULES: readonly Rule[] = [...US1, ...US2, ...US4, ...US7, ...US8, ...AMBIENT];
+export const RULES: readonly Rule[] = [...US1, ...US2, ...US4, ...US5, ...US7, ...US8, ...AMBIENT];

@@ -114,10 +114,14 @@ export function TripPage() {
 
   const finalId = session ? finalCheckpointId(session) : undefined;
   const finalVisited = visits.status === 'ready' && visits.value.some((visit) => visit.checkpointId === finalId);
-  useTripMascotSignals(entry, session?.journeyCheckpoints.length ?? null, visits.status === 'ready' ? visits.value.length : null, finalVisited);
+  const visitCount = visits.status === 'ready' ? visits.value.length : null;
+  useTripMascotSignals(entry, session?.journeyCheckpoints.length ?? null, visitCount, finalVisited);
+  useScannerMascotSignals(scanning, session !== null, visitCount ?? 0);
 
   const handleText = useCallback(
     async (text: string) => {
+      // Mila kiểm tra mã cùng du khách (MAS-B-043); phát trước khi scanner đóng
+      emitMascotEvent({ type: 'm02.scanner.detected' });
       setScanning(false);
       setStayNotice(null);
       setLookingUp(true);
@@ -127,6 +131,16 @@ export function TripPage() {
           navigate(contentPath(result.qrIdentifier), { state: { scan: result } satisfies ContentRouteState });
           return;
         }
+        // Kết quả ở lại màn (MAS-B-045…048); kết quả có nội dung do trang nội dung phát
+        emitMascotEvent({
+          type: 'm02.scan.resolved',
+          display: result.display.kind,
+          hasSession: result.session !== null,
+          freeVisitor: result.freeVisitor,
+          visitCreated: result.visitCreated,
+          inJourney: result.visit !== null,
+          finalPromptNeeded: result.finalPromptNeeded,
+        });
         setStayNotice({ kind: result.display.kind, freeVisitor: result.freeVisitor });
       } finally {
         setLookingUp(false);
@@ -185,7 +199,7 @@ export function TripPage() {
       )}
       {scanning && (
         <Suspense fallback={null}>
-          <QrScanner onDetected={(text) => void handleText(text)} onClose={() => setScanning(false)} />
+          <QrScanner onDetected={(text) => void handleText(text)} onClose={() => setScanning(false)} mascot />
         </Suspense>
       )}
       {session && confirmingFinish && (
@@ -193,6 +207,16 @@ export function TripPage() {
       )}
     </FieldLayout>
   );
+}
+
+/** Mở/đóng scanner cho Mila (contract `m02.scanner.opened` / `closed`; T051). Không phát lúc màn vừa mở. */
+function useScannerMascotSignals(scanning: boolean, hasSession: boolean, k: number) {
+  const previous = useRef(scanning);
+  useEffect(() => {
+    if (previous.current === scanning) return;
+    previous.current = scanning;
+    emitMascotEvent(scanning ? { type: 'm02.scanner.opened', hasSession, k } : { type: 'm02.scanner.closed' });
+  }, [scanning, hasSession, k]);
 }
 
 /**

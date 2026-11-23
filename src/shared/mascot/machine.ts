@@ -259,6 +259,8 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
         const then = s.hold.then;
         s.hold = null;
         if (then) admit(s, then, ctx, now, effects);
+        // AVATAR chỉ hiện cùng lời hoặc trong lúc giữ (minh họa ngắn MAS-B-040, nhìn quanh MAS-B-041): hết giữ thì ẩn
+        else if (s.view?.mode === 'AVATAR' && !s.bubble) s.view = null;
       }
       const due = Object.entries(s.timers)
         .filter(([, deadline]) => deadline <= now)
