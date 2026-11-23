@@ -46,6 +46,7 @@ export function VisitorLayout() {
         <Link className={styles.brand} to={PATHS.catalog}>
           <img className={styles.logo} src={logoUrl} alt={messages.nav.catalog} />
         </Link>
+        {/* Công tắc "Chuyển động" của Mila (spec-Mascot BR-MAS-21; chỉ có khi Mila bật) */}
         <LanguageControl tone="onDark" />
       </header>
       <div className={styles.notices} role="status" ref={setNoticeSlot} />

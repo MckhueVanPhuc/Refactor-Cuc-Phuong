@@ -2,6 +2,8 @@
 // FR-M02-013): tạm đóng (một câu cho cả `ROUTE` và `CHECKPOINT`), mã không hợp lệ, cần kết nối. Lỗi kết nối không bao
 // giờ hiện là mã không hợp lệ. Mã ngoài hành trình (`VALID`) không có thông báo: màn hiện nội dung live, không lượt ghé
 // (spec và screen spec không chốt chữ nào cho trường hợp này). Màu theo bề mặt của FieldLayout (scanner tối / reader sáng).
+import { useEffect } from 'react';
+import { emitMascotEvent } from '../../../shared/mascot/index';
 import { useM02Messages } from '../i18n/useM02Messages';
 import styles from './ScanNotice.module.css';
 
@@ -9,6 +11,10 @@ export type ScanNoticeKind = 'CLOSED' | 'INVALID' | 'CONNECTION_NEEDED';
 
 export function ScanNotice({ kind, freeVisitor = false }: { kind: ScanNoticeKind; freeVisitor?: boolean }) {
   const messages = useM02Messages();
+  // Mila rời màn khi có thông báo tạm đóng (spec-Mascot BR-MAS-03; specs/005 T028). Chỉ phát tín hiệu.
+  useEffect(() => {
+    if (kind === 'CLOSED') emitMascotEvent({ type: 'm02.notice.closedShown' });
+  }, [kind]);
   const { text, tone } = {
     CLOSED: { text: messages.notice.temporarilyClosed, tone: styles.warning },
     INVALID: { text: messages.notice.invalid, tone: styles.error },

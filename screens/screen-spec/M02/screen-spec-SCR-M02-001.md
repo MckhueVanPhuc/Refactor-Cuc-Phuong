@@ -8,9 +8,9 @@
 | Actor | Visitor có phiên; khách tự do dùng nút Quét |
 | Priority | Must; đồng bộ Should |
 | Mockup | [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html) (HTML tĩnh, chưa sign-off UX) |
-| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) |
+| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.3](../../../docs/spec/spec-Mascot.md) cho Mila |
 
-Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (handoff theo [Spec M01 v3.2](../../../docs/spec/spec-M01.md), lookup theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md)). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
+Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (handoff theo [Spec M01 v3.2](../../../docs/spec/spec-M01.md), lookup theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md)). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
 Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
@@ -40,7 +40,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | 10 | E-SCR-M02-001-10 | QR scanner | Camera view (vùng hoặc toàn màn hình) | Đọc nội dung mã QR | Conditional | Chỉ nhận link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` của môi trường hiện tại; mã khác hoặc base khác → thông báo mã không hợp lệ, không tra cứu (FR-M02-026, BR-M02-023) |
 | 11 | E-SCR-M02-001-11 | Camera permission / unavailable state | Panel | Giải thích trạng thái quyền camera và cách thử lại, gồm lựa chọn quét bằng camera điện thoại | Conditional | Quyền do trình duyệt cấp; UI chỉ giải thích (Screen list M02 §4; BR-M02-023) |
 | 12 | E-SCR-M02-001-12 | Lookup in progress | Spinner | Đang tra cứu mã QR | Conditional | Không có phản hồi trong 8 giây (`LOOKUP_TIMEOUT_SECONDS`) = lỗi tra cứu (BR-M02-005) |
-| 13 | E-SCR-M02-001-13 | Check-in feedback | Toast (design-system §5.3: 6 giây, nút đóng, không đẩy nội dung; 2026-11-21) | Xác nhận lượt ghé đã được ghi (kể cả mã thêm sau khi phiên bắt đầu) | Conditional | Ghi một lượt ghé theo `(sessionId, checkpointId)` trước khi hiện nội dung; quét lặp không tạo bản ghi mới (FR-M02-007, FR-M02-009) |
+| 13 | E-SCR-M02-001-13 | Check-in feedback | Toast (design-system §5.3: 6 giây, nút đóng, không đẩy nội dung; 2026-11-21). v1.2: khi Mila hoạt động, bong bóng xác nhận của Mila thay toast; toast là dự phòng; điểm cuối không có toast (Spec Mascot BR-MAS-24) | Xác nhận lượt ghé đã được ghi (kể cả mã thêm sau khi phiên bắt đầu) | Conditional | Ghi một lượt ghé theo `(sessionId, checkpointId)` trước khi hiện nội dung; quét lặp không tạo bản ghi mới (FR-M02-007, FR-M02-009) |
 | 14 | E-SCR-M02-001-14 | Closure notice | Banner | VI: "Khu vực này đang tạm đóng. Vui lòng dừng lại hoặc quay về theo hướng dẫn của Ban Quản lý." | Conditional | Cùng một thông báo cho `closedScope` `ROUTE` và `CHECKPOINT`; không nội dung, không lượt ghé (BR-M02-015) |
 | 15 | E-SCR-M02-001-15 | Invalid QR message | Banner | VI: "Mã không còn hiệu lực hoặc không tồn tại." | Conditional | Cho `INVALID` hoặc mã không phải link QR của môi trường; không ghi lượt ghé |
 | 16 | E-SCR-M02-001-16 | Connection-needed message | Banner | VI: "Cần có kết nối mạng để kiểm tra mã QR này." | Conditional | Offline hoặc lỗi tra cứu với mã không thuộc journey đóng băng; không phải mã không hợp lệ |
@@ -50,6 +50,8 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | 20 | E-SCR-M02-001-20 | Action: Mở nội dung điểm đã quét | Tap item | Mở SCR-M02-002 cho đúng mã đã quét | Conditional | Quét lại hiển thị nội dung mã đó và thời điểm ghé cũ |
 | 21 | E-SCR-M02-001-21 | Replace-session failure message | Banner | Không tạo được phiên thay thế; phiên cũ vẫn chạy | Conditional | Tạo phiên mới và đổi phiên cũ `BO_DO` là một thao tác nguyên tử (BR-M02-013) |
 | 22 | E-SCR-M02-001-22 | Previous-trip sync error | Text một dòng | Chuyến đi đã kết thúc nhưng không gửi được về hệ thống (theo bảng copy) | Conditional | Hiện khi có `PendingSyncItem` ở `CONFLICT`; không có trang hàng đợi, không cho sửa dữ liệu chuyến đi (BR-M02-011) |
+| 23 | E-SCR-M02-001-23 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Cạnh nút Quét QR (DOCK); cạnh vùng thông báo (INLINE); dải dưới khung trong scanner (AVATAR, không đè khung quét); đầu dialog cuối chuyến (INLINE, không làm chậm dialog). Không có Mila khi có thông báo tạm đóng. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
+| 24 | E-SCR-M02-001-24 | Công tắc "Chuyển động" của Mila | **Bỏ ở v1.3**: thanh đầu trang không còn nút chuyển động; công tắc duy nhất ở màn Tài nguyên SCR-M01-004 (Spec Mascot BR-MAS-21) | — | — | — |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Các câu đã cố định trong Spec M02 §5.1 (tạm đóng, mã không hợp lệ, cần kết nối, lỗi nguồn, gợi ý khách tự do, gợi ý bắt đầu phiên, phiên tự kết thúc) được dùng nguyên văn như ghi ở bảng inventory.
 
@@ -77,6 +79,30 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | Camera bị từ chối/không có | Không dùng được camera. Hãy cho phép truy cập camera hoặc quét mã bằng ứng dụng máy ảnh của điện thoại. | The camera cannot be used. Allow camera access, or scan the code with your phone's own camera app. |
 | Thay phiên lỗi | Chưa bắt đầu được chuyến mới. Chuyến hiện tại vẫn đang chạy. | Could not start the new trip. Your current trip is still in progress. |
 | Chuyến trước không gửi được (E-SCR-M02-001-22) | Chuyến đi trước không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này. | Your previous trip could not be sent to the system. It is still saved on this device. |
+| Mila khi bắt đầu chuyến (MSG-MAS-030) | Ở mỗi điểm dừng, tìm tem QR rồi bấm Quét QR nhé. | At each stop, look for the QR sign and tap Scan QR. |
+| Chạm Mila (SCR-M02-001) (MSG-MAS-032) | Thấy tem thì bấm Quét QR. Chạm điểm đã quét để đọc lại nhé. | Spot a sign? Tap Scan QR. Tap a scanned stop to read it again. |
+| Mila chào khi mở lại app giữa chuyến (MSG-MAS-034) | Chào mừng quay lại! Hành trình của bạn vẫn còn nguyên. | Welcome back! Your trip is just as you left it. |
+| Mila hướng dẫn quét lần đầu (MSG-MAS-040) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
+| Mila khi quét lâu chưa được (MSG-MAS-042) | Chưa quét được? Thử lại gần hơn và tránh chỗ chói nắng. | No luck yet? Move a little closer and avoid the glare. |
+| Mila khi tra mã chậm (MSG-MAS-044) | Sóng hơi yếu, mình vẫn đang kiểm tra… | Weak signal, still checking… |
+| Mila sau 2 lần mã không hợp lệ (MSG-MAS-046) | Hãy quét tem QR của Vườn ở điểm dừng. Tem cũ thì thử tem khác nếu có. | Scan a park QR sign at the stop. If it looks old, try another one. |
+| Mila sau 2 lần cần kết nối (MSG-MAS-048) | Mã này cần có sóng để kiểm tra. Điểm trong tuyến vẫn quét được khi mất sóng. | This code needs signal to check. Stops on your route still scan offline. |
+| Mila gợi ý tắt camera (nút "Đóng camera" / "Chưa") (MSG-MAS-049) | Mình tắt camera cho đỡ tốn pin nhé? | Shall I turn the camera off to save battery? (buttons "Close camera" / "Not now") |
+| Mila khi quay lại hành trình sau lượt ghé mới (MSG-MAS-056) | Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé. | Time to explore! Remember to scan at the next stop. |
+| Mila nhắc ứng xử với thiên nhiên (a, chờ Ban Quản lý duyệt) (MSG-MAS-057a) | Đi nhẹ, nói khẽ để nghe được tiếng rừng nhé. | Walk softly and talk quietly, the forest is listening. |
+| Mila nhắc ứng xử với thiên nhiên (b) (MSG-MAS-057b) | Ngắm thôi, đừng hái hay mang gì ra khỏi rừng nhé. | Look, don't pick. Leave everything as you found it. |
+| Mila nhắc ứng xử với thiên nhiên (c) (MSG-MAS-057c) | Giữ rác trong ba lô cho tới khi gặp thùng rác nhé. | Keep your litter in your bag until you find a bin. |
+| Mila nhắc ứng xử với thiên nhiên (d) (MSG-MAS-057d) | Đi đúng đường mòn để an toàn cho bạn và cho rừng. | Stay on the trail, it's safer for you and the forest. |
+| Mila nhắc ứng xử với thiên nhiên (e) (MSG-MAS-057e) | Đừng cho thú ăn nhé, đồ ăn của người không tốt cho chúng. | Please don't feed the animals, our food isn't good for them. |
+| Mila khi chọn "Đi tiếp" (MSG-MAS-061) | Được thôi! Khi sẵn sàng, nút Kết thúc chuyến vẫn ở đây. | Sure! The End trip button is here whenever you're ready. |
+| Mila khi mất sóng giữa chuyến (MSG-MAS-074) | Mất sóng rồi. Đừng lo, các điểm trong tuyến vẫn quét được. | Signal's gone, but stops on your route can still be scanned. |
+| Mila khi có sóng lại (MSG-MAS-075) | Có sóng lại rồi! | Signal's back! |
+| Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
+| Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
+| Chạm Mila giữa chặng, còn {r} điểm (MSG-MAS-033) | Còn {r} điểm nữa. Thấy tem thì bấm Quét QR nhé. | {r} stops to go. Spot a sign? Tap Scan QR. (r = 1: "1 stop to go. Spot a sign? Tap Scan QR.") |
+| Chạm Mila khi đang mở camera (MSG-MAS-043) | Lại gần tem hơn và tránh chỗ chói nắng nhé. | Move closer to the sign and avoid the glare. |
+| Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
+| Nút phụ khi Mila gợi ý tắt camera | Chưa | Not now |
 
 ## 4. States
 
@@ -129,6 +155,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | SR-SCR-M02-001-010 | Phiên quá 24 giờ được tự đóng khi mở app/quay lại màn hình: `HOAN_TAT` nếu đã thăm điểm cuối, ngược lại `BO_DO`; `endedAt` là `checkedInAt` mới nhất hoặc `startedAt` | FR-M02-024, BR-M02-022, SC-M02-016 |
 | SR-SCR-M02-001-011 | Hết hạn handoff chỉ chặn tạo phiên, không bao giờ kết thúc phiên đã tạo | BR-M02-017, SC-M02-010 |
 | SR-SCR-M02-001-012 | M02 không ghi dữ liệu M01/M03 | FR-M02-020 |
+| SR-SCR-M02-001-013 | Mila chỉ hiện trong slot của màn và không che nút, vùng thông báo, toast, dialog hay nội dung; câu cố định của màn giữ nguyên; Mila không đổi hành vi hay dữ liệu của màn và không có nút ẩn; có thông báo tạm đóng thì Mila rời màn; nhắc khi không hoạt động chỉ chạy trong scanner | BR-MAS-01, BR-MAS-02, BR-MAS-03, BR-MAS-08, BR-MAS-11 |
 
 ## 7. Linked requirements
 
@@ -148,6 +175,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | FR-M02-024 | Tự đóng phiên quá 24 giờ |
 | FR-M02-025 | Gợi ý quét bằng nút trong ứng dụng |
 | FR-M02-026 | Chỉ nhận link QR của môi trường hiện tại |
+| FR-MAS-001, FR-MAS-002, FR-MAS-003, FR-MAS-009 | Mascot Mila: slot, phản ứng theo sự kiện, lời thoại theo ngôn ngữ, không đổi hành vi của màn (Spec Mascot) |
 
 ## 8. Responsive and accessibility notes
 

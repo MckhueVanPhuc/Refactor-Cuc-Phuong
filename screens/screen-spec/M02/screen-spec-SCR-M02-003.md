@@ -8,9 +8,9 @@
 | Actor | Visitor có phiên |
 | Priority | Must; trạng thái đồng bộ Should |
 | Mockup | Chưa có |
-| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) |
+| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.3](../../../docs/spec/spec-Mascot.md) cho Mila |
 
-Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (`SessionSyncRecord` nhận bởi [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
+Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (`SessionSyncRecord` nhận bởi [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
 Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
@@ -37,6 +37,8 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | 7 | E-SCR-M02-003-07 | Sync status | Text/badge | Trạng thái đồng bộ: chờ đồng bộ, đã đồng bộ, conflict/bị từ chối | Conditional | Theo `PendingSyncItem.syncStatus` (`PENDING`/`SYNCED`/`CONFLICT`); không có trang hàng đợi sync |
 | 8 | E-SCR-M02-003-08 | Sync error message | Banner | Lỗi khi M03 báo conflict hoặc từ chối record | Conditional | Dừng retry tự động; không sửa payload bất biến; không có thao tác thử lại hay xóa của du khách (BR-M02-011) |
 | 9 | E-SCR-M02-003-09 | Action: Về danh mục | Button | Mở SCR-M01-001 | Conditional | Sau khi phiên kết thúc |
+| 10 | E-SCR-M02-003-10 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Cạnh huy hiệu hoàn thành (CELEBRATE một lần ngay sau khi kết thúc, sau đó INLINE); huy hiệu giữ nguyên. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
+| 11 | E-SCR-M02-003-11 | Công tắc "Chuyển động" của Mila | **Bỏ ở v1.3**: thanh đầu trang không còn nút chuyển động; công tắc duy nhất ở màn Tài nguyên SCR-M01-004 (Spec Mascot BR-MAS-21) | — | — | — |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Câu hỏi kết thúc chuyến và hai nút Kết thúc / Đi tiếp đã cố định trong Spec M02 §5.1 và dùng nguyên văn.
 
@@ -52,6 +54,13 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | Đồng bộ: xong | Đã gửi về hệ thống | Sent |
 | Đồng bộ: conflict/bị từ chối | Chuyến đi này không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này. | This trip could not be sent to the system. It is still saved on this device. |
 | Nút về danh sách | Về danh sách tuyến | Back to routes |
+| Mila ăn mừng kết thúc chuyến (MSG-MAS-062) | Hôm nay mình đã cùng bạn quét {k} điểm. Vui ghê! | We scanned {k} stops together today. What a trip! (k = 1: "We scanned 1 stop together today. What a trip!") |
+| Mila khi chuyến chờ gửi lúc mất sóng (MSG-MAS-070) | Chuyến đi đã lưu trên máy. Lần tới có sóng và mở app, mình sẽ gửi đi. | Your trip is saved on this phone. I'll send it next time you're online. |
+| Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
+| Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
+| Mila ăn mừng khi quét đủ mọi điểm (MSG-MAS-063) | Bạn đã quét đủ {n} điểm của tuyến. Tuyệt vời! | You scanned all {n} stops of the route. Amazing! |
+| Chạm Mila ở màn kết quả (MSG-MAS-065) | Cảm ơn bạn đã đi cùng mình hôm nay! | Thanks for exploring with me today! |
+| Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 
 ## 4. States
 
@@ -85,6 +94,7 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | SR-SCR-M02-003-005 | Đồng bộ lại cùng `sessionId` với dữ liệu giống hệt là thành công, khác dữ liệu là conflict; record bị M03 từ chối dừng retry và hiện lỗi | BR-M02-011, SC-M02-006 |
 | SR-SCR-M02-003-006 | Record đồng bộ không chứa tên, tài khoản, định danh thiết bị, GPS hay PII khác | SC-M02-007 |
 | SR-SCR-M02-003-007 | Retry chỉ khi ứng dụng đang mở hoặc quay lại; không đồng bộ nền sau khi đóng trình duyệt | Constitution VI |
+| SR-SCR-M02-003-008 | Mila chỉ hiện trong slot của màn và không che nút, vùng thông báo, toast, dialog hay nội dung; câu cố định của màn giữ nguyên; Mila không đổi hành vi hay dữ liệu của màn và không có nút ẩn; không có nút thử lại gửi cho bản ghi CONFLICT | BR-MAS-01, BR-MAS-02, BR-MAS-03, BR-MAS-08, BR-MAS-11 |
 
 ## 7. Linked requirements
 
@@ -94,6 +104,7 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | FR-M02-016 | Hoàn tất khi xác nhận |
 | FR-M02-018 | Hàng đợi đồng bộ bất biến, retry/conflict/rejected |
 | FR-M02-023 | Câu hỏi kết thúc chuyến khi quét điểm cuối lần đầu |
+| FR-MAS-001, FR-MAS-002, FR-MAS-003, FR-MAS-009 | Mascot Mila: slot, phản ứng theo sự kiện, lời thoại theo ngôn ngữ, không đổi hành vi của màn (Spec Mascot) |
 
 ## 8. Responsive and accessibility notes
 

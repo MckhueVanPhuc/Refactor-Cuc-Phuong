@@ -8,9 +8,9 @@
 | Actor | Visitor |
 | Priority | Should* |
 | Mockup | Chưa có |
-| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.3](../../../docs/spec/spec-Mascot.md) cho Mila |
 
-Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; \* gói offline là Should nhưng phải nâng lên Must nếu increment phát hành có điểm dừng `OFFLINE_REQUIRED` hoặc sơ đồ tuyến cần dùng offline. Xóa package không xóa context hoặc session M02. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
+Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; \* gói offline là Should nhưng phải nâng lên Must nếu increment phát hành có điểm dừng `OFFLINE_REQUIRED` hoặc sơ đồ tuyến cần dùng offline. Xóa package không xóa context hoặc session M02. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
 Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
@@ -47,6 +47,8 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 17 | E-SCR-M01-004-17 | Scan hint line | Text | Một dòng: không có mạng thì check-in bằng nút Quét trong ứng dụng | Conditional | Hiện khi có package sẵn sàng (US-M01-03 mục 5) |
 | 18 | E-SCR-M01-004-18 | Empty state | Text | Chưa có package nào | Conditional | Hiện khi không có package local |
 | 19 | E-SCR-M01-004-19 | Tab bar | Thanh tab cố định ở đáy (design-system §5.2; 2026-11-21) | Như E-SCR-M01-001-20: Tuyến · Quét QR · Tài nguyên | Yes | Tab của màn đang mở được đánh dấu, không chỉ bằng màu |
+| 20 | E-SCR-M01-004-20 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Panel gói (AVATAR, INLINE); trạng thái rỗng (INLINE). Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
+| 21 | E-SCR-M01-004-21 | Công tắc "Chuyển động của Mila" | Một hàng dưới tiêu đề màn, trên danh sách gói: nhãn, câu phụ "Tắt để Mila đứng yên.", công tắc trượt (design-system §9.5) | Luôn có khi Mila được bật; **công tắc duy nhất của app** (v1.3) | Conditional (Could, MVP-Scope §3.6) | `role="switch"`, `aria-checked`, tên "Chuyển động của Mila", vùng chạm cả hàng ≥ 44px; tắt: Mila đứng yên trên mọi màn, chữ hiện ngay, Mila vẫn hiện; khởi đầu tắt khi giảm chuyển động; không lưu qua lần mở app (Spec Mascot BR-MAS-21). Không phải nút ẩn Mila |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới.
 
@@ -71,6 +73,17 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | Gói cũ (cảnh báo) | Gói tải trước này đã cũ nhưng vẫn dùng được. | This download is out of date but still usable. |
 | Package không đọc được | Gói tải trước không đọc được | This download cannot be read |
 | Hành động với package không đọc được | Tải lại · Xóa | Download again · Delete |
+| Mila khi bắt đầu tải gói (MSG-MAS-020) | Mình đang xếp nội dung vào ba lô. Giữ trang này mở nhé. | Packing your route into the backpack. Keep this page open. |
+| Mila khi gói sẵn sàng (MSG-MAS-021) | Giờ các điểm này xem được cả khi mất sóng. | These stops now work without signal. |
+| Mila khi tải lỗi (nguồn hoặc mạng) (MSG-MAS-024) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
+| Mila khi máy không cho lưu (MSG-MAS-025) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
+| Chạm Mila (màn M01) (MSG-MAS-009) | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
+| Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
+| Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
+| Chạm Mila lần nữa (MSG-MAS-012) | Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn. | Tap Route suggestions and I'll pick by your time and interests. |
+| Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
+| Nhãn công tắc chuyển động (v1.3) | Chuyển động của Mila | Mila's motion |
+| Câu phụ dưới nhãn công tắc (v1.3) | Tắt để Mila đứng yên. | Turn off to keep Mila still. |
 
 ## 4. States
 
@@ -109,6 +122,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | SR-SCR-M01-004-005 | Hiển thị thời điểm lưu chữ cốt lõi và có/không có sơ đồ tuyến offline của package | FR-M01-009, FR-M01-014 |
 | SR-SCR-M01-004-006 | Xóa package cascade sang tài nguyên, sơ đồ offline, chữ cốt lõi và dữ liệu candidate nhưng không xóa `SelectedRouteContext` hay dữ liệu M02 | Spec M01 §6.4 |
 | SR-SCR-M01-004-007 | Chỉ gửi request nguồn khi tải hoặc kiểm tra phiên bản; việc xem trạng thái dùng dữ liệu local | Screen list M01 |
+| SR-SCR-M01-004-008 | Mila chỉ hiện trong slot của màn và không che nút, vùng thông báo, toast, dialog hay nội dung; câu cố định của màn giữ nguyên; Mila không đổi hành vi hay dữ liệu của màn và không có nút ẩn | BR-MAS-01, BR-MAS-02, BR-MAS-03, BR-MAS-08, BR-MAS-11 |
 
 ## 7. Linked requirements
 
@@ -118,6 +132,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | FR-M01-009 | Xem/tải/xóa, xác nhận xóa, tuần tự hóa thao tác |
 | FR-M01-010 | Cập nhật, giữ bản cũ khi lỗi |
 | FR-M01-014 | Hiển thị thời điểm lưu chữ cốt lõi |
+| FR-MAS-001, FR-MAS-002, FR-MAS-003, FR-MAS-009 | Mascot Mila: slot, phản ứng theo sự kiện, lời thoại theo ngôn ngữ, không đổi hành vi của màn (Spec Mascot) |
 
 ## 8. Responsive and accessibility notes
 

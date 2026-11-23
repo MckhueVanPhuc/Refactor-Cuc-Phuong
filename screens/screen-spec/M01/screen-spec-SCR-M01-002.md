@@ -8,9 +8,9 @@
 | Actor | Visitor |
 | Priority | Should |
 | Mockup | Chưa có |
-| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.3](../../../docs/spec/spec-Mascot.md) cho Mila |
 
-Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
+Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
 Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
@@ -42,6 +42,8 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 12 | E-SCR-M01-002-12 | Action: Về danh mục | Button | Mở SCR-M01-001 | Yes | None |
 | 13 | E-SCR-M01-002-13 | Loading / source unavailable | Panel | Đang đọc nguồn, hoặc không đọc được nguồn | Conditional | Không báo "không có tuyến" khi thực chất nguồn không đọc được |
 | 14 | E-SCR-M01-002-14 | Tab bar | Thanh tab cố định ở đáy (design-system §5.2; 2026-11-21) | Như E-SCR-M01-001-20: Tuyến · Quét QR · Tài nguyên | Yes | Tab của màn đang mở được đánh dấu, không chỉ bằng màu |
+| 15 | E-SCR-M01-002-15 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Đầu màn (AVATAR); kết quả rỗng (INLINE). Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
+| 16 | E-SCR-M01-002-16 | Công tắc "Chuyển động" của Mila | **Bỏ ở v1.3**: thanh đầu trang không còn nút chuyển động; công tắc duy nhất ở màn Tài nguyên SCR-M01-004 (Spec Mascot BR-MAS-21) | — | — | — |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Bảng nhãn dưới đây áp dụng cho mọi màn du khách của M01 (thẻ tuyến, chi tiết, gợi ý): nhãn tiếng Việt lấy theo tên hiển thị của Spec M03 §5.1/§5.4, nhãn tiếng Anh là bản dịch chốt tại đây; mã enum không bao giờ hiện cho du khách.
 
@@ -71,6 +73,14 @@ Chữ cố định khác của màn này:
 | Hành động khi 0 kết quả | Đổi tiêu chí · Xem tất cả tuyến | Change choices · See all routes |
 | Không đọc được nguồn | Chưa tải được danh sách tuyến. Hãy kiểm tra kết nối và thử lại. | Could not load the routes. Check your connection and try again. |
 | Tiêu đề nhóm | Thời gian · Đối tượng · Trải nghiệm | Time · Who is going · Experience |
+| Mila khi mở Gợi ý tuyến (MSG-MAS-010) | Bạn có bao lâu, đi cùng ai, thích gì? Chọn mỗi nhóm một ý nhé. | How long, with whom, and what do you enjoy? Pick one of each. |
+| Mila khi có kết quả gợi ý (MSG-MAS-011) | Đây là những tuyến hợp với bạn! | Here are the routes that suit you! |
+| Mila sau 2 lần không có kết quả (nút "Xem tất cả tuyến") (MSG-MAS-013) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
+| Chạm Mila (màn M01) (MSG-MAS-009) | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
+| Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
+| Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
+| Chạm Mila lần nữa (MSG-MAS-012) | Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn. | Tap Route suggestions and I'll pick by your time and interests. |
+| Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 
 ## 4. States
 
@@ -103,6 +113,7 @@ Chữ cố định khác của màn này:
 | SR-SCR-M01-002-003 | `timeTags` của tuyến luôn đúng một giá trị do M03 suy ra từ thời lượng; M01 dùng nguyên giá trị, không tính lại | Spec M01 §4.2 |
 | SR-SCR-M01-002-004 | Không có kết quả thì hiển thị rỗng; không tự nới tiêu chí | BR-M01-003 |
 | SR-SCR-M01-002-005 | Chỉ tuyến `HOAT_DONG` có `activeContentVersion` hợp lệ được xét | BR-M01-002 |
+| SR-SCR-M01-002-006 | Mila chỉ hiện trong slot của màn và không che nút, vùng thông báo, toast, dialog hay nội dung; câu cố định của màn giữ nguyên; Mila không đổi hành vi hay dữ liệu của màn và không có nút ẩn | BR-MAS-01, BR-MAS-02, BR-MAS-03, BR-MAS-08, BR-MAS-11 |
 
 ## 7. Linked requirements
 
@@ -110,6 +121,7 @@ Chữ cố định khác của màn này:
 |---|---|
 | FR-M01-004 | Ba tiêu chí hợp lệ → mọi tuyến khớp; hỗ trợ 0 kết quả; thiếu/không hợp lệ thì không lọc |
 | FR-M01-001 | Control ngôn ngữ dùng chung |
+| FR-MAS-001, FR-MAS-002, FR-MAS-003, FR-MAS-009 | Mascot Mila: slot, phản ứng theo sự kiện, lời thoại theo ngôn ngữ, không đổi hành vi của màn (Spec Mascot) |
 
 ## 8. Responsive and accessibility notes
 

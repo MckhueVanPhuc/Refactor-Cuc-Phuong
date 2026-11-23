@@ -8,9 +8,9 @@
 | Actor | Visitor |
 | Priority | Must; chuẩn bị offline Should* |
 | Mockup | [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html) (HTML tĩnh, chưa sign-off UX) |
-| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.3](../../../docs/spec/spec-Mascot.md) cho Mila |
 
-Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md) (Published Route và JourneySnapshot theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; \* gói offline là Should nhưng phải nâng lên Must nếu increment có điểm dừng `OFFLINE_REQUIRED` hoặc sơ đồ tuyến cần dùng offline. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline.
+Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md) (Published Route và JourneySnapshot theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; \* gói offline là Should nhưng phải nâng lên Must nếu increment có điểm dừng `OFFLINE_REQUIRED` hoặc sơ đồ tuyến cần dùng offline. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
 Các Type/pattern trong inventory và §8 là đề xuất trình bày; control có thể gộp/tách khi thiết kế nhưng phải giữ hành vi, dữ liệu và guard. Trong §9: **Confirmed** có nguồn baseline, **Proposed** chờ UX review, **Open** có clarification chưa được nguồn xác nhận. Draft không đồng nghĩa frontend/prototype đã được nghiệm thu. Chữ hiển thị cho người dùng chỉ là các câu trong ngoặc kép, câu của khóa MSG-* và bảng copy; tên trường, mã enum/trạng thái, định danh và khóa MSG-* trong tài liệu này chỉ để truy vết cho người phát triển, không bao giờ hiện trên giao diện.
 
@@ -55,6 +55,8 @@ Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html)
 | 25 | E-SCR-M01-003-25 | Route unavailable state | Panel | Tuyến không còn `HOAT_DONG` sau làm mới nguồn | Conditional | Chặn Start mới; context hiện tại đánh dấu `REVOKED` (BR-M01-011) |
 | 26 | E-SCR-M01-003-26 | Action: Tài nguyên offline | Link | Mở SCR-M01-004 | Yes | None |
 | 27 | E-SCR-M01-003-27 | Tab bar | Thanh tab cố định ở đáy (design-system §5.2; 2026-11-21) | Như E-SCR-M01-001-20: Tuyến · Quét QR · Tài nguyên | Yes | Tab của màn đang mở được đánh dấu, không chỉ bằng màu |
+| 28 | E-SCR-M01-003-28 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Panel Bắt đầu (AVATAR; không bao giờ trên khối Cảnh báo an toàn); panel gói tải trước (AVATAR, INLINE); đầu dialog quyết định offline và lỗi Start (INLINE). Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
+| 29 | E-SCR-M01-003-29 | Công tắc "Chuyển động" của Mila | **Bỏ ở v1.3**: thanh đầu trang không còn nút chuyển động; công tắc duy nhất ở màn Tài nguyên SCR-M01-004 (Spec Mascot BR-MAS-21) | — | — | — |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Nhãn độ khó, thời gian và tag dùng bảng nhãn i18n ở SCR-M01-002.
 
@@ -77,6 +79,17 @@ Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html)
 | Start lỗi | Chưa bắt đầu được. Hãy thử lại. | Could not start. Please try again. |
 | Tuyến không còn nhận chuyến mới | Tuyến này hiện không nhận chuyến mới. | This route is not available for new trips right now. |
 | Lỗi nguồn, đang dùng bản lưu | Chưa tải được thông tin mới. Đang hiển thị thông tin đã lưu. | Could not load the latest information. Showing saved information. |
+| Mila nhắc đọc Cảnh báo an toàn (MSG-MAS-014) | Trước khi đi, bạn đọc kỹ phần Cảnh báo an toàn giúp mình nhé. | Before you head out, please read the Safety warning. |
+| Mila khi bắt đầu tải gói (MSG-MAS-020) | Mình đang xếp nội dung vào ba lô. Giữ trang này mở nhé. | Packing your route into the backpack. Keep this page open. |
+| Mila khi gói sẵn sàng (MSG-MAS-021) | Giờ các điểm này xem được cả khi mất sóng. | These stops now work without signal. |
+| Mila khi tải lỗi (nguồn hoặc mạng) (MSG-MAS-024) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
+| Mila khi máy không cho lưu (MSG-MAS-025) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
+| Mila khi tải lỗi lần 2 liên tiếp (MSG-MAS-026) | Vẫn chưa được. Có mạng thì bạn vẫn đi được, chỉ vài điểm cần sóng để xem. | Still no luck. You can go without it, but some stops will need signal. |
+| Chạm Mila (màn M01) (MSG-MAS-009) | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
+| Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
+| Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
+| Chạm Mila lần nữa (MSG-MAS-012) | Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn. | Tap Route suggestions and I'll pick by your time and interests. |
+| Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 
 ## 4. States
 
@@ -127,6 +140,7 @@ Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html)
 | SR-SCR-M01-003-010 | Tuyến phát hiện đã đóng/lưu trữ bị chặn Start mới và context hiện tại thành `REVOKED`; phiên M02 đã tạo không bị M01 xóa hay dừng | BR-M01-011, US-M01-05 |
 | SR-SCR-M01-003-011 | Chỉ một thao tác package mỗi tuyến tại một thời điểm | Spec M01 §4.4, FR-M01-009 |
 | SR-SCR-M01-003-012 | Tuyến không cần package có thể Start online mà không cần package | SC-M01-010 |
+| SR-SCR-M01-003-013 | Mila chỉ hiện trong slot của màn và không che nút, vùng thông báo, toast, dialog hay nội dung; câu cố định của màn giữ nguyên; Mila không đổi hành vi hay dữ liệu của màn và không có nút ẩn; không đặt Mila trên khối Cảnh báo an toàn | BR-MAS-01, BR-MAS-02, BR-MAS-03, BR-MAS-08, BR-MAS-11 |
 
 ## 7. Linked requirements
 
@@ -143,6 +157,7 @@ Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html)
 | FR-M01-012 | Ghi `SelectedRouteContext v3` |
 | FR-M01-013 | Công bố context/package cho M02 |
 | FR-M01-014 | Chữ cốt lõi kèm thời điểm lưu |
+| FR-MAS-001, FR-MAS-002, FR-MAS-003, FR-MAS-009 | Mascot Mila: slot, phản ứng theo sự kiện, lời thoại theo ngôn ngữ, không đổi hành vi của màn (Spec Mascot) |
 
 ## 8. Responsive and accessibility notes
 

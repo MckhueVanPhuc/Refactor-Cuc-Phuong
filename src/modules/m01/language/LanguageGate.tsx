@@ -6,6 +6,7 @@ import flagViUrl from '../../../../assets/icons/flag-vi.svg';
 // Logo dùng chung của app: bản sạch của icon.png (validation-report DV-64)
 import logoUrl from '../../../../assets/icons/logo-emblem.png';
 import type { LanguageCode } from '../../../shared/contracts/languagePreference';
+import { emitMascotEvent } from '../../../shared/mascot/index';
 import { messagesFor } from '../i18n';
 import { writeLanguagePreference } from '../storage/languageWriter';
 import styles from './LanguageGate.module.css';
@@ -53,7 +54,12 @@ export function LanguageGate({ children }: { children: ReactNode }) {
             className={styles.choice}
             data-language={choice.code}
             lang={choice.code}
-            onClick={() => void writeLanguagePreference(choice.code)}
+            onClick={() =>
+              void writeLanguagePreference(choice.code).then(() =>
+                // Mila giới thiệu sau lần chọn ngôn ngữ đầu tiên (MAS-B-001; specs/005 T034)
+                emitMascotEvent({ type: 'm01.language.selected', language: choice.code }),
+              )
+            }
           >
             <img className={styles.flag} src={choice.flagUrl} alt="" />
             {choice.label}

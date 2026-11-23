@@ -1,0 +1,38 @@
+/* Chỗ giữ sẵn cho Mila (design-system §9.2). Không viền, không nền: chỉ là khoảng trống cho host portal vào. */
+.slot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.slot[data-mascot-size='sm'] {
+  min-height: var(--mascot-size-sm);
+}
+
+.slot[data-mascot-dock='catalog'] {
+  --mascot-dock-size: var(--mascot-size-dock-catalog);
+}
+
+/* Màn hẹp nhất: Mila ở hero danh mục nhỏ lại để tiêu đề không xuống dòng (design-system §9.2, v1.3) */
+@media (max-width: 22.4375em) {
+  .slot[data-mascot-dock='catalog'] {
+    --mascot-dock-size: var(--mascot-size-dock-catalog-narrow);
+  }
+}
+
+.slot[data-mascot-dock='trip'] {
+  --mascot-dock-size: var(--mascot-size-dock-trip);
+}
+
+.slot[data-mascot-dock='end'] {
+  --mascot-dock-size: var(--mascot-size-dock-end);
+}
+
+.slot[data-mascot-size='md'] {
+  min-height: var(--mascot-dock-size, var(--mascot-size-md));
+}
+
+.slot[data-mascot-size='xl'] {
+  min-height: var(--mascot-size-xl);
+}

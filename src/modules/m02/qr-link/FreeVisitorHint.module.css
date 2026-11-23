@@ -1,12 +1,24 @@
 /* Gợi ý khách tự do: nền surface của bề mặt, vạch info, liên kết "Chọn tuyến" gạch chân, vùng chạm theo --touch-target. */
 .hint {
   display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
   margin-top: var(--space-5);
-  gap: var(--space-1);
+  gap: var(--space-1) var(--space-3);
   padding: var(--space-3) var(--space-4);
   background: var(--m02-surface);
   border-left: var(--border-width-thick) solid var(--m02-info);
   border-radius: var(--radius-sm);
+}
+
+/* Hình Mila (nếu có) ở cột 1 suốt hai hàng; chữ và liên kết ở cột 2 */
+.hint > :first-child:not(.text) {
+  grid-row: span 2;
+}
+
+.text,
+.link {
+  grid-column: 2;
 }
 
 .text {

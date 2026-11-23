@@ -5,6 +5,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import logoUrl from '../../../../assets/icons/logo-emblem.png';
+import { emitMascotEvent } from '../../../shared/mascot/index';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { LanguageControl } from '../m01Port';
 import { useAutoEndNotice } from '../session/autoEnd';
@@ -41,6 +42,13 @@ export function FieldLayout({ surface, title, children }: { surface: FieldSurfac
   const autoEnded = useAutoEndNotice();
   const [noticeSlot, setNoticeSlot] = useState<HTMLElement | null>(null);
 
+  // Mila im lặng khi có thông báo tự kết thúc chuyến trước (MAS-B-035; specs/005 T030). Chỉ phát tín hiệu.
+  useEffect(() => {
+    if (!autoEnded) return undefined;
+    emitMascotEvent({ type: 'm02.notice.autoEndShown' });
+    return () => emitMascotEvent({ type: 'm02.notice.autoEndHidden' });
+  }, [autoEnded]);
+
   // Trình đọc màn hình đọc đúng ngôn ngữ đang hiển thị
   useEffect(() => {
     document.documentElement.lang = language;
@@ -54,6 +62,7 @@ export function FieldLayout({ surface, title, children }: { surface: FieldSurfac
           {BRANDED.has(surface) && <img className={styles.logo} src={logoUrl} alt="" />}
           {title && <h1 className={styles.title}>{title}</h1>}
         </div>
+        {/* Công tắc "Chuyển động" của Mila (spec-Mascot BR-MAS-21; chỉ có khi Mila bật) */}
         <LanguageControl tone={surface === 'reader' ? 'onLight' : 'onDark'} />
       </header>
       <div className={styles.notices} role="status" ref={setNoticeSlot}>

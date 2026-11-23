@@ -1,6 +1,7 @@
 // Control VI/EN dùng chung cho mọi màn du khách, kể cả trang link QR của M02 (US-M01-01 mục 3; BR-M01-001).
 // Mỗi lần bấm ghi qua writer của M01, nên M01 vẫn là writer duy nhất (language-preference-contract §3).
 import type { LanguageCode } from '../../../shared/contracts/languagePreference';
+import { emitMascotEvent } from '../../../shared/mascot/index';
 import { messagesFor } from '../i18n';
 import { writeLanguagePreference } from '../storage/languageWriter';
 import styles from './LanguageControl.module.css';
@@ -25,7 +26,9 @@ export function LanguageControl({ tone = 'onLight' }: { tone?: 'onLight' | 'onDa
           className={styles.button}
           lang={option.code}
           aria-pressed={language === option.code}
-          onClick={() => void writeLanguagePreference(option.code)}
+          onClick={() =>
+            void writeLanguagePreference(option.code).then(() => emitMascotEvent({ type: 'm01.language.changed', language: option.code }))
+          }
         >
           {option.label}
         </button>

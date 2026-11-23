@@ -1,0 +1,540 @@
+/*
+ * Mila trong slot (design-system §4.3, §5.3, §9; v1.1). Chỉ token; chỉ animate transform/opacity; vòng chờ hữu hạn.
+ * Khi giảm chuyển động, component không gắn data-mascot-animation và mọi --duration-mascot-* = 0ms.
+ */
+.mascot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  max-width: 100%;
+}
+
+/* INTRO: bong bóng trên, Mila dưới, để vừa màn hẹp */
+.mascot[data-mascot-mode='INTRO'] {
+  flex-direction: column-reverse;
+  align-items: flex-start;
+}
+
+/* CELEBRATE: như INTRO, bong bóng trên Mila — slot đứng cạnh huy hiệu nên bề ngang hẹp */
+.mascot[data-mascot-mode='CELEBRATE'] {
+  flex-direction: column-reverse;
+  align-items: center;
+}
+
+/* —— Hình —— */
+.figure {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--mascot-size-md);
+  height: var(--mascot-size-md);
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+}
+
+button.figure {
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  cursor: pointer;
+}
+
+button.figure:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* DOCK theo slot (v1.1, design-system §9.2): slot đặt --mascot-dock-size */
+.mascot[data-mascot-mode='DOCK'] .figure {
+  width: var(--mascot-dock-size, var(--mascot-size-md));
+  height: var(--mascot-dock-size, var(--mascot-size-md));
+}
+
+.mascot[data-mascot-mode='AVATAR'] .figure {
+  width: var(--mascot-size-sm);
+  height: var(--mascot-size-sm);
+}
+
+/* INTRO/CELEBRATE cỡ xl, co lại khi slot hẹp (cạnh huy hiệu ở màn hẹp nhất) để không tràn ngang */
+.mascot[data-mascot-mode='INTRO'] .figure,
+.mascot[data-mascot-mode='CELEBRATE'] .figure {
+  width: min(var(--mascot-size-xl), 100%);
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.mascot[data-mascot-mode='INTRO'],
+.mascot[data-mascot-mode='CELEBRATE'] {
+  width: min(var(--mascot-size-xl), 100%);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Hình giữ chỗ khi chưa có ảnh production: đĩa tròn có lá, không phải nhân vật */
+.placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-paper);
+  background: var(--color-m01-forest);
+  border-radius: 50%;
+}
+
+.placeholderLeaf {
+  --icon-size: 50%;
+}
+
+/*
+ * —— Bong bóng "Giấy dã ngoại" (design-system §9.3, chọn 2026-11-22): lời của Mila, không phải hộp hệ thống. Nền giấy,
+ * viền xanh rừng mảnh, bóng đổ phẳng; góc phía Mila nhọn hơn và đuôi chỉ về Mila.
+ */
+.bubble {
+  position: relative;
+  display: grid;
+  flex: 0 1 auto;
+  gap: var(--space-1);
+  min-width: 0;
+  max-width: var(--mascot-bubble-max-width);
+  padding: var(--space-3);
+  padding-right: calc(var(--touch-target) - var(--space-1));
+  color: var(--color-m01-ink);
+  background: var(--mascot-bubble-surface);
+  border: var(--mascot-bubble-border) solid var(--color-m01-forest);
+  border-radius: var(--mascot-bubble-radius) var(--mascot-bubble-radius) var(--mascot-bubble-radius) var(--mascot-bubble-radius-tail);
+  box-shadow: var(--mascot-bubble-shadow);
+}
+
+/* Đuôi trái (DOCK, AVATAR: Mila đứng bên trái bong bóng): hình vuông xoay, hai cạnh có viền hướng về Mila */
+.bubble::before {
+  position: absolute;
+  bottom: var(--space-3);
+  left: calc(var(--space-2) * -1);
+  width: var(--space-3);
+  height: var(--space-3);
+  content: '';
+  background: inherit;
+  border-bottom: var(--mascot-bubble-border) solid var(--color-m01-forest);
+  border-left: var(--mascot-bubble-border) solid var(--color-m01-forest);
+  transform: rotate(45deg);
+}
+
+/* INTRO, CELEBRATE: bong bóng trên Mila, đuôi chỉ xuống */
+.mascot[data-mascot-mode='INTRO'] .bubble,
+.mascot[data-mascot-mode='CELEBRATE'] .bubble {
+  border-radius: var(--mascot-bubble-radius);
+}
+
+.mascot[data-mascot-mode='INTRO'] .bubble::before,
+.mascot[data-mascot-mode='CELEBRATE'] .bubble::before {
+  bottom: calc(var(--space-2) * -1);
+  left: var(--space-8);
+  border-left: 0;
+  border-right: var(--mascot-bubble-border) solid var(--color-m01-forest);
+}
+
+.mascot[data-mascot-mode='CELEBRATE'] .bubble::before {
+  left: calc(50% - var(--space-2));
+}
+
+/* Hero danh mục (v1.3, design-system §9.3a): bong bóng nằm dưới hero, đuôi ở cạnh trên chỉ lên Mila bên phải */
+:global([data-mascot-dock='catalog']) .mascot[data-mascot-mode='DOCK'] .bubble {
+  max-width: min(100%, calc(var(--mascot-bubble-max-width) + var(--space-8) * 2));
+  border-radius: var(--mascot-bubble-radius) var(--mascot-bubble-radius-tail) var(--mascot-bubble-radius) var(--mascot-bubble-radius);
+}
+
+:global([data-mascot-dock='catalog']) .mascot[data-mascot-mode='DOCK'] .bubble::before {
+  top: calc(var(--space-2) * -1);
+  right: calc(var(--mascot-dock-size) / 2 - var(--space-2));
+  bottom: auto;
+  left: auto;
+  border: 0;
+  border-top: var(--mascot-bubble-border) solid var(--color-m01-forest);
+  border-left: var(--mascot-bubble-border) solid var(--color-m01-forest);
+}
+
+.name {
+  font-size: var(--font-size-mascot-name);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  color: var(--color-m01-forest);
+}
+
+/* Lớp phủ chữ hiện dần nằm đúng trên đoạn gốc; đoạn gốc trong suốt cho tới khi hiện xong. Cùng font và cách xuống dòng
+   (không `text-wrap: pretty` lúc đang hiện) để phần đã hiện ngắt dòng giống câu đầy đủ */
+.textWrap {
+  position: relative;
+}
+
+.text {
+  position: relative;
+  margin: 0;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  text-wrap: pretty;
+}
+
+.text[data-typing] {
+  color: transparent;
+  text-wrap: wrap;
+}
+
+.typed {
+  position: absolute;
+  inset: 0;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  text-wrap: wrap;
+  pointer-events: none;
+}
+
+.actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.primary,
+.secondary {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  font: inherit;
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.primary {
+  color: var(--color-paper);
+  background: var(--color-m01-forest);
+  border: 0;
+}
+
+.secondary {
+  color: var(--color-m01-forest);
+  background: transparent;
+  border: var(--border-width-thin) solid var(--color-m01-secondary);
+}
+
+.close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  font-size: var(--font-size-section-title);
+  line-height: 1;
+  color: var(--color-m01-secondary);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.close:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@media (hover: hover) {
+  .close:hover,
+  .secondary:hover {
+    background: var(--overlay-surface-hover);
+  }
+
+  .primary:hover {
+    box-shadow: inset 0 0 0 100vmax var(--overlay-fill-hover);
+  }
+}
+
+/* Bong bóng trên bề mặt tối của scanner (design-system §9.3) */
+:global([data-mascot-slot='scanner-bottom']) .bubble {
+  color: var(--color-m02-scanner-text);
+  background: var(--color-m02-scanner-surface);
+  border: var(--border-width-thin) solid var(--color-m02-scanner-secondary);
+  box-shadow: none;
+}
+
+:global([data-mascot-slot='scanner-bottom']) .bubble::before {
+  border-color: var(--color-m02-scanner-secondary);
+}
+
+:global([data-mascot-slot='scanner-bottom']) .close,
+:global([data-mascot-slot='scanner-bottom']) .name {
+  color: var(--color-m02-scanner-secondary);
+}
+
+/* —— Lá rơi khi ăn mừng (chỉ SCR-M02-003, một lần) —— */
+.leaves {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.leaf {
+  --icon-size: var(--space-4);
+
+  position: absolute;
+  top: 0;
+  color: var(--color-m01-forest);
+  opacity: 0;
+  animation: mascot-leaf var(--duration-mascot-celebrate) var(--ease-out) both;
+}
+
+.leaf:nth-child(3n) {
+  color: var(--color-m01-amber);
+}
+
+.leaf:nth-child(1) { left: 5%; animation-delay: 0ms; }
+.leaf:nth-child(2) { left: 15%; animation-delay: 120ms; }
+.leaf:nth-child(3) { left: 25%; animation-delay: 60ms; }
+.leaf:nth-child(4) { left: 35%; animation-delay: 200ms; }
+.leaf:nth-child(5) { left: 45%; animation-delay: 30ms; }
+.leaf:nth-child(6) { left: 55%; animation-delay: 160ms; }
+.leaf:nth-child(7) { left: 65%; animation-delay: 90ms; }
+.leaf:nth-child(8) { left: 75%; animation-delay: 240ms; }
+.leaf:nth-child(9) { left: 85%; animation-delay: 140ms; }
+.leaf:nth-child(10) { left: 95%; animation-delay: 40ms; }
+.leaf:nth-child(11) { left: 20%; animation-delay: 280ms; }
+.leaf:nth-child(12) { left: 70%; animation-delay: 320ms; }
+
+@keyframes mascot-leaf {
+  0% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(calc(var(--mascot-size-lg) * 1.25)) rotate(220deg);
+  }
+}
+
+/* —— Animation AN-* (Asset spec §6) —— */
+.mascot[data-mascot-animation='enter'] {
+  animation: mascot-enter var(--duration-mascot-enter) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='intro'] {
+  animation: mascot-intro var(--duration-mascot-enter) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='shrink'] .figure {
+  animation: mascot-shrink var(--duration-mascot-enter) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='pop'] .bubble,
+.mascot[data-mascot-animation='hop'] .bubble,
+.mascot[data-mascot-animation='success'] .bubble,
+.mascot[data-mascot-animation='milestone'] .bubble,
+.mascot[data-mascot-animation='tilt'] .bubble {
+  animation: mascot-pop var(--duration-mascot-pop) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='pop'] .figure {
+  animation: mascot-pop var(--duration-mascot-pop) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='hop'] .figure,
+.mascot[data-mascot-animation='celebrate'] .figure {
+  animation: mascot-hop var(--duration-mascot-hop) var(--ease-out) both;
+}
+
+/* Ba cấp ăn mừng (v1.1, BR-MAS-23): cấp 1 nhún một lần (AN-SUCCESS); cấp 2 nhảy hai lần + 6 lá (AN-MILESTONE) */
+.mascot[data-mascot-animation='success'] .figure {
+  animation: mascot-hop-once var(--duration-mascot-hop) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='milestone'] .figure {
+  animation: mascot-hop var(--duration-mascot-milestone) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='milestone'] .leaf {
+  animation-duration: var(--duration-mascot-milestone);
+}
+
+.mascot[data-mascot-animation='thumb'] .figure {
+  animation: mascot-pop var(--duration-mascot-pop) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='tilt'] .figure {
+  animation: mascot-tilt var(--duration-mascot-pop) var(--ease-in-out) 2 both;
+}
+
+.mascot[data-mascot-animation='look'] .figure {
+  animation: mascot-look var(--duration-mascot-loop) var(--ease-in-out) both;
+}
+
+/* Cử chỉ tự động "vẫy" (v1.1, AN-AMBIENT): lắc lư nhẹ cùng ảnh vẫy tay */
+.mascot[data-mascot-animation='wave'] .figure {
+  animation: mascot-wave var(--duration-mascot-loop) var(--ease-in-out) both;
+}
+
+/* Vòng chờ: tối đa ~4,8 s mỗi lượt rồi đứng yên (v1.1, BR-MAS-21; research R-25) */
+.mascot[data-mascot-animation='breathe'] .figure {
+  animation: mascot-breathe calc(var(--duration-mascot-loop) * 2) var(--ease-in-out) 2;
+}
+
+.mascot[data-mascot-animation='search'] .figure,
+.mascot[data-mascot-animation='pack'] .figure {
+  animation: mascot-sway var(--duration-mascot-loop) var(--ease-in-out) 4;
+}
+
+@keyframes mascot-wave {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  20%,
+  60% {
+    transform: rotate(-4deg);
+  }
+
+  40%,
+  80% {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes mascot-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-2));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mascot-intro {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-6));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mascot-shrink {
+  from {
+    transform: scale(1.6);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@keyframes mascot-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mascot-hop {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  25%,
+  75% {
+    transform: translateY(calc(var(--space-2) * -1.25)) scaleY(1.03);
+  }
+
+  50% {
+    transform: scaleY(0.97);
+  }
+}
+
+@keyframes mascot-hop-once {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  45% {
+    transform: translateY(calc(var(--space-2) * -1)) scaleY(1.03);
+  }
+
+  80% {
+    transform: scaleY(0.98);
+  }
+}
+
+@keyframes mascot-tilt {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  50% {
+    transform: rotate(-4deg);
+  }
+}
+
+@keyframes mascot-look {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  30%,
+  60% {
+    transform: scaleX(-1);
+  }
+}
+
+@keyframes mascot-breathe {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  50% {
+    transform: scaleY(1.015);
+  }
+}
+
+@keyframes mascot-sway {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  50% {
+    transform: rotate(2deg);
+  }
+}

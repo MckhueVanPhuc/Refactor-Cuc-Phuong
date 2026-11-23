@@ -6,7 +6,7 @@
 
 Tài liệu này hướng dẫn màu sắc, kiểu chữ, khoảng cách, bố cục và component dùng lại. Bố cục và kích thước là điểm khởi đầu cho khám phá hình ảnh, có thể điều chỉnh theo độ dài nội dung, viewport và rà soát truy cập.
 
-Hành vi nghiệp vụ và contract thuộc về [Spec M01](../spec/spec-M01.md), [Spec M02](../spec/spec-M02.md), [Spec M03](../spec/spec-M03.md) và [Spec AI Integration](../spec/spec-AI_integration.md). Phần tử, trạng thái và điều hướng chi tiết thuộc về [screen inventory](../../screens/screen%20list/README.md) và các screen specification trong [screens/screen-spec/](../../screens/screen-spec/). Ưu tiên giao hàng thuộc về [MVP Scope](../../MVP-Scope.md). Dùng các nguồn đó cho hành động, quyền, validation và data binding. Giao diện không định nghĩa validation, permission, retry timing, storage behavior hay lifecycle transition.
+Hành vi nghiệp vụ và contract thuộc về [Spec M01](../spec/spec-M01.md), [Spec M02](../spec/spec-M02.md), [Spec M03](../spec/spec-M03.md) , [Spec AI Integration](../spec/spec-AI_integration.md) và [Spec Mascot](../spec/spec-Mascot.md). Phần tử, trạng thái và điều hướng chi tiết thuộc về [screen inventory](../../screens/screen%20list/README.md) và các screen specification trong [screens/screen-spec/](../../screens/screen-spec/). Ưu tiên giao hàng thuộc về [MVP Scope](../../MVP-Scope.md). Dùng các nguồn đó cho hành động, quyền, validation và data binding. Giao diện không định nghĩa validation, permission, retry timing, storage behavior hay lifecycle transition.
 
 | Nguyên tắc | Áp dụng hình ảnh |
 |---|---|
@@ -133,8 +133,16 @@ Giá trị bổ sung:
 | Toast exit | 200ms | ease-in | Thông báo trượt lên + mờ dần |
 | Scanner frame | 1000ms | linear | Khung ngắm QR nhấp nháy |
 | Dialog overlay | 250ms | ease-out | Backdrop + panel xuất hiện |
+| Mascot vào / ra slot | 250ms / 150–200ms | ease-out / ease-in | Mila xuất hiện, rời slot (§9) |
+| Mascot đổi tư thế, bật bong bóng | 200ms (crossfade 150ms) | ease-out | Mỗi lời thoại mới |
+| Mascot phản hồi một lần (nhún, nghiêng, lật nhìn quanh, giơ ngón cái) | 300–1200ms | ease-out | Thành công, lỗi, chờ quét |
+| Mascot vòng chờ (thở, lắc lư, nhún ba lô) | 1200–2400ms mỗi nhịp | ease-in-out | Tối đa 5 giây mỗi lượt rồi đứng yên |
+| Mascot cử chỉ tự động (nhìn ống nhòm, vẫy, nhún, nghiêng đầu, kéo quai ba lô, thở, chớp mắt) | ≤ 1500ms (chớp mắt 120ms) | ease-in-out | Mỗi 8–15 giây ở màn Mila đứng chờ; dừng bằng công tắc "Chuyển động của Mila" ở màn Tài nguyên (§9.5) |
+| Mascot mốc tiến trình + vài lá rơi | 1200ms | ease-out | Mốc cấp 2 (Spec Mascot BR-MAS-23) |
+| Mascot ăn mừng + lá rơi | ≤ 2400ms | ease-out | Chỉ SCR-M02-003, một lần, chạm để bỏ qua |
+| Chữ bong bóng hiện dần | 30 ký tự/giây | linear | Mỗi lời thoại mới; chạm để hiện hết |
 
-Tôn trọng `prefers-reduced-motion`.
+Tôn trọng `prefers-reduced-motion`. Với mascot Mila: khi giảm chuyển động, mọi animation thành đổi tức thì hoặc mờ dần ≤ 150 ms, không lá rơi, không vòng chờ (Spec Mascot BR-MAS-17). Mascot chỉ animate `transform`/`opacity` (cộng đổi ảnh tư thế), mỗi lúc một chuyển động trên hình (song song chỉ có bong bóng và lá rơi), và dừng khi trang ẩn. Công tắc "Chuyển động của Mila" tắt (§9.5, màn Tài nguyên) cho kết quả như giảm chuyển động và chữ hiện ngay; đây là cách tạm dừng chuyển động kéo dài quá 5 giây theo WCAG 2.2.2 (Spec Mascot BR-MAS-21).
 
 Spacing không có `--space-7` . Các giá trị sau chưa có tên token; dùng đúng giá trị trong tài liệu cho đến khi triển khai đặt tên: cỡ chữ theo vai trò (mục 3), thời lượng/easing chuyển động (4.3), độ dày viền 1px/2px, vùng chạm 44px/48px.
 
@@ -207,7 +215,7 @@ Các quy tắc sau chỉ ghép từ token đã có, để thống nhất khi tri
 
 Quy tắc:
 - Hover chỉ áp dụng khi thiết bị có con trỏ (`@media (hover: hover)`); pressed (`:active`) áp dụng mọi thiết bị. Phần tử disabled không có hover/pressed.
-- Không đổi kích thước hay vị trí khi hover/pressed, và không thêm chuyển động ngoài mục 4.3. Hover/pressed không là tín hiệu duy nhất của trạng thái nào; trạng thái được chọn của M03 (`active`) giữ nguyên khi hover.
+- Không đổi kích thước hay vị trí khi hover/pressed, và không thêm chuyển động ngoài mục 4.3. Chuyển động của mascot Mila nằm trong bảng 4.3 và không gắn với hover/pressed. Hover/pressed không là tín hiệu duy nhất của trạng thái nào; trạng thái được chọn của M03 (`active`) giữ nguyên khi hover.
 - Tương phản trường hợp xấu nhất sau khi phủ:
   - Nền đặc: chữ trắng trên `forest` ≥ 10.63:1, trên `accent` ≥ 8.82:1; cao hơn lúc thường (9.25:1 / 7.50:1). Chữ `paper` trên `forest` ≥ 9.77:1.
   - Bề mặt sáng, khi nhấn: chữ `ink` ≥ 12.23:1; `secondary` ≥ 4.94:1 (`#5C5A54` trên `muted`) và ≥ 4.76:1 (`#596457` M01 trên `paper`); `accent` ≥ 5.37:1.
@@ -331,6 +339,7 @@ Hệ quả cho thiết kế: các cặp trên 4.5:1 dùng được cho chữ th�
 - Ngoại lệ do người dùng duyệt 2026-11-08 cho bước chọn ngôn ngữ của SCR-M01-001: agent vẽ `flag-vi.svg`, `flag-en.svg` và `divider-mountain.svg` trong assets/icons/. Hai cờ giữ màu của chính lá cờ; hình núi chỉ dùng làm mask, màu lấy từ token. Cờ chỉ để trang trí, không thay chữ "Tiếng Việt"/"English".
 - Ngoại lệ do người dùng duyệt 2026-11-10 cho nút Quét của SCR-M02-001: agent vẽ `qr-scan.svg` (camera trong khung quét) trong assets/icons/. Chỉ dùng làm mask, màu theo chữ của nút; icon đứng trước chữ "Quét QR", không thay chữ.
 - Ngoại lệ do người dùng duyệt 2026-11-11 cho màn kết quả chuyến SCR-M02-003 (theo ảnh mẫu người dùng cung cấp): agent vẽ `check.svg` (dấu tích của huy hiệu hoàn thành), `heart.svg` (thẻ hẹn gặp lại) và `home.svg` (nút "Về danh sách tuyến") trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; luôn đi kèm chữ, không thay chữ.
+- Ảnh mascot Mila không phải icon: nằm trong `assets/mascot/`, bản gốc do người dùng cung cấp (§9). Hiệu ứng lá rơi của Mila dùng lại `leaf.svg` làm mask, màu từ token.
 - Ngoại lệ do người dùng duyệt 2026-11-21 cho toast dùng chung và thanh tab: agent vẽ `close.svg` (dấu ✕ của nút đóng toast) trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; nút có tên truy cập bằng chữ.
 - Logo dùng chung là `logo-emblem.png`, bản sạch của `icon.png` (nền trắng, bỏ vạch đen ở mép), dùng cho favicon, thanh app và panel chọn ngôn ngữ. Icon cài đặt `pwa-192.png`, `pwa-512.png`, `pwa-maskable-512.png` và `apple-touch-icon.png` là logo này đặt giữa nền trắng vuông; bản maskable giữ logo trong vòng tròn an toàn 80%. Tất cả do agent dựng theo yêu cầu người dùng 2026-11-08.
 
@@ -360,3 +369,72 @@ Hướng hình ảnh theo từng màn hình; chỉ dùng token và component c�
 | `SCR-M03-007` — Invitation and recovery | Form thông tin đăng nhập và phản hồi | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-007.md) |
 | `SCR-M03-008` — Thư viện điểm dừng | Workspace M03: danh sách/chi tiết, form song ngữ nhóm lại, chip trạng thái bằng từ vựng của entity, bản nháp tách khỏi bản đã xuất bản, dialog riêng cho đóng tạm/mở lại/lưu trữ/hủy; nhóm hành động theo 5.3; nút dịch "→" cho tên điểm dừng | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-008.md) |
 | `SCR-M03-009` — Nhật ký hệ thống | Workspace M03: bảng chỉ đọc có bộ lọc, cột trước/sau căn chỉnh, kết quả bằng chữ (Thành công / Không thành công), huy hiệu "tự xuất bản"; nội dung trước/sau rút gọn theo 5.3 | [Screen spec](../../screens/screen-spec/M03/screen-spec-SCR-M03-009.md) |
+
+---
+
+## 9. Mascot Mila
+
+Hành vi (khi nào Mila xuất hiện, nói gì, ưu tiên, an toàn) thuộc [Spec Mascot](../spec/spec-Mascot.md). Mục này chỉ định nghĩa hình thức. Chi tiết tư thế, animation và đặc tả ảnh: [docs/mascot/MASCOT_ASSET_SPECIFICATION.md](../mascot/MASCOT_ASSET_SPECIFICATION.md).
+
+### 9.1 Nhận diện
+
+- Ba neo luôn có mặt: lông nâu–kem; khăn xanh lá có biểu tượng lá trắng; ba lô thám hiểm xanh rêu có cuộn chăn. Avatar tròn chỉ cần hai neo đầu.
+- Ảnh render 3D dạng raster, phục vụ bằng WebP có alpha. Không chuyển sang SVG, không vẽ lại nhân vật.
+- Mila đứng cạnh, không thay hay đè lên logo Vườn.
+
+### 9.2 Slot và kích thước
+
+Mila chỉ hiện trong slot do layout của màn đặt sẵn và chiếm chỗ thật (danh sách slot: Spec Mascot §5.1). Cỡ chốt 2026-11-22 sau khi thử trên điện thoại (Mila 72px quá nhỏ để thu hút):
+
+| Token | Giá trị | Dùng cho |
+|---|---|---|
+| `--mascot-size-sm` | 56px | AVATAR (ảnh avatar MA-11), cạnh toast trang nội dung |
+| `--mascot-size-md` | 72px | INLINE (cạnh câu thông báo, lỗi, dialog) |
+| `--mascot-size-dock-catalog` | 112px | DOCK ở hero SCR-M01-001 (màn ≥ 360px) |
+| `--mascot-size-dock-catalog-narrow` | 88px | DOCK ở hero SCR-M01-001 khi màn hẹp hơn 360px, để tiêu đề không xuống dòng (v1.3) |
+| `--mascot-size-dock-trip` | 128px | DOCK trên nút Quét QR, SCR-M02-001 |
+| `--mascot-size-dock-end` | 104px | DOCK cạnh huy hiệu 96px, SCR-M02-003 |
+| `--mascot-size-xl` | 200px | Lớp phủ giới thiệu (INTRO), CELEBRATE |
+| `--mascot-bubble-max-width` | 240px | Bong bóng; vẫn co theo màn 320px |
+
+Ảnh 240px đủ nét cho cỡ ≤ 128px ở mật độ 2×; INTRO/CELEBRATE dùng ảnh 480px.
+
+### 9.3 Bong bóng
+
+Kiểu **"Giấy dã ngoại"** (chọn 2026-11-22 từ mockup): bong bóng là lời của Mila, không giống hộp thông báo hệ thống.
+
+| Bề mặt | Nền / chữ | Viền | Tương phản |
+|---|---|---|---|
+| Sáng (M01, M02 reader, kết quả, nền rừng) | `#fffaf0` (token mới `--mascot-bubble-surface`) / `m01-ink` | 1.5px `m01-forest`; bóng đổ phẳng `0 3px 0` `m01-forest` 18% | 14.52:1 (chữ), tên "Mila" `m01-forest` 8.89:1, nút × `m01-secondary` 5.96:1 |
+| Scanner (tối) | `m02-scanner-surface` / `m02-scanner-text` | 1px `m02-scanner-secondary` (§5.3) | 12.86:1 |
+
+- Bo 18px ở ba góc, **6px ở góc phía Mila**; đuôi nhọn chỉ về Mila (cùng nền, cùng viền). Padding `--space-3`, lề phải chừa chỗ nút đóng.
+- Dòng đầu: tên "Mila" 12px, đậm, `m01-forest` (không viết hoa toàn bộ). Chữ thoại 16px (tối thiểu 14px), line-height ≥ 1.45, tối đa 90 ký tự.
+- Chữ hiện dần 30 ký tự/giây, có con trỏ mảnh trong lúc hiện; chạm bong bóng hiện hết ngay; giảm chuyển động hoặc công tắc tắt thì hiện ngay.
+- Nút đóng "×" nhỏ (biểu tượng 12px, màu `m01-secondary`), tên truy cập "Đóng lời nhắn", vùng chạm 44px; nút hành động theo quy tắc nút của §5.3.
+- Bong bóng không dùng màu làm tín hiệu duy nhất và không thay vùng thông báo (§5.3 "Vùng thông báo").
+
+### 9.3a Đầu màn danh mục (SCR-M01-001, v1.3)
+
+- Lưới hai cột. Trái: tiêu đề "Danh mục tuyến" một dòng (có lá non) và nút "Gợi ý tuyến" xếp dọc. Phải: dải đồi trang trí (icon `hills`, `m01-forest` 22%) luôn hiện, Mila DOCK đứng trên đồi (`--mascot-size-dock-catalog`, màn < 360px dùng `--mascot-size-dock-catalog-narrow`). Đầu màn cao bằng Mila.
+- Bong bóng của danh mục mở **dưới** đầu màn, căn phải, rộng tối đa `--mascot-bubble-max-width` (màn hẹp: toàn chiều rộng), đuôi ở cạnh trên chỉ lên Mila. Mila không đổi chỗ; danh sách tuyến trượt xuống bằng chiều cao bong bóng (`--duration-mascot-pop`) và trượt về khi bong bóng đóng.
+
+### 9.3b Lớp phủ giới thiệu (INTRO, v1.3)
+
+- Phủ cả màn (thanh đầu trang, nội dung, thanh tab): nền `m01-deep` 62%, làm mờ nhẹ phía sau.
+- Bong bóng "Giấy dã ngoại" và Mila `--mascot-size-xl` (ảnh vẫy tay MA-01) **căn giữa theo cả hai chiều**; bong bóng ở trên, đuôi ở cạnh dưới chỉ xuống Mila; rộng tối đa 330px, chữ 17px. Không có nút đóng × và không có nút "Bỏ qua".
+- Dưới Mila: vòng tròn gợi ý chạm và dòng "Chạm để bắt đầu" / "Tap to start" 14px, chữ trắng.
+- Hiện: Mila trồi lên (`--duration-mascot-enter`); đóng: lớp phủ mờ đi, Mila về DOCK ở đầu màn danh mục. Giảm chuyển động hoặc công tắc tắt: đổi tức thì.
+
+### 9.5 Công tắc "Chuyển động của Mila"
+
+Một công tắc duy nhất cho cả app, ở màn **Tài nguyên** SCR-M01-004 (v1.3, quyết định 2026-11-23; Spec Mascot BR-MAS-21); thanh đầu trang không còn nút chuyển động. Chỉ có khi Mila được bật. Không phải nút ẩn Mila.
+
+- Vị trí: một hàng ngay dưới tiêu đề màn, trên danh sách gói.
+- Hình: hàng nền trắng bo `--radius-lg`, viền `m01-line`; trái là chữ "Chuyển động của Mila" 16px đậm và câu phụ "Tắt để Mila đứng yên." 14px `m01-secondary`; phải là công tắc trượt (`role="switch"`, `aria-checked`), rãnh `m01-forest` khi bật, `m01-secondary` khi tắt, núm trắng.
+- Vùng chạm cả hàng ≥ 44px; focus ring như §6.
+- Trạng thái tắt: Mila đứng yên ở tư thế ngữ cảnh trên mọi màn.
+
+### 9.4 Không đặt Mila trên
+
+Bước chọn ngôn ngữ (lớp phủ giới thiệu hiện sau bước này, §9.3b); khối Cảnh báo an toàn; thông báo tạm đóng; thân bài đọc, thư viện ảnh, trình phát media; dialog xóa gói; lời nhắc cập nhật ứng dụng; mọi màn M03; ảnh in tem QR.

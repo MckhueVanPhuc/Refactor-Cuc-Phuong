@@ -5,6 +5,7 @@
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
+import { emitMascotEvent, isMascotEnabled, MascotSlot, useMascotConfirms } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { FinalPrompt } from '../end/FinalPrompt';
 import { useEndTrip } from '../end/useEndTrip';
@@ -13,6 +14,7 @@ import { FieldNotice } from '../layout/FieldLayout';
 import { Toast } from '../../../shared/ui/Toast';
 import { FreeVisitorHint } from '../qr-link/FreeVisitorHint';
 import type { ScanResult } from '../scan/processScan';
+import { useSession, useSessionVisits } from '../storage/readers';
 import { Gallery } from './Gallery';
 import { filterMedia } from './mediaFilter';
 import { MediaList } from './MediaList';
@@ -50,6 +52,8 @@ function LiveArticle({ view }: { view: Extract<ContentView, { kind: 'LIVE' }> })
   return (
     <>
       <ArticleHeader checkpointName={view.checkpointName[language]} objectName={objectName} />
+      {/* Mila ăn mừng lượt ghé mới ngay dưới ảnh đầu trang, không đè toast cố định (spec-Mascot §5.1; specs/005 T040) */}
+      <MascotSlot id="content-toast" modes={['AVATAR']} />
       {urls && <MediaList items={media} urls={urls} />}
       <Gallery
         slides={view.images.map((ref) => ({
@@ -68,6 +72,8 @@ function PackageArticle({ view }: { view: Extract<ContentView, { kind: 'PACKAGE'
   return (
     <>
       <ArticleHeader checkpointName={view.checkpointName[language]} objectName={objectName} />
+      {/* Mila ăn mừng lượt ghé mới ngay dưới ảnh đầu trang, không đè toast cố định (spec-Mascot §5.1; specs/005 T040) */}
+      <MascotSlot id="content-toast" modes={['AVATAR']} />
       <Gallery
         slides={view.images.sourceRefs.map((ref) => ({
           key: ref,
@@ -115,13 +121,23 @@ function Notice({ tone, children, role = 'status' }: { tone: 'info' | 'warning';
   );
 }
 
+/** Lượt ghé vừa ghi, theo cùng khóa Mila dùng cho phản ứng một lần (`VISIT:<visitRef>`). */
+function newVisitRef(scan: ScanResult): string | null {
+  if (!scan.visitCreated || !scan.visit) return null;
+  return [scan.visit.sessionId, scan.visit.checkpointId, scan.visit.checkedInAt].join(':');
+}
+
 function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | undefined }) {
   const messages = useM02Messages();
   const language = useM02DisplayLanguage();
+  // Lời xác nhận lượt ghé (spec-M02 §8, clarification 4): toast, hoặc bong bóng của Mila khi Mila hiện được
+  // (spec-Mascot BR-MAS-24). Điểm cuối khi Mila bật: hộp thoại kết thúc chuyến là lời xác nhận, không toast.
+  const confirmedBy = useMascotConfirms(newVisitRef(scan));
+  const finalWithMila = scan.finalPromptNeeded && isMascotEnabled();
   return (
     <>
       {/* Lượt ghé vừa ghi: toast nổi, không đẩy nội dung xuống */}
-      {scan.visitCreated && (
+      {scan.visitCreated && confirmedBy === 'toast' && !finalWithMila && (
         <Toast key={scan.visit?.checkedInAt ?? scan.qrIdentifier} closeLabel={messages.toast.close}>
           {messages.trip.visitRecorded}
         </Toast>
@@ -176,6 +192,7 @@ export function ScanContent({
   const [promptDismissed, setPromptDismissed] = useState(false);
   // Lượt ghé điểm cuối vừa ghi lần đầu → hỏi kết thúc chuyến một lần (BR-M02-021; FR-M02-023)
   const promptSessionId = scan?.finalPromptNeeded && !promptDismissed ? scan.session?.sessionId : undefined;
+  useScanMascotSignals(scan);
 
   useEffect(() => {
     if (!scan) return undefined;
@@ -205,7 +222,13 @@ export function ScanContent({
       {/* Gợi ý khách tự do sau nội dung, như mockup-SCR-M02-004: du khách thấy nội dung trước */}
       {scan?.freeVisitor && <FreeVisitorHint />}
       {showBack && (
-        <Link className={styles.back} to={backTo}>
+        <Link
+          className={styles.back}
+          to={backTo}
+          // Mila nhắc cất máy khi quay về hành trình sau một lượt ghé mới (spec-Mascot BR-MAS-13; specs/005 T066).
+          // Chỉ phát tín hiệu; điều hướng của link giữ nguyên
+          onClick={() => emitMascotEvent({ type: 'm02.content.backPressed', afterNewVisit: Boolean(scan?.visitCreated && !scan.finalPromptNeeded) })}
+        >
           {messages.content.back}
         </Link>
       )}
@@ -221,4 +244,43 @@ export function ScanContent({
       )}
     </>
   );
+}
+
+/**
+ * Tín hiệu cho Mila (specs/005 contracts/mascot-event-contract.md §3; T040): kết quả quét, và lượt ghé vừa ghi lần đầu
+ * kèm tiến độ "{k}/{n}" đọc từ phiên hiện có. Phát sau khi lượt ghé đã commit (processScan), không đổi hiển thị.
+ */
+function useScanMascotSignals(scan: ScanResult | undefined) {
+  const recordedIn = scan?.visitCreated ? scan.session?.sessionId : undefined;
+  const session = useSession(recordedIn);
+  const visits = useSessionVisits(recordedIn);
+
+  useEffect(() => {
+    if (!scan) return;
+    emitMascotEvent({
+      type: 'm02.scan.resolved',
+      display: scan.display.kind,
+      hasSession: scan.session !== null,
+      freeVisitor: scan.freeVisitor,
+      visitCreated: scan.visitCreated,
+      // Có phiên mà quét được nội dung live nhưng không có lượt ghé → mã ngoài hành trình
+      inJourney: scan.visit !== null,
+      finalPromptNeeded: scan.finalPromptNeeded,
+    });
+  }, [scan]);
+
+  const sessionRow = session.status === 'ready' ? session.value : null;
+  const visitCount = visits.status === 'ready' ? visits.value.length : null;
+  useEffect(() => {
+    if (!scan?.visitCreated || !scan.visit || !sessionRow || visitCount === null) return;
+    const visit = scan.visit;
+    emitMascotEvent({
+      type: 'm02.visit.recorded',
+      sessionRef: sessionRow.sessionId,
+      visitRef: [visit.sessionId, visit.checkpointId, visit.checkedInAt].join(':'),
+      k: visitCount,
+      n: sessionRow.journeyCheckpoints.length,
+      isFinal: scan.finalPromptNeeded,
+    });
+  }, [scan, sessionRow, visitCount]);
 }

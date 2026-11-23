@@ -2,7 +2,7 @@
 
 ## 1. Baseline và phạm vi
 
-- Baseline: [Spec M02 v3.3](../../docs/spec/spec-M02.md), [Function List M02](../../docs/function%20list/function-list-M02.md).
+- Baseline: [Spec M02 v3.3](../../docs/spec/spec-M02.md), [Function List M02](../../docs/function%20list/function-list-M02.md). Mascot Mila: [Spec Mascot v1.1](../../docs/spec/spec-Mascot.md), [Function List Mascot](../../docs/function%20list/function-list-Mascot.md).
 - Release priority: [MVP Scope](../../MVP-Scope.md). Priority dưới đây theo function scope; không thay requirement trong spec.
 - Cập nhật: 2026-10-28. Status: screen inventory và screen specification (Draft) đồng bộ baseline v3.3; chỉ có mockup tĩnh cho SCR-M02-001 và SCR-M02-004 (screens/html/); chưa có route implementation.
 - Quy ước chung: [Screen index](README.md).
@@ -17,6 +17,8 @@
 | SCR-M02-003 | Kết thúc phiên | Visitor có phiên | FN-M02-006, FN-M02-007 | Must; trạng thái đồng bộ Should |
 | SCR-M02-004 | Trang mở từ mã QR | Bất kỳ ai quét mã bằng camera điện thoại | FN-M02-004, FN-M02-005, FN-M02-006, FN-M02-008 | Must |
 | SCR-M02-005 | Quét QR (từ thanh tab M01) | Visitor có phiên; khách tự do | FN-M02-004, FN-M02-008 | Must |
+
+**Mascot Mila** (FN-MAS-001…005, priority Could): xuất hiện trên SCR-M02-001…004 theo slot của Spec Mascot §5.1; v1.1 thêm công tắc "Chuyển động" ở thanh đầu trang của mọi màn có slot (BR-MAS-21). Không thêm màn mới và không đổi function hay priority của các màn trên.
 
 Khách tự do không có tiến độ hoặc Finish; không tạo visitor account. Phiên chỉ thành `BO_DO` khi nhận handoff mới hoặc khi tự đóng sau 24 giờ; không có nút "Dừng chuyến đi". Sync conflict hoặc bản ghi bị M03 từ chối thì dừng retry tự động và hiện lỗi; không sửa immutable payload.
 

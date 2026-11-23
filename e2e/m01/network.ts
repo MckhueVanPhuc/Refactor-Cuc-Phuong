@@ -104,7 +104,27 @@ export async function mockPublication(page: Page, mock: PublicationMock = defaul
  * Qua panel chọn ngôn ngữ của lần mở đầu tiên. Chờ panel biến mất (LanguagePreference đã ghi xong) để
  * `page.goto` ngay sau đó không chạy trước lúc ghi IndexedDB hoàn tất.
  */
-export async function chooseLanguage(page: Page, label: 'Tiếng Việt' | 'English' = 'Tiếng Việt'): Promise<void> {
+export async function chooseLanguage(
+  page: Page,
+  label: 'Tiếng Việt' | 'English' = 'Tiếng Việt',
+  { keepIntro = false }: { keepIntro?: boolean } = {},
+): Promise<void> {
   await page.getByRole('button', { name: label }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Chọn ngôn ngữ' })).toHaveCount(0);
+  if (!keepIntro) await closeMascotIntro(page);
+}
+
+/**
+ * Lớp phủ giới thiệu của Mila (spec-Mascot v1.3 US-MAS-01) hiện ~300 ms sau lần chọn ngôn ngữ đầu tiên và khóa phần còn
+ * lại của app tới khi du khách chạm. Test không kiểm Mila thì đóng nó bằng Esc (cờ Mila tắt: không có lớp phủ).
+ */
+export async function closeMascotIntro(page: Page): Promise<void> {
+  const intro = page.locator('[data-mascot-intro]');
+  try {
+    await intro.waitFor({ state: 'visible', timeout: 2_000 });
+  } catch {
+    return;
+  }
+  await page.keyboard.press('Escape');
+  await expect(intro).toHaveCount(0);
 }
