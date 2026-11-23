@@ -42,11 +42,18 @@ Dữ liệu nghiệp vụ Mila hiển thị (số điểm đã quét `k`, tổng
 | `natureTurn` | Number | Luân phiên 056 / 057 (BR-MAS-13) |
 | `hiddenAt` | Instant \| null | Tính MAS-B-034 (≥ `MASCOT_WELCOME_BACK_MIN`) |
 
+| `motion` (v1.1) | Enum(`on`, `off`) | Từ store `motion.ts` (R-17); đầu tiên `off` khi giảm chuyển động; chỉ trong bộ nhớ |
+| `lastActivityAt` (v1.1) | Instant \| null | `app.user.activity`; luật "đang thao tác" (BR-MAS-20, R-19) |
+| `lastGesture` (v1.1) | Id cử chỉ \| null | Không lặp cử chỉ liền nhau (BR-MAS-21) |
+| `lastTapAt`, `tapLog` (v1.1) | Instant, Array<Instant> | Chạm dồn 400 ms; chóng mặt 5 lần / 3 s (BR-MAS-22) |
+| `helpCursor` (v1.1) | Number | Xoay câu chạm của màn có nhiều câu (009 → 012) |
+| `counters['screen:k']`, `counters['screen:n']`, `scannerOpen` (v1.1) | Number, Boolean | Chọn câu chạm SCR-M02-001 (033 với {r} = n − k; 043 khi scanner mở); xóa khi đổi màn |
+
 `sessionRef`, `routeRef` là giá trị opaque lấy từ payload để đếm "một lần"; không hiển thị, không lưu (Constitution: id opaque không render).
 
 ### 2.3 Intent và Effect
 
-- **Intent** (kết quả tra bảng luật): `{ behaviorId: 'MAS-B-xxx', priority: P0..P7, mode, pose, animation, messageId?, params?, cta?, durationMs? }`.
+- **Intent** (v1.1 thêm `source: 'user' | 'event' | 'timer' | 'ambient'` — R-18, R-19, R-22) (kết quả tra bảng luật): `{ behaviorId: 'MAS-B-xxx', priority: P0..P7, mode, pose, animation, messageId?, params?, cta?, durationMs? }`.
 - **Effect** (lệnh cho host): `show(mode, pose)`, `hide()`, `setPose(pose)`, `play(animationId)`, `showBubble(messageId, params, role)`, `clearBubble()`, `setTimer(kind, ms)`, `clearTimer(kind)`, `vibrate(ms)`.
 
 ## 3. Ràng buộc kiểm chứng

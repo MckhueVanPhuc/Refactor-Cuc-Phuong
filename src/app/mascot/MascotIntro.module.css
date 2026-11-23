@@ -1,0 +1,150 @@
+/*
+ * Lớp phủ giới thiệu (design-system §9.3b, v1.3): phủ cả màn trên thanh đầu trang và thanh tab; Mila và bong bóng "Giấy
+ * dã ngoại" ở chính giữa. Chỉ token; chỉ animate transform/opacity; giảm chuyển động thì không gắn data-mascot-animation.
+ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6) var(--space-4);
+  overflow-y: auto;
+  background: color-mix(in srgb, var(--color-m01-deep) 62%, transparent);
+  backdrop-filter: blur(var(--border-width-thin));
+  cursor: pointer;
+}
+
+.overlay:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-paper);
+  outline-offset: calc(var(--focus-ring-width) * -2);
+}
+
+.stage {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  width: min(100%, calc(var(--mascot-bubble-max-width) + var(--space-8) * 3));
+}
+
+.bubble {
+  position: relative;
+  display: grid;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  color: var(--color-m01-ink);
+  background: var(--mascot-bubble-surface);
+  border: var(--mascot-bubble-border) solid var(--color-m01-forest);
+  border-radius: var(--mascot-bubble-radius);
+  box-shadow: var(--mascot-bubble-shadow);
+}
+
+/* Đuôi ở cạnh dưới, chỉ xuống Mila */
+.bubble::before {
+  position: absolute;
+  bottom: calc(var(--space-2) * -1);
+  left: calc(50% - var(--space-2));
+  width: var(--space-3);
+  height: var(--space-3);
+  content: '';
+  background: inherit;
+  border-right: var(--mascot-bubble-border) solid var(--color-m01-forest);
+  border-bottom: var(--mascot-bubble-border) solid var(--color-m01-forest);
+  transform: rotate(45deg);
+}
+
+.name {
+  font-size: var(--font-size-mascot-name);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  color: var(--color-m01-forest);
+}
+
+.textWrap {
+  position: relative;
+}
+
+.text,
+.typed {
+  margin: 0;
+  font-size: calc(var(--font-size-body) + var(--space-1) / 4);
+  line-height: var(--line-height-body);
+}
+
+.text {
+  position: relative;
+  text-wrap: pretty;
+}
+
+.text[data-typing] {
+  color: transparent;
+  text-wrap: wrap;
+}
+
+.typed {
+  position: absolute;
+  inset: 0;
+  text-wrap: wrap;
+  pointer-events: none;
+}
+
+.figure {
+  display: block;
+  width: min(var(--mascot-size-xl), 60vw);
+  aspect-ratio: 1;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Gợi ý chạm: vòng tròn nhỏ và chữ trắng */
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-meta);
+  color: var(--color-paper);
+}
+
+.hint::before {
+  width: var(--space-5);
+  height: var(--space-5);
+  content: '';
+  border: var(--focus-ring-width) solid color-mix(in srgb, var(--color-paper) 80%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 var(--space-1) color-mix(in srgb, var(--color-paper) 18%, transparent);
+}
+
+.overlay[data-mascot-animation='intro'] {
+  animation: intro-fade var(--duration-mascot-enter) var(--ease-out) both;
+}
+
+.overlay[data-mascot-animation='intro'] .figure {
+  animation: intro-rise var(--duration-mascot-enter) var(--ease-out) both;
+}
+
+@keyframes intro-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-6));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

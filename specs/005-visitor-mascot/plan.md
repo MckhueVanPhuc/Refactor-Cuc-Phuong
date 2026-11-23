@@ -2,7 +2,7 @@
 
 **Branch**: `005-visitor-mascot` *(định danh thư mục; git branch hiện tại `feat/m02-end-screen-redesign`)* | **Date**: 2026-11-21 | **Spec**: [spec.md](spec.md)
 
-**Input**: Feature specification [specs/005-visitor-mascot/spec.md](spec.md), bản dẫn xuất từ [spec-Mascot v1.0](../../docs/spec/spec-Mascot.md) (Change Brief [CHG-MASCOT-2026-11-21-01](change-brief-CHG-MASCOT-2026-11-21-01.md), APPROVED 2026-11-21). Nguồn kỹ thuật: [Technical spec](../../docs/mascot/MASCOT_TECHNICAL_SPECIFICATION.md), [State Machine](../../docs/mascot/MASCOT_STATE_MACHINE.md), [Behavior Matrix](../../docs/mascot/MASCOT_BEHAVIOR_MATRIX.md), [Asset spec](../../docs/mascot/MASCOT_ASSET_SPECIFICATION.md).
+**Input**: Feature specification [specs/005-visitor-mascot/spec.md](spec.md), bản dẫn xuất từ [spec-Mascot v1.1](../../docs/spec/spec-Mascot.md) (Change Brief [CHG-MASCOT-2026-11-21-01](change-brief-CHG-MASCOT-2026-11-21-01.md), APPROVED 2026-11-21; [CHG-MASCOT-2026-11-22-02](change-brief-CHG-MASCOT-2026-11-22-02.md), APPROVED 2026-11-22). Nguồn kỹ thuật: [Technical spec](../../docs/mascot/MASCOT_TECHNICAL_SPECIFICATION.md), [State Machine](../../docs/mascot/MASCOT_STATE_MACHINE.md), [Behavior Matrix](../../docs/mascot/MASCOT_BEHAVIOR_MATRIX.md), [Asset spec](../../docs/mascot/MASCOT_ASSET_SPECIFICATION.md).
 
 ## Summary
 
@@ -135,7 +135,14 @@ e2e/m01/mascot-*.spec.ts, e2e/m02/mascot-*.spec.ts
 4. **US1 (làm quen)**, **US2 (lượt ghé + điểm cuối)**, **US4 (kết thúc)** → mốc pilot (G5).
 5. **US5 (scanner)**, **US6 (mạng/dữ liệu)** → G6.
 6. **US7 (M01 chuẩn bị)** → G7.
-7. **US8 (chạm hỏi, nhắc thiên nhiên, chào lại)** → G8.
+7. **US8 (chạm hỏi theo ngữ cảnh v1.1, chạm nhiều lần, nhắc thiên nhiên, chào lại)** → G8.
+7a. **v1.1 (CHG-MASCOT-2026-11-22-02)** → G8b, sau pilot, trước G6:
+    1. Bong bóng kiểu A, chữ hiện dần, cỡ theo slot (research R-20, R-21).
+    2. Công tắc "Chuyển động" và cử chỉ tự động; vòng lặp ≤ 5 s (R-17, R-18, R-25).
+    3. Ba cấp ăn mừng (R-23).
+    4. Ngữ cảnh "đang thao tác" (R-19).
+    5. Chạm theo ngữ cảnh và chạm nhiều lần (R-22) — cùng US8.
+    6. Chớp mắt khi có ảnh MA-20 (R-24).
 8. **Polish**: ảnh production khi có (xuất WebP, đo ngân sách), cập nhật bộ thiết kế stale, validation report.
 
 ## Risks

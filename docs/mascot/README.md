@@ -39,7 +39,7 @@ Theo AGENTS.md §3.1, hành vi và contract chỉ được định nghĩa trong 
 |---|---|
 | Câu chữ | [spec-Mascot §5.6](../spec/spec-Mascot.md); [Dialogue Library](MASCOT_DIALOGUE_LIBRARY.md) giữ metadata (cooldown, thời lượng) |
 | Tên và payload sự kiện, ưu tiên, luật không hoạt động | [State Machine](MASCOT_STATE_MACHINE.md) |
-| Tư thế và animation | [Asset spec](MASCOT_ASSET_SPECIFICATION.md) |
+| Tư thế và animation (gồm luật chuyển tiếp, ngắt, đồng thời — §6.1, v1.1) | [Asset spec](MASCOT_ASSET_SPECIFICATION.md) |
 | Từng tình huống | [Behavior Matrix](MASCOT_BEHAVIOR_MATRIX.md) (tham chiếu ba tài liệu trên) |
 
 ## 4. Hệ ID
