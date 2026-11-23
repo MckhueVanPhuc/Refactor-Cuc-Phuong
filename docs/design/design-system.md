@@ -137,12 +137,12 @@ Giá trị bổ sung:
 | Mascot đổi tư thế, bật bong bóng | 200ms (crossfade 150ms) | ease-out | Mỗi lời thoại mới |
 | Mascot phản hồi một lần (nhún, nghiêng, lật nhìn quanh, giơ ngón cái) | 300–1200ms | ease-out | Thành công, lỗi, chờ quét |
 | Mascot vòng chờ (thở, lắc lư, nhún ba lô) | 1200–2400ms mỗi nhịp | ease-in-out | Tối đa 5 giây mỗi lượt rồi đứng yên |
-| Mascot cử chỉ tự động (nhìn ống nhòm, vẫy, nhún, nghiêng đầu, kéo quai ba lô, thở, chớp mắt) | ≤ 1500ms (chớp mắt 120ms) | ease-in-out | Mỗi 8–15 giây ở màn Mila đứng chờ; dừng bằng công tắc "Chuyển động" (§9.5) |
+| Mascot cử chỉ tự động (nhìn ống nhòm, vẫy, nhún, nghiêng đầu, kéo quai ba lô, thở, chớp mắt) | ≤ 1500ms (chớp mắt 120ms) | ease-in-out | Mỗi 8–15 giây ở màn Mila đứng chờ; dừng bằng công tắc "Chuyển động của Mila" ở màn Tài nguyên (§9.5) |
 | Mascot mốc tiến trình + vài lá rơi | 1200ms | ease-out | Mốc cấp 2 (Spec Mascot BR-MAS-23) |
 | Mascot ăn mừng + lá rơi | ≤ 2400ms | ease-out | Chỉ SCR-M02-003, một lần, chạm để bỏ qua |
 | Chữ bong bóng hiện dần | 30 ký tự/giây | linear | Mỗi lời thoại mới; chạm để hiện hết |
 
-Tôn trọng `prefers-reduced-motion`. Với mascot Mila: khi giảm chuyển động, mọi animation thành đổi tức thì hoặc mờ dần ≤ 150 ms, không lá rơi, không vòng chờ (Spec Mascot BR-MAS-17). Mascot chỉ animate `transform`/`opacity` (cộng đổi ảnh tư thế), mỗi lúc một chuyển động trên hình (song song chỉ có bong bóng và lá rơi), và dừng khi trang ẩn. Công tắc "Chuyển động" tắt (§9.5) cho kết quả như giảm chuyển động và chữ hiện ngay; đây là cách tạm dừng chuyển động kéo dài quá 5 giây theo WCAG 2.2.2 (Spec Mascot BR-MAS-21).
+Tôn trọng `prefers-reduced-motion`. Với mascot Mila: khi giảm chuyển động, mọi animation thành đổi tức thì hoặc mờ dần ≤ 150 ms, không lá rơi, không vòng chờ (Spec Mascot BR-MAS-17). Mascot chỉ animate `transform`/`opacity` (cộng đổi ảnh tư thế), mỗi lúc một chuyển động trên hình (song song chỉ có bong bóng và lá rơi), và dừng khi trang ẩn. Công tắc "Chuyển động của Mila" tắt (§9.5, màn Tài nguyên) cho kết quả như giảm chuyển động và chữ hiện ngay; đây là cách tạm dừng chuyển động kéo dài quá 5 giây theo WCAG 2.2.2 (Spec Mascot BR-MAS-21).
 
 Spacing không có `--space-7` . Các giá trị sau chưa có tên token; dùng đúng giá trị trong tài liệu cho đến khi triển khai đặt tên: cỡ chữ theo vai trò (mục 3), thời lượng/easing chuyển động (4.3), độ dày viền 1px/2px, vùng chạm 44px/48px.
 
@@ -390,10 +390,11 @@ Mila chỉ hiện trong slot do layout của màn đặt sẵn và chiếm chỗ
 |---|---|---|
 | `--mascot-size-sm` | 56px | AVATAR (ảnh avatar MA-11), cạnh toast trang nội dung |
 | `--mascot-size-md` | 72px | INLINE (cạnh câu thông báo, lỗi, dialog) |
-| `--mascot-size-dock-catalog` | 112px | DOCK ở hero SCR-M01-001 |
+| `--mascot-size-dock-catalog` | 112px | DOCK ở hero SCR-M01-001 (màn ≥ 360px) |
+| `--mascot-size-dock-catalog-narrow` | 88px | DOCK ở hero SCR-M01-001 khi màn hẹp hơn 360px, để tiêu đề không xuống dòng (v1.3) |
 | `--mascot-size-dock-trip` | 128px | DOCK trên nút Quét QR, SCR-M02-001 |
 | `--mascot-size-dock-end` | 104px | DOCK cạnh huy hiệu 96px, SCR-M02-003 |
-| `--mascot-size-xl` | 200px | INTRO, CELEBRATE |
+| `--mascot-size-xl` | 200px | Lớp phủ giới thiệu (INTRO), CELEBRATE |
 | `--mascot-bubble-max-width` | 240px | Bong bóng; vẫn co theo màn 320px |
 
 Ảnh 240px đủ nét cho cỡ ≤ 128px ở mật độ 2×; INTRO/CELEBRATE dùng ảnh 480px.
@@ -413,15 +414,27 @@ Kiểu **"Giấy dã ngoại"** (chọn 2026-11-22 từ mockup): bong bóng là 
 - Nút đóng "×" nhỏ (biểu tượng 12px, màu `m01-secondary`), tên truy cập "Đóng lời nhắn", vùng chạm 44px; nút hành động theo quy tắc nút của §5.3.
 - Bong bóng không dùng màu làm tín hiệu duy nhất và không thay vùng thông báo (§5.3 "Vùng thông báo").
 
-### 9.5 Công tắc "Chuyển động"
+### 9.3a Đầu màn danh mục (SCR-M01-001, v1.3)
 
-Điều khiển riêng của thanh đầu trang trên mọi màn có slot của Mila (Spec Mascot BR-MAS-21); chỉ có khi Mila được bật. Không phải nút ẩn Mila.
+- Lưới hai cột. Trái: tiêu đề "Danh mục tuyến" một dòng (có lá non) và nút "Gợi ý tuyến" xếp dọc. Phải: dải đồi trang trí (icon `hills`, `m01-forest` 22%) luôn hiện, Mila DOCK đứng trên đồi (`--mascot-size-dock-catalog`, màn < 360px dùng `--mascot-size-dock-catalog-narrow`). Đầu màn cao bằng Mila.
+- Bong bóng của danh mục mở **dưới** đầu màn, căn phải, rộng tối đa `--mascot-bubble-max-width` (màn hẹp: toàn chiều rộng), đuôi ở cạnh trên chỉ lên Mila. Mila không đổi chỗ; danh sách tuyến trượt xuống bằng chiều cao bong bóng (`--duration-mascot-pop`) và trượt về khi bong bóng đóng.
 
-- Vị trí: bên trái nhóm VI/EN, cùng hàng, căn giữa theo chiều dọc.
-- Hình: viên thuốc viền 1px màu chữ của thanh đầu trang (60% độ đục), nền trong suốt; biểu tượng tạm dừng / chạy từ `assets/icons/` (icon mới `pause.svg`, `play.svg` theo §7) và chữ "Chuyển động: bật" / "Chuyển động: tắt" 12px. Dưới 360px chỉ còn biểu tượng; tên truy cập "Chuyển động của Mila" luôn có, trạng thái bằng `aria-pressed`.
-- Vùng chạm 44px; focus ring như §6.
-- Trạng thái tắt: biểu tượng "chạy", chữ "tắt"; Mila đứng yên ở tư thế ngữ cảnh.
+### 9.3b Lớp phủ giới thiệu (INTRO, v1.3)
+
+- Phủ cả màn (thanh đầu trang, nội dung, thanh tab): nền `m01-deep` 62%, làm mờ nhẹ phía sau.
+- Bong bóng "Giấy dã ngoại" và Mila `--mascot-size-xl` (ảnh vẫy tay MA-01) **căn giữa theo cả hai chiều**; bong bóng ở trên, đuôi ở cạnh dưới chỉ xuống Mila; rộng tối đa 330px, chữ 17px. Không có nút đóng × và không có nút "Bỏ qua".
+- Dưới Mila: vòng tròn gợi ý chạm và dòng "Chạm để bắt đầu" / "Tap to start" 14px, chữ trắng.
+- Hiện: Mila trồi lên (`--duration-mascot-enter`); đóng: lớp phủ mờ đi, Mila về DOCK ở đầu màn danh mục. Giảm chuyển động hoặc công tắc tắt: đổi tức thì.
+
+### 9.5 Công tắc "Chuyển động của Mila"
+
+Một công tắc duy nhất cho cả app, ở màn **Tài nguyên** SCR-M01-004 (v1.3, quyết định 2026-11-23; Spec Mascot BR-MAS-21); thanh đầu trang không còn nút chuyển động. Chỉ có khi Mila được bật. Không phải nút ẩn Mila.
+
+- Vị trí: một hàng ngay dưới tiêu đề màn, trên danh sách gói.
+- Hình: hàng nền trắng bo `--radius-lg`, viền `m01-line`; trái là chữ "Chuyển động của Mila" 16px đậm và câu phụ "Tắt để Mila đứng yên." 14px `m01-secondary`; phải là công tắc trượt (`role="switch"`, `aria-checked`), rãnh `m01-forest` khi bật, `m01-secondary` khi tắt, núm trắng.
+- Vùng chạm cả hàng ≥ 44px; focus ring như §6.
+- Trạng thái tắt: Mila đứng yên ở tư thế ngữ cảnh trên mọi màn.
 
 ### 9.4 Không đặt Mila trên
 
-Bước chọn ngôn ngữ; khối Cảnh báo an toàn; thông báo tạm đóng; thân bài đọc, thư viện ảnh, trình phát media; dialog xóa gói; lời nhắc cập nhật ứng dụng; mọi màn M03; ảnh in tem QR.
+Bước chọn ngôn ngữ (lớp phủ giới thiệu hiện sau bước này, §9.3b); khối Cảnh báo an toàn; thông báo tạm đóng; thân bài đọc, thư viện ảnh, trình phát media; dialog xóa gói; lời nhắc cập nhật ứng dụng; mọi màn M03; ảnh in tem QR.
