@@ -1,8 +1,9 @@
 // Mila trong slot (specs/005 mascot-ui-contract §1, §3; design-system §9). Chỉ hiển thị: ảnh tư thế (hoặc hình giữ
 // chỗ), bong bóng có đuôi chỉ về Mila, nút đóng, CTA. Không quyết định khi nào nói; không chiếm focus.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { CtaId, Language } from '../../shared/mascot/events';
-import { poseAsset } from '../../shared/mascot/assets';
+import { blinkAsset, poseAsset, type PoseAsset } from '../../shared/mascot/assets';
+import { MASCOT_BLINK_MS } from '../../shared/mascot/config';
 import { labelsFor } from '../../shared/mascot/dialogue/catalog';
 import type { ViewState } from '../../shared/mascot/types';
 import { TintIcon } from '../../shared/ui/Icon';
@@ -25,6 +26,8 @@ type Props = {
 };
 
 const LEAVES = Array.from({ length: 12 }, (_, i) => i);
+/** Mốc cấp 2 (AN-MILESTONE): ít lá hơn (FX-01) */
+const MILESTONE_LEAVES = LEAVES.slice(0, 6);
 
 function ctaLabel(cta: CtaId, labels: ReturnType<typeof labelsFor>): string {
   switch (cta) {
@@ -39,11 +42,39 @@ function ctaLabel(cta: CtaId, labels: ReturnType<typeof labelsFor>): string {
   }
 }
 
-function Pose({ view, onAssetError }: { view: ViewState; onAssetError: () => void }) {
+const srcSetOf = (asset: PoseAsset, smallOnly: boolean) =>
+  !smallOnly && asset.src480 !== asset.src240 ? `${asset.src240} 1x, ${asset.src480} 2x` : undefined;
+
+/**
+ * Chớp mắt (AN-BLINK; research R-24): ảnh mắt nhắm MA-20 của tư thế DOCK được nạp sẵn khi tư thế hiện, để lần chớp
+ * không phải chờ mạng; cử chỉ `blink` đổi sang nó `MASCOT_BLINK_MS` rồi về. Ảnh mắt nhắm hỏng → bỏ chớp, Mila vẫn ở.
+ */
+function useBlink(view: ViewState, still: boolean): { blink: PoseAsset | null; onBlinkError: () => void } {
+  const asset = view.mode === 'DOCK' ? blinkAsset(view.pose) : null;
+  const [closed, setClosed] = useState(view.animation === 'blink' && !still);
+  useEffect(() => {
+    if (!asset || still) return;
+    const image = new Image();
+    image.decoding = 'async';
+    const srcSet = srcSetOf(asset, false);
+    if (srcSet) image.srcset = srcSet;
+    image.src = asset.src240;
+  }, [asset, still]);
+  useEffect(() => {
+    if (!closed) return undefined;
+    const id = window.setTimeout(() => setClosed(false), MASCOT_BLINK_MS);
+    return () => window.clearTimeout(id);
+  }, [closed]);
+  return { blink: closed ? asset : null, onBlinkError: () => setClosed(false) };
+}
+
+function Pose({ view, still, onAssetError }: { view: ViewState; still: boolean; onAssetError: () => void }) {
   // AVATAR dùng ảnh đầu và vai MA-11 (Asset spec §3): ảnh toàn thân quá nhỏ để đọc ở cỡ này
-  const asset = (view.mode === 'AVATAR' ? poseAsset('avatar') : null) ?? poseAsset(view.pose);
+  const pose = (view.mode === 'AVATAR' ? poseAsset('avatar') : null) ?? poseAsset(view.pose);
   // Ảnh lớn (480/192) không có trong precache: tải hỏng (thường do offline) thì lùi về ảnh nhỏ, không làm Mila biến mất
   const [smallOnly, setSmallOnly] = useState(false);
+  const { blink, onBlinkError } = useBlink(view, still);
+  const asset = blink ?? pose;
   if (!asset) {
     return (
       <span className={styles.placeholder} data-mascot-placeholder="">
@@ -55,10 +86,11 @@ function Pose({ view, onAssetError }: { view: ViewState; onAssetError: () => voi
     <img
       className={styles.image}
       src={asset.src240}
-      srcSet={!smallOnly && asset.src480 !== asset.src240 ? `${asset.src240} 1x, ${asset.src480} 2x` : undefined}
+      srcSet={srcSetOf(asset, smallOnly)}
       alt=""
       decoding="async"
-      onError={() => (smallOnly ? onAssetError() : setSmallOnly(true))}
+      data-mascot-blink={blink ? '' : undefined}
+      onError={() => (blink ? onBlinkError() : smallOnly ? onAssetError() : setSmallOnly(true))}
     />
   );
 }
@@ -80,11 +112,11 @@ export function Mascot({ view, bubble, language, reducedMotion, typing, onTap, o
     >
       {tappable ? (
         <button type="button" className={styles.figure} aria-label={labels.ask} onClick={onTap}>
-          <Pose view={view} onAssetError={onAssetError} />
+          <Pose view={view} still={reducedMotion} onAssetError={onAssetError} />
         </button>
       ) : (
         <span className={styles.figure} aria-hidden="true">
-          <Pose view={view} onAssetError={onAssetError} />
+          <Pose view={view} still={reducedMotion} onAssetError={onAssetError} />
         </span>
       )}
 
@@ -132,9 +164,9 @@ export function Mascot({ view, bubble, language, reducedMotion, typing, onTap, o
         </div>
       )}
 
-      {view.mode === 'CELEBRATE' && !reducedMotion && (
-        <span className={styles.leaves} aria-hidden="true">
-          {LEAVES.map((i) => (
+      {(view.mode === 'CELEBRATE' || view.animation === 'milestone') && !reducedMotion && (
+        <span className={styles.leaves} aria-hidden="true" data-mascot-leaves="">
+          {(view.mode === 'CELEBRATE' ? LEAVES : MILESTONE_LEAVES).map((i) => (
             <TintIcon key={i} name="leaf" className={styles.leaf} />
           ))}
         </span>

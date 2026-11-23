@@ -212,25 +212,25 @@ describe('step — chuyển trạng thái nền', () => {
   });
 
 
-  it('INTRO nối câu: `then` chạy khi bong bóng đầu hết', () => {
+  it('nối câu: `then` chạy khi bong bóng đầu hết', () => {
     const rules = [
       rule('m01.language.selected', {
         intents: [
           {
             behaviorId: 'MAS-B-001',
             priority: 6,
-            mode: 'INTRO',
+            mode: 'DOCK',
             pose: 'wave',
-            message: { id: 'MSG-MAS-001' },
-            then: { behaviorId: 'MAS-B-002', priority: 6, mode: 'INTRO', pose: 'map', message: { id: 'MSG-MAS-002' } },
+            message: { id: 'MSG-MAS-009' },
+            then: { behaviorId: 'MAS-B-004', priority: 6, mode: 'DOCK', pose: 'map', message: { id: 'MSG-MAS-004' } },
           },
         ],
       }),
     ];
     const first = run([{ type: 'm01.language.selected', language: 'vi', at: 0 }], rules);
-    expect(first.bubble?.messageId).toBe('MSG-MAS-001');
+    expect(first.bubble?.messageId).toBe('MSG-MAS-009');
     const second = step(first, { type: 'mascot.tick', at: nextDeadline(first)! }, CTX, rules).state;
-    expect(second.bubble?.messageId).toBe('MSG-MAS-002');
+    expect(second.bubble?.messageId).toBe('MSG-MAS-004');
   });
 
   it('hẹn giờ của luật phát `mascot.timer` khi tới hạn', () => {
@@ -259,5 +259,50 @@ describe('step — chuyển trạng thái nền', () => {
     const events = [{ type: 'm02.scanner.detected', at: 5 } as const, { type: 'mascot.tick', at: 10_000 } as const];
     expect(run(events, rules)).toEqual(run(events, rules));
     spy.mockRestore();
+  });
+});
+
+describe('v1.1 — Ngữ cảnh "đang thao tác" (BR-MAS-20; research R-19; quickstart Q25)', () => {
+  const timed = (source: 'timer' | 'ambient' | undefined): Rule[] => [
+    rule('m02.scanner.opened', { timers: { help: 3_000 } }),
+    rule('mascot.timer', (event) => (event.type === 'mascot.timer' && event.name === 'help' ? say({ ...(source ? { source } : {}), message: { id: 'MSG-MAS-032' }, priority: 3 }) : null)),
+  ];
+  const open = { type: 'm02.scanner.opened', hasSession: true, k: 0, at: 0 } as const;
+
+  it('chạm / cuộn / phím trong 2 s trước hẹn giờ → ý định `timer` và `ambient` bị bỏ', () => {
+    for (const source of ['timer', 'ambient'] as const) {
+      const s = run([open, { type: 'app.user.activity', at: 1_500 }, { type: 'mascot.tick', at: 3_000 }], timed(source));
+      expect(s.bubble).toBeNull();
+      expect(s.lastActivityAt).toBe(1_500);
+    }
+  });
+
+  it('quá 2 s sau thao tác → ý định `timer` chạy như thường', () => {
+    const s = run([open, { type: 'app.user.activity', at: 900 }, { type: 'mascot.tick', at: 3_000 }], timed('timer'));
+    expect(s.bubble?.messageId).toBe('MSG-MAS-032');
+  });
+
+  it('ý định không có `source` (kết quả trực tiếp của thao tác, sự kiện của màn) không bị bỏ', () => {
+    const s = run([open, { type: 'app.user.activity', at: 2_900 }, { type: 'mascot.tick', at: 3_000 }], timed(undefined));
+    expect(s.bubble?.messageId).toBe('MSG-MAS-032');
+    const tapped = run(
+      [{ type: 'app.user.activity', at: 0 }, { type: 'm02.scanner.opened', hasSession: true, k: 0, at: 10 }],
+      [rule('m02.scanner.opened', say({ message: { id: 'MSG-MAS-043' }, priority: 3, requested: true }))],
+    );
+    expect(tapped.bubble?.messageId).toBe('MSG-MAS-043');
+  });
+
+  it('thao tác không chống trùng và không đổi gì khác (không đóng bong bóng đang hiện)', () => {
+    const shown = run([open], [rule('m02.scanner.opened', say({ message: { id: 'MSG-MAS-043' }, priority: 3 }))]);
+    const a = step(shown, { type: 'app.user.activity', at: 100 }, CTX, []).state;
+    const b = step(a, { type: 'app.user.activity', at: 200 }, CTX, []).state;
+    expect(b.lastActivityAt).toBe(200);
+    expect(b.bubble?.messageId).toBe('MSG-MAS-043');
+  });
+
+  it('media bắt đầu → bong bóng đóng ngay (MAS-TC-115)', () => {
+    const shown = run([open], [rule('m02.scanner.opened', say({ message: { id: 'MSG-MAS-043' }, priority: 3 }))]);
+    const playing = step(shown, { type: 'm02.media.playing', mediaType: 'AUDIO', at: 50 }, CTX, []).state;
+    expect(playing.bubble).toBeNull();
   });
 });

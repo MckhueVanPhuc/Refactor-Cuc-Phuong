@@ -8,7 +8,7 @@
 | Actor | Bất kỳ ai quét mã bằng camera điện thoại |
 | Priority | Must |
 | Mockup | [mockup-SCR-M02-004.html](../../html/mockup-SCR-M02-004.html) (HTML tĩnh, chưa sign-off UX) |
-| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.1](../../../docs/spec/spec-Mascot.md) cho Mila |
+| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.3](../../../docs/spec/spec-Mascot.md) cho Mila |
 
 Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (US-M02-09, FR-M02-025/026, BR-M02-023 đến 025) và link công khai theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) BR-M03-B04. Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
@@ -32,7 +32,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-004.html](../../html/mockup-SCR-M02-004.html)
 | 2 | E-SCR-M02-004-02 | Scanned content block | Nội dung (như SCR-M02-002) | Nội dung của mã trong link: tên điểm dừng, tên đối tượng, giới thiệu, ảnh, audio/video khi có | Conditional | Hiển thị theo quy tắc của SCR-M02-002; media chỉ khi nội dung có `mediaResources` |
 | 3 | E-SCR-M02-004-03 | Free-visitor hint with catalog link | Text + link | VI: "Bạn đang xem tự do, lượt quét này không được ghi vào chuyến đi. Muốn ghi lại hành trình, hãy chọn tuyến." kèm liên kết sang danh mục tuyến | Conditional | Hiện cho mọi lượt xem khi không có phiên trong cùng trình duyệt |
 | 4 | E-SCR-M02-004-04 | Action: Chọn tuyến | Link | Mở SCR-M01-001 | Conditional | Chỉ ở chế độ khách tự do |
-| 5 | E-SCR-M02-004-05 | Check-in feedback | Toast (như E-SCR-M02-001-13; 2026-11-21) | Xác nhận lượt ghé đã được ghi | Conditional | Chỉ khi có phiên chạy trong cùng trình duyệt và lượt quét được chấp nhận (BR-M02-005) |
+| 5 | E-SCR-M02-004-05 | Check-in feedback | Toast (như E-SCR-M02-001-13; 2026-11-21); v1.2: bong bóng Mila thay toast khi Mila hoạt động, toast là dự phòng (Spec Mascot BR-MAS-24) | Xác nhận lượt ghé đã được ghi | Conditional | Chỉ khi có phiên chạy trong cùng trình duyệt và lượt quét được chấp nhận (BR-M02-005) |
 | 6 | E-SCR-M02-004-06 | Auto-end notice | Banner | VI: "Chuyến đi trước đã tự kết thúc và được ghi là hoàn thành." hoặc "Chuyến đi trước đã tự kết thúc vì đã quá 24 giờ." | Conditional | Tự đóng phiên quá 24 giờ được áp dụng trước mọi xử lý khác (BR-M02-022, BR-M02-024) |
 | 7 | E-SCR-M02-004-07 | Closure notice | Banner | VI: "Khu vực này đang tạm đóng. Vui lòng dừng lại hoặc quay về theo hướng dẫn của Ban Quản lý." | Conditional | Khi lookup `TEMPORARILY_CLOSED`; không nội dung, không lượt ghé |
 | 8 | E-SCR-M02-004-08 | Invalid QR message | Banner | VI: "Mã không còn hiệu lực hoặc không tồn tại." | Conditional | Khi lookup `INVALID`; cũng dùng (không tra cứu) khi đoạn `qrIdentifier` của đường dẫn rỗng, giống nguyên tắc mã không hợp lệ của scanner trong app (BR-M02-023) |
@@ -40,8 +40,8 @@ Mockup HTML tĩnh: [mockup-SCR-M02-004.html](../../html/mockup-SCR-M02-004.html)
 | 10 | E-SCR-M02-004-10 | Loading state | Spinner | Đang tra cứu | Conditional | Quá 8 giây không phản hồi = lỗi tra cứu |
 | 11 | E-SCR-M02-004-11 | Source-failure notice | Text | VI: "Chưa tải được nội dung mới. Đang dùng nội dung đã lưu nếu có." | Conditional | Khi có phiên và mã thuộc journey đóng băng |
 | 12 | E-SCR-M02-004-12 | Action: Mở nội dung (có phiên) | Navigation | Hiển thị nội dung như SCR-M02-002 | Conditional | Sau khi ghi lượt ghé (nếu được chấp nhận) |
-| 13 | E-SCR-M02-004-13 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Có phiên: như SCR-M02-002 (AVATAR cạnh toast). Không phiên: minh họa cạnh gợi ý khách tự do (INLINE, không bong bóng). Không có lời giới thiệu, không làm chậm nội dung. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc E-SCR-M02-004-14 |
-| 14 | E-SCR-M02-004-14 | Công tắc "Chuyển động" của Mila | Nút bật/tắt ở thanh đầu trang, bên trái VI/EN (design-system §9.5) | Luôn có khi Mila được bật | Conditional (Could, MVP-Scope §3.6) | `aria-pressed`, tên truy cập "Chuyển động của Mila", vùng chạm 44px; tắt: Mila đứng yên, chữ hiện ngay, Mila vẫn hiện; khởi đầu tắt khi giảm chuyển động; không lưu qua lần mở app (Spec Mascot BR-MAS-21). Không phải nút ẩn Mila |
+| 13 | E-SCR-M02-004-13 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Có phiên: như SCR-M02-002 (AVATAR cạnh toast). Không phiên: minh họa cạnh gợi ý khách tự do (INLINE, không bong bóng). Không có lời giới thiệu, không làm chậm nội dung. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
+| 14 | E-SCR-M02-004-14 | Công tắc "Chuyển động" của Mila | **Bỏ ở v1.3**: thanh đầu trang không còn nút chuyển động; công tắc duy nhất ở màn Tài nguyên SCR-M01-004 (Spec Mascot BR-MAS-21) | — | — | — |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Các câu đã cố định trong Spec M02 §5.1 (gợi ý khách tự do, tạm đóng, mã không hợp lệ, cần kết nối, lỗi nguồn, phiên tự kết thúc) được dùng nguyên văn như ghi ở bảng inventory.
 
@@ -51,18 +51,16 @@ Mockup HTML tĩnh: [mockup-SCR-M02-004.html](../../html/mockup-SCR-M02-004.html)
 | Nút VI/EN | VI · EN | VI · EN |
 | Liên kết sang danh mục | Chọn tuyến | Choose a route |
 | Đang tra cứu | Đang kiểm tra mã QR… | Checking the QR code… |
-| Mila khi ghi lượt ghé mới (MSG-MAS-050) | {cheer} Bạn đã quét {k}/{n} điểm. — {cheer}: Tuyệt! · Hay quá! · Thêm một điểm nữa! | {cheer} You've scanned {k} of {n} stops. — {cheer}: Nice! · Great! · One more on the trail! |
-| Mila khi quét mã đầu tiên của chuyến (MSG-MAS-051) | Mã QR đầu tiên xong rồi! Đọc thử câu chuyện của điểm này nhé. | First QR done! Take a moment to read this stop's story. |
+| Mila khi ghi lượt ghé mới (MSG-MAS-050) | {cheer} Đã ghi nhận lượt quét: {k}/{n} điểm. — {cheer}: Tuyệt! · Hay quá! · Thêm một điểm nữa! | {cheer} Scan recorded: {k} of {n} stops. — {cheer}: Nice! · Great! · One more on the trail! |
+| Mila khi quét mã đầu tiên của chuyến (MSG-MAS-051) | Đã ghi nhận mã QR đầu tiên! Đọc thử câu chuyện của điểm này nhé. | First scan recorded! Take a moment to read this stop's story. |
 | Mila khi mã ngoài hành trình (MSG-MAS-052) | Điểm này không thuộc tuyến của bạn nên không tính vào hành trình. Cứ xem nhé! | This spot isn't on your route, so it won't count. Enjoy reading anyway! |
-| Mila khi dùng nội dung đã tải (MSG-MAS-054) | Mất sóng cũng không sao, mình mở bản đã tải sẵn cho bạn. | No signal? No worries, here's the saved version. |
-| Mila khi quét được nửa số điểm (MSG-MAS-055) | Bạn đã quét được nửa số điểm rồi đó! | You've scanned half of your stops! |
+| Mila khi dùng nội dung đã tải (MSG-MAS-054) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
+| Mila khi quét được nửa số điểm (MSG-MAS-055) | Đã ghi nhận! Bạn đã quét được nửa số điểm rồi đó! | Recorded! You've scanned half of your stops! |
 | Chạm Mila (màn nội dung) (MSG-MAS-059) | Vuốt ảnh để xem thêm, kéo xuống để đọc phần giới thiệu. | Swipe the photos, then scroll down to read more. |
 | Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
 | Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
-| Mila khi chỉ còn một điểm (MSG-MAS-058) | Chỉ còn một điểm nữa thôi! | Just one stop to go! |
+| Mila khi chỉ còn một điểm (MSG-MAS-058) | Đã ghi nhận! Chỉ còn một điểm nữa thôi! | Recorded! Just one stop to go! |
 | Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
-| Tên truy cập của công tắc chuyển động | Chuyển động của Mila | Mila's motion |
-| Chữ trên công tắc | Chuyển động: bật / Chuyển động: tắt | Motion: on / Motion: off |
 
 ## 4. States
 

@@ -145,6 +145,22 @@ button.figure:focus-visible {
   left: calc(50% - var(--space-2));
 }
 
+/* Hero danh mục (v1.3, design-system §9.3a): bong bóng nằm dưới hero, đuôi ở cạnh trên chỉ lên Mila bên phải */
+:global([data-mascot-dock='catalog']) .mascot[data-mascot-mode='DOCK'] .bubble {
+  max-width: min(100%, calc(var(--mascot-bubble-max-width) + var(--space-8) * 2));
+  border-radius: var(--mascot-bubble-radius) var(--mascot-bubble-radius-tail) var(--mascot-bubble-radius) var(--mascot-bubble-radius);
+}
+
+:global([data-mascot-dock='catalog']) .mascot[data-mascot-mode='DOCK'] .bubble::before {
+  top: calc(var(--space-2) * -1);
+  right: calc(var(--mascot-dock-size) / 2 - var(--space-2));
+  bottom: auto;
+  left: auto;
+  border: 0;
+  border-top: var(--mascot-bubble-border) solid var(--color-m01-forest);
+  border-left: var(--mascot-bubble-border) solid var(--color-m01-forest);
+}
+
 .name {
   font-size: var(--font-size-mascot-name);
   font-weight: var(--font-weight-semibold);
@@ -329,6 +345,8 @@ button.figure:focus-visible {
 
 .mascot[data-mascot-animation='pop'] .bubble,
 .mascot[data-mascot-animation='hop'] .bubble,
+.mascot[data-mascot-animation='success'] .bubble,
+.mascot[data-mascot-animation='milestone'] .bubble,
 .mascot[data-mascot-animation='tilt'] .bubble {
   animation: mascot-pop var(--duration-mascot-pop) var(--ease-out) both;
 }
@@ -340,6 +358,19 @@ button.figure:focus-visible {
 .mascot[data-mascot-animation='hop'] .figure,
 .mascot[data-mascot-animation='celebrate'] .figure {
   animation: mascot-hop var(--duration-mascot-hop) var(--ease-out) both;
+}
+
+/* Ba cấp ăn mừng (v1.1, BR-MAS-23): cấp 1 nhún một lần (AN-SUCCESS); cấp 2 nhảy hai lần + 6 lá (AN-MILESTONE) */
+.mascot[data-mascot-animation='success'] .figure {
+  animation: mascot-hop-once var(--duration-mascot-hop) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='milestone'] .figure {
+  animation: mascot-hop var(--duration-mascot-milestone) var(--ease-out) both;
+}
+
+.mascot[data-mascot-animation='milestone'] .leaf {
+  animation-duration: var(--duration-mascot-milestone);
 }
 
 .mascot[data-mascot-animation='thumb'] .figure {
@@ -445,6 +476,21 @@ button.figure:focus-visible {
 
   50% {
     transform: scaleY(0.97);
+  }
+}
+
+@keyframes mascot-hop-once {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  45% {
+    transform: translateY(calc(var(--space-2) * -1)) scaleY(1.03);
+  }
+
+  80% {
+    transform: scaleY(0.98);
   }
 }
 

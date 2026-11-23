@@ -2,7 +2,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readyPackage } from '../../src/modules/m02/api/fake/fixtures';
 import { vi } from '../../src/modules/m02/i18n/vi';
-import { callM01Hook, dumpStores, M02_STORES, seedValidContext } from './helpers';
+import { callM01Hook, dumpStores, expectCheckInFeedback, M02_STORES, seedValidContext } from './helpers';
 import { mockLookup, mockStorage } from './network';
 
 const viDevice = (page: Page) => page.addInitScript(() => Object.defineProperty(navigator, 'language', { get: () => 'vi-VN' }));
@@ -43,7 +43,7 @@ test('V21 — /q/… khi có phiên trong cùng trình duyệt → như quét tr
   await startTrip(page);
 
   await page.goto('/q/Q1a');
-  await expect(page.getByText(vi.trip.visitRecorded)).toBeVisible();
+  await expectCheckInFeedback(page);
   await expect(page.getByText(vi.notice.freeVisitor)).toHaveCount(0);
   expect(requests.at(-1)).toEqual({ p_qr_identifier: 'Q1a', p_route_id: 'A' });
 

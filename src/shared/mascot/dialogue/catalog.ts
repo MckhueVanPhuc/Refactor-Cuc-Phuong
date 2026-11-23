@@ -14,7 +14,7 @@ export type MessageMeta = {
   /** `false`: bong bóng ở lại tới khi bấm nút, đóng, đổi màn hoặc luật thay (design-system §5.3) */
   autoHide: boolean;
   cta?: readonly CtaId[];
-  /** Chỉ câu P2 có thông tin mới mang `role="status"` (Technical spec §7) */
+  /** Câu P2 có thông tin mới và câu xác nhận lượt ghé (BR-MAS-24) mang `role="status"` (Technical spec §7) */
   role?: 'status';
 };
 
@@ -22,8 +22,8 @@ const MIN = 60_000;
 const ONCE = Number.POSITIVE_INFINITY;
 
 export const MESSAGE_META: Record<MessageId, MessageMeta> = {
-  'MSG-MAS-001': { priority: 6, cooldownMs: ONCE, autoHide: true },
-  'MSG-MAS-002': { priority: 6, cooldownMs: ONCE, autoHide: true },
+  // v1.3: lớp phủ giới thiệu chờ du khách chạm (US-MAS-01)
+  'MSG-MAS-001': { priority: 6, cooldownMs: ONCE, autoHide: false },
   'MSG-MAS-004': { priority: 6, cooldownMs: ONCE, autoHide: true },
   'MSG-MAS-005': { priority: 7, cooldownMs: 0, autoHide: false },
   'MSG-MAS-008': { priority: 6, cooldownMs: ONCE, autoHide: false, cta: ['recommend'] },
@@ -49,11 +49,13 @@ export const MESSAGE_META: Record<MessageId, MessageMeta> = {
   'MSG-MAS-046': { priority: 2, cooldownMs: 2 * MIN, autoHide: false, role: 'status' },
   'MSG-MAS-048': { priority: 2, cooldownMs: 2 * MIN, autoHide: false, role: 'status' },
   'MSG-MAS-049': { priority: 6, cooldownMs: 0, autoHide: false, cta: ['closeCamera', 'notNow'] },
-  'MSG-MAS-050': { priority: 4, cooldownMs: 0, autoHide: true },
-  'MSG-MAS-051': { priority: 4, cooldownMs: 0, autoHide: true },
+  // 050, 051, 055, 058: lời xác nhận lượt ghé thay toast (BR-MAS-24) nên có `role="status"`
+  'MSG-MAS-050': { priority: 4, cooldownMs: 0, autoHide: true, role: 'status' },
+  'MSG-MAS-051': { priority: 4, cooldownMs: 0, autoHide: true, role: 'status' },
   'MSG-MAS-052': { priority: 2, cooldownMs: MIN, autoHide: true, role: 'status' },
   'MSG-MAS-054': { priority: 5, cooldownMs: 5 * MIN, autoHide: true },
-  'MSG-MAS-055': { priority: 5, cooldownMs: 0, autoHide: true },
+  'MSG-MAS-055': { priority: 4, cooldownMs: 0, autoHide: true, role: 'status' },
+  'MSG-MAS-058': { priority: 4, cooldownMs: 0, autoHide: true, role: 'status' },
   'MSG-MAS-056': { priority: 6, cooldownMs: 10 * MIN, autoHide: true },
   'MSG-MAS-057a': { priority: 6, cooldownMs: 10 * MIN, autoHide: true },
   'MSG-MAS-057b': { priority: 6, cooldownMs: 10 * MIN, autoHide: true },
@@ -65,6 +67,7 @@ export const MESSAGE_META: Record<MessageId, MessageMeta> = {
   'MSG-MAS-085': { priority: 3, cooldownMs: 0, autoHide: true },
   'MSG-MAS-061': { priority: 5, cooldownMs: 2 * MIN, autoHide: true },
   'MSG-MAS-062': { priority: 4, cooldownMs: 0, autoHide: true },
+  'MSG-MAS-063': { priority: 4, cooldownMs: 0, autoHide: true },
   'MSG-MAS-070': { priority: 5, cooldownMs: 0, autoHide: true },
   'MSG-MAS-074': { priority: 5, cooldownMs: 10 * MIN, autoHide: true },
   'MSG-MAS-075': { priority: 7, cooldownMs: 10 * MIN, autoHide: true },

@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED** |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04) |
 | Quy tắc repo | AGENTS.md §4: ảnh (không phải icon) chỉ được thêm khi người dùng cung cấp. Agent chỉ cắt, đổi cỡ, nén (người dùng cho phép tạo bản nén 2026-11-20), không vẽ lại nhân vật |
 
 ## 1. Kiểm tra artwork hiện có (Stage 1)
@@ -124,7 +124,7 @@ Mọi animation dùng CSS (`transform`, `opacity`), lấy thời lượng từ t
 |---|---|---|---|---|---|---|---|---|
 | AN-ENTER | — | Tư thế ngữ cảnh | Mờ dần vào + nâng 8 px | 250 ms ease-out | Một lần | Vào slot | AN-BREATHE (DOCK) | CSS |
 | AN-EXIT | Bất kỳ | — | Mờ dần ra | 150–200 ms ease-in | Một lần | Rời slot, SUPPRESSED | — | CSS |
-| AN-INTRO | — | MA-01 → MA-02 | Trượt lên từ mép dưới 24 px + mờ vào; bong bóng bật sau 150 ms | 300 ms | Một lần | MAS-B-001 | AN-SHRINK | CSS (v2: sprite MA-21) |
+| AN-INTRO | — | MA-01 | Lớp phủ mờ vào; Mila trượt lên 24 px ở giữa màn; bong bóng bật sau 150 ms (v1.3) | 300 ms | Một lần | MAS-B-001 | Lớp phủ mờ đi → DOCK hero (AN-ENTER) | CSS (v2: sprite MA-21) |
 | AN-SHRINK | INTRO | DOCK | Thu nhỏ về slot DOCK | 250 ms ease-out | Một lần | Hết INTRO | AN-BREATHE | CSS |
 | AN-POP | Hiện tại | Tư thế mới | Crossfade tư thế 150 ms + scale 0,94 → 1 | 200 ms | Một lần | Mỗi bong bóng mới | Giữ | CSS |
 | AN-SETTLE | `SPEAKING` | `IDLE` | Bong bóng mờ dần và co lại 4 px; mascot giữ tư thế | 150 ms ease-in | Một lần | Bong bóng kết thúc | AN-BREATHE (DOCK) | CSS |

@@ -10,6 +10,7 @@ import {
   MASCOT_WELCOME_BACK_MS,
   NATURE_REMINDERS_APPROVED,
 } from './config';
+import { blinkAsset } from './assets';
 import type { MessageId } from './dialogue/catalog';
 import type { MascotEvent } from './events';
 import type { AnimationId, Intent, PoseId, Rule, RuleResult, RuleView } from './types';
@@ -33,7 +34,7 @@ const isQrLinkPage = (path: string) => path.startsWith('/q/');
 /** MAS-B-003: Mila đứng ở hero danh mục (DOCK); cũng là đích cuối của lời giới thiệu. */
 const CATALOG_DOCK: Intent = { behaviorId: 'MAS-B-003', priority: 7, mode: 'DOCK', pose: 'map', animation: 'shrink' };
 
-/** MAS-B-001 → MAS-B-002 → MAS-B-003: hai câu giới thiệu rồi thu về DOCK. */
+/** MAS-B-001 → MAS-B-003 (v1.3): lớp phủ giới thiệu một câu, chờ du khách chạm, rồi Mila về DOCK ở hero. */
 const INTRO: Intent = {
   behaviorId: 'MAS-B-001',
   priority: 6,
@@ -42,7 +43,7 @@ const INTRO: Intent = {
   animation: 'intro',
   message: { id: 'MSG-MAS-001' },
   once: 'INTRO',
-  then: { behaviorId: 'MAS-B-002', priority: 6, mode: 'INTRO', pose: 'map', animation: 'pop', message: { id: 'MSG-MAS-002' }, then: CATALOG_DOCK },
+  then: CATALOG_DOCK,
 };
 
 const US1: Rule[] = [
@@ -76,21 +77,34 @@ const US1: Rule[] = [
 // —— US2: Mila ăn mừng tiến độ có thật (US-MAS-02) ——
 
 const US2: Rule[] = [
-  // MAS-B-050, 051, 055: lượt ghé được ghi lần đầu. Mỗi lượt ghé chỉ một phản ứng (VISIT:<visitRef>), kể cả khi trang
-  // nội dung mount lại từ router state (lùi/tiến, tải lại). Điểm cuối: hộp thoại cuối chuyến hiện ngay, Mila chỉ rung.
+  // MAS-B-050, 051, 055, 066: lượt ghé được ghi lần đầu, theo ba cấp ăn mừng (BR-MAS-23). Cấp 1 (điểm thường): nhún một
+  // lần + 050. Cấp 2 (mốc, ưu tiên đầu tiên > nửa (n ≥ 4) > còn một điểm (n ≥ 3)): nhảy hai lần, lá rơi + câu của mốc.
+  // Bong bóng này là lời xác nhận lượt ghé thay toast (BR-MAS-24). Mỗi lượt ghé chỉ một phản ứng (VISIT:<visitRef>), kể cả
+  // khi trang nội dung mount lại từ router state (lùi/tiến, tải lại). Điểm cuối: hộp thoại cuối chuyến hiện ngay, Mila chỉ rung.
   on('MAS-B-050', 'm02.visit.recorded', (event, { state }) => {
     const once = `VISIT:${event.visitRef}`;
     if (state.once[once]) return null;
     if (event.isFinal) return { once: [once], effects: [{ kind: 'vibrate', ms: MASCOT_VIBRATION_MS }] };
-    const base = { priority: 4, mode: 'AVATAR', pose: 'cheer', animation: 'hop', vibrate: true, once } as const;
-    if (event.k === 1) return { intents: [{ ...base, behaviorId: 'MAS-B-051', message: { id: 'MSG-MAS-051' } }] };
+    const milestone = { priority: 4, mode: 'AVATAR', pose: 'cheer', animation: 'milestone', vibrate: true, once } as const;
+    if (event.k === 1) return { intents: [{ ...milestone, behaviorId: 'MAS-B-051', message: { id: 'MSG-MAS-051' } }] };
     if (event.n >= 4 && event.k === Math.ceil(event.n / 2)) {
-      return { intents: [{ ...base, behaviorId: 'MAS-B-055', priority: 5, message: { id: 'MSG-MAS-055' } }] };
+      return { intents: [{ ...milestone, behaviorId: 'MAS-B-055', message: { id: 'MSG-MAS-055' } }] };
+    }
+    if (event.n >= 3 && event.k === event.n - 1) {
+      return { intents: [{ ...milestone, behaviorId: 'MAS-B-066', message: { id: 'MSG-MAS-058' } }] };
     }
     const cheer = state.counters['cheer'] ?? 0;
     return {
       counters: { cheer: cheer + 1 },
-      intents: [{ ...base, behaviorId: 'MAS-B-050', pose: 'thumbsUp', message: { id: 'MSG-MAS-050', params: { k: event.k, n: event.n, cheer } } }],
+      intents: [
+        {
+          ...milestone,
+          behaviorId: 'MAS-B-050',
+          pose: 'thumbsUp',
+          animation: 'success',
+          message: { id: 'MSG-MAS-050', params: { k: event.k, n: event.n, cheer } },
+        },
+      ],
     };
   }),
   // MAS-B-033: DOCK trên màn chuyến đi, tư thế theo tiến độ (State Machine §3.1)
@@ -124,19 +138,20 @@ const endDock = (status: 'HOAN_TAT' | 'BO_DO'): Intent => ({
 });
 
 const US4: Rule[] = [
-  // MAS-B-062 → 063: vừa bấm Kết thúc trong lần tải trang này → ăn mừng một lần với số điểm đã quét, rồi về hình tĩnh.
+  // MAS-B-062 / 064 → 063: vừa bấm Kết thúc trong lần tải trang này → ăn mừng một lần (cấp 3, BR-MAS-23), rồi về hình
+  // tĩnh. Quét đủ mọi điểm của hành trình (k = n) → 064 / 063; kết thúc sớm → 062, mừng tích cực như nhau.
   // Mở lại hoặc tải lại màn kết quả: chỉ hình tĩnh (Q12). Đóng bong bóng sớm → về hình tĩnh ngay (đích `then` không lời).
   on('MAS-B-062', 'm02.trip.ended', (event) =>
     event.justEnded && event.status === 'HOAN_TAT'
       ? {
           intents: [
             {
-              behaviorId: 'MAS-B-062',
+              behaviorId: event.n > 0 && event.k >= event.n ? 'MAS-B-064' : 'MAS-B-062',
               priority: 4,
               mode: 'CELEBRATE',
               pose: 'cheer',
               animation: 'celebrate',
-              message: { id: 'MSG-MAS-062', params: { k: event.k } },
+              message: event.n > 0 && event.k >= event.n ? { id: 'MSG-MAS-063', params: { n: event.n } } : { id: 'MSG-MAS-062', params: { k: event.k } },
               then: endDock(event.status),
             },
           ],
@@ -177,7 +192,16 @@ const GESTURES: readonly Gesture[] = [
   { id: 'hop', animation: 'hop' },
   { id: 'tilt', animation: 'tilt' },
   { id: 'pack', pose: 'backpack', animation: 'hop' },
+  // AN-BLINK: chỉ khi tư thế hiện tại có ảnh mắt nhắm MA-20 (MAS-TC-122)
+  { id: 'blink', animation: 'blink' },
 ];
+
+const available = (gesture: Gesture, pose: PoseId) => gesture.id !== 'blink' || blinkAsset(pose) !== null;
+
+/** Cử chỉ dùng được với tư thế đang đứng (research R-24). */
+export function ambientGestures(pose: PoseId): readonly Gesture[] {
+  return GESTURES.filter((gesture) => available(gesture, pose));
+}
 
 const AMBIENT: Rule[] = [
   // Lịch do máy trạng thái đặt khi Mila đứng chờ; tới hạn thì chọn một cử chỉ khác cử chỉ trước, không có chữ (P7, không
@@ -187,7 +211,7 @@ const AMBIENT: Rule[] = [
     if (!view || view.mode !== 'DOCK' || state.bubble || state.hold) return null;
     const random = ctx.random ?? Math.random;
     const last = state.counters['ambient:last'];
-    const choices = GESTURES.map((_, index) => index).filter((index) => index !== last);
+    const choices = GESTURES.map((_, index) => index).filter((index) => index !== last && available(GESTURES[index]!, view.pose));
     const index = choices[Math.min(choices.length - 1, Math.floor(random() * choices.length))]!;
     const gesture = GESTURES[index]!;
     return {
@@ -199,6 +223,7 @@ const AMBIENT: Rule[] = [
           mode: 'DOCK',
           pose: gesture.pose ?? view.pose,
           animation: gesture.animation,
+          source: 'ambient',
           holdMs: MASCOT_AMBIENT_GESTURE_MS,
           then: { behaviorId: view.behaviorId, priority: 7, mode: 'DOCK', pose: view.pose, animation: 'settle' },
         },
