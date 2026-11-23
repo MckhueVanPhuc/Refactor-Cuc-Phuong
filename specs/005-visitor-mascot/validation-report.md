@@ -398,7 +398,7 @@ Branch `feat/mascot-v11-taps`, tách từ `feat/mascot-v11-motion` (PR #67). Tas
 | `ma-03-think`, `ma-06-magnifier`, `ma-13-point` | 1254×1254, RGBA nền trong suốt, nửa thân chạm đáy | Xuất WebP 240/480 như đợt 1 |
 | `ma-20-{map,binoculars,thumbs-up,backpack,rest}-blink` | Nhắm đủ hai mắt; nhưng 2048×2048, **không trong suốt** (nền trắng), cả ảnh được vẽ lại (≈ 3% điểm ảnh khác ảnh gốc, sai số trung bình 9/255) | Thu về 1254 px (khớp vị trí, độ lệch 0,0); **chỉ ghép vùng mắt** (1,7–2,9% diện tích, mép mờ) lên ảnh gốc; xuất cùng cách căn với ảnh gốc. Đường ghép không thấy ở mức phóng 3× |
 
-Precache: 17 ảnh nhỏ, 205,4 KB; ảnh lớn 551,2 KB nạp khi cần. Ảnh gốc mới trong `source/`: 27 MB (riêng 5 ảnh mắt nhắm 2048 px ≈ 22 MB).
+Precache: 17 ảnh nhỏ, 205,4 KB; ảnh lớn 551,2 KB nạp khi cần. Ảnh gốc mới trong `source/`: 27 MB lúc nhận (riêng 5 ảnh mắt nhắm 2048 px ≈ 22 MB). Chủ dự án quyết định (2026-11-23) lưu ảnh mắt nhắm đã thu về 1254 px: còn 6,5 MB cho 5 ảnh; WebP xuất lại giống cỡ và cách căn.
 
 ### 10.2 Test viết trước
 

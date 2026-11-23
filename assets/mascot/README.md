@@ -29,4 +29,4 @@ Công cụ sửa ảnh của chủ dự án trả về ảnh 2048 px, nền tr�
 3. Ghép **chỉ vùng đó** từ ảnh mắt nhắm lên ảnh tư thế gốc; ngoài vùng mắt giữ nguyên từng điểm ảnh của ảnh gốc, kể cả kênh trong suốt.
 4. Xuất như ảnh gốc của tư thế (cùng cách căn), nên ảnh mắt nhắm chồng khít khi đổi.
 
-Vùng ghép chiếm 1,7–2,9% diện tích ảnh. Ảnh người dùng giao giữ nguyên trong `source/`.
+Vùng ghép chiếm 1,7–2,9% diện tích ảnh. Theo quyết định của chủ dự án (2026-11-23), `source/` lưu ảnh mắt nhắm **đã thu về 1254 px** (chỉ đổi cỡ, nội dung giữ nguyên) thay cho bản 2048 px, để repo nhẹ hơn khoảng 16 MB.
