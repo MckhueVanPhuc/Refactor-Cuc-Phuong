@@ -19,3 +19,14 @@ Chạy trong Chromium của Playwright (devDependency có sẵn), không thêm d
 4. Thu nhỏ từng nửa với làm mịn chất lượng cao rồi về cỡ đích (240/480; avatar 96/192); mã hóa WebP chất lượng 0,82.
 
 Số đo: specs/005-visitor-mascot/validation-report.md §6. Ảnh gốc trong `source/` giữ nguyên, không sửa.
+
+## Ảnh mắt nhắm `ma-20-*-blink` (2026-11-23)
+
+Công cụ sửa ảnh của chủ dự án trả về ảnh 2048 px, nền trắng đặc, và vẽ lại cả ảnh (kết cấu lông khác ảnh gốc khoảng 3% điểm ảnh). Đổi nguyên ảnh đó trong 120 ms sẽ làm cả thân "nhấp nháy". Vì vậy trước khi xuất:
+
+1. Thu ảnh mắt nhắm về cỡ ảnh gốc (1254 px); hai ảnh khớp vị trí (độ lệch tìm được 0, 0).
+2. Tìm vùng khác biệt mạnh trong 45% phía trên (vùng mắt), nở rộng 10 px rồi làm mép mờ 6 px.
+3. Ghép **chỉ vùng đó** từ ảnh mắt nhắm lên ảnh tư thế gốc; ngoài vùng mắt giữ nguyên từng điểm ảnh của ảnh gốc, kể cả kênh trong suốt.
+4. Xuất như ảnh gốc của tư thế (cùng cách căn), nên ảnh mắt nhắm chồng khít khi đổi.
+
+Vùng ghép chiếm 1,7–2,9% diện tích ảnh. Theo quyết định của chủ dự án (2026-11-23), `source/` lưu ảnh mắt nhắm **đã thu về 1254 px** (chỉ đổi cỡ, nội dung giữ nguyên) thay cho bản 2048 px, để repo nhẹ hơn khoảng 16 MB.

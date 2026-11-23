@@ -120,10 +120,24 @@
   --ease-in-out: ease-in-out;
 
   /* §9.2 — mascot Mila (spec-Mascot §5.1; specs/005 mascot-ui-contract §4) */
-  --mascot-size-sm: 40px;
+  --mascot-size-sm: 56px;
   --mascot-size-md: 72px;
   --mascot-size-lg: 160px;
-  --mascot-bubble-max-width: 280px;
+  /* v1.1 (2026-11-22): Mila lớn hơn ở chỗ đứng chờ; INTRO/CELEBRATE 200px */
+  --mascot-size-dock-catalog: 112px;
+  /* Hero danh mục khi màn < 360px: tiêu đề vẫn một dòng cạnh Mila (v1.3) */
+  --mascot-size-dock-catalog-narrow: 88px;
+  --mascot-size-dock-trip: 128px;
+  --mascot-size-dock-end: 104px;
+  --mascot-size-xl: 200px;
+  --mascot-bubble-max-width: 240px;
+  /* §9.3 — bong bóng "Giấy dã ngoại" */
+  --mascot-bubble-surface: #fffaf0;
+  --mascot-bubble-border: 1.5px;
+  --mascot-bubble-radius: 18px;
+  --mascot-bubble-radius-tail: 6px;
+  --mascot-bubble-shadow: 0 3px 0 color-mix(in srgb, var(--color-m01-forest) 18%, transparent);
+  --font-size-mascot-name: 12px;
   /* §4.3 — chuyển động của Mila */
   --duration-mascot-enter: 250ms;
   --duration-mascot-exit: 200ms;
@@ -131,6 +145,8 @@
   --duration-mascot-hop: 600ms;
   --duration-mascot-celebrate: 2400ms;
   --duration-mascot-loop: 1200ms;
+  --duration-mascot-milestone: 1200ms;
+  --duration-mascot-blink: 120ms;
 }
 
 /* §4.3 — tôn trọng prefers-reduced-motion */
@@ -149,5 +165,7 @@
     --duration-mascot-hop: 0ms;
     --duration-mascot-celebrate: 0ms;
     --duration-mascot-loop: 0ms;
+    --duration-mascot-milestone: 0ms;
+    --duration-mascot-blink: 0ms;
   }
 }

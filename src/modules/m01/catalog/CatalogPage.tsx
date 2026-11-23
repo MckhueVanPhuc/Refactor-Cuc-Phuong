@@ -34,21 +34,21 @@ export function CatalogPage() {
 
   return (
     <>
+      {/* Hero hai cột (design-system §9.3a, v1.3): trái tiêu đề và "Gợi ý tuyến"; phải dải đồi và Mila đứng trên đồi;
+          bong bóng của Mila mở ở hàng dưới cùng, Mila không đổi chỗ */}
       <div className={styles.hero}>
-        <TintIcon name="hills" className={styles.hills} />
         <h1 className={styles.title}>
           <TintIcon name="leaf" className={styles.leaf} />
           {messages.screenTitle.catalog}
         </h1>
-        <div className={styles.heroActions}>
-          <Link className={styles.recommendLink} to={PATHS.recommend}>
-            <TintIcon name="compass" />
-            {messages.nav.recommend}
-            <TintIcon name="chevron-right" className={styles.chevron} />
-          </Link>
-          {/* Mila: giới thiệu và đứng ở hero (spec-Mascot §5.1; specs/005 T035) */}
-          <MascotSlot id="catalog-hero" modes={['INTRO', 'DOCK']} />
-        </div>
+        <Link className={styles.recommendLink} to={PATHS.recommend}>
+          <TintIcon name="compass" />
+          {messages.nav.recommend}
+          <TintIcon name="chevron-right" className={styles.chevron} />
+        </Link>
+        <TintIcon name="hills" className={styles.hills} />
+        {/* Mila: lớp phủ giới thiệu và đứng ở hero (spec-Mascot §5.1; specs/005 T035, R-29) */}
+        <MascotSlot id="catalog-hero" modes={['INTRO', 'DOCK']} size="catalog" />
       </div>
 
       {catalog.status === 'ready' && catalog.stale && (

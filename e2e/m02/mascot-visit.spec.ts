@@ -2,7 +2,7 @@
 // (C1: Q1a, Q1b; C2: Q2; C3: Q3 — điểm cuối), nên không có mốc nửa chặng (cần n ≥ 4).
 import { expect, test, type Page } from '@playwright/test';
 import { vi } from '../../src/modules/m02/i18n/vi';
-import { seedValidContext } from './helpers';
+import { expectCheckInFeedback, seedValidContext } from './helpers';
 import { mockIntakeUnavailable, mockLookup, mockStorage } from './network';
 
 const BASE = 'http://localhost:4173';
@@ -32,19 +32,23 @@ async function back(page: Page) {
   await expect(page).toHaveURL(/\/trip$/);
 }
 
-test('Q4, Q5 — mã đầu tiên: 051 cạnh toast cũ, nội dung không chờ; mã thứ hai: 050 "2/3"; quét lại: không ăn mừng', async ({ page }) => {
+test('Q4, Q5 — mã đầu tiên: 051 thay toast (v1.2), nội dung không chờ; mã thứ hai: mốc "còn một điểm" 058; quét lại: không ăn mừng', async ({ page }) => {
   await startTrip(page);
   await expect(page.locator('[data-mascot-mode="DOCK"][data-mascot-pose="binoculars"]')).toBeVisible();
 
   await scan(page, 'Q1a');
   await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q1a' })).toBeVisible();
-  await expect(page.getByText(vi.trip.visitRecorded)).toBeVisible();
-  await expect(bubble(page, 'MSG-MAS-051')).toHaveText('Mã QR đầu tiên xong rồi! Đọc thử câu chuyện của điểm này nhé.');
+  await expect(bubble(page, 'MSG-MAS-051')).toHaveText('Đã ghi nhận mã QR đầu tiên! Đọc thử câu chuyện của điểm này nhé.');
+  expect(await expectCheckInFeedback(page)).toBe('mascot');
 
   await back(page);
+  // v1.1 (MAS-B-056): quay về sau lượt ghé mới → nhắc cất máy; đóng thì về tư thế bản đồ
+  await expect(bubble(page, 'MSG-MAS-056')).toBeVisible();
+  await page.getByRole('button', { name: 'Đóng lời nhắn' }).click();
   await expect(page.locator('[data-mascot-mode="DOCK"][data-mascot-pose="map"]')).toBeVisible();
   await scan(page, 'Q2');
-  await expect(bubble(page, 'MSG-MAS-050')).toContainText('Bạn đã quét 2/3 điểm.');
+  // n = 3, k = 2 = n − 1 → mốc cấp 2 (BR-MAS-23); cấp 1 (050) cần n ≥ 4 nên chỉ có ở unit test
+  await expect(bubble(page, 'MSG-MAS-058')).toHaveText('Đã ghi nhận! Chỉ còn một điểm nữa thôi!');
 
   await back(page);
   await scan(page, 'Q1a');

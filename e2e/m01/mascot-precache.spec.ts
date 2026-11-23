@@ -18,5 +18,14 @@ test('sw.js precache: chunk mascot, đủ ảnh 240 và avatar 96, không cỡ l
     'ma-09-confused-240',
     'ma-10-rest-240',
     'ma-11-avatar-96',
-  ]);
+    // Đợt 2 và ảnh mắt nhắm (2026-11-23)
+    'ma-03-think-240',
+    'ma-06-magnifier-240',
+    'ma-13-point-240',
+    'ma-20-map-blink-240',
+    'ma-20-binoculars-blink-240',
+    'ma-20-thumbs-up-blink-240',
+    'ma-20-backpack-blink-240',
+    'ma-20-rest-blink-240',
+  ].sort());
 });
