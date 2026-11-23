@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import type { MascotEvent } from './events';
 import { initialState, step, type MascotState, type Rule } from './machine';
-import { RULES } from './rules';
+import { ambientGestures, RULES } from './rules';
 import { CTX, rule, say } from './testing';
 
 type Stamped = MascotEvent & { at: number };
@@ -99,15 +99,16 @@ describe('US1 — Làm quen với Mila (US-MAS-01)', () => {
   const selected = (at: number): Stamped => ({ type: 'm01.language.selected', language: 'vi', at });
   const loaded = (at: number): Stamped => ({ type: 'm01.catalog.loaded', status: 'ready', count: 2, stale: false, slow: false, at });
 
-  it('MAS-B-001→002→003: chọn ngôn ngữ lần đầu → sau 300 ms INTRO 001, rồi 002, rồi DOCK ở hero', () => {
+  it('MAS-B-001→003 (v1.3): chọn ngôn ngữ lần đầu → sau 300 ms lớp phủ INTRO một câu 001, không tự ẩn; chạm đóng → DOCK ở hero', () => {
     let { state } = play([{ type: 'app.route.changed', path: '/', at: 0 }, selected(1_000), loaded(1_050)]);
     expect(state.bubble).toBeNull();
     state = play([{ type: 'mascot.tick', at: 1_300 }], [], CTX, state).state;
     expect(state.view).toMatchObject({ mode: 'INTRO', pose: 'wave' });
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-001', expiresAt: null });
+    // Không tự ẩn: một phút sau vẫn còn lớp phủ
+    state = play([{ type: 'mascot.tick', at: 61_300 }], [], CTX, state).state;
     expect(state.bubble?.messageId).toBe('MSG-MAS-001');
-    state = play([{ type: 'mascot.tick', at: state.bubble!.expiresAt! }], [], CTX, state).state;
-    expect(state.bubble?.messageId).toBe('MSG-MAS-002');
-    state = play([{ type: 'mascot.tick', at: state.bubble!.expiresAt! }], [], CTX, state).state;
+    state = play([{ type: 'mascot.user.closedBubble', at: 62_000 }], [], CTX, state).state;
     expect(state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'map' } });
   });
 
@@ -157,7 +158,7 @@ describe('US2 — Mila ăn mừng tiến độ có thật (US-MAS-02)', () => {
 
   it('MAS-B-051: mã đầu tiên của phiên → AVATAR ăn mừng 051, rung một lần', () => {
     const { state, effects } = play([content(0), { type: 'mascot.slots.changed', at: 5 }, visit(1, 4, 10)]);
-    expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'cheer', animation: 'hop' });
+    expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'cheer', animation: 'milestone' });
     expect(state.bubble?.messageId).toBe('MSG-MAS-051');
     expect(effects).toEqual([{ kind: 'vibrate', ms: 30 }]);
   });
@@ -214,7 +215,7 @@ describe('US2 — Mila ăn mừng tiến độ có thật (US-MAS-02)', () => {
 
 describe('US4 — Kết thúc chuyến cùng Mila (US-MAS-08)', () => {
   const end: Stamped = { type: 'app.route.changed', path: '/trip/end', at: 0 };
-  const ended = (justEnded: boolean, status: 'HOAN_TAT' | 'BO_DO' = 'HOAN_TAT'): Stamped => ({ type: 'm02.trip.ended', status, k: 3, justEnded, at: 10 });
+  const ended = (justEnded: boolean, status: 'HOAN_TAT' | 'BO_DO' = 'HOAN_TAT', n = 5): Stamped => ({ type: 'm02.trip.ended', status, k: 3, n, justEnded, at: 10 });
   const sync = (status: 'PENDING' | 'SYNCED' | 'CONFLICT', online: boolean, at: number): Stamped => ({ type: 'm02.sync.statusChanged', status, online, at });
 
   it('MAS-B-062: vừa kết thúc HOAN_TAT → ăn mừng một lần với {k} rồi về hình tĩnh cạnh huy hiệu (MAS-B-063)', () => {
@@ -382,7 +383,7 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
   it('MAS-B-065: màn kết quả → 065; chạm lần nữa khi còn hiện (màn chỉ một câu) → không đổi, chữ không nháy lại', () => {
     const end = play([
       { type: 'app.route.changed', path: '/trip/end', at: 0 },
-      { type: 'm02.trip.ended', status: 'HOAN_TAT', k: 2, justEnded: false, at: 10 },
+      { type: 'm02.trip.ended', status: 'HOAN_TAT', k: 2, n: 3, justEnded: false, at: 10 },
     ]).state;
     const shown = play([tap(1_000)], [], CTX, end).state;
     expect(shown.bubble?.messageId).toBe('MSG-MAS-065');
@@ -434,5 +435,93 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
     expect(s.view).toMatchObject({ pose: 'confused', animation: 'dizzy' });
     s = play([{ type: 'mascot.user.closedBubble', at: 3_500 }, tap(4_000), tap(4_500), tap(5_000), tap(5_500), tap(6_000)], [], CTX, s).state;
     expect(s.bubble?.messageId).not.toBe('MSG-MAS-085');
+  });
+});
+
+
+describe('v1.1/v1.2 — Ba cấp ăn mừng và câu xác nhận lượt ghé (BR-MAS-23, 24)', () => {
+  const content: Stamped = { type: 'app.route.changed', path: '/trip/qr/Q1a', at: 0 };
+  const visit = (k: number, n: number): Stamped => ({ type: 'm02.visit.recorded', sessionRef: 's', visitRef: `s:c${k}`, k, n, isFinal: false, at: 10 });
+  const at = (k: number, n: number) => play([content, visit(k, n)]).state;
+
+  it('cấp 1 — điểm thường: nhún một lần (success), câu 050 "Đã ghi nhận…", P4', () => {
+    const s = at(4, 6);
+    expect(s.view).toMatchObject({ mode: 'AVATAR', animation: 'success' });
+    expect(s.bubble).toMatchObject({ messageId: 'MSG-MAS-050', priority: 4 });
+  });
+
+  it('cấp 2 — mốc: đầu tiên 051, nửa chặng 055 (n ≥ 4), còn một điểm 058 (n ≥ 3); nhảy hai lần + lá (milestone), P4', () => {
+    expect(at(1, 4)).toMatchObject({ view: { animation: 'milestone' }, bubble: { messageId: 'MSG-MAS-051', priority: 4 } });
+    expect(at(2, 4)).toMatchObject({ view: { animation: 'milestone' }, bubble: { messageId: 'MSG-MAS-055', priority: 4 } });
+    expect(at(3, 4)).toMatchObject({ view: { animation: 'milestone' }, bubble: { messageId: 'MSG-MAS-058', priority: 4 } });
+    expect(at(2, 3).bubble?.messageId).toBe('MSG-MAS-058');
+  });
+
+  it('thứ tự ưu tiên: đầu tiên thắng còn-một-điểm (n = 2, k = 1); n = 3, k = 2 → còn một điểm (không có mốc nửa khi n < 4)', () => {
+    expect(at(1, 2).bubble?.messageId).toBe('MSG-MAS-051');
+    expect(at(2, 3).bubble?.messageId).toBe('MSG-MAS-058');
+  });
+
+  it('cấp 3 — kết thúc chuyến: quét đủ mọi điểm → MAS-B-064 / 063; kết thúc sớm → 062', () => {
+    const end: Stamped = { type: 'app.route.changed', path: '/trip/end', at: 0 };
+    const full = play([end, { type: 'm02.trip.ended', status: 'HOAN_TAT', k: 3, n: 3, justEnded: true, at: 10 }]).state;
+    expect(full.view).toMatchObject({ mode: 'CELEBRATE', behaviorId: 'MAS-B-064' });
+    expect(full.bubble).toMatchObject({ messageId: 'MSG-MAS-063', params: { n: 3 } });
+    const early = play([end, { type: 'm02.trip.ended', status: 'HOAN_TAT', k: 2, n: 3, justEnded: true, at: 10 }]).state;
+    expect(early.bubble).toMatchObject({ messageId: 'MSG-MAS-062', params: { k: 2 } });
+  });
+});
+
+describe('v1.1 — Cử chỉ tự động nhường du khách đang thao tác (BR-MAS-20, 21; Q25)', () => {
+  const zero = { ...CTX, random: () => 0 };
+  const catalog: Stamped[] = [
+    { type: 'app.route.changed', path: '/', at: 0 },
+    { type: 'm01.catalog.loaded', status: 'ready', count: 3, stale: false, slow: false, at: 10 },
+    { type: 'mascot.tick', at: 700 },
+    { type: 'mascot.user.closedBubble', at: 800 },
+  ];
+
+  it('cuộn danh mục ngay trước hạn cử chỉ → không cử chỉ; hẹn lại 8–15 s sau', () => {
+    const s = play([...catalog, { type: 'app.user.activity', at: 8_000 }], [], zero).state;
+    const due = s.timers['ambient']!;
+    const skipped = play([{ type: 'mascot.tick', at: due }], [], zero, s).state;
+    expect(skipped.view?.behaviorId).not.toBe('MAS-B-086');
+    expect(skipped.timers['ambient']).toBe(due + 8_000);
+  });
+
+  it('trang đọc bài không có cử chỉ tự động', () => {
+    const s = play([{ type: 'app.route.changed', path: '/trip/qr/Q1a', at: 0 }, { type: 'm02.scan.resolved', display: 'LIVE', hasSession: true, freeVisitor: false, visitCreated: false, inJourney: true, finalPromptNeeded: false, at: 10 }], [], zero).state;
+    expect(s.timers['ambient']).toBeUndefined();
+  });
+});
+
+describe('v1.1 — Chớp mắt (AN-BLINK, MAS-TC-122; research R-24)', () => {
+  it('cử chỉ chớp mắt chỉ có khi tư thế hiện tại có ảnh mắt nhắm', () => {
+    expect(ambientGestures('map').map((g) => g.id)).toContain('blink');
+    expect(ambientGestures('rest').map((g) => g.id)).toContain('blink');
+    expect(ambientGestures('cheer').map((g) => g.id)).not.toContain('blink');
+    expect(ambientGestures('wave').map((g) => g.id)).not.toContain('blink');
+  });
+
+  it('chớp mắt ở danh mục: giữ nguyên tư thế, animation blink, không chữ; rồi về tư thế cũ', () => {
+    const gestures = ambientGestures('map');
+    const index = gestures.findIndex((g) => g.id === 'blink');
+    // random chọn đúng vị trí của "blink" trong nhóm (không có cử chỉ trước)
+    const pick = { ...CTX, random: () => (index + 0.5) / gestures.length };
+    let s = play(
+      [
+        { type: 'app.route.changed', path: '/', at: 0 },
+        { type: 'm01.catalog.loaded', status: 'ready', count: 3, stale: false, slow: false, at: 10 },
+        { type: 'mascot.tick', at: 700 },
+        { type: 'mascot.user.closedBubble', at: 800 },
+      ],
+      [],
+      pick,
+    ).state;
+    s = play([{ type: 'mascot.tick', at: s.timers['ambient']! }], [], pick, s).state;
+    expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'map', animation: 'blink', behaviorId: 'MAS-B-086' });
+    expect(s.bubble).toBeNull();
+    const back = play([{ type: 'mascot.tick', at: s.hold!.until }], [], pick, s).state;
+    expect(back.view).toMatchObject({ pose: 'map', animation: 'settle' });
   });
 });

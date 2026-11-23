@@ -112,4 +112,4 @@ Người duyệt điền "Người duyệt", "Ngày duyệt" và đổi trạng 
 | 2026-11-23 | Bước 1 §8: spec-M02 §8 (clarification 4: một dòng + change notes); spec-Mascot v1.2 (BR-MAS-02, FR-MAS-009, US-MAS-02, US-MAS-07, BR-MAS-24, `MASCOT_CONFIRM_FALLBACK_MS`, §5.6, SC-MAS-015, OD-MAS-19, 20) | Xong |
 | 2026-11-23 | Bước 2 §8: Behavior Matrix, Dialogue Library (§3.4b), Testing Checklist (§11), screen spec SCR-M01-001…004, SCR-M02-001, 002, 004, function list, README | Xong |
 | 2026-11-23 | Bước 3 §8: gói 005 — spec (SC-MAS-015), research R-26, contracts §4b, quickstart Q27–Q29, tasks T097–T100 (Phase 15) | Xong |
-| — | Bước 4 §8: code Phase 15 → 16 → 17 | Chờ chủ dự án yêu cầu |
+| 2026-11-23 | Bước 4 §8: code Phase 15 (PR #70), 16 (PR #71), 17 (chớp mắt); validation report §11–§13 | Xong, chờ duyệt PR |
