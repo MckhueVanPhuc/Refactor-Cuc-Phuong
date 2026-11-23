@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED** |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04) |
 | Quy tắc repo | AGENTS.md §4: ảnh (không phải icon) chỉ được thêm khi người dùng cung cấp. Agent chỉ cắt, đổi cỡ, nén (người dùng cho phép tạo bản nén 2026-11-20), không vẽ lại nhân vật |
 
 ## 1. Kiểm tra artwork hiện có (Stage 1)
@@ -80,18 +80,18 @@ Cột Status: **NEEDED-v1** (tối thiểu cho bản đầu), **v1.1**, **v2**, 
 |---|---|---|---|---|---|---|---|
 | MA-01 | wave | Tư thế toàn thân | Vẫy tay chào, cười | WebP 240/480 (gốc PNG 1024) | INTRO, DOCK | MAS-B-001, 004, 030, 034 | READY 2026-11-22 |
 | MA-02 | map | Tư thế toàn thân | Cầm bản đồ, tò mò | WebP 240/480 | DOCK hero, trip | MAS-B-002, 003, 005, 056 | READY 2026-11-22 |
-| MA-03 | think | Nửa thân | Tay chống cằm, nghiêng đầu | WebP 240/480 | AVATAR, INLINE | MAS-B-010, 012, 052 | NEEDED-v1.1 — bắt buộc trước US5/US6 (đợt 2) |
+| MA-03 | think | Nửa thân | Tay chống cằm, nghiêng đầu | WebP 240/480 | AVATAR, INLINE | MAS-B-010, 012, 052 | READY 2026-11-23 |
 | MA-04 | backpack | Tư thế toàn thân | Kéo quai ba lô, sẵn sàng | WebP 240/480 | Panel gói, dialog offline | MAS-B-016, 020, 026, 054, 070, 074 | READY 2026-11-22 |
 | MA-05 | binoculars | Tư thế toàn thân | Nhìn ống nhòm | WebP 240/480 | DOCK trip (chưa quét), scanner idle | MAS-B-033, 041 | READY 2026-11-22 |
-| MA-06 | magnifier | Nửa thân | Cầm kính lúp | WebP 240/480 | BUSY khi tra mã | MAS-B-043, 044 | NEEDED-v1.1 — bắt buộc trước US5/US6 (đợt 2) |
+| MA-06 | magnifier | Nửa thân | Cầm kính lúp | WebP 240/480 | BUSY khi tra mã | MAS-B-043, 044 | READY 2026-11-23 |
 | MA-07 | thumbs-up | Nửa thân | Giơ ngón cái, cười | WebP 240/480 | Thành công | MAS-B-011, 021, 050, 061, 071, 075 | READY 2026-11-22 |
 | MA-08 | cheer | Tư thế toàn thân | Hai tay giơ cao, nhảy | WebP 240/480 | Ăn mừng | MAS-B-051, 055, 060, 062, 063 | READY 2026-11-22 |
 | MA-09 | confused | Nửa thân | Gãi đầu, bối rối nhẹ (không buồn bã) | WebP 240/480 | Lỗi, INLINE | MAS-B-007, 015, 022, 024, 025, 031, 038, 046, 047, 072 | READY 2026-11-22 |
 | MA-10 | rest | Tư thế toàn thân | Ngồi nghỉ, thư thái | WebP 240/480 | Trạng thái rỗng, nhắc nghỉ | MAS-B-006, 023, 049, 057 | READY 2026-11-22 |
 | MA-11 | avatar | Avatar tròn | Mặt cười, khăn, nền tròn xanh | WebP 96/192 | Đầu bong bóng AVATAR | MAS-B-010, 014, 040, 050 (AVATAR) | READY 2026-11-22 |
-| MA-13 | point | Nửa thân | Chỉ tay sang ngang | WebP 240/480 | Hướng dẫn | MAS-B-008, 009, 013, 014, 032, 040, 042, 048, 059 | NEEDED-v1.1 — bắt buộc trước US5/US6 (đợt 2) |
+| MA-13 | point | Nửa thân | Chỉ tay sang ngang | WebP 240/480 | Hướng dẫn | MAS-B-008, 009, 013, 014, 032, 040, 042, 048, 059 | READY 2026-11-23 |
 | MA-12 | sorry | Nửa thân | Buồn nhẹ, xin lỗi | WebP 240/480 | `CONFLICT` | MAS-B-072 (v1 dùng MA-09) | v1.1 |
-| MA-20 | blink | Khung phụ | Bản **mắt nhắm** của các tư thế DOCK: map, binoculars, thumbs-up, backpack, rest (cheer đã nhắm mắt). Tệp `ma-20-<tư thế>-blink.png`, cùng khung và vị trí với ảnh gốc, chỉ khác mắt | WebP 240 (cùng cỡ ảnh gốc) | Chớp mắt ở DOCK (AN-BLINK, cử chỉ tự động) | MAS-B-086 | NEEDED-v1.1 (đợt 3) |
+| MA-20 | blink | Khung phụ | Bản **mắt nhắm** của các tư thế DOCK: map, binoculars, thumbs-up, backpack, rest (cheer đã nhắm mắt). Tệp `ma-20-<tư thế>-blink.png`, cùng khung và vị trí với ảnh gốc, chỉ khác mắt | WebP 240 (cùng cỡ ảnh gốc) | Chớp mắt ở DOCK (AN-BLINK, cử chỉ tự động) | MAS-B-086 | READY 2026-11-23 (vùng mắt ghép lên ảnh gốc, assets/mascot/README.md) |
 | MA-21 | wave-seq | Sprite | 8 khung vẫy tay | WebP sprite | INTRO | MAS-B-001 | v2 |
 | MA-22 | cheer-seq | Sprite | 8 khung ăn mừng | WebP sprite | CELEBRATE | MAS-B-062 | v2 |
 | FX-01 | leaf | Hiệu ứng | Lá rơi: dùng lại `assets/icons/leaf.svg` làm mask (design-system §7) | SVG có sẵn | CELEBRATE, HOP | MAS-B-062 | Có sẵn |
@@ -124,7 +124,7 @@ Mọi animation dùng CSS (`transform`, `opacity`), lấy thời lượng từ t
 |---|---|---|---|---|---|---|---|---|
 | AN-ENTER | — | Tư thế ngữ cảnh | Mờ dần vào + nâng 8 px | 250 ms ease-out | Một lần | Vào slot | AN-BREATHE (DOCK) | CSS |
 | AN-EXIT | Bất kỳ | — | Mờ dần ra | 150–200 ms ease-in | Một lần | Rời slot, SUPPRESSED | — | CSS |
-| AN-INTRO | — | MA-01 → MA-02 | Trượt lên từ mép dưới 24 px + mờ vào; bong bóng bật sau 150 ms | 300 ms | Một lần | MAS-B-001 | AN-SHRINK | CSS (v2: sprite MA-21) |
+| AN-INTRO | — | MA-01 | Lớp phủ mờ vào; Mila trượt lên 24 px ở giữa màn; bong bóng bật sau 150 ms (v1.3) | 300 ms | Một lần | MAS-B-001 | Lớp phủ mờ đi → DOCK hero (AN-ENTER) | CSS (v2: sprite MA-21) |
 | AN-SHRINK | INTRO | DOCK | Thu nhỏ về slot DOCK | 250 ms ease-out | Một lần | Hết INTRO | AN-BREATHE | CSS |
 | AN-POP | Hiện tại | Tư thế mới | Crossfade tư thế 150 ms + scale 0,94 → 1 | 200 ms | Một lần | Mỗi bong bóng mới | Giữ | CSS |
 | AN-SETTLE | `SPEAKING` | `IDLE` | Bong bóng mờ dần và co lại 4 px; mascot giữ tư thế | 150 ms ease-in | Một lần | Bong bóng kết thúc | AN-BREATHE (DOCK) | CSS |

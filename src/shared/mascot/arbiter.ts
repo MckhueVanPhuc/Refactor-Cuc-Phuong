@@ -1,10 +1,12 @@
 // Trọng tài ưu tiên của Mila (spec-Mascot BR-MAS-05…08, 17, 19; specs/005 research R-05). Hàm thuần: nhận bản nháp
 // state đã sao chép và thời điểm, ghi kết quả vào bản nháp đó.
 import {
+  MASCOT_INTERACTION_GRACE_MS,
   MASCOT_PROACTIVE_LIMIT,
   MASCOT_PROACTIVE_WINDOW_MS,
   MASCOT_QUEUE_TTL_MS,
   MASCOT_SAME_PRIORITY_MIN_MS,
+  MASCOT_TYPE_CPS,
   MASCOT_VIBRATION_MS,
 } from './config';
 import { MESSAGE_META, messageText } from './dialogue/catalog';
@@ -13,6 +15,11 @@ import type { Effect, Intent, MascotState, StepContext } from './types';
 /** Thời gian đọc bong bóng không có nút: 3–7 giây (spec-Mascot §5.4). */
 export function readingTimeMs(text: string): number {
   return Math.min(7_000, Math.max(3_000, 1_200 + 45 * text.length));
+}
+
+/** Thời gian chữ hiện dần hết câu (spec-Mascot v1.1 §5.4, `MASCOT_TYPE_CPS`). */
+export function typingTimeMs(text: string): number {
+  return Math.ceil((text.length * 1000) / MASCOT_TYPE_CPS);
 }
 
 const isProactive = (intent: Intent) => intent.priority >= 5 && Boolean(intent.message);
@@ -31,7 +38,8 @@ export function clearPresence(s: MascotState): void {
  */
 function enqueue(s: MascotState, intent: Intent, now: number, reason: 'slot' | 'busy'): void {
   if (reason === 'busy' && intent.priority > 4) return;
-  if (s.queued && s.queued.intent.priority < intent.priority) return;
+  // Câu mang sang từ màn trước nhường chỗ cho câu của chính màn mới (v1.1: 051 mang sang không được chặn 056 khi quay lại)
+  if (s.queued && !s.queued.carried && s.queued.intent.priority < intent.priority) return;
   s.queued = { intent, at: now, reason };
 }
 
@@ -40,9 +48,12 @@ export function admit(s: MascotState, intent: Intent, ctx: StepContext, now: num
   if (s.failed || s.closed || !s.visible) return false;
   if (s.blockers.length > 0 && intent.priority > 1) return false;
   if (!carried && intent.once && s.once[intent.once]) return false;
+  // "Đang thao tác" (BR-MAS-20): hướng dẫn theo hẹn giờ, lời nhắc, cử chỉ tự động không chen vào lúc du khách vừa chạm,
+  // cuộn hay bấm phím. Kết quả trực tiếp của thao tác (không có `source`) vẫn chạy.
+  if (intent.source && s.lastActivityAt !== null && now - s.lastActivityAt < MASCOT_INTERACTION_GRACE_MS) return false;
 
   const meta = intent.message ? MESSAGE_META[intent.message.id] : undefined;
-  if (!carried && intent.message && meta) {
+  if (!carried && intent.message && meta && !intent.requested) {
     const last = s.lastShownAt[intent.message.id];
     if (last !== undefined && now - last < meta.cooldownMs) return false;
   }
@@ -67,7 +78,8 @@ export function admit(s: MascotState, intent: Intent, ctx: StepContext, now: num
       if (intent.message) enqueue(s, intent, now, 'busy');
       return false;
     }
-    if (intent.priority === current.priority && now - current.shownAt < MASCOT_SAME_PRIORITY_MIN_MS) {
+    // Du khách chủ động chạm: câu mới thay ngay câu cùng mức (BR-MAS-22), không chờ
+    if (intent.priority === current.priority && now - current.shownAt < MASCOT_SAME_PRIORITY_MIN_MS && !intent.requested) {
       enqueue(s, intent, now, 'busy');
       return false;
     }
@@ -97,7 +109,8 @@ function apply(s: MascotState, intent: Intent, ctx: StepContext, now: number, ef
       ...(intent.message.params ? { params: intent.message.params } : {}),
       priority: intent.priority,
       shownAt: now,
-      expiresAt: meta.autoHide ? now + readingTimeMs(text) : null,
+      // Thời gian đọc tính từ khi chữ hiện đủ (Dialogue Library §2, v1.1)
+      expiresAt: meta.autoHide ? now + (ctx.typing ? typingTimeMs(text) : 0) + readingTimeMs(text) : null,
       ...(intent.then && intent.holdMs === undefined ? { then: intent.then } : {}),
       intent,
     };

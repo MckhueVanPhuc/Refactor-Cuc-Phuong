@@ -157,4 +157,5 @@ Người duyệt điền "Người duyệt", "Ngày duyệt" và đổi trạng 
 | 2026-11-22 | Duyệt brief | APPROVED |
 | 2026-11-22 | Bước 1 §9: spec-Mascot v1.0 → v1.1 (BR-MAS-11, 12, 17 sửa; BR-MAS-20…23; US-MAS-09; FR-MAS-011, 012; SC-MAS-011…014; §5.4; §5.6 câu 012, 033, 043, 058, 063, 065, 085; OD-MAS-17, 18) | Xong |
 | 2026-11-22 | Bước 2 §9: Behavior Matrix (§3a, MAS-B-036, 037, 064–066, 085–089; sửa 009, 032, 050, 051, 055, 062), State Machine (§2 cỡ, §6.5–6.7), Asset spec (animation, §6.1 luật, MA-20, đợt 2), Dialogue Library (§3.4a, nhãn công tắc), Image Production Guide (§8 đợt 2, 3), Testing Checklist (§10), Technical spec, Roadmap (G8b), README; design-system (§4.3, §9.2, §9.3, §9.5 mới); screen spec SCR-M01-001…004, SCR-M02-001…004 (phần tử công tắc, bảng copy); screen list M01/M02; function-list-Mascot (SF-MAS-001-08…10, 003-09, 005-06 — tài liệu dẫn xuất từ spec, cùng loại với v1.0 dù §4.1 không liệt kê); README.md, docs/README.md | Xong |
-| — | Bước 3 §9: gói Spec-Kit 005 (spec, plan, tasks…) | Chưa bắt đầu |
+| 2026-11-22 | Bước 3 §9: gói Spec-Kit 005 — spec (US9), research R-17…R-25, plan, data-model, contracts, quickstart Q18…Q26, tasks Phase 12–17 (T075–T096), rà phủ ghi ở validation-report §7 | Xong |
+| — | Bước 4 §9: code theo tasks (Phase 12 → 13 → 10 + 14 → 15 → 16 → 17) | Đang làm |

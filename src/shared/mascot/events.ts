@@ -49,19 +49,23 @@ export type MascotEvent =
   | { type: 'm02.finalPrompt.opened' }
   | { type: 'm02.finalPrompt.continued' }
   | { type: 'm02.finalPrompt.ended' }
-  | { type: 'm02.trip.ended'; status: 'HOAN_TAT' | 'BO_DO'; k: number; justEnded: boolean }
+  | { type: 'm02.trip.ended'; status: 'HOAN_TAT' | 'BO_DO'; k: number; n: number; justEnded: boolean }
   | { type: 'm02.sync.statusChanged'; status: 'PENDING' | 'SYNCED' | 'CONFLICT'; online: boolean }
   // App
   | { type: 'app.dialog.changed'; open: boolean; kind: 'FINAL_PROMPT' | 'OTHER' }
   | { type: 'app.route.changed'; path: string }
   | { type: 'app.visibility.changed'; visible: boolean }
   | { type: 'app.network.changed'; online: boolean }
+  /** Du khách chạm, cuộn hoặc bấm phím (host gộp 250 ms; research R-19). Không đi qua bus của module. */
+  | { type: 'app.user.activity' }
   // Du khách thao tác với Mila
   | { type: 'mascot.user.tapped' }
   | { type: 'mascot.user.closedBubble' }
   | { type: 'mascot.user.ctaPressed'; cta: CtaId }
   // Nội bộ host/engine (không module nào phát)
   | { type: 'mascot.tick' }
+  /** Công tắc "Chuyển động" ở thanh đầu trang (v1.1, BR-MAS-21) */
+  | { type: 'mascot.motion.changed'; on: boolean }
   | { type: 'mascot.timer'; name: string }
   | { type: 'mascot.slots.changed' }
   | { type: 'mascot.asset.failed' };

@@ -23,9 +23,10 @@ async function recordMascot(page: Page) {
 }
 const seen = (page: Page) => page.evaluate(() => (window as unknown as SeenWindow).__mascotSeen ?? []);
 
-type Options = { intake: (route: Route) => Promise<void>; offline?: BrowserContext };
+/** `before`: mã quét trước điểm cuối Q3 (fixture: C1 Q1a, C2 Q2, C3 Q3) — v1.1 Q23: quét đủ 3 điểm → 063 */
+type Options = { intake: (route: Route) => Promise<void>; offline?: BrowserContext; before?: readonly string[] };
 
-async function endTrip(page: Page, { intake, offline }: Options) {
+async function endTrip(page: Page, { intake, offline, before = [] }: Options) {
   await recordMascot(page);
   await page.addInitScript(() => Object.defineProperty(navigator, 'language', { get: () => 'vi-VN' }));
   await page.route('**/functions/v1/session-intake', intake);
@@ -37,6 +38,13 @@ async function endTrip(page: Page, { intake, offline }: Options) {
   await expect(page.getByText(vi.notice.sessionStartHint)).toBeVisible();
   if (offline) await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
   await page.waitForFunction(() => Boolean((window as unknown as M02TestWindow).__cpqTestHooks?.m02?.scan));
+  for (const qr of before) {
+    await page.evaluate((text) => (window as unknown as M02TestWindow).__cpqTestHooks!.m02!.scan!(text), `http://localhost:4173/q/${qr}`);
+    await expect(page).toHaveURL(new RegExp(`/trip/qr/${qr}$`));
+    await page.getByRole('link', { name: vi.content.back }).click();
+    await expect(page).toHaveURL(/\/trip$/);
+    await page.waitForFunction(() => Boolean((window as unknown as M02TestWindow).__cpqTestHooks?.m02?.scan));
+  }
   if (offline) await offline.setOffline(true);
   await page.evaluate(() => (window as unknown as M02TestWindow).__cpqTestHooks!.m02!.scan!('http://localhost:4173/q/Q3'));
   await page.waitForFunction(() => {
@@ -50,7 +58,7 @@ async function endTrip(page: Page, { intake, offline }: Options) {
 const accept = (route: Route) => route.fulfill({ status: 200, json: { result: 'ACCEPTED' } });
 const dock = (page: Page) => page.locator('[data-mascot-slot="end-hero"] [data-mascot-mode="DOCK"]');
 
-test('Q12 — vừa kết thúc: Mila ăn mừng một lần (062) rồi đứng yên cạnh huy hiệu; tải lại: chỉ hình tĩnh', async ({ page }) => {
+test('Q12, Q24 — kết thúc sớm (1/3 điểm): Mila ăn mừng một lần (062) rồi đứng yên cạnh huy hiệu; tải lại: chỉ hình tĩnh', async ({ page }) => {
   await endTrip(page, { intake: accept });
   await expect.poll(() => seen(page)).toContain('MSG-MAS-062');
   await expect(page.locator('[data-mascot-message="MSG-MAS-062"]')).toContainText('1');
@@ -64,11 +72,23 @@ test('Q12 — vừa kết thúc: Mila ăn mừng một lần (062) rồi đứng
   await expect(page.locator('[data-mascot-mode="CELEBRATE"]')).toHaveCount(0);
 });
 
+test('Q23 — quét đủ mọi điểm rồi kết thúc: câu 063 "đủ 3 điểm" thay 062 (MAS-B-064, BR-MAS-23 cấp 3)', async ({ page }) => {
+  await endTrip(page, { intake: accept, before: ['Q1a', 'Q2'] });
+  await expect.poll(() => seen(page)).toContain('MSG-MAS-063');
+  expect(await seen(page)).not.toContain('MSG-MAS-062');
+  await expect(page.locator('[data-mascot-message="MSG-MAS-063"]')).toHaveText('Bạn đã quét đủ 3 điểm của tuyến. Tuyệt vời!');
+  await expect(dock(page)).toBeVisible({ timeout: 10_000 });
+});
+
 test('kết thúc khi mất sóng → "Chờ gửi", Mila nói chuyến đã lưu trên máy (070), không nói "đã gửi"', async ({ page, context }) => {
   // page.route vẫn chạy khi context offline: mock phải tự trả lỗi mạng (như mockIntake của sync.spec.ts)
   await endTrip(page, { intake: (route) => route.abort('internetdisconnected'), offline: context });
   await expect(page.getByText(vi.end.syncPending)).toBeVisible();
-  await expect.poll(() => seen(page), { timeout: 15_000 }).toEqual(['MSG-MAS-062', 'MSG-MAS-070']);
+  // Trước đó có thể có câu khác của chuyến (v1.1: 030 khi bắt đầu chuyến); chỉ kiểm 062 rồi 070
+  await expect.poll(() => seen(page), { timeout: 15_000 }).toContain('MSG-MAS-070');
+  const said = await seen(page);
+  expect(said.indexOf('MSG-MAS-062')).toBeGreaterThanOrEqual(0);
+  expect(said.indexOf('MSG-MAS-062')).toBeLessThan(said.indexOf('MSG-MAS-070'));
   await context.setOffline(false);
 });
 
