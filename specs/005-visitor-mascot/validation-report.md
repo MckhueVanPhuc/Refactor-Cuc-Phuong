@@ -386,3 +386,45 @@ Branch `feat/mascot-v11-motion`, tách từ `feat/mascot-v11-bubble` (PR #66). T
 | DV-43 | Nhóm cử chỉ tự động v1: nhìn ống nhòm, vẫy, nhún, nghiêng đầu, kéo quai ba lô. "Thở" (AN-BREATHE 4,8 s) không vào nhóm vì cử chỉ tự động ≤ 1,5 s; chớp mắt vào nhóm ở Phase 17 khi có ảnh | Áp dụng |
 | DV-44 | MAS-B-004 (chào lại) nói xong thì về tư thế bản đồ của danh mục (`then`), không giữ tư thế vẫy tay — để cử chỉ tự động có tư thế ngữ cảnh đúng | Áp dụng |
 | DV-45 | Lịch cử chỉ đặt bởi máy trạng thái sau mỗi bước (điều kiện hết → bỏ hẹn), thay vì chỉ trong luật; luật \`MAS-B-086\` chọn cử chỉ khi tới hạn | Áp dụng |
+
+## 10. Đợt 2026-11-23 — Ảnh đợt 2, ảnh mắt nhắm; Phase 10 + 14: hỏi Mila theo ngữ cảnh, chạm nhiều lần (v1.1)
+
+Branch `feat/mascot-v11-taps`, tách từ `feat/mascot-v11-motion` (PR #67). Task: T063–T066, T087, T088; một phần T096 (ảnh).
+
+### 10.1 Ảnh (chủ dự án giao và xác nhận quyền sử dụng 2026-11-23)
+
+| Ảnh | Kiểm | Xử lý |
+|---|---|---|
+| `ma-03-think`, `ma-06-magnifier`, `ma-13-point` | 1254×1254, RGBA nền trong suốt, nửa thân chạm đáy | Xuất WebP 240/480 như đợt 1 |
+| `ma-20-{map,binoculars,thumbs-up,backpack,rest}-blink` | Nhắm đủ hai mắt; nhưng 2048×2048, **không trong suốt** (nền trắng), cả ảnh được vẽ lại (≈ 3% điểm ảnh khác ảnh gốc, sai số trung bình 9/255) | Thu về 1254 px (khớp vị trí, độ lệch 0,0); **chỉ ghép vùng mắt** (1,7–2,9% diện tích, mép mờ) lên ảnh gốc; xuất cùng cách căn với ảnh gốc. Đường ghép không thấy ở mức phóng 3× |
+
+Precache: 17 ảnh nhỏ, 205,4 KB; ảnh lớn 551,2 KB nạp khi cần. Ảnh gốc mới trong `source/`: 27 MB (riêng 5 ảnh mắt nhắm 2048 px ≈ 22 MB).
+
+### 10.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `rules.test.ts` US8 v1.1 (009 → 012, không cooldown khi chạm, 032/033/043, 059, 065, 030, 034, 056, chạm dồn, chóng mặt) | FAIL 9 ca; ca chạm dồn đạt ngay |
+| `machine.test.ts` (câu mang sang nhường chỗ hàng đợi; chỉ P4 được mang sang) | FAIL 2 ca |
+| `e2e/m02/mascot-companion.spec.ts` (Q21, Q22), ca Q16 trong `e2e/m01/mascot-intro.spec.ts` | Q21, Q22 FAIL — tìm ra DV-46…48 |
+
+### 10.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 734; 2376 pass, 133 skipped; build OK |
+| `npx playwright test e2e/m02/mascot-companion.spec.ts e2e/m02/mascot-visit.spec.ts e2e/m01/mascot-intro.spec.ts` | 0 | 9 pass |
+| `npx playwright test` (cổng đã kiểm trống) | 1 | 142 pass, 1 fail (`mascot-end` offline: test cũ đòi đúng dãy câu `062, 070`; giờ có thêm 030 lúc bắt đầu chuyến — DV-50), 46 skipped |
+| `npx playwright test e2e/m02/mascot-end.spec.ts --repeat-each=3` sau khi sửa test | 0 | 9/9 |
+
+### 10.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-46 | Bộ chống trùng 500 ms (BR-MAS-06) nuốt lần chạm thứ 5 cách lần trước 490 ms (mọi lần chạm cùng payload). `mascot.user.tapped`, `closedBubble`, `ctaPressed` nay không chống trùng; chạm dồn do luật xử lý (`MASCOT_TAP_DEBOUNCE_MS`) | Áp dụng |
+| DV-47 | Đổi màn mang theo mọi câu ≤ P4; câu chạm 032 (P3) theo sang trang nội dung, chặn 051, rồi theo về và chặn 056. Nay chỉ câu thành công **P4** được mang sang (đúng BR-MAS-20 "rời màn") | Áp dụng |
+| DV-48 | Hàng đợi một chỗ: câu mang sang từ màn trước nhường chỗ cho câu của chính màn mới đang chờ slot (bổ sung DV-27) | Áp dụng |
+| DV-49 | Chạm khi câu hướng dẫn của màn chỉ có một câu đang hiện: không đổi gì (không nhún lại), để chữ không nháy; spec ghi "chỉ nhún nhẹ" | Ghi nhận |
+| DV-50 | `e2e/m02/mascot-end.spec.ts` (offline) đổi từ "đúng dãy 062, 070" sang "062 trước 070", vì giờ có câu 030 khi bắt đầu chuyến; `mascot-visit` Q4 chờ câu 056 rồi mới kiểm tư thế bản đồ | Áp dụng |
+| DV-51 | Câu chạm có cờ `requested`: bỏ cooldown và thay ngay câu cùng mức P3 đang hiện (không chờ 1,5 s) | Áp dụng |
+| DV-52 | Cửa sổ "5 lần trong 3 giây" tính từ lần chạm đầu của chuỗi (không trượt) | Ghi nhận |

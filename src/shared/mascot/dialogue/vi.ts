@@ -1,7 +1,8 @@
 // Lời thoại tiếng Việt của Mila. Chép nguyên văn spec-Mascot §5.6 và bảng copy screen spec SCR-M01-001…004,
 // SCR-M02-001…004 (đã đồng bộ 2026-11-21). Không chuỗi nào nói "đã đến/có mặt" (SC-M02-013).
 /** `cheer`: chỉ số trong `cheers` của ngôn ngữ đang hiển thị (đổi VI/EN không ra câu lai). */
-export type MessageParams = { k?: number; n?: number; count?: number; cheer?: number };
+/** `r`: số điểm còn lại (n − k) cho câu chạm giữa chặng. */
+export type MessageParams = { k?: number; n?: number; r?: number; count?: number; cheer?: number };
 type Text = string | ((p: MessageParams) => string);
 
 const NAME = 'Mila';
@@ -13,6 +14,7 @@ export const vi = {
     'MSG-MAS-002': 'Mình sẽ đi cùng bạn suốt hành trình. Chọn một tuyến nhé!',
     'MSG-MAS-004': 'Chào mừng bạn quay lại! Hôm nay mình đi tuyến nào đây?',
     'MSG-MAS-005': 'Mình đang mở bản đồ các tuyến…',
+    'MSG-MAS-012': 'Chưa biết chọn tuyến nào? Bấm Gợi ý tuyến nhé.',
     'MSG-MAS-008': 'Chưa biết chọn tuyến nào? Để mình gợi ý cho.',
     'MSG-MAS-009': 'Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến.',
     'MSG-MAS-010': 'Bạn có bao lâu, đi cùng ai, thích gì? Chọn mỗi nhóm một ý nhé.',
@@ -26,6 +28,8 @@ export const vi = {
     'MSG-MAS-026': 'Vẫn chưa được. Có mạng thì bạn vẫn đi được, chỉ vài điểm cần sóng để xem.',
     'MSG-MAS-030': 'Ở mỗi điểm dừng, tìm tem QR rồi bấm Quét QR nhé.',
     'MSG-MAS-032': 'Thấy tem thì bấm Quét QR. Chạm điểm đã quét để đọc lại nhé.',
+    'MSG-MAS-033': ({ r = 0 }) => `Còn ${r} điểm nữa. Thấy tem thì bấm Quét QR nhé.`,
+    'MSG-MAS-043': 'Đưa tem vào giữa khung, giữ máy yên một chút nhé.',
     'MSG-MAS-034': 'Chào mừng quay lại! Hành trình của bạn vẫn còn nguyên.',
     'MSG-MAS-040': 'Đưa tem QR vào giữa khung và giữ máy yên một chút.',
     'MSG-MAS-042': 'Chưa quét được? Thử lại gần hơn và tránh chỗ chói nắng.',
@@ -45,6 +49,8 @@ export const vi = {
     'MSG-MAS-057d': 'Đi đúng đường mòn để an toàn cho bạn và cho rừng.',
     'MSG-MAS-057e': 'Đừng cho thú ăn nhé, đồ ăn của người không tốt cho chúng.',
     'MSG-MAS-059': 'Vuốt ảnh để xem thêm, kéo xuống để đọc phần giới thiệu.',
+    'MSG-MAS-065': 'Cảm ơn bạn đã đi cùng mình hôm nay!',
+    'MSG-MAS-085': 'Ui, chóng mặt quá!',
     'MSG-MAS-061': 'Được thôi! Khi sẵn sàng, nút Kết thúc chuyến vẫn ở đây.',
     'MSG-MAS-062': ({ k = 0 }) => `Hôm nay mình đã cùng bạn quét ${k} điểm. Vui ghê!`,
     'MSG-MAS-070': 'Chuyến đi đã lưu trên máy. Lần tới có sóng và mở app, mình sẽ gửi đi.',

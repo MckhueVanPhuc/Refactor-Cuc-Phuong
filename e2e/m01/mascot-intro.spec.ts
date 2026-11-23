@@ -75,3 +75,17 @@ test('Q13 — giảm chuyển động: Mila hiện nhưng không animation nào 
   const running = await mascot.evaluate((element) => element.getAnimations({ subtree: true }).filter((a) => a.playState === 'running').length);
   expect(running).toBe(0);
 });
+
+test('Q16 — danh mục: chạm Mila → 009; chạm lần nữa khi còn hiện → 012 (v1.1, BR-MAS-12)', async ({ page }) => {
+  await mockPublication(page);
+  await page.goto('/');
+  await chooseLanguage(page);
+  await page.reload();
+  await expect(page.locator('[data-mascot-message="MSG-MAS-004"]')).toBeVisible();
+  await page.getByRole('button', { name: 'Đóng lời nhắn' }).click();
+  await page.getByRole('button', { name: 'Hỏi Mila' }).click();
+  await expect(page.locator('[data-mascot-message="MSG-MAS-009"]')).toBeVisible();
+  await page.waitForTimeout(450);
+  await page.getByRole('button', { name: 'Hỏi Mila' }).click();
+  await expect(page.locator('[data-mascot-message="MSG-MAS-012"]')).toHaveText('Chưa biết chọn tuyến nào? Bấm Gợi ý tuyến nhé.');
+});

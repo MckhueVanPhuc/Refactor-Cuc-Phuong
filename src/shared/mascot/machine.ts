@@ -28,6 +28,10 @@ const STATE_SIGNALS: ReadonlySet<MascotEventType> = new Set([
   'm02.notice.autoEndShown',
   'm02.notice.autoEndHidden',
   'mascot.motion.changed',
+  // Thao tác của du khách không phải tín hiệu lặp: chạm dồn đã có luật riêng (BR-MAS-22, MASCOT_TAP_DEBOUNCE_MS)
+  'mascot.user.tapped',
+  'mascot.user.closedBubble',
+  'mascot.user.ctaPressed',
 ]);
 const DEDUPE_KEEP_MS = 5_000;
 
@@ -197,7 +201,8 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
     case 'app.route.changed': {
       const bubble = s.bubble;
       // Câu thành công (P4) vừa phát ở màn cũ được mang sang màn mới (lượt ghé mới → điều hướng sang nội dung)
-      const carry = bubble && bubble.priority <= 4 && now - bubble.shownAt < MASCOT_SAME_PRIORITY_MIN_MS ? bubble.intent : null;
+      // Chỉ câu thành công (P4) được mang sang (BR-MAS-20 "rời màn"); câu chạm hay lỗi của màn cũ không theo sang
+      const carry = bubble && bubble.priority === 4 && now - bubble.shownAt < MASCOT_SAME_PRIORITY_MIN_MS ? bubble.intent : null;
       clearPresence(s);
       s.timers = {};
       s.closed = false;

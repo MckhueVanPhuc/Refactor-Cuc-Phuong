@@ -212,7 +212,13 @@ export function ScanContent({
       {/* Gợi ý khách tự do sau nội dung, như mockup-SCR-M02-004: du khách thấy nội dung trước */}
       {scan?.freeVisitor && <FreeVisitorHint />}
       {showBack && (
-        <Link className={styles.back} to={backTo}>
+        <Link
+          className={styles.back}
+          to={backTo}
+          // Mila nhắc cất máy khi quay về hành trình sau một lượt ghé mới (spec-Mascot BR-MAS-13; specs/005 T066).
+          // Chỉ phát tín hiệu; điều hướng của link giữ nguyên
+          onClick={() => emitMascotEvent({ type: 'm02.content.backPressed', afterNewVisit: Boolean(scan?.visitCreated && !scan.finalPromptNeeded) })}
+        >
           {messages.content.back}
         </Link>
       )}

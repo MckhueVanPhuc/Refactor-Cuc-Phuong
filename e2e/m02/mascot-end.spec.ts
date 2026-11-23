@@ -68,7 +68,11 @@ test('kết thúc khi mất sóng → "Chờ gửi", Mila nói chuyến đã lư
   // page.route vẫn chạy khi context offline: mock phải tự trả lỗi mạng (như mockIntake của sync.spec.ts)
   await endTrip(page, { intake: (route) => route.abort('internetdisconnected'), offline: context });
   await expect(page.getByText(vi.end.syncPending)).toBeVisible();
-  await expect.poll(() => seen(page), { timeout: 15_000 }).toEqual(['MSG-MAS-062', 'MSG-MAS-070']);
+  // Trước đó có thể có câu khác của chuyến (v1.1: 030 khi bắt đầu chuyến); chỉ kiểm 062 rồi 070
+  await expect.poll(() => seen(page), { timeout: 15_000 }).toContain('MSG-MAS-070');
+  const said = await seen(page);
+  expect(said.indexOf('MSG-MAS-062')).toBeGreaterThanOrEqual(0);
+  expect(said.indexOf('MSG-MAS-062')).toBeLessThan(said.indexOf('MSG-MAS-070'));
   await context.setOffline(false);
 });
 

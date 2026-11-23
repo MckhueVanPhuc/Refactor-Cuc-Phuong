@@ -19,7 +19,8 @@ export type AnimationId =
   | 'pack'
   | 'thumb'
   | 'celebrate'
-  | 'wave';
+  | 'wave'
+  | 'dizzy';
 export type Status = 'HIDDEN' | 'INTRO' | 'IDLE' | 'SPEAKING' | 'BUSY' | 'CELEBRATING' | 'SUPPRESSED';
 export type Blocker = 'DIALOG' | 'MEDIA' | 'AUTO_END';
 
@@ -30,6 +31,8 @@ export type Intent = {
   mode: Mode;
   pose: PoseId;
   animation?: AnimationId;
+  /** Du khách chủ động hỏi (chạm Mila): không cooldown (BR-MAS-12, v1.1) */
+  requested?: boolean;
   message?: { id: MessageId; params?: MessageParams };
   /** Trạng thái hiển thị trong lúc giữ (`holdMs`): đang chờ hệ thống, đang ăn mừng */
   status?: 'BUSY' | 'CELEBRATING';

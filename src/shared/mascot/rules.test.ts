@@ -330,3 +330,109 @@ describe('v1.1 — Cử chỉ tự động (MAS-B-086, BR-MAS-21)', () => {
     expect(reading.timers['ambient']).toBeUndefined();
   });
 });
+
+describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
+  const tap = (at: number): Stamped => ({ type: 'mascot.user.tapped', at });
+  const catalogDock = () => {
+    let s = play([{ type: 'app.route.changed', path: '/', at: 0 }, { type: 'm01.catalog.loaded', status: 'ready', count: 3, stale: false, slow: false, at: 10 }]).state;
+    s = play([{ type: 'mascot.tick', at: 700 }], [], CTX, s).state;
+    return play([{ type: 'mascot.user.closedBubble', at: 800 }], [], CTX, s).state;
+  };
+  const trip = (k: number, n = 3, finalVisited = false) =>
+    play([
+      { type: 'app.route.changed', path: '/trip', at: 0 },
+      { type: 'm02.trip.shown', hasSession: true, k, n, finalVisited, at: 10 },
+    ]).state;
+
+  it('MAS-B-009 → 012: danh mục, chạm → câu 009 (P3, nhún, tư thế chỉ tay); chạm lần nữa khi còn hiện → 012; hết câu → về tư thế bản đồ', () => {
+    let s = play([tap(1_000)], [], CTX, catalogDock()).state;
+    expect(s.bubble).toMatchObject({ messageId: 'MSG-MAS-009', priority: 3 });
+    expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'point', animation: 'hop' });
+    s = play([tap(1_600)], [], CTX, s).state;
+    expect(s.bubble?.messageId).toBe('MSG-MAS-012');
+    s = play([{ type: 'mascot.tick', at: s.bubble!.expiresAt! }], [], CTX, s).state;
+    expect(s).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'map' } });
+  });
+
+  it('câu chạm không có cooldown và không tính vào giới hạn câu chủ động (BR-MAS-07)', () => {
+    let s = play([tap(1_000)], [], CTX, catalogDock()).state;
+    const log = s.proactiveLog;
+    s = play([{ type: 'mascot.user.closedBubble', at: 1_500 }, tap(2_000)], [], CTX, s).state;
+    expect(s.bubble?.messageId).toBe('MSG-MAS-009');
+    expect(s.proactiveLog).toEqual(log);
+  });
+
+  it('MAS-B-032 / 036 / 037: chuyến đi chưa quét → 032; giữa chặng → 033 "Còn {r}"; quét đủ → 032; scanner mở → 043', () => {
+    expect(play([tap(1_000)], [], CTX, trip(0)).state.bubble?.messageId).toBe('MSG-MAS-032');
+    expect(play([tap(1_000)], [], CTX, trip(1)).state.bubble).toMatchObject({ messageId: 'MSG-MAS-033', params: { r: 2 } });
+    expect(play([tap(1_000)], [], CTX, trip(3, 3, true)).state.bubble?.messageId).toBe('MSG-MAS-032');
+    const scanning = play([{ type: 'm02.scanner.opened', hasSession: true, k: 1, at: 20 }], [], CTX, trip(1)).state;
+    expect(play([tap(1_000)], [], CTX, scanning).state.bubble?.messageId).toBe('MSG-MAS-043');
+  });
+
+  it('MAS-B-059: trang nội dung, chạm Mila khi câu 051 đang hiện → 059 thay vào (P3 trên P4)', () => {
+    const content = play([
+      { type: 'app.route.changed', path: '/trip/qr/Q1a', at: 0 },
+      { type: 'm02.visit.recorded', sessionRef: 's', visitRef: 'v1', k: 1, n: 3, isFinal: false, at: 10 },
+    ]).state;
+    expect(content.bubble?.messageId).toBe('MSG-MAS-051');
+    expect(play([tap(2_000)], [], CTX, content).state.bubble?.messageId).toBe('MSG-MAS-059');
+  });
+
+  it('MAS-B-065: màn kết quả → 065; chạm lần nữa khi còn hiện (màn chỉ một câu) → không đổi, chữ không nháy lại', () => {
+    const end = play([
+      { type: 'app.route.changed', path: '/trip/end', at: 0 },
+      { type: 'm02.trip.ended', status: 'HOAN_TAT', k: 2, justEnded: false, at: 10 },
+    ]).state;
+    const shown = play([tap(1_000)], [], CTX, end).state;
+    expect(shown.bubble?.messageId).toBe('MSG-MAS-065');
+    const again = play([tap(1_700)], [], CTX, shown).state;
+    expect(again.bubble).toEqual(shown.bubble);
+    expect(again.view).toEqual(shown.view);
+  });
+
+  it('MAS-B-030: chuyến mới bắt đầu → sau 800 ms câu 030', () => {
+    let s = play([
+      { type: 'app.route.changed', path: '/trip', at: 0 },
+      { type: 'm02.trip.shown', hasSession: true, k: 0, n: 3, finalVisited: false, at: 10 },
+      { type: 'm02.trip.entered', kind: 'STARTED', hasSession: true, k: 0, n: 3, at: 10 },
+    ]).state;
+    expect(s.bubble).toBeNull();
+    s = play([{ type: 'mascot.tick', at: 810 }], [], CTX, s).state;
+    expect(s.bubble?.messageId).toBe('MSG-MAS-030');
+  });
+
+  it('MAS-B-034: mở lại app giữa chuyến sau ≥ 10 phút → 034; dưới 10 phút → không', () => {
+    const hidden = play([{ type: 'app.visibility.changed', visible: false, at: 100 }], [], CTX, trip(1)).state;
+    expect(play([{ type: 'app.visibility.changed', visible: true, at: 100 + 10 * 60_000 }], [], CTX, hidden).state.bubble?.messageId).toBe('MSG-MAS-034');
+    expect(play([{ type: 'app.visibility.changed', visible: true, at: 100 + 5 * 60_000 }], [], CTX, hidden).state.bubble).toBeNull();
+  });
+
+  it('MAS-B-056: quay về hành trình từ nội dung của lượt ghé mới → 056 một lần; không phải lượt ghé mới → không', () => {
+    const back = (afterNewVisit: boolean) =>
+      play([
+        { type: 'app.route.changed', path: '/trip/qr/Q1a', at: 0 },
+        { type: 'm02.content.backPressed', afterNewVisit, at: 5_000 },
+        { type: 'app.route.changed', path: '/trip', at: 5_010 },
+        { type: 'm02.trip.shown', hasSession: true, k: 1, n: 3, finalVisited: false, at: 5_020 },
+      ]).state;
+    expect(back(true).bubble?.messageId).toBe('MSG-MAS-056');
+    expect(back(false).bubble).toBeNull();
+  });
+
+  it('MAS-B-089: chạm dồn trong 400 ms tính một lần (không chạy lại animation)', () => {
+    const first = play([tap(1_000)], [], CTX, catalogDock()).state;
+    const again = play([tap(1_200)], [], CTX, first).state;
+    expect(again.view).toEqual(first.view);
+    expect(again.bubble).toEqual(first.bubble);
+  });
+
+  it('MAS-B-085: chạm 5 lần trong 3 giây → chóng mặt (ảnh bối rối, 085) một lần mỗi lần tải trang', () => {
+    let s = catalogDock();
+    s = play([tap(1_000), tap(1_500), tap(2_000), tap(2_500), tap(3_000)], [], CTX, s).state;
+    expect(s.bubble?.messageId).toBe('MSG-MAS-085');
+    expect(s.view).toMatchObject({ pose: 'confused', animation: 'dizzy' });
+    s = play([{ type: 'mascot.user.closedBubble', at: 3_500 }, tap(4_000), tap(4_500), tap(5_000), tap(5_500), tap(6_000)], [], CTX, s).state;
+    expect(s.bubble?.messageId).not.toBe('MSG-MAS-085');
+  });
+});

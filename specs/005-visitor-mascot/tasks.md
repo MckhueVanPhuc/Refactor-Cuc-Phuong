@@ -235,13 +235,13 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests for User Story 8 ⚠️
 
-- [ ] T063 [P] [US8] Thêm vào `src/shared/mascot/rules.test.ts`: chạm theo ngữ cảnh v1.1 (BR-MAS-12) — MAS-B-009 → 012 khi chạm lại ở M01, 032 (k = 0), 036 → 033 với {r} = n − k, 037 → 043 khi scanner mở, 059, 065; P3, không cooldown khi chạm, không tính vào BR-MAS-07; không có ở INLINE/CELEBRATE; 030 (phiên mới), 034 (ẩn ≥ 10 phút + có phiên, không khi có thông báo tự kết thúc), 056/057 (luân phiên; `NATURE_REMINDERS_APPROVED = false` → chỉ 056; pool 057a–e xoay tất định; giới hạn chủ động)
-- [ ] T064 [P] [US8] Viết `e2e/m02/mascot-companion.spec.ts` và một ca trong `e2e/m01/mascot-intro.spec.ts`: Q16/Q21 (chạm Mila ở danh mục hai lần → 009, 012; chuyến đi chưa quét → 032; sau khi quét 1/3 → 033 "Còn 2 điểm nữa…"; scanner mở → 043; nội dung → 059; màn kết quả → 065), quay về hành trình sau lượt ghé mới → MSG-MAS-056, bắt đầu chuyến → MSG-MAS-030
+- [X] T063 [P] [US8] Thêm vào `src/shared/mascot/rules.test.ts`: chạm theo ngữ cảnh v1.1 (BR-MAS-12) — MAS-B-009 → 012 khi chạm lại ở M01, 032 (k = 0), 036 → 033 với {r} = n − k, 037 → 043 khi scanner mở, 059, 065; P3, không cooldown khi chạm, không tính vào BR-MAS-07; không có ở INLINE/CELEBRATE; 030 (phiên mới), 034 (ẩn ≥ 10 phút + có phiên, không khi có thông báo tự kết thúc), 056/057 (luân phiên; `NATURE_REMINDERS_APPROVED = false` → chỉ 056; pool 057a–e xoay tất định; giới hạn chủ động)
+- [X] T064 [P] [US8] Viết `e2e/m02/mascot-companion.spec.ts` và một ca trong `e2e/m01/mascot-intro.spec.ts`: Q16/Q21 (chạm Mila ở danh mục hai lần → 009, 012; chuyến đi chưa quét → 032; sau khi quét 1/3 → 033 "Còn 2 điểm nữa…"; scanner mở → 043; nội dung → 059; màn kết quả → 065), quay về hành trình sau lượt ghé mới → MSG-MAS-056, bắt đầu chuyến → MSG-MAS-030
 
 ### Implementation for User Story 8
 
-- [ ] T065 [US8] Cài MAS-B-009, 030, 032, 034, 036, 037, 056, 057, 059, 065 trong `src/shared/mascot/rules.ts` (chạm theo ngữ cảnh v1.1: `screen:k`, `screen:n` từ `m02.trip.shown`, `scannerOpen`, `helpCursor` — research R-22); thêm MSG-MAS-012, 033, 043, 065 vào catalog VI/EN; host xử lý `mascot.user.tapped` và tính thời gian ẩn cho 034
-- [ ] T066 [US8] Trong `src/modules/m02/content/ScanContent.tsx`: thêm `onClick` vào `<Link to={PATHS.m02SessionEntry}>` "Quay lại" hiện có, phát `m02.content.backPressed { afterNewVisit }` (`afterNewVisit` = `scan.visitCreated` và không phải điểm cuối); link vẫn điều hướng như cũ, không thêm router state hay dữ liệu lưu. Host giữ cờ này để `m02.trip.shown` kế tiếp kích hoạt MAS-B-056/057 (contracts/mascot-event-contract.md §3)
+- [X] T065 [US8] Cài MAS-B-009, 030, 032, 034, 036, 037, 056, 057, 059, 065 trong `src/shared/mascot/rules.ts` (chạm theo ngữ cảnh v1.1: `screen:k`, `screen:n` từ `m02.trip.shown`, `scannerOpen`, `helpCursor` — research R-22); thêm MSG-MAS-012, 033, 043, 065 vào catalog VI/EN; host xử lý `mascot.user.tapped` và tính thời gian ẩn cho 034
+- [X] T066 [US8] Trong `src/modules/m02/content/ScanContent.tsx`: thêm `onClick` vào `<Link to={PATHS.m02SessionEntry}>` "Quay lại" hiện có, phát `m02.content.backPressed { afterNewVisit }` (`afterNewVisit` = `scan.visitCreated` và không phải điểm cuối); link vẫn điều hướng như cũ, không thêm router state hay dữ liệu lưu. Host giữ cờ này để `m02.trip.shown` kế tiếp kích hoạt MAS-B-056/057 (contracts/mascot-event-contract.md §3)
 
 **Checkpoint**: Tất cả story xong; T026 PASS trên mọi màn.
 
@@ -308,11 +308,11 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests ⚠️
 
-- [ ] T087 [P] [US8] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-089 (chạm trong 400 ms bỏ qua; animation đang chạy không chạy lại), chạm khi đang có câu hướng dẫn → câu kế tiếp (danh mục) hoặc chỉ nhún (màn một câu), MAS-B-085 (5 lần / 3 s → 085 với tư thế `confused` và animation `dizzy`, một lần mỗi lần tải trang) — quickstart Q22
+- [X] T087 [P] [US8] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-089 (chạm trong 400 ms bỏ qua; animation đang chạy không chạy lại), chạm khi đang có câu hướng dẫn → câu kế tiếp (danh mục) hoặc chỉ nhún (màn một câu), MAS-B-085 (5 lần / 3 s → 085 với tư thế `confused` và animation `dizzy`, một lần mỗi lần tải trang) — quickstart Q22
 
 ### Implementation
 
-- [ ] T088 [US8] Cài `lastTapAt`, `tapLog`, cờ `once` `DIZZY` trong engine; animation `dizzy` trong `Mascot.module.css`; MSG-MAS-085 vào catalog
+- [X] T088 [US8] Cài `lastTapAt`, `tapLog`, cờ `once` `DIZZY` trong engine; animation `dizzy` trong `Mascot.module.css`; MSG-MAS-085 vào catalog
 
 ---
 

@@ -189,6 +189,28 @@ describe('step — chuyển trạng thái nền', () => {
     expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
   });
 
+  it('chỉ câu thành công P4 được mang sang màn mới; câu chạm (P3) của màn cũ bị bỏ (BR-MAS-20, rời màn)', () => {
+    const rules = [rule('mascot.user.tapped', say({ priority: 3, requested: true, message: { id: 'MSG-MAS-032' } }))];
+    let s = step(initialState(), { type: 'mascot.user.tapped', at: 0 }, CTX, rules).state;
+    expect(s.bubble?.messageId).toBe('MSG-MAS-032');
+    s = step(s, { type: 'app.route.changed', path: '/trip/qr/Q1a', at: 50 }, CTX, rules).state;
+    expect(s).toMatchObject({ bubble: null, queued: null });
+  });
+
+  it('câu mang sang nhường chỗ hàng đợi cho câu của màn mới đang chờ slot (056 khi quay lại sau câu 051)', () => {
+    const dockOnly = { ...CTX, availableModes: ['DOCK'] as const };
+    const rules = [
+      rule('m02.scanner.closed', say({ priority: 4, mode: 'AVATAR', message: { id: 'MSG-MAS-051' } })),
+      rule('m02.scanner.opened', say({ priority: 6, mode: 'DOCK', message: { id: 'MSG-MAS-056' } })),
+    ];
+    let s = step(initialState(), { type: 'm02.scanner.closed', at: 0 }, CTX, rules).state;
+    s = step(s, { type: 'app.route.changed', path: '/trip', at: 300 }, { ...CTX, availableModes: [] }, rules).state;
+    s = step(s, { type: 'm02.scanner.opened', hasSession: true, k: 1, at: 320 }, { ...CTX, availableModes: [] }, rules).state;
+    expect(s.queued).toMatchObject({ intent: { message: { id: 'MSG-MAS-056' } } });
+    s = step(s, { type: 'mascot.slots.changed', at: 340 }, dockOnly, rules).state;
+    expect(s.bubble?.messageId).toBe('MSG-MAS-056');
+  });
+
 
   it('INTRO nối câu: `then` chạy khi bong bóng đầu hết', () => {
     const rules = [

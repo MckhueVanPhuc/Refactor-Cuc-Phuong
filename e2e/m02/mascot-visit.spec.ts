@@ -42,6 +42,9 @@ test('Q4, Q5 — mã đầu tiên: 051 cạnh toast cũ, nội dung không chờ
   await expect(bubble(page, 'MSG-MAS-051')).toHaveText('Mã QR đầu tiên xong rồi! Đọc thử câu chuyện của điểm này nhé.');
 
   await back(page);
+  // v1.1 (MAS-B-056): quay về sau lượt ghé mới → nhắc cất máy; đóng thì về tư thế bản đồ
+  await expect(bubble(page, 'MSG-MAS-056')).toBeVisible();
+  await page.getByRole('button', { name: 'Đóng lời nhắn' }).click();
   await expect(page.locator('[data-mascot-mode="DOCK"][data-mascot-pose="map"]')).toBeVisible();
   await scan(page, 'Q2');
   await expect(bubble(page, 'MSG-MAS-050')).toContainText('Bạn đã quét 2/3 điểm.');

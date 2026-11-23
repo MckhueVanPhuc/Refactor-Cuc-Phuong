@@ -17,6 +17,12 @@ export const MASCOT_AMBIENT_MIN_MS = 8_000;
 export const MASCOT_AMBIENT_MAX_MS = 15_000;
 /** Một cử chỉ tự động dài nhất (Asset spec AN-AMBIENT). */
 export const MASCOT_AMBIENT_GESTURE_MS = 1_500;
+/** Chạm nhiều lần (BR-MAS-22): chạm dồn trong khoảng này tính một lần; số lần chạm trong cửa sổ để "chóng mặt". */
+export const MASCOT_TAP_DEBOUNCE_MS = 400;
+export const MASCOT_DIZZY_TAPS = 5;
+export const MASCOT_DIZZY_WINDOW_MS = 3_000;
+/** Câu bắt đầu chuyến hiện sau khi câu gợi ý cố định của màn đã hiện (Behavior Matrix MAS-B-030). */
+export const MASCOT_TRIP_START_DELAY_MS = 800;
 /** Màn Mila đứng chờ: danh mục, chuyến đi (scanner đóng), màn kết quả. */
 export const MASCOT_AMBIENT_PATHS: readonly string[] = ['/', '/trip', '/trip/end'];
 /** Cùng mức ưu tiên: câu mới chỉ thay câu cũ đã hiện ít nhất chừng này (State Machine §5.2). */
