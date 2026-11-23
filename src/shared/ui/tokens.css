@@ -125,6 +125,8 @@
   --mascot-size-lg: 160px;
   /* v1.1 (2026-11-22): Mila lớn hơn ở chỗ đứng chờ; INTRO/CELEBRATE 200px */
   --mascot-size-dock-catalog: 112px;
+  /* Hero danh mục khi màn < 360px: tiêu đề vẫn một dòng cạnh Mila (v1.3) */
+  --mascot-size-dock-catalog-narrow: 88px;
   --mascot-size-dock-trip: 128px;
   --mascot-size-dock-end: 104px;
   --mascot-size-xl: 200px;

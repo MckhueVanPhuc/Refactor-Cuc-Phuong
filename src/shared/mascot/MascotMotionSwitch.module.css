@@ -1,0 +1,72 @@
+/*
+ * Công tắc "Chuyển động của Mila" (design-system §9.5, v1.3): một hàng nền trắng dưới tiêu đề màn Tài nguyên; nhãn và
+ * câu phụ bên trái, công tắc trượt bên phải. Cả hàng là vùng chạm.
+ */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--touch-target);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  color: var(--color-m01-ink);
+  text-align: start;
+  background: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-m01-line);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+
+.row:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-m01-forest);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.text {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+}
+
+.hint {
+  font-size: var(--font-size-meta);
+  color: var(--color-m01-secondary);
+}
+
+/* Rãnh: xanh rừng khi bật, xám khi tắt; núm trắng trượt sang phải khi bật */
+.track {
+  position: relative;
+  flex: none;
+  width: calc(var(--space-8) + var(--space-4));
+  height: var(--space-6);
+  background: var(--color-m01-secondary);
+  border-radius: var(--space-6);
+  transition: background-color var(--duration-expand) var(--ease-out);
+}
+
+.thumb {
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-1);
+  width: var(--space-4);
+  height: var(--space-4);
+  background: var(--color-white);
+  border-radius: 50%;
+  transition: transform var(--duration-expand) var(--ease-out);
+}
+
+.row[aria-checked='true'] .track {
+  background: var(--color-m01-forest);
+}
+
+.row[aria-checked='true'] .thumb {
+  transform: translateX(calc(var(--space-6)));
+}

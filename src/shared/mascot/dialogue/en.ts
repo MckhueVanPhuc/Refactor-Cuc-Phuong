@@ -6,8 +6,7 @@ const CHEERS = ['Nice!', 'Great!', 'One more on the trail!'];
 
 export const en: MascotDialogue = {
   messages: {
-    'MSG-MAS-001': `Hi! I'm ${NAME}, Cúc Phương's otter explorer.`,
-    'MSG-MAS-002': "I'll be with you all the way. Let's pick a route!",
+    'MSG-MAS-001': `Hi! I'm ${NAME}, Cúc Phương's otter explorer. I'll be with you throughout this visit. Let's pick a route!`,
     'MSG-MAS-004': 'Welcome back! Which route are we taking today?',
     'MSG-MAS-005': 'Unfolding the route map…',
     'MSG-MAS-012': "Tap Route suggestions and I'll pick by your time and interests.",
@@ -39,7 +38,7 @@ export const en: MascotDialogue = {
     'MSG-MAS-054': "No signal? No worries, here's the saved version.",
     'MSG-MAS-055': "Recorded! You've scanned half of your stops!",
     'MSG-MAS-058': 'Recorded! Just one stop to go!',
-    'MSG-MAS-056': 'Now put your phone away and enjoy the forest. Scan again at the next stop!',
+    'MSG-MAS-056': 'Time to explore! Remember to scan at the next stop.',
     'MSG-MAS-057a': 'Walk softly and talk quietly, the forest is listening.',
     'MSG-MAS-057b': "Look, don't pick. Leave everything as you found it.",
     'MSG-MAS-057c': 'Keep your litter in your bag until you find a bin.',
@@ -60,8 +59,8 @@ export const en: MascotDialogue = {
     name: NAME,
     ask: `Ask ${NAME}`,
     motion: `${NAME}'s motion`,
-    motionOn: 'Motion: on',
-    motionOff: 'Motion: off',
+    motionHint: `Turn off to keep ${NAME} still.`,
+    introHint: 'Tap to start',
     dismiss: 'Dismiss message',
     notNow: 'Not now',
     ctaRecommend: 'Route suggestions',
