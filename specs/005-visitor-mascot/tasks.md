@@ -192,13 +192,13 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests for User Story 6 ⚠️
 
-- [ ] T052 [P] [US6] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-074 (chỉ khi `hasSession`, cooldown 10 phút), 075 (chỉ sau 074 trong 30 phút, P7), 054 (PACKAGE; bị bỏ nếu P4 đang hiện), 052 (LIVE, có phiên, `inJourney = false`, không lượt ghé; không cho khách tự do)
-- [ ] T053 [P] [US6] Viết `e2e/m02/mascot-network.spec.ts`: Q11 (`context.setOffline(true)` giữa chuyến → MSG-MAS-074 một lần; quét mã trong tuyến có gói → MSG-MAS-054), mã `VALID` ngoài hành trình (lookup giả) → MSG-MAS-052, không lượt ghé mới; SC-MAS-007: khi offline (sau lần mở đầu), đi qua lần lượt slot `trip-dock`, `scanner-bottom`, `content-toast`, `end-hero` và các `MascotFigure` của M02, khẳng định mỗi ảnh mascot đã tải xong (`img.complete && naturalWidth > 0`, hoặc hình giữ chỗ CSS khi chưa có ảnh) và bong bóng có chữ
+- [X] T052 [P] [US6] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-074 (chỉ khi `hasSession`, cooldown 10 phút), 075 (chỉ sau 074 trong 30 phút, P7), 054 (PACKAGE; bị bỏ nếu P4 đang hiện), 052 (LIVE, có phiên, `inJourney = false`, không lượt ghé; không cho khách tự do)
+- [X] T053 [P] [US6] Viết `e2e/m02/mascot-network.spec.ts`: Q11 (`context.setOffline(true)` giữa chuyến → MSG-MAS-074 một lần; quét mã trong tuyến có gói → MSG-MAS-054), mã `VALID` ngoài hành trình (lookup giả) → MSG-MAS-052, không lượt ghé mới; SC-MAS-007: khi offline (sau lần mở đầu), đi qua lần lượt slot `trip-dock`, `scanner-bottom`, `content-toast`, `end-hero` và các `MascotFigure` của M02, khẳng định mỗi ảnh mascot đã tải xong (`img.complete && naturalWidth > 0`, hoặc hình giữ chỗ CSS khi chưa có ảnh) và bong bóng có chữ
 
 ### Implementation for User Story 6
 
-- [ ] T054 [US6] Cài MAS-B-052, 054, 074, 075 trong `src/shared/mascot/rules.ts`; host giữ `hasSession` từ payload M02 (research R-15)
-- [ ] T055 [US6] Bổ sung payload `inJourney` (= có phiên, `display.kind = 'LIVE'`, `visit` null) và `hasSession` cho `m02.scan.resolved` trong `src/modules/m02/content/ScanContent.tsx` (không đổi logic hiển thị)
+- [X] T054 [US6] Cài MAS-B-052, 054, 074, 075 trong `src/shared/mascot/rules.ts`; host giữ `hasSession` từ payload M02 (research R-15)
+- [X] T055 [US6] Bổ sung payload `inJourney` (= có phiên, `display.kind = 'LIVE'`, `visit` null) và `hasSession` cho `m02.scan.resolved` trong `src/modules/m02/content/ScanContent.tsx` (không đổi logic hiển thị)
 
 **Checkpoint**: US6 kiểm độc lập.
 

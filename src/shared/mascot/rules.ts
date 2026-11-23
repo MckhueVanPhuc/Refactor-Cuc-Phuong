@@ -312,6 +312,47 @@ const US5: Rule[] = [
   }),
 ];
 
+// —— US6: Bình tĩnh về mạng và dữ liệu (US-MAS-04) ——
+// MAS-B-054 (nội dung từ bản đã tải khi nguồn lỗi): chỉ hình cạnh câu nguồn dự phòng cố định (v1.2), màn tự đặt.
+
+/** Câu mạng nói sau khi trạng thái mạng giữ chừng này (Behavior Matrix MAS-B-074, 075) */
+const NETWORK_NOTE_DELAY_MS = 1_000;
+/** "Có sóng lại" chỉ khi đã nói "mất sóng" trong khoảng này (MAS-B-075) */
+const BACK_ONLINE_WINDOW_MS = 30 * 60_000;
+
+/**
+ * Câu mạng chỉ ở màn chuyến đi có phiên, Mila ở DOCK, scanner đóng. Màn đọc nội dung chỉ nhận P0–P2 và câu hỏi giúp
+ * (BR-MAS-20 "đang đọc"), nên không nói ở SCR-M02-002 dù Behavior Matrix liệt kê.
+ */
+const networkNoteAllowed = (state: RuleView['state']) => onTripWithSession(state) && state.view?.mode === 'DOCK' && !state.counters['screen:scanner'];
+
+const US6: Rule[] = [
+  on('MAS-B-074', 'app.network.changed', (event, { state, now }) => {
+    if (!event.online) return networkNoteAllowed(state) ? { timers: { offlineNote: NETWORK_NOTE_DELAY_MS, onlineNote: null } } : null;
+    const said = state.lastShownAt['MSG-MAS-074'];
+    const recent = said !== undefined && now - said <= BACK_ONLINE_WINDOW_MS;
+    return { timers: { offlineNote: null, ...(recent && networkNoteAllowed(state) ? { onlineNote: NETWORK_NOTE_DELAY_MS } : {}) } };
+  }),
+  // MAS-B-074: mất sóng giữa chuyến → trấn an một lần mỗi cooldown (10 phút, MESSAGE_META)
+  onTimer('MAS-B-074:show', 'offlineNote', ({ state }) =>
+    !state.online && networkNoteAllowed(state)
+      ? { intents: [{ behaviorId: 'MAS-B-074', priority: 5, mode: 'DOCK', pose: 'backpack', animation: 'pop', message: { id: 'MSG-MAS-074' }, then: tripDock(state) }] }
+      : null,
+  ),
+  // MAS-B-075: có sóng lại (không nói gì về đồng bộ)
+  onTimer('MAS-B-075:show', 'onlineNote', ({ state }) =>
+    state.online && networkNoteAllowed(state)
+      ? { intents: [{ behaviorId: 'MAS-B-075', priority: 7, mode: 'DOCK', pose: 'thumbsUp', animation: 'pop', message: { id: 'MSG-MAS-075' }, then: tripDock(state) }] }
+      : null,
+  ),
+  // MAS-B-052: có phiên, mã live không thuộc hành trình, không lượt ghé → nói rõ không tính vào hành trình (P2)
+  on('MAS-B-052', 'm02.scan.resolved', (event) =>
+    event.display === 'LIVE' && event.hasSession && !event.visitCreated && !event.inJourney
+      ? { intents: [{ behaviorId: 'MAS-B-052', priority: 2, mode: 'AVATAR', pose: 'think', animation: 'pop', message: { id: 'MSG-MAS-052' } }] }
+      : null,
+  ),
+];
+
 // —— US7: Chuẩn bị cùng Mila (US-MAS-07) ——
 // Hình minh họa INLINE (MAS-B-006, 007, 012, 013, 015, 016, 022, 023, 024, 025) do màn đặt bằng `MascotFigure` cạnh câu
 // cố định; các luật dưới đây chỉ cho những dòng có lời.
@@ -618,4 +659,4 @@ const US8: Rule[] = [
   }),
 ];
 
-export const RULES: readonly Rule[] = [...US1, ...US2, ...US4, ...US5, ...US7, ...US8, ...AMBIENT];
+export const RULES: readonly Rule[] = [...US1, ...US2, ...US4, ...US5, ...US6, ...US7, ...US8, ...AMBIENT];

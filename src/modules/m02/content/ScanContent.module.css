@@ -173,3 +173,10 @@
   outline-offset: var(--focus-ring-offset);
   border-radius: var(--radius-sm);
 }
+
+/* Câu thông báo có Mila minh họa bên trái (design-system §9.2 INLINE); cờ tắt thì chỉ còn câu */
+.withMila {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}

@@ -810,3 +810,73 @@ describe('US5 — Mila giúp khi quét khó (US-MAS-03; T047)', () => {
     expect(left.bubble).toBeNull();
   });
 });
+
+describe('US6 — Bình tĩnh về mạng và dữ liệu (US-MAS-04; T052)', () => {
+  type Resolved = Extract<MascotEvent, { type: 'm02.scan.resolved' }>;
+  const shown = (at: number): Stamped => ({ type: 'm02.trip.shown', hasSession: true, k: 1, n: 3, finalVisited: false, at });
+  const network = (online: boolean, at: number): Stamped => ({ type: 'app.network.changed', online, at });
+  const tick = (at: number): Stamped => ({ type: 'mascot.tick', at });
+  const onTrip = () => play([{ type: 'app.route.changed', path: '/trip', at: 0 }, shown(10)]).state;
+  const run = (state: MascotState, events: Stamped[]) => play(events, [], CTX, state).state;
+  const content = (over: Partial<Resolved>): Stamped[] => [
+    { type: 'app.route.changed', path: '/trip/qr/Q9', at: 0 },
+    {
+      type: 'm02.scan.resolved',
+      display: 'LIVE',
+      hasSession: true,
+      freeVisitor: false,
+      visitCreated: false,
+      inJourney: false,
+      finalPromptNeeded: false,
+      ...over,
+      at: 100,
+    },
+  ];
+
+  it('MAS-B-074: mất sóng giữa chuyến → sau 1 s Mila trấn an ở DOCK; có sóng lại trước 1 s → không nói', () => {
+    let state = run(onTrip(), [network(false, 1_000), tick(1_999)]);
+    expect(state.bubble).toBeNull();
+    state = run(state, [tick(2_000)]);
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'backpack' });
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-074', priority: 5 });
+
+    expect(run(onTrip(), [network(false, 1_000), network(true, 1_500), tick(2_000)]).bubble).toBeNull();
+  });
+
+  it('MAS-B-074: không phiên, scanner đang mở, hay đang đọc nội dung (BR-MAS-20) → không nói', () => {
+    const free = play([{ type: 'app.route.changed', path: '/trip', at: 0 }, network(false, 1_000), tick(2_000)]).state;
+    expect(free.bubble).toBeNull();
+    const scanning = run(onTrip(), [{ type: 'm02.scanner.opened', hasSession: true, k: 1, at: 500 }, network(false, 1_000), tick(2_000)]);
+    expect(scanning.bubble).toBeNull();
+    const reading = run(onTrip(), [{ type: 'app.route.changed', path: '/trip/qr/Q1a', at: 500 }, network(false, 1_000), tick(2_000)]);
+    expect(reading.bubble).toBeNull();
+  });
+
+  it('MAS-B-074: tối đa một lần mỗi 10 phút (cooldown)', () => {
+    let state = run(onTrip(), [network(false, 1_000), tick(2_000), tick(20_000)]);
+    state = run(state, [network(true, 30_000), tick(31_000), tick(60_000), network(false, 120_000), tick(121_000)]);
+    expect(state.bubble?.messageId).not.toBe('MSG-MAS-074');
+  });
+
+  it('MAS-B-075: có sóng lại trong 30 phút sau 074 → "Có sóng lại rồi!"; không có 074 trước đó hay quá 30 phút → không', () => {
+    const back = run(onTrip(), [network(false, 1_000), tick(2_000), tick(20_000), network(true, 60_000), tick(61_000)]);
+    expect(back.bubble).toMatchObject({ messageId: 'MSG-MAS-075' });
+    expect(back.view).toMatchObject({ mode: 'DOCK', pose: 'thumbsUp' });
+
+    expect(run(onTrip(), [network(true, 1_000), tick(2_000)]).bubble).toBeNull();
+    const late = run(onTrip(), [network(false, 1_000), tick(2_000), tick(20_000), network(true, 31 * 60_000), tick(31 * 60_000 + 1_000)]);
+    expect(late.bubble).toBeNull();
+  });
+
+  it('MAS-B-052: có phiên, mã live ngoài hành trình, không lượt ghé → câu 052 ở AVATAR (P2)', () => {
+    const state = play(content({})).state;
+    expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'think' });
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-052', priority: 2 });
+  });
+
+  it('MAS-B-052: khách tự do, mã trong hành trình hay có lượt ghé mới → không; nội dung bản tải sẵn (054) chỉ là hình (v1.2)', () => {
+    expect(play(content({ hasSession: false, freeVisitor: true })).state.bubble).toBeNull();
+    expect(play(content({ inJourney: true })).state.bubble).toBeNull();
+    expect(play(content({ display: 'PACKAGE', inJourney: true })).state.bubble).toBeNull();
+  });
+});
