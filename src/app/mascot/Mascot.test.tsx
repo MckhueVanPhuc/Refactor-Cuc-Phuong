@@ -60,10 +60,26 @@ describe('Mascot — ảnh theo mode', () => {
     expect(onAssetError).toHaveBeenCalledTimes(1);
   });
 
-  it('tư thế chưa có ảnh (đợt 2) → hình giữ chỗ', () => {
-    const { container } = renderMascot(view('DOCK', 'think'));
+  it('tư thế không có ảnh → hình giữ chỗ (mọi tư thế hiện đã có ảnh; giả lập registry trống)', async () => {
+    vi.resetModules();
+    vi.doMock('../../shared/mascot/assets', () => ({ poseAsset: () => null, blinkAsset: () => null }));
+    const { Mascot: WithoutAssets } = await import('./Mascot');
+    const { container } = render(
+      <WithoutAssets
+        view={view('DOCK', 'think')}
+        bubble={null}
+        language="vi"
+        reducedMotion
+        typing={false}
+        onTap={vi.fn()}
+        onClose={vi.fn()}
+        onCta={vi.fn()}
+        onAssetError={vi.fn()}
+      />,
+    );
     expect(container.querySelector('img')).toBeNull();
     expect(container.querySelector('[data-mascot-placeholder]')).not.toBeNull();
+    vi.doUnmock('../../shared/mascot/assets');
   });
 });
 
@@ -110,5 +126,35 @@ describe('Mascot — bong bóng "Giấy dã ngoại" (design-system §9.3)', () 
     const { container } = renderMascot(view('DOCK', 'wave'), { bubble, typing: false });
     expect(container.querySelector('[data-mascot-typed]')).toBeNull();
     expect(container.querySelector('[data-mascot-message]')!.hasAttribute('data-typing')).toBe(false);
+  });
+});
+
+describe('Mascot — chớp mắt (AN-BLINK; research R-24)', () => {
+  const blinking = (pose: ViewState['pose']): ViewState => ({ ...view('DOCK', pose), animation: 'blink' });
+
+  it('đổi sang ảnh mắt nhắm 120 ms rồi về ảnh tư thế', () => {
+    vi.useFakeTimers();
+    const { container } = renderMascot(blinking('map'), { typing: true });
+    expect(container.querySelector('img')?.getAttribute('src')).toMatch(/ma-20-map-blink-240.webp$/);
+    act(() => {
+      vi.advanceTimersByTime(120);
+    });
+    expect(container.querySelector('img')?.getAttribute('src')).toMatch(/ma-02-map-240.webp$/);
+  });
+
+  it('giảm chuyển động hoặc tư thế không có ảnh mắt nhắm → không đổi ảnh', () => {
+    const still = renderMascot(blinking('map'), { typing: false });
+    expect(still.container.querySelector('img')?.getAttribute('src')).toMatch(/ma-02-map-240.webp$/);
+    still.unmount();
+    const cheer = renderMascot(blinking('cheer'), { typing: true });
+    expect(cheer.container.querySelector('img')?.getAttribute('src')).toMatch(/ma-08-cheer-240.webp$/);
+  });
+
+  it('ảnh mắt nhắm hỏng → về ảnh tư thế, Mila không ẩn', () => {
+    const onAssetError = vi.fn();
+    const { container } = renderMascot(blinking('map'), { typing: true, onAssetError });
+    fireEvent.error(container.querySelector('img')!);
+    expect(container.querySelector('img')?.getAttribute('src')).toMatch(/ma-02-map-240.webp$/);
+    expect(onAssetError).not.toHaveBeenCalled();
   });
 });

@@ -9,7 +9,7 @@
 //   đường đi (V25 422), còn kết quả luôn do M03 trả.
 import { expect, test, type Page, type Request } from '@playwright/test';
 import { vi } from '../../src/modules/m02/i18n/vi';
-import { dumpStores, M02_STORES } from './helpers';
+import { dumpStores, expectCheckInFeedback, M02_STORES } from './helpers';
 import {
   closeRoute,
   M02_LOCAL_PROJECT,
@@ -92,7 +92,7 @@ async function pendingItem(page: Page) {
 /** Quét Q1a rồi điểm cuối Q2 qua link, [Kết thúc] → SCR-M02-003 */
 async function finishTrip(page: Page) {
   await page.goto(`/q/${world.q1a}`);
-  await expect(page.getByText(vi.trip.visitRecorded)).toBeVisible();
+  await expectCheckInFeedback(page);
   await page.goto(`/q/${world.q2}`);
   await expect(page.getByRole('alertdialog')).toContainText(vi.endPrompt.question);
   // Hộp thoại dùng CSS tải theo chunk: chờ lớp phủ cố định rồi mới bấm
@@ -140,7 +140,7 @@ test('V5 + T103 — Start từ M01 → phiên mới; online Q1a rồi Q1b: một
   expect(sessions).toMatchObject([{ routeId: world.mainRoute, status: 'DANG_DIEN_RA' }]);
 
   await page.goto(`/q/${world.q1a}`);
-  await expect(page.getByText(vi.trip.visitRecorded)).toBeVisible();
+  await expectCheckInFeedback(page);
   await expect(page.getByRole('heading', { level: 1, name: `Vật ở ${NAMES.c1}` })).toBeVisible();
   await expect(page.getByText(vi.notice.freeVisitor)).toHaveCount(0);
   const first = await visits(page);

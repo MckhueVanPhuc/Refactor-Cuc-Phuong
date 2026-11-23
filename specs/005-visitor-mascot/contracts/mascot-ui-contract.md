@@ -64,6 +64,20 @@ Mọi `--duration-mascot-*` = 0ms trong khối `@media (prefers-reduced-motion: 
 - Bong bóng kiểu A: dòng tên "Mila" (`aria-hidden`), chữ hiện dần (phần hiện dần `aria-hidden`, bản đầy đủ `.visually-hidden` giữ `lang`, `role`), góc 6px phía Mila theo `data-mascot-tail` (R-20, R-21).
 - `motion === 'off'` hoặc giảm chuyển động: không `data-mascot-animation`, không lá rơi, chữ hiện ngay.
 
+## 4b. Bổ sung v1.2 — xác nhận lượt ghé (BR-MAS-24; research R-26)
+
+- `useMascotConfirms(visitRef?: string): 'pending' | 'mascot' | 'toast'` (export từ `src/shared/mascot/index.ts`). `ScanContent` hiện toast "Đã ghi nhận lượt quét." chỉ khi kết quả là `toast`; lượt ghé điểm cuối khi Mila bật: không toast.
+- Host gọi `markVisitConfirmed(visitRef)` khi bong bóng 050/051/055/058 của lượt ghé đó lên màn; báo `failed` khi Mila ẩn vì lỗi.
+- Bong bóng xác nhận: `role="status"`.
+
+## 4c. Bổ sung v1.3 (CHG-MASCOT-2026-11-23-04; research R-27…R-29)
+
+- Mode `INTRO`: host vẽ `src/app/mascot/MascotIntro.tsx` portal vào `document.body`: `<div role="dialog" aria-modal="true" aria-label="Mila" tabIndex={-1} data-mascot-intro>` phủ cả màn; bong bóng (`data-mascot-message="MSG-MAS-001"`, không nút ×) và Mila `--mascot-size-xl` căn giữa; dòng `data-mascot-intro-hint` "Chạm để bắt đầu" / "Tap to start". `#root` có `inert` khi lớp phủ mở.
+- `MascotMotionSwitch` thay `MascotMotionToggle`: `<button type="button" role="switch" aria-checked>`, `data-mascot-motion-switch`; chỉ ở `src/modules/m01/offline-package/OfflinePage.tsx`. Header không còn `[aria-pressed]` chuyển động.
+- Slot `catalog-hero` là con trực tiếp của hero lưới hai cột; slot và `.mascot` của nó `display: contents`; hình Mila ở vùng `scene`, bong bóng ở hàng `bubble` (đuôi `data-mascot-tail="up"`).
+- Token mới `--mascot-size-dock-catalog-narrow` (88px).
+- Nhãn catalog mới: `introHint`, `motionHint`; bỏ `motionOn`, `motionOff`.
+
 ## 5. Catalog (`src/shared/mascot/dialogue/`)
 
 - `vi.ts`, `en.ts`: khóa `MSG-MAS-001…075`, `MSG-MAS-057a…e`, nhãn `ask`, `dismiss`, `notNow`, `ctaRecommend`, `ctaSeeAll`, `ctaCloseCamera`; `en: typeof vi`. Câu có tham số là hàm `({ k, n, count, cheer }) => string`. `{name}` đã thay bằng `Mila` trong chữ.

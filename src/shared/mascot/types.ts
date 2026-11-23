@@ -15,11 +15,15 @@ export type AnimationId =
   | 'look'
   | 'tilt'
   | 'hop'
+  | 'success'
+  | 'milestone'
+  | 'blink'
   | 'search'
   | 'pack'
   | 'thumb'
   | 'celebrate'
-  | 'wave';
+  | 'wave'
+  | 'dizzy';
 export type Status = 'HIDDEN' | 'INTRO' | 'IDLE' | 'SPEAKING' | 'BUSY' | 'CELEBRATING' | 'SUPPRESSED';
 export type Blocker = 'DIALOG' | 'MEDIA' | 'AUTO_END';
 
@@ -30,6 +34,8 @@ export type Intent = {
   mode: Mode;
   pose: PoseId;
   animation?: AnimationId;
+  /** Du khách chủ động hỏi (chạm Mila): không cooldown (BR-MAS-12, v1.1) */
+  requested?: boolean;
   message?: { id: MessageId; params?: MessageParams };
   /** Trạng thái hiển thị trong lúc giữ (`holdMs`): đang chờ hệ thống, đang ăn mừng */
   status?: 'BUSY' | 'CELEBRATING';
@@ -39,6 +45,11 @@ export type Intent = {
   vibrate?: boolean;
   /** Khóa "một lần" (BR-MAS-06): `FIRST_VISIT:<sessionRef>`, `VISIT:<visitRef>`… */
   once?: string;
+  /**
+   * Ý định không do chính thao tác của du khách: hướng dẫn theo hẹn giờ, lời nhắc (`timer`), cử chỉ tự động (`ambient`).
+   * Bị bỏ nếu du khách vừa thao tác trong `MASCOT_INTERACTION_GRACE_MS` (BR-MAS-20 "đang thao tác"; research R-19).
+   */
+  source?: 'timer' | 'ambient';
 };
 
 export type ViewState = { mode: Mode; pose: PoseId; animation: AnimationId | null; seq: number; behaviorId: string };
@@ -80,6 +91,8 @@ export type MascotState = {
   motion: boolean;
   hasSession: boolean;
   path: string;
+  /** Lần chạm / cuộn / bấm phím gần nhất (BR-MAS-20) */
+  lastActivityAt: number | null;
 };
 
 /** Ngữ cảnh host đưa vào mỗi bước */

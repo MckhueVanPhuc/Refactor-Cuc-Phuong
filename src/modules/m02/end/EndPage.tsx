@@ -29,16 +29,21 @@ type SyncStatus = ReturnType<typeof useSyncStatus>;
  * Tín hiệu cho Mila (specs/005 mascot-event-contract): chuyến đã kết thúc (một lần mỗi phiên, khi danh sách đã đọc xong)
  * và trạng thái gửi. Chỉ phát, không đổi gì của màn.
  */
-function useEndMascotSignals(ended: { sessionId: string; status: string } | null, k: number | null, sync: SyncStatus) {
+function useEndMascotSignals(
+  ended: { sessionId: string; status: string; journeyCheckpoints: readonly unknown[] } | null,
+  k: number | null,
+  sync: SyncStatus,
+) {
   const sent = useRef<string | null>(null);
   const sessionId = ended?.sessionId;
   const status = ended?.status;
+  const n = ended?.journeyCheckpoints.length ?? 0;
   useEffect(() => {
     if (!sessionId || k === null || sent.current === sessionId) return;
     if (status !== 'HOAN_TAT' && status !== 'BO_DO') return;
     sent.current = sessionId;
-    emitMascotEvent({ type: 'm02.trip.ended', status, k, justEnded: takeEndedHere(sessionId) });
-  }, [sessionId, status, k]);
+    emitMascotEvent({ type: 'm02.trip.ended', status, k, n, justEnded: takeEndedHere(sessionId) });
+  }, [sessionId, status, k, n]);
   useEffect(() => {
     if (sync) emitMascotEvent({ type: 'm02.sync.statusChanged', status: sync, online: navigator.onLine !== false });
   }, [sync]);

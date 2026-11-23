@@ -386,3 +386,215 @@ Branch `feat/mascot-v11-motion`, tách từ `feat/mascot-v11-bubble` (PR #66). T
 | DV-43 | Nhóm cử chỉ tự động v1: nhìn ống nhòm, vẫy, nhún, nghiêng đầu, kéo quai ba lô. "Thở" (AN-BREATHE 4,8 s) không vào nhóm vì cử chỉ tự động ≤ 1,5 s; chớp mắt vào nhóm ở Phase 17 khi có ảnh | Áp dụng |
 | DV-44 | MAS-B-004 (chào lại) nói xong thì về tư thế bản đồ của danh mục (`then`), không giữ tư thế vẫy tay — để cử chỉ tự động có tư thế ngữ cảnh đúng | Áp dụng |
 | DV-45 | Lịch cử chỉ đặt bởi máy trạng thái sau mỗi bước (điều kiện hết → bỏ hẹn), thay vì chỉ trong luật; luật \`MAS-B-086\` chọn cử chỉ khi tới hạn | Áp dụng |
+
+## 10. Đợt 2026-11-23 — Ảnh đợt 2, ảnh mắt nhắm; Phase 10 + 14: hỏi Mila theo ngữ cảnh, chạm nhiều lần (v1.1)
+
+Branch `feat/mascot-v11-taps`, tách từ `feat/mascot-v11-motion` (PR #67). Task: T063–T066, T087, T088; một phần T096 (ảnh).
+
+### 10.1 Ảnh (chủ dự án giao và xác nhận quyền sử dụng 2026-11-23)
+
+| Ảnh | Kiểm | Xử lý |
+|---|---|---|
+| `ma-03-think`, `ma-06-magnifier`, `ma-13-point` | 1254×1254, RGBA nền trong suốt, nửa thân chạm đáy | Xuất WebP 240/480 như đợt 1 |
+| `ma-20-{map,binoculars,thumbs-up,backpack,rest}-blink` | Nhắm đủ hai mắt; nhưng 2048×2048, **không trong suốt** (nền trắng), cả ảnh được vẽ lại (≈ 3% điểm ảnh khác ảnh gốc, sai số trung bình 9/255) | Thu về 1254 px (khớp vị trí, độ lệch 0,0); **chỉ ghép vùng mắt** (1,7–2,9% diện tích, mép mờ) lên ảnh gốc; xuất cùng cách căn với ảnh gốc. Đường ghép không thấy ở mức phóng 3× |
+
+Precache: 17 ảnh nhỏ, 205,4 KB; ảnh lớn 551,2 KB nạp khi cần. Ảnh gốc mới trong `source/`: 27 MB lúc nhận (riêng 5 ảnh mắt nhắm 2048 px ≈ 22 MB). Chủ dự án quyết định (2026-11-23) lưu ảnh mắt nhắm đã thu về 1254 px: còn 6,5 MB cho 5 ảnh; WebP xuất lại giống cỡ và cách căn.
+
+### 10.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `rules.test.ts` US8 v1.1 (009 → 012, không cooldown khi chạm, 032/033/043, 059, 065, 030, 034, 056, chạm dồn, chóng mặt) | FAIL 9 ca; ca chạm dồn đạt ngay |
+| `machine.test.ts` (câu mang sang nhường chỗ hàng đợi; chỉ P4 được mang sang) | FAIL 2 ca |
+| `e2e/m02/mascot-companion.spec.ts` (Q21, Q22), ca Q16 trong `e2e/m01/mascot-intro.spec.ts` | Q21, Q22 FAIL — tìm ra DV-46…48 |
+
+### 10.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 734; 2376 pass, 133 skipped; build OK |
+| `npx playwright test e2e/m02/mascot-companion.spec.ts e2e/m02/mascot-visit.spec.ts e2e/m01/mascot-intro.spec.ts` | 0 | 9 pass |
+| `npx playwright test` (cổng đã kiểm trống) | 1 | 142 pass, 1 fail (`mascot-end` offline: test cũ đòi đúng dãy câu `062, 070`; giờ có thêm 030 lúc bắt đầu chuyến — DV-50), 46 skipped |
+| `npx playwright test e2e/m02/mascot-end.spec.ts --repeat-each=3` sau khi sửa test | 0 | 9/9 |
+
+### 10.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-46 | Bộ chống trùng 500 ms (BR-MAS-06) nuốt lần chạm thứ 5 cách lần trước 490 ms (mọi lần chạm cùng payload). `mascot.user.tapped`, `closedBubble`, `ctaPressed` nay không chống trùng; chạm dồn do luật xử lý (`MASCOT_TAP_DEBOUNCE_MS`) | Áp dụng |
+| DV-47 | Đổi màn mang theo mọi câu ≤ P4; câu chạm 032 (P3) theo sang trang nội dung, chặn 051, rồi theo về và chặn 056. Nay chỉ câu thành công **P4** được mang sang (đúng BR-MAS-20 "rời màn") | Áp dụng |
+| DV-48 | Hàng đợi một chỗ: câu mang sang từ màn trước nhường chỗ cho câu của chính màn mới đang chờ slot (bổ sung DV-27) | Áp dụng |
+| DV-49 | Chạm khi câu hướng dẫn của màn chỉ có một câu đang hiện: không đổi gì (không nhún lại), để chữ không nháy; spec ghi "chỉ nhún nhẹ" | Ghi nhận |
+| DV-50 | `e2e/m02/mascot-end.spec.ts` (offline) đổi từ "đúng dãy 062, 070" sang "062 trước 070", vì giờ có câu 030 khi bắt đầu chuyến; `mascot-visit` Q4 chờ câu 056 rồi mới kiểm tư thế bản đồ | Áp dụng |
+| DV-51 | Câu chạm có cờ `requested`: bỏ cooldown và thay ngay câu cùng mức P3 đang hiện (không chờ 1,5 s) | Áp dụng |
+| DV-52 | Cửa sổ "5 lần trong 3 giây" tính từ lần chạm đầu của chuỗi (không trượt) | Ghi nhận |
+
+---
+
+## 11. Đợt 2026-11-23 — Phase 15: ba cấp ăn mừng; Mila xác nhận lượt ghé thay toast (v1.1, v1.2)
+
+Branch `feat/mascot-v11-tiers`, tách từ `docs/mascot-v1.2` (PR #69). Task: T089–T092, T097–T100.
+
+### 11.1 Đã cài
+
+| Mục | Nơi |
+|---|---|
+| Cấp 1: nhún một lần (`success`, keyframe `mascot-hop-once`) + 050. Cấp 2: nhảy hai lần + 6 lá (`milestone`, `--duration-mascot-milestone` 1 200 ms) + 051 / 055 / 058, ưu tiên đầu tiên > nửa (n ≥ 4) > còn một điểm (n ≥ 3). Mọi câu xác nhận P4, `role="status"` | `rules.ts`, `types.ts`, `catalog.ts`, `Mascot.tsx`, `Mascot.module.css`, `tokens.css` |
+| Cấp 3: `m02.trip.ended` có `n` (số điểm của hành trình); k = n → MAS-B-064 / 063, k < n → 062 | `events.ts`, `EndPage.tsx`, `rules.ts` |
+| `visitConfirm.ts`: `markVisitConfirmed`, `markMascotFailed`, `useMascotConfirms` (`MASCOT_CONFIRM_FALLBACK_MS` 1 000 ms, chốt `toast` khi quá hạn) | `src/shared/mascot/visitConfirm.ts`, `index.ts`, `config.ts` |
+| Host đánh dấu khi bong bóng 050/051/055/058 của `VISIT:<ref>` thật sự hiện trong slot; lỗi engine, lỗi ảnh và lỗi render (`MascotBoundary.componentDidCatch`) → `markMascotFailed` | `MascotHost.tsx`, `MascotBoundary.tsx` |
+| `ScanContent`: toast chỉ khi `toast`; điểm cuối khi cờ Mila bật: không toast. Không đổi việc ghi lượt ghé hay thứ tự ghi | `ScanContent.tsx` |
+| Câu v1.2: 011 (không đếm), 012, 021, 043, 050, 051, 055; câu mới 058, 063 → 48 câu | `vi.ts`, `en.ts` |
+| `--duration-mascot-blink` (120 ms) thêm sẵn cho Phase 17 | `tokens.css` |
+
+### 11.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `rules.test.ts` (ba cấp, thứ tự ưu tiên, 063 / 062) | FAIL 5 ca |
+| `visitConfirm.test.ts` | FAIL (chưa có module) |
+| `e2e/m02/mascot-confirm.spec.ts` (Q27, Q28, Q29), Q23 trong `mascot-end.spec.ts` | viết trước khi chạy, đạt sau khi cài |
+
+Các E2E cũ đòi toast (`scan`, `qr-link`, `scan-tab`, `mascot-visit`, `integration.local`) dùng helper `expectCheckInFeedback`: **đúng một** lời xác nhận (toast hoặc bong bóng `role="status"`), đếm sau 1,3 s. Unit test `ContentPage`, `QrLinkPage` chạy với cờ tắt, vẫn thấy toast.
+
+### 11.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 736; 2387 pass, 133 skipped; build OK, precache 114 mục |
+| `npx playwright test --project=m02` (cổng đã kiểm trống) | 0 | 67 pass |
+| `npx playwright test` | 1 | 146 pass, 1 fail (`mascot-intro` Q16 còn câu 012 cũ — sửa test theo câu v1.2), 46 skipped |
+| `npx playwright test --project=m01 mascot-intro` sau khi sửa | 0 | 5 pass |
+
+### 11.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-53 | 055 trước đây P5; nay mọi câu xác nhận lượt ghé là P4 (BR-MAS-24) | Áp dụng |
+| DV-54 | Hành trình fixture E2E có 3 điểm: k = 2 là "còn một điểm" (058), nên cấp 1 (050) và mốc nửa (055) chỉ kiểm ở unit test | Ghi nhận |
+| DV-55 | Nếu bong bóng xác nhận phải chờ sau một câu P0–P3 lâu hơn 1 s, toast hiện và bong bóng có thể hiện muộn sau đó (cả hai). Hiếm: trang nội dung mới mở không có câu nào khác (chỉ câu P4 được mang sang, DV-47) | Ghi nhận |
+| DV-56 | Lỗi render của Mila (`MascotBoundary`) cũng báo `failed` cho màn nội dung, ngoài lỗi engine và lỗi ảnh | Áp dụng |
+| DV-57 | Câu 013, 024, 025, 040, 054 chỉ còn minh họa: chưa cài (thuộc US5–US7, chưa làm) | Chờ |
+
+---
+
+## 12. Đợt 2026-11-23 — Phase 16: ngữ cảnh "đang thao tác" (v1.1)
+
+Branch `feat/mascot-v11-interacting`, tách từ `feat/mascot-v11-tiers` (PR #70). Task: T093, T094.
+
+### 12.1 Đã cài
+
+| Mục | Nơi |
+|---|---|
+| Sự kiện nội bộ `app.user.activity` (không chống trùng); state `lastActivityAt` | `events.ts`, `types.ts`, `machine.ts` |
+| Intent có `source?: 'timer' \| 'ambient'`; trọng tài bỏ ý định có `source` trong `MASCOT_INTERACTION_GRACE_MS` (2 000 ms) sau thao tác. Ý định không có `source` (kết quả của thao tác, sự kiện của màn, câu hỏi Mila) vẫn chạy | `arbiter.ts`, `config.ts` |
+| Cử chỉ tự động MAS-B-086 mang `source: 'ambient'`; bị bỏ thì lịch hẹn lại 8–15 s | `rules.ts` |
+| Host: `pointerdown`, `keydown`, `scroll` trên `window` (capture, passive), gộp 250 ms → `app.user.activity` | `MascotHost.tsx` |
+
+Hiện chỉ cử chỉ tự động dùng `source`. Hướng dẫn theo hẹn giờ của scanner và danh mục (US5, US7, chưa cài) sẽ mang `source: 'timer'`. Lời chào, câu bắt đầu chuyến (030) và lời "đã lưu trên máy" (070) là kết quả của thao tác hoặc của hệ thống nên không mang `source`.
+
+### 12.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `machine.test.ts` (bỏ `timer` / `ambient` trong 2 s, chạy sau 2 s, không `source` thì chạy, không đóng bong bóng, media đóng bong bóng) | FAIL 2 ca; ca media (MAS-TC-115) đạt ngay vì đã có từ Phase 3 |
+| `rules.test.ts` (cuộn trước hạn cử chỉ, trang đọc bài không cử chỉ) | FAIL 1 ca |
+| `MascotHost.test.tsx` (cuộn → câu theo hẹn giờ bị bỏ) | Viết sau listener; kiểm lại bằng cách bỏ listener → FAIL |
+
+### 12.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 736; 2395 pass, 133 skipped; build OK |
+| `npx playwright test` (cổng đã kiểm trống) | 1 | 145 pass, 2 fail (`mascot-layout` đo cỡ Mila giữa animation "enter" khi máy bận — DV-58), 46 skipped; chạy riêng 6/6 |
+| `npx playwright test` sau khi sửa helper | 0 | 147 pass, 46 skipped |
+
+### 12.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-58 | `figureWidth` (E2E) đo bằng `boundingBox`, có tính transform của animation "enter", nên ra số nhỏ hơn khi lúc đo rơi vào giữa animation. Nay đo `offsetWidth` (cỡ layout). Lỗi test có từ Phase 12, chỉ lộ khi chạy cả bộ | Áp dụng |
+| DV-59 | Thao tác chỉ chặn ý định mới; bong bóng đang hiện không đóng khi du khách chạm hay cuộn | Ghi nhận |
+
+---
+
+## 13. Đợt 2026-11-23 — Phase 17: chớp mắt (v1.1)
+
+Branch `feat/mascot-v11-blink`, tách từ `feat/mascot-v11-interacting` (PR #71). Task: T095, T096. Ảnh MA-20 đã kiểm và xuất ở §10.1 (chỉ ghép vùng mắt lên ảnh gốc); đợt này chỉ cài code.
+
+### 13.1 Đã cài
+
+| Mục | Nơi |
+|---|---|
+| `blinkAsset(pose)` → `ma-20-<tư thế>-blink-240/480`; tư thế không có ảnh (cheer, wave, think…, avatar) → `null` | `assets.ts` |
+| Cử chỉ `blink` trong nhóm AN-AMBIENT chỉ khi tư thế đang đứng có ảnh mắt nhắm (`ambientGestures(pose)`); giữ nguyên tư thế, không chữ, rồi về `settle` | `rules.ts`, `types.ts` |
+| Component: nạp sẵn ảnh mắt nhắm bằng `new Image()` khi tư thế DOCK hiện; cử chỉ `blink` đổi `src` sang ảnh mắt nhắm `MASCOT_BLINK_MS` (120 ms) rồi về. Giảm chuyển động hoặc công tắc tắt → không đổi. Ảnh mắt nhắm hỏng → bỏ chớp, Mila không ẩn | `Mascot.tsx`, `config.ts` |
+
+Precache không đổi: 5 ảnh mắt nhắm 240 đã nằm trong 114 mục từ §10 (glob `assets/ma-*-240-*.webp`), có trong `dist/sw.js`.
+
+### 13.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `assets.test.ts` (5 tư thế có ảnh; tư thế khác `null`) | FAIL 2 ca |
+| `rules.test.ts` (chớp mắt chỉ khi có ảnh; cử chỉ chớp ở danh mục) | FAIL 2 ca |
+| `Mascot.test.tsx` (đổi ảnh 120 ms; giảm chuyển động / không có ảnh; ảnh hỏng) | FAIL 1 ca; 2 ca đạt ngay vì chưa có gì đổi ảnh |
+
+### 13.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 736; 2402 pass, 133 skipped; build OK, precache 114 mục |
+| `npx playwright test` (cổng đã kiểm trống) | 0 | 147 pass, 46 skipped |
+
+### 13.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-60 | Chớp mắt giữ cả thời gian của một cử chỉ (`MASCOT_AMBIENT_GESTURE_MS`, 1,5 s): ảnh mắt nhắm chỉ hiện 120 ms đầu, phần còn lại Mila đứng yên. Asset spec cho phép "có thể 2 lần liền"; bản này chớp một lần | Ghi nhận |
+| DV-61 | Chưa kiểm trên điện thoại thật (độ mượt khi đổi ảnh, ảnh mắt nhắm khớp ảnh gốc ở cỡ 112–128 px) | NOT RUN — chờ chủ dự án |
+
+---
+
+## 14. Đợt 2026-11-23 — Phase 18: lớp phủ giới thiệu, đầu màn danh mục, công tắc ở Tài nguyên (v1.3)
+
+Branch `feat/mascot-v13-intro`, tách từ `docs/mascot-v1.3` (PR #73). Task: T101–T109. Change brief CHG-MASCOT-2026-11-23-04 (APPROVED). Chủ dự án không yêu cầu thử lại trên điện thoại trước khi đẩy PR.
+
+### 14.1 Đã cài
+
+| Mục | Nơi |
+|---|---|
+| MAS-B-001 một bong bóng MSG-MAS-001 mới (`autoHide: false`), đích `then` là DOCK hero; bỏ MSG-MAS-002 (47 câu); câu 056 mới; nhãn `introHint`, `motionHint`, bỏ `motionOn/Off` | `rules.ts`, `dialogue/*.ts` |
+| `MascotIntro`: lớp phủ `position: fixed` portal vào `document.body`, `role="dialog"`, `aria-modal`; Mila và bong bóng căn giữa; "Chạm để bắt đầu"; chạm / Enter / Space: hiện hết chữ rồi đóng; Esc đóng; Back đóng (mục lịch sử cùng URL, thêm ở lượt sau để StrictMode không sinh `history.back()` thừa); `#root` `inert`; focus vào lớp phủ rồi về tiêu đề | `src/app/mascot/MascotIntro.tsx` (+ `.module.css`), `MascotHost.tsx` |
+| Hero danh mục lưới hai cột; slot và khung Mila `display: contents`; dải đồi luôn hiện; bong bóng dưới hero, đuôi chỉ lên Mila; token `--mascot-size-dock-catalog-narrow` | `CatalogPage.tsx` (+ `.module.css`), `Mascot.module.css`, `MascotSlot.module.css`, `tokens.css` |
+| `MascotMotionSwitch` (`role="switch"`) thay `MascotMotionToggle`; bỏ khỏi `VisitorLayout`, `FieldLayout`; đặt ở `OfflinePage` dưới tiêu đề | `src/shared/mascot/MascotMotionSwitch.tsx` (+ `.module.css`), `index.ts`, layout, `OfflinePage.tsx` |
+| Helper E2E `chooseLanguage` đóng lớp phủ bằng Esc (trừ khi `keepIntro`); `closeMascotIntro` | `e2e/m01/network.ts` |
+
+### 14.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `rules.test.ts` (một bong bóng, không tự ẩn, chạm đóng → DOCK), `catalog.test.ts` (47 câu, 001 và 056 mới, nhãn mới) | FAIL 3 ca |
+| `MascotIntro.test.tsx`, `MascotMotionSwitch.test.tsx` | FAIL (chưa có module) |
+| E2E `mascot-intro` (Q30, Q31, Q1b, Q2, Q13), `mascot-layout` (Q32 ở 320/360/390/430 px), `mascot-motion` (Q19, Q20, Q33) | Viết trước khi chạy; Q32 tìm ra DV-62 |
+
+### 14.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 741; 2414 pass, 133 skipped; build OK, precache 115 mục |
+| `npx playwright test --project=m01 mascot language` (cổng đã kiểm trống) | 1 | 17 pass, 4 fail (Q32: tiêu đề chờm vào Mila ở 320/360 px — DV-62; đo vị trí dính transform; locator dải đồi — DV-63) |
+| `npx playwright test --project=m01 mascot-layout` sau khi sửa | 0 | 5 pass |
+| `npx playwright test` | 0 | 152 pass, 46 skipped |
+
+Ảnh chụp rà soát (390 và 320 px: lớp phủ, hero, bong bóng dưới hero, công tắc ở Tài nguyên) khớp mockup đã duyệt; một vòng focus thừa trên tiêu đề sau khi đóng bằng Esc đã bỏ.
+
+### 14.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-62 | Ở 320 và 360 px, tiêu đề một dòng (font serif) rộng hơn chỗ còn lại cạnh Mila cỡ cố định 88/112 px và chờm vào Mila. Cột trái nay rộng đúng bằng tiêu đề; Mila co trong phần còn lại, **tối đa** cỡ token, tối thiểu `--mascot-size-md` (đo được ≈ 75 px ở 320 px, ≈ 91 px ở 360 px trên Chromium Windows; font serif của Android có thể làm Mila nhỏ hơn chút). Không bao giờ đè tiêu đề | Áp dụng; cần ghi vào design-system §9.3a nếu chủ dự án đồng ý |
+| DV-63 | Test cũ "dải đồi ẩn" dùng `span[style*="hills"]`; bản build nhúng icon dạng data URI nên locator không bao giờ khớp (test cũ qua mà không kiểm gì). Nay chọn span trang trí con trực tiếp của hero | Áp dụng |
+| DV-64 | Kiểm "không đè" chung (`expectMascotOverlapsNothing`) bỏ qua Mila ở hero danh mục vì khung `display: contents` không có hộp; Q32 kiểm riêng: Mila không đè tiêu đề, nút, bong bóng không đè thẻ tuyến | Ghi nhận |
+| DV-65 | Icon `pause.svg`, `play.svg` (Phase 13) không còn dùng; để lại trong `assets/icons/` | Ghi nhận |
+| DV-66 | Chưa thử trên điện thoại thật (chủ dự án không yêu cầu đợt này) | NOT RUN |
