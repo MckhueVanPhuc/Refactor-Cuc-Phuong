@@ -151,6 +151,10 @@ Mỗi ảnh là **bản sao của một ảnh đã duyệt, chỉ khác đôi m�
 
 Nếu công cụ không có chức năng sửa vùng chọn: dùng một trình sửa ảnh có lớp (Photopea miễn phí trên web, Photoshop, Krita), mở ảnh gốc, vẽ đè mí mắt nhắm lên một lớp riêng ở vùng mắt, xuất PNG cùng kích thước. Không cắt, không dịch, không đổi cỡ ảnh.
 
+### 8.2a Kết quả đợt 3 (2026-11-23)
+
+Năm ảnh mắt nhắm nhắm đủ hai mắt, biểu cảm đúng. Công cụ trả về 2048 px, nền trắng và vẽ lại cả ảnh; agent ghép **chỉ vùng mắt** lên ảnh gốc (assets/mascot/README.md), nên không cần tạo lại. Lần sau, nếu công cụ có tùy chọn "giữ kích thước gốc" và "nền trong suốt" thì bật lên.
+
 ### 8.3 Agent kiểm gì khi nhận ảnh
 
 - Đợt 2: như §7 (kích thước, nền trong suốt, viền, mảng rời, nhất quán với ảnh đã duyệt).

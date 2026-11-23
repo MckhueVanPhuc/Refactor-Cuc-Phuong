@@ -8,7 +8,7 @@
 | Actor | Visitor |
 | Priority | Must; chuẩn bị offline Should* |
 | Mockup | [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html) (HTML tĩnh, chưa sign-off UX) |
-| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.1](../../../docs/spec/spec-Mascot.md) cho Mila |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.3](../../../docs/spec/spec-Mascot.md) cho Mila |
 
 Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md) (Published Route và JourneySnapshot theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu; \* gói offline là Should nhưng phải nâng lên Must nếu increment có điểm dừng `OFFLINE_REQUIRED` hoặc sơ đồ tuyến cần dùng offline. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
@@ -55,8 +55,8 @@ Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html)
 | 25 | E-SCR-M01-003-25 | Route unavailable state | Panel | Tuyến không còn `HOAT_DONG` sau làm mới nguồn | Conditional | Chặn Start mới; context hiện tại đánh dấu `REVOKED` (BR-M01-011) |
 | 26 | E-SCR-M01-003-26 | Action: Tài nguyên offline | Link | Mở SCR-M01-004 | Yes | None |
 | 27 | E-SCR-M01-003-27 | Tab bar | Thanh tab cố định ở đáy (design-system §5.2; 2026-11-21) | Như E-SCR-M01-001-20: Tuyến · Quét QR · Tài nguyên | Yes | Tab của màn đang mở được đánh dấu, không chỉ bằng màu |
-| 28 | E-SCR-M01-003-28 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Panel Bắt đầu (AVATAR; không bao giờ trên khối Cảnh báo an toàn); panel gói tải trước (AVATAR, INLINE); đầu dialog quyết định offline và lỗi Start (INLINE). Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc E-SCR-M01-003-29 |
-| 29 | E-SCR-M01-003-29 | Công tắc "Chuyển động" của Mila | Nút bật/tắt ở thanh đầu trang, bên trái VI/EN (design-system §9.5) | Luôn có khi Mila được bật | Conditional (Could, MVP-Scope §3.6) | `aria-pressed`, tên truy cập "Chuyển động của Mila", vùng chạm 44px; tắt: Mila đứng yên, chữ hiện ngay, Mila vẫn hiện; khởi đầu tắt khi giảm chuyển động; không lưu qua lần mở app (Spec Mascot BR-MAS-21). Không phải nút ẩn Mila |
+| 28 | E-SCR-M01-003-28 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Panel Bắt đầu (AVATAR; không bao giờ trên khối Cảnh báo an toàn); panel gói tải trước (AVATAR, INLINE); đầu dialog quyết định offline và lỗi Start (INLINE). Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
+| 29 | E-SCR-M01-003-29 | Công tắc "Chuyển động" của Mila | **Bỏ ở v1.3**: thanh đầu trang không còn nút chuyển động; công tắc duy nhất ở màn Tài nguyên SCR-M01-004 (Spec Mascot BR-MAS-21) | — | — | — |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Nhãn độ khó, thời gian và tag dùng bảng nhãn i18n ở SCR-M01-002.
 
@@ -81,17 +81,15 @@ Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html)
 | Lỗi nguồn, đang dùng bản lưu | Chưa tải được thông tin mới. Đang hiển thị thông tin đã lưu. | Could not load the latest information. Showing saved information. |
 | Mila nhắc đọc Cảnh báo an toàn (MSG-MAS-014) | Trước khi đi, bạn đọc kỹ phần Cảnh báo an toàn giúp mình nhé. | Before you head out, please read the Safety warning. |
 | Mila khi bắt đầu tải gói (MSG-MAS-020) | Mình đang xếp nội dung vào ba lô. Giữ trang này mở nhé. | Packing your route into the backpack. Keep this page open. |
-| Mila khi gói sẵn sàng (MSG-MAS-021) | Xếp xong rồi! Các điểm cần tải trước giờ xem được cả khi mất sóng. | All packed! Stops marked for download now work without signal. |
-| Mila khi tải lỗi (nguồn hoặc mạng) (MSG-MAS-024) | Tải chưa xong. Ra chỗ sóng mạnh hơn rồi thử lại nhé. | The download didn't finish. Find a stronger signal and try again. |
-| Mila khi máy không cho lưu (MSG-MAS-025) | Máy chưa cho mình lưu. Xem lại bộ nhớ trống hoặc chế độ ẩn danh nhé. | Your phone won't let me save. Check free space or private browsing. |
+| Mila khi gói sẵn sàng (MSG-MAS-021) | Giờ các điểm này xem được cả khi mất sóng. | These stops now work without signal. |
+| Mila khi tải lỗi (nguồn hoặc mạng) (MSG-MAS-024) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
+| Mila khi máy không cho lưu (MSG-MAS-025) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
 | Mila khi tải lỗi lần 2 liên tiếp (MSG-MAS-026) | Vẫn chưa được. Có mạng thì bạn vẫn đi được, chỉ vài điểm cần sóng để xem. | Still no luck. You can go without it, but some stops will need signal. |
 | Chạm Mila (màn M01) (MSG-MAS-009) | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
 | Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
 | Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
-| Chạm Mila lần nữa (MSG-MAS-012) | Chưa biết chọn tuyến nào? Bấm Gợi ý tuyến nhé. | Not sure which route? Tap Route suggestions. |
+| Chạm Mila lần nữa (MSG-MAS-012) | Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn. | Tap Route suggestions and I'll pick by your time and interests. |
 | Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
-| Tên truy cập của công tắc chuyển động | Chuyển động của Mila | Mila's motion |
-| Chữ trên công tắc | Chuyển động: bật / Chuyển động: tắt | Motion: on / Motion: off |
 
 ## 4. States
 

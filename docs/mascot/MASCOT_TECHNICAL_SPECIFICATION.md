@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED**. Chưa được phép cài cho tới khi có change brief và gói Spec-Kit được duyệt |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04) |
 | Nền tảng hiện có | React 19, React Router 8 (data mode), Vite 8 + vite-plugin-pwa (Workbox `generateSW`), Dexie (IndexedDB `visitorDb`), CSS Modules + token (`src/shared/ui/tokens.css`, lint cấm literal màu/px ngoài tokens), i18n tự viết theo module (`vi.ts`/`en.ts`, kiểu `typeof vi`) |
 
 ## 1. Nguyên tắc kiến trúc
@@ -141,7 +141,7 @@ Mỗi điểm phát được thêm kèm một test: test hành vi cũ vẫn PASS
 - Không chiếm focus; nút × và CTA nằm trong thứ tự tab tự nhiên của slot.
 - Tương phản bong bóng (v1.1, kiểu "Giấy dã ngoại", design-system §9.3): nền `--mascot-bubble-surface` (#fffaf0), chữ `m01-ink` (14.52:1); trên scanner dùng `--color-m02-scanner-surface` + `--color-m02-scanner-text` (12.86:1) kèm viền `secondary` như quy tắc §5.3.
 - Giảm chuyển động theo MAS-FR-12.
-- Công tắc "Chuyển động" (v1.1, BR-MAS-21) ở thanh đầu trang: `<button aria-pressed>`, tên "Chuyển động của Mila", vùng chạm 44 px; tắt thì engine ngừng lịch cử chỉ và component bỏ `data-mascot-animation`, chữ hiện ngay. Đây là cơ chế tạm dừng cho WCAG 2.2.2.
+- Công tắc "Chuyển động của Mila" (BR-MAS-21) ở màn Tài nguyên SCR-M01-004 (v1.3; v1.1 đặt ở thanh đầu trang): `<button role="switch" aria-checked>`, vùng chạm 44 px; tắt thì engine ngừng lịch cử chỉ và component bỏ `data-mascot-animation`, chữ hiện ngay. Đây là cơ chế tạm dừng cho WCAG 2.2.2.
 - Chữ hiện dần: phần tử chữ hiển thị dần có `aria-hidden`, một bản đầy đủ cho trình đọc màn hình (ẩn thị giác) để câu được đọc một lần.
 - Thông báo tạm đóng: mascot rời DOM (không chỉ ẩn bằng CSS), để trình đọc màn hình chỉ đọc thông báo an toàn.
 
