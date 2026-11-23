@@ -72,7 +72,8 @@ export function ScanPage() {
   return (
     <FieldLayout surface="scanner" title={messages.scanner.title}>
       <FieldNotice>
-        {stayNotice && <ScanNotice kind={stayNotice.kind} freeVisitor={stayNotice.freeVisitor} />}
+        {/* Màn Quét QR (SCR-M02-005) nằm ngoài phạm vi spec-Mascot: không có Mila */}
+        {stayNotice && <ScanNotice kind={stayNotice.kind} freeVisitor={stayNotice.freeVisitor} mila={false} />}
         {lookingUp && (
           <p className={styles.notice} role="status">
             {messages.trip.lookingUp}

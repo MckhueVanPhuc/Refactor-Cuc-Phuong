@@ -650,3 +650,50 @@ Branch `feat/mascot-us7`, tách từ `main` (sau PR #74). Task: T056–T062. Th�
 | DV-73 | Cập nhật lười khi mở chi tiết tuyến (không do du khách bấm) không phát sự kiện gói: Mila không nói về việc du khách không làm; câu lỗi cố định vẫn có hình `confused` | Áp dụng |
 | DV-74 | MSG-MAS-005 (P7 có lời) tính vào giới hạn câu chủ động BR-MAS-07 như mọi câu P5–P7 có lời | Ghi nhận |
 | DV-75 | Chưa thử trên điện thoại thật | NOT RUN |
+
+---
+
+## 16. Đợt 2026-11-23 — Phase 7: US5 "Mila giúp khi quét khó" (US-MAS-03)
+
+Branch `feat/mascot-us5`, tách từ `feat/mascot-us7` (PR #75 chưa merge); PR vào `main`, merge sau #75. Task: T047–T051.
+
+### 16.1 Đã cài
+
+| Mục | Nơi |
+|---|---|
+| Luật MAS-B-040 (minh họa không lời ở dải dưới, 600 ms sau khi camera chạy, lần mở đầu khi chưa có lượt ghé hoặc khách tự do, một lần mỗi lần tải trang), 041 (15 s nhìn quanh, chỉ khi chuyển động bật), 042 (30 s), 049 (90 s, CTA "Đóng camera" / "Chưa"), 038 (camera lỗi hủy các mốc), 043 → 044 (BUSY ở DOCK khi tra cứu, "sóng hơi yếu" sau 3 s, đóng khi có kết quả), 046 / 048 (lỗi giống nhau lần 2 liên tiếp trên SCR-M02-001; kết quả khác hay đổi màn đếm lại). Thao tác trong lúc quét đếm lại các mốc còn chờ (BR-MAS-09). Mở scanner đóng bong bóng đang hiện ở DOCK; câu 030 tới hạn khi scanner mở thì bỏ (DV-76) | `src/shared/mascot/rules.ts` |
+| Engine: AVATAR không lời hết thời gian giữ thì ẩn (minh họa 040, nhìn quanh 041) | `machine.ts` |
+| `QrScanner` nhận `mascot`: slot `scanner-bottom` dưới khung (CTA "Đóng camera" gọi đúng `onClose`), phát `cameraStarted` khi `decodeFromConstraints` resolve và `cameraFailed` khi camera lỗi; `MascotFigure` `confused` cạnh câu camera | `src/modules/m02/scanner/QrScanner.tsx` (+ `.module.css`) |
+| `TripPage`: phát `scanner.opened/closed` theo `scanning` (không phát lúc mở màn), `scanner.detected` đầu `handleText`, `scan.resolved` cho kết quả ở lại màn; bật `mascot` cho scanner | `src/modules/m02/session/TripPage.tsx` |
+| `ScanNotice`: `MascotFigure` `confused` cạnh `INVALID`, `CONNECTION_NEEDED` (không cho `CLOSED`); tắt ở màn Quét QR SCR-M02-005 (DV-77) | `ScanNotice.tsx` (+ `.module.css`), `ScanPage.tsx` |
+
+### 16.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `rules.test.ts` khối US5 (8 ca) | FAIL 7 ca; 1 ca "đóng scanner / camera lỗi hủy mốc" đạt ngay vì chưa có mốc nào |
+| `rules.test.ts` hai ca thêm sau DV-76 (030 đang hiện khi mở scanner; 030 tới hạn khi scanner mở) | Viết sau khi E2E Q9 tìm ra DV-76 |
+| E2E `e2e/m02/mascot-scanner.spec.ts` (Q9 với `page.clock` và camera hình trống; Q10; camera bị từ chối) | Viết trước khi chạy; Q9 tìm ra DV-76 |
+
+### 16.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx playwright test --project=m02 e2e/m02/mascot-scanner.spec.ts` | 1 | 2 pass, 1 fail (Q9 — DV-76) |
+| Như trên sau khi sửa | 0 | 3 pass |
+| `npm run ci` | 0 | lint token 742; 2440 pass, 133 skipped; build OK, precache 113 mục |
+| `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` | 0 | 124 pass |
+
+Ảnh chụp rà soát ở 375 và 320 px (scanner: minh họa 040, câu 042, câu 049 hai nút; chuyến đi: câu 046 ở DOCK, hình cạnh câu "mã không hợp lệ") bằng skill `frontend-design`: Mila dưới khung quét, không che khung; bong bóng nền tối của scanner (design-system §9.3).
+
+### 16.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-76 | Câu 030 ("tìm tem QR rồi bấm Quét QR") hẹn 800 ms sau khi vào chuyến; du khách bấm Quét ngay thì câu hiện sau lớp scanner và chặn minh họa 040 (cùng P6, < 1,5 s). Nay: mở scanner đóng bong bóng ở DOCK (bị lớp scanner che); 030 tới hạn khi scanner mở thì bỏ (du khách đã làm đúng điều câu gợi ý). Theo BR-MAS-20 "đang chờ quét" | Áp dụng |
+| DV-77 | Màn Quét QR SCR-M02-005 (thêm 2026-11-21, sau spec-Mascot) dùng chung `QrScanner` và `ScanNotice` nhưng không thuộc phạm vi spec-Mascot (SCR-M02-001…004): `mascot` của `QrScanner` mặc định tắt, `ScanNotice` nhận `mila={false}` ở đó | Áp dụng; cần quyết định nếu muốn Mila ở SCR-M02-005 |
+| DV-78 | MAS-B-040 là minh họa không lời từ v1.2 (CHG-MASCOT-2026-11-23-03) nhưng spec-Mascot US-MAS-03 mục 1 vẫn ghi "shows MSG-MAS-040"; code theo Behavior Matrix v1.2. Mila ở dạng AVATAR tư thế MA-13 trong 4 s rồi tự ẩn | Ghi nhận; spec-Mascot US-MAS-03 có nguy cơ stale |
+| DV-79 | MAS-B-043/044 chỉ chạy khi có phiên trên `/trip`: khách tự do không có Mila ở DOCK trên màn này (MAS-B-033 cần phiên), nên không có chỗ cho trạng thái "đang kiểm tra" | Ghi nhận |
+| DV-80 | Thử camera bị từ chối và camera không đọc được mã bằng cách thay `getUserMedia` trong trang (project `m02`), không thêm ca vào `scan-evil.spec.ts` như T048 ghi: camera giả của `m02-cam-evil` luôn đọc được mã | Ghi nhận |
+| DV-81 | Mila "đang kiểm tra" giữ tối đa 8 s (bằng `LOOKUP_TIMEOUT_SECONDS` của spec-M02 §9, chép thành hằng trong `rules.ts` vì `shared/mascot` không import từ module M02) | Ghi nhận |
+| DV-82 | Chưa thử trên điện thoại thật (camera thật, ánh nắng) | NOT RUN |

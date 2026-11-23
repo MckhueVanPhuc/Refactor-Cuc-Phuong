@@ -680,3 +680,133 @@ describe('US7 — Chuẩn bị cùng Mila (US-MAS-07; T056)', () => {
     });
   });
 });
+
+describe('US5 — Mila giúp khi quét khó (US-MAS-03; T047)', () => {
+  type Resolved = Extract<MascotEvent, { type: 'm02.scan.resolved' }>;
+  const shown = (k: number, at: number): Stamped => ({ type: 'm02.trip.shown', hasSession: true, k, n: 3, finalVisited: false, at });
+  const opened = (k: number, at: number, hasSession = true): Stamped => ({ type: 'm02.scanner.opened', hasSession, k, at });
+  const started = (at: number): Stamped => ({ type: 'm02.scanner.cameraStarted', at });
+  const resolved = (display: Resolved['display'], at: number): Stamped => ({
+    type: 'm02.scan.resolved',
+    display,
+    hasSession: true,
+    freeVisitor: false,
+    visitCreated: false,
+    inJourney: false,
+    finalPromptNeeded: false,
+    at,
+  });
+  /** Màn chuyến đi có phiên, k điểm đã quét; Mila đứng ở DOCK */
+  const onTrip = (k = 1) => play([{ type: 'app.route.changed', path: '/trip', at: 0 }, shown(k, 10)]).state;
+  const run = (state: MascotState, events: Stamped[], ctx = CTX) => play(events, [], ctx, state).state;
+
+  it('MAS-B-040 (v1.2): mở scanner khi chưa có lượt ghé → 600 ms sau khi camera chạy, Mila minh họa ở dải dưới (không chữ), tự ẩn; một lần mỗi lần tải trang', () => {
+    let state = run(onTrip(0), [opened(0, 1_000), started(1_200), { type: 'mascot.tick', at: 1_799 }]);
+    expect(state.view?.mode).toBe('DOCK');
+    state = run(state, [{ type: 'mascot.tick', at: 1_800 }]);
+    expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'point', animation: 'tilt', slot: 'scanner-bottom' });
+    expect(state.bubble).toBeNull();
+    state = run(state, [{ type: 'mascot.tick', at: 6_000 }]);
+    expect(state.view).toBeNull();
+    // Đóng rồi mở lại: không minh họa nữa; Mila về DOCK
+    state = run(state, [{ type: 'm02.scanner.closed', at: 7_000 }]);
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'binoculars' });
+    state = run(state, [opened(0, 8_000), started(8_100), { type: 'mascot.tick', at: 8_800 }]);
+    expect(state.view?.mode).toBe('DOCK');
+  });
+
+  it('mở scanner khi câu bắt đầu chuyến (030) còn hiện ở DOCK → câu đóng, minh họa 040 vẫn tới (BR-MAS-20)', () => {
+    let state = play([{ type: 'app.route.changed', path: '/trip', at: 0 }, { type: 'm02.trip.entered', kind: 'STARTED', hasSession: true, k: 0, n: 3, at: 5 }, shown(0, 10)]).state;
+    state = run(state, [{ type: 'mascot.tick', at: 810 }]);
+    expect(state.bubble?.messageId).toBe('MSG-MAS-030');
+    state = run(state, [opened(0, 1_000), started(1_100), { type: 'mascot.tick', at: 1_700 }]);
+    expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'point', slot: 'scanner-bottom' });
+    expect(state.bubble).toBeNull();
+  });
+
+  it('câu bắt đầu chuyến (030) tới hạn khi scanner đang mở → không nói sau lớp scanner', () => {
+    const state = run(play([{ type: 'app.route.changed', path: '/trip', at: 0 }, { type: 'm02.trip.entered', kind: 'STARTED', hasSession: true, k: 0, n: 3, at: 5 }, shown(0, 10)]).state, [
+      opened(0, 300),
+      { type: 'mascot.tick', at: 810 },
+    ]);
+    expect(state.bubble).toBeNull();
+  });
+
+  it('MAS-B-040: khách tự do cũng được minh họa; đã có lượt ghé thì không', () => {
+    const free = run(play([{ type: 'app.route.changed', path: '/trip', at: 0 }]).state, [opened(0, 100, false), started(200), { type: 'mascot.tick', at: 800 }]);
+    expect(free.view).toMatchObject({ mode: 'AVATAR', pose: 'point' });
+    const visited = run(onTrip(1), [opened(1, 100), started(200), { type: 'mascot.tick', at: 800 }]);
+    expect(visited.view?.mode).toBe('DOCK');
+  });
+
+  it('MAS-B-041, 042, 049: camera chạy mà chưa đọc được mã → 15 s nhìn quanh, 30 s hỏi giúp một lần, 90 s gợi ý tắt camera', () => {
+    let state = run(onTrip(1), [opened(1, 0), started(0), { type: 'mascot.tick', at: 15_000 }]);
+    expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'binoculars', animation: 'look', slot: 'scanner-bottom' });
+    expect(state.bubble).toBeNull();
+    state = run(state, [{ type: 'mascot.tick', at: 30_000 }]);
+    expect(state.bubble?.messageId).toBe('MSG-MAS-042');
+    expect(state.view).toMatchObject({ mode: 'AVATAR', slot: 'scanner-bottom' });
+    state = run(state, [{ type: 'mascot.tick', at: 45_000 }, { type: 'mascot.tick', at: 90_000 }]);
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-049', expiresAt: null });
+    expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'rest' });
+    // "Chưa" đóng bong bóng; sau đó im lặng tới khi đóng scanner
+    state = run(state, [{ type: 'mascot.user.ctaPressed', cta: 'notNow', at: 91_000 }, { type: 'mascot.tick', at: 300_000 }]);
+    expect(state.bubble).toBeNull();
+    expect(state.timers).toEqual({});
+  });
+
+  it('BR-MAS-09: thao tác trong lúc quét đếm lại các mốc; công tắc chuyển động tắt → không nhìn quanh', () => {
+    let state = run(onTrip(1), [opened(1, 0), started(0), { type: 'app.user.activity', at: 10_000 }, { type: 'mascot.tick', at: 15_000 }]);
+    expect(state.view?.mode).toBe('DOCK');
+    state = run(state, [{ type: 'mascot.tick', at: 25_000 }]);
+    expect(state.view).toMatchObject({ mode: 'AVATAR', animation: 'look' });
+
+    const still = run(onTrip(1), [{ type: 'mascot.motion.changed', on: false, at: 1 }, opened(1, 2), started(3), { type: 'mascot.tick', at: 15_003 }]);
+    expect(still.view?.mode).toBe('DOCK');
+  });
+
+  it('đóng scanner hay camera lỗi (MAS-B-038) → hủy các mốc 15/30/90 s', () => {
+    expect(run(onTrip(1), [opened(1, 0), started(0), { type: 'm02.scanner.closed', at: 5_000 }]).timers).not.toHaveProperty('scanHelp');
+    const failed = run(onTrip(1), [opened(1, 0), started(0), { type: 'm02.scanner.cameraFailed', at: 5_000 }, { type: 'mascot.tick', at: 30_000 }]);
+    expect(failed.bubble).toBeNull();
+  });
+
+  it('MAS-B-043 → 044: đọc được mã → Mila kiểm tra ở DOCK (BUSY); quá 3 s → "sóng hơi yếu"; có kết quả → câu đóng, về tư thế hành trình', () => {
+    let state = run(onTrip(1), [opened(1, 0), started(0), { type: 'm02.scanner.detected', at: 5_000 }, { type: 'm02.scanner.closed', at: 5_010 }]);
+    expect(state.status).toBe('BUSY');
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'magnifier', animation: 'search' });
+    state = run(state, [{ type: 'mascot.tick', at: 8_000 }]);
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-044', expiresAt: null });
+    state = run(state, [resolved('CONNECTION_NEEDED', 9_000)]);
+    expect(state.bubble).toBeNull();
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
+    expect(state.status).toBe('IDLE');
+  });
+
+  it('MAS-B-046: hai lần liên tiếp mã không hợp lệ → câu 046; lần đầu chỉ là hình cạnh câu cố định', () => {
+    let state = run(onTrip(1), [{ type: 'm02.scanner.detected', at: 1_000 }, resolved('INVALID', 1_100)]);
+    expect(state.bubble).toBeNull();
+    state = run(state, [{ type: 'm02.scanner.detected', at: 5_000 }, resolved('INVALID', 5_100)]);
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'confused' });
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-046', priority: 2, expiresAt: null });
+    // Đóng → về tư thế hành trình
+    state = run(state, [{ type: 'mascot.user.closedBubble', at: 6_000 }]);
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
+  });
+
+  it('MAS-B-047/048: hai lần liên tiếp cần kết nối → câu 048; kết quả khác ở giữa hay đổi màn → đếm lại', () => {
+    const twice = run(onTrip(1), [resolved('CONNECTION_NEEDED', 1_000), resolved('CONNECTION_NEEDED', 3_000)]);
+    expect(twice.bubble?.messageId).toBe('MSG-MAS-048');
+    expect(twice.view).toMatchObject({ mode: 'DOCK', pose: 'point' });
+
+    expect(run(onTrip(1), [resolved('CONNECTION_NEEDED', 1_000), resolved('INVALID', 3_000), resolved('CONNECTION_NEEDED', 5_000)]).bubble).toBeNull();
+    const left = run(onTrip(1), [
+      resolved('INVALID', 1_000),
+      { type: 'app.route.changed', path: '/trip/end', at: 2_000 },
+      { type: 'app.route.changed', path: '/trip', at: 3_000 },
+      shown(1, 3_010),
+      resolved('INVALID', 4_000),
+    ]);
+    expect(left.bubble).toBeNull();
+  });
+});

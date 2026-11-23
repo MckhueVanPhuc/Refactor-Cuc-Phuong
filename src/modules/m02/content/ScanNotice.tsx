@@ -3,13 +3,14 @@
 // giờ hiện là mã không hợp lệ. Mã ngoài hành trình (`VALID`) không có thông báo: màn hiện nội dung live, không lượt ghé
 // (spec và screen spec không chốt chữ nào cho trường hợp này). Màu theo bề mặt của FieldLayout (scanner tối / reader sáng).
 import { useEffect } from 'react';
-import { emitMascotEvent } from '../../../shared/mascot/index';
+import { emitMascotEvent, MascotFigure } from '../../../shared/mascot/index';
 import { useM02Messages } from '../i18n/useM02Messages';
 import styles from './ScanNotice.module.css';
 
 export type ScanNoticeKind = 'CLOSED' | 'INVALID' | 'CONNECTION_NEEDED';
 
-export function ScanNotice({ kind, freeVisitor = false }: { kind: ScanNoticeKind; freeVisitor?: boolean }) {
+/** `mila`: hình Mila cạnh câu `INVALID`, `CONNECTION_NEEDED` (MAS-B-046, 047); màn Quét QR SCR-M02-005 nằm ngoài spec-Mascot nên tắt. */
+export function ScanNotice({ kind, freeVisitor = false, mila = true }: { kind: ScanNoticeKind; freeVisitor?: boolean; mila?: boolean }) {
   const messages = useM02Messages();
   // Mila rời màn khi có thông báo tạm đóng (spec-Mascot BR-MAS-03; specs/005 T028). Chỉ phát tín hiệu.
   useEffect(() => {
@@ -22,7 +23,15 @@ export function ScanNotice({ kind, freeVisitor = false }: { kind: ScanNoticeKind
   }[kind];
   return (
     <div className={`${styles.notice} ${tone}`} role="alert" data-scan-notice={kind}>
-      <p className={styles.text}>{text}</p>
+      {/* Không bao giờ có Mila cạnh thông báo tạm đóng (BR-MAS-03) */}
+      {mila && kind !== 'CLOSED' ? (
+        <div className={styles.withMila}>
+          <MascotFigure pose="confused" size="sm" />
+          <p className={styles.text}>{text}</p>
+        </div>
+      ) : (
+        <p className={styles.text}>{text}</p>
+      )}
       {/* Gợi ý khách tự do hiện với mọi kết quả khi không có phiên (US-M02-07) */}
       {freeVisitor && <p className={styles.text}>{messages.notice.freeVisitor}</p>}
     </div>
