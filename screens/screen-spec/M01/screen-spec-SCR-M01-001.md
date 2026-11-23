@@ -8,7 +8,7 @@
 | Actor | Visitor |
 | Priority | Must |
 | Mockup | Chưa có |
-| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.1](../../../docs/spec/spec-Mascot.md) cho Mila |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.2](../../../docs/spec/spec-Mascot.md) cho Mila |
 
 Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md) (Published Route input theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
@@ -79,7 +79,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | Chạm Mila (màn M01) (MSG-MAS-009) | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
 | Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
 | Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
-| Chạm Mila lần nữa (MSG-MAS-012) | Chưa biết chọn tuyến nào? Bấm Gợi ý tuyến nhé. | Not sure which route? Tap Route suggestions. |
+| Chạm Mila lần nữa (MSG-MAS-012) | Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn. | Tap Route suggestions and I'll pick by your time and interests. |
 | Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 | Tên truy cập của công tắc chuyển động | Chuyển động của Mila | Mila's motion |
 | Chữ trên công tắc | Chuyển động: bật / Chuyển động: tắt | Motion: on / Motion: off |

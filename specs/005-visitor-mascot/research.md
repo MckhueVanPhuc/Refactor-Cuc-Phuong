@@ -158,3 +158,9 @@ Các mục R-17…R-25 là quyết định kỹ thuật cho BR-MAS-12, 17, 20–
 
 - **Decision**: `--duration-mascot-loop` giữ 1 200 ms; số lần lặp của AN-SEARCH, AN-PACK, AN-THINK = 4 (4,8 s); AN-BREATHE 2 × 2 400 ms. Test E2E đo `getAnimations()` với `effect.getComputedTiming().endTime ≤ 5000` cho mọi animation của Mila trừ khi công tắc có trên màn.
 - **Rationale**: BR-MAS-21, SC-MAS-014.
+
+## R-26 — Mila xác nhận lượt ghé thay toast (v1.2, BR-MAS-24)
+
+- **Decision**: store trong bộ nhớ `src/shared/mascot/visitConfirm.ts`: host gọi `markVisitConfirmed(visitRef)` ngay khi bong bóng xác nhận (050/051/055/058) của lượt ghé đó được đưa ra màn; `ScanContent` (M02) gọi `useMascotConfirms(visitRef)` → `'pending' | 'mascot' | 'toast'`: cờ Mila tắt hoặc host đã `failed` → `toast` ngay; bong bóng đã hiện → `mascot`; quá `MASCOT_CONFIRM_FALLBACK_MS` (1 000 ms) chưa hiện → `toast`. Toast hiện khi `toast`; không hiện khi `pending` hoặc `mascot`. Lượt ghé điểm cuối khi Mila bật: không toast (hộp thoại là xác nhận). Bong bóng xác nhận có `role="status"` (metadata catalog).
+- **Rationale**: không bao giờ cả hai, không bao giờ không có gì (SC-MAS-015); module chỉ đọc một trạng thái qua `index.ts` của `shared/mascot`; không lưu gì (BR-MAS-18).
+- **Alternatives**: host tự ẩn toast trong DOM (chạm vào module khác, không kiểm được); module tự đoán Mila có hiện (không biết được lỗi ảnh, slot, ngữ cảnh chặn).

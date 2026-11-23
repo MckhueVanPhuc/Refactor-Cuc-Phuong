@@ -8,7 +8,7 @@
 | Actor | Visitor có phiên |
 | Priority | Must; trạng thái đồng bộ Should |
 | Mockup | Chưa có |
-| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.1](../../../docs/spec/spec-Mascot.md) cho Mila |
+| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.2](../../../docs/spec/spec-Mascot.md) cho Mila |
 
 Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (`SessionSyncRecord` nhận bởi [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 

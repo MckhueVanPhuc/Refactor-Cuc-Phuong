@@ -53,6 +53,9 @@
 | Q23 | Tuyến 3 điểm: quét điểm 1, điểm 2 | Điểm 1: 051 cấp 2; điểm 2: 058 "Chỉ còn một điểm nữa thôi!" cấp 2 |
 | Q24 | Kết thúc sau khi quét đủ mọi điểm / kết thúc sớm | 063 / 062 |
 | Q25 | Cuộn danh mục liên tục | Không cử chỉ tự động trong lúc cuộn và 2 giây sau |
+| Q27 | Quét điểm thường / điểm đầu với Mila bật | Chỉ bong bóng "Đã ghi nhận…" của Mila, không toast |
+| Q28 | Như Q27 nhưng cờ Mila tắt, hoặc ảnh Mila hỏng | Toast "Đã ghi nhận lượt quét." như cũ |
+| Q29 | Quét điểm cuối với Mila bật | Hộp thoại kết thúc chuyến ngay, không toast, Mila chỉ rung |
 | Q26 | Bong bóng ở 320 px | Kiểu "Giấy dã ngoại", không đè, không cuộn ngang; Mila 112 px (danh mục), 128 px (chuyến đi), 104 px (kết quả) |
 
 ## 4. Kiểm thủ công (thiết bị thật — chủ dự án)

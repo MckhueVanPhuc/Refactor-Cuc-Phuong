@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-21
 
-**Status**: Draft — bản dẫn xuất (Layer 3) từ [docs/spec/spec-Mascot.md](../../docs/spec/spec-Mascot.md) v1.1 (cập nhật 2026-11-22 theo [CHG-MASCOT-2026-11-22-02](change-brief-CHG-MASCOT-2026-11-22-02.md))
+**Status**: Draft — bản dẫn xuất (Layer 3) từ [docs/spec/spec-Mascot.md](../../docs/spec/spec-Mascot.md) v1.2 (cập nhật 2026-11-22 theo [CHG-MASCOT-2026-11-22-02](change-brief-CHG-MASCOT-2026-11-22-02.md), 2026-11-23 theo [CHG-MASCOT-2026-11-23-03](change-brief-CHG-MASCOT-2026-11-23-03.md))
 
 **Input**: Change Brief [CHG-MASCOT-2026-11-21-01](change-brief-CHG-MASCOT-2026-11-21-01.md) (APPROVED 2026-11-21). Nguồn chuẩn: spec-Mascot v1.0 (mọi quyết định nghiệp vụ đã chốt ở §10, OD-MAS-01…16); [function-list-Mascot.md](../../docs/function%20list/function-list-Mascot.md); ranh giới priority: [MVP-Scope.md](../../MVP-Scope.md) §3.6 (Could). Consumer: màn du khách SCR-M01-001…004, SCR-M02-001…004. Hình thức: [design-system](../../docs/design/design-system.md) §4.3, §9. Bộ thiết kế: [docs/mascot/](../../docs/mascot/README.md). Các rule M01/M02 được trích dẫn và giữ nguyên: spec-M01 v3.2 US-M01-01…06; spec-M02 v3.3 FR-M02-007, 009; BR-M02-005, 006, 007, 008, 009, 011, 015, 016, 021, 022, 023, 024; SC-M02-013; §5.1; §6.4.
 
@@ -267,6 +267,7 @@ Giữ nguyên SC-MAS-001…010 của spec canonical (spec-Mascot §7):
 - **SC-MAS-008**: Khi yêu cầu giảm chuyển động, 0 animation của Mila chạy.
 - **SC-MAS-009**: Khách tự do không bao giờ thấy tiến độ hay ăn mừng.
 - **SC-MAS-010**: Mở link QR công khai hiện nội dung không có lời giới thiệu và không thêm độ trễ.
+- **SC-MAS-015** (v1.2): Mỗi lượt ghé mới (không phải điểm cuối) có đúng một xác nhận: bong bóng Mila hoặc, khi Mila không hiện được, toast; không bao giờ cả hai, không bao giờ không có gì (BR-MAS-24).
 - **SC-MAS-011** (v1.1): Công tắc tắt → 0 animation của Mila chạy trên mọi màn, Mila vẫn hiện.
 - **SC-MAS-012** (v1.1): 0 cử chỉ tự động trên trang đọc bài, khi phát media, khi có hộp thoại, hoặc trong 2 giây sau thao tác.
 - **SC-MAS-013** (v1.1): Mọi chuỗi chạm không bao giờ hiện hai bong bóng, không chạy lại animation đang chạy, chóng mặt tối đa một lần mỗi lần tải trang.

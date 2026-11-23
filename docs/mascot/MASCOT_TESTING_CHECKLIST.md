@@ -131,3 +131,14 @@ Quy ước: **Auto** = test tự động; **Manual** = kiểm tay; **Device** = 
 | MAS-TC-120 | Chữ hiện dần: trình đọc màn hình nhận câu đầy đủ một lần; thời lượng tự ẩn tính từ khi chữ hiện đủ | Auto + Device |
 | MAS-TC-121 | Bố cục ở cỡ mới (112/128/104/56/200 px) và bong bóng kiểu A ở 320–430 px: không đè, không cuộn ngang | Auto |
 | MAS-TC-122 | Chớp mắt dùng ảnh MA-20 đúng tư thế; thiếu ảnh mắt nhắm thì bỏ cử chỉ chớp mắt, không hiện hình giữ chỗ | Auto |
+
+## 11. Bổ sung v1.2 (spec-Mascot BR-MAS-24; SC-MAS-015)
+
+| ID | Kiểm | Loại |
+|---|---|---|
+| MAS-TC-130 | Lượt ghé mới (không phải điểm cuối) khi Mila hoạt động: bong bóng xác nhận (050/051/055/058) hiện, có `role="status"`; **không** có toast "Đã ghi nhận lượt quét." | Auto |
+| MAS-TC-131 | Cờ Mila tắt: toast hiện như cũ; test M02 cũ về toast PASS | Auto |
+| MAS-TC-132 | Mila lỗi (ảnh hỏng) hoặc bong bóng chưa hiện sau 1 giây: toast hiện; không bao giờ có cả hai, không bao giờ không có gì | Auto |
+| MAS-TC-133 | Điểm cuối khi Mila hoạt động: hộp thoại kết thúc chuyến hiện ngay, không toast, Mila chỉ rung | Auto |
+| MAS-TC-134 | 013, 024, 025, 040, 054 không còn chữ (chỉ minh họa); 013 không có nút thứ hai | Auto |
+

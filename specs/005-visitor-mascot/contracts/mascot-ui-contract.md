@@ -64,6 +64,12 @@ Mọi `--duration-mascot-*` = 0ms trong khối `@media (prefers-reduced-motion: 
 - Bong bóng kiểu A: dòng tên "Mila" (`aria-hidden`), chữ hiện dần (phần hiện dần `aria-hidden`, bản đầy đủ `.visually-hidden` giữ `lang`, `role`), góc 6px phía Mila theo `data-mascot-tail` (R-20, R-21).
 - `motion === 'off'` hoặc giảm chuyển động: không `data-mascot-animation`, không lá rơi, chữ hiện ngay.
 
+## 4b. Bổ sung v1.2 — xác nhận lượt ghé (BR-MAS-24; research R-26)
+
+- `useMascotConfirms(visitRef?: string): 'pending' | 'mascot' | 'toast'` (export từ `src/shared/mascot/index.ts`). `ScanContent` hiện toast "Đã ghi nhận lượt quét." chỉ khi kết quả là `toast`; lượt ghé điểm cuối khi Mila bật: không toast.
+- Host gọi `markVisitConfirmed(visitRef)` khi bong bóng 050/051/055/058 của lượt ghé đó lên màn; báo `failed` khi Mila ẩn vì lỗi.
+- Bong bóng xác nhận: `role="status"`.
+
 ## 5. Catalog (`src/shared/mascot/dialogue/`)
 
 - `vi.ts`, `en.ts`: khóa `MSG-MAS-001…075`, `MSG-MAS-057a…e`, nhãn `ask`, `dismiss`, `notNow`, `ctaRecommend`, `ctaSeeAll`, `ctaCloseCamera`; `en: typeof vi`. Câu có tham số là hàm `({ k, n, count, cheer }) => string`. `{name}` đã thay bằng `Mila` trong chữ.

@@ -5,8 +5,8 @@
 | Field | Value |
 |---|---|
 | Capability | Mascot — Mila accompanies visitors on the M01 and M02 screens |
-| Source spec | [spec-Mascot.md](../spec/spec-Mascot.md), v1.1 |
-| Updated | 2026-11-22 (spec-Mascot v1.1, CHG-MASCOT-2026-11-22-02) |
+| Source spec | [spec-Mascot.md](../spec/spec-Mascot.md), v1.2 |
+| Updated | 2026-11-23 (spec-Mascot v1.2, CHG-MASCOT-2026-11-23-03) |
 | Purpose | Functional decomposition for the visitor frontend design |
 | Priority rule | Delivery priority comes from `MVP-Scope.md` §3.6 (Could); sub-functions inherit their parent function's priority. |
 | Source FR notation | After one full ID, following comma-separated numbers inherit the same `FR-MAS-` prefix. Business rules are cited as `BR-MAS-<number>`; spec-M01/M02 rules keep their own IDs. |
@@ -79,7 +79,7 @@
 
 | Sub-function ID | Behavior | Input / trigger | Output / state | Exception / guard | Source FR |
 |---|---|---|---|---|---|
-| SF-MAS-005-01 | Celebrate a newly recorded visit. | Visit of a checkpoint recorded for the first time | Celebration with MSG-MAS-050 or 051 next to the unchanged toast; one short vibration where supported | Content not delayed; no celebration on re-scan or for a free visitor (US-MAS-02, BR-MAS-19) | FR-MAS-005 |
+| SF-MAS-005-01 | Celebrate a newly recorded visit. | Visit of a checkpoint recorded for the first time | Celebration with MSG-MAS-050 or 051 that is the check-in feedback (replaces the toast; toast is the fallback, BR-MAS-24); one short vibration where supported | Content not delayed; no celebration on re-scan or for a free visitor (US-MAS-02, BR-MAS-19) | FR-MAS-005 |
 | SF-MAS-005-02 | Mark the halfway point. | `k = ⌈n/2⌉`, `n ≥ 4`, not the final checkpoint | MSG-MAS-055 | Once per session | FR-MAS-005 |
 | SF-MAS-005-03 | Accompany the end-of-trip prompt. | Prompt opened; "Đi tiếp" pressed | Illustration inside the prompt; MSG-MAS-061 after "Đi tiếp" | Prompt never delayed (BR-M02-021) | FR-MAS-005, 009 |
 | SF-MAS-005-04 | Celebrate the end of the trip. | SCR-M02-003 opened right after the visitor ended a `HOAN_TAT` trip | Celebration ≤ `MASCOT_CELEBRATION_MS` with MSG-MAS-062, then a still illustration next to the badge | Skippable by tap; reopening shows the still illustration only | FR-MAS-005 |

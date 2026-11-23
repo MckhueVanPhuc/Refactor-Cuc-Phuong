@@ -8,7 +8,7 @@
 | Actor | Visitor |
 | Priority | Should |
 | Mockup | Chưa có |
-| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.1](../../../docs/spec/spec-Mascot.md) cho Mila |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.2](../../../docs/spec/spec-Mascot.md) cho Mila |
 
 Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
@@ -74,12 +74,12 @@ Chữ cố định khác của màn này:
 | Không đọc được nguồn | Chưa tải được danh sách tuyến. Hãy kiểm tra kết nối và thử lại. | Could not load the routes. Check your connection and try again. |
 | Tiêu đề nhóm | Thời gian · Đối tượng · Trải nghiệm | Time · Who is going · Experience |
 | Mila khi mở Gợi ý tuyến (MSG-MAS-010) | Bạn có bao lâu, đi cùng ai, thích gì? Chọn mỗi nhóm một ý nhé. | How long, with whom, and what do you enjoy? Pick one of each. |
-| Mila khi có kết quả gợi ý (MSG-MAS-011) | Có {count} tuyến hợp với bạn đây! | 1 route matches what you're after! / {count} routes match what you're after! |
-| Mila sau 2 lần không có kết quả (nút "Xem tất cả tuyến") (MSG-MAS-013) | Thử xem tất cả tuyến, biết đâu có tuyến bạn thích. | Try browsing all routes, one might catch your eye. |
+| Mila khi có kết quả gợi ý (MSG-MAS-011) | Đây là những tuyến hợp với bạn! | Here are the routes that suit you! |
+| Mila sau 2 lần không có kết quả (nút "Xem tất cả tuyến") (MSG-MAS-013) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
 | Chạm Mila (màn M01) (MSG-MAS-009) | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
 | Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
 | Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
-| Chạm Mila lần nữa (MSG-MAS-012) | Chưa biết chọn tuyến nào? Bấm Gợi ý tuyến nhé. | Not sure which route? Tap Route suggestions. |
+| Chạm Mila lần nữa (MSG-MAS-012) | Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn. | Tap Route suggestions and I'll pick by your time and interests. |
 | Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 | Tên truy cập của công tắc chuyển động | Chuyển động của Mila | Mila's motion |
 | Chữ trên công tắc | Chuyển động: bật / Chuyển động: tắt | Motion: on / Motion: off |
