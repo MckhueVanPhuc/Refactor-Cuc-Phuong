@@ -43,17 +43,19 @@ Quy tắc bắt buộc cho mọi điểm phát:
 | `m02.scanner.detected` | — | `TripPage.tsx` — đầu `handleText` | MAS-B-043, 044 |
 | `m02.scan.resolved` | `{ display: ScanDisplay['kind'], hasSession, freeVisitor, visitCreated, inJourney, finalPromptNeeded }` | `TripPage.tsx` (kết quả ở lại màn) và `src/modules/m02/content/ScanContent.tsx` (dùng chung cho `ContentPage` và `QrLinkPage`, nên `QrLinkPage.tsx` **không** phát riêng) | MAS-B-045…054 |
 | `m02.visit.recorded` | `{ sessionRef, visitRef, k, n, isFinal }` | `ScanContent.tsx` — khi `scan.visitCreated` (lượt ghé đã commit trước khi điều hướng). `visitRef` = ref opaque của (phiên, điểm dừng, `checkedInAt`); `ScanContent` mount lại từ router state (lùi/tiến, tải lại) phát lại cùng `visitRef`, engine chỉ phản ứng một lần mỗi `visitRef` trong một lần tải trang | MAS-B-050, 051, 055 |
-| `m02.media.playing` / `m02.media.stopped` | `{ type: 'AUDIO' \| 'VIDEO' }` | `src/modules/m02/content/MediaList.tsx` — `play` / `pause` / `ended` | MAS-B-058 |
+| `m02.media.playing` / `m02.media.stopped` | `{ type: 'AUDIO' \| 'VIDEO' }` | `src/modules/m02/content/MediaList.tsx` — `play` / `pause` / `ended`; đếm qua `holdMascotSignal`: `playing` khi tệp đầu tiên phát, `stopped` khi tệp cuối cùng dừng | MAS-B-058 |
 | `m02.notice.closedShown` | — | `ScanNotice.tsx` khi `kind = CLOSED` | MAS-B-045 (dự phòng cho `scan.resolved`) |
 | `m02.notice.autoEndShown` / `Hidden` | — | `src/modules/m02/layout/FieldLayout.tsx` — `useAutoEndNotice` | MAS-B-035 |
 | `m02.finalPrompt.opened` / `continued` / `ended` | — | `src/modules/m02/end/FinalPrompt.tsx` | MAS-B-060, 061 |
-| `m02.trip.ended` | `{ status: 'HOAN_TAT' \| 'BO_DO', k, justEnded }` | `src/modules/m02/end/EndPage.tsx` — mount (`justEnded` khi có `state.sessionId`) | MAS-B-062, 063 |
+| `m02.trip.ended` | `{ status: 'HOAN_TAT' \| 'BO_DO', k, n, justEnded }` (v1.1 thêm `n`) | `src/modules/m02/end/EndPage.tsx` — khi phiên và danh sách lượt ghé đã đọc xong (`justEnded` = cờ trong bộ nhớ `takeEndedHere`, DV-25) | MAS-B-062, 063, 064 |
 | `m02.sync.statusChanged` | `{ status: 'PENDING' \| 'SYNCED' \| 'CONFLICT', online }` | `EndPage.tsx` — `useSyncStatus` đổi | MAS-B-070…072 |
-| `app.dialog.changed` | `{ open, kind: 'FINAL_PROMPT' \| 'OTHER' }` | `src/shared/ui/Dialog.tsx` (mở/đóng; `OTHER`) và `FinalPrompt.tsx` (`FINAL_PROMPT`) | Chặn bong bóng khi có dialog khác dialog cuối chuyến (BR-MAS-08) |
+| `app.dialog.changed` | `{ open, kind: 'FINAL_PROMPT' \| 'OTHER' }` | `src/shared/ui/Dialog.tsx` (`OTHER`: `open: true` khi hộp thoại đầu tiên mở, `open: false` khi hộp cuối cùng đóng, qua `holdMascotSignal`) và `FinalPrompt.tsx` (`FINAL_PROMPT`) | Chặn bong bóng khi có dialog khác dialog cuối chuyến (BR-MAS-08) |
 | `app.route.changed` | `{ path }` | Host (từ `pathname` App truyền vào) | MAS-B-083 |
 | `app.visibility.changed` | `{ visible }` | Host (listener) | MAS-B-034, 084 |
 | `app.network.changed` | `{ online }` | Host (listener) | MAS-B-074, 075 |
-| `mascot.user.tapped` / `mascot.user.closedBubble` / `mascot.user.ctaPressed` | `{ cta? }` | Component trong host | MAS-B-009, 032, 059; đóng bong bóng; CTA |
+| `mascot.user.tapped` / `mascot.user.closedBubble` / `mascot.user.ctaPressed` | `{ cta? }` | Component trong host | MAS-B-009, 032, 036, 037, 059, 065, 085, 089; đóng bong bóng; CTA |
+| `mascot.motion.changed` (v1.1) | `{ on }` | `MascotMotionToggle` (`src/shared/mascot/`) qua store `motion.ts` | MAS-B-086, 087 |
+| `app.user.activity` (v1.1, nội bộ) | — | Host: `pointerdown`, `keydown`, `scroll` trên `window`, gộp 250 ms; gửi thẳng vào reducer, không qua bus, không chống trùng | MAS-B-088 |
 
 Ghi chú: `m02.notice.closedShown` là lưới an toàn — nếu một luồng nào hiện thông báo tạm đóng mà không qua `scan.resolved`, Mila vẫn rời màn (BR-MAS-03).
 

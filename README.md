@@ -21,7 +21,7 @@ Hệ thống là một modular monolith gồm ba module logic, chạy chung mộ
 
 Ngoài ba module còn **AI Integration** — một năng lực dùng cho M03, không phải module thứ tư: nút "→" dịch ô tiếng Việt sang ô tiếng Anh trong các editor M03 ([Spec v1.0](docs/spec/spec-AI_integration.md), priority Could, [gói 004](specs/004-ai-translation/), 34/34 task).
 
-Ngoài ra có **Mascot Mila** — rái cá đồng hành của du khách trên các màn M01/M02, chỉ ở frontend ([Spec v1.0](docs/spec/spec-Mascot.md), priority Could, [bộ thiết kế](docs/mascot/README.md), [gói 005](specs/005-visitor-mascot/): change brief đã duyệt, 0/74 task, chưa có code).
+Ngoài ra có **Mascot Mila** — rái cá đồng hành của du khách trên các màn M01/M02, chỉ ở frontend ([Spec v1.0](docs/spec/spec-Mascot.md), priority Could, [bộ thiết kế](docs/mascot/README.md), [gói 005](specs/005-visitor-mascot/): đang cài đặt, 50/74 task: pilot US1–US4 và ảnh đợt 1; spec v1.3 (CHG-MASCOT-2026-11-22-02, -23-03, -23-04: Mila sống động hơn, Mila xác nhận lượt quét thay toast, lớp phủ giới thiệu, công tắc chuyển động ở màn Tài nguyên) đã duyệt; công tắc `VITE_FEATURE_MASCOT` mặc định tắt).
 
 **Đang làm:** đưa lên cloud (Vercel + Supabase Cloud) theo [change brief CHG-M03-2026-11-05-01](specs/003-m03-operations-content-administration/change-brief-CHG-M03-2026-11-05-01-deployment.md) (M03 Phase 16). Website đã có bản deploy đầu tiên trên Vercel, chưa phát hành; đang hoàn tất T203–T209. Các bước: [cloud-runbook.md](specs/003-m03-operations-content-administration/cloud-runbook.md).
 

@@ -59,3 +59,46 @@ describe('Dialog', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 });
+
+describe('Dialog — tín hiệu cho mascot Mila (specs/005 tasks T022; BR-MAS-08)', () => {
+  it('mở và đóng phát app.dialog.changed (OTHER); hành vi hộp thoại không đổi', async () => {
+    vi.stubEnv('VITE_FEATURE_MASCOT', 'on');
+    const { subscribeMascotEvents } = await import('../mascot/events');
+    const seen: Array<{ type: string; open?: boolean; kind?: string }> = [];
+    const off = subscribeMascotEvents((event) => seen.push(event));
+    const props = { title: 'Xóa gói?', safeLabel: 'Giữ lại', confirmLabel: 'Xóa', onSafe: () => {}, onConfirm: () => {} };
+    const { rerender } = render(<Dialog open {...props} />);
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+    rerender(<Dialog open={false} {...props} />);
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+    expect(seen.map(({ type, open, kind }) => ({ type, open, kind }))).toEqual([
+      { type: 'app.dialog.changed', open: true, kind: 'OTHER' },
+      { type: 'app.dialog.changed', open: false, kind: 'OTHER' },
+    ]);
+    off();
+    vi.unstubAllEnvs();
+  });
+
+  it('hai hộp thoại cùng mở: đóng một hộp chưa báo đóng; đóng hộp cuối mới báo', async () => {
+    vi.stubEnv('VITE_FEATURE_MASCOT', 'on');
+    const { subscribeMascotEvents } = await import('../mascot/events');
+    const seen: boolean[] = [];
+    const off = subscribeMascotEvents((event) => {
+      if (event.type === 'app.dialog.changed') seen.push(event.open);
+    });
+    const props = { title: 'Xóa gói?', safeLabel: 'Giữ lại', confirmLabel: 'Xóa', onSafe: () => {}, onConfirm: () => {} };
+    const tick = () => new Promise<void>((resolve) => queueMicrotask(resolve));
+    const first = render(<Dialog open {...props} />);
+    const second = render(<Dialog open {...props} />);
+    await tick();
+    expect(seen).toEqual([true]);
+    second.rerender(<Dialog open={false} {...props} />);
+    await tick();
+    expect(seen).toEqual([true]);
+    first.rerender(<Dialog open={false} {...props} />);
+    await tick();
+    expect(seen).toEqual([true, false]);
+    off();
+    vi.unstubAllEnvs();
+  });
+});

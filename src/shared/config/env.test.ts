@@ -18,6 +18,15 @@ describe('parseEnv (research R-14)', () => {
     });
   });
 
+  it('VITE_FEATURE_MASCOT tùy chọn: thiếu, "on", "off" đều nhận; giá trị khác báo lỗi nêu tên biến (spec-Mascot OD-MAS-15)', () => {
+    expect(() => parseEnv(valid, true)).not.toThrow();
+    expect(() => parseEnv({ ...valid, VITE_FEATURE_MASCOT: 'on' }, true)).not.toThrow();
+    expect(() => parseEnv({ ...valid, VITE_FEATURE_MASCOT: 'off' }, true)).not.toThrow();
+    expect(() => parseEnv({ ...valid, VITE_FEATURE_MASCOT: 'yes' }, true)).toThrow(/VITE_FEATURE_MASCOT/);
+    // Công tắc không đổi cấu hình trả về
+    expect(parseEnv({ ...valid, VITE_FEATURE_MASCOT: 'on' }, true)).toEqual(parseEnv(valid, true));
+  });
+
   it('từ chối base URL có dấu / ở cuối', () => {
     expect(() => parseEnv({ ...valid, VITE_QR_PUBLIC_BASE_URL: 'https://quest.example/' }, true)).toThrow(
       /VITE_QR_PUBLIC_BASE_URL/,

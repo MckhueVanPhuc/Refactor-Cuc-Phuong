@@ -1,0 +1,36 @@
+/* Hình tĩnh của Mila (design-system §9). Hình giữ chỗ chỉ là đĩa tròn có lá, rõ ràng không phải nhân vật. */
+.figure {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+}
+
+.sm {
+  width: var(--mascot-size-sm);
+  height: var(--mascot-size-sm);
+}
+
+.md {
+  width: var(--mascot-size-md);
+  height: var(--mascot-size-md);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-paper);
+  background: var(--color-m01-forest);
+  border-radius: 50%;
+}
+
+.leaf {
+  --icon-size: 50%;
+}

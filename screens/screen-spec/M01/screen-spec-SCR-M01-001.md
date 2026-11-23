@@ -8,7 +8,7 @@
 | Actor | Visitor |
 | Priority | Must |
 | Mockup | Chưa có |
-| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.0](../../../docs/spec/spec-Mascot.md) cho Mila |
+| Status | Draft — đồng bộ [Spec M01 v3.2](../../../docs/spec/spec-M01.md) và [Spec Mascot v1.3](../../../docs/spec/spec-Mascot.md) cho Mila |
 
 Nguồn hành vi/contract: [Spec M01](../../../docs/spec/spec-M01.md) (Published Route input theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
@@ -48,7 +48,8 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 17 | E-SCR-M01-001-17 | Loading state | Spinner | Đang đọc nguồn | Conditional | Hiện khi đang tải |
 | 18 | E-SCR-M01-001-18 | Empty state | Text | Không có tuyến nào chọn được | Conditional | Hiện khi nguồn trả về nhưng không có tuyến `HOAT_DONG` hợp lệ |
 | 19 | E-SCR-M01-001-19 | Source unavailable | Text | Không đọc được nguồn và không có local view | Conditional | Request lỗi dù trình duyệt báo online vẫn coi là nguồn không khả dụng |
-| 21 | E-SCR-M01-001-21 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Hero (INTRO, DOCK); trạng thái rỗng và lỗi nguồn (INLINE). Không có Mila trên bước chọn ngôn ngữ. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17) |
+| 21 | E-SCR-M01-001-21 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Hero hai cột (v1.3): trái tiêu đề và "Gợi ý tuyến", phải dải đồi và Mila DOCK đứng trên đồi (112px; 88px khi màn < 360px); bong bóng mở dưới hero, đuôi chỉ lên Mila, Mila không đổi chỗ, danh sách trượt xuống (design-system §9.3a). Lớp phủ giới thiệu INTRO một lần sau lần chọn ngôn ngữ đầu tiên: phủ cả màn, Mila và một bong bóng ở giữa, "Chạm để bắt đầu", không nút "Bỏ qua" (§9.3b; Spec Mascot US-MAS-01). Trạng thái rỗng và lỗi nguồn (INLINE). Không có Mila trên bước chọn ngôn ngữ. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng (trừ bong bóng lớp phủ giới thiệu: một câu dài hơn, đóng bằng chạm, Back hoặc Esc; `role="dialog"`, focus vào lớp phủ rồi trả về tiêu đề); không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
+| 22 | E-SCR-M01-001-22 | Công tắc "Chuyển động" của Mila | **Bỏ ở v1.3**: thanh đầu trang không còn nút chuyển động; công tắc duy nhất ở màn Tài nguyên SCR-M01-004 (Spec Mascot BR-MAS-21) | — | — | — |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới.
 
@@ -70,14 +71,16 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | Nút áp dụng bản mới | Cập nhật | Update |
 | Nút hoãn | Để sau | Later |
 | Cập nhật bị hoãn (đang tải gói hoặc có chuyến đi đang diễn ra) | Ứng dụng đang tải gói hoặc có chuyến đi đang diễn ra. Hãy thử cập nhật lại sau khi xong. | A route download or trip is in progress. Please try updating again when it finishes. |
-| Mila giới thiệu (1/2), sau lần chọn ngôn ngữ đầu tiên (MSG-MAS-001) | Chào bạn! Mình là Mila, rái cá thám hiểm của Cúc Phương. | Hi! I'm Mila, Cúc Phương's otter explorer. |
-| Mila giới thiệu (2/2) (MSG-MAS-002) | Mình sẽ đi cùng bạn suốt hành trình. Chọn một tuyến nhé! | I'll be with you all the way. Let's pick a route! |
+| Lớp phủ giới thiệu, sau lần chọn ngôn ngữ đầu tiên (MSG-MAS-001, v1.3) | Chào bạn! Mình là Mila, rái cá thám hiểm của Cúc Phương. Mình sẽ đồng hành cùng bạn trong suốt chuyến tham quan này. Cùng chọn một tuyến nhé! | Hi! I'm Mila, Cúc Phương's otter explorer. I'll be with you throughout this visit. Let's pick a route! |
+| Dòng gợi ý dưới Mila trong lớp phủ (v1.3) | Chạm để bắt đầu | Tap to start |
 | Mila chào du khách quay lại (MSG-MAS-004) | Chào mừng bạn quay lại! Hôm nay mình đi tuyến nào đây? | Welcome back! Which route are we taking today? |
 | Mila khi danh mục tải lâu (MSG-MAS-005) | Mình đang mở bản đồ các tuyến… | Unfolding the route map… |
 | Mila gợi ý khi chưa chọn tuyến (nút "Gợi ý tuyến") (MSG-MAS-008) | Chưa biết chọn tuyến nào? Để mình gợi ý cho. | Not sure which route? Let me suggest one. |
 | Chạm Mila (màn M01) (MSG-MAS-009) | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
 | Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
 | Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
+| Chạm Mila lần nữa (MSG-MAS-012) | Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn. | Tap Route suggestions and I'll pick by your time and interests. |
+| Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 
 ## 4. States
 

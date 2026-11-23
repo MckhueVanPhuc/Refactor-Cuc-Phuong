@@ -3,14 +3,14 @@
 | Trường | Giá trị |
 |---|---|
 | Dành cho | Người tạo ảnh Mila (chủ dự án) |
-| Ngày | 2026-11-21 |
+| Ngày | 2026-11-21; cập nhật 2026-11-22 (đợt 1 đã giao; đợt 2 bắt buộc; đợt 3 mắt nhắm — spec-Mascot v1.1) |
 | Liên quan | [Asset spec](MASCOT_ASSET_SPECIFICATION.md) §4–§5; AGENTS.md §4 (ảnh do người dùng cung cấp; agent chỉ cắt, đổi cỡ, nén) |
 
 Agent không tạo được ảnh nhân vật. Bạn tạo ảnh bằng công cụ AI đã dùng để làm concept sheet; agent kiểm tra, căn chỉnh và xuất bản dùng trên web.
 
 ## 1. Cần bao nhiêu ảnh
 
-**Đợt 1 — đủ cho pilot (8 ảnh):**
+**Đợt 1 — đủ cho pilot (9 ảnh; đã giao 2026-11-22):**
 
 | Tệp | Tư thế | Dùng ở pilot |
 |---|---|---|
@@ -21,9 +21,10 @@ Agent không tạo được ảnh nhân vật. Bạn tạo ảnh bằng công c�
 | `ma-07-thumbs-up.png` | Giơ ngón cái | Quét được mã, đã gửi về hệ thống |
 | `ma-08-cheer.png` | Hai tay giơ cao, nhảy | Mã đầu tiên, điểm cuối, kết thúc chuyến |
 | `ma-09-confused.png` | Gãi đầu, bối rối nhẹ | Lỗi, chuyến không bắt đầu được |
-| `ma-11-avatar.png` | Đầu và vai, chính diện | Bong bóng nhỏ |
+| `ma-11-avatar.png` | Đầu và vai, chính diện | Bong bóng nhỏ (chế độ AVATAR) |
+| `ma-10-rest.png` | Ngồi nghỉ | Chuyến tự kết thúc (MAS-B-063) |
 
-**Đợt 2 — sau pilot (4 ảnh):** `ma-03-think.png` (chống cằm suy nghĩ), `ma-06-magnifier.png` (cầm kính lúp), `ma-10-rest.png` (ngồi nghỉ), `ma-13-point.png` (chỉ tay sang ngang).
+**Đợt 2 — bắt buộc trước US5/US6 (3 ảnh; quyết định 2026-11-22):** `ma-03-think.png` (chống cằm suy nghĩ), `ma-06-magnifier.png` (cầm kính lúp), `ma-13-point.png` (chỉ tay sang ngang). Đính kèm sheet 1 và ảnh `ma-01-wave.png` đã duyệt làm tham chiếu.
 
 Chưa có ảnh nào thì app dùng hình giữ chỗ (đĩa tròn), nên thiếu ảnh không làm hỏng gì.
 
@@ -57,6 +58,7 @@ Character: "Mila", a cute otter explorer mascot, soft 3D cartoon render, chibi p
 Brown fur, cream belly and cream face/muzzle, big glossy dark-brown eyes with white highlights, small black nose, thin whiskers, short rounded ears, short thick tail.
 Wears a green bandana scarf tied around the neck with a white leaf emblem on the front.
 Carries a small moss-green explorer backpack with a rolled blanket on top and brown leather straps.
+Backpack exactly as in the reference: moss-green canvas backpack, a moss-green rolled blanket strapped on top, brown leather straps with brass (gold-colored) buckles.
 Friendly, curious, gentle expression. Warm soft lighting from the top-left, soft shading on the character only.
 Output: one single character, centered, full transparent background (alpha), square 1024x1024, at least 8% empty margin on every side, no ground shadow, no text, no symbols, no extra props, no frame, no background scenery.
 ```
@@ -99,6 +101,67 @@ Dán sau Prompt nhân vật. "Toàn thân" nghĩa là thấy cả bàn chân; "n
 2. Báo lại tệp nào cần tạo lại và vì sao.
 3. Căn các ảnh toàn thân về cùng cỡ và cùng đường chân; cắt bớt lề thừa.
 4. Xuất bản dùng trên web (240 px và 480 px; avatar 96 và 192 px) vào `assets/mascot/web/`, đo dung lượng so với ngân sách. Máy hiện **chưa có công cụ mã hóa WebP**, nên cần một trong hai cách:
-   - Cài công cụ dòng lệnh `cwebp` của Google (libwebp) trên máy, ngoài repo, không phải dependency của dự án. Agent cài được nếu bạn cho phép.
-   - Hoặc dùng bản PNG đã thu nhỏ cho pilot, rồi đổi sang WebP sau. PNG nặng hơn, nên không nên dùng cho phát hành Production.
+   - Đợt 1 (2026-11-22) xuất bằng Chromium của Playwright (devDependency có sẵn): thu nhỏ từng nửa với làm mịn chất lượng cao, mã hóa WebP 0,82. Không cài thêm công cụ; quy trình ghi ở `assets/mascot/README.md`.
 5. Ảnh gốc giữ nguyên trong `assets/mascot/source/`, không sửa.
+
+## 8. Đợt 2 và đợt 3 (spec-Mascot v1.1, 2026-11-22)
+
+### 8.1 Đợt 2 — ba tư thế mới (bắt buộc trước khi cài luồng quét và tải)
+
+| Tệp | Dùng khi | Loại | Prompt tư thế (dán sau Prompt nhân vật §4) |
+|---|---|---|---|
+| `ma-06-magnifier.png` | Đang kiểm tra mã QR, chờ mạng (AN-THINK) | Nửa thân | Dùng prompt §5 |
+| `ma-03-think.png` | Đang tải, gợi ý tuyến không có kết quả | Nửa thân | Dùng prompt §5 |
+| `ma-13-point.png` | Hướng dẫn: chỉ về nút Quét QR, phần cảnh báo an toàn | Nửa thân | Dùng prompt §5 |
+
+Cách làm như đợt 1 (§3), thêm hai điểm:
+
+1. Đính kèm **ba** ảnh tham chiếu: sheet 1, `ma-01-wave.png` và `ma-08-cheer.png` đã duyệt (trong `assets/mascot/source/`). Ảnh đã duyệt giữ nhân vật không bị lệch dần.
+2. Prompt nhân vật §4 đã có câu mô tả ba lô (xanh rêu, cuộn chăn cùng màu, khóa đồng). Ảnh nửa thân thường chỉ thấy quai ba lô: quai phải màu da nâu, khóa đồng.
+
+Nửa thân nghĩa là cắt ngang hông, mép cắt chạm đáy khung (như `ma-07-thumbs-up`, `ma-09-confused`). Không cần lề 8% ở cạnh dưới.
+
+### 8.2 Đợt 3 — ảnh mắt nhắm cho chớp mắt (5 ảnh)
+
+Mỗi ảnh là **bản sao của một ảnh đã duyệt, chỉ khác đôi mắt nhắm**. App đổi sang ảnh này 120 ms rồi đổi lại, nên mọi thứ khác (tư thế, vị trí, cỡ, màu, ánh sáng, viền) phải **giống hệt từng điểm ảnh**; lệch một chút là Mila "giật" khi chớp.
+
+| Tệp cần tạo | Từ ảnh gốc |
+|---|---|
+| `ma-20-map-blink.png` | `ma-02-map.png` |
+| `ma-20-binoculars-blink.png` | `ma-05-binoculars.png` (mắt sau ống nhòm: chỉ phần mí mắt lộ ra) |
+| `ma-20-thumbs-up-blink.png` | `ma-07-thumbs-up.png` |
+| `ma-20-backpack-blink.png` | `ma-04-backpack.png` |
+| `ma-20-rest-blink.png` | `ma-10-rest.png` |
+
+`ma-08-cheer` đã nhắm mắt nên không cần. `ma-01-wave`, `ma-09-confused`, `ma-11-avatar` không đứng lâu ở DOCK nên chưa cần.
+
+**Không tạo ảnh mới từ đầu.** Tạo lại cả ảnh sẽ ra tư thế khác. Dùng tính năng **sửa một vùng của ảnh có sẵn** (inpainting / chỉnh sửa vùng chọn) của công cụ bạn đang dùng:
+
+1. Mở ảnh gốc đã duyệt trong công cụ, chọn chức năng sửa ảnh (edit / chỉnh sửa vùng / generative fill).
+2. **Tô chọn chỉ vùng hai mắt** (cả mí và lông mày nếu cần), không chọn mũi, má hay khăn.
+3. Dán prompt:
+
+   ```text
+   Edit only the selected eye area. Make both eyes gently closed in a natural blink: soft curved eyelids, same fur color and shading as the face, small eyelashes line, relaxed happy expression. Keep everything outside the selection exactly unchanged: same pose, same size, same position, same lighting, same transparent background. No other changes.
+   ```
+
+4. Chọn bản mà mí mắt khớp màu lông và ánh sáng nhất; mắt nhắm phải trông **vui, thư giãn**, không giống đang buồn ngủ hay nhăn mặt.
+5. Tải về **PNG nền trong suốt, cùng kích thước với ảnh gốc** (1254×1254). Nếu công cụ đổi kích thước hoặc thêm nền, báo agent: agent căn lại hoặc gửi bạn làm lại.
+6. Đặt đúng tên ở bảng trên, chép vào `assets/mascot/source/`.
+
+Nếu công cụ không có chức năng sửa vùng chọn: dùng một trình sửa ảnh có lớp (Photopea miễn phí trên web, Photoshop, Krita), mở ảnh gốc, vẽ đè mí mắt nhắm lên một lớp riêng ở vùng mắt, xuất PNG cùng kích thước. Không cắt, không dịch, không đổi cỡ ảnh.
+
+### 8.2a Kết quả đợt 3 (2026-11-23)
+
+Năm ảnh mắt nhắm nhắm đủ hai mắt, biểu cảm đúng. Công cụ trả về 2048 px, nền trắng và vẽ lại cả ảnh; agent ghép **chỉ vùng mắt** lên ảnh gốc (assets/mascot/README.md), nên không cần tạo lại. Lần sau, nếu công cụ có tùy chọn "giữ kích thước gốc" và "nền trong suốt" thì bật lên.
+
+### 8.3 Agent kiểm gì khi nhận ảnh
+
+- Đợt 2: như §7 (kích thước, nền trong suốt, viền, mảng rời, nhất quán với ảnh đã duyệt).
+- Đợt 3: so ảnh mắt nhắm với ảnh gốc **từng điểm ảnh**; chỉ vùng quanh mắt được khác. Agent báo vùng khác nằm ở đâu và có lệch ngoài mắt không, kèm ảnh so sánh; ghép thử chớp mắt trên app để bạn xem.
+- Thiếu ảnh mắt nhắm của tư thế nào thì tư thế đó không chớp mắt; app không hiện hình giữ chỗ.
+
+### 8.4 Xác nhận
+
+Khi giao: chép tệp vào `assets/mascot/source/` và báo agent "đã có ảnh đợt 2 / đợt 3", kèm xác nhận quyền sử dụng như đợt 1 (bạn tự thiết kế).
+
