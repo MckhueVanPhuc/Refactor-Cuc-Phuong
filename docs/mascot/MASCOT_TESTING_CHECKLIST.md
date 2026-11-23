@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED**. Chưa có test nào được viết hay chạy |
-| Ngày | 2026-11-20 |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04) |
 | Công cụ hiện có | Vitest + Testing Library (unit/component), Playwright (E2E: `m01`, `m02`, `m02-cam-evil`, `*-local-stack`), test lint token, kiểm thủ công trên thiết bị thật (checklist M1–M10 của M02) |
 
 Quy ước: **Auto** = test tự động; **Manual** = kiểm tay; **Device** = máy thật. Báo cáo kết quả theo AGENTS.md §6: chỉ ghi PASS khi đã chạy thật; chưa chạy thì ghi `NOT RUN`.
@@ -29,7 +29,7 @@ Quy ước: **Auto** = test tự động; **Manual** = kiểm tay; **Device** = 
 
 | ID | Kiểm | Loại |
 |---|---|---|
-| MAS-TC-020 | Chọn ngôn ngữ lần đầu → INTRO; tải lại trang (đã có ngôn ngữ) → không INTRO, có MAS-B-004 | Auto (E2E `m01`) |
+| MAS-TC-020 | Chọn ngôn ngữ lần đầu → lớp phủ INTRO (v1.3); tải lại trang (đã có ngôn ngữ) → không INTRO, có MAS-B-004 | Auto (E2E `m01`) |
 | MAS-TC-021 | Mở `/q/{id}` lần đầu → **không** INTRO, nội dung hiện như cũ | Auto (E2E `m02`) |
 | MAS-TC-022 | Quét mã hợp lệ lần đầu → toast cũ + bong bóng "{k}/{n}" đúng số; nội dung không bị trì hoãn | Auto |
 | MAS-TC-023 | Quét lại điểm đã có lượt ghé → không ăn mừng | Auto |
@@ -111,5 +111,37 @@ Quy ước: **Auto** = test tự động; **Manual** = kiểm tay; **Device** = 
 | ID | Kiểm | Loại |
 |---|---|---|
 | MAS-TC-100 | Không lời thoại nào khuyến khích đi nhanh, quét cho đủ, hay nhìn máy khi đang đi | Manual (review thư viện) |
-| MAS-TC-101 | Không có nhắc nhở hẹn giờ trên SCR-M02-001 | Auto |
+| MAS-TC-101 | Không có nhắc nhở hẹn giờ (câu chữ) trên SCR-M02-001; cử chỉ tự động không chữ của v1.1 được phép | Auto |
 | MAS-TC-102 | Không câu nào ngụ ý phải quét hết mới kết thúc | Manual + Auto (từ cấm) |
+
+## 10. Bổ sung v1.1 (spec-Mascot BR-MAS-12, 20–23; SC-MAS-011…014)
+
+| ID | Kiểm | Loại |
+|---|---|---|
+| MAS-TC-110 | Chạm Mila theo ngữ cảnh: danh mục 009 rồi 012; chuyến đi k = 0 → 032, có lượt ghé và còn điểm → 033 với {r} đúng; scanner mở → 043; màn kết quả → 065 | Auto |
+| MAS-TC-111 | Chạm dồn trong 400 ms tính một lần; chạm khi animation đang chạy không chạy lại; không bao giờ có hai bong bóng | Auto |
+| MAS-TC-112 | Chạm 5 lần trong 3 s → chóng mặt (085, ảnh bối rối) một lần mỗi lần tải trang; lần sau chạm như thường | Auto |
+| MAS-TC-113 | Ba cấp ăn mừng: điểm thường AN-SUCCESS + 050; điểm đầu, nửa (n ≥ 4), còn 1 (n ≥ 3) AN-MILESTONE + 051/055/058 theo thứ tự ưu tiên; kết thúc đủ điểm 063, sớm 062 | Auto |
+| MAS-TC-114 | Cử chỉ tự động chỉ ở SCR-M01-001, SCR-M02-001 (scanner đóng), SCR-M02-003; khoảng cách 8–15 s; không lặp cùng cử chỉ liền nhau | Auto (đồng hồ giả trong engine) |
+| MAS-TC-115 | Không cử chỉ tự động ở trang đọc bài, khi phát media, khi có hộp thoại, trong 2 s sau chạm/cuộn/phím (SC-MAS-012) | Auto |
+| MAS-TC-116 | Công tắc "Chuyển động của Mila" (màn Tài nguyên) tắt → `getAnimations()` của Mila rỗng trên mọi màn, Mila vẫn hiện, chữ hiện ngay (SC-MAS-011) | Auto |
+| MAS-TC-117 | Giảm chuyển động → công tắc khởi đầu ở "tắt" | Auto |
+| MAS-TC-118 | Công tắc (v1.3): `role="switch"`, `aria-checked`, tên "Chuyển động của Mila", vùng chạm ≥ 44 px, chỉ ở màn Tài nguyên SCR-M01-004; thanh đầu trang không còn nút chuyển động; tắt cờ Mila thì không có công tắc | Auto |
+| MAS-TC-119 | Không animation tự chạy nào của một phản ứng kéo dài quá 5 s mỗi lượt (SC-MAS-014) | Auto |
+| MAS-TC-120 | Chữ hiện dần: trình đọc màn hình nhận câu đầy đủ một lần; thời lượng tự ẩn tính từ khi chữ hiện đủ | Auto + Device |
+| MAS-TC-121 | Bố cục ở cỡ mới (112/128/104/56/200 px) và bong bóng kiểu A ở 320–430 px: không đè, không cuộn ngang | Auto |
+| MAS-TC-122 | Chớp mắt dùng ảnh MA-20 đúng tư thế; thiếu ảnh mắt nhắm thì bỏ cử chỉ chớp mắt, không hiện hình giữ chỗ | Auto |
+
+## 11. Bổ sung v1.2 (spec-Mascot BR-MAS-24; SC-MAS-015)
+
+| ID | Kiểm | Loại |
+|---|---|---|
+| MAS-TC-130 | Lượt ghé mới (không phải điểm cuối) khi Mila hoạt động: bong bóng xác nhận (050/051/055/058) hiện, có `role="status"`; **không** có toast "Đã ghi nhận lượt quét." | Auto |
+| MAS-TC-131 | Cờ Mila tắt: toast hiện như cũ; test M02 cũ về toast PASS | Auto |
+| MAS-TC-132 | Mila lỗi (ảnh hỏng) hoặc bong bóng chưa hiện sau 1 giây: toast hiện; không bao giờ có cả hai, không bao giờ không có gì | Auto |
+| MAS-TC-133 | Điểm cuối khi Mila hoạt động: hộp thoại kết thúc chuyến hiện ngay, không toast, Mila chỉ rung | Auto |
+| MAS-TC-134 | 013, 024, 025, 040, 054 không còn chữ (chỉ minh họa); 013 không có nút thứ hai | Auto |
+| MAS-TC-135 | Lớp phủ giới thiệu (v1.3): phủ cả màn, Mila và bong bóng ở giữa, "Chạm để bắt đầu", không nút "Bỏ qua" và không ×; chạm lần đầu khi chữ đang hiện dần → hiện hết; chạm tiếp → đóng, Mila về DOCK hero; Back/Esc đóng; focus vào lớp phủ và trả về tiêu đề (SC-MAS-016) | Auto |
+| MAS-TC-136 | Đầu màn danh mục 320–430 px: tiêu đề một dòng, dải đồi hiện, Mila trên đồi (88 px dưới 360 px); bong bóng mở dưới đầu màn, Mila không đổi chỗ, không đè nút/tiêu đề/thẻ tuyến | Auto |
+| MAS-TC-137 | Câu 056 v1.3: "Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé." | Auto |
+

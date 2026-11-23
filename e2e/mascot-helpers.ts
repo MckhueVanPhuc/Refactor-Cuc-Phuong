@@ -64,3 +64,11 @@ export async function checkLayoutAcrossWidths(page: Page, reach: () => Promise<v
     await expectNoHorizontalScroll(page);
   }
 }
+
+/** Cạnh rộng (px) của hình Mila ở một slot và mode (design-system §9.2, v1.1). */
+export async function figureWidth(page: Page, slot: string, mode: string): Promise<number> {
+  const figure = page.locator(`[data-mascot-slot="${slot}"] [data-mascot-mode="${mode}"] > :first-child`);
+  await expect(figure).toBeVisible({ timeout: 15_000 });
+  // Cỡ layout, không tính transform: boundingBox đo giữa animation "enter" (thu phóng) thì ra số nhỏ hơn khi máy bận
+  return figure.evaluate((element) => Math.round((element as HTMLElement).offsetWidth));
+}

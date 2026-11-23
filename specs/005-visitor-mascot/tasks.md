@@ -11,9 +11,9 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 **Tests**: **Có.** Người dùng yêu cầu viết test trước như các gói 001–004; constitution "Testing & Validation" yêu cầu mỗi BR có test. Test viết trước và phải FAIL trước khi cài đặt.
 
-**Organization**: Task nhóm theo user story của [spec.md](spec.md) (US1…US8) để mỗi story cài đặt và kiểm chứng độc lập. Thứ tự phase theo plan "Implementation Sequence": US3 (tránh đường) đi trước các story P1 khác vì mọi story phải tuân theo nó.
+**Organization**: Task nhóm theo user story của [spec.md](spec.md) (US1…US9) để mỗi story cài đặt và kiểm chứng độc lập. Thứ tự phase theo plan "Implementation Sequence": US3 (tránh đường) đi trước các story P1 khác vì mọi story phải tuân theo nó.
 
-> **Quy tắc dẫn xuất.** File này không tạo requirement. Hành vi lấy từ [spec-Mascot v1.0](../../docs/spec/spec-Mascot.md); quyết định kỹ thuật lấy từ plan/research; ID hành vi `MAS-B-*` theo [Behavior Matrix](../../docs/mascot/MASCOT_BEHAVIOR_MATRIX.md). Phạm vi file theo change brief [CHG-MASCOT-2026-11-21-01](change-brief-CHG-MASCOT-2026-11-21-01.md) §4.2 và non-goals §7: **không** backend, không dependency mới, không dữ liệu bền vững, không đổi logic/kiểu trả về/thứ tự ghi dữ liệu của M01/M02; mỗi điểm phát sự kiện là **một lời gọi** đặt sau khi việc nghiệp vụ đã xong.
+> **Quy tắc dẫn xuất.** File này không tạo requirement. Hành vi lấy từ [spec-Mascot v1.1](../../docs/spec/spec-Mascot.md) (Phase 12–17 và các task có ghi "v1.1" theo [CHG-MASCOT-2026-11-22-02](change-brief-CHG-MASCOT-2026-11-22-02.md)); quyết định kỹ thuật lấy từ plan/research; ID hành vi `MAS-B-*` theo [Behavior Matrix](../../docs/mascot/MASCOT_BEHAVIOR_MATRIX.md). Phạm vi file theo change brief [CHG-MASCOT-2026-11-21-01](change-brief-CHG-MASCOT-2026-11-21-01.md) §4.2 và non-goals §7: **không** backend, không dependency mới, không dữ liệu bền vững, không đổi logic/kiểu trả về/thứ tự ghi dữ liệu của M01/M02; mỗi điểm phát sự kiện là **một lời gọi** đặt sau khi việc nghiệp vụ đã xong.
 >
 > **Giao diện.** Task dựng giao diện dùng skill `frontend-design`; màu, font, khoảng cách, bo góc, thời lượng chỉ lấy từ token ([design-system](../../docs/design/design-system.md) §4.3, §9; lint `tokens.lint.test.ts`). Câu chữ lấy nguyên văn từ bảng copy screen spec (đã đồng bộ spec-Mascot §5.6). Không vẽ nhân vật, không đưa ảnh vào repo trước OD-MAS-06/07; dùng hình giữ chỗ CSS (research R-08).
 
@@ -151,13 +151,13 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T043 [P] [US4] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-062 (chỉ khi `justEnded` và `HOAN_TAT`, ≤ 2 400 ms, chạm kết thúc), 063 (mở lại → tĩnh), 070 (`PENDING` + offline), 071 (`PENDING → SYNCED` → `AN-THUMB`, không chữ "đã gửi"), 072 (`CONFLICT` → chỉ figure, không CTA)
-- [ ] T044 [P] [US4] Viết `e2e/m02/mascot-end.spec.ts`: Q12 (CELEBRATE rồi tĩnh; reload chỉ tĩnh; huy hiệu và nội dung màn như ảnh mẫu 2026-11-11), kết thúc khi offline → MSG-MAS-070, `CONFLICT` (giả lập 409 như V25 hiện có) → không nút thử lại
+- [X] T043 [P] [US4] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-062 (chỉ khi `justEnded` và `HOAN_TAT`, ≤ 2 400 ms, chạm kết thúc), 063 (mở lại → tĩnh), 070 (`PENDING` + offline), 071 (`PENDING → SYNCED` → `AN-THUMB`, không chữ "đã gửi"), 072 (`CONFLICT` → chỉ figure, không CTA)
+- [X] T044 [P] [US4] Viết `e2e/m02/mascot-end.spec.ts`: Q12 (CELEBRATE rồi tĩnh; reload chỉ tĩnh; huy hiệu và nội dung màn như ảnh mẫu 2026-11-11), kết thúc khi offline → MSG-MAS-070, `CONFLICT` (giả lập 409 như V25 hiện có) → không nút thử lại
 
 ### Implementation for User Story 4
 
-- [ ] T045 [US4] Cài MAS-B-062, 063, 070, 071, 072 trong `src/shared/mascot/rules.ts`; lá rơi 12 phần tử dùng `TintIcon name="leaf"` trong `src/app/mascot/Mascot.tsx` / `Mascot.module.css`
-- [ ] T046 [US4] Trong `src/modules/m02/end/EndPage.tsx` (+ `EndPage.module.css`, skill `frontend-design`): `<MascotSlot id="end-hero" modes={['CELEBRATE','DOCK']} />` cạnh huy hiệu (giữ bố cục đã duyệt); phát `m02.trip.ended { status, k, justEnded }` và `m02.sync.statusChanged { status, online }`; `<MascotFigure pose="confused" />` cạnh banner `CONFLICT`
+- [X] T045 [US4] Cài MAS-B-062, 063, 070, 071, 072 trong `src/shared/mascot/rules.ts`; lá rơi 12 phần tử dùng `TintIcon name="leaf"` trong `src/app/mascot/Mascot.tsx` / `Mascot.module.css`
+- [X] T046 [US4] Trong `src/modules/m02/end/EndPage.tsx` (+ `EndPage.module.css`, skill `frontend-design`): `<MascotSlot id="end-hero" modes={['CELEBRATE','DOCK']} />` cạnh huy hiệu (giữ bố cục đã duyệt); phát `m02.trip.ended { status, k, justEnded }` và `m02.sync.statusChanged { status, online }`; `<MascotFigure pose="confused" />` cạnh banner `CONFLICT`
 
 **Checkpoint (mốc pilot G5)**: US3 + US1 + US2 + US4 xong → người dùng thử trên điện thoại; cờ Production vẫn `off`.
 
@@ -235,13 +235,13 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests for User Story 8 ⚠️
 
-- [ ] T063 [P] [US8] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-009/032/059 (chạm ở DOCK/AVATAR, P3, cooldown 10 s; không có ở INLINE/CELEBRATE), 030 (phiên mới), 034 (ẩn ≥ 10 phút + có phiên, không khi có thông báo tự kết thúc), 056/057 (luân phiên; `NATURE_REMINDERS_APPROVED = false` → chỉ 056; pool 057a–e xoay tất định; giới hạn chủ động)
-- [ ] T064 [P] [US8] Viết `e2e/m02/mascot-companion.spec.ts` và một ca trong `e2e/m01/mascot-intro.spec.ts`: Q16 (chạm Mila ở danh mục, chuyến đi, nội dung → MSG-MAS-009, 032, 059), quay về hành trình sau lượt ghé mới → MSG-MAS-056, bắt đầu chuyến → MSG-MAS-030
+- [X] T063 [P] [US8] Thêm vào `src/shared/mascot/rules.test.ts`: chạm theo ngữ cảnh v1.1 (BR-MAS-12) — MAS-B-009 → 012 khi chạm lại ở M01, 032 (k = 0), 036 → 033 với {r} = n − k, 037 → 043 khi scanner mở, 059, 065; P3, không cooldown khi chạm, không tính vào BR-MAS-07; không có ở INLINE/CELEBRATE; 030 (phiên mới), 034 (ẩn ≥ 10 phút + có phiên, không khi có thông báo tự kết thúc), 056/057 (luân phiên; `NATURE_REMINDERS_APPROVED = false` → chỉ 056; pool 057a–e xoay tất định; giới hạn chủ động)
+- [X] T064 [P] [US8] Viết `e2e/m02/mascot-companion.spec.ts` và một ca trong `e2e/m01/mascot-intro.spec.ts`: Q16/Q21 (chạm Mila ở danh mục hai lần → 009, 012; chuyến đi chưa quét → 032; sau khi quét 1/3 → 033 "Còn 2 điểm nữa…"; scanner mở → 043; nội dung → 059; màn kết quả → 065), quay về hành trình sau lượt ghé mới → MSG-MAS-056, bắt đầu chuyến → MSG-MAS-030
 
 ### Implementation for User Story 8
 
-- [ ] T065 [US8] Cài MAS-B-009, 030, 032, 034, 056, 057, 059 trong `src/shared/mascot/rules.ts`; host xử lý `mascot.user.tapped` và tính thời gian ẩn cho 034
-- [ ] T066 [US8] Trong `src/modules/m02/content/ScanContent.tsx`: thêm `onClick` vào `<Link to={PATHS.m02SessionEntry}>` "Quay lại" hiện có, phát `m02.content.backPressed { afterNewVisit }` (`afterNewVisit` = `scan.visitCreated` và không phải điểm cuối); link vẫn điều hướng như cũ, không thêm router state hay dữ liệu lưu. Host giữ cờ này để `m02.trip.shown` kế tiếp kích hoạt MAS-B-056/057 (contracts/mascot-event-contract.md §3)
+- [X] T065 [US8] Cài MAS-B-009, 030, 032, 034, 036, 037, 056, 057, 059, 065 trong `src/shared/mascot/rules.ts` (chạm theo ngữ cảnh v1.1: `screen:k`, `screen:n` từ `m02.trip.shown`, `scannerOpen`, `helpCursor` — research R-22); thêm MSG-MAS-012, 033, 043, 065 vào catalog VI/EN; host xử lý `mascot.user.tapped` và tính thời gian ẩn cho 034
+- [X] T066 [US8] Trong `src/modules/m02/content/ScanContent.tsx`: thêm `onClick` vào `<Link to={PATHS.m02SessionEntry}>` "Quay lại" hiện có, phát `m02.content.backPressed { afterNewVisit }` (`afterNewVisit` = `scan.visitCreated` và không phải điểm cuối); link vẫn điều hướng như cũ, không thêm router state hay dữ liệu lưu. Host giữ cờ này để `m02.trip.shown` kế tiếp kích hoạt MAS-B-056/057 (contracts/mascot-event-contract.md §3)
 
 **Checkpoint**: Tất cả story xong; T026 PASS trên mọi màn.
 
@@ -249,16 +249,142 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ## Phase 11: Polish & Cross-Cutting Concerns
 
-- [ ] T067 [P] Viết `e2e/m01/mascot-precache.spec.ts`: tải `/sw.js` của `preview:e2e`, khẳng định có chunk `mascot` và (khi có ảnh) chỉ `ma-*-240-*.webp` cùng `ma-11-avatar-96-*.webp`, không `-480-`, không `-192-`, không `.jpg` (MAS-TC-062, 090)
+- [X] T067 [P] Viết `e2e/m01/mascot-precache.spec.ts`: tải `/sw.js` của `preview:e2e`, khẳng định có chunk `mascot` và (khi có ảnh) chỉ `ma-*-240-*.webp` cùng `ma-11-avatar-96-*.webp`, không `-480-`, không `-192-`, không `.jpg` (MAS-TC-062, 090)
 - [ ] T068 [P] Chạy `VITE_FEATURE_MASCOT=off npx vitest run` và một test component `src/app/App.mascot.test.tsx` khẳng định cờ off không `import()` host và không có `[data-mascot-slot]` có nội dung (Q17, MAS-TC-045)
 - [ ] T069 Rà toàn bộ bằng skill `frontend-design` trên `dev:fake` ở 320/390 px: bong bóng, DOCK, INTRO, CELEBRATE đúng design-system §9; không đổi bố cục đã duyệt của SCR-M02-001/002/003
-- [ ] T070 **(Chặn bởi OD-MAS-06, 07)** Khi người dùng giao PNG gốc vào `assets/mascot/source/` và xác nhận quyền: xuất `assets/mascot/web/ma-*-{240,480}.webp` (avatar 96/192) bằng công cụ chạy ngoài repo, không thêm dependency; đo dung lượng từng tệp và tổng precache so với MAS-NFR-01; kiểm viền alpha; ghi số đo vào validation report
+- [X] T070 **(Chặn bởi OD-MAS-06, 07 — đã giao và xác nhận 2026-11-22)** Khi người dùng giao PNG gốc vào `assets/mascot/source/` và xác nhận quyền: xuất `assets/mascot/web/ma-*-{240,480}.webp` (avatar 96/192) bằng công cụ chạy ngoài repo, không thêm dependency; đo dung lượng từng tệp và tổng precache so với MAS-NFR-01; kiểm viền alpha; ghi số đo vào validation report
 - [ ] T071 [P] Cập nhật bộ thiết kế stale: `docs/mascot/MASCOT_TECHNICAL_SPECIFICATION.md` §2, §5 (`MascotSlot`/`MascotFigure` ở `src/shared/mascot/`), `docs/mascot/MASCOT_ASSET_SPECIFICATION.md` §3 (mẫu precache `assets/ma-*-240-*.webp`)
 - [ ] T072 Chạy `npm run ci`, `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil`, `git diff --check`; hoàn tất `specs/005-visitor-mascot/validation-report.md` (lệnh đã chạy, kết quả, lệch so với tasks; thiết bị thật, TalkBack/VoiceOver, Lighthouse ghi `NOT RUN` nếu chưa chạy)
 
 ---
 
-## Dependencies & Execution Order
+## Phase 12: v1.1 — Bong bóng "Giấy dã ngoại", chữ hiện dần, cỡ mới (US9)
+
+**Goal**: Mila lớn hơn và bong bóng là lời của nhân vật (nhận xét thử trên điện thoại 2026-11-22; design-system §9.2, §9.3).
+
+**Independent Test**: quickstart Q26; ảnh chụp 320/390/430 px.
+
+### Tests ⚠️
+
+- [X] T075 [P] [US9] Thêm vào `src/app/mascot/Mascot.test.tsx`: bong bóng có dòng tên "Mila" (`aria-hidden`), nút "Đóng lời nhắn"; chữ hiện dần theo `MASCOT_TYPE_CPS` (đồng hồ giả + `requestAnimationFrame` giả); chạm bong bóng hiện hết; `motion` off hoặc giảm chuyển động → hiện ngay; bản đầy đủ `.visually-hidden` giữ `lang`/`role` (R-20)
+- [X] T076 [P] [US9] Thêm vào `src/shared/mascot/machine.test.ts`: `expiresAt` cộng thời gian gõ khi `ctx.typing` bật, không cộng khi tắt (R-20)
+- [X] T077 [P] [US9] Cập nhật `e2e/m01/mascot-layout.spec.ts`, `e2e/m02/mascot-layout.spec.ts`: đo cỡ hình DOCK 112 / 128 / 104 px, AVATAR 56 px, CELEBRATE 200 px; không đè, không cuộn ngang ở 320–430 px với bong bóng kiểu A (MAS-TC-121)
+
+### Implementation
+
+- [X] T078 [US9] `src/shared/ui/tokens.css`: `--mascot-size-sm` 56px, `--mascot-size-dock-catalog/-trip/-end`, `--mascot-size-xl`, `--mascot-bubble-max-width` 240px, `--mascot-bubble-surface`, thời lượng mới (contracts/mascot-ui-contract.md §4); lint token PASS
+- [X] T079 [US9] `src/shared/mascot/MascotSlot.tsx` (+ CSS): prop `size` → `data-mascot-dock`; truyền `size` ở `CatalogPage.tsx` (`catalog`), `TripPage.tsx` (`trip`), `EndPage.tsx` (`end`). Sửa hình đồi trang trí lộ sau bong bóng ở hero danh mục (`CatalogPage.module.css`, chỉ CSS)
+- [X] T080 [US9] `src/app/mascot/Mascot.tsx` + `Mascot.module.css` + hook `useTypewriter` (skill `frontend-design`): bong bóng kiểu A theo design-system §9.3, đuôi và góc 6px theo `data-mascot-tail`; ảnh DOCK lớn dùng `srcSet` 480; engine `expiresAt` theo R-20 (`StepContext.typing`)
+
+**Checkpoint**: T026/T077 PASS; ảnh chụp đưa chủ dự án duyệt.
+
+---
+
+## Phase 13: v1.1 — Công tắc "Chuyển động" và cử chỉ tự động (US9)
+
+**Goal**: Mila sống động giữa các sự kiện mà vẫn tạm dừng được (BR-MAS-21; WCAG 2.2.2).
+
+**Independent Test**: quickstart Q18, Q19, Q20.
+
+### Tests ⚠️
+
+- [X] T081 [P] [US9] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-086 — lịch 8–15 s với `ctx.random` cố định; chỉ ở SCR-M01-001, SCR-M02-001 (scanner đóng), SCR-M02-003; không khi có bong bóng, blocker, motion off, trong grace; không lặp cử chỉ liền nhau; cử chỉ đổi tư thế quay về tư thế ngữ cảnh; không tính vào BR-MAS-07; `mascot.motion.changed { on: false }` hủy lịch (R-18)
+- [X] T082 [P] [US9] Viết `src/shared/mascot/MascotMotionToggle.test.tsx` và `motion.test.ts`: `aria-pressed`, tên truy cập, chữ bật/tắt; khởi đầu `off` khi giảm chuyển động; không render khi cờ tắt; không ghi `localStorage` (R-17)
+- [X] T083 [P] [US9] Viết `e2e/m01/mascot-motion.spec.ts`: công tắc có ở header M01 và M02; tắt → `getAnimations()` của Mila rỗng, Mila vẫn hiện (SC-MAS-011); có ít nhất một cử chỉ trong 16 s ở danh mục (quan sát `data-mascot-animation`); mọi animation của phản ứng có `endTime` ≤ 5 000 ms (SC-MAS-014)
+
+### Implementation
+
+- [X] T084 [US9] `src/shared/mascot/motion.ts`, `MascotMotionToggle.tsx` (+ CSS), export ở `index.ts`; icon mới `assets/icons/pause.svg`, `assets/icons/play.svg` theo design-system §7
+- [X] T085 [US9] Engine: sự kiện `mascot.motion.changed`, hẹn giờ `ambient`, `StepContext.random`, nhóm cử chỉ (nhìn ống nhòm, vẫy, nhún, nghiêng đầu, kéo quai ba lô, thở) trong `rules.ts`/`machine.ts`; animation CSS mới và số vòng lặp ≤ 5 s (R-25); host đọc `useMotion()`
+- [X] T086 [US9] Đặt `<MascotMotionToggle />` trong header `src/modules/m01/layout/VisitorLayout.tsx` và `src/modules/m02/layout/FieldLayout.tsx` (chỉ thêm phần tử; không đổi hành vi header)
+
+**Checkpoint**: T083 PASS; toàn bộ E2E hiện có PASS (công tắc không đè VI/EN ở 320 px).
+
+---
+
+## Phase 14: v1.1 — Chạm nhiều lần (US8)
+
+**Goal**: BR-MAS-22. Đi cùng hoặc sau Phase 10 (chạm theo ngữ cảnh).
+
+### Tests ⚠️
+
+- [X] T087 [P] [US8] Thêm vào `src/shared/mascot/rules.test.ts`: MAS-B-089 (chạm trong 400 ms bỏ qua; animation đang chạy không chạy lại), chạm khi đang có câu hướng dẫn → câu kế tiếp (danh mục) hoặc chỉ nhún (màn một câu), MAS-B-085 (5 lần / 3 s → 085 với tư thế `confused` và animation `dizzy`, một lần mỗi lần tải trang) — quickstart Q22
+
+### Implementation
+
+- [X] T088 [US8] Cài `lastTapAt`, `tapLog`, cờ `once` `DIZZY` trong engine; animation `dizzy` trong `Mascot.module.css`; MSG-MAS-085 vào catalog
+
+---
+
+## Phase 15: v1.1 — Ba cấp ăn mừng (US2, US4)
+
+**Goal**: BR-MAS-23.
+
+### Tests ⚠️
+
+- [X] T089 [P] [US2] Thêm vào `src/shared/mascot/rules.test.ts`: cấp 1 `success` + 050; cấp 2 `milestone` + 051 / 055 (n ≥ 4) / 058 (k = n − 1, n ≥ 3) theo thứ tự ưu tiên đầu tiên > nửa > còn 1; điểm cuối vẫn chỉ rung
+- [X] T090 [P] [US4] Thêm vào `src/shared/mascot/rules.test.ts` và `e2e/m02/mascot-end.spec.ts`: `m02.trip.ended` có `n`; k = n → MAS-B-064 / MSG-MAS-063, k < n → 062 (quickstart Q23, Q24)
+
+### Implementation
+
+- [X] T091 [US2] Luật MAS-B-050, 051, 055, 066 với animation `success` / `milestone` (6 lá FX-01); MSG-MAS-058 vào catalog
+- [X] T092 [US4] `EndPage.tsx` phát thêm `n` (số điểm của hành trình); luật MAS-B-064; MSG-MAS-063 vào catalog
+
+### v1.2 — Mila xác nhận lượt ghé thay toast (BR-MAS-24; CHG-MASCOT-2026-11-23-03)
+
+- [X] T097 [P] [US2] Viết `src/shared/mascot/visitConfirm.test.ts`: `pending` → `mascot` khi đánh dấu; → `toast` sau 1 000 ms; cờ tắt hoặc host `failed` → `toast` ngay; không lưu gì
+- [X] T098 [P] [US2] Viết `e2e/m02/mascot-confirm.spec.ts`: Q27 (chỉ bong bóng, không toast), Q28 (ảnh Mila hỏng → toast), Q29 (điểm cuối: không toast); một lượt chạy M02 với cờ tắt vẫn có toast (test hiện có)
+- [X] T099 [US2] `src/shared/mascot/visitConfirm.ts`, export ở `index.ts`; host gọi `markVisitConfirmed` và báo lỗi; câu 050/051/055/058 mới (spec-Mascot §5.6 v1.2) và `role: 'status'` trong catalog
+- [X] T100 [US2] `src/modules/m02/content/ScanContent.tsx`: hiện toast theo `useMascotConfirms(visitRef)`; điểm cuối khi Mila bật: không toast. Không đổi việc ghi lượt ghé hay thứ tự ghi. Đồng thời cập nhật câu chưa cài theo v1.2 trong catalog: 011, 021, 043 (đã cài), 012 (đã cài); 013, 024, 025, 040, 054 thành minh họa khi cài US5–US7
+
+---
+
+## Phase 16: v1.1 — Ngữ cảnh "đang thao tác" (US3)
+
+**Goal**: BR-MAS-20.
+
+### Tests ⚠️
+
+- [X] T093 [P] [US3] Thêm vào `src/shared/mascot/machine.test.ts`: `app.user.activity` → ý định `source` `timer`/`ambient` trong 2 s bị bỏ, ý định `user`/`event` vẫn chạy; trang đọc bài không có cử chỉ tự động; media bắt đầu → bong bóng đóng ngay (MAS-TC-115) — quickstart Q25
+
+### Implementation
+
+- [X] T094 [US3] Host: listener `pointerdown`/`keydown`/`scroll` (capture, passive, gộp 250 ms) → `app.user.activity`; trọng tài theo `source` (R-19)
+
+---
+
+## Phase 17: v1.1 — Chớp mắt (US9) — **chặn bởi ảnh MA-20 của chủ dự án**
+
+### Tests ⚠️
+
+- [X] T095 [P] [US9] Thêm vào `src/shared/mascot/assets.test.ts` và `rules.test.ts`: `blinkAsset(pose)`; cử chỉ `blink` chỉ có khi tư thế hiện tại có ảnh mắt nhắm (MAS-TC-122)
+
+### Implementation
+
+- [X] T096 [US9] Khi có ảnh: kiểm ảnh mắt nhắm so với ảnh gốc từng điểm ảnh, xuất `ma-20-*-blink-240.webp` (và ảnh đợt 2: think, magnifier, point) như T070; `blinkAsset` trong `assets.ts`; host đổi `src` 120 ms (R-24); ghi số đo vào validation report
+
+---
+
+## Phase 18: v1.3 — Lớp phủ giới thiệu, đầu màn danh mục, công tắc ở Tài nguyên (US1, US9) — CHG-MASCOT-2026-11-23-04
+
+**Goal**: spec-Mascot v1.3 (US-MAS-01, BR-MAS-21, §5.1; MSG-MAS-001, 056).
+
+### Tests ⚠️
+
+- [X] T101 [P] [US1] `src/shared/mascot/rules.test.ts`, `dialogue/catalog.test.ts`: MAS-B-001 một bong bóng MSG-MAS-001 không tự ẩn, đóng → DOCK hero (MAS-B-003); 002 không còn trong catalog (47 câu); câu 001 và 056 mới; 001 là ngoại lệ 90 ký tự
+- [X] T102 [P] [US1] `src/app/mascot/MascotIntro.test.tsx`: lớp phủ `role="dialog"`, focus vào; chạm khi chữ đang hiện → hiện hết; chạm tiếp → `onClose`; Esc → `onClose`; không có nút "Bỏ qua" hay ×; giảm chuyển động: chữ hiện ngay
+- [X] T103 [P] [US9] `src/shared/mascot/MascotMotionSwitch.test.tsx`: `role="switch"`, `aria-checked` theo store, bấm đổi trạng thái; cờ tắt → không render
+- [X] T104 [P] [US1] E2E `e2e/m01/mascot-intro.spec.ts` (Q30, Q31), `e2e/m01/mascot-layout.spec.ts` (Q32 ở 320/360/390/430 px), `e2e/m01/mascot-motion.spec.ts` hoặc tương đương (Q33); sửa E2E cũ dựa vào hai câu giới thiệu và nút chuyển động ở header
+
+### Implementation
+
+- [X] T105 [US1] Luật MAS-B-001 một bong bóng; catalog: MSG-MAS-001 mới (`autoHide: false`), bỏ 002, 056 mới; nhãn `introHint`, `motionHint`, bỏ `motionOn/Off` (R-27)
+- [X] T106 [US1] `src/app/mascot/MascotIntro.tsx` (+ `.module.css`); host vẽ mode `INTRO` bằng lớp phủ portal vào `document.body`, `inert` cho `#root`, focus, Back (mục lịch sử cùng URL), Esc (R-27)
+- [X] T107 [US1] `src/modules/m01/catalog/CatalogPage.tsx` (+ `.module.css`), `src/app/mascot/Mascot.module.css`, `src/shared/mascot/MascotSlot.module.css`: hero hai cột, dải đồi luôn hiện, bong bóng dưới hero đuôi lên; token `--mascot-size-dock-catalog-narrow` (R-29)
+- [X] T108 [US9] `MascotMotionSwitch` thay `MascotMotionToggle`; bỏ khỏi `VisitorLayout.tsx`, `FieldLayout.tsx`; thêm vào `OfflinePage.tsx` (R-28)
+- [X] T109 Chạy `npm run ci`, kiểm cổng, `npx playwright test`; ghi validation report §14
+
+
 
 ### Phase Dependencies
 
@@ -271,6 +397,7 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 - **US7 (Phase 9)**: sau US3 và US1 (dùng slot `catalog-hero` của T035).
 - **US8 (Phase 10)**: sau US2 (slot `trip-dock`, `content-toast`) và US1.
 - **Polish (Phase 11)**: sau các story cần giao; T070 chờ người dùng.
+- **v1.1 (Phase 12–17)**: sau pilot (Phase 1–6). Phase 12 trước (nền giao diện cho mọi phase sau). Phase 13 sau 12. Phase 14 cùng hoặc sau Phase 10 (chạm theo ngữ cảnh T063–T065). Phase 15 sau US2/US4. Phase 16 sau 13 (dùng `source: ambient`). Phase 17 chờ ảnh MA-20. Cùng tệp làm tuần tự: `rules.ts`, `machine.ts`, `Mascot.tsx`.
 
 ### User Story Dependencies
 
@@ -282,6 +409,7 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 - US6: US2 (T040).
 - US7: US1 (T035).
 - US8: US1, US2.
+- US9 (v1.1): pilot; Phase 12 → 13 → 16; Phase 17 chờ ảnh.
 
 ### Within Each User Story
 
@@ -315,6 +443,7 @@ T059 RecommendPage.tsx | T060 StartPanel.tsx + OfflineDecisionDialog.tsx | T061 
 - G6: US5, US6 (M02 đầy đủ).
 - G7: US7 (M01).
 - G8: US8 (chạm hỏi, nhắc thiên nhiên — câu nhắc chỉ bật khi Ban Quản lý duyệt, đổi `NATURE_REMINDERS_APPROVED`).
+- G8b (v1.1, theo thứ tự đã chốt với chủ dự án 2026-11-22): Phase 12 (bong bóng, cỡ) → 13 (công tắc, cử chỉ) → 10 + 14 (chạm) → 15 (ba cấp) → 16 (đang thao tác) → 17 (chớp mắt, khi có ảnh). Thử lại trên điện thoại sau Phase 13.
 - G9: T070 khi có ảnh; kiểm thực địa; bật cờ Production.
 
 ## Notes

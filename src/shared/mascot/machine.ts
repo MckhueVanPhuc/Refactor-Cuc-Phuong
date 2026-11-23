@@ -1,7 +1,14 @@
 // Máy trạng thái thuần của Mila (State Machine §7; specs/005 research R-04). Cùng đầu vào → cùng đầu ra; không đọc
 // đồng hồ hệ thống (thời điểm đi trong sự kiện), không DOM, không lưu trữ.
 import { admit, clearPresence, pump } from './arbiter';
-import { MASCOT_DEDUPE_MS, MASCOT_QUEUE_TTL_MS, MASCOT_SAME_PRIORITY_MIN_MS } from './config';
+import {
+  MASCOT_AMBIENT_MAX_MS,
+  MASCOT_AMBIENT_MIN_MS,
+  MASCOT_AMBIENT_PATHS,
+  MASCOT_DEDUPE_MS,
+  MASCOT_QUEUE_TTL_MS,
+  MASCOT_SAME_PRIORITY_MIN_MS,
+} from './config';
 import type { MascotEventType } from './events';
 import { RULES } from './rules';
 import type { Blocker, Effect, Intent, MascotState, Rule, StampedEvent, Status, StepContext, StepResult } from './types';
@@ -9,7 +16,14 @@ import type { Blocker, Effect, Intent, MascotState, Rule, StampedEvent, Status, 
 export { readingTimeMs } from './arbiter';
 export type { Effect, Intent, MascotState, Mode, PoseId, Rule, RuleResult, RuleView, StepContext, StepResult } from './types';
 
-const INTERNAL: ReadonlySet<MascotEventType> = new Set(['mascot.tick', 'mascot.timer', 'mascot.slots.changed', 'mascot.asset.failed']);
+const INTERNAL: ReadonlySet<MascotEventType> = new Set([
+  'mascot.tick',
+  'mascot.timer',
+  'mascot.slots.changed',
+  'mascot.asset.failed',
+  // Thao tác liên tục (cuộn) là trạng thái, không phải tín hiệu lặp
+  'app.user.activity',
+]);
 /**
  * Tín hiệu trạng thái (đang có hộp thoại, đang phát, đang có thông báo tự kết thúc): engine áp chúng idempotent, nên
  * không chống trùng. Chống trùng ở đây sẽ nuốt lần "phát" thứ hai của chuỗi phát → dừng → phát trong 500 ms.
@@ -20,6 +34,11 @@ const STATE_SIGNALS: ReadonlySet<MascotEventType> = new Set([
   'm02.media.stopped',
   'm02.notice.autoEndShown',
   'm02.notice.autoEndHidden',
+  'mascot.motion.changed',
+  // Thao tác của du khách không phải tín hiệu lặp: chạm dồn đã có luật riêng (BR-MAS-22, MASCOT_TAP_DEBOUNCE_MS)
+  'mascot.user.tapped',
+  'mascot.user.closedBubble',
+  'mascot.user.ctaPressed',
 ]);
 const DEDUPE_KEEP_MS = 5_000;
 
@@ -42,8 +61,10 @@ export function initialState(): MascotState {
     visible: true,
     hiddenAt: null,
     online: true,
+    motion: true,
     hasSession: false,
     path: '',
+    lastActivityAt: null,
   };
 }
 
@@ -188,7 +209,8 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
     case 'app.route.changed': {
       const bubble = s.bubble;
       // Câu thành công (P4) vừa phát ở màn cũ được mang sang màn mới (lượt ghé mới → điều hướng sang nội dung)
-      const carry = bubble && bubble.priority <= 4 && now - bubble.shownAt < MASCOT_SAME_PRIORITY_MIN_MS ? bubble.intent : null;
+      // Chỉ câu thành công (P4) được mang sang (BR-MAS-20 "rời màn"); câu chạm hay lỗi của màn cũ không theo sang
+      const carry = bubble && bubble.priority === 4 && now - bubble.shownAt < MASCOT_SAME_PRIORITY_MIN_MS ? bubble.intent : null;
       clearPresence(s);
       s.timers = {};
       s.closed = false;
@@ -203,9 +225,21 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
     case 'app.network.changed':
       s.online = event.online;
       break;
+    case 'app.user.activity':
+      s.lastActivityAt = now;
+      break;
     case 'mascot.user.closedBubble':
     case 'mascot.user.ctaPressed':
       endBubble(s, ctx, now, effects, true);
+      break;
+    case 'mascot.motion.changed':
+      s.motion = event.on;
+      break;
+    case 'm02.scanner.opened':
+      s.counters['screen:scanner'] = 1;
+      break;
+    case 'm02.scanner.closed':
+      delete s.counters['screen:scanner'];
       break;
     case 'mascot.asset.failed':
       clearPresence(s);
@@ -231,6 +265,32 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
 
   applyRules(s, event, ctx, rules, effects);
   if (pumpQueue) pump(s, ctx, now, effects);
+  scheduleAmbient(s, ctx, now);
   s.status = deriveStatus(s);
   return { state: s, effects };
+}
+
+/**
+ * Lịch cử chỉ tự động (BR-MAS-21; research R-18): Mila đứng yên ở DOCK trên màn đứng chờ, không bong bóng, không giữ,
+ * không ngữ cảnh chặn, công tắc bật → có một hẹn `ambient` trong 8–15 s; điều kiện hết → bỏ hẹn.
+ */
+function scheduleAmbient(s: MascotState, ctx: StepContext, now: number): void {
+  const waiting =
+    s.motion &&
+    s.visible &&
+    !s.failed &&
+    !s.closed &&
+    s.view?.mode === 'DOCK' &&
+    !s.bubble &&
+    !s.hold &&
+    s.blockers.length === 0 &&
+    !s.counters['screen:scanner'] &&
+    MASCOT_AMBIENT_PATHS.includes(s.path);
+  if (!waiting) {
+    delete s.timers['ambient'];
+    return;
+  }
+  if (s.timers['ambient'] !== undefined) return;
+  const random = ctx.random ?? Math.random;
+  s.timers['ambient'] = now + MASCOT_AMBIENT_MIN_MS + Math.floor(random() * (MASCOT_AMBIENT_MAX_MS - MASCOT_AMBIENT_MIN_MS));
 }

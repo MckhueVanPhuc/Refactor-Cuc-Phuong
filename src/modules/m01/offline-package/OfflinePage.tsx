@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
+import { MascotMotionSwitch } from '../../../shared/mascot/index';
 import { Dialog } from '../../../shared/ui/Dialog';
 import { useM01Services } from '../api/services';
 import { catalogStoreFor } from '../catalog/catalogStore';
@@ -105,6 +106,7 @@ function PackageRow({
 
 export function OfflinePage() {
   const messages = useM01Messages();
+  const language = useDisplayLanguage();
   const services = useM01Services();
   const entries = usePackageEntries();
   const [results, setResults] = useState<Record<string, PackageOpResult>>({});
@@ -121,6 +123,8 @@ export function OfflinePage() {
   return (
     <>
       <h1 className={styles.title}>{messages.screenTitle.offline}</h1>
+      {/* Công tắc chuyển động duy nhất của Mila (spec-Mascot v1.3 BR-MAS-21; design-system §9.5) */}
+      <MascotMotionSwitch language={language} />
       {anyReady && <p className={styles.hint}>{messages.routeDetail.scanHint}</p>}
       {entries?.length === 0 && <p className={styles.empty}>{messages.offline.empty}</p>}
       {entries && entries.length > 0 && (

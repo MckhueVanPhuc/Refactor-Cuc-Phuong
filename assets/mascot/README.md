@@ -8,3 +8,25 @@ Theo AGENTS.md §4: ảnh Mila do người dùng cung cấp; agent chỉ cắt, 
 | `web/` | Bản dùng trên web `ma-<nn>-<name>-240.webp`, `-480.webp` (avatar `-96`, `-192`) | Agent xuất từ `source/` |
 
 Tên tư thế và tệp: [Asset spec](../../docs/mascot/MASCOT_ASSET_SPECIFICATION.md) §3–§4. Chỉ cỡ 240 vào precache (`vite.config.ts`). Chưa có ảnh trong `web/` thì app dùng hình giữ chỗ (`src/shared/mascot/assets.ts`).
+
+## Quy trình xuất (đợt 1, 2026-11-22)
+
+Chạy trong Chromium của Playwright (devDependency có sẵn), không thêm dependency. Với mỗi PNG gốc:
+
+1. Chỉ giữ mảng thân chính (vùng liền lớn nhất của các điểm có alpha); bỏ mảng rời như hạt bụi và ký hiệu tách rời. Đợt 1 bỏ dấu "?" ở `ma-09-confused` (hướng dẫn tạo ảnh §2 mục 6: không ký hiệu).
+2. Bỏ điểm gần như trong suốt (alpha ≤ 3), nơi còn màu nền cũ.
+3. Đặt vào khung vuông, giữ tỷ lệ gốc, căn giữa theo ngang. Ảnh đứng toàn thân: chân chạm đường y = 1225/1254. Ảnh nhảy (`cheer`): chân cách đường đó 36 px. Ảnh nửa thân và avatar: mép cắt ở đáy khung.
+4. Thu nhỏ từng nửa với làm mịn chất lượng cao rồi về cỡ đích (240/480; avatar 96/192); mã hóa WebP chất lượng 0,82.
+
+Số đo: specs/005-visitor-mascot/validation-report.md §6. Ảnh gốc trong `source/` giữ nguyên, không sửa.
+
+## Ảnh mắt nhắm `ma-20-*-blink` (2026-11-23)
+
+Công cụ sửa ảnh của chủ dự án trả về ảnh 2048 px, nền trắng đặc, và vẽ lại cả ảnh (kết cấu lông khác ảnh gốc khoảng 3% điểm ảnh). Đổi nguyên ảnh đó trong 120 ms sẽ làm cả thân "nhấp nháy". Vì vậy trước khi xuất:
+
+1. Thu ảnh mắt nhắm về cỡ ảnh gốc (1254 px); hai ảnh khớp vị trí (độ lệch tìm được 0, 0).
+2. Tìm vùng khác biệt mạnh trong 45% phía trên (vùng mắt), nở rộng 10 px rồi làm mép mờ 6 px.
+3. Ghép **chỉ vùng đó** từ ảnh mắt nhắm lên ảnh tư thế gốc; ngoài vùng mắt giữ nguyên từng điểm ảnh của ảnh gốc, kể cả kênh trong suốt.
+4. Xuất như ảnh gốc của tư thế (cùng cách căn), nên ảnh mắt nhắm chồng khít khi đổi.
+
+Vùng ghép chiếm 1,7–2,9% diện tích ảnh. Theo quyết định của chủ dự án (2026-11-23), `source/` lưu ảnh mắt nhắm **đã thu về 1254 px** (chỉ đổi cỡ, nội dung giữ nguyên) thay cho bản 2048 px, để repo nhẹ hơn khoảng 16 MB.
