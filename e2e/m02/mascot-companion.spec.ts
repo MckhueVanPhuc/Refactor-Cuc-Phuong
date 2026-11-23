@@ -34,7 +34,7 @@ test('Q21 — chuyến đi: chạm → 032; quét Q1a rồi quay lại → nhắ
   await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q1a' })).toBeVisible();
   await page.getByRole('link', { name: vi.content.back }).click();
   await expect(page).toHaveURL(/\/trip$/);
-  await expect(bubble(page, 'MSG-MAS-056')).toHaveText('Giờ cất máy và ngắm rừng thôi! Ở điểm sau nhớ quét mã nhé.');
+  await expect(bubble(page, 'MSG-MAS-056')).toHaveText('Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé.');
   await page.getByRole('button', { name: 'Đóng lời nhắn' }).click();
   await ask(page).click();
   await expect(bubble(page, 'MSG-MAS-033')).toHaveText('Còn 2 điểm nữa. Thấy tem thì bấm Quét QR nhé.');

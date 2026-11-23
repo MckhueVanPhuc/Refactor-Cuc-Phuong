@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED** — mọi câu cần người dùng duyệt trước khi đưa vào bảng copy của screen spec |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04) |
 | Quy ước | Tài liệu này là **nguồn chữ** của mascot. [Behavior Matrix](MASCOT_BEHAVIOR_MATRIX.md) chép lại câu để dễ đọc; khi lệch nhau, tài liệu này thắng |
 
 ## 1. Quy tắc viết
@@ -33,8 +33,8 @@ Cột **P** là mức ưu tiên ([State Machine](MASCOT_STATE_MACHINE.md) §5): 
 
 | Message ID | Trigger | Ngữ cảnh | Tiếng Việt | English | Giọng | Thời lượng | CTA | P | Lặp | Cooldown |
 |---|---|---|---|---|---|---|---|---|---|---|
-| MAS-MSG-001 | `m01.language.selected` (đầu tiên) | Vừa chọn ngôn ngữ, vào danh mục | Chào bạn! Mình là {name}, rái cá thám hiểm của Cúc Phương. | Hi! I'm {name}, Cúc Phương's otter explorer. | Vui, ấm áp | Tự ẩn, nối tiếp 002 | — | P6 | Không | 1 lần/tải trang |
-| MAS-MSG-002 | Sau MAS-MSG-001 | Như trên | Mình sẽ đi cùng bạn suốt hành trình. Chọn một tuyến nhé! | I'll be with you all the way. Let's pick a route! | Mời gọi | Tự ẩn | — | P6 | Không | 1 lần/tải trang |
+| MAS-MSG-001 | `m01.language.selected` (đầu tiên) | Vừa chọn ngôn ngữ, vào danh mục | Chào bạn! Mình là {name}, rái cá thám hiểm của Cúc Phương. Mình sẽ đồng hành cùng bạn trong suốt chuyến tham quan này. Cùng chọn một tuyến nhé! | Hi! I'm {name}, Cúc Phương's otter explorer. I'll be with you throughout this visit. Let's pick a route! | Vui, ấm áp | Chờ chạm (lớp phủ, v1.3); dài hơn 90 ký tự theo quyết định 2026-11-23 | — | P6 | Không | 1 lần/tải trang |
+| MAS-MSG-002 | — | **Bỏ ở v1.3** (gộp vào MAS-MSG-001) | — | — | — | — | — | — | — | — |
 | MAS-MSG-004 | `m01.catalog.opened` | Đã có ngôn ngữ từ trước khi tải trang (du khách quay lại) | Chào mừng bạn quay lại! Hôm nay mình đi tuyến nào đây? | Welcome back! Which route are we taking today? | Thân thiện | Tự ẩn | — | P6 | Không | 1 lần/tải trang |
 | MAS-MSG-005 | Danh mục đang tải > 600 ms | Mạng chậm | Mình đang mở bản đồ các tuyến… | Unfolding the route map… | Bình thản | Tới khi tải xong | — | P7 | Có | — |
 | MAS-MSG-008 | 20 s không thao tác ở danh mục | Lần đầu trong lần tải trang, chưa cuộn, chưa chạm thẻ | Chưa biết chọn tuyến nào? Để mình gợi ý cho. | Not sure which route? Let me suggest one. | Gợi mở | Không tự ẩn | "Gợi ý tuyến" (`m01.nav.recommend`) | P6 | Không | 1 lần/tải trang |
@@ -68,7 +68,7 @@ Cột **P** là mức ưu tiên ([State Machine](MASCOT_STATE_MACHINE.md) §5): 
 | MAS-MSG-052 | `m02.scan.resolved{display=LIVE}`, có phiên, không ghi lượt ghé | Mã ngoài hành trình | Điểm này không thuộc tuyến của bạn nên không tính vào hành trình. Cứ xem nhé! | This spot isn't on your route, so it won't count. Enjoy reading anyway! | Thân thiện, rõ ràng | Tự ẩn | — | P2 | Có | 1 phút |
 | MAS-MSG-054 | `m02.scan.resolved{display=PACKAGE}` | Mất sóng, dùng gói | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) | Trấn an | Tự ẩn | — | P5 | Có | 5 phút |
 | MAS-MSG-055 | `m02.visit.recorded` với k = ⌈n/2⌉, n ≥ 4 | Nửa số điểm | Đã ghi nhận! Bạn đã quét được nửa số điểm rồi đó! | Recorded! You've scanned half of your stops! | Khích lệ | Tự ẩn | — | P5 | Không | 1 lần/phiên |
-| MAS-MSG-056 | `m02.trip.shown` ngay sau khi xem nội dung của lượt ghé mới | Quay về hành trình | Giờ cất máy và ngắm rừng thôi! Ở điểm sau nhớ quét mã nhé. | Now put your phone away and enjoy the forest. Scan again at the next stop! | Nhẹ nhàng | Tự ẩn | — | P6 | Có | 10 phút |
+| MAS-MSG-056 | `m02.trip.shown` ngay sau khi xem nội dung của lượt ghé mới | Quay về hành trình | Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé. | Time to explore! Remember to scan at the next stop. | Nhẹ nhàng | Tự ẩn | — | P6 | Có | 10 phút |
 | MAS-MSG-057 | Như MAS-MSG-056, lần thứ 2 trở đi (xen kẽ) | Lời nhắc ứng xử với thiên nhiên (cần Ban Quản lý duyệt, MAS-D-05) | Pool, xem §3.4 | Pool, xem §3.4 | Tôn trọng | Tự ẩn | — | P6 | Có | 10 phút |
 | MAS-MSG-059 | Chạm mascot ở SCR-M02-002/004 | Du khách hỏi | Vuốt ảnh để xem thêm, kéo xuống để đọc phần giới thiệu. | Swipe the photos, then scroll down to read more. | Hữu ích | Tự ẩn | — | P3 | Có | 10 s |
 | MAS-MSG-061 | `m02.finalPrompt.continued` | Chọn "Đi tiếp" | Được thôi! Khi sẵn sàng, nút Kết thúc chuyến vẫn ở đây. | Sure! The End trip button is here whenever you're ready. | Thoải mái | Tự ẩn | — | P5 | Có | 2 phút |
@@ -130,8 +130,9 @@ MAS-MSG-050, 051, 055, 058 là **xác nhận lượt ghé**: chữ nói rõ lư�
 | `mascot.dismiss` | Đóng lời nhắn | Dismiss message | Nút × trên bong bóng |
 | `mascot.notNow` | Chưa | Not now | CTA phụ của MAS-MSG-049 |
 | `mascot.help` | Hỏi {name} | Ask {name} | Tên truy cập khi chạm mascot để nhận gợi ý |
-| `mascot.motion` | Chuyển động của {name} | {name}'s motion | Tên truy cập của công tắc ở thanh đầu trang (v1.1, BR-MAS-21); trạng thái bằng `aria-pressed` |
-| `mascot.motionOn` / `mascot.motionOff` | Chuyển động: bật / Chuyển động: tắt | Motion: on / Motion: off | Chữ hiển thị trên công tắc (v1.1) |
+| `mascot.motion` | Chuyển động của {name} | {name}'s motion | Nhãn công tắc ở màn Tài nguyên (v1.3, BR-MAS-21); trạng thái bằng `aria-checked` |
+| `mascot.motionHint` | Tắt để {name} đứng yên. | Turn off to keep {name} still. | Câu phụ dưới nhãn công tắc (v1.3) |
+| `mascot.introHint` | Chạm để bắt đầu | Tap to start | Dòng gợi ý dưới Mila trong lớp phủ giới thiệu (v1.3) |
 
 ### 3.6 FUTURE (chưa viết, bị chặn bởi MVP-Scope §4)
 

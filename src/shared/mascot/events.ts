@@ -56,6 +56,8 @@ export type MascotEvent =
   | { type: 'app.route.changed'; path: string }
   | { type: 'app.visibility.changed'; visible: boolean }
   | { type: 'app.network.changed'; online: boolean }
+  /** Du khách chạm, cuộn hoặc bấm phím (host gộp 250 ms; research R-19). Không đi qua bus của module. */
+  | { type: 'app.user.activity' }
   // Du khách thao tác với Mila
   | { type: 'mascot.user.tapped' }
   | { type: 'mascot.user.closedBubble' }

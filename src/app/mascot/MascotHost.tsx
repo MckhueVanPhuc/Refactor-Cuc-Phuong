@@ -14,6 +14,7 @@ import { markMascotFailed, markVisitConfirmed } from '../../shared/mascot/visitC
 import { PATHS } from '../paths';
 import { Mascot } from './Mascot';
 import { MascotBoundary } from './MascotBoundary';
+import { MascotIntro } from './MascotIntro';
 
 type Props = {
   pathname: string;
@@ -23,6 +24,9 @@ type Props = {
 };
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+/** Gộp thao tác liên tục (cuộn) thành tối đa một sự kiện mỗi khoảng này (research R-19). */
+const ACTIVITY_COALESCE_MS = 250;
+const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'scroll'] as const;
 
 function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(() => typeof window !== 'undefined' && window.matchMedia(REDUCED_MOTION).matches);
@@ -106,6 +110,22 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
     };
   }, [send]);
 
+  // "Đang thao tác" (BR-MAS-20; research R-19): chạm, phím, cuộn ở bất kỳ đâu (capture bắt cả vùng cuộn con), thụ động
+  useEffect(() => {
+    let last = Number.NEGATIVE_INFINITY;
+    const onActivity = () => {
+      const now = Date.now();
+      if (now - last < ACTIVITY_COALESCE_MS) return;
+      last = now;
+      send({ type: 'app.user.activity' });
+    };
+    const options = { capture: true, passive: true } as const;
+    for (const type of ACTIVITY_EVENTS) window.addEventListener(type, onActivity, options);
+    return () => {
+      for (const type of ACTIVITY_EVENTS) window.removeEventListener(type, onActivity, options);
+    };
+  }, [send]);
+
   // Một hẹn giờ duy nhất tới hạn gần nhất (research R-11)
   useEffect(() => {
     const due = nextDeadline(state);
@@ -137,6 +157,25 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
         cta: MESSAGE_META[state.bubble.messageId].cta ?? [],
       }
     : null;
+
+  // Lớp phủ giới thiệu (v1.3, research R-27): slot của danh mục khai báo INTRO để engine biết màn có chỗ, nhưng lớp phủ
+  // phủ cả màn nên vẽ vào document.body
+  if (view.mode === 'INTRO') {
+    return bubble
+      ? createPortal(
+          <MascotIntro
+            key={view.seq}
+            text={bubble.text}
+            language={language}
+            typing={typing}
+            reducedMotion={still}
+            onClose={() => send({ type: 'mascot.user.closedBubble' })}
+            onAssetError={() => send({ type: 'mascot.asset.failed' })}
+          />,
+          document.body,
+        )
+      : null;
+  }
 
   const onCta = (cta: CtaId) => {
     if (cta === 'recommend') navigate(PATHS.recommend);
