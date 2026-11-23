@@ -10,6 +10,8 @@ export const MASCOT_PROACTIVE_WINDOW_MS = 10 * 60_000;
 export const MASCOT_QUEUE_TTL_MS = 4_000;
 export const MASCOT_CELEBRATION_MS = 2_400;
 export const MASCOT_VIBRATION_MS = 30;
+/** Bong bóng xác nhận lượt ghé chưa hiện sau chừng này → màn hiện toast dự phòng (BR-MAS-24, v1.2). */
+export const MASCOT_CONFIRM_FALLBACK_MS = 1_000;
 /** Chữ trong bong bóng hiện dần, ký tự mỗi giây (spec-Mascot v1.1 §5.4; research R-20). */
 export const MASCOT_TYPE_CPS = 30;
 /** Cử chỉ tự động ở màn Mila đứng chờ: khoảng cách ngẫu nhiên giữa hai cử chỉ (BR-MAS-21). */

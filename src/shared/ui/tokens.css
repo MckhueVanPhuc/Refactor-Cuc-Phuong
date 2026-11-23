@@ -143,6 +143,8 @@
   --duration-mascot-hop: 600ms;
   --duration-mascot-celebrate: 2400ms;
   --duration-mascot-loop: 1200ms;
+  --duration-mascot-milestone: 1200ms;
+  --duration-mascot-blink: 120ms;
 }
 
 /* §4.3 — tôn trọng prefers-reduced-motion */
@@ -161,5 +163,7 @@
     --duration-mascot-hop: 0ms;
     --duration-mascot-celebrate: 0ms;
     --duration-mascot-loop: 0ms;
+    --duration-mascot-milestone: 0ms;
+    --duration-mascot-blink: 0ms;
   }
 }

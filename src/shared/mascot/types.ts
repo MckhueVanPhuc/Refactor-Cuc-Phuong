@@ -15,6 +15,8 @@ export type AnimationId =
   | 'look'
   | 'tilt'
   | 'hop'
+  | 'success'
+  | 'milestone'
   | 'search'
   | 'pack'
   | 'thumb'

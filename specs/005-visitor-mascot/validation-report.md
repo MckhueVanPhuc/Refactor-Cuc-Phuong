@@ -428,3 +428,50 @@ Precache: 17 ảnh nhỏ, 205,4 KB; ảnh lớn 551,2 KB nạp khi cần. Ảnh 
 | DV-50 | `e2e/m02/mascot-end.spec.ts` (offline) đổi từ "đúng dãy 062, 070" sang "062 trước 070", vì giờ có câu 030 khi bắt đầu chuyến; `mascot-visit` Q4 chờ câu 056 rồi mới kiểm tư thế bản đồ | Áp dụng |
 | DV-51 | Câu chạm có cờ `requested`: bỏ cooldown và thay ngay câu cùng mức P3 đang hiện (không chờ 1,5 s) | Áp dụng |
 | DV-52 | Cửa sổ "5 lần trong 3 giây" tính từ lần chạm đầu của chuỗi (không trượt) | Ghi nhận |
+
+---
+
+## 11. Đợt 2026-11-23 — Phase 15: ba cấp ăn mừng; Mila xác nhận lượt ghé thay toast (v1.1, v1.2)
+
+Branch `feat/mascot-v11-tiers`, tách từ `docs/mascot-v1.2` (PR #69). Task: T089–T092, T097–T100.
+
+### 11.1 Đã cài
+
+| Mục | Nơi |
+|---|---|
+| Cấp 1: nhún một lần (`success`, keyframe `mascot-hop-once`) + 050. Cấp 2: nhảy hai lần + 6 lá (`milestone`, `--duration-mascot-milestone` 1 200 ms) + 051 / 055 / 058, ưu tiên đầu tiên > nửa (n ≥ 4) > còn một điểm (n ≥ 3). Mọi câu xác nhận P4, `role="status"` | `rules.ts`, `types.ts`, `catalog.ts`, `Mascot.tsx`, `Mascot.module.css`, `tokens.css` |
+| Cấp 3: `m02.trip.ended` có `n` (số điểm của hành trình); k = n → MAS-B-064 / 063, k < n → 062 | `events.ts`, `EndPage.tsx`, `rules.ts` |
+| `visitConfirm.ts`: `markVisitConfirmed`, `markMascotFailed`, `useMascotConfirms` (`MASCOT_CONFIRM_FALLBACK_MS` 1 000 ms, chốt `toast` khi quá hạn) | `src/shared/mascot/visitConfirm.ts`, `index.ts`, `config.ts` |
+| Host đánh dấu khi bong bóng 050/051/055/058 của `VISIT:<ref>` thật sự hiện trong slot; lỗi engine, lỗi ảnh và lỗi render (`MascotBoundary.componentDidCatch`) → `markMascotFailed` | `MascotHost.tsx`, `MascotBoundary.tsx` |
+| `ScanContent`: toast chỉ khi `toast`; điểm cuối khi cờ Mila bật: không toast. Không đổi việc ghi lượt ghé hay thứ tự ghi | `ScanContent.tsx` |
+| Câu v1.2: 011 (không đếm), 012, 021, 043, 050, 051, 055; câu mới 058, 063 → 48 câu | `vi.ts`, `en.ts` |
+| `--duration-mascot-blink` (120 ms) thêm sẵn cho Phase 17 | `tokens.css` |
+
+### 11.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `rules.test.ts` (ba cấp, thứ tự ưu tiên, 063 / 062) | FAIL 5 ca |
+| `visitConfirm.test.ts` | FAIL (chưa có module) |
+| `e2e/m02/mascot-confirm.spec.ts` (Q27, Q28, Q29), Q23 trong `mascot-end.spec.ts` | viết trước khi chạy, đạt sau khi cài |
+
+Các E2E cũ đòi toast (`scan`, `qr-link`, `scan-tab`, `mascot-visit`, `integration.local`) dùng helper `expectCheckInFeedback`: **đúng một** lời xác nhận (toast hoặc bong bóng `role="status"`), đếm sau 1,3 s. Unit test `ContentPage`, `QrLinkPage` chạy với cờ tắt, vẫn thấy toast.
+
+### 11.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 736; 2387 pass, 133 skipped; build OK, precache 114 mục |
+| `npx playwright test --project=m02` (cổng đã kiểm trống) | 0 | 67 pass |
+| `npx playwright test` | 1 | 146 pass, 1 fail (`mascot-intro` Q16 còn câu 012 cũ — sửa test theo câu v1.2), 46 skipped |
+| `npx playwright test --project=m01 mascot-intro` sau khi sửa | 0 | 5 pass |
+
+### 11.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-53 | 055 trước đây P5; nay mọi câu xác nhận lượt ghé là P4 (BR-MAS-24) | Áp dụng |
+| DV-54 | Hành trình fixture E2E có 3 điểm: k = 2 là "còn một điểm" (058), nên cấp 1 (050) và mốc nửa (055) chỉ kiểm ở unit test | Ghi nhận |
+| DV-55 | Nếu bong bóng xác nhận phải chờ sau một câu P0–P3 lâu hơn 1 s, toast hiện và bong bóng có thể hiện muộn sau đó (cả hai). Hiếm: trang nội dung mới mở không có câu nào khác (chỉ câu P4 được mang sang, DV-47) | Ghi nhận |
+| DV-56 | Lỗi render của Mila (`MascotBoundary`) cũng báo `failed` cho màn nội dung, ngoài lỗi engine và lỗi ảnh | Áp dụng |
+| DV-57 | Câu 013, 024, 025, 040, 054 chỉ còn minh họa: chưa cài (thuộc US5–US7, chưa làm) | Chờ |

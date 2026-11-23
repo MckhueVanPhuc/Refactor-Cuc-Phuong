@@ -12,9 +12,9 @@ const FORBIDDEN = [/đã đến/i, /tới nơi/i, /có mặt/i, /arriv/i, /you'r
 const longest = (items: readonly string[]) => items.reduce((a, b) => (b.length > a.length ? b : a), '');
 
 describe('catalog Mila', () => {
-  // v1.1 (2026-11-23): + 012, 033, 043, 065, 085 (Phase 10, 14); 058, 063 thêm ở Phase 15 → 48
-  it('đủ 46 câu của spec-Mascot §5.6 (v1.1, trước Phase 15), cùng bộ khóa ở hai ngôn ngữ và trong metadata', () => {
-    expect(MESSAGE_IDS).toHaveLength(46);
+  // v1.1 (2026-11-23): + 012, 033, 043, 065, 085 (Phase 10, 14); + 058, 063 (Phase 15)
+  it('đủ 48 câu của spec-Mascot §5.6 (v1.2), cùng bộ khóa ở hai ngôn ngữ và trong metadata', () => {
+    expect(MESSAGE_IDS).toHaveLength(48);
     expect(Object.keys(en.messages).sort()).toEqual(Object.keys(vi.messages).sort());
     expect(Object.keys(MESSAGE_META).sort()).toEqual([...MESSAGE_IDS].sort());
   });
@@ -42,9 +42,10 @@ describe('catalog Mila', () => {
     });
   }
 
-  it('tiếng Anh có dạng số ít cho 1 tuyến và 1 điểm', () => {
-    expect(messageText('en', 'MSG-MAS-011', { count: 1 })).toBe("1 route matches what you're after!");
-    expect(messageText('en', 'MSG-MAS-011', { count: 3 })).toBe("3 routes match what you're after!");
+  // v1.2: 011 không còn đếm số tuyến (danh sách đã hiện số kết quả)
+  it('tiếng Anh có dạng số ít cho 1 điểm; 011 không đếm, 063 có {n}', () => {
+    expect(messageText('en', 'MSG-MAS-011', { count: 3 })).toBe('Here are the routes that suit you!');
+    expect(messageText('vi', 'MSG-MAS-063', { n: 5 })).toBe('Bạn đã quét đủ 5 điểm của tuyến. Tuyệt vời!');
     expect(messageText('en', 'MSG-MAS-062', { k: 1 })).toBe('We scanned 1 stop together today. What a trip!');
   });
 

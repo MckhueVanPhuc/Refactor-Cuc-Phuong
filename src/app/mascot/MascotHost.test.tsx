@@ -90,7 +90,7 @@ describe('MascotHost', () => {
     );
     setup([rule('m02.scanner.opened', { intents: [intent({ priority: 4, message: { id: 'MSG-MAS-051' }, vibrate: true })] })]);
     act(() => opened());
-    await screen.findByText(/First QR done/);
+    await screen.findByText(/First scan recorded/);
     expect(vibrate).not.toHaveBeenCalled();
   });
 
@@ -99,7 +99,7 @@ describe('MascotHost', () => {
     Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
     setup([rule('m02.scanner.opened', { intents: [intent({ priority: 4, message: { id: 'MSG-MAS-051' }, vibrate: true })] })]);
     act(() => opened());
-    await screen.findByText(/First QR done/);
+    await screen.findByText(/First scan recorded/);
     expect(vibrate).toHaveBeenCalledWith(30);
   });
 });

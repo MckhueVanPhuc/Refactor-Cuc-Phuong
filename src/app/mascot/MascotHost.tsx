@@ -10,6 +10,7 @@ import { initialState, nextDeadline, step, type MascotState, type Mode, type Rul
 import { RULES } from '../../shared/mascot/rules';
 import { useMotion } from '../../shared/mascot/motion';
 import { useSlots, type SlotEntry } from '../../shared/mascot/slots';
+import { markMascotFailed, markVisitConfirmed } from '../../shared/mascot/visitConfirm';
 import { PATHS } from '../paths';
 import { Mascot } from './Mascot';
 import { MascotBoundary } from './MascotBoundary';
@@ -35,6 +36,10 @@ function useReducedMotion(): boolean {
 }
 
 const modesOf = (slots: readonly SlotEntry[]): Mode[] => [...new Set(slots.flatMap((slot) => slot.modes))];
+
+/** Câu xác nhận lượt ghé thay toast (BR-MAS-24) */
+const VISIT_CONFIRMS: ReadonlySet<string> = new Set(['MSG-MAS-050', 'MSG-MAS-051', 'MSG-MAS-055', 'MSG-MAS-058']);
+const VISIT_ONCE = 'VISIT:';
 
 function Host({ pathname, navigate, rules = RULES }: Props) {
   const slots = useSlots();
@@ -110,9 +115,19 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
   }, [state, send]);
 
   const view = state.view;
-  if (!view || state.failed) return null;
-  const slot = [...slots].reverse().find((entry) => entry.modes.includes(view.mode));
-  if (!slot) return null;
+  const slot = view && !state.failed ? [...slots].reverse().find((entry) => entry.modes.includes(view.mode)) : undefined;
+
+  // Lượt ghé chỉ coi là đã xác nhận khi bong bóng thật sự hiện trong slot của màn (không slot → toast dự phòng)
+  const shownOnce = slot && state.bubble && VISIT_CONFIRMS.has(state.bubble.messageId) ? state.bubble.intent.once : undefined;
+  const confirmedVisit = shownOnce?.startsWith(VISIT_ONCE) ? shownOnce.slice(VISIT_ONCE.length) : null;
+  useEffect(() => {
+    if (confirmedVisit) markVisitConfirmed(confirmedVisit);
+  }, [confirmedVisit]);
+  useEffect(() => {
+    if (state.failed) markMascotFailed();
+  }, [state.failed]);
+
+  if (!view || !slot) return null;
 
   const bubble = state.bubble
     ? {

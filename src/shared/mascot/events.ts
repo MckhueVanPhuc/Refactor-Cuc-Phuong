@@ -49,7 +49,7 @@ export type MascotEvent =
   | { type: 'm02.finalPrompt.opened' }
   | { type: 'm02.finalPrompt.continued' }
   | { type: 'm02.finalPrompt.ended' }
-  | { type: 'm02.trip.ended'; status: 'HOAN_TAT' | 'BO_DO'; k: number; justEnded: boolean }
+  | { type: 'm02.trip.ended'; status: 'HOAN_TAT' | 'BO_DO'; k: number; n: number; justEnded: boolean }
   | { type: 'm02.sync.statusChanged'; status: 'PENDING' | 'SYNCED' | 'CONFLICT'; online: boolean }
   // App
   | { type: 'app.dialog.changed'; open: boolean; kind: 'FINAL_PROMPT' | 'OTHER' }

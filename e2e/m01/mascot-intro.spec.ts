@@ -87,5 +87,5 @@ test('Q16 — danh mục: chạm Mila → 009; chạm lần nữa khi còn hiệ
   await expect(page.locator('[data-mascot-message="MSG-MAS-009"]')).toBeVisible();
   await page.waitForTimeout(450);
   await page.getByRole('button', { name: 'Hỏi Mila' }).click();
-  await expect(page.locator('[data-mascot-message="MSG-MAS-012"]')).toHaveText('Chưa biết chọn tuyến nào? Bấm Gợi ý tuyến nhé.');
+  await expect(page.locator('[data-mascot-message="MSG-MAS-012"]')).toHaveText('Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn.');
 });

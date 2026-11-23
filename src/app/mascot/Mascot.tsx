@@ -25,6 +25,8 @@ type Props = {
 };
 
 const LEAVES = Array.from({ length: 12 }, (_, i) => i);
+/** Mốc cấp 2 (AN-MILESTONE): ít lá hơn (FX-01) */
+const MILESTONE_LEAVES = LEAVES.slice(0, 6);
 
 function ctaLabel(cta: CtaId, labels: ReturnType<typeof labelsFor>): string {
   switch (cta) {
@@ -132,9 +134,9 @@ export function Mascot({ view, bubble, language, reducedMotion, typing, onTap, o
         </div>
       )}
 
-      {view.mode === 'CELEBRATE' && !reducedMotion && (
-        <span className={styles.leaves} aria-hidden="true">
-          {LEAVES.map((i) => (
+      {(view.mode === 'CELEBRATE' || view.animation === 'milestone') && !reducedMotion && (
+        <span className={styles.leaves} aria-hidden="true" data-mascot-leaves="">
+          {(view.mode === 'CELEBRATE' ? LEAVES : MILESTONE_LEAVES).map((i) => (
             <TintIcon key={i} name="leaf" className={styles.leaf} />
           ))}
         </span>

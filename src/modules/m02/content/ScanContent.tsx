@@ -5,7 +5,7 @@
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
-import { emitMascotEvent, MascotSlot } from '../../../shared/mascot/index';
+import { emitMascotEvent, isMascotEnabled, MascotSlot, useMascotConfirms } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { FinalPrompt } from '../end/FinalPrompt';
 import { useEndTrip } from '../end/useEndTrip';
@@ -121,13 +121,23 @@ function Notice({ tone, children, role = 'status' }: { tone: 'info' | 'warning';
   );
 }
 
+/** Lượt ghé vừa ghi, theo cùng khóa Mila dùng cho phản ứng một lần (`VISIT:<visitRef>`). */
+function newVisitRef(scan: ScanResult): string | null {
+  if (!scan.visitCreated || !scan.visit) return null;
+  return [scan.visit.sessionId, scan.visit.checkpointId, scan.visit.checkedInAt].join(':');
+}
+
 function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | undefined }) {
   const messages = useM02Messages();
   const language = useM02DisplayLanguage();
+  // Lời xác nhận lượt ghé (spec-M02 §8, clarification 4): toast, hoặc bong bóng của Mila khi Mila hiện được
+  // (spec-Mascot BR-MAS-24). Điểm cuối khi Mila bật: hộp thoại kết thúc chuyến là lời xác nhận, không toast.
+  const confirmedBy = useMascotConfirms(newVisitRef(scan));
+  const finalWithMila = scan.finalPromptNeeded && isMascotEnabled();
   return (
     <>
       {/* Lượt ghé vừa ghi: toast nổi, không đẩy nội dung xuống */}
-      {scan.visitCreated && (
+      {scan.visitCreated && confirmedBy === 'toast' && !finalWithMila && (
         <Toast key={scan.visit?.checkedInAt ?? scan.qrIdentifier} closeLabel={messages.toast.close}>
           {messages.trip.visitRecorded}
         </Toast>

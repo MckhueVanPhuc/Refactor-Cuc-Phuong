@@ -322,20 +322,20 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests ⚠️
 
-- [ ] T089 [P] [US2] Thêm vào `src/shared/mascot/rules.test.ts`: cấp 1 `success` + 050; cấp 2 `milestone` + 051 / 055 (n ≥ 4) / 058 (k = n − 1, n ≥ 3) theo thứ tự ưu tiên đầu tiên > nửa > còn 1; điểm cuối vẫn chỉ rung
-- [ ] T090 [P] [US4] Thêm vào `src/shared/mascot/rules.test.ts` và `e2e/m02/mascot-end.spec.ts`: `m02.trip.ended` có `n`; k = n → MAS-B-064 / MSG-MAS-063, k < n → 062 (quickstart Q23, Q24)
+- [X] T089 [P] [US2] Thêm vào `src/shared/mascot/rules.test.ts`: cấp 1 `success` + 050; cấp 2 `milestone` + 051 / 055 (n ≥ 4) / 058 (k = n − 1, n ≥ 3) theo thứ tự ưu tiên đầu tiên > nửa > còn 1; điểm cuối vẫn chỉ rung
+- [X] T090 [P] [US4] Thêm vào `src/shared/mascot/rules.test.ts` và `e2e/m02/mascot-end.spec.ts`: `m02.trip.ended` có `n`; k = n → MAS-B-064 / MSG-MAS-063, k < n → 062 (quickstart Q23, Q24)
 
 ### Implementation
 
-- [ ] T091 [US2] Luật MAS-B-050, 051, 055, 066 với animation `success` / `milestone` (6 lá FX-01); MSG-MAS-058 vào catalog
-- [ ] T092 [US4] `EndPage.tsx` phát thêm `n` (số điểm của hành trình); luật MAS-B-064; MSG-MAS-063 vào catalog
+- [X] T091 [US2] Luật MAS-B-050, 051, 055, 066 với animation `success` / `milestone` (6 lá FX-01); MSG-MAS-058 vào catalog
+- [X] T092 [US4] `EndPage.tsx` phát thêm `n` (số điểm của hành trình); luật MAS-B-064; MSG-MAS-063 vào catalog
 
 ### v1.2 — Mila xác nhận lượt ghé thay toast (BR-MAS-24; CHG-MASCOT-2026-11-23-03)
 
-- [ ] T097 [P] [US2] Viết `src/shared/mascot/visitConfirm.test.ts`: `pending` → `mascot` khi đánh dấu; → `toast` sau 1 000 ms; cờ tắt hoặc host `failed` → `toast` ngay; không lưu gì
-- [ ] T098 [P] [US2] Viết `e2e/m02/mascot-confirm.spec.ts`: Q27 (chỉ bong bóng, không toast), Q28 (ảnh Mila hỏng → toast), Q29 (điểm cuối: không toast); một lượt chạy M02 với cờ tắt vẫn có toast (test hiện có)
-- [ ] T099 [US2] `src/shared/mascot/visitConfirm.ts`, export ở `index.ts`; host gọi `markVisitConfirmed` và báo lỗi; câu 050/051/055/058 mới (spec-Mascot §5.6 v1.2) và `role: 'status'` trong catalog
-- [ ] T100 [US2] `src/modules/m02/content/ScanContent.tsx`: hiện toast theo `useMascotConfirms(visitRef)`; điểm cuối khi Mila bật: không toast. Không đổi việc ghi lượt ghé hay thứ tự ghi. Đồng thời cập nhật câu chưa cài theo v1.2 trong catalog: 011, 021, 043 (đã cài), 012 (đã cài); 013, 024, 025, 040, 054 thành minh họa khi cài US5–US7
+- [X] T097 [P] [US2] Viết `src/shared/mascot/visitConfirm.test.ts`: `pending` → `mascot` khi đánh dấu; → `toast` sau 1 000 ms; cờ tắt hoặc host `failed` → `toast` ngay; không lưu gì
+- [X] T098 [P] [US2] Viết `e2e/m02/mascot-confirm.spec.ts`: Q27 (chỉ bong bóng, không toast), Q28 (ảnh Mila hỏng → toast), Q29 (điểm cuối: không toast); một lượt chạy M02 với cờ tắt vẫn có toast (test hiện có)
+- [X] T099 [US2] `src/shared/mascot/visitConfirm.ts`, export ở `index.ts`; host gọi `markVisitConfirmed` và báo lỗi; câu 050/051/055/058 mới (spec-Mascot §5.6 v1.2) và `role: 'status'` trong catalog
+- [X] T100 [US2] `src/modules/m02/content/ScanContent.tsx`: hiện toast theo `useMascotConfirms(visitRef)`; điểm cuối khi Mila bật: không toast. Không đổi việc ghi lượt ghé hay thứ tự ghi. Đồng thời cập nhật câu chưa cài theo v1.2 trong catalog: 011, 021, 043 (đã cài), 012 (đã cài); 013, 024, 025, 040, 054 thành minh họa khi cài US5–US7
 
 ---
 
