@@ -32,7 +32,21 @@ describe('MascotSlot', () => {
       </>,
     );
     const size = (id: string) => container.querySelector(`[data-mascot-slot="${id}"]`)?.getAttribute('data-mascot-size');
-    expect([size('catalog-hero'), size('content-toast'), size('end-hero')]).toEqual(['md', 'sm', 'lg']);
+    expect([size('catalog-hero'), size('content-toast'), size('end-hero')]).toEqual(['md', 'sm', 'xl']);
+  });
+
+  it('v1.1: cỡ DOCK theo slot (danh mục, chuyến đi, kết quả) qua data-mascot-dock', () => {
+    vi.stubEnv('VITE_FEATURE_MASCOT', 'on');
+    const { container } = render(
+      <>
+        <MascotSlot id="catalog-hero" modes={['INTRO', 'DOCK']} size="catalog" />
+        <MascotSlot id="trip-dock" modes={['DOCK']} size="trip" />
+        <MascotSlot id="end-hero" modes={['CELEBRATE', 'DOCK']} size="end" />
+        <MascotSlot id="content-toast" modes={['AVATAR']} />
+      </>,
+    );
+    const dock = (id: string) => container.querySelector(`[data-mascot-slot="${id}"]`)?.getAttribute('data-mascot-dock');
+    expect([dock('catalog-hero'), dock('trip-dock'), dock('end-hero'), dock('content-toast')]).toEqual(['catalog', 'trip', 'end', null]);
   });
 
   it('cờ tắt → không render, không đăng ký', () => {

@@ -45,6 +45,15 @@ describe('step — chuyển trạng thái nền', () => {
     expect(readingTimeMs('x'.repeat(200))).toBe(7_000);
   });
 
+  it('chữ hiện dần (v1.1, R-20): thời gian tự ẩn tính từ khi chữ hiện đủ; không hiện dần thì như cũ', () => {
+    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } }))];
+    const text = 'Ở mỗi điểm dừng, tìm tem QR rồi bấm Quét QR nhé.';
+    const typed = step(initialState(), { type: 'm02.scanner.detected', at: 0 }, { ...CTX, typing: true }, rules).state;
+    expect(typed.bubble!.expiresAt).toBe(Math.ceil((text.length * 1000) / 30) + readingTimeMs(text));
+    const instant = step(initialState(), { type: 'm02.scanner.detected', at: 0 }, CTX, rules).state;
+    expect(instant.bubble!.expiresAt).toBe(readingTimeMs(text));
+  });
+
   it('T9: thông báo tạm đóng → SUPPRESSED, xóa hàng đợi; câu sau bị bỏ tới khi đổi màn', () => {
     const rules = [
       rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } })),
@@ -137,39 +146,91 @@ describe('step — chuyển trạng thái nền', () => {
     expect(shown.bubble?.messageId).toBe('MSG-MAS-051');
   });
 
-  it('không có slot cho mode: P6 bị bỏ; P4 chờ tối đa 4 giây (BR-MAS-05)', () => {
+  it('slot của màn chưa đăng ký: ý định mọi mức chờ tối đa 4 giây, hiện khi slot có (cuộc đua render)', () => {
     const noSlot = { ...CTX, availableModes: [] as const };
     const rules = [
       rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } })),
       rule('m02.scanner.closed', say({ priority: 4, message: { id: 'MSG-MAS-051' } })),
+      rule('m02.scanner.opened', say({ priority: 7, pose: 'binoculars' })),
     ];
     const p6 = step(initialState(), { type: 'm02.scanner.detected', at: 0 }, noSlot, rules).state;
-    expect(p6.queued).toBeNull();
+    expect(p6.queued).toMatchObject({ reason: 'slot' });
+    expect(step(p6, { type: 'mascot.slots.changed', at: 50 }, CTX, rules).state.bubble?.messageId).toBe('MSG-MAS-030');
+    const p7 = step(initialState(), { type: 'm02.scanner.opened', hasSession: true, k: 0, at: 0 }, noSlot, rules).state;
+    expect(step(p7, { type: 'mascot.slots.changed', at: 50 }, CTX, rules).state.view).toMatchObject({ pose: 'binoculars' });
     const p4 = step(initialState(), { type: 'm02.scanner.closed', at: 0 }, noSlot, rules).state;
-    expect(p4.queued).not.toBeNull();
     const late = step(p4, { type: 'mascot.slots.changed', at: 4_001 }, CTX, rules).state;
     expect(late).toMatchObject({ queued: null, bubble: null });
   });
 
-  it('INTRO nối câu: `then` chạy khi bong bóng đầu hết', () => {
+  it('đổi màn nhanh A → B → A trong 500 ms: không bị coi là trùng; màn mới không chống trùng với lần trước ở màn đó', () => {
+    const rules = [rule('m02.scanner.opened', say({ priority: 7, mode: 'DOCK', pose: 'map' }))];
+    const opened = { type: 'm02.scanner.opened', hasSession: true, k: 1 } as const;
+    let s = step(initialState(), { type: 'app.route.changed', path: '/trip', at: 0 }, CTX, rules).state;
+    s = step(s, { ...opened, at: 10 }, CTX, rules).state;
+    s = step(s, { type: 'app.route.changed', path: '/trip/qr/Q1a', at: 100 }, CTX, rules).state;
+    s = step(s, { type: 'app.route.changed', path: '/trip', at: 300 }, CTX, rules).state;
+    expect(s).toMatchObject({ path: '/trip', view: null });
+    s = step(s, { ...opened, at: 320 }, CTX, rules).state;
+    expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
+  });
+
+  it('câu mang sang đang chờ slot không đẩy mất tư thế DOCK của màn mới (quay lại chuyến đi ngay sau câu 051)', () => {
+    const dockOnly = { ...CTX, availableModes: ['DOCK'] as const };
+    const rules = [
+      rule('m02.scanner.closed', say({ priority: 4, mode: 'AVATAR', message: { id: 'MSG-MAS-051' } })),
+      rule('m02.scanner.opened', say({ priority: 7, mode: 'DOCK', pose: 'map' })),
+    ];
+    let s = step(initialState(), { type: 'm02.scanner.closed', at: 0 }, CTX, rules).state;
+    s = step(s, { type: 'app.route.changed', path: '/trip', at: 300 }, { ...CTX, availableModes: [] }, rules).state;
+    expect(s.queued).toMatchObject({ carried: true });
+    s = step(s, { type: 'm02.scanner.opened', hasSession: true, k: 1, at: 320 }, { ...CTX, availableModes: [] }, rules).state;
+    s = step(s, { type: 'mascot.slots.changed', at: 340 }, dockOnly, rules).state;
+    expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
+  });
+
+  it('chỉ câu thành công P4 được mang sang màn mới; câu chạm (P3) của màn cũ bị bỏ (BR-MAS-20, rời màn)', () => {
+    const rules = [rule('mascot.user.tapped', say({ priority: 3, requested: true, message: { id: 'MSG-MAS-032' } }))];
+    let s = step(initialState(), { type: 'mascot.user.tapped', at: 0 }, CTX, rules).state;
+    expect(s.bubble?.messageId).toBe('MSG-MAS-032');
+    s = step(s, { type: 'app.route.changed', path: '/trip/qr/Q1a', at: 50 }, CTX, rules).state;
+    expect(s).toMatchObject({ bubble: null, queued: null });
+  });
+
+  it('câu mang sang nhường chỗ hàng đợi cho câu của màn mới đang chờ slot (056 khi quay lại sau câu 051)', () => {
+    const dockOnly = { ...CTX, availableModes: ['DOCK'] as const };
+    const rules = [
+      rule('m02.scanner.closed', say({ priority: 4, mode: 'AVATAR', message: { id: 'MSG-MAS-051' } })),
+      rule('m02.scanner.opened', say({ priority: 6, mode: 'DOCK', message: { id: 'MSG-MAS-056' } })),
+    ];
+    let s = step(initialState(), { type: 'm02.scanner.closed', at: 0 }, CTX, rules).state;
+    s = step(s, { type: 'app.route.changed', path: '/trip', at: 300 }, { ...CTX, availableModes: [] }, rules).state;
+    s = step(s, { type: 'm02.scanner.opened', hasSession: true, k: 1, at: 320 }, { ...CTX, availableModes: [] }, rules).state;
+    expect(s.queued).toMatchObject({ intent: { message: { id: 'MSG-MAS-056' } } });
+    s = step(s, { type: 'mascot.slots.changed', at: 340 }, dockOnly, rules).state;
+    expect(s.bubble?.messageId).toBe('MSG-MAS-056');
+  });
+
+
+  it('nối câu: `then` chạy khi bong bóng đầu hết', () => {
     const rules = [
       rule('m01.language.selected', {
         intents: [
           {
             behaviorId: 'MAS-B-001',
             priority: 6,
-            mode: 'INTRO',
+            mode: 'DOCK',
             pose: 'wave',
-            message: { id: 'MSG-MAS-001' },
-            then: { behaviorId: 'MAS-B-002', priority: 6, mode: 'INTRO', pose: 'map', message: { id: 'MSG-MAS-002' } },
+            message: { id: 'MSG-MAS-009' },
+            then: { behaviorId: 'MAS-B-004', priority: 6, mode: 'DOCK', pose: 'map', message: { id: 'MSG-MAS-004' } },
           },
         ],
       }),
     ];
     const first = run([{ type: 'm01.language.selected', language: 'vi', at: 0 }], rules);
-    expect(first.bubble?.messageId).toBe('MSG-MAS-001');
+    expect(first.bubble?.messageId).toBe('MSG-MAS-009');
     const second = step(first, { type: 'mascot.tick', at: nextDeadline(first)! }, CTX, rules).state;
-    expect(second.bubble?.messageId).toBe('MSG-MAS-002');
+    expect(second.bubble?.messageId).toBe('MSG-MAS-004');
   });
 
   it('hẹn giờ của luật phát `mascot.timer` khi tới hạn', () => {
@@ -198,5 +259,50 @@ describe('step — chuyển trạng thái nền', () => {
     const events = [{ type: 'm02.scanner.detected', at: 5 } as const, { type: 'mascot.tick', at: 10_000 } as const];
     expect(run(events, rules)).toEqual(run(events, rules));
     spy.mockRestore();
+  });
+});
+
+describe('v1.1 — Ngữ cảnh "đang thao tác" (BR-MAS-20; research R-19; quickstart Q25)', () => {
+  const timed = (source: 'timer' | 'ambient' | undefined): Rule[] => [
+    rule('m02.scanner.opened', { timers: { help: 3_000 } }),
+    rule('mascot.timer', (event) => (event.type === 'mascot.timer' && event.name === 'help' ? say({ ...(source ? { source } : {}), message: { id: 'MSG-MAS-032' }, priority: 3 }) : null)),
+  ];
+  const open = { type: 'm02.scanner.opened', hasSession: true, k: 0, at: 0 } as const;
+
+  it('chạm / cuộn / phím trong 2 s trước hẹn giờ → ý định `timer` và `ambient` bị bỏ', () => {
+    for (const source of ['timer', 'ambient'] as const) {
+      const s = run([open, { type: 'app.user.activity', at: 1_500 }, { type: 'mascot.tick', at: 3_000 }], timed(source));
+      expect(s.bubble).toBeNull();
+      expect(s.lastActivityAt).toBe(1_500);
+    }
+  });
+
+  it('quá 2 s sau thao tác → ý định `timer` chạy như thường', () => {
+    const s = run([open, { type: 'app.user.activity', at: 900 }, { type: 'mascot.tick', at: 3_000 }], timed('timer'));
+    expect(s.bubble?.messageId).toBe('MSG-MAS-032');
+  });
+
+  it('ý định không có `source` (kết quả trực tiếp của thao tác, sự kiện của màn) không bị bỏ', () => {
+    const s = run([open, { type: 'app.user.activity', at: 2_900 }, { type: 'mascot.tick', at: 3_000 }], timed(undefined));
+    expect(s.bubble?.messageId).toBe('MSG-MAS-032');
+    const tapped = run(
+      [{ type: 'app.user.activity', at: 0 }, { type: 'm02.scanner.opened', hasSession: true, k: 0, at: 10 }],
+      [rule('m02.scanner.opened', say({ message: { id: 'MSG-MAS-043' }, priority: 3, requested: true }))],
+    );
+    expect(tapped.bubble?.messageId).toBe('MSG-MAS-043');
+  });
+
+  it('thao tác không chống trùng và không đổi gì khác (không đóng bong bóng đang hiện)', () => {
+    const shown = run([open], [rule('m02.scanner.opened', say({ message: { id: 'MSG-MAS-043' }, priority: 3 }))]);
+    const a = step(shown, { type: 'app.user.activity', at: 100 }, CTX, []).state;
+    const b = step(a, { type: 'app.user.activity', at: 200 }, CTX, []).state;
+    expect(b.lastActivityAt).toBe(200);
+    expect(b.bubble?.messageId).toBe('MSG-MAS-043');
+  });
+
+  it('media bắt đầu → bong bóng đóng ngay (MAS-TC-115)', () => {
+    const shown = run([open], [rule('m02.scanner.opened', say({ message: { id: 'MSG-MAS-043' }, priority: 3 }))]);
+    const playing = step(shown, { type: 'm02.media.playing', mediaType: 'AUDIO', at: 50 }, CTX, []).state;
+    expect(playing.bubble).toBeNull();
   });
 });

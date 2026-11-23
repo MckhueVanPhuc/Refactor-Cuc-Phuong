@@ -49,19 +49,23 @@ export type MascotEvent =
   | { type: 'm02.finalPrompt.opened' }
   | { type: 'm02.finalPrompt.continued' }
   | { type: 'm02.finalPrompt.ended' }
-  | { type: 'm02.trip.ended'; status: 'HOAN_TAT' | 'BO_DO'; k: number; justEnded: boolean }
+  | { type: 'm02.trip.ended'; status: 'HOAN_TAT' | 'BO_DO'; k: number; n: number; justEnded: boolean }
   | { type: 'm02.sync.statusChanged'; status: 'PENDING' | 'SYNCED' | 'CONFLICT'; online: boolean }
   // App
   | { type: 'app.dialog.changed'; open: boolean; kind: 'FINAL_PROMPT' | 'OTHER' }
   | { type: 'app.route.changed'; path: string }
   | { type: 'app.visibility.changed'; visible: boolean }
   | { type: 'app.network.changed'; online: boolean }
+  /** Du khách chạm, cuộn hoặc bấm phím (host gộp 250 ms; research R-19). Không đi qua bus của module. */
+  | { type: 'app.user.activity' }
   // Du khách thao tác với Mila
   | { type: 'mascot.user.tapped' }
   | { type: 'mascot.user.closedBubble' }
   | { type: 'mascot.user.ctaPressed'; cta: CtaId }
   // Nội bộ host/engine (không module nào phát)
   | { type: 'mascot.tick' }
+  /** Công tắc "Chuyển động" ở thanh đầu trang (v1.1, BR-MAS-21) */
+  | { type: 'mascot.motion.changed'; on: boolean }
   | { type: 'mascot.timer'; name: string }
   | { type: 'mascot.slots.changed' }
   | { type: 'mascot.asset.failed' };
@@ -73,27 +77,57 @@ export type CtaId = 'recommend' | 'seeAll' | 'closeCamera' | 'notNow';
 type Listener = (event: StampedEvent) => void;
 const listeners = new Set<Listener>();
 
+// Host nạp lazy (chunk `mascot`), nên sự kiện có thể tới trước khi host đăng ký lần đầu (ví dụ chọn ngôn ngữ ngay khi
+// trang vừa mở, hay mạng yếu). Giữ tạm tối đa PENDING_MAX sự kiện trong PENDING_MS rồi giao cho listener đầu tiên;
+// thời điểm gốc `at` giữ nguyên nên engine vẫn tính giờ đúng. Sau lần đăng ký đầu, không có listener thì bỏ.
+const PENDING_MS = 5_000;
+const PENDING_MAX = 20;
+let pending: StampedEvent[] = [];
+let everSubscribed = false;
+
+function deliver(listener: Listener, event: StampedEvent): void {
+  try {
+    listener(event);
+  } catch {
+    // Lỗi của Mila không được ảnh hưởng tới màn (BR-MAS-16)
+  }
+}
+
 /** Phát một sự kiện cho Mila. Không throw, không trả promise; cờ tắt thì không làm gì. */
 export function emitMascotEvent(event: MascotEvent): void {
-  if (!isMascotEnabled() || listeners.size === 0) return;
+  if (!isMascotEnabled()) return;
   const stamped = { ...event, at: Date.now() } as StampedEvent;
+  if (listeners.size === 0) {
+    if (everSubscribed) return;
+    pending = [...pending.filter((e) => stamped.at - e.at <= PENDING_MS), stamped].slice(-PENDING_MAX);
+    return;
+  }
   queueMicrotask(() => {
-    for (const listener of [...listeners]) {
-      try {
-        listener(stamped);
-      } catch {
-        // Lỗi của Mila không được ảnh hưởng tới màn (BR-MAS-16)
-      }
-    }
+    for (const listener of [...listeners]) deliver(listener, stamped);
   });
 }
 
-/** Chỉ host dùng. Trả hàm hủy đăng ký. */
+/** Chỉ host dùng. Trả hàm hủy đăng ký. Listener đầu tiên nhận các sự kiện đang giữ tạm. */
 export function subscribeMascotEvents(listener: Listener): () => void {
   listeners.add(listener);
+  if (!everSubscribed) {
+    everSubscribed = true;
+    const now = Date.now();
+    const backlog = pending.filter((e) => now - e.at <= PENDING_MS);
+    pending = [];
+    if (backlog.length > 0) queueMicrotask(() => backlog.forEach((event) => deliver(listener, event)));
+  }
   return () => {
     listeners.delete(listener);
   };
+}
+
+/** Chỉ dùng trong test: trả bus về trạng thái lúc vừa tải trang. */
+export function resetMascotEventsForTest(): void {
+  listeners.clear();
+  pending = [];
+  everSubscribed = false;
+  holds.clear();
 }
 
 export type HoldKey = 'dialog' | 'media';

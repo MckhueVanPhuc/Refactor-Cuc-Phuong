@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED**. Chờ người dùng duyệt; không sửa code trước khi duyệt |
-| Ngày | 2026-11-20 |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) |
 | Quy trình | Như AI Integration: change brief → spec canonical → tài liệu dẫn xuất → gói Spec-Kit → code → validation report ([runbook](../../M03_Documentation_Refactor_Runbook_v2.md) §3, §13; AGENTS.md §2) |
 
 ## 1. Các giai đoạn
@@ -21,7 +21,8 @@
 | **G7 — M01 đầy đủ** | Danh mục, gợi ý, chi tiết (nhắc an toàn), gói tải trước, trạng thái rỗng và lỗi | G5 | Agent | PR |
 | **G8 — Tương tác & hoàn thiện** | Chạm để nhận gợi ý (một câu mỗi màn), lời nhắc thiên nhiên (sau khi Ban Quản lý duyệt) | G6, G7 | Agent | PR |
 | **G9 — Kiểm thực địa** | Checklist thiết bị (MAS-TC-073…075, 084, 092), chỉnh ngưỡng không hoạt động (MAS-D-11), bật cờ ở Production | G8 | Người dùng + agent | Validation report |
-| G10 — Sprite (tùy chọn) | MA-20…22: chớp mắt, vẫy tay, ăn mừng | G9 | Người dùng (asset) + agent | — |
+| **G8b — Mila sống động (v1.1)** | [CHG-MASCOT-2026-11-22-02](../../specs/005-visitor-mascot/change-brief-CHG-MASCOT-2026-11-22-02.md): bong bóng kiểu A + chữ hiện dần + cỡ mới; công tắc chuyển động + cử chỉ tự động; chạm theo ngữ cảnh + chạm nhiều lần; ba cấp ăn mừng; ngữ cảnh hoạt động; chớp mắt (khi có ảnh MA-20) | G5 | Agent; người dùng tạo ảnh đợt 2, 3 | PR |
+| G10 — Sprite (tùy chọn) | MA-21, 22: vẫy tay, ăn mừng (chớp mắt MA-20 chuyển lên G8b) | G9 | Người dùng (asset) + agent | — |
 | G11 — Gamification (FUTURE) | Huy hiệu, sổ tay, câu đố: sửa MVP-Scope §4 và spec-M02 trước | Quyết định riêng | — | — |
 | G12 — Rive (tùy chọn) | Vẽ lại vector có rig; đổi renderer | Quyết định phong cách riêng | — | — |
 

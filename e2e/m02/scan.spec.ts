@@ -2,7 +2,7 @@
 // (`qr-q1a.y4m`, project m02); các mã khác đi qua `window.__cpqTestHooks.m02.scan`, cùng đường parseQrLink → processScan.
 import { expect, test, type Page } from '@playwright/test';
 import { vi } from '../../src/modules/m02/i18n/vi';
-import { dumpStores, seedValidContext } from './helpers';
+import { dumpStores, expectCheckInFeedback, seedValidContext } from './helpers';
 import { mockLookup } from './network';
 
 const BASE = 'http://localhost:4173';
@@ -50,7 +50,7 @@ test('V5 — online quét Q1a (camera) rồi Q1b → một lượt ghé C1 với
 
   await page.getByRole('button', { name: vi.trip.scan }).click();
   await expect(page).toHaveURL(/\/trip\/qr\/Q1a$/);
-  await expect(page.getByText(vi.trip.visitRecorded)).toBeVisible();
+  await expectCheckInFeedback(page);
   expect(requests[0]).toEqual({ p_qr_identifier: 'Q1a', p_route_id: 'A' });
 
   await backToTrip(page);

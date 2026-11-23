@@ -3,7 +3,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { vi } from '../../src/modules/m02/i18n/vi';
 import { chooseLanguage, mockPublication } from '../m01/network';
-import { dumpStores, M02_STORES, seedValidContext } from './helpers';
+import { dumpStores, expectCheckInFeedback, M02_STORES, seedValidContext } from './helpers';
 import { mockLookup, mockStorage } from './network';
 
 async function m02StoreCounts(page: Page) {
@@ -50,7 +50,7 @@ test('V-SCAN-2 — đang có phiên: quét từ thanh tab ở danh mục là lư
   await page.goto('/');
   await scanTab(page).click();
   await expect(page).toHaveURL(/\/trip\/qr\/Q1a$/);
-  await expect(page.getByText(vi.trip.visitRecorded)).toBeVisible();
+  await expectCheckInFeedback(page);
   expect(requests.at(-1)).toEqual({ p_qr_identifier: 'Q1a', p_route_id: 'A' });
   const visits = (await dumpStores(page, ['checkpointVisits'])).checkpointVisits as { checkpointId: string }[];
   expect(visits.map((visit) => visit.checkpointId)).toEqual(['C1']);

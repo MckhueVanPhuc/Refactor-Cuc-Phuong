@@ -26,6 +26,11 @@
   box-shadow: var(--shadow-modal);
 }
 
+/* Hình Mila (nếu có) giữa đầu hộp thoại */
+.dialog > :first-child:not(.question) {
+  justify-self: center;
+}
+
 .question {
   margin: 0;
   font-size: var(--font-size-row-title);

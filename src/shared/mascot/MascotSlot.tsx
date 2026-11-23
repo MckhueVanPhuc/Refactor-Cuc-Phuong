@@ -12,17 +12,19 @@ type Props = {
   modes: readonly Mode[];
   /** Hành động của CTA thuộc màn (ví dụ "Đóng camera" gọi đúng nút đóng hiện có) */
   onCta?: (cta: CtaId) => void;
+  /** Cỡ DOCK của chỗ này (v1.1, design-system §9.2): hero danh mục, màn chuyến đi, cạnh huy hiệu màn kết quả */
+  size?: 'catalog' | 'trip' | 'end';
 };
 
 /** Mode cố định lớn nhất quyết định chỗ giữ sẵn; INTRO tràn trong khu vực hero, không giữ chỗ riêng. */
-function reservedSize(modes: readonly Mode[]): 'lg' | 'md' | 'sm' | 'none' {
-  if (modes.includes('CELEBRATE')) return 'lg';
+function reservedSize(modes: readonly Mode[]): 'xl' | 'md' | 'sm' | 'none' {
+  if (modes.includes('CELEBRATE')) return 'xl';
   if (modes.includes('DOCK')) return 'md';
   if (modes.includes('AVATAR')) return 'sm';
   return 'none';
 }
 
-export function MascotSlot({ id, modes, onCta }: Props) {
+export function MascotSlot({ id, modes, onCta, size }: Props) {
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const enabled = isMascotEnabled();
   const modesKey = modes.join(',');
@@ -33,5 +35,5 @@ export function MascotSlot({ id, modes, onCta }: Props) {
   }, [enabled, element, id, modesKey, onCta]);
 
   if (!enabled) return null;
-  return <div ref={setElement} className={styles.slot} data-mascot-slot={id} data-mascot-size={reservedSize(modes)} />;
+  return <div ref={setElement} className={styles.slot} data-mascot-slot={id} data-mascot-size={reservedSize(modes)} data-mascot-dock={size} />;
 }

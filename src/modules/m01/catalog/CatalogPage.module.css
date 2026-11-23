@@ -3,29 +3,75 @@
  * hành động khám phá "Gợi ý tuyến" là viên thuốc trắng có la bàn, dễ tìm trên điện thoại.
  */
 .hero {
+  /* Cỡ Mila ở hero theo token, nhỏ hơn ở màn hẹp nhất (design-system §9.2, v1.3) */
+  --hero-mila: var(--mascot-size-dock-catalog);
+
   position: relative;
   display: grid;
-  gap: var(--space-4);
-  justify-items: start;
+  grid-template-areas:
+    'title scene'
+    'action scene'
+    'bubble bubble';
+  /* Cột trái đúng bề rộng tiêu đề (một dòng); Mila co trong phần còn lại, tối đa cỡ token, nên không bao giờ đè tiêu đề */
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: end;
+  column-gap: var(--space-1);
   margin-bottom: var(--space-5);
   padding-top: var(--space-1);
 }
 
-/* Đồi nằm cạnh nút "Gợi ý tuyến", không đè lên tiêu đề dài */
-.hills {
-  --icon-size: calc(var(--space-8) * 4);
+@media (max-width: 22.4375em) {
+  .hero {
+    --hero-mila: var(--mascot-size-dock-catalog-narrow);
+  }
+}
 
-  position: absolute;
-  right: calc(var(--space-2) * -1);
-  bottom: 0;
-  height: calc(var(--space-8) * 2);
+/* Dải đồi trang trí: chiếm ô của Mila (giữ chỗ cao bằng Mila), tràn sang trái phía sau nút; Mila đứng trên đồi */
+.hero .hills {
+  grid-area: scene;
+  justify-self: end;
+  width: calc(var(--hero-mila) + var(--space-8) * 2.5);
+  max-width: calc(100% + var(--space-8) * 2.5);
+  height: var(--hero-mila);
+  margin-right: calc(var(--space-2) * -1);
   color: color-mix(in srgb, var(--color-m01-forest) 22%, transparent);
   pointer-events: none;
+  mask-position: right bottom;
+  mask-size: 100% auto;
+}
+
+/*
+ * Slot của Mila và khung Mila không tạo hộp riêng (R-29): hình Mila vào ô "scene" trên dải đồi, bong bóng vào hàng
+ * "bubble" bên dưới, đuôi chỉ lên Mila. Mila không đổi chỗ khi nói; danh sách tuyến trượt xuống bằng chiều cao bong bóng.
+ */
+.hero > :global([data-mascot-slot='catalog-hero']),
+.hero > :global([data-mascot-slot='catalog-hero']) > :global([data-mascot-mode]) {
+  display: contents;
+}
+
+.hero > :global([data-mascot-slot='catalog-hero']) > :global([data-mascot-mode]) > :first-child {
+  z-index: 1;
+  grid-area: scene;
+  justify-self: end;
+  align-self: end;
+  width: min(var(--hero-mila), 100%);
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.hero > :global([data-mascot-slot='catalog-hero']) > :global([data-mascot-mode]) > :nth-child(2) {
+  grid-area: bubble;
+  justify-self: end;
+  margin-top: var(--space-3);
 }
 
 .title {
   position: relative;
+  z-index: 1;
   display: flex;
+  grid-area: title;
+  margin-bottom: var(--space-4);
+  white-space: nowrap;
   align-items: center;
   gap: var(--space-2);
   font-family: var(--font-serif);
@@ -34,6 +80,19 @@
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
   color: var(--color-m01-deep);
+}
+
+/* Tiêu đề nhận focus bằng code khi lớp phủ giới thiệu đóng (để trình đọc màn hình biết vị trí); không phải phần tử
+   bấm được nên không vẽ vòng focus */
+.title:focus {
+  outline: none;
+}
+
+/* Màn hẹp nhất: tiêu đề cỡ di động để vẫn một dòng cạnh Mila */
+@media (max-width: 22.4375em) {
+  .title {
+    font-size: var(--font-size-page-heading-mobile);
+  }
 }
 
 @media (min-width: 48em) {
@@ -52,7 +111,10 @@
   --icon-size: var(--space-5);
 
   position: relative;
+  z-index: 1;
   display: inline-flex;
+  grid-area: action;
+  justify-self: start;
   align-items: center;
   gap: var(--space-2);
   min-height: var(--touch-target);
