@@ -16,7 +16,14 @@ import type { Blocker, Effect, Intent, MascotState, Rule, StampedEvent, Status, 
 export { readingTimeMs } from './arbiter';
 export type { Effect, Intent, MascotState, Mode, PoseId, Rule, RuleResult, RuleView, StepContext, StepResult } from './types';
 
-const INTERNAL: ReadonlySet<MascotEventType> = new Set(['mascot.tick', 'mascot.timer', 'mascot.slots.changed', 'mascot.asset.failed']);
+const INTERNAL: ReadonlySet<MascotEventType> = new Set([
+  'mascot.tick',
+  'mascot.timer',
+  'mascot.slots.changed',
+  'mascot.asset.failed',
+  // Thao tác liên tục (cuộn) là trạng thái, không phải tín hiệu lặp
+  'app.user.activity',
+]);
 /**
  * Tín hiệu trạng thái (đang có hộp thoại, đang phát, đang có thông báo tự kết thúc): engine áp chúng idempotent, nên
  * không chống trùng. Chống trùng ở đây sẽ nuốt lần "phát" thứ hai của chuỗi phát → dừng → phát trong 500 ms.
@@ -57,6 +64,7 @@ export function initialState(): MascotState {
     motion: true,
     hasSession: false,
     path: '',
+    lastActivityAt: null,
   };
 }
 
@@ -216,6 +224,9 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
     }
     case 'app.network.changed':
       s.online = event.online;
+      break;
+    case 'app.user.activity':
+      s.lastActivityAt = now;
       break;
     case 'mascot.user.closedBubble':
     case 'mascot.user.ctaPressed':

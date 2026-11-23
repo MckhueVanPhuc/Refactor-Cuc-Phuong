@@ -470,3 +470,26 @@ describe('v1.1/v1.2 — Ba cấp ăn mừng và câu xác nhận lượt ghé (B
     expect(early.bubble).toMatchObject({ messageId: 'MSG-MAS-062', params: { k: 2 } });
   });
 });
+
+describe('v1.1 — Cử chỉ tự động nhường du khách đang thao tác (BR-MAS-20, 21; Q25)', () => {
+  const zero = { ...CTX, random: () => 0 };
+  const catalog: Stamped[] = [
+    { type: 'app.route.changed', path: '/', at: 0 },
+    { type: 'm01.catalog.loaded', status: 'ready', count: 3, stale: false, slow: false, at: 10 },
+    { type: 'mascot.tick', at: 700 },
+    { type: 'mascot.user.closedBubble', at: 800 },
+  ];
+
+  it('cuộn danh mục ngay trước hạn cử chỉ → không cử chỉ; hẹn lại 8–15 s sau', () => {
+    const s = play([...catalog, { type: 'app.user.activity', at: 8_000 }], [], zero).state;
+    const due = s.timers['ambient']!;
+    const skipped = play([{ type: 'mascot.tick', at: due }], [], zero, s).state;
+    expect(skipped.view?.behaviorId).not.toBe('MAS-B-086');
+    expect(skipped.timers['ambient']).toBe(due + 8_000);
+  });
+
+  it('trang đọc bài không có cử chỉ tự động', () => {
+    const s = play([{ type: 'app.route.changed', path: '/trip/qr/Q1a', at: 0 }, { type: 'm02.scan.resolved', display: 'LIVE', hasSession: true, freeVisitor: false, visitCreated: false, inJourney: true, finalPromptNeeded: false, at: 10 }], [], zero).state;
+    expect(s.timers['ambient']).toBeUndefined();
+  });
+});

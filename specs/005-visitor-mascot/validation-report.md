@@ -475,3 +475,43 @@ Các E2E cũ đòi toast (`scan`, `qr-link`, `scan-tab`, `mascot-visit`, `integr
 | DV-55 | Nếu bong bóng xác nhận phải chờ sau một câu P0–P3 lâu hơn 1 s, toast hiện và bong bóng có thể hiện muộn sau đó (cả hai). Hiếm: trang nội dung mới mở không có câu nào khác (chỉ câu P4 được mang sang, DV-47) | Ghi nhận |
 | DV-56 | Lỗi render của Mila (`MascotBoundary`) cũng báo `failed` cho màn nội dung, ngoài lỗi engine và lỗi ảnh | Áp dụng |
 | DV-57 | Câu 013, 024, 025, 040, 054 chỉ còn minh họa: chưa cài (thuộc US5–US7, chưa làm) | Chờ |
+
+---
+
+## 12. Đợt 2026-11-23 — Phase 16: ngữ cảnh "đang thao tác" (v1.1)
+
+Branch `feat/mascot-v11-interacting`, tách từ `feat/mascot-v11-tiers` (PR #70). Task: T093, T094.
+
+### 12.1 Đã cài
+
+| Mục | Nơi |
+|---|---|
+| Sự kiện nội bộ `app.user.activity` (không chống trùng); state `lastActivityAt` | `events.ts`, `types.ts`, `machine.ts` |
+| Intent có `source?: 'timer' \| 'ambient'`; trọng tài bỏ ý định có `source` trong `MASCOT_INTERACTION_GRACE_MS` (2 000 ms) sau thao tác. Ý định không có `source` (kết quả của thao tác, sự kiện của màn, câu hỏi Mila) vẫn chạy | `arbiter.ts`, `config.ts` |
+| Cử chỉ tự động MAS-B-086 mang `source: 'ambient'`; bị bỏ thì lịch hẹn lại 8–15 s | `rules.ts` |
+| Host: `pointerdown`, `keydown`, `scroll` trên `window` (capture, passive), gộp 250 ms → `app.user.activity` | `MascotHost.tsx` |
+
+Hiện chỉ cử chỉ tự động dùng `source`. Hướng dẫn theo hẹn giờ của scanner và danh mục (US5, US7, chưa cài) sẽ mang `source: 'timer'`. Lời chào, câu bắt đầu chuyến (030) và lời "đã lưu trên máy" (070) là kết quả của thao tác hoặc của hệ thống nên không mang `source`.
+
+### 12.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `machine.test.ts` (bỏ `timer` / `ambient` trong 2 s, chạy sau 2 s, không `source` thì chạy, không đóng bong bóng, media đóng bong bóng) | FAIL 2 ca; ca media (MAS-TC-115) đạt ngay vì đã có từ Phase 3 |
+| `rules.test.ts` (cuộn trước hạn cử chỉ, trang đọc bài không cử chỉ) | FAIL 1 ca |
+| `MascotHost.test.tsx` (cuộn → câu theo hẹn giờ bị bỏ) | Viết sau listener; kiểm lại bằng cách bỏ listener → FAIL |
+
+### 12.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 736; 2395 pass, 133 skipped; build OK |
+| `npx playwright test` (cổng đã kiểm trống) | 1 | 145 pass, 2 fail (`mascot-layout` đo cỡ Mila giữa animation "enter" khi máy bận — DV-58), 46 skipped; chạy riêng 6/6 |
+| `npx playwright test` sau khi sửa helper | 0 | 147 pass, 46 skipped |
+
+### 12.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-58 | `figureWidth` (E2E) đo bằng `boundingBox`, có tính transform của animation "enter", nên ra số nhỏ hơn khi lúc đo rơi vào giữa animation. Nay đo `offsetWidth` (cỡ layout). Lỗi test có từ Phase 12, chỉ lộ khi chạy cả bộ | Áp dụng |
+| DV-59 | Thao tác chỉ chặn ý định mới; bong bóng đang hiện không đóng khi du khách chạm hay cuộn | Ghi nhận |

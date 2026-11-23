@@ -31,5 +31,7 @@ export const MASCOT_AMBIENT_PATHS: readonly string[] = ['/', '/trip', '/trip/end
 export const MASCOT_SAME_PRIORITY_MIN_MS = 1_500;
 /** Sự kiện giống hệt trong khoảng này chỉ xử lý một lần (BR-MAS-06). */
 export const MASCOT_DEDUPE_MS = 500;
+/** Ngữ cảnh "đang thao tác" (BR-MAS-20): ý định theo hẹn giờ và cử chỉ tự động bị bỏ trong khoảng này sau thao tác. */
+export const MASCOT_INTERACTION_GRACE_MS = 2_000;
 /** Câu nhắc thiên nhiên MSG-MAS-057a–e chỉ bật sau khi Ban Quản lý duyệt câu chữ (BR-MAS-13; OD-MAS-05). */
 export const NATURE_REMINDERS_APPROVED = false;

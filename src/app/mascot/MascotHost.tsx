@@ -23,6 +23,9 @@ type Props = {
 };
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+/** Gộp thao tác liên tục (cuộn) thành tối đa một sự kiện mỗi khoảng này (research R-19). */
+const ACTIVITY_COALESCE_MS = 250;
+const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'scroll'] as const;
 
 function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(() => typeof window !== 'undefined' && window.matchMedia(REDUCED_MOTION).matches);
@@ -103,6 +106,22 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
       document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOffline);
+    };
+  }, [send]);
+
+  // "Đang thao tác" (BR-MAS-20; research R-19): chạm, phím, cuộn ở bất kỳ đâu (capture bắt cả vùng cuộn con), thụ động
+  useEffect(() => {
+    let last = Number.NEGATIVE_INFINITY;
+    const onActivity = () => {
+      const now = Date.now();
+      if (now - last < ACTIVITY_COALESCE_MS) return;
+      last = now;
+      send({ type: 'app.user.activity' });
+    };
+    const options = { capture: true, passive: true } as const;
+    for (const type of ACTIVITY_EVENTS) window.addEventListener(type, onActivity, options);
+    return () => {
+      for (const type of ACTIVITY_EVENTS) window.removeEventListener(type, onActivity, options);
     };
   }, [send]);
 

@@ -102,4 +102,33 @@ describe('MascotHost', () => {
     await screen.findByText(/First scan recorded/);
     expect(vibrate).toHaveBeenCalledWith(30);
   });
+
+  it('"đang thao tác" (BR-MAS-20, R-19): cuộn trong 2 s trước hẹn giờ → hướng dẫn theo hẹn giờ bị bỏ', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    try {
+      const timed = [
+        rule('m02.scanner.opened', { timers: { help: 3_000 } }),
+        rule('mascot.timer', (event) => (event.type === 'mascot.timer' && event.name === 'help' ? say({ source: 'timer', message: { id: 'MSG-MAS-030' } }) : null)),
+      ];
+      setup(timed);
+      await act(async () => opened());
+      await act(async () => {
+        vi.advanceTimersByTime(1_500);
+        window.dispatchEvent(new Event('scroll'));
+      });
+      await act(async () => {
+        vi.advanceTimersByTime(1_600);
+      });
+      expect(screen.queryByText(/At each stop/)).toBeNull();
+
+      // Lần sau không có thao tác → câu hiện
+      await act(async () => opened());
+      await act(async () => {
+        vi.advanceTimersByTime(3_100);
+      });
+      expect(screen.queryByText(/At each stop/)).not.toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

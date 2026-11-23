@@ -1,6 +1,7 @@
 // Trọng tài ưu tiên của Mila (spec-Mascot BR-MAS-05…08, 17, 19; specs/005 research R-05). Hàm thuần: nhận bản nháp
 // state đã sao chép và thời điểm, ghi kết quả vào bản nháp đó.
 import {
+  MASCOT_INTERACTION_GRACE_MS,
   MASCOT_PROACTIVE_LIMIT,
   MASCOT_PROACTIVE_WINDOW_MS,
   MASCOT_QUEUE_TTL_MS,
@@ -47,6 +48,9 @@ export function admit(s: MascotState, intent: Intent, ctx: StepContext, now: num
   if (s.failed || s.closed || !s.visible) return false;
   if (s.blockers.length > 0 && intent.priority > 1) return false;
   if (!carried && intent.once && s.once[intent.once]) return false;
+  // "Đang thao tác" (BR-MAS-20): hướng dẫn theo hẹn giờ, lời nhắc, cử chỉ tự động không chen vào lúc du khách vừa chạm,
+  // cuộn hay bấm phím. Kết quả trực tiếp của thao tác (không có `source`) vẫn chạy.
+  if (intent.source && s.lastActivityAt !== null && now - s.lastActivityAt < MASCOT_INTERACTION_GRACE_MS) return false;
 
   const meta = intent.message ? MESSAGE_META[intent.message.id] : undefined;
   if (!carried && intent.message && meta && !intent.requested) {

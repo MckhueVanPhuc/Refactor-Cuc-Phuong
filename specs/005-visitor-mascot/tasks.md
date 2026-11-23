@@ -345,11 +345,11 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests ⚠️
 
-- [ ] T093 [P] [US3] Thêm vào `src/shared/mascot/machine.test.ts`: `app.user.activity` → ý định `source` `timer`/`ambient` trong 2 s bị bỏ, ý định `user`/`event` vẫn chạy; trang đọc bài không có cử chỉ tự động; media bắt đầu → bong bóng đóng ngay (MAS-TC-115) — quickstart Q25
+- [X] T093 [P] [US3] Thêm vào `src/shared/mascot/machine.test.ts`: `app.user.activity` → ý định `source` `timer`/`ambient` trong 2 s bị bỏ, ý định `user`/`event` vẫn chạy; trang đọc bài không có cử chỉ tự động; media bắt đầu → bong bóng đóng ngay (MAS-TC-115) — quickstart Q25
 
 ### Implementation
 
-- [ ] T094 [US3] Host: listener `pointerdown`/`keydown`/`scroll` (capture, passive, gộp 250 ms) → `app.user.activity`; trọng tài theo `source` (R-19)
+- [X] T094 [US3] Host: listener `pointerdown`/`keydown`/`scroll` (capture, passive, gộp 250 ms) → `app.user.activity`; trọng tài theo `source` (R-19)
 
 ---
 

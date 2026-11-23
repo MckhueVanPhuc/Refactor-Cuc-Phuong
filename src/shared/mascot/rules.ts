@@ -213,6 +213,7 @@ const AMBIENT: Rule[] = [
           mode: 'DOCK',
           pose: gesture.pose ?? view.pose,
           animation: gesture.animation,
+          source: 'ambient',
           holdMs: MASCOT_AMBIENT_GESTURE_MS,
           then: { behaviorId: view.behaviorId, priority: 7, mode: 'DOCK', pose: view.pose, animation: 'settle' },
         },
