@@ -18,6 +18,26 @@
   text-shadow: 0 var(--space-1) var(--space-4) var(--color-m01-deep);
 }
 
+/*
+ * Huy hiệu và Mila đứng cạnh nhau, chân cùng một đường (spec-Mascot OD-MAS-10). Không bật Mila thì hàng chỉ có huy
+ * hiệu, căn giữa như ảnh mẫu. Bong bóng của Mila là thẻ sáng: bỏ bóng chữ của lời chào trên ảnh.
+ */
+.badgeRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  /* Nhành lá của huy hiệu chìa ra ngoài mép đĩa một khoảng --space-6: chừa chỗ cho nó */
+  gap: calc(var(--space-6) + var(--space-2));
+  max-width: 100%;
+  text-align: start;
+  text-shadow: none;
+}
+
+.badgeRow > [data-mascot-slot] {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
 /* Huy hiệu hoàn thành: đĩa paper, dấu tích xanh rừng, nhành lá ở góc; là điểm nhấn duy nhất có chuyển động */
 .badge {
   position: relative;
@@ -130,7 +150,11 @@
 }
 
 /* Chuyến không gửi được: banner đặc trên ảnh, vạch đỏ cạnh trái */
+/* Banner conflict: Mila bối rối là hình trang trí bên trái chữ, không phải nút (BR-M02-011) */
 .conflict {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   margin: 0;
   padding: var(--space-3) var(--space-4);
   color: var(--color-ink);
@@ -138,6 +162,10 @@
   border-left: var(--border-width-thick) solid var(--color-error);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-card);
+}
+
+.conflictText {
+  margin: 0;
 }
 
 /* —— Thẻ các điểm đã quét —— */

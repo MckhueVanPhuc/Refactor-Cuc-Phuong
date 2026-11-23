@@ -8,7 +8,7 @@
 | Actor | Visitor có phiên |
 | Priority | Must; trạng thái đồng bộ Should |
 | Mockup | Chưa có |
-| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.0](../../../docs/spec/spec-Mascot.md) cho Mila |
+| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.3](../../../docs/spec/spec-Mascot.md) cho Mila |
 
 Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (`SessionSyncRecord` nhận bởi [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
@@ -37,7 +37,8 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | 7 | E-SCR-M02-003-07 | Sync status | Text/badge | Trạng thái đồng bộ: chờ đồng bộ, đã đồng bộ, conflict/bị từ chối | Conditional | Theo `PendingSyncItem.syncStatus` (`PENDING`/`SYNCED`/`CONFLICT`); không có trang hàng đợi sync |
 | 8 | E-SCR-M02-003-08 | Sync error message | Banner | Lỗi khi M03 báo conflict hoặc từ chối record | Conditional | Dừng retry tự động; không sửa payload bất biến; không có thao tác thử lại hay xóa của du khách (BR-M02-011) |
 | 9 | E-SCR-M02-003-09 | Action: Về danh mục | Button | Mở SCR-M01-001 | Conditional | Sau khi phiên kết thúc |
-| 10 | E-SCR-M02-003-10 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Cạnh huy hiệu hoàn thành (CELEBRATE một lần ngay sau khi kết thúc, sau đó INLINE); huy hiệu giữ nguyên. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17) |
+| 10 | E-SCR-M02-003-10 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Cạnh huy hiệu hoàn thành (CELEBRATE một lần ngay sau khi kết thúc, sau đó INLINE); huy hiệu giữ nguyên. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
+| 11 | E-SCR-M02-003-11 | Công tắc "Chuyển động" của Mila | **Bỏ ở v1.3**: thanh đầu trang không còn nút chuyển động; công tắc duy nhất ở màn Tài nguyên SCR-M01-004 (Spec Mascot BR-MAS-21) | — | — | — |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Câu hỏi kết thúc chuyến và hai nút Kết thúc / Đi tiếp đã cố định trong Spec M02 §5.1 và dùng nguyên văn.
 
@@ -56,6 +57,10 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | Mila ăn mừng kết thúc chuyến (MSG-MAS-062) | Hôm nay mình đã cùng bạn quét {k} điểm. Vui ghê! | We scanned {k} stops together today. What a trip! (k = 1: "We scanned 1 stop together today. What a trip!") |
 | Mila khi chuyến chờ gửi lúc mất sóng (MSG-MAS-070) | Chuyến đi đã lưu trên máy. Lần tới có sóng và mở app, mình sẽ gửi đi. | Your trip is saved on this phone. I'll send it next time you're online. |
 | Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
+| Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
+| Mila ăn mừng khi quét đủ mọi điểm (MSG-MAS-063) | Bạn đã quét đủ {n} điểm của tuyến. Tuyệt vời! | You scanned all {n} stops of the route. Amazing! |
+| Chạm Mila ở màn kết quả (MSG-MAS-065) | Cảm ơn bạn đã đi cùng mình hôm nay! | Thanks for exploring with me today! |
+| Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 
 ## 4. States
 

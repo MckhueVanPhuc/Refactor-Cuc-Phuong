@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | Module | M02 — Field Quest Experience |
-| Version | 3.3 |
+| Version | 3.3 (clarification 4) |
 | Status | MVP implementation baseline — aligned to M03 v3.7 and M01 v3.2 |
 | Supersedes | 3.2 (previous repository baseline: 2.0) |
-| Last updated | 2026-11-11 |
+| Last updated | 2026-11-23 |
 | Inputs | M01 handoff/language/package; M03 live QR lookup |
 | Output | Terminal anonymous `SessionSyncRecord` to M03 |
 
@@ -518,7 +518,7 @@ stateDiagram-v2
 |---|---|
 | Session start | Validate version 3, authorization, unused and expiry; create/restore the session; show a clear message for a version 2, expired, used or revoked handoff; show the notice when a forgotten session was ended automatically; show the session start hint about the in-app scanner. |
 | Journey map | Ordered checkpoints with continuous display numbers, checkpoint names in the chosen language and visited state, labelled as scanned QR rather than arrival. |
-| QR scan/result | Scan, validation outcome, check-in feedback (also for a code added after the session started), the closure notice, the invalid-QR message and the connection messages of §5.1. |
+| QR scan/result | Scan, validation outcome, check-in feedback (also for a code added after the session started; a toast, or the mascot's bubble when the mascot capability can present it — spec-Mascot BR-MAS-24; with the mascot capability on, the end-of-trip prompt is the feedback when the final checkpoint is first visited), the closure notice, the invalid-QR message and the connection messages of §5.1. |
 | Checkpoint content | The content of the scanned QR: checkpoint name, object name, introduction, images; audio/video controls only when the content shown carries audio/video; unavailable states. |
 | Session completion | Visit summary, Finish confirmation and the end-of-trip prompt shown when the final checkpoint is first visited. |
 | QR link page | Public page `/q/{qrIdentifier}` opened from a phone camera: content of the scanned QR, VI/EN switch, closure notice, invalid-QR and connection messages, and the free-visitor hint with a link to the route catalog when no session exists. |
@@ -625,6 +625,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.3 (clarification 4) | 2026-11-23 | §8 check-in feedback: presented by a toast, or by the mascot's bubble when spec-Mascot BR-MAS-24 applies; the toast stays the fallback whenever the mascot cannot present it. With the mascot capability on, when the final checkpoint is first visited the end-of-trip prompt (BR-M02-021) is the feedback and no toast is shown; with it off, M02 behaves exactly as before. Change brief CHG-MASCOT-2026-11-23-03 (approved 2026-11-23). No rule, data, contract or write-order change. |
 | 3.3 (clarification 3) | 2026-11-11 | SC-M02-013: user decision for the end-screen redesign: the trip result list (SCR-M02-003) labels a visit "Đã tham quan" / "Visited"; every other screen keeps "Đã quét QR" / "QR scanned", and the presence words stay banned. Wording only; no behavior or contract change. |
 | 3.3 (clarification 2) | 2026-11-04 | SC-M02-013: the English visit label is "QR scanned" (was "Scanned"), matching the screen copy table and the "QR" of the Vietnamese "Đã quét QR". Wording only; no behavior or contract change. |
 | 3.3 (clarification) | 2026-10-29 | Review-checklist decisions: the end-of-trip prompt says "đã quét điểm cuối" instead of "đã đến điểm cuối" so that no text implies presence (BR-M02-005, SC-M02-013); new fixed camera message and rule (BR-M02-023); two tabs share one session (BR-M02-002); no visitor action on a `CONFLICT` record (BR-M02-011); online lookup failure behaves as offline (BR-M02-018); what counts as "opened or brought back" (BR-M02-022); SC-M02-013 and SC-M02-017 made verifiable; project owner validates `LOOKUP_TIMEOUT_SECONDS`; performance left to design. No contract change. |
