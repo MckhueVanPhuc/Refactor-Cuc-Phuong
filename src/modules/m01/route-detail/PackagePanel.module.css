@@ -19,8 +19,29 @@
 .name,
 .meta,
 .note,
-.error {
+.error,
+.withMila,
+.row > :global([data-mascot-slot]) {
   flex-basis: 100%;
+}
+
+/* Câu lỗi có Mila minh họa bên trái (design-system §9.2 INLINE); cờ tắt thì chỉ còn câu */
+.withMila {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.withMila > .error {
+  flex: 1;
+}
+
+/*
+ * Slot của Mila chỉ chiếm chỗ khi Mila có mặt: Mila chỉ tới sau khi du khách bấm tải (panel đổi hẳn: nút tải biến mất),
+ * nên lúc trống không được đẩy nút "Tải về" khỏi hàng của trạng thái gói
+ */
+.row > :global([data-mascot-slot]:empty) {
+  display: none;
 }
 
 .name {

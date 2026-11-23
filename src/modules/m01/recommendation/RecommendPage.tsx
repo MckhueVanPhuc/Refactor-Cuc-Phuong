@@ -4,6 +4,7 @@
 import { useEffect, useId, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS } from '../../../app/paths';
+import { emitMascotEvent, MascotSlot } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { useM01Services } from '../api/services';
 import { useCatalog } from '../catalog/catalogStore';
@@ -81,6 +82,9 @@ export function RecommendPage() {
   const complete = recommend(routes, criteria, language).kind === 'results';
   const groups = criteriaGroups(messages);
 
+  // Mila hỏi tiêu chí khi mở form lần đầu (MAS-B-010); chỉ phát sự kiện, không đổi hành vi form
+  useEffect(() => emitMascotEvent({ type: 'm01.recommend.opened' }), []);
+
   // Quay về từ "Đổi tiêu chí": focus về lựa chọn đang chọn (không phải radio đầu tiên của nhóm)
   useEffect(() => {
     if (!focusChoiceOnReturn.current) return;
@@ -99,6 +103,8 @@ export function RecommendPage() {
         <TintIcon name="leaf" className={styles.leaf} />
         {messages.screenTitle.recommend}
       </h1>
+      {/* Mila cạnh tiêu đề (spec-Mascot §5.1 SCR-M01-002 "Heading", AVATAR) */}
+      <MascotSlot id="recommend-head" modes={['AVATAR']} />
       {catalog.status === 'unavailable' && <p className={styles.message}>{messages.recommend.sourceUnavailable}</p>}
       <form
         className={styles.form}

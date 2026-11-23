@@ -4,6 +4,7 @@
 import { useEffect, useId, useRef, type KeyboardEvent } from 'react';
 import type { JourneySnapshot } from '../../../shared/contracts/journeySnapshot';
 import type { LanguageCode } from '../../../shared/contracts/languagePreference';
+import { MascotFigure } from '../../../shared/mascot/index';
 import { formatEstimatedSize } from '../format';
 import { messagesFor } from '../i18n';
 import { offlineRequiredCheckpointNames } from '../offline-package/needsPackage';
@@ -69,6 +70,8 @@ export function OfflineDecisionDialog({
         aria-labelledby={titleId}
         onKeyDown={onKeyDown}
       >
+        {/* MAS-B-016: Mila với ba lô ở đầu dialog; không giữ focus, ba nút như cũ */}
+        <MascotFigure pose="backpack" />
         <h2 className={styles.title} id={titleId}>
           {messages.offlineDecisionTitle}
         </h2>

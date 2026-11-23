@@ -32,6 +32,20 @@ function setup(rules = [speak]) {
 }
 
 describe('MascotHost', () => {
+  it('màn có hai slot cùng mode → Mila vào slot ý định chỉ định, không phải slot đăng ký sau cùng (SCR-M01-003, T060/T061)', async () => {
+    const toStart = rule('m02.scanner.opened', say({ mode: 'AVATAR', slot: 'start-panel', message: { id: 'MSG-MAS-030' } }));
+    render(
+      <>
+        <MascotSlot id="start-panel" modes={['AVATAR']} />
+        <MascotSlot id="package-panel" modes={['AVATAR']} />
+        <MascotHost pathname="/routes/r1" navigate={vi.fn()} rules={[toStart]} />
+      </>,
+    );
+    act(() => opened());
+    const bubble = await screen.findByText('At each stop, look for the QR sign and tap Scan QR.');
+    expect(bubble.closest('[data-mascot-slot="start-panel"]')).not.toBeNull();
+  });
+
   it('sự kiện → bong bóng trong đúng slot, chữ theo ngôn ngữ thiết bị khi chưa có lựa chọn', async () => {
     setup();
     act(() => opened());

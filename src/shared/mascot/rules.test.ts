@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import type { MascotEvent } from './events';
 import { initialState, step, type MascotState, type Rule } from './machine';
 import { ambientGestures, RULES } from './rules';
+import { messageText } from './dialogue/catalog';
 import { CTX, rule, say } from './testing';
 
 type Stamped = MascotEvent & { at: number };
@@ -523,5 +524,159 @@ describe('v1.1 — Chớp mắt (AN-BLINK, MAS-TC-122; research R-24)', () => {
     expect(s.bubble).toBeNull();
     const back = play([{ type: 'mascot.tick', at: s.hold!.until }], [], pick, s).state;
     expect(back.view).toMatchObject({ pose: 'map', animation: 'settle' });
+  });
+});
+
+describe('US7 — Chuẩn bị cùng Mila (US-MAS-07; T056)', () => {
+  const catalog = (status: 'ready' | 'unavailable' | 'loading', at: number, slow = false): Stamped => ({ type: 'm01.catalog.loaded', status, count: 3, stale: false, slow, at });
+  /** Danh mục đã mở, câu chào lại 004 đã đóng: Mila đứng ở hero */
+  const onCatalog = () =>
+    play([{ type: 'app.route.changed', path: '/', at: 0 }, catalog('ready', 100), { type: 'mascot.tick', at: 700 }, { type: 'mascot.user.closedBubble', at: 800 }]).state;
+
+  it('MAS-B-005: danh mục tải quá 600 ms → "đang mở bản đồ" ở DOCK, không tự ẩn; tải xong → bong bóng đóng, Mila về hero', () => {
+    let { state } = play([{ type: 'app.route.changed', path: '/', at: 0 }, catalog('loading', 600, true)]);
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'map', animation: 'search' });
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-005', expiresAt: null });
+    state = play([catalog('ready', 900)], [], CTX, state).state;
+    expect(state.bubble?.messageId).not.toBe('MSG-MAS-005');
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
+  });
+
+  it('MAS-B-005: nguồn lỗi cũng đóng câu "đang mở bản đồ"', () => {
+    const { state } = play([{ type: 'app.route.changed', path: '/', at: 0 }, catalog('loading', 600, true), catalog('unavailable', 2_000)]);
+    expect(state.bubble).toBeNull();
+  });
+
+  it('MAS-B-008: 20 s không thao tác trên danh mục → gợi ý một lần, có nút "Gợi ý tuyến", không tự ẩn', () => {
+    let state = onCatalog();
+    state = play([{ type: 'mascot.tick', at: 20_099 }], [], CTX, state).state;
+    expect(state.bubble).toBeNull();
+    state = play([{ type: 'mascot.tick', at: 20_100 }], [], CTX, state).state;
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-008', expiresAt: null });
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'point' });
+    // Bấm "Gợi ý tuyến" (host điều hướng) → bong bóng đóng; lần sau không gợi ý lại
+    state = play([{ type: 'mascot.user.ctaPressed', cta: 'recommend', at: 21_000 }, catalog('ready', 30_000), { type: 'mascot.tick', at: 50_000 }], [], CTX, state).state;
+    expect(state.bubble).toBeNull();
+  });
+
+  it('MAS-B-008: chạm hoặc bấm phím đếm lại từ đầu (BR-MAS-09)', () => {
+    let state = play([{ type: 'app.user.activity', at: 10_000 }], [], CTX, onCatalog()).state;
+    state = play([{ type: 'mascot.tick', at: 20_100 }], [], CTX, state).state;
+    expect(state.bubble).toBeNull();
+    state = play([{ type: 'mascot.tick', at: 30_000 }], [], CTX, state).state;
+    expect(state.bubble?.messageId).toBe('MSG-MAS-008');
+  });
+
+  it('MAS-B-008: đã cuộn danh mục hoặc đã mở một tuyến → không gợi ý; cuộn khi đang gợi ý thì bong bóng đóng', () => {
+    const scrolled = play([{ type: 'm01.catalog.interacted', at: 5_000 }, { type: 'mascot.tick', at: 20_100 }, { type: 'mascot.tick', at: 60_000 }], [], CTX, onCatalog()).state;
+    expect(scrolled.bubble).toBeNull();
+
+    const opened = play(
+      [{ type: 'app.route.changed', path: '/routes/r1', at: 5_000 }, { type: 'app.route.changed', path: '/', at: 6_000 }, catalog('ready', 6_100), { type: 'mascot.tick', at: 30_000 }],
+      [],
+      CTX,
+      onCatalog(),
+    ).state;
+    expect(opened.bubble).toBeNull();
+
+    const shown = play([{ type: 'mascot.tick', at: 20_100 }], [], CTX, onCatalog()).state;
+    expect(shown.bubble?.messageId).toBe('MSG-MAS-008');
+    expect(play([{ type: 'm01.catalog.interacted', at: 21_000 }], [], CTX, shown).state.bubble).toBeNull();
+  });
+
+  it('MAS-B-010: mở Gợi ý tuyến lần đầu → sau 400 ms câu 010 ở AVATAR; mở lại không nói nữa', () => {
+    let { state } = play([{ type: 'app.route.changed', path: '/recommend', at: 0 }, { type: 'm01.recommend.opened', at: 10 }, { type: 'mascot.tick', at: 409 }]);
+    expect(state.bubble).toBeNull();
+    state = play([{ type: 'mascot.tick', at: 410 }], [], CTX, state).state;
+    expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'think' });
+    expect(state.bubble?.messageId).toBe('MSG-MAS-010');
+    state = play(
+      [{ type: 'app.route.changed', path: '/', at: 5_000 }, { type: 'app.route.changed', path: '/recommend', at: 6_000 }, { type: 'm01.recommend.opened', at: 6_010 }, { type: 'mascot.tick', at: 6_500 }],
+      [],
+      CTX,
+      state,
+    ).state;
+    expect(state.bubble).toBeNull();
+  });
+
+  it('MAS-B-011: có kết quả → câu 011 (P4, AVATAR); không có kết quả → không câu (MAS-B-012/013 chỉ là hình cạnh câu cố định, v1.2)', () => {
+    const results = play([{ type: 'app.route.changed', path: '/recommend/results', at: 0 }, { type: 'm01.recommend.resolved', count: 2, at: 10 }]).state;
+    expect(results.view).toMatchObject({ mode: 'AVATAR', pose: 'thumbsUp' });
+    expect(results.bubble).toMatchObject({ messageId: 'MSG-MAS-011', priority: 4 });
+
+    const empty = play([{ type: 'app.route.changed', path: '/recommend/results', at: 0 }, { type: 'm01.recommend.resolved', count: 0, at: 10 }, { type: 'm01.recommend.resolved', count: 0, at: 2_000 }]).state;
+    expect(empty.bubble).toBeNull();
+  });
+
+  it('MAS-B-014: tuyến có cảnh báo an toàn → sau 500 ms nhắc ở slot panel Bắt đầu, một lần mỗi tuyến', () => {
+    const visible = (routeRef: string, hasSafetyWarning: boolean, at: number): Stamped => ({ type: 'm01.routeDetail.startPanelVisible', routeRef, hasSafetyWarning, at });
+    let { state } = play([{ type: 'app.route.changed', path: '/routes/r1', at: 0 }, visible('r1', true, 100), { type: 'mascot.tick', at: 600 }]);
+    expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'point', slot: 'start-panel' });
+    expect(state.bubble?.messageId).toBe('MSG-MAS-014');
+    // Quay lại cùng tuyến: không nhắc nữa; tuyến khác có cảnh báo: nhắc
+    state = play(
+      [{ type: 'app.route.changed', path: '/', at: 10_000 }, { type: 'app.route.changed', path: '/routes/r1', at: 11_000 }, visible('r1', true, 11_100), { type: 'mascot.tick', at: 11_600 }],
+      [],
+      CTX,
+      state,
+    ).state;
+    expect(state.bubble).toBeNull();
+    state = play([{ type: 'app.route.changed', path: '/routes/r2', at: 20_000 }, visible('r2', true, 20_100), { type: 'mascot.tick', at: 20_600 }], [], CTX, state).state;
+    expect(state.bubble?.messageId).toBe('MSG-MAS-014');
+
+    const noWarning = play([{ type: 'app.route.changed', path: '/routes/r3', at: 0 }, visible('r3', false, 100), { type: 'mascot.tick', at: 600 }]).state;
+    expect(noWarning.bubble).toBeNull();
+  });
+
+  describe('gói tải trước (MAS-B-020…026)', () => {
+    type Resolved = Extract<MascotEvent, { type: 'm01.package.resolved' }>;
+    const started = (at: number, update = false): Stamped => ({ type: 'm01.package.downloadStarted', routeRef: 'r1', update, at });
+    const resolved = (at: number, over: Partial<Resolved> = {}): Stamped => {
+      const event: Resolved = { type: 'm01.package.resolved', routeRef: 'r1', kind: 'failed', reason: 'download', update: false, online: true, ...over };
+      if (event.kind !== 'failed') delete event.reason;
+      return { ...event, at };
+    };
+    const onDetail = (events: Stamped[]) => play([{ type: 'app.route.changed', path: '/routes/r1', at: 0 }, ...events]).state;
+
+    it('MAS-B-020 → 021: bắt đầu tải → "xếp vào ba lô" ở slot gói, không tự ẩn; xong → câu 021', () => {
+      let state = onDetail([started(100)]);
+      expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'backpack', animation: 'pack', slot: 'package-panel' });
+      expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-020', expiresAt: null });
+      state = play([resolved(5_000, { kind: 'ready' })], [], CTX, state).state;
+      expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'thumbsUp', slot: 'package-panel' });
+      expect(state.bubble?.messageId).toBe('MSG-MAS-021');
+    });
+
+    it('MAS-B-024/025 (v1.2): lỗi lần đầu → câu "đang tải" đóng, Mila rời slot; hình INLINE do màn đặt', () => {
+      for (const reason of ['source', 'download', 'storage'] as const) {
+        const state = onDetail([started(100), resolved(2_000, { reason })]);
+        expect(state).toMatchObject({ bubble: null, view: null });
+      }
+    });
+
+    it('MAS-B-026: lỗi lần 2 liên tiếp cùng tuyến khi có mạng → câu 026; offline, cập nhật hay lần 1 → không', () => {
+      const twice = onDetail([started(100), resolved(2_000), started(3_000), resolved(4_000)]);
+      expect(twice.view).toMatchObject({ mode: 'AVATAR', pose: 'backpack', slot: 'package-panel' });
+      expect(twice.bubble).toMatchObject({ messageId: 'MSG-MAS-026', priority: 2 });
+
+      expect(onDetail([started(100), resolved(2_000), started(3_000), resolved(4_000, { online: false })]).bubble).toBeNull();
+      expect(onDetail([started(100, true), resolved(2_000, { update: true }), started(3_000, true), resolved(4_000, { update: true })]).bubble).toBeNull();
+      // Thành công ở giữa → đếm lại từ đầu
+      expect(onDetail([started(100), resolved(2_000), started(3_000), resolved(4_000, { kind: 'ready' }), { type: 'mascot.tick', at: 8_000 }, started(9_000), resolved(10_000)]).bubble).toBeNull();
+    });
+
+    it('MAS-B-026: hai lần tải lỗi nhanh (trong 500 ms) vẫn là hai thao tác, không bị chống trùng', () => {
+      expect(onDetail([started(100), resolved(150), started(300), resolved(350)]).bubble?.messageId).toBe('MSG-MAS-026');
+    });
+
+    it('thao tác bận (đang tải ở tab khác) → câu "đang tải" đóng', () => {
+      expect(onDetail([started(100), resolved(200, { kind: 'busy' })]).bubble).toBeNull();
+    });
+
+    it('không câu nào của gói nói phần trăm (US-MAS-07 mục 1)', () => {
+      for (const id of ['MSG-MAS-020', 'MSG-MAS-021', 'MSG-MAS-024', 'MSG-MAS-025', 'MSG-MAS-026'] as const) {
+        for (const language of ['vi', 'en'] as const) expect(messageText(language, id)).not.toMatch(/%|phần trăm|percent/i);
+      }
+    });
   });
 });

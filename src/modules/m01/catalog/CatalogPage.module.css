@@ -152,6 +152,13 @@
   color: var(--color-m01-secondary);
 }
 
+/* Câu cố định có Mila minh họa bên trái (design-system §9.2 INLINE); cờ tắt thì chỉ còn câu */
+.withMila {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 /* Đang đọc nguồn lần đầu: khối giữ chỗ thay cho spinner tròn (§5.2: skeleton khớp nội dung đại diện) */
 .placeholderCard {
   aspect-ratio: 4 / 3;

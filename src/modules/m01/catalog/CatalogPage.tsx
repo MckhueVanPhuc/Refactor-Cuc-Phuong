@@ -4,7 +4,7 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
-import { emitMascotEvent, MascotSlot } from '../../../shared/mascot/index';
+import { emitMascotEvent, MascotFigure, MascotSlot } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { useM01Services } from '../api/services';
 import { useM01Messages } from '../i18n/useM01Messages';
@@ -17,6 +17,8 @@ import { RouteCard } from './RouteCard';
 import { selectableRoutes } from './selectableRoutes';
 
 const LOADING_PLACEHOLDERS = 3;
+/** Danh mục còn tải sau chừng này → Mila nói câu chờ (Behavior Matrix MAS-B-005; contract `slow`) */
+const SLOW_MS = 600;
 
 export function CatalogPage() {
   const { source, media } = useM01Services();
@@ -57,8 +59,19 @@ export function CatalogPage() {
         </SourceNotice>
       )}
 
-      {catalog.status === 'unavailable' && <p className={styles.message}>{messages.catalog.sourceUnavailable}</p>}
-      {catalog.status === 'ready' && routes.length === 0 && <p className={styles.message}>{messages.catalog.empty}</p>}
+      {/* Mila minh họa cạnh câu cố định (MAS-B-006 rỗng, 007 lỗi nguồn; spec-Mascot §5.1 INLINE) */}
+      {catalog.status === 'unavailable' && (
+        <div className={styles.withMila}>
+          <MascotFigure pose="confused" />
+          <p className={styles.message}>{messages.catalog.sourceUnavailable}</p>
+        </div>
+      )}
+      {catalog.status === 'ready' && routes.length === 0 && (
+        <div className={styles.withMila}>
+          <MascotFigure pose="rest" />
+          <p className={styles.message}>{messages.catalog.empty}</p>
+        </div>
+      )}
 
       <ul className={styles.list} data-testid="catalog-list" aria-busy={busy}>
         {catalog.status === 'loading' || catalog.status === 'idle'
@@ -83,7 +96,11 @@ function useCatalogMascotSignals(status: string, count: number, stale: boolean) 
   useEffect(() => {
     if (status === 'ready' || status === 'unavailable') {
       emitMascotEvent({ type: 'm01.catalog.loaded', status, count, stale, slow: false });
+      return undefined;
     }
+    // Còn tải sau 600 ms: báo `slow` một lần cho lần tải này (MAS-B-005)
+    const id = window.setTimeout(() => emitMascotEvent({ type: 'm01.catalog.loaded', status: 'loading', count: 0, stale: false, slow: true }), SLOW_MS);
+    return () => window.clearTimeout(id);
   }, [status, count, stale]);
   const interacted = useRef(false);
   useEffect(() => {

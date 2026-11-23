@@ -598,3 +598,55 @@ Branch `feat/mascot-v13-intro`, tách từ `docs/mascot-v1.3` (PR #73). Task: T1
 | DV-64 | Kiểm "không đè" chung (`expectMascotOverlapsNothing`) bỏ qua Mila ở hero danh mục vì khung `display: contents` không có hộp; Q32 kiểm riêng: Mila không đè tiêu đề, nút, bong bóng không đè thẻ tuyến | Ghi nhận |
 | DV-65 | Icon `pause.svg`, `play.svg` (Phase 13) không còn dùng; để lại trong `assets/icons/` | Ghi nhận |
 | DV-66 | Chưa thử trên điện thoại thật (chủ dự án không yêu cầu đợt này) | NOT RUN |
+
+---
+
+## 15. Đợt 2026-11-23 — Phase 9: US7 "Chuẩn bị cùng Mila" (US-MAS-07)
+
+Branch `feat/mascot-us7`, tách từ `main` (sau PR #74). Task: T056–T062. Thứ tự giao do chủ dự án chốt 2026-11-23: Phase 9 trước, rồi Phase 7, 8; mỗi phase một PR.
+
+### 15.1 Đã cài
+
+| Mục | Nơi |
+|---|---|
+| Luật MAS-B-005 (danh mục tải lâu, đóng khi tải xong hay lỗi), 008 (20 s không thao tác; chạm/phím đếm lại; cuộn hay mở tuyến thì thôi và đóng bong bóng; CTA "Gợi ý tuyến"), 010 (400 ms, một lần), 011, 014 (500 ms, một lần mỗi tuyến, slot `start-panel`), 020, 021, 026 (lỗi lần 2 liên tiếp cùng tuyến, tải mới, có mạng), slot `package-panel` | `src/shared/mascot/rules.ts` |
+| Engine: `Intent.slot` (slot ưu tiên khi màn có hai slot cùng mode), `RuleResult.end` (đóng bong bóng của một hành vi theo sự kiện, Exit Condition của 005, 008, 020); host chọn slot theo `view.slot` rồi slot đăng ký sau cùng | `types.ts`, `arbiter.ts`, `machine.ts`, `src/app/mascot/MascotHost.tsx` |
+| SCR-M01-001: phát `slow` khi danh mục còn tải sau 600 ms; `MascotFigure` `rest` cạnh câu rỗng, `confused` cạnh câu lỗi nguồn | `CatalogPage.tsx` (+ `.module.css`) |
+| SCR-M01-002: slot `recommend-head` ở form và trang kết quả; phát `m01.recommend.opened` (form) và `resolved { count }` (trang kết quả, sau khi danh mục sẵn sàng); `MascotFigure` `think` cạnh câu không có kết quả | `RecommendPage.tsx`, `RecommendResultsPage.tsx` (+ `.module.css`) |
+| SCR-M01-003: slot `start-panel` phía trên nút Bắt đầu; IntersectionObserver phát `startPanelVisible` lần đầu mỗi tuyến; `MascotFigure` `confused` cạnh lỗi Start, `backpack` ở đầu dialog quyết định offline; slot `package-panel` và `confused` cạnh ba câu lỗi gói | `StartPanel.tsx`, `OfflineDecisionDialog.tsx`, `PackagePanel.tsx`, `RouteDetailPage.tsx` (+ `.module.css`) |
+| SCR-M01-004: slot `package-panel` trong dòng gói du khách vừa bấm tải; `confused` cạnh câu lỗi; `rest` cạnh câu rỗng | `OfflinePage.tsx` (+ `.module.css`) |
+| `downloadWithMascot`: phát `downloadStarted` trước `await`, `resolved` sau `await` cho lần tải do du khách bấm; kết quả trả nguyên vẹn | `src/modules/m01/offline-package/mascotSignals.ts` |
+
+### 15.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `rules.test.ts` khối US7 (14 ca) | FAIL 9 ca; 5 ca kiểm "không nói" đạt ngay vì chưa có luật |
+| `MascotHost.test.tsx` "hai slot cùng mode → slot ý định chỉ định" | FAIL khi gỡ thay đổi của host (đã chạy lại để xác nhận) |
+| E2E `e2e/m01/mascot-prepare.spec.ts` (014, 020 → 021, 025, 024 → 026, 010/011/012–013, 008 với `page.clock`) | Viết trước khi chạy; ca 026 tìm ra DV-67 |
+
+### 15.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npx playwright test --project=m01 e2e/m01/mascot-prepare.spec.ts` | 1 | 5 pass, 1 fail (026 — DV-67) |
+| Như trên sau khi sửa | 0 | 6 pass |
+| `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` | 0 | 121 pass |
+| `npm run ci` (sau DV-68) | 0 | lint token 742; 2430 pass, 133 skipped; build OK, precache 113 mục |
+| `npx playwright test --project=m01` (sau DV-68) | 0 | 53 pass |
+
+Ảnh chụp rà soát ở 375 và 320 px (form gợi ý có câu 010, kết quả rỗng có hình `think`, chi tiết tuyến có câu 014 phía trên nút Bắt đầu và không trong khối Cảnh báo an toàn, panel gói đang tải, màn Tài nguyên) bằng skill `frontend-design`; tìm ra DV-68.
+
+### 15.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-67 | Hai lần tải lỗi nhanh (ảnh lỗi trả về ngay) phát hai `m01.package.resolved` giống hệt nhau trong 500 ms; chống trùng BR-MAS-06 nuốt lần sau nên MAS-B-026 không bao giờ tới. `m01.package.downloadStarted` và `m01.package.resolved` nay không qua chống trùng (như thao tác của du khách): mỗi sự kiện ứng với một lần bấm, phát một lần từ hàm async, không phải effect nên StrictMode không nhân đôi | Áp dụng; test đơn vị mới |
+| DV-68 | Slot `package-panel` giữ chỗ 56 px trong hàng flex của panel gói, đẩy nút "Tải về" xuống dòng riêng (hồi quy so với bố cục đã duyệt: trạng thái và nút một hàng). Slot trong panel gói (SCR-M01-003, 004) nay chỉ chiếm chỗ khi Mila có mặt (`:empty` → ẩn); Mila chỉ tới sau khi du khách bấm tải, lúc panel đã đổi (nút tải biến mất). Các slot khác vẫn giữ chỗ như contract | Áp dụng |
+| DV-69 | Trang kết quả gợi ý là trang riêng `/recommend/results` (sau tasks): `recommend.opened` phát ở form, `recommend.resolved` ở trang kết quả; cả hai có slot `recommend-head` | Áp dụng |
+| DV-70 | MAS-B-012 / 013 khác nhau chỉ ở tư thế (MA-03 lần đầu, MA-13 lần 2). Màn không biết số lần rỗng liên tiếp (đếm nằm trong engine), nên cả hai lần dùng `think` (MA-03) như T059 ghi; không có câu, không thêm nút (v1.2) | Ghi nhận |
+| DV-71 | MAS-B-010 "thoát khi chọn tiêu chí đầu tiên": chưa có sự kiện chọn tiêu chí trong contract; câu tự ẩn sau thời gian đọc | Ghi nhận |
+| DV-72 | MAS-B-011 không cần tham số số lượng: câu 011 (VI và EN) không có `{count}`, nên không có ca số ít/nhiều tiếng Anh như T056 ghi | Ghi nhận |
+| DV-73 | Cập nhật lười khi mở chi tiết tuyến (không do du khách bấm) không phát sự kiện gói: Mila không nói về việc du khách không làm; câu lỗi cố định vẫn có hình `confused` | Áp dụng |
+| DV-74 | MSG-MAS-005 (P7 có lời) tính vào giới hạn câu chủ động BR-MAS-07 như mọi câu P5–P7 có lời | Ghi nhận |
+| DV-75 | Chưa thử trên điện thoại thật | NOT RUN |

@@ -1,8 +1,10 @@
 // SCR-M01-002 Gợi ý tuyến — trang kết quả riêng (FR-M01-004; BR-M01-003; screen spec §4 "Results", "Zero result").
 // Mọi tuyến chọn được chứa cả ba tag đã chọn, sắp A→Z; 0 kết quả không nới tiêu chí. Tiêu chí lấy từ bộ nhớ của layout
 // (HC-007): mở thẳng hoặc tải lại trang khi chưa đủ tiêu chí thì quay về form.
+import { useEffect } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { PATHS } from '../../../app/paths';
+import { emitMascotEvent, MascotFigure, MascotSlot } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { useM01Services } from '../api/services';
 import { useCatalog } from '../catalog/catalogStore';
@@ -33,6 +35,12 @@ export function RecommendResultsPage() {
     matched.map((route) => route.thumbnail.sourceRef),
   );
 
+  // Mila phản ứng với kết quả (MAS-B-011) khi danh sách đã tính xong; không đổi kết quả
+  const resolvedCount = catalog.status === 'ready' && result.kind === 'results' ? matched.length : null;
+  useEffect(() => {
+    if (resolvedCount !== null) emitMascotEvent({ type: 'm01.recommend.resolved', count: resolvedCount });
+  }, [resolvedCount]);
+
   if (result.kind !== 'results') return <Navigate to={PATHS.recommend} replace />;
 
   const labels = chosenLabels(criteriaGroups(messages), criteria);
@@ -59,6 +67,8 @@ export function RecommendResultsPage() {
         <TintIcon name="leaf" className={styles.leaf} />
         {messages.recommend.resultsTitle}
       </h1>
+      {/* Mila cạnh tiêu đề (spec-Mascot §5.1 SCR-M01-002 "Heading", AVATAR) */}
+      <MascotSlot id="recommend-head" modes={['AVATAR']} />
       <p className={styles.criteria}>
         {labels.map((label, index) => (
           <span key={label}>
@@ -81,7 +91,11 @@ export function RecommendResultsPage() {
             </ul>
           ) : (
             <div className={styles.empty}>
-              <p>{messages.recommend.noMatch}</p>
+              {/* Mila minh họa cạnh câu cố định (MAS-B-012, 013: chỉ hình từ v1.2, không thêm nút) */}
+              <div className={styles.withMila}>
+                <MascotFigure pose="think" />
+                <p>{messages.recommend.noMatch}</p>
+              </div>
               <div className={styles.actions}>
                 <button type="button" className={styles.secondary} onClick={changeChoices}>
                   {messages.recommend.changeChoices}

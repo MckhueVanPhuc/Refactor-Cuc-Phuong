@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
-import { MascotMotionSwitch } from '../../../shared/mascot/index';
+import { MascotFigure, MascotMotionSwitch, MascotSlot } from '../../../shared/mascot/index';
 import { Dialog } from '../../../shared/ui/Dialog';
 import { useM01Services } from '../api/services';
 import { catalogStoreFor } from '../catalog/catalogStore';
@@ -12,6 +12,7 @@ import { useM01Messages } from '../i18n/useM01Messages';
 import { useDisplayLanguage } from '../language/useLanguagePreference';
 import type { PackageEntry } from '../storage/readers';
 import styles from './OfflinePage.module.css';
+import { downloadWithMascot } from './mascotSignals';
 import type { PackageOpResult } from './packageOps';
 import { activeStatusOf, candidateStatusOf, statusLabel, type ActiveStatus, type CandidateStatus } from './packageStatus';
 import { packageOpsFor, usePackageEntries } from './usePackages';
@@ -27,11 +28,14 @@ const CHIP_CLASS: Record<ActiveStatus | CandidateStatus, string | undefined> = {
 function PackageRow({
   entry,
   lastResult,
+  withMila,
   onDownload,
   onDelete,
 }: {
   entry: PackageEntry;
   lastResult: PackageOpResult | undefined;
+  /** Dòng của lần tải du khách vừa bấm: chỗ Mila nói về lần tải đó (MAS-B-020, 021) */
+  withMila: boolean;
   onDownload: () => void;
   onDelete: (name: string) => void;
 }) {
@@ -70,15 +74,23 @@ function PackageRow({
       )}
       {pkg?.offlineRouteMap && <p className={styles.meta}>{messages.offline.hasOfflineRouteMap}</p>}
       {active === 'readyOutdated' && <p className={styles.note}>{messages.offline.outdatedWarning}</p>}
+      {withMila && <MascotSlot id="package-panel" modes={['AVATAR']} />}
+      {/* Lỗi gói: Mila minh họa cạnh câu cố định (MAS-B-022, 025; chỉ hình từ v1.2) */}
       {failure === 'storage' && (
-        <p className={styles.error} role="alert">
-          {messages.offline.storageError}
-        </p>
+        <div className={styles.withMila}>
+          <MascotFigure pose="confused" size="sm" />
+          <p className={styles.error} role="alert">
+            {messages.offline.storageError}
+          </p>
+        </div>
       )}
       {failure && failure !== 'storage' && pkg && (
-        <p className={styles.error} role="alert">
-          {messages.offline.updateFailed}
-        </p>
+        <div className={styles.withMila}>
+          <MascotFigure pose="confused" size="sm" />
+          <p className={styles.error} role="alert">
+            {messages.offline.updateFailed}
+          </p>
+        </div>
       )}
       <div className={styles.actions}>
         <Link className={styles.action} to={PATHS.routeDetail(entry.routeId)}>
@@ -111,6 +123,8 @@ export function OfflinePage() {
   const entries = usePackageEntries();
   const [results, setResults] = useState<Record<string, PackageOpResult>>({});
   const [pendingDelete, setPendingDelete] = useState<{ routeId: string; name: string } | null>(null);
+  // Dòng gói du khách vừa bấm tải: Mila nói ở đó (một slot cho cả màn)
+  const [milaRow, setMilaRow] = useState<string | null>(null);
   const ops = packageOpsFor(services);
 
   async function run(routeId: string, op: () => Promise<PackageOpResult>) {
@@ -126,7 +140,13 @@ export function OfflinePage() {
       {/* Công tắc chuyển động duy nhất của Mila (spec-Mascot v1.3 BR-MAS-21; design-system §9.5) */}
       <MascotMotionSwitch language={language} />
       {anyReady && <p className={styles.hint}>{messages.routeDetail.scanHint}</p>}
-      {entries?.length === 0 && <p className={styles.empty}>{messages.offline.empty}</p>}
+      {entries?.length === 0 && (
+        <div className={styles.withMila}>
+          {/* MAS-B-023: Mila nghỉ cạnh câu rỗng */}
+          <MascotFigure pose="rest" />
+          <p className={styles.empty}>{messages.offline.empty}</p>
+        </div>
+      )}
       {entries && entries.length > 0 && (
         <ul className={styles.list}>
           {entries.map((entry) => (
@@ -134,7 +154,13 @@ export function OfflinePage() {
               key={entry.routeId}
               entry={entry}
               lastResult={results[entry.routeId]}
-              onDownload={() => void run(entry.routeId, () => ops.download(entry.routeId))}
+              withMila={milaRow === entry.routeId}
+              onDownload={() => {
+                const active = activeStatusOf(entry);
+                const update = active === 'readyCurrent' || active === 'readyOutdated';
+                setMilaRow(entry.routeId);
+                void run(entry.routeId, () => downloadWithMascot(entry.routeId, update, () => ops.download(entry.routeId)));
+              }}
               onDelete={(name) => setPendingDelete({ routeId: entry.routeId, name })}
             />
           ))}

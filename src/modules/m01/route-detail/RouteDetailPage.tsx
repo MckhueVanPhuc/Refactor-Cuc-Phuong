@@ -16,6 +16,7 @@ import type { JourneySnapshot } from '../../../shared/contracts/journeySnapshot'
 import { TintIcon } from '../../../shared/ui/Icon';
 import { DifficultyBars } from '../layout/DifficultyBars';
 import { maybeUpdatePackage } from '../offline-package/lazyUpdate';
+import { downloadWithMascot } from '../offline-package/mascotSignals';
 import { needsPackage } from '../offline-package/needsPackage';
 import type { PackageOpResult } from '../offline-package/packageOps';
 import { activeStatusOf } from '../offline-package/packageStatus';
@@ -172,9 +173,11 @@ export function RouteDetailPage() {
     null,
   );
 
+  // Gói đã có bản dùng được thì đây là cập nhật (Mila phân biệt cập nhật với tải mới, MAS-B-022/026)
+  const updating = Boolean(entry?.active);
   const download = useCallback(() => {
-    void ops.download(routeId).then(setLastResult);
-  }, [ops, routeId]);
+    void downloadWithMascot(routeId, updating, () => ops.download(routeId)).then(setLastResult);
+  }, [ops, routeId, updating]);
 
   // Mở chi tiết online tuyến có gói: cập nhật lười lên version nguồn (research R-10)
   const onlineRoute = data.status === 'online' ? data.route : undefined;
@@ -256,6 +259,7 @@ export function RouteDetailPage() {
         <div className={styles.startArea}>
           <StartPanel
             routeId={routeId}
+            hasSafetyWarning={Boolean(view?.safetyWarning)}
             needsDecision={routeNeedsPackage && !hasReadyPackage}
             requestOfflineDecision={requestOfflineDecision}
           />

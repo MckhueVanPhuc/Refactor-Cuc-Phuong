@@ -39,6 +39,10 @@ const STATE_SIGNALS: ReadonlySet<MascotEventType> = new Set([
   'mascot.user.tapped',
   'mascot.user.closedBubble',
   'mascot.user.ctaPressed',
+  // Mỗi lần tải gói do một lần bấm của du khách, phát một lần từ hàm async (không phải effect): hai lần lỗi nhanh liên
+  // tiếp là hai thao tác thật, không phải tín hiệu lặp (MAS-B-026 đếm chúng)
+  'm01.package.downloadStarted',
+  'm01.package.resolved',
 ]);
 const DEDUPE_KEEP_MS = 5_000;
 
@@ -138,6 +142,10 @@ function applyRules(s: MascotState, event: StampedEvent, ctx: StepContext, rules
     }
     for (const key of result.once ?? []) s.once[key] = true;
     for (const effect of result.effects ?? []) if (!(effect.kind === 'vibrate' && ctx.reducedMotion)) effects.push(effect);
+    if (s.bubble && result.end?.includes(s.bubble.intent.behaviorId)) {
+      s.hold = null;
+      endBubble(s, ctx, event.at, effects, false);
+    }
     intents.push(...(result.intents ?? []));
   }
   intents.sort((a, b) => a.priority - b.priority);

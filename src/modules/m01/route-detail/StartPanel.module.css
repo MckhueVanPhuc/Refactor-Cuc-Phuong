@@ -46,3 +46,14 @@
   border: var(--border-width-thin) solid var(--color-error);
   border-radius: var(--radius-md);
 }
+
+/* Câu cố định có Mila minh họa bên trái (design-system §9.2 INLINE); cờ tắt thì chỉ còn câu */
+.withMila {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.withMila > .error {
+  flex: 1;
+}

@@ -50,9 +50,11 @@ export type Intent = {
    * Bị bỏ nếu du khách vừa thao tác trong `MASCOT_INTERACTION_GRACE_MS` (BR-MAS-20 "đang thao tác"; research R-19).
    */
   source?: 'timer' | 'ambient';
+  /** Slot ưu tiên khi màn có nhiều slot cùng mode (SCR-M01-003: `start-panel`, `package-panel`); không có thì slot đăng ký sau cùng */
+  slot?: string;
 };
 
-export type ViewState = { mode: Mode; pose: PoseId; animation: AnimationId | null; seq: number; behaviorId: string };
+export type ViewState = { mode: Mode; pose: PoseId; animation: AnimationId | null; seq: number; behaviorId: string; slot?: string };
 
 export type BubbleState = {
   messageId: MessageId;
@@ -112,6 +114,8 @@ export type RuleResult = {
   once?: string[];
   /** Hiệu ứng không kèm lời (ví dụ rung ở điểm cuối, BR-MAS-19); rung bị bỏ khi giảm chuyển động */
   effects?: Effect[];
+  /** Kết thúc bong bóng đang hiện nếu nó thuộc một trong các hành vi này (Exit Condition theo sự kiện, ví dụ MAS-B-020 khi gói xong) */
+  end?: readonly string[];
 };
 
 export type RuleView = { state: MascotState; ctx: StepContext; now: number };
