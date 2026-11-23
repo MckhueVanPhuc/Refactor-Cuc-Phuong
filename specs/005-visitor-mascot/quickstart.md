@@ -56,6 +56,10 @@
 | Q27 | Quét điểm thường / điểm đầu với Mila bật | Chỉ bong bóng "Đã ghi nhận…" của Mila, không toast |
 | Q28 | Như Q27 nhưng cờ Mila tắt, hoặc ảnh Mila hỏng | Toast "Đã ghi nhận lượt quét." như cũ |
 | Q29 | Quét điểm cuối với Mila bật | Hộp thoại kết thúc chuyến ngay, không toast, Mila chỉ rung |
+| Q30 | Chọn ngôn ngữ lần đầu (v1.3) | Lớp phủ phủ cả màn, Mila và bong bóng "Chào bạn! Mình là Mila, rái cá thám hiểm của Cúc Phương. Mình sẽ đồng hành cùng bạn trong suốt chuyến tham quan này. Cùng chọn một tuyến nhé!" ở giữa, "Chạm để bắt đầu", không nút "Bỏ qua"; chạm (hiện hết) rồi chạm → Mila đứng ở hero; tải lại: không lớp phủ |
+| Q31 | Lớp phủ đang mở: bấm Back hoặc Esc | Lớp phủ đóng, vẫn ở danh mục, Mila ở hero; focus về tiêu đề "Danh mục tuyến" |
+| Q32 | Đầu màn danh mục 320 / 390 px (v1.3) | Tiêu đề một dòng, dải đồi hiện, Mila trên đồi (88 / 112 px); chạm Mila: bong bóng dưới hero, Mila không đổi chỗ, không đè nút hay thẻ tuyến |
+| Q33 | Header mọi màn du khách; màn Tài nguyên (v1.3) | Không có nút chuyển động ở header; màn Tài nguyên có công tắc "Chuyển động của Mila"; tắt → không animation của Mila trên danh mục và chuyến đi |
 | Q26 | Bong bóng ở 320 px | Kiểu "Giấy dã ngoại", không đè, không cuộn ngang; Mila 112 px (danh mục), 128 px (chuyến đi), 104 px (kết quả) |
 
 ## 4. Kiểm thủ công (thiết bị thật — chủ dự án)

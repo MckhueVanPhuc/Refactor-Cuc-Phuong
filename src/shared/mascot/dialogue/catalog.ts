@@ -22,8 +22,8 @@ const MIN = 60_000;
 const ONCE = Number.POSITIVE_INFINITY;
 
 export const MESSAGE_META: Record<MessageId, MessageMeta> = {
-  'MSG-MAS-001': { priority: 6, cooldownMs: ONCE, autoHide: true },
-  'MSG-MAS-002': { priority: 6, cooldownMs: ONCE, autoHide: true },
+  // v1.3: lớp phủ giới thiệu chờ du khách chạm (US-MAS-01)
+  'MSG-MAS-001': { priority: 6, cooldownMs: ONCE, autoHide: false },
   'MSG-MAS-004': { priority: 6, cooldownMs: ONCE, autoHide: true },
   'MSG-MAS-005': { priority: 7, cooldownMs: 0, autoHide: false },
   'MSG-MAS-008': { priority: 6, cooldownMs: ONCE, autoHide: false, cta: ['recommend'] },

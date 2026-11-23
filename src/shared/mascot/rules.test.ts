@@ -99,15 +99,16 @@ describe('US1 — Làm quen với Mila (US-MAS-01)', () => {
   const selected = (at: number): Stamped => ({ type: 'm01.language.selected', language: 'vi', at });
   const loaded = (at: number): Stamped => ({ type: 'm01.catalog.loaded', status: 'ready', count: 2, stale: false, slow: false, at });
 
-  it('MAS-B-001→002→003: chọn ngôn ngữ lần đầu → sau 300 ms INTRO 001, rồi 002, rồi DOCK ở hero', () => {
+  it('MAS-B-001→003 (v1.3): chọn ngôn ngữ lần đầu → sau 300 ms lớp phủ INTRO một câu 001, không tự ẩn; chạm đóng → DOCK ở hero', () => {
     let { state } = play([{ type: 'app.route.changed', path: '/', at: 0 }, selected(1_000), loaded(1_050)]);
     expect(state.bubble).toBeNull();
     state = play([{ type: 'mascot.tick', at: 1_300 }], [], CTX, state).state;
     expect(state.view).toMatchObject({ mode: 'INTRO', pose: 'wave' });
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-001', expiresAt: null });
+    // Không tự ẩn: một phút sau vẫn còn lớp phủ
+    state = play([{ type: 'mascot.tick', at: 61_300 }], [], CTX, state).state;
     expect(state.bubble?.messageId).toBe('MSG-MAS-001');
-    state = play([{ type: 'mascot.tick', at: state.bubble!.expiresAt! }], [], CTX, state).state;
-    expect(state.bubble?.messageId).toBe('MSG-MAS-002');
-    state = play([{ type: 'mascot.tick', at: state.bubble!.expiresAt! }], [], CTX, state).state;
+    state = play([{ type: 'mascot.user.closedBubble', at: 62_000 }], [], CTX, state).state;
     expect(state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'map' } });
   });
 

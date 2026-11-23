@@ -12,9 +12,10 @@ const FORBIDDEN = [/đã đến/i, /tới nơi/i, /có mặt/i, /arriv/i, /you'r
 const longest = (items: readonly string[]) => items.reduce((a, b) => (b.length > a.length ? b : a), '');
 
 describe('catalog Mila', () => {
-  // v1.1 (2026-11-23): + 012, 033, 043, 065, 085 (Phase 10, 14); + 058, 063 (Phase 15)
-  it('đủ 48 câu của spec-Mascot §5.6 (v1.2), cùng bộ khóa ở hai ngôn ngữ và trong metadata', () => {
-    expect(MESSAGE_IDS).toHaveLength(48);
+  // v1.1 (2026-11-23): + 012, 033, 043, 065, 085 (Phase 10, 14); + 058, 063 (Phase 15); v1.3: − 002 (gộp vào 001)
+  it('đủ 47 câu của spec-Mascot §5.6 (v1.3), cùng bộ khóa ở hai ngôn ngữ và trong metadata', () => {
+    expect(MESSAGE_IDS).toHaveLength(47);
+    expect(MESSAGE_IDS).not.toContain('MSG-MAS-002');
     expect(Object.keys(en.messages).sort()).toEqual(Object.keys(vi.messages).sort());
     expect(Object.keys(MESSAGE_META).sort()).toEqual([...MESSAGE_IDS].sort());
   });
@@ -28,7 +29,8 @@ describe('catalog Mila', () => {
       for (const id of MESSAGE_IDS) {
         const text = messageText(language, id, params);
         expect(text.length, `${id}: ${text}`).toBeGreaterThan(0);
-        expect(text.length, `${id}: ${text}`).toBeLessThanOrEqual(90);
+        // v1.3: câu 001 của lớp phủ giới thiệu dài hơn theo quyết định 2026-11-23 (spec-Mascot §5.4)
+        if (id !== 'MSG-MAS-001') expect(text.length, `${id}: ${text}`).toBeLessThanOrEqual(90);
         expect(text).not.toMatch(/\{\w+\}/);
       }
       expect(messageText(language, 'MSG-MAS-001')).toContain('Mila');
@@ -67,5 +69,17 @@ describe('catalog Mila', () => {
       expect(meta.priority).toBeLessThanOrEqual(7);
       if (meta.cta?.length) expect(meta.autoHide, id).toBe(false);
     }
+  });
+
+  it('v1.3: câu giới thiệu một bong bóng, chờ chạm; câu 056 mới; nhãn lớp phủ và công tắc', () => {
+    expect(messageText('vi', 'MSG-MAS-001')).toBe(
+      'Chào bạn! Mình là Mila, rái cá thám hiểm của Cúc Phương. Mình sẽ đồng hành cùng bạn trong suốt chuyến tham quan này. Cùng chọn một tuyến nhé!',
+    );
+    expect(messageText('en', 'MSG-MAS-001')).toBe("Hi! I'm Mila, Cúc Phương's otter explorer. I'll be with you throughout this visit. Let's pick a route!");
+    expect(MESSAGE_META['MSG-MAS-001'].autoHide).toBe(false);
+    expect(messageText('vi', 'MSG-MAS-056')).toBe('Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé.');
+    expect(messageText('en', 'MSG-MAS-056')).toBe('Time to explore! Remember to scan at the next stop.');
+    expect(labelsFor('vi')).toMatchObject({ introHint: 'Chạm để bắt đầu', motion: 'Chuyển động của Mila', motionHint: 'Tắt để Mila đứng yên.' });
+    expect(labelsFor('en')).toMatchObject({ introHint: 'Tap to start', motion: "Mila's motion", motionHint: 'Turn off to keep Mila still.' });
   });
 });

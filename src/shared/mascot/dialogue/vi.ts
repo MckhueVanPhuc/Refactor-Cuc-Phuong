@@ -10,8 +10,8 @@ const CHEERS = ['Tuyệt!', 'Hay quá!', 'Thêm một điểm nữa!'];
 
 export const vi = {
   messages: {
-    'MSG-MAS-001': `Chào bạn! Mình là ${NAME}, rái cá thám hiểm của Cúc Phương.`,
-    'MSG-MAS-002': 'Mình sẽ đi cùng bạn suốt hành trình. Chọn một tuyến nhé!',
+    // v1.3: một bong bóng trong lớp phủ giới thiệu, dài hơn 90 ký tự theo quyết định 2026-11-23 (spec-Mascot §5.4)
+    'MSG-MAS-001': `Chào bạn! Mình là ${NAME}, rái cá thám hiểm của Cúc Phương. Mình sẽ đồng hành cùng bạn trong suốt chuyến tham quan này. Cùng chọn một tuyến nhé!`,
     'MSG-MAS-004': 'Chào mừng bạn quay lại! Hôm nay mình đi tuyến nào đây?',
     'MSG-MAS-005': 'Mình đang mở bản đồ các tuyến…',
     'MSG-MAS-012': 'Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn.',
@@ -43,7 +43,7 @@ export const vi = {
     'MSG-MAS-054': 'Mất sóng cũng không sao, mình mở bản đã tải sẵn cho bạn.',
     'MSG-MAS-055': 'Đã ghi nhận! Bạn đã quét được nửa số điểm rồi đó!',
     'MSG-MAS-058': 'Đã ghi nhận! Chỉ còn một điểm nữa thôi!',
-    'MSG-MAS-056': 'Giờ cất máy và ngắm rừng thôi! Ở điểm sau nhớ quét mã nhé.',
+    'MSG-MAS-056': 'Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé.',
     'MSG-MAS-057a': 'Đi nhẹ, nói khẽ để nghe được tiếng rừng nhé.',
     'MSG-MAS-057b': 'Ngắm thôi, đừng hái hay mang gì ra khỏi rừng nhé.',
     'MSG-MAS-057c': 'Giữ rác trong ba lô cho tới khi gặp thùng rác nhé.',
@@ -64,10 +64,11 @@ export const vi = {
     /** Dòng tên trên bong bóng (design-system §9.3) */
     name: NAME,
     ask: `Hỏi ${NAME}`,
-    /** Công tắc "Chuyển động" ở thanh đầu trang (v1.1, BR-MAS-21) */
+    /** Công tắc "Chuyển động của Mila" ở màn Tài nguyên (v1.3, BR-MAS-21) */
     motion: `Chuyển động của ${NAME}`,
-    motionOn: 'Chuyển động: bật',
-    motionOff: 'Chuyển động: tắt',
+    motionHint: `Tắt để ${NAME} đứng yên.`,
+    /** Dòng gợi ý dưới Mila trong lớp phủ giới thiệu (v1.3, US-MAS-01) */
+    introHint: 'Chạm để bắt đầu',
     dismiss: 'Đóng lời nhắn',
     notNow: 'Chưa',
     ctaRecommend: 'Gợi ý tuyến',
