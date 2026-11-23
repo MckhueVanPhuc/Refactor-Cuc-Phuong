@@ -2,6 +2,7 @@
 // spec-Mascot. Luật an toàn (MAS-B-035, 045, 058, 082–084, hộp thoại) nằm trong machine.ts vì không phụ thuộc màn.
 import {
   MASCOT_AMBIENT_GESTURE_MS,
+  MASCOT_CATALOG_HINT_MS,
   MASCOT_DIZZY_TAPS,
   MASCOT_DIZZY_WINDOW_MS,
   MASCOT_TAP_DEBOUNCE_MS,
@@ -179,6 +180,117 @@ const US4: Rule[] = [
           intents: [{ behaviorId: 'MAS-B-070', priority: 5, mode: 'DOCK', pose: 'backpack', animation: 'pack', message: { id: 'MSG-MAS-070' }, once: 'PENDING_NOTE' }],
         },
   ),
+];
+
+// —— US7: Chuẩn bị cùng Mila (US-MAS-07) ——
+// Hình minh họa INLINE (MAS-B-006, 007, 012, 013, 015, 016, 022, 023, 024, 025) do màn đặt bằng `MascotFigure` cạnh câu
+// cố định; các luật dưới đây chỉ cho những dòng có lời.
+
+/** Mila nói xong thì về tư thế bản đồ ở hero danh mục */
+const CATALOG_SETTLE: Intent = { ...CATALOG_DOCK, animation: 'settle' };
+const PACKAGE_SLOT = 'package-panel';
+const SAFETY_TIMER = 'safety:';
+
+const US7: Rule[] = [
+  // MAS-B-005: danh mục còn tải sau 600 ms (màn phát `slow`) → câu chờ, không tự ẩn; tải xong hay lỗi → câu đóng
+  on('MAS-B-005', 'm01.catalog.loaded', (event) =>
+    event.status === 'loading'
+      ? event.slow
+        ? { intents: [{ behaviorId: 'MAS-B-005', priority: 7, mode: 'DOCK', pose: 'map', animation: 'search', message: { id: 'MSG-MAS-005' } }] }
+        : null
+      : { end: ['MAS-B-005'] },
+  ),
+  // MAS-B-008: 20 s không thao tác trên danh mục, một lần mỗi lần tải trang, chỉ khi chưa cuộn hay mở tuyến (§5.4, BR-MAS-09)
+  on('MAS-B-008', 'm01.catalog.loaded', (event, { state }) =>
+    event.status === 'ready' && !state.once['CATALOG_HINT'] && !state.counters['catalog:interacted'] ? { timers: { catalogHint: MASCOT_CATALOG_HINT_MS } } : null,
+  ),
+  // Chạm, phím: đếm lại từ đầu. Cuộn (màn phát `interacted`) hay mở một tuyến: thôi gợi ý; đang gợi ý thì bong bóng đóng.
+  on('MAS-B-008:activity', 'app.user.activity', (_event, { state }) =>
+    state.timers['catalogHint'] !== undefined ? { timers: { catalogHint: MASCOT_CATALOG_HINT_MS } } : null,
+  ),
+  on('MAS-B-008:scrolled', 'm01.catalog.interacted', () => ({ counters: { 'catalog:interacted': 1 }, timers: { catalogHint: null }, end: ['MAS-B-008'] })),
+  on('MAS-B-008:opened', 'app.route.changed', (event) => (event.path.startsWith('/routes/') ? { counters: { 'catalog:interacted': 1 } } : null)),
+  onTimer('MAS-B-008:show', 'catalogHint', ({ state }) => {
+    if (state.path !== '/') return null;
+    // Lớp phủ giới thiệu hay câu khác đang hiện: chờ thêm một lượt
+    if (state.bubble || state.view?.mode === 'INTRO') return { timers: { catalogHint: MASCOT_CATALOG_HINT_MS } };
+    return {
+      intents: [
+        {
+          behaviorId: 'MAS-B-008',
+          priority: 6,
+          mode: 'DOCK',
+          pose: 'point',
+          animation: 'pop',
+          message: { id: 'MSG-MAS-008' },
+          once: 'CATALOG_HINT',
+          source: 'timer',
+          then: CATALOG_SETTLE,
+        },
+      ],
+    };
+  }),
+  // MAS-B-010: mở Gợi ý tuyến lần đầu trong lần tải trang → sau 400 ms, AVATAR cạnh tiêu đề
+  on('MAS-B-010', 'm01.recommend.opened', (_event, { state }) => (state.once['RECOMMEND_HINT'] ? null : { timers: { recommendHint: 400 } })),
+  onTimer('MAS-B-010:show', 'recommendHint', () => ({
+    intents: [{ behaviorId: 'MAS-B-010', priority: 6, mode: 'AVATAR', pose: 'think', animation: 'pop', message: { id: 'MSG-MAS-010' }, once: 'RECOMMEND_HINT' }],
+  })),
+  // MAS-B-011: có kết quả gợi ý. Không có kết quả (MAS-B-012, 013): chỉ hình cạnh câu cố định (v1.2), màn tự đặt.
+  on('MAS-B-011', 'm01.recommend.resolved', (event) =>
+    event.count >= 1
+      ? { intents: [{ behaviorId: 'MAS-B-011', priority: 4, mode: 'AVATAR', pose: 'thumbsUp', animation: 'hop', message: { id: 'MSG-MAS-011' } }] }
+      : null,
+  ),
+  // MAS-B-014: panel Bắt đầu hiện lần đầu, tuyến có Cảnh báo an toàn → sau 500 ms nhắc đọc, một lần mỗi tuyến; Mila ở slot
+  // của panel Bắt đầu, không bao giờ trong khối cảnh báo
+  on('MAS-B-014', 'm01.routeDetail.startPanelVisible', (event, { state }) =>
+    event.hasSafetyWarning && !state.once[`SAFETY:${event.routeRef}`] ? { timers: { [`${SAFETY_TIMER}${event.routeRef}`]: 500 } } : null,
+  ),
+  on('MAS-B-014:show', 'mascot.timer', (event) => {
+    if (!event.name.startsWith(SAFETY_TIMER)) return null;
+    const routeRef = event.name.slice(SAFETY_TIMER.length);
+    return {
+      intents: [
+        {
+          behaviorId: 'MAS-B-014',
+          priority: 6,
+          mode: 'AVATAR',
+          pose: 'point',
+          animation: 'pop',
+          message: { id: 'MSG-MAS-014' },
+          once: `SAFETY:${routeRef}`,
+          slot: 'start-panel',
+        },
+      ],
+    };
+  }),
+  // MAS-B-020: bắt đầu tải gói → Mila xếp ba lô ở slot gói, câu ở lại tới khi có kết quả (không phần trăm)
+  on('MAS-B-020', 'm01.package.downloadStarted', () => ({
+    intents: [{ behaviorId: 'MAS-B-020', priority: 5, mode: 'AVATAR', pose: 'backpack', animation: 'pack', message: { id: 'MSG-MAS-020' }, slot: PACKAGE_SLOT }],
+  })),
+  // MAS-B-021: gói sẵn sàng. MAS-B-022, 024, 025: lỗi → chỉ hình cạnh câu lỗi cố định (v1.2). MAS-B-026: lỗi lần 2 liên tiếp
+  // cùng tuyến khi tải mới và có mạng → câu trấn an.
+  on('MAS-B-021', 'm01.package.resolved', (event, { state }) => {
+    const failures = `package:failed:${event.routeRef}`;
+    const end = ['MAS-B-020'];
+    if (event.kind === 'ready') {
+      return {
+        end,
+        counters: { [failures]: null },
+        intents: [{ behaviorId: 'MAS-B-021', priority: 4, mode: 'AVATAR', pose: 'thumbsUp', animation: 'hop', message: { id: 'MSG-MAS-021' }, slot: PACKAGE_SLOT }],
+      };
+    }
+    if (event.kind !== 'failed') return { end };
+    const count = (state.counters[failures] ?? 0) + 1;
+    const again = count >= 2 && !event.update && event.online;
+    return {
+      end,
+      counters: { [failures]: count },
+      ...(again
+        ? { intents: [{ behaviorId: 'MAS-B-026', priority: 2, mode: 'AVATAR', pose: 'backpack', animation: 'pop', message: { id: 'MSG-MAS-026' }, slot: PACKAGE_SLOT }] }
+        : {}),
+    } satisfies RuleResult;
+  }),
 ];
 
 // —— v1.1: cử chỉ tự động (MAS-B-086, BR-MAS-21; research R-18) ——
@@ -375,4 +487,4 @@ const US8: Rule[] = [
   }),
 ];
 
-export const RULES: readonly Rule[] = [...US1, ...US2, ...US4, ...US8, ...AMBIENT];
+export const RULES: readonly Rule[] = [...US1, ...US2, ...US4, ...US7, ...US8, ...AMBIENT];

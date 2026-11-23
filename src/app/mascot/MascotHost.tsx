@@ -135,7 +135,9 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
   }, [state, send]);
 
   const view = state.view;
-  const slot = view && !state.failed ? [...slots].reverse().find((entry) => entry.modes.includes(view.mode)) : undefined;
+  // Slot ý định chỉ định (nếu màn có) rồi slot đăng ký sau cùng nhận mode đó
+  const candidates = view && !state.failed ? [...slots].reverse().filter((entry) => entry.modes.includes(view.mode)) : [];
+  const slot = candidates.find((entry) => entry.id === view?.slot) ?? candidates[0];
 
   // Lượt ghé chỉ coi là đã xác nhận khi bong bóng thật sự hiện trong slot của màn (không slot → toast dự phòng)
   const shownOnce = slot && state.bubble && VISIT_CONFIRMS.has(state.bubble.messageId) ? state.bubble.intent.once : undefined;

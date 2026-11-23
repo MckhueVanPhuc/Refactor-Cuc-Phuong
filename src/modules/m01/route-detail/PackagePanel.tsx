@@ -4,6 +4,7 @@ import { useId } from 'react';
 import { useM01Messages } from '../i18n/useM01Messages';
 import type { PackageOpResult } from '../offline-package/packageOps';
 import { activeStatusOf, candidateStatusOf, statusLabel } from '../offline-package/packageStatus';
+import { MascotFigure, MascotSlot } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import styles from './PackagePanel.module.css';
 import type { PackageEntry } from '../storage/readers';
@@ -55,21 +56,33 @@ export function PackagePanel({
           </span>
         )}
       </p>
+      {/* Mila nói về lần tải (MAS-B-020, 021, 026) trong panel gói (spec-Mascot §5.1) */}
+      <MascotSlot id="package-panel" modes={['AVATAR']} />
       {active === 'readyOutdated' && <p className={styles.note}>{messages.routeDetail.outdated}</p>}
+      {/* Lỗi gói: Mila minh họa cạnh câu cố định (MAS-B-022, 024, 025; chỉ hình từ v1.2) */}
       {!active && candidate === 'incomplete' && failure !== 'storage' && (
-        <p className={styles.error} role="alert">
-          {messages.routeDetail.incomplete}
-        </p>
+        <div className={styles.withMila}>
+          <MascotFigure pose="confused" size="sm" />
+          <p className={styles.error} role="alert">
+            {messages.routeDetail.incomplete}
+          </p>
+        </div>
       )}
       {failure === 'storage' && (
-        <p className={styles.error} role="alert">
-          {messages.offline.storageError}
-        </p>
+        <div className={styles.withMila}>
+          <MascotFigure pose="confused" size="sm" />
+          <p className={styles.error} role="alert">
+            {messages.offline.storageError}
+          </p>
+        </div>
       )}
       {failure && failure !== 'storage' && ready && (
-        <p className={styles.error} role="alert">
-          {messages.offline.updateFailed}
-        </p>
+        <div className={styles.withMila}>
+          <MascotFigure pose="confused" size="sm" />
+          <p className={styles.error} role="alert">
+            {messages.offline.updateFailed}
+          </p>
+        </div>
       )}
       {ready && <p className={styles.meta}>{messages.routeDetail.scanHint}</p>}
       {action && (

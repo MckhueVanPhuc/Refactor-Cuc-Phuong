@@ -120,3 +120,15 @@
 .empty {
   color: var(--color-m01-secondary);
 }
+
+/* Câu cố định có Mila minh họa bên trái (design-system §9.2 INLINE); cờ tắt thì chỉ còn câu */
+.withMila {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Slot của Mila trong dòng gói chỉ chiếm chỗ khi Mila có mặt (sau lần tải du khách vừa bấm) */
+.row > :global([data-mascot-slot]:empty) {
+  display: none;
+}

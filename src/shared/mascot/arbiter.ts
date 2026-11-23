@@ -96,6 +96,7 @@ function apply(s: MascotState, intent: Intent, ctx: StepContext, now: number, ef
     animation: intent.animation ?? null,
     seq: (s.view?.seq ?? 0) + 1,
     behaviorId: intent.behaviorId,
+    ...(intent.slot ? { slot: intent.slot } : {}),
   };
   s.hold =
     intent.holdMs !== undefined
