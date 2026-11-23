@@ -12,6 +12,6 @@ test('Q3 — lần đầu mở /q/Q1a: nội dung như trước, không giới t
   const hint = page.locator('[data-free-visitor]');
   await expect(hint.getByText(vi.notice.freeVisitor)).toBeVisible();
   await expect(hint.locator('[data-mascot-figure="map"]')).toBeVisible();
-  await expect(page.locator('[data-mascot-mode="INTRO"]')).toHaveCount(0);
+  await expect(page.locator('[data-mascot-mode="INTRO"], [data-mascot-intro]')).toHaveCount(0);
   await expect(page.locator('[data-mascot-message]')).toHaveCount(0);
 });

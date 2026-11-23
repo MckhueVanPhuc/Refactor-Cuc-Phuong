@@ -19,6 +19,8 @@ export const MASCOT_AMBIENT_MIN_MS = 8_000;
 export const MASCOT_AMBIENT_MAX_MS = 15_000;
 /** Một cử chỉ tự động dài nhất (Asset spec AN-AMBIENT). */
 export const MASCOT_AMBIENT_GESTURE_MS = 1_500;
+/** Chớp mắt: ảnh mắt nhắm hiện chừng này (Asset spec AN-BLINK; `--duration-mascot-blink`). */
+export const MASCOT_BLINK_MS = 120;
 /** Chạm nhiều lần (BR-MAS-22): chạm dồn trong khoảng này tính một lần; số lần chạm trong cửa sổ để "chóng mặt". */
 export const MASCOT_TAP_DEBOUNCE_MS = 400;
 export const MASCOT_DIZZY_TAPS = 5;
