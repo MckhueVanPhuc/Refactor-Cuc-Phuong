@@ -250,11 +250,11 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 ## Phase 11: Polish & Cross-Cutting Concerns
 
 - [X] T067 [P] Viết `e2e/m01/mascot-precache.spec.ts`: tải `/sw.js` của `preview:e2e`, khẳng định có chunk `mascot` và (khi có ảnh) chỉ `ma-*-240-*.webp` cùng `ma-11-avatar-96-*.webp`, không `-480-`, không `-192-`, không `.jpg` (MAS-TC-062, 090)
-- [ ] T068 [P] Chạy `VITE_FEATURE_MASCOT=off npx vitest run` và một test component `src/app/App.mascot.test.tsx` khẳng định cờ off không `import()` host và không có `[data-mascot-slot]` có nội dung (Q17, MAS-TC-045)
-- [ ] T069 Rà toàn bộ bằng skill `frontend-design` trên `dev:fake` ở 320/390 px: bong bóng, DOCK, INTRO, CELEBRATE đúng design-system §9; không đổi bố cục đã duyệt của SCR-M02-001/002/003
+- [X] T068 [P] Chạy `VITE_FEATURE_MASCOT=off npx vitest run` và một test component `src/app/App.mascot.test.tsx` khẳng định cờ off không `import()` host và không có `[data-mascot-slot]` có nội dung (Q17, MAS-TC-045)
+- [X] T069 Rà toàn bộ bằng skill `frontend-design` trên `dev:fake` ở 320/390 px: bong bóng, DOCK, INTRO, CELEBRATE đúng design-system §9; không đổi bố cục đã duyệt của SCR-M02-001/002/003
 - [X] T070 **(Chặn bởi OD-MAS-06, 07 — đã giao và xác nhận 2026-11-22)** Khi người dùng giao PNG gốc vào `assets/mascot/source/` và xác nhận quyền: xuất `assets/mascot/web/ma-*-{240,480}.webp` (avatar 96/192) bằng công cụ chạy ngoài repo, không thêm dependency; đo dung lượng từng tệp và tổng precache so với MAS-NFR-01; kiểm viền alpha; ghi số đo vào validation report
-- [ ] T071 [P] Cập nhật bộ thiết kế stale: `docs/mascot/MASCOT_TECHNICAL_SPECIFICATION.md` §2, §5 (`MascotSlot`/`MascotFigure` ở `src/shared/mascot/`), `docs/mascot/MASCOT_ASSET_SPECIFICATION.md` §3 (mẫu precache `assets/ma-*-240-*.webp`)
-- [ ] T072 Chạy `npm run ci`, `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil`, `git diff --check`; hoàn tất `specs/005-visitor-mascot/validation-report.md` (lệnh đã chạy, kết quả, lệch so với tasks; thiết bị thật, TalkBack/VoiceOver, Lighthouse ghi `NOT RUN` nếu chưa chạy)
+- [X] T071 [P] Cập nhật bộ thiết kế stale: `docs/mascot/MASCOT_TECHNICAL_SPECIFICATION.md` §2, §5 (`MascotSlot`/`MascotFigure` ở `src/shared/mascot/`), `docs/mascot/MASCOT_ASSET_SPECIFICATION.md` §3 (mẫu precache `assets/ma-*-240-*.webp`)
+- [X] T072 Chạy `npm run ci`, `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil`, `git diff --check`; hoàn tất `specs/005-visitor-mascot/validation-report.md` (lệnh đã chạy, kết quả, lệch so với tasks; thiết bị thật, TalkBack/VoiceOver, Lighthouse ghi `NOT RUN` nếu chưa chạy)
 
 ---
 
