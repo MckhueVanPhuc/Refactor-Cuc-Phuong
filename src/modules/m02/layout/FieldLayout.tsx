@@ -62,6 +62,7 @@ export function FieldLayout({ surface, title, children }: { surface: FieldSurfac
           {BRANDED.has(surface) && <img className={styles.logo} src={logoUrl} alt="" />}
           {title && <h1 className={styles.title}>{title}</h1>}
         </div>
+        {/* Công tắc "Chuyển động" của Mila (spec-Mascot BR-MAS-21; chỉ có khi Mila bật) */}
         <LanguageControl tone={surface === 'reader' ? 'onLight' : 'onDark'} />
       </header>
       <div className={styles.notices} role="status" ref={setNoticeSlot}>

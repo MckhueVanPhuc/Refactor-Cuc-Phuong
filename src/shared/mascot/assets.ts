@@ -25,6 +25,9 @@ const POSE_FILE: Record<PoseId, string> = {
 
 export type PoseAsset = { src240: string; src480: string };
 
+/** Tên tư thế trong tên tệp: `ma-07-thumbs-up` → `thumbs-up` */
+const poseName = (pose: PoseId) => POSE_FILE[pose].replace(/^ma-\d\d-/, '');
+
 /** Cỡ nhỏ (240, avatar 96) luôn vào precache; cỡ lớn (480, avatar 192) chỉ cho INTRO/CELEBRATE. */
 export function poseAsset(pose: PoseId): PoseAsset | null {
   const base = POSE_FILE[pose];
@@ -32,4 +35,13 @@ export function poseAsset(pose: PoseId): PoseAsset | null {
   const src240 = byName.get(`${base}-${small}`);
   if (!src240) return null;
   return { src240, src480: byName.get(`${base}-${large}`) ?? src240 };
+}
+
+/** Ảnh mắt nhắm MA-20 của tư thế (AN-BLINK; research R-24). Không có → `null`, bỏ cử chỉ chớp mắt. */
+export function blinkAsset(pose: PoseId): PoseAsset | null {
+  if (pose === 'avatar') return null;
+  const base = `ma-20-${poseName(pose)}-blink`;
+  const src240 = byName.get(`${base}-240`);
+  if (!src240) return null;
+  return { src240, src480: byName.get(`${base}-480`) ?? src240 };
 }

@@ -158,3 +158,27 @@ Các mục R-17…R-25 là quyết định kỹ thuật cho BR-MAS-12, 17, 20–
 
 - **Decision**: `--duration-mascot-loop` giữ 1 200 ms; số lần lặp của AN-SEARCH, AN-PACK, AN-THINK = 4 (4,8 s); AN-BREATHE 2 × 2 400 ms. Test E2E đo `getAnimations()` với `effect.getComputedTiming().endTime ≤ 5000` cho mọi animation của Mila trừ khi công tắc có trên màn.
 - **Rationale**: BR-MAS-21, SC-MAS-014.
+
+## R-26 — Mila xác nhận lượt ghé thay toast (v1.2, BR-MAS-24)
+
+- **Decision**: store trong bộ nhớ `src/shared/mascot/visitConfirm.ts`: host gọi `markVisitConfirmed(visitRef)` ngay khi bong bóng xác nhận (050/051/055/058) của lượt ghé đó được đưa ra màn; `ScanContent` (M02) gọi `useMascotConfirms(visitRef)` → `'pending' | 'mascot' | 'toast'`: cờ Mila tắt hoặc host đã `failed` → `toast` ngay; bong bóng đã hiện → `mascot`; quá `MASCOT_CONFIRM_FALLBACK_MS` (1 000 ms) chưa hiện → `toast`. Toast hiện khi `toast`; không hiện khi `pending` hoặc `mascot`. Lượt ghé điểm cuối khi Mila bật: không toast (hộp thoại là xác nhận). Bong bóng xác nhận có `role="status"` (metadata catalog).
+- **Rationale**: không bao giờ cả hai, không bao giờ không có gì (SC-MAS-015); module chỉ đọc một trạng thái qua `index.ts` của `shared/mascot`; không lưu gì (BR-MAS-18).
+- **Alternatives**: host tự ẩn toast trong DOM (chạm vào module khác, không kiểm được); module tự đoán Mila có hiện (không biết được lỗi ảnh, slot, ngữ cảnh chặn).
+
+## R-27 — Lớp phủ giới thiệu (v1.3, US-MAS-01)
+
+- **Decision**: luật MAS-B-001 chỉ còn một ý định `INTRO` (MSG-MAS-001, không tự ẩn: `autoHide: false` trong catalog) với `then` là DOCK hero (MAS-B-003); MSG-MAS-002 bỏ khỏi catalog. Slot `catalog-hero` vẫn khai báo `INTRO` để engine biết màn có chỗ, nhưng host vẽ mode `INTRO` bằng component `MascotIntro` portal vào `document.body` (lớp phủ `position: fixed` phủ cả màn), không vào slot. Khi lớp phủ mở: `#root` nhận `inert` (không bấm, không focus, trình đọc màn hình bỏ qua), focus vào hộp thoại (`role="dialog"`, `aria-modal`, `tabIndex=-1`); khi đóng: bỏ `inert`, focus về `h1` của trang. Chạm, Enter, Space: chữ đang hiện dần thì `finish()`, đã hiện hết thì gửi `mascot.user.closedBubble` (đích `then` là DOCK). Esc: gửi `closedBubble` ngay. Back: khi mở, host thêm một mục lịch sử cùng URL (`history.pushState(history.state, '', location.href)`) và nghe `popstate` để đóng; đóng bằng chạm/Esc thì gọi `history.back()` để bỏ mục đó (router thấy cùng vị trí, không điều hướng).
+- **Rationale**: lớp phủ chặn thao tác đúng một lần như quyết định 2026-11-23 mà không đổi layout của màn; không cần slot mới; luật và máy trạng thái gần như giữ nguyên (đóng bong bóng đã đưa về đích `then` không lời).
+- **Alternatives**: slot toàn màn trong `VisitorLayout` (đụng layout module, khó đặt trên thanh tab); dialog `<dialog>` gốc (hành vi Back/Esc và `inert` khác nhau giữa trình duyệt cũ).
+
+## R-28 — Công tắc chuyển động ở màn Tài nguyên (v1.3, BR-MAS-21)
+
+- **Decision**: bỏ `MascotMotionToggle` khỏi header của `VisitorLayout` và `FieldLayout`. Component đổi thành `MascotMotionSwitch` (export từ `src/shared/mascot/index.ts`): một hàng `<button role="switch" aria-checked>` có nhãn "Chuyển động của Mila", câu phụ "Tắt để Mila đứng yên.", rãnh trượt bằng CSS (không icon mới), vùng chạm cả hàng; không render khi cờ tắt. Đặt ở `OfflinePage.tsx` ngay dưới tiêu đề. Store `motion.ts` giữ nguyên (theo lần tải trang, khởi đầu tắt khi giảm chuyển động).
+- **Rationale**: một chỗ duy nhất cho cả app như chủ dự án chọn (phương án A); dùng lại store nên engine và test cũ không đổi.
+- **Alternatives**: giữ nút ở header (chủ dự án bỏ); lưu lựa chọn vào `localStorage` (trái BR-MAS-18).
+
+## R-29 — Đầu màn danh mục hai cột (v1.3, design-system §9.3a)
+
+- **Decision**: `CatalogPage` đặt hero thành lưới hai cột với vùng `title scene` / `action scene` / `bubble bubble`; `MascotSlot id="catalog-hero"` là con trực tiếp của hero. CSS của slot `data-mascot-dock="catalog"` và của `.mascot` ở slot đó dùng `display: contents`, nên hình Mila và bong bóng trở thành ô lưới của hero: hình vào vùng `scene` (cùng ô với dải đồi, đè lên đồi), bong bóng vào hàng `bubble` (toàn chiều rộng, căn phải, đuôi ở cạnh trên chỉ lên Mila). Màn < 360px: `--mascot-dock-size` = `--mascot-size-dock-catalog-narrow` (88px). Dải đồi luôn hiện (bỏ luật ẩn của Phase 12). Hàng `bubble` chỉ có chiều cao khi có bong bóng, nên danh sách tuyến trượt xuống rồi về.
+- **Rationale**: Mila không đổi chỗ khi nói; không cần đổi DOM của component Mascot; bố cục do màn sở hữu (CSS module của màn) như các slot khác.
+- **Alternatives**: bong bóng `position: absolute` đè lên danh sách (che thẻ tuyến, trái BR-MAS-11); tách bong bóng thành slot riêng (đổi contract host, hai portal cho một phản ứng).

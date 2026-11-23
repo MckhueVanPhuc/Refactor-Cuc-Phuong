@@ -5,8 +5,8 @@
 | Field | Value |
 |---|---|
 | Capability | Mascot — Mila accompanies visitors on the M01 and M02 screens |
-| Source spec | [spec-Mascot.md](../spec/spec-Mascot.md), v1.1 |
-| Updated | 2026-11-22 (spec-Mascot v1.1, CHG-MASCOT-2026-11-22-02) |
+| Source spec | [spec-Mascot.md](../spec/spec-Mascot.md), v1.3 |
+| Updated | 2026-11-23 (spec-Mascot v1.3, CHG-MASCOT-2026-11-23-04) |
 | Purpose | Functional decomposition for the visitor frontend design |
 | Priority rule | Delivery priority comes from `MVP-Scope.md` §3.6 (Could); sub-functions inherit their parent function's priority. |
 | Source FR notation | After one full ID, following comma-separated numbers inherit the same `FR-MAS-` prefix. Business rules are cited as `BR-MAS-<number>`; spec-M01/M02 rules keep their own IDs. |
@@ -36,7 +36,7 @@
 | SF-MAS-001-06 | Work offline. | Device offline after the app shell is cached | Same images and messages as online | Missing image → Mila not shown, screen unchanged (BR-MAS-15, 16) | FR-MAS-010 |
 | SF-MAS-001-07 | Respect reduced motion. | Reduced motion requested | Immediate changes or fades ≤ 150 ms; no particles; no vibration | (BR-MAS-17, 19) | FR-MAS-001 |
 | SF-MAS-001-08 | Make short ambient gestures while waiting. | `DOCK` without a bubble on SCR-M01-001, SCR-M02-001 (scanner closed), SCR-M02-003 | One gesture ≤ 1.5 s every `MASCOT_AMBIENT_MIN_MS`–`MASCOT_AMBIENT_MAX_MS` | Not on reading screens, during media or dialogs, within `MASCOT_INTERACTION_GRACE_MS` of an interaction, or with motion off (BR-MAS-20, 21) | FR-MAS-011 |
-| SF-MAS-001-09 | Pause motion on request. | Motion control in the screen header switched off | No animation, no particles, bubble text at once; Mila stays visible | Starts off when reduced motion is requested; lasts for the page load only; not a hide control (BR-MAS-11, 17, 21) | FR-MAS-011 |
+| SF-MAS-001-09 | Pause motion on request. | Motion control on the Resources screen SCR-M01-004 switched off (v1.3; no header control) | No animation, no particles, bubble text at once; Mila stays visible | Starts off when reduced motion is requested; lasts for the page load only; not a hide control (BR-MAS-11, 17, 21) | FR-MAS-011 |
 | SF-MAS-001-10 | Adapt to the visitor's activity context. | Reading, listening, watching, waiting for a scan, loading, interacting, error, leaving | Behavior of BR-MAS-20 for each context | Reactions not caused by the visitor's own action are dropped within `MASCOT_INTERACTION_GRACE_MS` of an interaction (BR-MAS-20) | FR-MAS-012 |
 
 ### FN-MAS-002 — Event Reaction & Arbitration
@@ -53,7 +53,7 @@
 
 | Sub-function ID | Behavior | Input / trigger | Output / state | Exception / guard | Source FR |
 |---|---|---|---|---|---|
-| SF-MAS-003-01 | Introduce Mila. | First language choice on the language step | MSG-MAS-001 then 002 over the catalog | Never on `/q/{qrIdentifier}`; never when a preference already existed (US-MAS-01) | FR-MAS-004 |
+| SF-MAS-003-01 | Introduce Mila. | First language choice on the language step | Introduction overlay over the whole screen: Mila and MSG-MAS-001 centred, "Tap to start"; a tap after the sentence is complete, Back or Esc closes it; no skip button (v1.3) | Never on `/q/{qrIdentifier}`; never when a preference already existed (US-MAS-01) | FR-MAS-004 |
 | SF-MAS-003-02 | Welcome a returning visitor. | Catalog opened with a preference stored before the page load | MSG-MAS-004 once per page load | — | FR-MAS-004 |
 | SF-MAS-003-03 | Help choose a route. | Catalog inactivity; recommendation opened, resolved or empty twice | MSG-MAS-008, 010, 011, 013 | Inactivity only once per page load, without scroll or route opened (BR-MAS-09, 10) | FR-MAS-002 |
 | SF-MAS-003-04 | Remind about the safety warning. | Start panel visible for a route with a safety warning | MSG-MAS-014 | Mila never placed on the safety warning block (§5.1) | FR-MAS-002 |
@@ -79,7 +79,7 @@
 
 | Sub-function ID | Behavior | Input / trigger | Output / state | Exception / guard | Source FR |
 |---|---|---|---|---|---|
-| SF-MAS-005-01 | Celebrate a newly recorded visit. | Visit of a checkpoint recorded for the first time | Celebration with MSG-MAS-050 or 051 next to the unchanged toast; one short vibration where supported | Content not delayed; no celebration on re-scan or for a free visitor (US-MAS-02, BR-MAS-19) | FR-MAS-005 |
+| SF-MAS-005-01 | Celebrate a newly recorded visit. | Visit of a checkpoint recorded for the first time | Celebration with MSG-MAS-050 or 051 that is the check-in feedback (replaces the toast; toast is the fallback, BR-MAS-24); one short vibration where supported | Content not delayed; no celebration on re-scan or for a free visitor (US-MAS-02, BR-MAS-19) | FR-MAS-005 |
 | SF-MAS-005-02 | Mark the halfway point. | `k = ⌈n/2⌉`, `n ≥ 4`, not the final checkpoint | MSG-MAS-055 | Once per session | FR-MAS-005 |
 | SF-MAS-005-03 | Accompany the end-of-trip prompt. | Prompt opened; "Đi tiếp" pressed | Illustration inside the prompt; MSG-MAS-061 after "Đi tiếp" | Prompt never delayed (BR-M02-021) | FR-MAS-005, 009 |
 | SF-MAS-005-04 | Celebrate the end of the trip. | SCR-M02-003 opened right after the visitor ended a `HOAN_TAT` trip | Celebration ≤ `MASCOT_CELEBRATION_MS` with MSG-MAS-062, then a still illustration next to the badge | Skippable by tap; reopening shows the still illustration only | FR-MAS-005 |
