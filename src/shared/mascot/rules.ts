@@ -10,6 +10,7 @@ import {
   MASCOT_WELCOME_BACK_MS,
   NATURE_REMINDERS_APPROVED,
 } from './config';
+import { blinkAsset } from './assets';
 import type { MessageId } from './dialogue/catalog';
 import type { MascotEvent } from './events';
 import type { AnimationId, Intent, PoseId, Rule, RuleResult, RuleView } from './types';
@@ -191,7 +192,16 @@ const GESTURES: readonly Gesture[] = [
   { id: 'hop', animation: 'hop' },
   { id: 'tilt', animation: 'tilt' },
   { id: 'pack', pose: 'backpack', animation: 'hop' },
+  // AN-BLINK: chỉ khi tư thế hiện tại có ảnh mắt nhắm MA-20 (MAS-TC-122)
+  { id: 'blink', animation: 'blink' },
 ];
+
+const available = (gesture: Gesture, pose: PoseId) => gesture.id !== 'blink' || blinkAsset(pose) !== null;
+
+/** Cử chỉ dùng được với tư thế đang đứng (research R-24). */
+export function ambientGestures(pose: PoseId): readonly Gesture[] {
+  return GESTURES.filter((gesture) => available(gesture, pose));
+}
 
 const AMBIENT: Rule[] = [
   // Lịch do máy trạng thái đặt khi Mila đứng chờ; tới hạn thì chọn một cử chỉ khác cử chỉ trước, không có chữ (P7, không
@@ -201,7 +211,7 @@ const AMBIENT: Rule[] = [
     if (!view || view.mode !== 'DOCK' || state.bubble || state.hold) return null;
     const random = ctx.random ?? Math.random;
     const last = state.counters['ambient:last'];
-    const choices = GESTURES.map((_, index) => index).filter((index) => index !== last);
+    const choices = GESTURES.map((_, index) => index).filter((index) => index !== last && available(GESTURES[index]!, view.pose));
     const index = choices[Math.min(choices.length - 1, Math.floor(random() * choices.length))]!;
     const gesture = GESTURES[index]!;
     return {

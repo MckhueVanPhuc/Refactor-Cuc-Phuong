@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import type { MascotEvent } from './events';
 import { initialState, step, type MascotState, type Rule } from './machine';
-import { RULES } from './rules';
+import { ambientGestures, RULES } from './rules';
 import { CTX, rule, say } from './testing';
 
 type Stamped = MascotEvent & { at: number };
@@ -491,5 +491,36 @@ describe('v1.1 — Cử chỉ tự động nhường du khách đang thao tác (
   it('trang đọc bài không có cử chỉ tự động', () => {
     const s = play([{ type: 'app.route.changed', path: '/trip/qr/Q1a', at: 0 }, { type: 'm02.scan.resolved', display: 'LIVE', hasSession: true, freeVisitor: false, visitCreated: false, inJourney: true, finalPromptNeeded: false, at: 10 }], [], zero).state;
     expect(s.timers['ambient']).toBeUndefined();
+  });
+});
+
+describe('v1.1 — Chớp mắt (AN-BLINK, MAS-TC-122; research R-24)', () => {
+  it('cử chỉ chớp mắt chỉ có khi tư thế hiện tại có ảnh mắt nhắm', () => {
+    expect(ambientGestures('map').map((g) => g.id)).toContain('blink');
+    expect(ambientGestures('rest').map((g) => g.id)).toContain('blink');
+    expect(ambientGestures('cheer').map((g) => g.id)).not.toContain('blink');
+    expect(ambientGestures('wave').map((g) => g.id)).not.toContain('blink');
+  });
+
+  it('chớp mắt ở danh mục: giữ nguyên tư thế, animation blink, không chữ; rồi về tư thế cũ', () => {
+    const gestures = ambientGestures('map');
+    const index = gestures.findIndex((g) => g.id === 'blink');
+    // random chọn đúng vị trí của "blink" trong nhóm (không có cử chỉ trước)
+    const pick = { ...CTX, random: () => (index + 0.5) / gestures.length };
+    let s = play(
+      [
+        { type: 'app.route.changed', path: '/', at: 0 },
+        { type: 'm01.catalog.loaded', status: 'ready', count: 3, stale: false, slow: false, at: 10 },
+        { type: 'mascot.tick', at: 700 },
+        { type: 'mascot.user.closedBubble', at: 800 },
+      ],
+      [],
+      pick,
+    ).state;
+    s = play([{ type: 'mascot.tick', at: s.timers['ambient']! }], [], pick, s).state;
+    expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'map', animation: 'blink', behaviorId: 'MAS-B-086' });
+    expect(s.bubble).toBeNull();
+    const back = play([{ type: 'mascot.tick', at: s.hold!.until }], [], pick, s).state;
+    expect(back.view).toMatchObject({ pose: 'map', animation: 'settle' });
   });
 });

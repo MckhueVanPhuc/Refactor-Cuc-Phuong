@@ -515,3 +515,41 @@ Hiện chỉ cử chỉ tự động dùng `source`. Hướng dẫn theo hẹn g
 |---|---|---|
 | DV-58 | `figureWidth` (E2E) đo bằng `boundingBox`, có tính transform của animation "enter", nên ra số nhỏ hơn khi lúc đo rơi vào giữa animation. Nay đo `offsetWidth` (cỡ layout). Lỗi test có từ Phase 12, chỉ lộ khi chạy cả bộ | Áp dụng |
 | DV-59 | Thao tác chỉ chặn ý định mới; bong bóng đang hiện không đóng khi du khách chạm hay cuộn | Ghi nhận |
+
+---
+
+## 13. Đợt 2026-11-23 — Phase 17: chớp mắt (v1.1)
+
+Branch `feat/mascot-v11-blink`, tách từ `feat/mascot-v11-interacting` (PR #71). Task: T095, T096. Ảnh MA-20 đã kiểm và xuất ở §10.1 (chỉ ghép vùng mắt lên ảnh gốc); đợt này chỉ cài code.
+
+### 13.1 Đã cài
+
+| Mục | Nơi |
+|---|---|
+| `blinkAsset(pose)` → `ma-20-<tư thế>-blink-240/480`; tư thế không có ảnh (cheer, wave, think…, avatar) → `null` | `assets.ts` |
+| Cử chỉ `blink` trong nhóm AN-AMBIENT chỉ khi tư thế đang đứng có ảnh mắt nhắm (`ambientGestures(pose)`); giữ nguyên tư thế, không chữ, rồi về `settle` | `rules.ts`, `types.ts` |
+| Component: nạp sẵn ảnh mắt nhắm bằng `new Image()` khi tư thế DOCK hiện; cử chỉ `blink` đổi `src` sang ảnh mắt nhắm `MASCOT_BLINK_MS` (120 ms) rồi về. Giảm chuyển động hoặc công tắc tắt → không đổi. Ảnh mắt nhắm hỏng → bỏ chớp, Mila không ẩn | `Mascot.tsx`, `config.ts` |
+
+Precache không đổi: 5 ảnh mắt nhắm 240 đã nằm trong 114 mục từ §10 (glob `assets/ma-*-240-*.webp`), có trong `dist/sw.js`.
+
+### 13.2 Test viết trước
+
+| Test | Trước khi cài |
+|---|---|
+| `assets.test.ts` (5 tư thế có ảnh; tư thế khác `null`) | FAIL 2 ca |
+| `rules.test.ts` (chớp mắt chỉ khi có ảnh; cử chỉ chớp ở danh mục) | FAIL 2 ca |
+| `Mascot.test.tsx` (đổi ảnh 120 ms; giảm chuyển động / không có ảnh; ảnh hỏng) | FAIL 1 ca; 2 ca đạt ngay vì chưa có gì đổi ảnh |
+
+### 13.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 736; 2402 pass, 133 skipped; build OK, precache 114 mục |
+| `npx playwright test` (cổng đã kiểm trống) | 0 | 147 pass, 46 skipped |
+
+### 13.4 Lệch
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-60 | Chớp mắt giữ cả thời gian của một cử chỉ (`MASCOT_AMBIENT_GESTURE_MS`, 1,5 s): ảnh mắt nhắm chỉ hiện 120 ms đầu, phần còn lại Mila đứng yên. Asset spec cho phép "có thể 2 lần liền"; bản này chớp một lần | Ghi nhận |
+| DV-61 | Chưa kiểm trên điện thoại thật (độ mượt khi đổi ảnh, ảnh mắt nhắm khớp ảnh gốc ở cỡ 112–128 px) | NOT RUN — chờ chủ dự án |

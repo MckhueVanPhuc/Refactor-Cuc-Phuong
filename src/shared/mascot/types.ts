@@ -17,6 +17,7 @@ export type AnimationId =
   | 'hop'
   | 'success'
   | 'milestone'
+  | 'blink'
   | 'search'
   | 'pack'
   | 'thumb'

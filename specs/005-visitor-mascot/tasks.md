@@ -357,11 +357,11 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 
 ### Tests ⚠️
 
-- [ ] T095 [P] [US9] Thêm vào `src/shared/mascot/assets.test.ts` và `rules.test.ts`: `blinkAsset(pose)`; cử chỉ `blink` chỉ có khi tư thế hiện tại có ảnh mắt nhắm (MAS-TC-122)
+- [X] T095 [P] [US9] Thêm vào `src/shared/mascot/assets.test.ts` và `rules.test.ts`: `blinkAsset(pose)`; cử chỉ `blink` chỉ có khi tư thế hiện tại có ảnh mắt nhắm (MAS-TC-122)
 
 ### Implementation
 
-- [ ] T096 [US9] Khi có ảnh: kiểm ảnh mắt nhắm so với ảnh gốc từng điểm ảnh, xuất `ma-20-*-blink-240.webp` (và ảnh đợt 2: think, magnifier, point) như T070; `blinkAsset` trong `assets.ts`; host đổi `src` 120 ms (R-24); ghi số đo vào validation report
+- [X] T096 [US9] Khi có ảnh: kiểm ảnh mắt nhắm so với ảnh gốc từng điểm ảnh, xuất `ma-20-*-blink-240.webp` (và ảnh đợt 2: think, magnifier, point) như T070; `blinkAsset` trong `assets.ts`; host đổi `src` 120 ms (R-24); ghi số đo vào validation report
 
 ---
 
