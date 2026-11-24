@@ -27,5 +27,11 @@ test('sw.js precache: chunk mascot, đủ ảnh 240 và avatar 96, không cỡ l
     'ma-20-thumbs-up-blink-240',
     'ma-20-backpack-blink-240',
     'ma-20-rest-blink-240',
+    // Đợt 4 (specs/006 T039, T045; quickstart M19)
+    'ma-12-sorry-240',
+    'ma-14-amazed-240',
+    'ma-15-walk-240',
+    'ma-16-peek-240',
+    'ma-17-proud-240',
   ].sort());
 });

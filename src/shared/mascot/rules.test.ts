@@ -225,20 +225,20 @@ describe('US4 — Kết thúc chuyến cùng Mila (US-MAS-08)', () => {
     expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-062', params: { k: 3 } });
     const expires = state.bubble!.expiresAt!;
     state = play([{ type: 'mascot.tick', at: state.hold!.until }], [], CTX, state).state;
-    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'cheer', animation: 'settle' });
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'proud', animation: 'settle' });
     expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-062' });
     state = play([{ type: 'mascot.tick', at: expires }], [], CTX, state).state;
-    expect(state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'cheer' } });
+    expect(state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'proud' } });
   });
 
   it('chạm đóng khi đang ăn mừng → về hình tĩnh ngay', () => {
     const shown = play([end, ended(true)]).state;
     const after = play([{ type: 'mascot.user.closedBubble', at: 500 }], [], CTX, shown).state;
-    expect(after).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'cheer' } });
+    expect(after).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'proud' } });
   });
 
   it('MAS-B-063: mở lại màn kết quả → chỉ hình tĩnh; chuyến tự kết thúc (BO_DO) → không ăn mừng', () => {
-    expect(play([end, ended(false)]).state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'cheer' } });
+    expect(play([end, ended(false)]).state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'proud' } });
     expect(play([end, ended(false, 'BO_DO')]).state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'rest' } });
     expect(play([end, ended(true, 'BO_DO')]).state.bubble).toBeNull();
   });
@@ -259,7 +259,7 @@ describe('US4 — Kết thúc chuyến cùng Mila (US-MAS-08)', () => {
 
   it('SYNCED ngay từ đầu (không qua PENDING) → không giơ ngón cái', () => {
     const { state } = play([end, ended(false), sync('SYNCED', true, 20)]);
-    expect(state.view).toMatchObject({ pose: 'cheer' });
+    expect(state.view).toMatchObject({ pose: 'proud' });
   });
 
   it('MAS-B-072: CONFLICT → không có câu hay nút nào của Mila (BR-M02-011)', () => {
@@ -424,6 +424,8 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
         { type: 'm02.trip.shown', hasSession: true, k: 1, n: 3, finalVisited: false, at: 5_020 },
       ]).state;
     expect(back(true).bubble?.messageId).toBe('MSG-MAS-056');
+    // v1.4 (Behavior Matrix §3b; specs/006 T041): Mila sải bước khi nói 056
+    expect(back(true).view).toMatchObject({ mode: 'DOCK', pose: 'walk', animation: 'walk' });
     expect(back(false).bubble).toBeNull();
   });
 

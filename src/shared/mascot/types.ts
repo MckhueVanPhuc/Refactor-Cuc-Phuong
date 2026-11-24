@@ -3,7 +3,25 @@ import type { Language, MascotEvent, MascotEventType, StampedEvent } from './eve
 import type { MessageId, MessageParams } from './dialogue/catalog';
 
 export type Mode = 'INTRO' | 'DOCK' | 'AVATAR' | 'CELEBRATE';
-export type PoseId = 'wave' | 'map' | 'think' | 'backpack' | 'binoculars' | 'magnifier' | 'thumbsUp' | 'cheer' | 'confused' | 'rest' | 'avatar' | 'point';
+export type PoseId =
+  | 'wave'
+  | 'map'
+  | 'think'
+  | 'backpack'
+  | 'binoculars'
+  | 'magnifier'
+  | 'thumbsUp'
+  | 'cheer'
+  | 'confused'
+  | 'rest'
+  | 'avatar'
+  | 'point'
+  // Đợt 4 (spec-Mascot v1.4; specs/006 T042)
+  | 'sorry'
+  | 'amazed'
+  | 'walk'
+  | 'peek'
+  | 'proud';
 export type AnimationId =
   | 'enter'
   | 'exit'
@@ -27,7 +45,9 @@ export type AnimationId =
   /** Cử chỉ tự động 2–3 nhịp (BR-MAS-21 v1.5): nhún, nghiêng, vẫy, nhìn quanh */
   | 'gestureHop'
   | 'gestureTilt'
-  | 'gestureWave';
+  | 'gestureWave'
+  /** AN-WALK: hai bước tại chỗ, ≤ 1200ms (specs/006 T042) */
+  | 'walk';
 export type Status = 'HIDDEN' | 'INTRO' | 'IDLE' | 'SPEAKING' | 'BUSY' | 'CELEBRATING' | 'SUPPRESSED';
 export type Blocker = 'DIALOG' | 'MEDIA' | 'AUTO_END';
 

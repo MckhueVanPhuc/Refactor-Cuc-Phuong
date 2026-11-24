@@ -63,3 +63,28 @@ textarea {
   white-space: nowrap;
   border: 0;
 }
+
+/*
+ * Chuyển cảnh giữa các màn du khách (design-system §4.3.1 T2; specs/006 R-01, R-07): crossfade và ảnh chung theo
+ * --duration-page. Giảm chuyển động hoặc công tắc tắt: không animation (đổi tức thì).
+ */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: var(--duration-page);
+  animation-timing-function: var(--ease-standard);
+}
+
+:root[data-motion='reduced']::view-transition-group(*),
+:root[data-motion='reduced']::view-transition-old(*),
+:root[data-motion='reduced']::view-transition-new(*) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}

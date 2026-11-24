@@ -30,3 +30,14 @@ Công cụ sửa ảnh của chủ dự án trả về ảnh 2048 px, nền tr�
 4. Xuất như ảnh gốc của tư thế (cùng cách căn), nên ảnh mắt nhắm chồng khít khi đổi.
 
 Vùng ghép chiếm 1,7–2,9% diện tích ảnh. Theo quyết định của chủ dự án (2026-11-23), `source/` lưu ảnh mắt nhắm **đã thu về 1254 px** (chỉ đổi cỡ, nội dung giữ nguyên) thay cho bản 2048 px, để repo nhẹ hơn khoảng 16 MB.
+
+## Đợt 4 — năm tư thế mới (2026-11-24, specs/006 T039)
+
+Ảnh `ma-12-sorry`, `ma-14-amazed`, `ma-15-walk`, `ma-16-peek`, `ma-17-proud` do chủ dự án thiết kế, quyền sử dụng xác nhận 2026-11-24. Cùng quy trình đợt 1 (Chromium của Playwright, script ngoài repo), khác ở bước căn cỡ:
+
+1. Kiểm: bốn góc alpha = 0 ở cả 5 ảnh (nền trong suốt thật); mảng rời bị bỏ 0,01–0,04% diện tích; điểm bán trong suốt 1,6–2,4% (viền lông, không có viền màu lạ).
+2. Giữ mảng thân lớn nhất, bỏ alpha ≤ 3 (như đợt 1).
+3. Căn theo ảnh đã duyệt thay vì theo khung gốc, vì ảnh nguồn có cỡ khác nhau (1230×1278, 1254×1254): toàn thân (`walk`, `proud`) cùng chiều cao nhân vật và đường chân với `ma-02-map-480` (y = 30…468 trên khung 480); nửa thân (`sorry`, `amazed`, `peek`) cùng chiều cao với `ma-07-thumbs-up-480`, mép cắt ở đáy khung; bề ngang tối đa 92% khung; căn giữa theo ngang.
+4. Thu nhỏ từng nửa, WebP chất lượng 0,82, cỡ 480 và 240.
+
+Cỡ 240: sorry 14,9 KB, amazed 15,6 KB, walk 11,2 KB, peek 16,0 KB, proud 12,4 KB — tổng 70,1 KB vào precache (ngân sách đợt 4 ≤ 120 KB, còn chỗ cho 4 khung phụ của T052). Ảnh gốc trong `source/` giữ nguyên.

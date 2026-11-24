@@ -32,7 +32,7 @@
 | M9 | Ghi đè `navigator.connection.saveData = true` hoặc `deviceMemory = 2` | T3 không chạy; T1/T2 chạy | US3.5 |
 | M10 | Tải gói với ảnh trễ 800 ms | Thanh "đang tải" không số; xong có ✓; lỗi thì bỏ thanh | US4 |
 | M11 | Chạm thẻ tuyến ở Chrome | `::view-transition-*` chạy; ảnh thẻ → ảnh đầu chi tiết; Back ngược lại | US5, FR-MOT-006 |
-| M12 | Cuộn danh mục dài | Thẻ dưới màn đầu hiện dần một lần; thẻ màn đầu hiện ngay; CLS = 0 | US5.4, SC-MOT-004 |
+| M12 | Cuộn danh mục dài | Thẻ dưới màn đầu hiện dần một lần; thẻ màn đầu hiện ngay; reveal không tạo `layout-shift`, CLS không tăng so với nền | US5.4, SC-MOT-004 |
 | M13 | Danh mục tải chậm | Khối giữ chỗ có vệt sáng; giảm chuyển động: đứng yên | US6.1 |
 | M14 | Danh mục rỗng, Tài nguyên rỗng, lượt ghé thường, quay lại sau lượt ghé, `CONFLICT` | Mila `peek`, `amazed`, `walk`, `sorry` (khi có ảnh) | US6.2 |
 | M15 | Kết thúc `HOAN_TAT` | Huy hiệu đóng dấu, confetti lá ≤ 40 hạt ≤ 2,4 s, danh sách lần lượt; chạm → trạng thái cuối; mở lại: tĩnh | US7 |
@@ -49,4 +49,4 @@
 | JS + CSS motion thêm | ≤ 15 KB gzip | so build trước/sau (R-16) |
 | Ảnh đợt 4 thêm vào precache | ≤ 120 KB | tổng cỡ 240 |
 | LCP SCR-M01-001 | ≤ nền + 100 ms | Playwright + CDP throttling |
-| CLS | 0 | `layout-shift` không do thao tác |
+| CLS | không tăng so với nền (DV-01) | `layout-shift` không do thao tác |

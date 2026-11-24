@@ -140,7 +140,8 @@ const endDock = (status: 'HOAN_TAT' | 'BO_DO'): Intent => ({
   behaviorId: 'MAS-B-063',
   priority: 7,
   mode: 'DOCK',
-  pose: status === 'HOAN_TAT' ? 'cheer' : 'rest',
+  // v1.4 (Behavior Matrix §3b): đứng tự hào trong thẻ "Hẹn gặp lại" sau chuyến hoàn tất
+  pose: status === 'HOAN_TAT' ? 'proud' : 'rest',
 });
 
 const US4: Rule[] = [
@@ -663,8 +664,9 @@ const US8: Rule[] = [
           behaviorId: 'MAS-B-056',
           priority: 6,
           mode: 'DOCK',
-          pose: 'backpack',
-          animation: 'pop',
+          // v1.4 (Behavior Matrix §3b): Mila sải bước "đi tham quan thôi"
+          pose: 'walk',
+          animation: 'walk',
           message: { id },
           then: { behaviorId: 'MAS-B-033', priority: 7, mode: 'DOCK', pose: event.finalVisited ? 'thumbsUp' : event.k > 0 ? 'map' : 'binoculars', animation: 'settle' },
         },

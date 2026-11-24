@@ -26,7 +26,7 @@ Nhận xét: CLS nền **không bằng 0** (bong bóng của Mila đẩy nội d
 
 | # | Mục | Trạng thái |
 |---|---|---|
-| DV-01 | SC-MOT-004 "CLS = 0": nền đã 0,03–0,10; đề xuất cổng "không tăng so với nền" | Chờ chủ dự án |
+| DV-01 | SC-MOT-004 "CLS = 0": nền đã 0,03–0,10; cổng "không tăng so với nền" | **Duyệt 2026-11-24**; spec.md SC-MOT-004 đã sửa |
 
 ## 2. Đợt 1 — US3, US1, US2, US4 (T004–T032, 2026-11-24)
 
@@ -70,3 +70,43 @@ Test mới: `level.test.tsx`, `architecture.test.ts` (motion), `MotionSwitch.tes
 | DV-02 | Vitest giữ kết quả `import.meta.glob` của icon trong `node_modules/.vitest-cache` khi thêm tệp SVG mới; phải xóa cache trên máy (CI chạy sạch không gặp) | Ghi nhận |
 | DV-03 | Test kiến trúc của gói 005 (`src/shared/mascot/architecture.test.ts`) không biết `src/shared/motion`; test riêng của motion đã thêm | Ghi nhận |
 | — | Thử trên điện thoại thật đợt 1 (SC-MOT-011) | NOT RUN — chờ chủ dự án |
+
+## 3. Đợt 2 — US5, US6 (T033–T045, 2026-11-24)
+
+### 3.1 Đã làm
+
+| Việc | Tệp |
+|---|---|
+| `useReveal` (một IntersectionObserver dùng chung; thẻ trong màn đầu hiện ngay; một lần mỗi lần tải trang) | `src/shared/motion/reveal.ts` |
+| Thẻ tuyến hiện dần (opacity + transform, không dịch bố cục) ở danh mục và kết quả gợi ý | `RouteCard.tsx` (+ css) |
+| Chuyển cảnh `ViewTransition` quanh `Outlet` (VisitorLayout) và nội dung FieldLayout; thời lượng `--duration-page`; tắt khi giảm chuyển động / công tắc tắt | `VisitorLayout.tsx`, `FieldLayout.tsx`, `src/shared/ui/global.css` |
+| Skeleton: vệt sáng thay `pulse` ở thẻ giữ chỗ danh mục và ảnh đầu chi tiết đang tải | `CatalogPage.module.css`, `RouteDetailPage.module.css` |
+| Ảnh đợt 4 (5 tư thế) kiểm và xuất; quy trình ở `assets/mascot/README.md` "Đợt 4" | `assets/mascot/web/ma-1{2,4,5,6,7}-*-{240,480}.webp` |
+| Tư thế mới trong engine, fallback khi thiếu ảnh; AN-WALK; MAS-B-056 `walk`, MAS-B-063 `proud`; hình `peek` ở danh mục rỗng và Tài nguyên rỗng, `sorry` ở banner `CONFLICT` | `types.ts`, `assets.ts`, `rules.ts`, `Mascot.module.css`, `CatalogPage.tsx`, `OfflinePage.tsx`, `EndPage.tsx` |
+
+### 3.2 Test đổi có chủ đích
+
+| Test | Lý do |
+|---|---|
+| `src/shared/mascot/rules.test.ts` (5 ca màn kết quả) | Tư thế đứng sau chuyến hoàn tất `cheer` → `proud` (Behavior Matrix §3b) |
+| `e2e/m01/mascot-precache.spec.ts` | Thêm 5 ảnh 240 đợt 4 vào danh sách precache |
+| `e2e/m02/mascot-end.spec.ts` (CONFLICT) | Hình là `sorry` |
+| `e2e/m01/motion-press.spec.ts` | Chờ chuyển cảnh và bong bóng MSG-MAS-010 xong; nhấn vào radio (lớp nhận con trỏ của ô chọn) |
+
+Test mới: `reveal.test.tsx`, `assets.test.ts` (+2), `rules.test.ts` (MAS-B-056 `walk`); E2E `motion-transition` (m01).
+
+### 3.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 760; 2484 pass, 133 skipped; build OK |
+| `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` | 0 | 142 pass (hai lượt trước: `motion-press` ô tiêu chí hỏng do đo lúc chuyển cảnh/bong bóng đang đẩy form — đã sửa test; MAS-B-008 chập chờn khi tải nặng, DV-85 của gói 005) |
+| Kích thước sau đợt 2 | — | JS gzip 500 711 B (+2 395 so với nền), CSS gzip 35 526 B (+1 819); tổng +4,1 KB ≤ 15 KB. Ảnh 240 đợt 4 thêm vào precache 70,1 KB |
+
+### 3.4 Lệch so với spec và còn mở
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-04 | US5 mục 2 (ảnh thẻ tuyến "biến thành" ảnh đầu màn chi tiết; Back chạy ngược): **không làm được** như mô tả. Ảnh đầu màn chi tiết chỉ có sau khi tải URL ký, tức là sau khi chuyển cảnh đã chụp màn mới, nên trình duyệt không có cặp ảnh để ghép; Back của trình duyệt (popstate) được react-router xử lý ngoài transition nên đổi tức thì. Đã cài crossfade chung cho mọi lần đổi màn bằng liên kết. Muốn có ảnh chung cần hiện sẵn một ảnh của tuyến ở màn chi tiết trước khi tải (đổi nội dung màn) | Chờ chủ dự án |
+| DV-05 | Behavior Matrix §3b gán `amazed` cho MAS-B-050, nhưng phản ứng này ở chế độ AVATAR, vốn luôn vẽ ảnh đầu tròn MA-11 nên tư thế không hiện. Ảnh `amazed` đã xuất và đăng ký, chưa dùng ở đâu | Chờ chủ dự án chọn chỗ dùng |
+| — | Thử trên điện thoại thật đợt 1–2 (SC-MOT-011) | NOT RUN |

@@ -100,7 +100,8 @@ test('CONFLICT → Mila chỉ là hình cạnh thông báo, không có câu hay 
   await endTrip(page, { intake: (route) => route.fulfill({ status: 409, json: { result: 'CONFLICT' } }) });
   const conflict = page.getByText(vi.end.syncConflict).locator('xpath=ancestor::*[@data-end-conflict][1]');
   await expect(conflict).toBeVisible();
-  await expect(conflict.locator('[data-mascot-figure]')).toBeVisible();
+  // v1.4 (Behavior Matrix §3b; specs/006 T045): Mila xin lỗi nhẹ
+  await expect(conflict.locator('[data-mascot-figure="sorry"]')).toBeVisible();
   await expect(conflict.getByRole('button')).toHaveCount(0);
   expect(await seen(page)).not.toContain('MSG-MAS-070');
 });

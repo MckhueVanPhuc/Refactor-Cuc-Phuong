@@ -244,3 +244,32 @@
 .startArea {
   margin-bottom: var(--space-5);
 }
+
+/*
+ * Vệt sáng như nắng lướt qua tán lá (design-system §5.3 v1.4, T2; specs/006 R-09). Chỉ khi `data-motion="full"`;
+ * giảm chuyển động hoặc công tắc tắt: khối đứng yên. Không đổi kích thước khối.
+ */
+.coverPlaceholder[aria-busy='true'] {
+  position: relative;
+  overflow: hidden;
+}
+
+:root[data-motion='full'] .coverPlaceholder[aria-busy='true']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    color-mix(in srgb, var(--color-white) 40%, transparent) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  animation: shimmer var(--duration-shimmer) var(--ease-in-out) infinite;
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}

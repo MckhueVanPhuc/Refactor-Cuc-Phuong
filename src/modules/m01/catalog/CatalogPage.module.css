@@ -164,15 +164,34 @@
   aspect-ratio: 4 / 3;
   background: var(--color-m01-line);
   border-radius: var(--radius-lg);
-  animation: pulse var(--duration-pulse) var(--ease-in-out) infinite alternate;
 }
 
-@keyframes pulse {
-  from {
-    opacity: 1;
-  }
+/*
+ * Vệt sáng như nắng lướt qua tán lá (design-system §5.3 v1.4, T2; specs/006 R-09). Chỉ khi `data-motion="full"`;
+ * giảm chuyển động hoặc công tắc tắt: khối đứng yên. Không đổi kích thước khối.
+ */
+.placeholderCard {
+  position: relative;
+  overflow: hidden;
+}
+
+:root[data-motion='full'] .placeholderCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    color-mix(in srgb, var(--color-white) 40%, transparent) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  animation: shimmer var(--duration-shimmer) var(--ease-in-out) infinite;
+}
+
+@keyframes shimmer {
   to {
-    opacity: 0.55;
+    transform: translateX(100%);
   }
 }
 

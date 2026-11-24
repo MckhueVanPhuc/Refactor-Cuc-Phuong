@@ -1,7 +1,7 @@
 // Layout chung của bốn màn M01 (tasks T033; design-system §5.1): thanh app có logo về danh mục và LanguageControl (US1),
 // vùng thông báo nguồn, và thanh tab dưới Tuyến · Quét QR · Tài nguyên (2026-11-21; /offline vào được cả khi không có
 // nguồn, research R-13).
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ViewTransition, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, Outlet, useMatch } from 'react-router';
 import logoUrl from '../../../../assets/icons/logo-emblem.png';
@@ -53,7 +53,10 @@ export function VisitorLayout() {
       <main className={styles.main} id="m01-main" tabIndex={-1}>
         <NoticeSlotContext.Provider value={noticeSlot}>
           <RecommendationCriteriaProvider>
-            <Outlet />
+            {/* Chuyển cảnh khi đổi màn (specs/006 R-01, R-07; spike T002): trình duyệt không hỗ trợ thì đổi tức thì */}
+            <ViewTransition>
+              <Outlet />
+            </ViewTransition>
           </RecommendationCriteriaProvider>
         </NoticeSlotContext.Provider>
       </main>

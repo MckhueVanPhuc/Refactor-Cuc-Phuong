@@ -98,7 +98,7 @@ export function EndPage() {
           {/* Mila chỉ là hình cạnh thông báo: không câu, không nút (BR-M02-011; MAS-B-072) */}
           {sync === 'CONFLICT' && (
             <div className={styles.conflict} data-end-conflict="">
-              <MascotFigure pose="confused" size="sm" />
+              <MascotFigure pose="sorry" size="sm" />
               <p className={styles.conflictText} role="alert">
                 {messages.end.syncConflict}
               </p>

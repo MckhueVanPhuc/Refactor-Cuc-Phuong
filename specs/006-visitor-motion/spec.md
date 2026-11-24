@@ -265,7 +265,7 @@ Không có entity, trường hay dữ liệu lưu mới. Chỉ có:
 - **SC-MOT-001**: 100% test tự động hiện có của M01, M02 và mascot vẫn đạt; ngoại lệ có chủ đích chỉ là test của công tắc (nhãn mới, công tắc hiện khi Mila tắt) và được ghi trong validation report; dữ liệu lưu và `SessionSyncRecord` của một chuyến giống hệt khi không có chuyển động.
 - **SC-MOT-002**: Với công tắc tắt hoặc giảm chuyển động, 0 animation của Mila và 0 chuyển động T3 chạy trên mọi màn du khách; mọi phản hồi T1 vẫn nhìn thấy được (SC-MAS-008, 011).
 - **SC-MOT-003**: 0 chuyển động tự chạy kéo dài quá 5 giây mà không dừng được bằng công tắc (SC-MAS-014).
-- **SC-MOT-004**: Bố cục không dịch khi nội dung hiện dần hoặc khi nhấn (điểm dịch bố cục tích lũy = 0 trên SCR-M01-001, SCR-M02-001, SCR-M02-003).
+- **SC-MOT-004**: Bố cục không dịch khi nội dung hiện dần hoặc khi nhấn: điểm dịch bố cục tích lũy trên SCR-M01-001, SCR-M02-001, SCR-M02-003 **không tăng so với số đo nền** trước gói này (chủ dự án duyệt 2026-11-24, DV-01: nền đã 0,03–0,10 do bong bóng Mila và ảnh tải muộn), và phần tử do gói thêm không tạo dịch bố cục.
 - **SC-MOT-005**: Thời điểm nội dung chính đầu tiên hiện ra trên SCR-M01-001 (mobile, mạng chậm) không chậm hơn bản trước package này quá 100 ms.
 - **SC-MOT-006**: Phần mã thêm vào cho chuyển động ≤ 15 KB nén; ảnh Mila đợt 4 thêm vào bộ nhớ offline ≤ 120 KB.
 - **SC-MOT-007**: Khi offline sau khi app shell đã lưu, 100% chuyển động và tư thế Mila đợt 4 dùng trên màn M02 hiển thị đủ.

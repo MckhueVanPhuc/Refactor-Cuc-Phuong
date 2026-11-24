@@ -88,12 +88,12 @@
 
 **Independent Test**: quickstart M11, M12.
 
-- [ ] T033 [P] [US5] Test `src/shared/motion/reveal.test.ts`: phần tử trong viewport lúc mount không có class ẩn; ngoài viewport → ẩn rồi hiện khi giao; id đã hiện không chạy lại
-- [ ] T034 [US5] Cài `src/shared/motion/reveal.ts` (`useReveal`, một `IntersectionObserver` dùng chung) và CSS reveal trong `src/shared/motion/reveal.module.css` gate `data-motion='full'`
-- [ ] T035 [US5] `src/modules/m01/layout/VisitorLayout.tsx` (+ `.module.css`), `src/modules/m02/layout/FieldLayout.tsx` (+ `.module.css`): `ViewTransition` quanh `Outlet` theo kết luận T002; CSS `::view-transition-old/new` dùng `--duration-page`; `data-motion='reduced'` → `animation: none`
-- [ ] T036 [US5] `src/modules/m01/catalog/RouteCard.tsx`, `src/modules/m01/route-detail/RouteDetailPage.tsx`: `ViewTransition name={'route-cover-' + routeId}` cho ảnh thẻ và ảnh đầu đầu tiên
-- [ ] T037 [US5] `src/modules/m01/catalog/CatalogPage.tsx`, `src/modules/m01/recommendation/RecommendResultsPage.tsx`: `useReveal` cho thẻ trong danh sách
-- [ ] T038 [US5] E2E `e2e/m01/motion-transition.spec.ts`: M11 (có animation pseudo-element khi chạm thẻ; Back ngược), M12 (cuộn: thẻ dưới màn đầu hiện dần, CLS = 0 bằng `PerformanceObserver('layout-shift')`)
+- [X] T033 [P] [US5] Test `src/shared/motion/reveal.test.ts`: phần tử trong viewport lúc mount không có class ẩn; ngoài viewport → ẩn rồi hiện khi giao; id đã hiện không chạy lại
+- [X] T034 [US5] Cài `src/shared/motion/reveal.ts` (`useReveal`, một `IntersectionObserver` dùng chung) và CSS reveal trong `src/shared/motion/reveal.module.css` gate `data-motion='full'`
+- [X] T035 [US5] `src/modules/m01/layout/VisitorLayout.tsx` (+ `.module.css`), `src/modules/m02/layout/FieldLayout.tsx` (+ `.module.css`): `ViewTransition` quanh `Outlet` theo kết luận T002; CSS `::view-transition-old/new` dùng `--duration-page`; `data-motion='reduced'` → `animation: none`
+- [X] T036 [US5] `src/modules/m01/catalog/RouteCard.tsx`, `src/modules/m01/route-detail/RouteDetailPage.tsx`: `ViewTransition name={'route-cover-' + routeId}` cho ảnh thẻ và ảnh đầu đầu tiên
+- [X] T037 [US5] `src/modules/m01/catalog/CatalogPage.tsx`, `src/modules/m01/recommendation/RecommendResultsPage.tsx`: `useReveal` cho thẻ trong danh sách
+- [X] T038 [US5] E2E `e2e/m01/motion-transition.spec.ts`: M11 (có animation pseudo-element khi chạm thẻ; Back ngược), M12 (cuộn: thẻ dưới màn đầu hiện dần, CLS = 0 bằng `PerformanceObserver('layout-shift')`)
 
 ## Phase 8: User Story 6 — Chờ và trống có hồn (Priority: P2)
 
@@ -101,13 +101,13 @@
 
 **Independent Test**: quickstart M13, M14, M19.
 
-- [ ] T039 [US6] Kiểm và xuất ảnh đợt 4 theo research R-10 (script tạm ngoài repo, Chromium của Playwright): 5 tư thế → `assets/mascot/web/ma-12-sorry`, `ma-14-amazed`, `ma-15-walk`, `ma-16-peek`, `ma-17-proud` `-240.webp`/`-480.webp`; ghi quy trình và số đo vào `assets/mascot/README.md` (mục "Đợt 4") và validation report; ảnh nào không đạt → báo chủ dự án, không xuất
-- [ ] T040 [P] [US6] Test `src/shared/mascot/assets.test.ts`: tư thế mới có ảnh; fallback `sorry→confused`, `amazed→thumbsUp`, `walk→map`, `peek→rest`, `proud→cheer` khi thiếu ảnh
-- [ ] T041 [P] [US6] Test `src/shared/mascot/rules.test.ts`: MAS-B-050 `amazed`, MAS-B-056 `walk` + animation `walk`, MAS-B-063 `proud` (Behavior Matrix §3b)
-- [ ] T042 [US6] `src/shared/mascot/types.ts` (`PoseId` + 5 tư thế, `AnimationId` + `walk`), `src/shared/mascot/assets.ts` (tệp, fallback), `src/shared/mascot/rules.ts` (MAS-B-050, 056, 063); `src/app/mascot/Mascot.module.css` keyframes AN-WALK (≤ 1200ms)
-- [ ] T043 [US6] Màn đặt `MascotFigure`: `src/modules/m01/catalog/CatalogPage.tsx` và `src/modules/m01/offline-package/OfflinePage.tsx` rỗng → `peek`; `src/modules/m02/end/EndPage.tsx` banner `CONFLICT` → `sorry`
-- [ ] T044 [US6] Skeleton: `src/modules/m01/catalog/CatalogPage.module.css` (`.placeholderCard`), `src/modules/m01/route-detail/RouteDetailPage.module.css` (`.coverPlaceholder`): thay `pulse` bằng vệt sáng `::after` `--duration-shimmer`, gate `data-motion='full'`
-- [ ] T045 [US6] E2E: `e2e/m01/mascot-precache.spec.ts` thêm tư thế đợt 4 cỡ 240 (M19); kiểm tư thế ở `e2e/m01/mascot-prepare.spec.ts` (rỗng `peek`) và `e2e/m02/mascot-end.spec.ts` (`CONFLICT` `sorry`); M13 skeleton đứng yên khi giảm chuyển động
+- [X] T039 [US6] Kiểm và xuất ảnh đợt 4 theo research R-10 (script tạm ngoài repo, Chromium của Playwright): 5 tư thế → `assets/mascot/web/ma-12-sorry`, `ma-14-amazed`, `ma-15-walk`, `ma-16-peek`, `ma-17-proud` `-240.webp`/`-480.webp`; ghi quy trình và số đo vào `assets/mascot/README.md` (mục "Đợt 4") và validation report; ảnh nào không đạt → báo chủ dự án, không xuất
+- [X] T040 [P] [US6] Test `src/shared/mascot/assets.test.ts`: tư thế mới có ảnh; fallback `sorry→confused`, `amazed→thumbsUp`, `walk→map`, `peek→rest`, `proud→cheer` khi thiếu ảnh
+- [X] T041 [P] [US6] Test `src/shared/mascot/rules.test.ts`: MAS-B-050 `amazed`, MAS-B-056 `walk` + animation `walk`, MAS-B-063 `proud` (Behavior Matrix §3b)
+- [X] T042 [US6] `src/shared/mascot/types.ts` (`PoseId` + 5 tư thế, `AnimationId` + `walk`), `src/shared/mascot/assets.ts` (tệp, fallback), `src/shared/mascot/rules.ts` (MAS-B-050, 056, 063); `src/app/mascot/Mascot.module.css` keyframes AN-WALK (≤ 1200ms)
+- [X] T043 [US6] Màn đặt `MascotFigure`: `src/modules/m01/catalog/CatalogPage.tsx` và `src/modules/m01/offline-package/OfflinePage.tsx` rỗng → `peek`; `src/modules/m02/end/EndPage.tsx` banner `CONFLICT` → `sorry`
+- [X] T044 [US6] Skeleton: `src/modules/m01/catalog/CatalogPage.module.css` (`.placeholderCard`), `src/modules/m01/route-detail/RouteDetailPage.module.css` (`.coverPlaceholder`): thay `pulse` bằng vệt sáng `::after` `--duration-shimmer`, gate `data-motion='full'`
+- [X] T045 [US6] E2E: `e2e/m01/mascot-precache.spec.ts` thêm tư thế đợt 4 cỡ 240 (M19); kiểm tư thế ở `e2e/m01/mascot-prepare.spec.ts` (rỗng `peek`) và `e2e/m02/mascot-end.spec.ts` (`CONFLICT` `sorry`); M13 skeleton đứng yên khi giảm chuyển động
 
 **Checkpoint đợt 2**: `npm run ci`, E2E PASS; M11–M14, M19; ghi validation report §3.
 
