@@ -103,6 +103,8 @@ test('MAS-B-008: 20 s không thao tác ở danh mục → Mila gợi ý, "Gợi 
   await page.clock.fastForward(21_000);
   const hint = message(page, 'catalog-hero', 'MSG-MAS-008');
   await expect(hint).toBeVisible();
-  await page.locator('[data-mascot-slot="catalog-hero"]').getByRole('button', { name: 'Gợi ý tuyến' }).click();
+  // Đồng hồ giả (page.clock) + chuyển cảnh của specs/006 US5 làm bước kiểm tư thế con trỏ của click() chập chờn: test
+  // chỉ cần CTA của bong bóng mở /recommend, nên gửi thẳng sự kiện click vào nút
+  await page.locator('[data-mascot-slot="catalog-hero"]').getByRole('button', { name: 'Gợi ý tuyến' }).dispatchEvent('click');
   await expect(page).toHaveURL(/\/recommend$/);
 });

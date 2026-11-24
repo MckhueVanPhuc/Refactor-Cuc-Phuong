@@ -63,3 +63,14 @@ test('M5: khách tự do mở link QR → không có thanh tiến trình', async
   await expect(page.getByText(vi.notice.freeVisitor)).toBeVisible();
   await expect(page.getByRole('progressbar')).toHaveCount(0);
 });
+
+test('DV-05, US9: quay lại sau lượt ghé mới → Mila ngạc nhiên rồi sải bước hai khung khi nói 056; chỉ một Mila trên màn', async ({ page }) => {
+  await startTrip(page);
+  await scan(page, 'Q1a');
+  await page.getByRole('link', { name: vi.content.back }).click();
+  await expect(page).toHaveURL(/\/trip$/);
+  await expect(page.locator('[data-mascot-slot="trip-dock"] [data-mascot-pose="amazed"]')).toBeVisible();
+  await expect(page.locator('[data-mascot-slot="trip-dock"] [data-mascot-pose="walk"] [data-mascot-frame2]')).toBeAttached({ timeout: 5_000 });
+  await expect(page.locator('[data-mascot-message="MSG-MAS-056"]')).toBeVisible();
+  await expect(page.locator('[data-mascot-figure], [data-mascot-mode]')).toHaveCount(1);
+});

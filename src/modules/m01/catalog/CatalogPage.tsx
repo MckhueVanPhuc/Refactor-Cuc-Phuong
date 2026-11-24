@@ -48,6 +48,12 @@ export function CatalogPage() {
           {messages.nav.recommend}
           <TintIcon name="chevron-right" className={styles.chevron} />
         </Link>
+        {/* Nắng và lá trôi sau dải đồi (design-system §4.3.1 T3, §7; specs/006 US8): chỉ trang trí, tự dừng ≤ 5 s */}
+        <span className={styles.decor} aria-hidden="true" data-hero-decor="">
+          <TintIcon name="sun-rays" className={styles.rays} />
+          <TintIcon name="leaf" className={`${styles.drift} ${styles.driftA}`} />
+          <TintIcon name="leaf" className={`${styles.drift} ${styles.driftB}`} />
+        </span>
         <TintIcon name="hills" className={styles.hills} />
         {/* Mila: lớp phủ giới thiệu và đứng ở hero (spec-Mascot §5.1; specs/005 T035, R-29) */}
         <MascotSlot id="catalog-hero" modes={['INTRO', 'DOCK']} size="catalog" />

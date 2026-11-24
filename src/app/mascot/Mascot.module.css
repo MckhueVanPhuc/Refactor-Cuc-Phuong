@@ -439,6 +439,74 @@ button.figure:focus-visible {
   animation: mascot-breathe calc(var(--duration-mascot-loop) * 2) var(--ease-in-out) infinite;
 }
 
+/*
+ * Khung 2 (specs/006 R-11, T054): ảnh chồng khít ảnh gốc; trong thời lượng animation sẵn có, steps(1) đổi qua lại hai
+ * ảnh (ảnh gốc ẩn đúng lúc khung 2 hiện). Hết animation thì về ảnh gốc. Giảm chuyển động / công tắc tắt: không vẽ khung 2.
+ */
+.frame2 {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mascot[data-mascot-animation='walk'] .frame2 {
+  animation: mascot-frame-on calc(var(--duration-mascot-hop) / 2) steps(1) 4;
+}
+
+.mascot[data-mascot-animation='walk'] [data-mascot-base] {
+  animation: mascot-frame-off calc(var(--duration-mascot-hop) / 2) steps(1) 4;
+}
+
+.mascot[data-mascot-animation='intro'] .frame2,
+.mascot[data-mascot-animation='gestureWave'] .frame2 {
+  animation: mascot-frame-on calc(var(--duration-mascot-loop) / 2) steps(1) 4;
+}
+
+.mascot[data-mascot-animation='intro'] [data-mascot-base],
+.mascot[data-mascot-animation='gestureWave'] [data-mascot-base] {
+  animation: mascot-frame-off calc(var(--duration-mascot-loop) / 2) steps(1) 4;
+}
+
+.mascot[data-mascot-animation='milestone'] .frame2 {
+  animation: mascot-frame-on calc(var(--duration-mascot-milestone) / 4) steps(1) 4;
+}
+
+.mascot[data-mascot-animation='milestone'] [data-mascot-base] {
+  animation: mascot-frame-off calc(var(--duration-mascot-milestone) / 4) steps(1) 4;
+}
+
+.mascot[data-mascot-animation='celebrate'] .frame2 {
+  animation: mascot-frame-on calc(var(--duration-mascot-celebrate) / 4) steps(1) 4;
+}
+
+.mascot[data-mascot-animation='celebrate'] [data-mascot-base] {
+  animation: mascot-frame-off calc(var(--duration-mascot-celebrate) / 4) steps(1) 4;
+}
+
+@keyframes mascot-frame-on {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes mascot-frame-off {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
 /* AN-WALK (v1.4, specs/006 T042): hai bước tại chỗ, nhún và nghiêng nhẹ theo nhịp, ≤ 1200ms */
 .mascot[data-mascot-animation='walk'] .figure {
   animation: mascot-walk var(--duration-mascot-hop) var(--ease-in-out) 2;

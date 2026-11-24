@@ -35,7 +35,7 @@ src/shared/mascot/                    # Engine thuần và thành phần màn d�
 ├── visitConfirm.ts  # Mila xác nhận lượt ghé thay toast (BR-MAS-24)
 ├── MascotSlot.tsx   # chỗ đặt Mila trong layout của màn (host portal vào)
 ├── MascotFigure.tsx # hình tĩnh INLINE cạnh câu cố định (không bong bóng, không logic)
-├── MascotMotionSwitch.tsx # công tắc chuyển động ở SCR-M01-004
+├── (công tắc chuyển động: src/shared/motion/MotionSwitch.tsx từ v1.4, specs/006 R-15)
 └── dialogue/        # (5) catalog.ts + vi.ts + en.ts (Dialogue Library §4)
 
 src/app/mascot/                       # Lớp React gắn một lần trong App.tsx, nạp lazy (chunk `mascot`) khi cờ bật

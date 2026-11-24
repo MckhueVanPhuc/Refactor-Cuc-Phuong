@@ -75,7 +75,7 @@ Mọi `--duration-mascot-*` = 0ms trong khối `@media (prefers-reduced-motion: 
 ## 4c. Bổ sung v1.3 (CHG-MASCOT-2026-11-23-04; research R-27…R-29)
 
 - Mode `INTRO`: host vẽ `src/app/mascot/MascotIntro.tsx` portal vào `document.body`: `<div role="dialog" aria-modal="true" aria-label="Mila" tabIndex={-1} data-mascot-intro>` phủ cả màn; bong bóng (`data-mascot-message="MSG-MAS-001"`, không nút ×) và Mila `--mascot-size-xl` căn giữa; dòng `data-mascot-intro-hint` "Chạm để bắt đầu" / "Tap to start". `#root` có `inert` khi lớp phủ mở.
-- `MascotMotionSwitch` thay `MascotMotionToggle`: `<button type="button" role="switch" aria-checked>`, `data-mascot-motion-switch`; chỉ ở `src/modules/m01/offline-package/OfflinePage.tsx`. Header không còn `[aria-pressed]` chuyển động.
+- *(v1.4: chuyển sang `MotionSwitch` của `src/shared/motion`, nhãn "Hiệu ứng chuyển động", luôn render — specs/006 contracts §2)* `MascotMotionSwitch` thay `MascotMotionToggle`: `<button type="button" role="switch" aria-checked>`, `data-mascot-motion-switch`; chỉ ở `src/modules/m01/offline-package/OfflinePage.tsx`. Header không còn `[aria-pressed]` chuyển động.
 - Slot `catalog-hero` là con trực tiếp của hero lưới hai cột; slot và `.mascot` của nó `display: contents`; hình Mila ở vùng `scene`, bong bóng ở hàng `bubble` (đuôi `data-mascot-tail="up"`).
 - Token mới `--mascot-size-dock-catalog-narrow` (88px).
 - Nhãn catalog mới: `introHint`, `motionHint`; bỏ `motionOn`, `motionOff`.

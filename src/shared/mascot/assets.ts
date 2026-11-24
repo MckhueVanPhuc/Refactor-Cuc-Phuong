@@ -62,3 +62,18 @@ export function blinkAsset(pose: PoseId): PoseAsset | null {
   if (!src240) return null;
   return { src240, src480: byName.get(`${base}-480`) ?? src240 };
 }
+
+/** Ảnh khung 2 (đợt 4B, MA-21 vẫy, MA-22 ăn mừng, MA-15 bước): chồng khít ảnh gốc, chỉ khác phần cử động (specs/006 R-11). */
+const FRAME2_FILE: Partial<Record<PoseId, string>> = {
+  wave: 'ma-21-wave-f2',
+  cheer: 'ma-22-cheer-f2',
+  walk: 'ma-15-walk-f2',
+};
+
+/** Không có ảnh (chưa giao hoặc không đạt kiểm) → `null`, animation chạy như cũ với ảnh gốc. */
+export function frame2Asset(pose: PoseId): PoseAsset | null {
+  const base = FRAME2_FILE[pose];
+  const src240 = base ? byName.get(`${base}-240`) : undefined;
+  if (!base || !src240) return null;
+  return { src240, src480: byName.get(`${base}-480`) ?? src240 };
+}

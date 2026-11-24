@@ -117,10 +117,10 @@
 
 **Independent Test**: quickstart M15, M16.
 
-- [ ] T046 [P] [US7] Test `src/shared/motion/LeafConfetti.test.tsx`: `count` bị chặn ở 40; `aria-hidden`; không render khi `decor` off; `onDone` sau `--duration-confetti`
-- [ ] T047 [US7] Cài `src/shared/motion/LeafConfetti.tsx` (+ `.module.css`, mask `leaf.svg`, `pointer-events: none`)
-- [ ] T048 [US7] `src/modules/m02/end/EndPage.tsx` (+ `.module.css`): chỉ khi `takeEndedHere()` và `HOAN_TAT`: huy hiệu keyframes đóng dấu, `LeafConfetti` ở đầu màn, danh sách `animation-delay` theo `--i`; chạm → trạng thái cuối; `sync === 'CONFLICT'` → thẻ "Hẹn gặp lại" dùng trái tim, không slot (DV-95)
-- [ ] T049 [US7] E2E `e2e/m02/motion-end.spec.ts`: M15 (có hạt ≤ 40, hết sau 2,4 s, mở lại tĩnh, không chữ/số mới), M16 (`CONFLICT`: đúng một `[data-mascot-figure], [data-mascot-mode]`)
+- [X] T046 [P] [US7] Test `src/shared/motion/LeafConfetti.test.tsx`: `count` bị chặn ở 40; `aria-hidden`; không render khi `decor` off; `onDone` sau `--duration-confetti`
+- [X] T047 [US7] Cài `src/shared/motion/LeafConfetti.tsx` (+ `.module.css`, mask `leaf.svg`, `pointer-events: none`)
+- [X] T048 [US7] `src/modules/m02/end/EndPage.tsx` (+ `.module.css`): chỉ khi `takeEndedHere()` và `HOAN_TAT`: huy hiệu keyframes đóng dấu, `LeafConfetti` ở đầu màn, danh sách `animation-delay` theo `--i`; chạm → trạng thái cuối; `sync === 'CONFLICT'` → thẻ "Hẹn gặp lại" dùng trái tim, không slot (DV-95)
+- [X] T049 [US7] E2E `e2e/m02/motion-end.spec.ts`: M15 (có hạt ≤ 40, hết sau 2,4 s, mở lại tĩnh, không chữ/số mới), M16 (`CONFLICT`: đúng một `[data-mascot-figure], [data-mascot-mode]`)
 
 ## Phase 10: User Story 8 — Cảm giác rừng ở màn đầu (Priority: P3)
 
@@ -128,8 +128,8 @@
 
 **Independent Test**: quickstart M17.
 
-- [ ] T050 [US8] `src/modules/m01/catalog/CatalogPage.tsx` (+ `.module.css`): lớp trang trí `sun-rays.svg` + 2 lá `leaf.svg` sau dải đồi, `aria-hidden`; keyframes chuyển động trong 0–80% của `--duration-ambient-drift`; gate `:root[data-decor='on']`; `:root:has([data-mascot-mode='INTRO'])` → `animation-play-state: paused`
-- [ ] T051 [US8] E2E `e2e/m01/motion-hero.spec.ts`: animation của lớp trang trí có `endTime ≤ 5000`; `data-decor='off'` → không animation; không giao tiêu đề, nút, Mila (`boundingBox`)
+- [X] T050 [US8] `src/modules/m01/catalog/CatalogPage.tsx` (+ `.module.css`): lớp trang trí `sun-rays.svg` + 2 lá `leaf.svg` sau dải đồi, `aria-hidden`; keyframes chuyển động trong 0–80% của `--duration-ambient-drift`; gate `:root[data-decor='on']`; `:root:has([data-mascot-mode='INTRO'])` → `animation-play-state: paused`
+- [X] T051 [US8] E2E `e2e/m01/motion-hero.spec.ts`: animation của lớp trang trí có `endTime ≤ 5000`; `data-decor='off'` → không animation; không giao tiêu đề, nút, Mila (`boundingBox`)
 
 ## Phase 11: User Story 9 — Mila cử động thật (Priority: P3)
 
@@ -137,19 +137,19 @@
 
 **Independent Test**: quickstart M18.
 
-- [ ] T052 [US9] Ghép và xuất khung phụ theo research R-10 bước 2: `ma-15-walk-f2`, `ma-21-wave-f2`, `ma-22-cheer-f2`, `ma-20-proud-blink` vào `assets/mascot/web/`; báo % diện tích vùng ghép, ảnh so sánh; ghi `assets/mascot/README.md`
-- [ ] T053 [P] [US9] Test `src/app/mascot/Mascot.test.tsx`: animation `intro`/`milestone`/`celebrate`/`walk` có ảnh khung 2 (`data-mascot-frame2`); giảm chuyển động → không; thiếu ảnh khung 2 → không
-- [ ] T054 [US9] `src/shared/mascot/assets.ts` (`frame2Asset`, `blinkAsset('proud')`), `src/app/mascot/Mascot.tsx` (`<img>` khung 2 chồng khít), `src/app/mascot/Mascot.module.css` (`mascot-frame` `steps(1)` trong thời lượng animation sẵn có)
-- [ ] T055 [US9] E2E `e2e/m01/mascot-intro.spec.ts` (khung 2 khi vẫy) và `e2e/m02/mascot-end.spec.ts` (`proud` + chớp mắt khi có ảnh)
+- [X] T052 [US9] *(chỉ `walk-f2` đạt; 3 ảnh chờ làm lại — DV-06)* Ghép và xuất khung phụ theo research R-10 bước 2: `ma-15-walk-f2`, `ma-21-wave-f2`, `ma-22-cheer-f2`, `ma-20-proud-blink` vào `assets/mascot/web/`; báo % diện tích vùng ghép, ảnh so sánh; ghi `assets/mascot/README.md`
+- [X] T053 [P] [US9] Test `src/app/mascot/Mascot.test.tsx`: animation `intro`/`milestone`/`celebrate`/`walk` có ảnh khung 2 (`data-mascot-frame2`); giảm chuyển động → không; thiếu ảnh khung 2 → không
+- [X] T054 [US9] `src/shared/mascot/assets.ts` (`frame2Asset`, `blinkAsset('proud')`), `src/app/mascot/Mascot.tsx` (`<img>` khung 2 chồng khít), `src/app/mascot/Mascot.module.css` (`mascot-frame` `steps(1)` trong thời lượng animation sẵn có)
+- [ ] T055 [US9] *(chờ ảnh DV-06; test component đã có)* E2E `e2e/m01/mascot-intro.spec.ts` (khung 2 khi vẫy) và `e2e/m02/mascot-end.spec.ts` (`proud` + chớp mắt khi có ảnh)
 
 **Checkpoint đợt 3**: `npm run ci`, E2E PASS; M15–M18, M20; ghi validation report §4.
 
 ## Phase 12: Polish & Cross-Cutting
 
-- [ ] T056 Đo cuối theo quickstart §4 (kích thước JS/CSS, ảnh precache, LCP, CLS) so với T001; ghi validation report §5; vượt ngưỡng → báo chủ dự án
-- [ ] T057 [P] E2E `e2e/m01/motion-layout.spec.ts` + `e2e/m02/…`: M20 ở 320/360/390/430 px dùng `expectMascotOverlapsNothing`, đếm tối đa một Mila mỗi màn
-- [ ] T058 [P] Đồng bộ tài liệu dẫn xuất: `docs/mascot/MASCOT_TECHNICAL_SPECIFICATION.md` (cây `src/shared/motion`), `specs/005-visitor-mascot/contracts/mascot-ui-contract.md` (`MotionSwitch`), `docs/mascot/MASCOT_ASSET_SPECIFICATION.md` §4 (READY đợt 4), `screens/screen-spec` nếu lệch
-- [ ] T059 Chạy `npm run ci` và `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil`; hoàn tất `validation-report.md` (lệnh, exit, test đổi có chủ đích, NOT RUN: thiết bị thật SC-MOT-011)
+- [X] T056 Đo cuối theo quickstart §4 (kích thước JS/CSS, ảnh precache, LCP, CLS) so với T001; ghi validation report §5; vượt ngưỡng → báo chủ dự án
+- [X] T057 [P] E2E `e2e/m01/motion-layout.spec.ts` + `e2e/m02/…`: M20 ở 320/360/390/430 px dùng `expectMascotOverlapsNothing`, đếm tối đa một Mila mỗi màn
+- [X] T058 [P] Đồng bộ tài liệu dẫn xuất: `docs/mascot/MASCOT_TECHNICAL_SPECIFICATION.md` (cây `src/shared/motion`), `specs/005-visitor-mascot/contracts/mascot-ui-contract.md` (`MotionSwitch`), `docs/mascot/MASCOT_ASSET_SPECIFICATION.md` §4 (READY đợt 4), `screens/screen-spec` nếu lệch
+- [X] T059 Chạy `npm run ci` và `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil`; hoàn tất `validation-report.md` (lệnh, exit, test đổi có chủ đích, NOT RUN: thiết bị thật SC-MOT-011)
 
 ## Dependencies & Execution Order
 

@@ -313,3 +313,55 @@
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
+
+/*
+ * —— Ăn mừng của màn (design-system §4.3.1 T3; specs/006 US7, R-12) —— chỉ khi vừa kết thúc chuyến hoàn tất (`data-celebrate`)
+ * và có trang trí (`data-decor="on"`): huy hiệu đóng dấu thay badge-in, danh sách điểm hiện lần lượt, confetti lá ở đầu màn.
+ * Chạm bất kỳ đâu → bỏ `data-celebrate`, mọi thứ về trạng thái cuối.
+ */
+.hero {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Confetti nằm sau chữ và huy hiệu: lá trang trí không che chữ (SC-MOT-009) */
+.hero > :global([data-leaf-confetti]) {
+  z-index: -1;
+}
+
+:root[data-decor='on'] .result[data-celebrate] .badge {
+  animation: badge-stamp calc(var(--duration-feedback) * 2) var(--ease-spring) both;
+}
+
+:root[data-decor='on'] .result[data-celebrate] .item {
+  animation: item-in var(--duration-reveal) var(--ease-standard) calc(var(--duration-feedback) + var(--i, 0) * var(--duration-press)) both;
+}
+
+@keyframes badge-stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.3) rotate(-8deg);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(0.95) rotate(2deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes item-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-2));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

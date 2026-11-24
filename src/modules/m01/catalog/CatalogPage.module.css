@@ -26,6 +26,96 @@
   }
 }
 
+/*
+ * Nắng và lá trôi (T3, specs/006 R-13): nằm sau dải đồi trong ô của Mila, không nhận con trỏ, không chiếm chỗ. Chỉ hiện và
+ * chạy khi có trang trí (`data-decor="on"`); chạy một lần trong 80% của --duration-ambient-drift (4,8 s) rồi đứng ở
+ * khung cuối (≤ 5 s, WCAG 2.2.2); tạm dừng khi lớp phủ giới thiệu đang mở.
+ */
+.decor {
+  position: relative;
+  display: none;
+  grid-area: scene;
+  justify-self: end;
+  align-self: stretch;
+  width: calc(var(--hero-mila) + var(--space-8) * 2.5);
+  pointer-events: none;
+}
+
+:root[data-decor='on'] .decor {
+  display: block;
+}
+
+.rays {
+  --icon-size: calc(var(--hero-mila) * 0.9);
+
+  position: absolute;
+  top: calc(var(--space-2) * -1);
+  left: 0;
+  color: color-mix(in srgb, var(--color-m01-amber) 55%, transparent);
+  opacity: 0.5;
+  transform-origin: top left;
+  animation: rays-glow calc(var(--duration-ambient-drift) * 0.8) var(--ease-in-out) both;
+}
+
+.drift {
+  --icon-size: var(--space-4);
+
+  position: absolute;
+  top: 0;
+  color: color-mix(in srgb, var(--color-m01-forest) 45%, transparent);
+  opacity: 0;
+  animation: leaf-drift calc(var(--duration-ambient-drift) * 0.8) var(--ease-in-out) both;
+}
+
+.driftA {
+  left: 10%;
+}
+
+.driftB {
+  left: 45%;
+  animation-delay: calc(var(--duration-ambient-drift) * 0.03);
+}
+
+:root:has([data-mascot-mode='INTRO']) .decor > * {
+  animation-play-state: paused;
+}
+
+@keyframes rays-glow {
+  0% {
+    opacity: 0.2;
+    transform: rotate(-4deg);
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+
+  100% {
+    opacity: 0.45;
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes leaf-drift {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  85% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--space-8) * 1.5), calc(var(--hero-mila) * 0.8)) rotate(160deg);
+  }
+}
+
 /* Dải đồi trang trí: chiếm ô của Mila (giữ chỗ cao bằng Mila), tràn sang trái phía sau nút; Mila đứng trên đồi */
 .hero .hills {
   grid-area: scene;

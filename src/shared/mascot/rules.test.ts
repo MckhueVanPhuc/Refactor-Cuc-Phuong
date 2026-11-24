@@ -423,9 +423,14 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
         { type: 'app.route.changed', path: '/trip', at: 5_010 },
         { type: 'm02.trip.shown', hasSession: true, k: 1, n: 3, finalVisited: false, at: 5_020 },
       ]).state;
-    expect(back(true).bubble?.messageId).toBe('MSG-MAS-056');
-    // v1.4 (Behavior Matrix §3b; specs/006 T041): Mila sải bước khi nói 056
-    expect(back(true).view).toMatchObject({ mode: 'DOCK', pose: 'walk', animation: 'walk' });
+    // DV-05 (specs/006): trước tiên Mila ngạc nhiên (không lời) trong lúc điểm được mở khóa
+    const first = back(true);
+    expect(first.view).toMatchObject({ mode: 'DOCK', pose: 'amazed' });
+    expect(first.bubble).toBeNull();
+    // Hết lúc ngạc nhiên: sải bước và nói 056 (v1.4, Behavior Matrix §3b; specs/006 T041)
+    const spoken = play([{ type: 'mascot.tick', at: first.hold!.until }], [], CTX, first).state;
+    expect(spoken.bubble?.messageId).toBe('MSG-MAS-056');
+    expect(spoken.view).toMatchObject({ mode: 'DOCK', pose: 'walk', animation: 'walk' });
     expect(back(false).bubble).toBeNull();
   });
 

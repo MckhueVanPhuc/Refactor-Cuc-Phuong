@@ -110,3 +110,59 @@ Test mới: `reveal.test.tsx`, `assets.test.ts` (+2), `rules.test.ts` (MAS-B-056
 | DV-04 | US5 mục 2 (ảnh thẻ tuyến "biến thành" ảnh đầu màn chi tiết; Back chạy ngược): **không làm được** như mô tả. Ảnh đầu màn chi tiết chỉ có sau khi tải URL ký, tức là sau khi chuyển cảnh đã chụp màn mới, nên trình duyệt không có cặp ảnh để ghép; Back của trình duyệt (popstate) được react-router xử lý ngoài transition nên đổi tức thì. Đã cài crossfade chung cho mọi lần đổi màn bằng liên kết. Muốn có ảnh chung cần hiện sẵn một ảnh của tuyến ở màn chi tiết trước khi tải (đổi nội dung màn) | Chờ chủ dự án |
 | DV-05 | Behavior Matrix §3b gán `amazed` cho MAS-B-050, nhưng phản ứng này ở chế độ AVATAR, vốn luôn vẽ ảnh đầu tròn MA-11 nên tư thế không hiện. Ảnh `amazed` đã xuất và đăng ký, chưa dùng ở đâu | Chờ chủ dự án chọn chỗ dùng |
 | — | Thử trên điện thoại thật đợt 1–2 (SC-MOT-011) | NOT RUN |
+
+## 4. Đợt 3 — US7, US8, US9 (T046–T055, 2026-11-24)
+
+Quyết định chủ dự án trước đợt 3: **DV-04 (a)** giữ crossfade chung, không làm ảnh chung; **DV-05 (b)** dùng `amazed` khi mở khóa điểm trên màn chuyến đi.
+
+### 4.1 Đã làm
+
+| Việc | Tệp |
+|---|---|
+| DV-05: quay về sau lượt ghé mới → Mila `amazed` (không lời, 900 ms) trong lúc điểm mở khóa, rồi sải bước `walk` và nói 056; MAS-B-033 nhường lượt này | `src/shared/mascot/rules.ts` |
+| `LeafConfetti` (≤ 40 hạt, mask lá, ba sắc token, không render khi không có trang trí) | `src/shared/motion/LeafConfetti.tsx` (+ css) |
+| Màn kết quả: vừa kết thúc chuyến hoàn tất → huy hiệu đóng dấu, confetti lá **sau chữ**, danh sách điểm hiện lần lượt; ≤ 2,4 s; chạm → trạng thái cuối; mở lại: tĩnh. `CONFLICT` → thẻ "Hẹn gặp lại" dùng trái tim, một Mila (DV-95 của gói 005) | `EndPage.tsx` (+ css) |
+| Hero danh mục: tia nắng và hai lá trôi sau dải đồi, một lần ≤ 4,98 s, chỉ khi có trang trí, tạm dừng khi lớp phủ giới thiệu mở | `CatalogPage.tsx` (+ css) |
+| Khung 2: `frame2Asset`, ảnh khung 2 chồng khít, đổi bằng CSS `steps(1)` trong thời lượng animation sẵn có (bước, vẫy, ăn mừng); không khi giảm chuyển động | `assets.ts`, `Mascot.tsx`, `Mascot.module.css` |
+| Ảnh khung 2: chỉ `ma-15-walk-f2` đạt kiểm và được xuất (quy trình ở `assets/mascot/README.md` "Đợt 4B") | `assets/mascot/web/ma-15-walk-f2-*.webp` |
+
+### 4.2 Test đổi có chủ đích
+
+| Test | Lý do |
+|---|---|
+| `rules.test.ts` MAS-B-056 | `amazed` trước, `walk` + 056 sau |
+| `e2e/m01/mascot-layout.spec.ts` Q32 | Đếm dải đồi không tính lớp nắng/lá (`data-hero-decor`) |
+| `e2e/m01/mascot-prepare.spec.ts` MAS-B-008 | Đồng hồ giả + chuyển cảnh làm `click()` chập chờn (3/6 hỏng); gửi thẳng `click` vào CTA (6/6 đạt) |
+| `e2e/m01/mascot-precache.spec.ts` | Thêm `ma-15-walk-f2-240` |
+
+Test mới: `LeafConfetti.test.tsx`, `Mascot.test.tsx` (+4 khung 2); E2E `motion-end` (m02), `motion-hero` (m01), `motion-journey` (+1: `amazed` → `walk` khung 2, một Mila).
+
+### 4.3 Lệch và còn mở
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-06 | Khung phụ đợt 4B: công cụ tạo ảnh vẽ lại cả hình. Sau đăng ký (tỉ lệ + độ lệch) và cân màu, chỉ `walk-f2` đạt; `wave-f2` (đầu to hơn, lệch chỗ), `cheer-f2` (thân mờ), `proud-blink` (mõm xám) không xuất. App chạy vẫy, ăn mừng với ảnh gốc, `proud` không chớp mắt. Hướng dẫn làm lại: hướng dẫn tạo ảnh §9.4 | Chờ chủ dự án làm lại 3 ảnh |
+| — | T055 (E2E vẫy tay khung 2, `proud` chớp mắt) chưa có ảnh để kiểm; test component đã phủ trường hợp thiếu ảnh | Chờ DV-06 |
+
+## 5. Đo cuối và kết luận (T056–T059)
+
+| Chỉ số | Nền | Sau gói 006 | Ngưỡng | Kết quả |
+|---|---|---|---|---|
+| JS gzip | 498 316 B | 501 694 B (+3 378) | | |
+| CSS gzip | 33 707 B | 36 398 B (+2 691) | tổng ≤ 15 KB | **+6,1 KB — đạt** |
+| Ảnh đợt 4 trong precache (240) | — | 82,1 KB (5 tư thế + `walk-f2`) | ≤ 120 KB | **đạt** |
+| LCP SCR-M01-001 (cùng điều kiện, đo lại nền trong worktree cùng lúc) | 3 936 / 3 408 / 3 420 ms | 3 916 / 2 684 / 2 460 ms | ≤ nền + 100 ms | **đạt** (lần đo nền 1,1 s ở §1 là lúc máy nhẹ tải; phần tử LCP là ảnh Mila ở hero cả hai bản) |
+| CLS SCR-M01-001 | 0,0351 | 0,0351 | không tăng (DV-01) | **đạt** |
+| CLS SCR-M02-001 | 0,0327 | 0,0327 | không tăng | **đạt** |
+| CLS luồng chuyến đi → kết quả | 0,1017 | 0,1017 | không tăng | **đạt** |
+| CLS mở lại SCR-M02-003 | 0,0342 | 0,0448 | không tăng | **lệch +0,011** (DV-07) |
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 765; 2495 pass, 133 skipped; build OK (lượt trước: `EndFlow.test.tsx` hết thời gian khi cả bộ chạy, chạy riêng 6/6 đạt — chập chờn do tải) |
+| `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` | 0 | 148 pass |
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-07 | CLS khi mở lại màn kết quả tăng 0,034 → 0,045: thẻ "Hẹn gặp lại" có Mila (phương án E, gói 005 v1.5) và hình Mila tải sau làm dịch nhẹ; không do chuyển động của gói 006 (không có hiệu ứng khi mở lại) | Ghi nhận; đề xuất giữ chỗ cố định cho Mila trong thẻ ở đợt sửa nhỏ sau |
+| — | Thiết bị thật (SC-MOT-011), Lighthouse | NOT RUN — chờ chủ dự án |
