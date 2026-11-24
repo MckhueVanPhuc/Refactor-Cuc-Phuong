@@ -137,12 +137,50 @@ Giá trị bổ sung:
 | Mascot đổi tư thế, bật bong bóng | 200ms (crossfade 150ms) | ease-out | Mỗi lời thoại mới |
 | Mascot phản hồi một lần (nhún, nghiêng, lật nhìn quanh, giơ ngón cái) | 300–1200ms | ease-out | Thành công, lỗi, chờ quét |
 | Mascot vòng chờ (thở, lắc lư, nhún ba lô) | 1200–2400ms mỗi nhịp | ease-in-out | Tối đa 5 giây mỗi lượt rồi đứng yên |
-| Mascot cử chỉ tự động (nhìn ống nhòm, vẫy, nhún, nghiêng đầu, kéo quai ba lô, thở, chớp mắt) | ≤ 1500ms (chớp mắt 120ms) | ease-in-out | Mỗi 8–15 giây ở màn Mila đứng chờ; dừng bằng công tắc "Chuyển động của Mila" ở màn Tài nguyên (§9.5) |
+| Mascot cử chỉ tự động (nhìn ống nhòm, vẫy, nhún, nghiêng đầu, kéo quai ba lô, chớp mắt) | 2–3 nhịp, ≤ 3000ms (chớp mắt 120ms) | ease-in-out | Mỗi 4–7 giây ở màn Mila đứng chờ (v1.5; trước 8–15 giây, ≤ 1500ms); giữa hai cử chỉ Mila thở nhẹ liên tục (`scaleY` 1 → 1,015, nhịp 2400ms); dừng bằng công tắc "Hiệu ứng chuyển động" ở màn Tài nguyên (§9.5) |
 | Mascot mốc tiến trình + vài lá rơi | 1200ms | ease-out | Mốc cấp 2 (Spec Mascot BR-MAS-23) |
 | Mascot ăn mừng + lá rơi | ≤ 2400ms | ease-out | Chỉ SCR-M02-003, một lần, chạm để bỏ qua |
 | Chữ bong bóng hiện dần | 30 ký tự/giây | linear | Mỗi lời thoại mới; chạm để hiện hết |
 
-Tôn trọng `prefers-reduced-motion`. Với mascot Mila: khi giảm chuyển động, mọi animation thành đổi tức thì hoặc mờ dần ≤ 150 ms, không lá rơi, không vòng chờ (Spec Mascot BR-MAS-17). Mascot chỉ animate `transform`/`opacity` (cộng đổi ảnh tư thế), mỗi lúc một chuyển động trên hình (song song chỉ có bong bóng và lá rơi), và dừng khi trang ẩn. Công tắc "Chuyển động của Mila" tắt (§9.5, màn Tài nguyên) cho kết quả như giảm chuyển động và chữ hiện ngay; đây là cách tạm dừng chuyển động kéo dài quá 5 giây theo WCAG 2.2.2 (Spec Mascot BR-MAS-21).
+Tôn trọng `prefers-reduced-motion`. Với mascot Mila: khi giảm chuyển động, mọi animation thành đổi tức thì hoặc mờ dần ≤ 150 ms, không lá rơi, không vòng chờ (Spec Mascot BR-MAS-17). Mascot chỉ animate `transform`/`opacity` (cộng đổi ảnh tư thế), mỗi lúc một chuyển động trên hình (song song chỉ có bong bóng và lá rơi), và dừng khi trang ẩn. Công tắc "Hiệu ứng chuyển động" tắt (§9.5, màn Tài nguyên) cho kết quả như giảm chuyển động và chữ hiện ngay; đây là cách tạm dừng chuyển động kéo dài quá 5 giây theo WCAG 2.2.2 (Spec Mascot BR-MAS-21).
+
+#### 4.3.1 Ba tầng chuyển động (v1.4, CHG-MOTION-2026-11-24-01)
+
+Mọi chuyển động của màn du khách M01/M02 thuộc đúng một tầng. M03 không có chuyển động ngoài bảng trên.
+
+| Tầng | Dùng cho | Thời lượng | Giảm chuyển động hoặc công tắc "Hiệu ứng chuyển động" tắt (§9.5) |
+|---|---|---|---|
+| **T1 Phản hồi** | Kết quả trực tiếp của thao tác: nhấn nút/thẻ, lượt ghé được ghi (điểm nảy, đường mòn vẽ tới điểm kế, thanh tiến trình tăng), dấu ✓ khi gói sẵn sàng, lỗi | ≤ 300ms (đường mòn ≤ 600ms) | Vẫn có phản hồi nhưng chỉ đổi màu hoặc mờ dần ≤ 150ms, không dịch chuyển, không co giãn |
+| **T2 Chuyển cảnh** | Đổi màn (View Transitions), mở thẻ/accordion, dialog, thẻ hiện dần khi cuộn, skeleton, thanh "đang tải" | ≤ 300ms; skeleton và thanh "đang tải" lặp theo nhịp | Đổi tức thì; skeleton và thanh "đang tải" đứng yên (vẫn có chữ trạng thái) |
+| **T3 Trang trí** | Không mang thông tin: tia nắng, lá trôi, confetti lá, số đếm lên, dải "hoàn thành tuyến" | Mỗi lượt ≤ 2400ms; lá trôi nền lặp tối đa 5s rồi dừng | Tắt hẳn; hiện ngay trạng thái cuối (số cuối, dải đã hiện) |
+
+Mila theo quy tắc riêng ở trên và §9; công tắc §9.5 dừng cả Mila lẫn T3.
+
+Token mới (bổ sung vào bảng trên, đều về `0ms` khi `prefers-reduced-motion`):
+
+| Token | Giá trị | Tầng | Dùng cho |
+|---|---|---|---|
+| `--duration-press` | 120ms | T1 | Nhấn nút, thẻ |
+| `--duration-feedback` | 300ms | T1 | Điểm hành trình nảy, dấu ✓, thanh tiến trình tăng |
+| `--duration-trail-draw` | 600ms | T1 | Đoạn đường mòn tự vẽ tới điểm kế tiếp |
+| `--duration-reveal` | 300ms | T2 | Thẻ hiện dần khi cuộn |
+| `--duration-shimmer` | 1600ms | T2 | Vệt sáng của skeleton, thanh "đang tải" (mỗi nhịp) |
+| `--duration-confetti` | 2400ms | T3 | Confetti lá màn kết thúc |
+| `--duration-count-up` | 800ms | T3 | Số liệu đếm lên |
+| `--duration-ambient-drift` | 6000ms | T3 | Lá trôi, tia nắng ở hero (mỗi nhịp; tối đa 5s mỗi lượt hiển thị thì dừng ở khung cuối) |
+| `--ease-spring` | `cubic-bezier(0.34, 1.56, 0.64, 1)` | T1 | Nảy nhẹ (vượt 1 lần) |
+| `--ease-standard` | `cubic-bezier(0.2, 0, 0, 1)` | T1–T3 | Mặc định cho vào/ra và chuyển cảnh |
+| `--press-scale` | 0.97 | T1 | Tỷ lệ khi nhấn (§5.4) |
+
+#### 4.3.2 Ngân sách hiệu năng (bắt buộc)
+
+- Chỉ animate `transform` và `opacity` (cộng `stroke-dashoffset` cho đường mòn SVG). Không animate `width`, `height`, `top`, `left`, `box-shadow`, `filter`.
+- Không vòng `requestAnimationFrame` hay timer khi màn đứng yên; mọi chuyển động dừng khi trang ẩn (`visibilitychange`).
+- Tối đa 3 chuyển động T3 cùng lúc trên màn; confetti ≤ 40 hạt.
+- T3 tự tắt khi `navigator.connection.saveData` bật hoặc `navigator.deviceMemory` ≤ 2 (máy không báo thì coi như đủ mạnh).
+- Không ẩn phần tử của màn đầu để chờ animation (không làm chậm LCP); thẻ hiện dần chỉ áp cho phần tử nằm dưới màn đầu và chỉ một lần mỗi lần tải trang. Không gây dịch bố cục (CLS 0): chỗ của phần tử hiện dần được giữ sẵn.
+- Không nhấp nháy quá 3 lần mỗi giây (WCAG 2.3.1). Chuyển động không bao giờ là cách duy nhất truyền thông tin: mọi phản hồi T1 có chữ hoặc trạng thái tĩnh tương ứng.
+- Không thư viện animation: CSS, Web Animations API và View Transitions API (trình duyệt không hỗ trợ thì đổi màn tức thì). Mã motion thêm vào ≤ 15 KB gzip; mọi tài nguyên nằm trong bundle hoặc precache để chạy offline.
 
 Spacing không có `--space-7` . Các giá trị sau chưa có tên token; dùng đúng giá trị trong tài liệu cho đến khi triển khai đặt tên: cỡ chữ theo vai trò (mục 3), thời lượng/easing chuyển động (4.3), độ dày viền 1px/2px, vùng chạm 44px/48px.
 
@@ -200,6 +238,9 @@ Các quy tắc sau chỉ ghép từ token đã có, để thống nhất khi tri
 | Nhóm hành động (M03) | Ba nhóm tách rõ: chính (Lưu bản nháp, Xuất bản); vòng đời (Đóng tạm, Mở lại); không hoàn tác (Lưu trữ, Hủy) ở cuối, xa hai nhóm kia, luôn qua dialog xác nhận riêng. Trên màn hẹp, thanh hành động cố định phía dưới (`--shadow-bottom-nav`) chỉ chứa nhóm chính. |
 | Nội dung dài trong bảng (M03) | Ô Chi tiết của nhật ký (lý do và trước/sau), cả ở SCR-M03-009 lẫn panel "Nhật ký của mục" trong editor, rút gọn tối đa 3 dòng; dài hơn thì nút chữ "…Xem thêm" (`aria-haspopup="dialog"`, vùng chạm 44px) mở hộp thoại chỉ đọc có đủ nội dung và một nút "Đóng". Cột kết quả luôn bằng chữ. |
 | Hover/pressed | Không thêm màu mới; dùng lớp phủ trong suốt lên màu nền sẵn có, xem 5.4. |
+| Skeleton (v1.4) | Khối `m01-line` bo như phần tử thật, đúng kích thước phần tử sẽ hiện (không dịch bố cục); vệt sáng trắng 40% lướt chéo như nắng qua tán lá (`--duration-shimmer`, T2). Có chữ trạng thái cho trình đọc màn hình (`role="status"`, ẩn thị giác) như hiện nay. Giảm chuyển động: khối đứng yên. |
+| Thanh tiến trình hành trình (v1.4, SCR-M02-001) | **Xác định**: tỷ lệ k/n lấy từ phiên. Rãnh `m01-line`, phần đã đi `m01-forest`, cao 8px, bo tròn; icon `footprint.svg` (mask, `m01-forest`) ở đầu phần đã đi. Đặt dưới câu "Đã quét QR: k/n" (câu giữ nguyên, là thông tin chính); thanh có `role="progressbar"` với `aria-valuenow`/`aria-valuemax`. Tăng bằng `transform: scaleX` (`--duration-feedback`, T1). Không phải slot của Mila. |
+| Thanh "đang tải" của gói (v1.4, SCR-M01-003/004) | **Không xác định** (M01 không báo phần trăm): rãnh `m01-line`, một vệt `m01-forest` dạng đường mòn trôi lặp (`--duration-shimmer`, T2); không số, không giả tiến độ. Đi cùng nhãn "Đang tải…" sẵn có; xong thì vệt dừng và dấu `check.svg` hiện (T1). Giảm chuyển động: vệt đứng yên giữa rãnh. |
 | Nút dịch "→" (M03, [Spec AI Integration](../spec/spec-AI_integration.md) §5.5) | Nút phụ nhỏ giữa ô tiếng Việt và ô tiếng Anh của mỗi cặp song ngữ; hiện ký tự chữ "→" (U+2192), không dùng file icon. Nền `white`, viền `control border`, chữ `accent`; bo `--radius-md`; vùng chạm tối thiểu 44×44px; tên truy cập "Dịch sang tiếng Anh". Không bấm được thì theo dòng Disabled/unavailable. Trên màn hẹp, khi hai ô xếp chồng, nút nằm giữa hai ô. |
 | Trạng thái dịch (M03) | Một dòng 14px ngay dưới ô tiếng Anh, gắn với ô bằng `aria-describedby`. "Đang dịch…" màu `secondary`, `role="status"`. Lỗi dùng cách hiển thị của Thông báo lỗi (màu `error`, `role="alert"`) kèm nút chữ "Thử lại"; không tự đóng. Không làm đổi bố cục ô. |
 
@@ -215,7 +256,7 @@ Các quy tắc sau chỉ ghép từ token đã có, để thống nhất khi tri
 
 Quy tắc:
 - Hover chỉ áp dụng khi thiết bị có con trỏ (`@media (hover: hover)`); pressed (`:active`) áp dụng mọi thiết bị. Phần tử disabled không có hover/pressed.
-- Không đổi kích thước hay vị trí khi hover/pressed, và không thêm chuyển động ngoài mục 4.3. Chuyển động của mascot Mila nằm trong bảng 4.3 và không gắn với hover/pressed. Hover/pressed không là tín hiệu duy nhất của trạng thái nào; trạng thái được chọn của M03 (`active`) giữ nguyên khi hover.
+- Không đổi vị trí khi hover/pressed, và không thêm chuyển động ngoài mục 4.3. Ngoại lệ v1.4 trên màn du khách M01/M02 (T1, §4.3.1): khi nhấn, nút và thẻ bấm được co về `--press-scale` trong `--duration-press`, nhả ra thì về 1; thẻ tuyến khi hover (chỉ thiết bị có con trỏ) nhấc lên 2px bằng `transform`. Co giãn không đổi bố cục xung quanh. Giảm chuyển động hoặc công tắc tắt: chỉ còn lớp phủ. M03 giữ nguyên quy tắc không đổi kích thước. Chuyển động của mascot Mila nằm trong bảng 4.3 và không gắn với hover/pressed. Hover/pressed không là tín hiệu duy nhất của trạng thái nào; trạng thái được chọn của M03 (`active`) giữ nguyên khi hover.
 - Tương phản trường hợp xấu nhất sau khi phủ:
   - Nền đặc: chữ trắng trên `forest` ≥ 10.63:1, trên `accent` ≥ 8.82:1; cao hơn lúc thường (9.25:1 / 7.50:1). Chữ `paper` trên `forest` ≥ 9.77:1.
   - Bề mặt sáng, khi nhấn: chữ `ink` ≥ 12.23:1; `secondary` ≥ 4.94:1 (`#5C5A54` trên `muted`) và ≥ 4.76:1 (`#596457` M01 trên `paper`); `accent` ≥ 5.37:1.
@@ -340,6 +381,7 @@ Hệ quả cho thiết kế: các cặp trên 4.5:1 dùng được cho chữ th�
 - Ngoại lệ do người dùng duyệt 2026-11-10 cho nút Quét của SCR-M02-001: agent vẽ `qr-scan.svg` (camera trong khung quét) trong assets/icons/. Chỉ dùng làm mask, màu theo chữ của nút; icon đứng trước chữ "Quét QR", không thay chữ.
 - Ngoại lệ do người dùng duyệt 2026-11-11 cho màn kết quả chuyến SCR-M02-003 (theo ảnh mẫu người dùng cung cấp): agent vẽ `check.svg` (dấu tích của huy hiệu hoàn thành), `heart.svg` (thẻ hẹn gặp lại) và `home.svg` (nút "Về danh sách tuyến") trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; luôn đi kèm chữ, không thay chữ.
 - Ảnh mascot Mila không phải icon: nằm trong `assets/mascot/`, bản gốc do người dùng cung cấp (§9). Hiệu ứng lá rơi của Mila dùng lại `leaf.svg` làm mask, màu từ token.
+- Motion v1.4 (CHG-MOTION-2026-11-24-01): agent vẽ `footprint.svg` (dấu chân ở đầu thanh tiến trình hành trình, §5.3) và `sun-rays.svg` (tia nắng trang trí ở hero SCR-M01-001, T3) trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; trang trí có `aria-hidden`. Confetti lá màn kết thúc dùng lại `leaf.svg`.
 - Ngoại lệ do người dùng duyệt 2026-11-21 cho toast dùng chung và thanh tab: agent vẽ `close.svg` (dấu ✕ của nút đóng toast) trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; nút có tên truy cập bằng chữ.
 - Logo dùng chung là `logo-emblem.png`, bản sạch của `icon.png` (nền trắng, bỏ vạch đen ở mép), dùng cho favicon, thanh app và panel chọn ngôn ngữ. Icon cài đặt `pwa-192.png`, `pwa-512.png`, `pwa-maskable-512.png` và `apple-touch-icon.png` là logo này đặt giữa nền trắng vuông; bản maskable giữ logo trong vòng tròn an toàn 80%. Tất cả do agent dựng theo yêu cầu người dùng 2026-11-08.
 
@@ -384,7 +426,7 @@ Hành vi (khi nào Mila xuất hiện, nói gì, ưu tiên, an toàn) thuộc [S
 
 ### 9.2 Slot và kích thước
 
-Mila chỉ hiện trong slot do layout của màn đặt sẵn và chiếm chỗ thật (danh sách slot: Spec Mascot §5.1). Cỡ chốt 2026-11-22 sau khi thử trên điện thoại (Mila 72px quá nhỏ để thu hút):
+Mila chỉ hiện trong slot do layout của màn đặt sẵn và chiếm chỗ thật (danh sách slot: Spec Mascot §5.1). Từ v1.5 (CHG-MASCOT-2026-11-24-05) slot **không có Mila thì không chiếm chỗ**: khi Mila xuất hiện, nội dung bên dưới dời xuống và Mila vào bằng animation sẵn có (AN-ENTER/AN-POP); Mila vẫn không bao giờ đè nội dung. SCR-M01-002 dùng đầu màn **"tấm biển kính"** (phương án C, chủ dự án chọn 2026-11-24): tiêu đề nằm trên một tấm kính mờ cùng chất liệu ô chọn (nền `m01-deep` 62%, viền `paper` 35%, bo `--radius-lg`), Mila DOCK cỡ `--mascot-size-dock-catalog-narrow` (màn hẹp hơn 360px: `--mascot-size-md`, tiêu đề giữ một dòng) đứng ở mép phải tấm, đầu nhô lên trên mép tấm khoảng `--space-6` + `--space-1`; bong bóng ở hàng dưới, đuôi chỉ lên Mila như §9.3a. Không có Mila thì chỉ còn tấm có tiêu đề. Cỡ chốt 2026-11-22 sau khi thử trên điện thoại (Mila 72px quá nhỏ để thu hút):
 
 | Token | Giá trị | Dùng cho |
 |---|---|---|
@@ -393,7 +435,7 @@ Mila chỉ hiện trong slot do layout của màn đặt sẵn và chiếm chỗ
 | `--mascot-size-dock-catalog` | 112px | DOCK ở hero SCR-M01-001 (màn ≥ 360px) |
 | `--mascot-size-dock-catalog-narrow` | 88px | DOCK ở hero SCR-M01-001 khi màn hẹp hơn 360px, để tiêu đề không xuống dòng (v1.3) |
 | `--mascot-size-dock-trip` | 128px | DOCK trên nút Quét QR, SCR-M02-001 |
-| `--mascot-size-dock-end` | 104px | DOCK cạnh huy hiệu 96px, SCR-M02-003 |
+| `--mascot-size-dock-end` | 72px (v1.5; trước 104px cạnh huy hiệu) | DOCK trong thẻ "Hẹn gặp lại", SCR-M02-003 (phương án E, 2026-11-24): Mila thay trái tim, căn giữa thẻ; lúc ăn mừng 1,5 lần cỡ này, bong bóng ở hàng trên thẻ đuôi chỉ xuống. Huy hiệu đứng một mình ở giữa đầu màn |
 | `--mascot-size-xl` | 200px | Lớp phủ giới thiệu (INTRO), CELEBRATE |
 | `--mascot-bubble-max-width` | 240px | Bong bóng; vẫn co theo màn 320px |
 
@@ -426,14 +468,18 @@ Kiểu **"Giấy dã ngoại"** (chọn 2026-11-22 từ mockup): bong bóng là 
 - Dưới Mila: vòng tròn gợi ý chạm và dòng "Chạm để bắt đầu" / "Tap to start" 14px, chữ trắng.
 - Hiện: Mila trồi lên (`--duration-mascot-enter`); đóng: lớp phủ mờ đi, Mila về DOCK ở đầu màn danh mục. Giảm chuyển động hoặc công tắc tắt: đổi tức thì.
 
-### 9.5 Công tắc "Chuyển động của Mila"
+### 9.5 Công tắc "Hiệu ứng chuyển động"
 
-Một công tắc duy nhất cho cả app, ở màn **Tài nguyên** SCR-M01-004 (v1.3, quyết định 2026-11-23; Spec Mascot BR-MAS-21); thanh đầu trang không còn nút chuyển động. Chỉ có khi Mila được bật. Không phải nút ẩn Mila.
+Một công tắc duy nhất cho cả app, ở màn **Tài nguyên** SCR-M01-004 (v1.3, quyết định 2026-11-23; Spec Mascot BR-MAS-21); thanh đầu trang không còn nút chuyển động. Từ v1.4 (CHG-MOTION-2026-11-24-01) công tắc đổi tên từ "Chuyển động của Mila", dừng cả Mila lẫn hiệu ứng trang trí T3 (§4.3.1), và **luôn có**, kể cả khi Mila tắt. Không phải nút ẩn Mila.
 
 - Vị trí: một hàng ngay dưới tiêu đề màn, trên danh sách gói.
-- Hình: hàng nền trắng bo `--radius-lg`, viền `m01-line`; trái là chữ "Chuyển động của Mila" 16px đậm và câu phụ "Tắt để Mila đứng yên." 14px `m01-secondary`; phải là công tắc trượt (`role="switch"`, `aria-checked`), rãnh `m01-forest` khi bật, `m01-secondary` khi tắt, núm trắng.
+- Hình: hàng nền trắng bo `--radius-lg`, viền `m01-line`; trái là chữ "Hiệu ứng chuyển động" 16px đậm và câu phụ "Tắt để Mila và hiệu ứng trang trí đứng yên." 14px `m01-secondary`; phải là công tắc trượt (`role="switch"`, `aria-checked`), rãnh `m01-forest` khi bật, `m01-secondary` khi tắt, núm trắng.
 - Vùng chạm cả hàng ≥ 44px; focus ring như §6.
-- Trạng thái tắt: Mila đứng yên ở tư thế ngữ cảnh trên mọi màn.
+- Trạng thái tắt: Mila đứng yên ở tư thế ngữ cảnh trên mọi màn; T3 không chạy; T1, T2 như giảm chuyển động (§4.3.1).
+
+### 9.6 Tư thế mới (v1.4, ảnh đợt 4)
+
+`sorry` (MA-12), `amazed` (MA-14), `walk` (MA-15, nhìn ngang, hai khung bước), `peek` (MA-16, nấp sau một chiếc lá, đạo cụ duy nhất được thêm), `proud` (MA-17, có ảnh chớp mắt). Khung phụ cho cử động thật: vẫy tay 2 khung (MA-21), ăn mừng 2 nhịp (MA-22). Phản ứng nào dùng tư thế nào: [Asset spec](../mascot/MASCOT_ASSET_SPECIFICATION.md) §4 và [Behavior Matrix](../mascot/MASCOT_BEHAVIOR_MATRIX.md). Chưa có ảnh thì dùng tư thế cũ gần nhất. Mila hiện **tối đa một lần** trên một màn; thanh tiến trình không phải chỗ của Mila (Spec Mascot §5.1).
 
 ### 9.4 Không đặt Mila trên
 

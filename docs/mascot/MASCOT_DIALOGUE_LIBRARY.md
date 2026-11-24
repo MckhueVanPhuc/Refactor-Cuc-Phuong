@@ -18,7 +18,7 @@
 
 ## 2. Thời lượng và lặp lại
 
-- **Thời lượng tự ẩn** của bong bóng không có nút: `clamp(3 000 ms, 1 200 ms + 45 ms × số ký tự, 7 000 ms)`. Một câu 60 ký tự hiện khoảng 3,9 s. Thời gian dừng lại khi du khách chạm hoặc focus vào bong bóng.
+- **Thời lượng tự ẩn** của bong bóng không có nút: **15 000 ms** sau khi chữ hiện đủ, ở mọi màn (`MASCOT_BUBBLE_READ_MS`, spec-Mascot v1.5; trước đây `clamp(3 000 ms, 1 200 ms + 45 ms × số ký tự, 7 000 ms)`). Nút × đóng sớm; đổi màn thì đóng. Thời gian dừng lại khi du khách chạm hoặc focus vào bong bóng.
 - **Bong bóng có CTA** không tự ẩn (design-system §5.3: thông báo có hành động không tự đóng); đóng khi bấm CTA, bấm "×", hoặc khi đổi màn.
 - **Cooldown** tính trong một lần tải trang (bộ nhớ trong RAM, không lưu). "1 lần/tải trang" nghĩa là chỉ hiện lại sau khi tải lại trang.
 - **Pool**: câu có nhiều biến thể thì xoay vòng, không lặp biến thể vừa dùng.
@@ -130,8 +130,8 @@ MAS-MSG-050, 051, 055, 058 là **xác nhận lượt ghé**: chữ nói rõ lư�
 | `mascot.dismiss` | Đóng lời nhắn | Dismiss message | Nút × trên bong bóng |
 | `mascot.notNow` | Chưa | Not now | CTA phụ của MAS-MSG-049 |
 | `mascot.help` | Hỏi {name} | Ask {name} | Tên truy cập khi chạm mascot để nhận gợi ý |
-| `mascot.motion` | Chuyển động của {name} | {name}'s motion | Nhãn công tắc ở màn Tài nguyên (v1.3, BR-MAS-21); trạng thái bằng `aria-checked` |
-| `mascot.motionHint` | Tắt để {name} đứng yên. | Turn off to keep {name} still. | Câu phụ dưới nhãn công tắc (v1.3) |
+| `mascot.motion` | Hiệu ứng chuyển động | Motion effects | Nhãn công tắc ở màn Tài nguyên (v1.3, BR-MAS-21; v1.4 đổi từ "Chuyển động của {name}"); trạng thái bằng `aria-checked`; hiện cả khi Mila tắt |
+| `mascot.motionHint` | Tắt để {name} và hiệu ứng trang trí đứng yên. | Turn off to keep {name} and decorations still. | Câu phụ dưới nhãn công tắc (v1.3; v1.4) |
 | `mascot.introHint` | Chạm để bắt đầu | Tap to start | Dòng gợi ý dưới Mila trong lớp phủ giới thiệu (v1.3) |
 
 ### 3.6 FUTURE (chưa viết, bị chặn bởi MVP-Scope §4)

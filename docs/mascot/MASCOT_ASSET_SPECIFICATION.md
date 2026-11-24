@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED** |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); §3 đồng bộ mẫu precache với code (T071) |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 theo spec-Mascot v1.1 (CHG-MASCOT-2026-11-22-02) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); §3 đồng bộ mẫu precache với code (T071); 2026-11-24 §4 thêm ảnh đợt 4 theo spec-Mascot v1.4 (CHG-MOTION-2026-11-24-01) |
 | Quy tắc repo | AGENTS.md §4: ảnh (không phải icon) chỉ được thêm khi người dùng cung cấp. Agent chỉ cắt, đổi cỡ, nén (người dùng cho phép tạo bản nén 2026-11-20), không vẽ lại nhân vật |
 
 ## 1. Kiểm tra artwork hiện có (Stage 1)
@@ -90,15 +90,21 @@ Cột Status: **NEEDED-v1** (tối thiểu cho bản đầu), **v1.1**, **v2**, 
 | MA-10 | rest | Tư thế toàn thân | Ngồi nghỉ, thư thái | WebP 240/480 | Trạng thái rỗng, nhắc nghỉ | MAS-B-006, 023, 049, 057 | READY 2026-11-22 |
 | MA-11 | avatar | Avatar tròn | Mặt cười, khăn, nền tròn xanh | WebP 96/192 | Đầu bong bóng AVATAR | MAS-B-010, 014, 040, 050 (AVATAR) | READY 2026-11-22 |
 | MA-13 | point | Nửa thân | Chỉ tay sang ngang | WebP 240/480 | Hướng dẫn | MAS-B-008, 009, 013, 014, 032, 040, 042, 048, 059 | READY 2026-11-23 |
-| MA-12 | sorry | Nửa thân | Buồn nhẹ, xin lỗi | WebP 240/480 | `CONFLICT` | MAS-B-072 (v1 dùng MA-09) | v1.1 |
-| MA-20 | blink | Khung phụ | Bản **mắt nhắm** của các tư thế DOCK: map, binoculars, thumbs-up, backpack, rest (cheer đã nhắm mắt). Tệp `ma-20-<tư thế>-blink.png`, cùng khung và vị trí với ảnh gốc, chỉ khác mắt | WebP 240 (cùng cỡ ảnh gốc) | Chớp mắt ở DOCK (AN-BLINK, cử chỉ tự động) | MAS-B-086 | READY 2026-11-23 (vùng mắt ghép lên ảnh gốc, assets/mascot/README.md) |
-| MA-21 | wave-seq | Sprite | 8 khung vẫy tay | WebP sprite | INTRO | MAS-B-001 | v2 |
-| MA-22 | cheer-seq | Sprite | 8 khung ăn mừng | WebP sprite | CELEBRATE | MAS-B-062 | v2 |
+| MA-12 | sorry | Nửa thân | Hai tay chắp trước ngực, cúi nhẹ, xin lỗi nhẹ (không buồn bã) | WebP 240/480 | `CONFLICT` | MAS-B-072 (tới khi có ảnh dùng MA-09) | NEEDED đợt 4A (2026-11-24) |
+| MA-14 | amazed | Nửa thân | Hai tay đưa lên má, mắt mở to, miệng "wow" | WebP 240/480 | AVATAR cạnh toast trang nội dung | MAS-B-050 (lượt ghé thường, cấp 1; tới khi có ảnh dùng MA-07) | NEEDED đợt 4A |
+| MA-15 | walk | Toàn thân, nhìn ngang sang phải | Đang sải bước; khung 2 `ma-15-walk-f2` bước chân ngược lại | WebP 240/480 | DOCK SCR-M02-001 | MAS-B-056 (quay lại sau lượt ghé mới; tới khi có ảnh dùng MA-02); AN-WALK | NEEDED đợt 4A (khung 2: đợt 4B) |
+| MA-16 | peek | Nửa thân | Nấp sau một chiếc lá rừng lớn, ló đầu nhìn sang phải | WebP 240/480 | INLINE cạnh câu rỗng | MAS-B-006, 023 (tới khi có ảnh dùng MA-10) | NEEDED đợt 4A |
+| MA-17 | proud | Toàn thân | Hai tay chống hông, ưỡn ngực, tự hào | WebP 240/480 | DOCK/INLINE cạnh huy hiệu SCR-M02-003 | MAS-B-063 (sau ăn mừng, mở lại màn kết quả; tới khi có ảnh dùng MA-08 tĩnh) | NEEDED đợt 4A |
+| MA-20 | blink | Khung phụ | Bản **mắt nhắm** của các tư thế DOCK: map, binoculars, thumbs-up, backpack, rest (cheer đã nhắm mắt); v1.4 thêm `ma-20-proud-blink` (đợt 4B). Tệp `ma-20-<tư thế>-blink.png`, cùng khung và vị trí với ảnh gốc, chỉ khác mắt | WebP 240 (cùng cỡ ảnh gốc) | Chớp mắt ở DOCK (AN-BLINK, cử chỉ tự động) | MAS-B-086 | READY 2026-11-23 (vùng mắt ghép lên ảnh gốc, assets/mascot/README.md) |
+| MA-21 | wave-seq | Khung phụ | **2 khung** (v1.4 thay sprite 8 khung): `ma-01-wave` + `ma-21-wave-f2` (cẳng tay nghiêng về đầu) | WebP 240/480, cùng khung với MA-01 | INTRO | MAS-B-001; AN-GREET đổi khung 2 nhịp | NEEDED đợt 4B |
+| MA-22 | cheer-seq | Khung phụ | **2 nhịp** (v1.4 thay sprite 8 khung): `ma-08-cheer` + `ma-22-cheer-f2` (hai tay chữ V rộng hơn) | WebP 240/480, cùng khung với MA-08 | CELEBRATE, mốc cấp 2 | MAS-B-051, 055, 062, 064 | NEEDED đợt 4B |
 | FX-01 | leaf | Hiệu ứng | Lá rơi: dùng lại `assets/icons/leaf.svg` làm mask (design-system §7) | SVG có sẵn | CELEBRATE, HOP | MAS-B-062 | Có sẵn |
 | — | trophy, coin, medal, chest | Đạo cụ | — | — | — | — | DROP (phần thưởng hoãn) |
 | — | laptop, megaphone, warning-sign, shield | Đạo cụ | — | — | — | — | DROP (lạc chủ đề / an toàn) |
 
 **Tối thiểu v1: 12 ảnh tư thế (MA-01…11, MA-13); lá rơi dùng lại `leaf.svg`.** Ngân sách mục tiêu: 12 × ~25 KB (cỡ 480) + 12 × ~10 KB (cỡ 240) ≈ 420 KB nếu precache cả hai cỡ. Vì vậy đề xuất **chỉ precache cỡ 240** cho DOCK/AVATAR/INLINE, còn cỡ 480 nạp khi cần cho INTRO/CELEBRATE (có fallback về cỡ 240 khi offline). Con số thật đo khi có asset (MAS-NFR-01).
+
+**Đợt 4 (v1.4, 2026-11-24):** 5 tư thế (4A) và 4 khung phụ (4B), prompt ở [hướng dẫn tạo ảnh](MASCOT_IMAGE_PRODUCTION_GUIDE.md) §9. Ngân sách thêm vào precache (cỡ 240) ≤ 120 KB (change brief CHG-MOTION-2026-11-24-01 §5); đo khi có ảnh. Khung phụ chỉ được ghép vùng khác biệt lên ảnh gốc (như MA-20).
 
 **Số đo đợt 1 (2026-11-22, 9 ảnh, WebP chất lượng 0,82):** cỡ 240 từ 10,1 đến 15,7 KB, avatar 96 là 5,0 KB; precache (8 × 240 + avatar 96) **101,5 KB**. Cỡ lớn (8 × 480 + avatar 192) 266,2 KB, nạp khi cần. Chi tiết: specs/005 validation-report §6.
 
@@ -143,7 +149,7 @@ Mọi animation dùng CSS (`transform`, `opacity`), lấy thời lượng từ t
 | AN-ERROR | Hiện tại | MA-09 | Nghiêng ±4° hai nhịp (AN-TILT) | 600 ms | Một lần | Quét lỗi, lỗi tải | Đứng yên | CSS |
 | AN-DIZZY | Hiện tại | MA-09 (tạm) | Lắc lư vòng tròn nhỏ ±8°, dịch ±4 px | 800 ms | Một lần | MAS-B-085 | Tư thế ngữ cảnh | CSS |
 | AN-BLINK | Tư thế DOCK | MA-20 của tư thế đó | Đổi sang ảnh mắt nhắm 120 ms rồi về | 120 ms | Một lần (có thể 2 lần liền) | Cử chỉ tự động | Đứng yên | Đổi ảnh |
-| AN-AMBIENT | Tư thế ngữ cảnh | Tư thế ngữ cảnh | Một cử chỉ ngẫu nhiên trong nhóm: nhìn ống nhòm (đổi MA-05 rồi về), vẫy (MA-01 + lắc lư), nhún, nghiêng đầu, kéo quai ba lô (MA-04 + nhún), thở (AN-BREATHE), chớp mắt (AN-BLINK); không lặp cùng cử chỉ hai lần liền | ≤ 1 500 ms | Lặp mãi, mỗi lần cách 8–15 s (`MASCOT_AMBIENT_MIN_MS`–`MAX`); dừng bằng công tắc chuyển động | MAS-B-086 | Đứng yên | CSS + đổi ảnh |
+| AN-AMBIENT | Tư thế ngữ cảnh | Tư thế ngữ cảnh | Một cử chỉ ngẫu nhiên trong nhóm: nhìn ống nhòm (đổi MA-05 rồi về), vẫy (MA-01 + lắc lư), nhún, nghiêng đầu, kéo quai ba lô (MA-04 + nhún), thở (AN-BREATHE), chớp mắt (AN-BLINK); mỗi cử chỉ 2–3 nhịp; không lặp cùng cử chỉ hai lần liền; giữa hai cử chỉ thở nhẹ liên tục (AN-BREATHE, v1.5) | ≤ 3 000 ms (v1.5) | Lặp mãi, mỗi lần cách 4–7 s (v1.5) (`MASCOT_AMBIENT_MIN_MS`–`MAX`); dừng bằng công tắc chuyển động | MAS-B-086 | Đứng yên | CSS + đổi ảnh |
 
 **Kỹ thuật (quyết định 2026-11-22):** ảnh tư thế tĩnh + CSS + đổi ảnh. Chớp mắt dùng ảnh mắt nhắm MA-20 (đổi ảnh 120 ms, không biến dạng ảnh). Vẫy tay thật và ăn mừng sống động hơn dùng sprite MA-21, MA-22 ở v2 nếu người dùng tạo được khung hình đồng nhất. Không rig vector (Rive/Lottie): phải vẽ lại nhân vật dạng vector và thêm dependency.
 

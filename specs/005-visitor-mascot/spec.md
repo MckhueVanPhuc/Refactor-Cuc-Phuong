@@ -181,7 +181,7 @@ Giữa các sự kiện, ở màn Mila đứng chờ, Mila tự làm cử chỉ 
 
 **Acceptance Scenarios**:
 
-1. **Given** Mila ở DOCK trên SCR-M01-001, SCR-M02-001 (scanner đóng) hoặc SCR-M02-003, không bong bóng, **Then** mỗi 8–15 giây Mila làm một cử chỉ ≤ 1,5 giây, không lặp cử chỉ liền nhau (BR-MAS-21).
+1. **Given** Mila ở DOCK trên SCR-M01-001, SCR-M02-001 (scanner đóng) hoặc SCR-M02-003, không bong bóng, **Then** mỗi 4–7 giây Mila làm một cử chỉ 2–3 nhịp ≤ 3 giây, giữa hai cử chỉ thở nhẹ, không lặp cử chỉ liền nhau (BR-MAS-21; v1.5, SCR-M01-002 cũng áp dụng).
 2. **Given** du khách vừa chạm, cuộn hoặc gõ phím trong 2 giây, hoặc đang ở trang đọc bài, phát media, có hộp thoại, **Then** không cử chỉ tự động và không câu do hẹn giờ (BR-MAS-20).
 3. **Given** công tắc tắt, **Then** không animation, không lá rơi, chữ hiện ngay; Mila và bong bóng vẫn hiện (BR-MAS-21).
 4. **Given** bong bóng mới, **Then** chữ hiện dần khoảng 30 ký tự/giây; chạm bong bóng hiện hết; trình đọc màn hình đọc câu đầy đủ một lần; thời lượng tự ẩn tính từ khi chữ hiện đủ.
@@ -227,7 +227,7 @@ Mỗi dòng giữ nguyên ID của spec-Mascot; BR là tham chiếu nguồn, chi
 | Màn | Slot | Chế độ |
 |---|---|---|
 | SCR-M01-001 | Hero hai cột (v1.3); lớp phủ giới thiệu; trạng thái rỗng và lỗi | INTRO (lớp phủ), DOCK; INLINE |
-| SCR-M01-002 | Đầu màn; kết quả rỗng | AVATAR; INLINE |
+| SCR-M01-002 | Đầu màn (v1.5); kết quả rỗng | DOCK; INLINE |
 | SCR-M01-003 | Panel Bắt đầu (không trên khối Cảnh báo an toàn); panel gói; đầu dialog quyết định offline | AVATAR, INLINE |
 | SCR-M01-004 | Panel gói; trạng thái rỗng | AVATAR, INLINE |
 | SCR-M02-001 | Cạnh nút Quét QR; cạnh vùng thông báo; dải dưới khung trong scanner; đầu dialog cuối chuyến | DOCK; INLINE; AVATAR; INLINE |

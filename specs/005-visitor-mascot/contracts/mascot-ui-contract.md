@@ -22,7 +22,7 @@
 |---|---|---|---|
 | `catalog-hero` | SCR-M01-001, trong hero | INTRO, DOCK | — |
 | — | SCR-M01-001 | — | Câu rỗng "Hiện chưa có tuyến nào để chọn." (`rest`); câu lỗi nguồn (`confused`) |
-| `recommend-head` | SCR-M01-002, cạnh tiêu đề | AVATAR | Câu "Chưa có tuyến phù hợp…" (`think`) |
+| `recommend-head` | SCR-M01-002, cạnh tiêu đề | DOCK (v1.5) | Câu "Chưa có tuyến phù hợp…" (`think`) |
 | `start-panel` | SCR-M01-003, trong panel Bắt đầu, phía trên nút | AVATAR | Câu lỗi Start (`confused`) |
 | `package-panel` | SCR-M01-003 và SCR-M01-004, trong panel gói | AVATAR | Câu "Chưa cập nhật được…" (`confused`) |
 | — | Dialog quyết định offline | — | Đầu dialog (`backpack`) |
@@ -55,7 +55,7 @@ Không có slot hay figure ở: bước chọn ngôn ngữ, khối Cảnh báo a
 | `--mascot-bubble-surface` (v1.1) | #fffaf0 |
 | `--duration-mascot-enter` / `-exit` / `-pop` / `-hop` / `-celebrate` | 250ms / 200ms / 200ms / 600ms / 2400ms |
 | `--duration-mascot-loop` | 1200ms (chu kỳ; v1.1: tối đa 4 vòng ≈ 4,8 s, R-25) |
-| `--duration-mascot-milestone` / `-ambient` / `-blink` (v1.1) | 1200ms / ≤ 1500ms / 120ms |
+| `--duration-mascot-milestone` / `-ambient` / `-blink` (v1.1; v1.5) | 1200ms / ≤ 3000ms (v1.5) / 120ms |
 
 Mọi `--duration-mascot-*` = 0ms trong khối `@media (prefers-reduced-motion: reduce)` hiện có.
 

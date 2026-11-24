@@ -193,10 +193,10 @@ Cột "Nguồn" chỉ nơi trong code hiện tại sẽ phát sự kiện (chỉ
 
 ### 6.6 Cử chỉ tự động và công tắc chuyển động (BR-MAS-21, v1.1)
 
-- Lịch: sau mỗi cử chỉ, chọn hạn kế tiếp ngẫu nhiên trong `MASCOT_AMBIENT_MIN_MS`–`MASCOT_AMBIENT_MAX_MS` (8–15 s). Một hẹn giờ duy nhất như các hẹn giờ khác (`nextDeadline`).
+- Lịch: sau mỗi cử chỉ, chọn hạn kế tiếp ngẫu nhiên trong `MASCOT_AMBIENT_MIN_MS`–`MASCOT_AMBIENT_MAX_MS` (4–7 s, v1.5; trước 8–15 s). Một hẹn giờ duy nhất như các hẹn giờ khác (`nextDeadline`).
 - Điều kiện chạy (MAS-B-086): màn SCR-M01-001, SCR-M02-001 khi scanner đóng, SCR-M02-003; Mila ở DOCK; không bong bóng; công tắc bật; không ở ngữ cảnh BR-MAS-08; quá `MASCOT_INTERACTION_GRACE_MS` từ thao tác cuối. Không đạt thì bỏ lượt và hẹn lại, không xếp hàng.
 - Cử chỉ chọn ngẫu nhiên, không lặp cùng cử chỉ hai lần liền; cử chỉ đổi tư thế luôn về tư thế ngữ cảnh (§3.1). Không tính vào giới hạn câu chủ động (BR-MAS-07) vì không có chữ.
-- Công tắc "Chuyển động của Mila" (MAS-B-087) ở màn Tài nguyên SCR-M01-004 (v1.3; trước đây ở thanh đầu trang): trạng thái `motion: on | off` trong bộ nhớ của lần tải trang; khởi đầu `off` khi thiết bị yêu cầu giảm chuyển động. `off`: không animation, không lá rơi, chữ hiện ngay, không lịch cử chỉ. Công tắc không đổi `view` hay bong bóng: Mila vẫn hiện.
+- Công tắc "Hiệu ứng chuyển động" (MAS-B-087; nhãn v1.4, trước là "Chuyển động của Mila") ở màn Tài nguyên SCR-M01-004 (v1.3; trước đây ở thanh đầu trang). Từ v1.4 trạng thái nằm ở `src/shared/motion/` (dùng chung cho Mila và hiệu ứng trang trí T3), engine mascot chỉ đọc: trạng thái `motion: on | off` trong bộ nhớ của lần tải trang; khởi đầu `off` khi thiết bị yêu cầu giảm chuyển động. `off`: không animation, không lá rơi, chữ hiện ngay, không lịch cử chỉ, không rung. Công tắc không đổi `view` hay bong bóng: Mila vẫn hiện.
 
 ### 6.7 Chạm nhiều lần (BR-MAS-22, v1.1)
 
