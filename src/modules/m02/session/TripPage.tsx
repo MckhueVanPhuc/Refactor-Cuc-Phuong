@@ -12,6 +12,7 @@ import { useEndTrip } from '../end/useEndTrip';
 import type { M02Messages } from '../i18n';
 import { useM02Messages } from '../i18n/useM02Messages';
 import { RouteJourneyMap } from '../journey/RouteJourneyMap';
+import { takeUnlock } from '../journey/unlockSignal';
 import { FieldLayout, FieldNotice } from '../layout/FieldLayout';
 import { useBusyWhile } from '../pwa/registerBusy';
 import { processScannedText, type ScanResult } from '../scan/processScan';
@@ -100,6 +101,8 @@ export function TripPage() {
   const running = useRunningSession();
   const session = entry.status === 'done' && running.status === 'ready' ? running.value : null;
   const visits = useSessionVisits(session?.sessionId);
+  // Mở khóa checkpoint vừa ghé khi quay về (specs/006 R-05): đọc một lần lúc mở màn; tải lại trang thì không còn
+  const [unlock] = useState(takeUnlock);
   const { endTrip, ending } = useEndTrip();
   // E-SCR-M02-001-22: chuyến trước không gửi được và chưa có chuyến mới; chỉ hiển thị, không có thao tác (BR-M02-011)
   const previousTripSyncError = usePreviousTripSyncError();
@@ -177,7 +180,7 @@ export function TripPage() {
         data-entry={entry.status === 'done' ? entry.result.kind : 'ENTERING'}
       >
         {session && visits.status === 'ready' && (
-          <RouteJourneyMap checkpoints={session.journeyCheckpoints} visits={visits.value} onOpen={openVisit} />
+          <RouteJourneyMap checkpoints={session.journeyCheckpoints} visits={visits.value} onOpen={openVisit} unlock={unlock} />
         )}
       </div>
       {entry.status === 'done' && (

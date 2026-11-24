@@ -143,3 +143,70 @@
   font-size: var(--font-size-meta);
   color: var(--color-m02-scanner-secondary);
 }
+
+/*
+ * Phản hồi nhấn (design-system §5.4 v1.4, T1; specs/006 US1): chỉ trên màn du khách (`[data-surface]` của VisitorLayout,
+ * FieldLayout) khi `data-motion="full"`; co về --press-scale, không đổi bố cục. Giảm chuyển động / công tắc tắt: chỉ lớp phủ.
+ */
+:root[data-motion='full'] [data-surface] .open {
+  transition: transform var(--duration-press) var(--ease-standard);
+}
+
+:root[data-motion='full'] [data-surface] .open:active {
+  transform: scale(var(--press-scale));
+}
+
+/* —— Thanh tiến trình và mở khóa checkpoint (design-system §4.3.1 T1, §5.3 v1.4; specs/006 US2) —— */
+.trail {
+  color: var(--color-m02-scanner-success);
+}
+
+/* Điểm vừa có lượt ghé mới: vòng số nảy một lần; nửa dưới đường mòn của nó rồi nửa trên của điểm kế được vẽ ra */
+:root[data-motion='full'] .item[data-unlock] .number {
+  animation: unlock-pop var(--duration-feedback) var(--ease-spring) both;
+}
+
+:root[data-motion='full'] .item[data-unlock]:not(:last-child)::after {
+  transform-origin: top;
+  animation: trail-draw calc(var(--duration-trail-draw) / 2) var(--ease-standard) var(--duration-feedback) both;
+}
+
+:root[data-motion='full'] .item[data-unlock] + .item::before {
+  transform-origin: top;
+  animation: trail-draw calc(var(--duration-trail-draw) / 2) var(--ease-standard) calc(var(--duration-feedback) + var(--duration-trail-draw) / 2) both;
+}
+
+/* Giảm chuyển động / công tắc tắt: chỉ hiện màu mới bằng mờ dần ngắn, không nảy, không vẽ (T1) */
+:root[data-motion='reduced'] .item[data-unlock] .number {
+  animation: unlock-fade var(--duration-feedback-reduced) var(--ease-standard) both;
+}
+
+@keyframes unlock-pop {
+  from {
+    transform: scale(0.6);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes trail-draw {
+  from {
+    transform: scaleY(0);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes unlock-fade {
+  from {
+    opacity: 0.4;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

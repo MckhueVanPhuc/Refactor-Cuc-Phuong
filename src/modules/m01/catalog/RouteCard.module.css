@@ -143,3 +143,26 @@
   color: var(--color-m01-ink);
   border: var(--border-width-thin) solid var(--color-m01-ink);
 }
+
+/*
+ * Phản hồi nhấn (design-system §5.4 v1.4, T1; specs/006 US1): chỉ trên màn du khách (`[data-surface]` của VisitorLayout,
+ * FieldLayout) khi `data-motion="full"`; co về --press-scale, không đổi bố cục. Giảm chuyển động / công tắc tắt: chỉ lớp phủ.
+ */
+:root[data-motion='full'] [data-surface] .card {
+  transition: transform var(--duration-press) var(--ease-standard);
+}
+
+:root[data-motion='full'] [data-surface] .card:active {
+  transform: scale(var(--press-scale));
+}
+
+/* Thẻ tuyến nhấc nhẹ khi rê chuột (chỉ thiết bị có con trỏ) */
+@media (hover: hover) {
+  :root[data-motion='full'] [data-surface] .card:hover {
+    transform: translateY(calc(var(--space-1) * -0.5));
+  }
+
+  :root[data-motion='full'] [data-surface] .card:hover:active {
+    transform: translateY(calc(var(--space-1) * -0.5)) scale(var(--press-scale));
+  }
+}

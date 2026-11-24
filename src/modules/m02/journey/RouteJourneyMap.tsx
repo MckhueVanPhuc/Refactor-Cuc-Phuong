@@ -2,6 +2,7 @@
 // `sequence` và đánh số liên tục 1, 2, 3… dù `sequence` có khoảng trống. Điểm đã quét ghi "Đã quét QR" và giờ quét đầu
 // tiên — nghĩa là mã đã được quét, không phải xác nhận có mặt. Chạm điểm đã quét → xem lại nội dung của mã đó.
 import type { ManifestCheckpoint } from '../../../shared/contracts/journeyManifest';
+import { ProgressTrail } from '../../../shared/ui/ProgressTrail';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import type { CheckpointVisitRow } from '../storage/rows';
 import styles from './RouteJourneyMap.module.css';
@@ -17,16 +18,21 @@ export function RouteJourneyMap({
   checkpoints,
   visits,
   onOpen,
+  unlock = null,
 }: {
   checkpoints: readonly ManifestCheckpoint[];
   visits: readonly CheckpointVisitRow[];
   onOpen: (visit: CheckpointVisitRow) => void;
+  /** Checkpoint vừa có lượt ghé mới khi quay về màn (specs/006 R-05): nảy một lần, đường mòn tới điểm kế vẽ ra */
+  unlock?: string | null;
 }) {
   const messages = useM02Messages();
   const language = useM02DisplayLanguage();
   const ordered = [...checkpoints].sort((a, b) => a.sequence - b.sequence);
   const visitOf = new Map(visits.map((visit) => [visit.checkpointId, visit]));
   const scanned = ordered.filter((c) => visitOf.has(c.checkpointId)).length;
+  const unlocked = unlock !== null && visitOf.has(unlock) ? unlock : null;
+  const progressLabel = messages.journey.progress({ scanned, total: ordered.length });
 
   return (
     <section className={styles.journey} aria-labelledby="m02-journey-heading">
@@ -34,14 +40,21 @@ export function RouteJourneyMap({
         <h2 className={styles.heading} id="m02-journey-heading">
           {messages.journey.heading}
         </h2>
-        <p className={styles.progress}>{messages.journey.progress({ scanned, total: ordered.length })}</p>
+        <p className={styles.progress}>{progressLabel}</p>
       </div>
+      {/* Thanh tiến trình k/n lấy từ phiên (design-system §5.3 v1.4; E-SCR-M02-001-25); câu tiến độ trên vẫn là thông tin chính */}
+      <ProgressTrail className={styles.trail} value={scanned} max={ordered.length} label={progressLabel} from={unlocked ? scanned - 1 : scanned} />
       <ol className={styles.list}>
         {ordered.map((checkpoint, index) => {
           const visit = visitOf.get(checkpoint.checkpointId);
           const name = <span className={styles.name}>{checkpoint.checkpointName[language]}</span>;
           return (
-            <li className={styles.item} key={checkpoint.checkpointId} data-checkpoint={checkpoint.checkpointId}>
+            <li
+              className={styles.item}
+              key={checkpoint.checkpointId}
+              data-checkpoint={checkpoint.checkpointId}
+              data-unlock={checkpoint.checkpointId === unlocked ? '' : undefined}
+            >
               <span className={styles.number} aria-hidden="true">
                 {index + 1}
               </span>

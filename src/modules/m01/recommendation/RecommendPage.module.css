@@ -309,3 +309,27 @@
   align-items: center;
   gap: var(--space-3);
 }
+
+/*
+ * Phản hồi nhấn (design-system §5.4 v1.4, T1; specs/006 US1): chỉ trên màn du khách (`[data-surface]` của VisitorLayout,
+ * FieldLayout) khi `data-motion="full"`; co về --press-scale, không đổi bố cục. Giảm chuyển động / công tắc tắt: chỉ lớp phủ.
+ */
+:root[data-motion='full'] [data-surface] .optionText {
+  transition: transform var(--duration-press) var(--ease-standard);
+}
+
+:root[data-motion='full'] [data-surface] .option:active .optionText {
+  transform: scale(var(--press-scale));
+}
+
+/*
+ * Phản hồi nhấn (design-system §5.4 v1.4, T1; specs/006 US1): chỉ trên màn du khách (`[data-surface]` của VisitorLayout,
+ * FieldLayout) khi `data-motion="full"`; co về --press-scale, không đổi bố cục. Giảm chuyển động / công tắc tắt: chỉ lớp phủ.
+ */
+:root[data-motion='full'] [data-surface] .submit:not(:disabled) {
+  transition: transform var(--duration-press) var(--ease-standard);
+}
+
+:root[data-motion='full'] [data-surface] .submit:not(:disabled):active {
+  transform: scale(var(--press-scale));
+}

@@ -8,18 +8,18 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Đo nền trước khi code (R-16): build bản hiện tại (`npx vite build`), ghi gzip từng tệp `dist/assets/*.js|css`; đo LCP SCR-M01-001 (Playwright + CDP Slow 4G, CPU 4×) và CLS SCR-M01-001, SCR-M02-001, SCR-M02-003 trên `preview:e2e` bằng script tạm ngoài repo; ghi số vào `specs/006-visitor-motion/validation-report.md` §1 (tạo tệp)
-- [ ] T002 Spike R-01: bọc `<Outlet>` của `src/modules/m01/layout/VisitorLayout.tsx` bằng `ViewTransition` của `react`, kiểm trên Chromium (Playwright) rằng đổi `/` → `/routes/route-a` tạo `::view-transition-old/new` (`document.getAnimations()` có pseudo-element), không lỗi console; nếu không kích hoạt thì gói điều hướng trong `startTransition`; ghi kết luận vào validation report §1 rồi hoàn nguyên spike
-- [ ] T003 [P] Vẽ `assets/icons/footprint.svg` và `assets/icons/sun-rays.svg` (lưới 24×24, nét đơn sắc, dùng làm mask; design-system §7)
+- [X] T001 Đo nền trước khi code (R-16): build bản hiện tại (`npx vite build`), ghi gzip từng tệp `dist/assets/*.js|css`; đo LCP SCR-M01-001 (Playwright + CDP Slow 4G, CPU 4×) và CLS SCR-M01-001, SCR-M02-001, SCR-M02-003 trên `preview:e2e` bằng script tạm ngoài repo; ghi số vào `specs/006-visitor-motion/validation-report.md` §1 (tạo tệp)
+- [X] T002 Spike R-01: bọc `<Outlet>` của `src/modules/m01/layout/VisitorLayout.tsx` bằng `ViewTransition` của `react`, kiểm trên Chromium (Playwright) rằng đổi `/` → `/routes/route-a` tạo `::view-transition-old/new` (`document.getAnimations()` có pseudo-element), không lỗi console; nếu không kích hoạt thì gói điều hướng trong `startTransition`; ghi kết luận vào validation report §1 rồi hoàn nguyên spike
+- [X] T003 [P] Vẽ `assets/icons/footprint.svg` và `assets/icons/sun-rays.svg` (lưới 24×24, nét đơn sắc, dùng làm mask; design-system §7)
 
 ## Phase 2: Foundational (chặn mọi story)
 
-- [ ] T004 [P] Test `src/shared/motion/level.test.ts`: `useMotionLevel` → `full`/`reduced` theo công tắc và `prefers-reduced-motion`; `decor` off khi `reduced`, `saveData`, `deviceMemory ≤ 2`; không báo → on; `useMotionAttributes` ghi `data-motion`/`data-decor` trên `<html>` và cập nhật khi công tắc đổi
-- [ ] T005 Chuyển `src/shared/mascot/motion.ts` sang `src/shared/motion/store.ts` (giữ nguyên hành vi, vẫn phát `mascot.motion.changed`); `src/shared/mascot/motion.ts` chỉ re-export; cập nhật import test hiện có nếu cần
-- [ ] T006 Cài `src/shared/motion/level.ts` (`useMotionLevel`, `useMotionAttributes`) và `src/shared/motion/index.ts` theo contracts §2
-- [ ] T007 Gọi `useMotionAttributes()` một lần trong `src/app/App.tsx`
-- [ ] T008 Thêm token design-system §4.3.1 và `--duration-feedback-reduced: 150ms` vào `src/shared/ui/tokens.css`; đặt về `0ms`/`1` dưới `@media (prefers-reduced-motion: reduce)` và `:root[data-motion='reduced']` (trừ `--duration-feedback-reduced`); thêm dòng `--duration-feedback-reduced` vào `docs/design/design-system.md` §4.3.1
-- [ ] T009 Test kiến trúc: thêm `src/shared/motion` vào kiểm tra "shared không import module" trong `src/modules/m01/architecture.test.ts` (hoặc test kiến trúc dùng chung hiện có)
+- [X] T004 [P] Test `src/shared/motion/level.test.ts`: `useMotionLevel` → `full`/`reduced` theo công tắc và `prefers-reduced-motion`; `decor` off khi `reduced`, `saveData`, `deviceMemory ≤ 2`; không báo → on; `useMotionAttributes` ghi `data-motion`/`data-decor` trên `<html>` và cập nhật khi công tắc đổi
+- [X] T005 Chuyển `src/shared/mascot/motion.ts` sang `src/shared/motion/store.ts` (giữ nguyên hành vi, vẫn phát `mascot.motion.changed`); `src/shared/mascot/motion.ts` chỉ re-export; cập nhật import test hiện có nếu cần
+- [X] T006 Cài `src/shared/motion/level.ts` (`useMotionLevel`, `useMotionAttributes`) và `src/shared/motion/index.ts` theo contracts §2
+- [X] T007 Gọi `useMotionAttributes()` một lần trong `src/app/App.tsx`
+- [X] T008 Thêm token design-system §4.3.1 và `--duration-feedback-reduced: 150ms` vào `src/shared/ui/tokens.css`; đặt về `0ms`/`1` dưới `@media (prefers-reduced-motion: reduce)` và `:root[data-motion='reduced']` (trừ `--duration-feedback-reduced`); thêm dòng `--duration-feedback-reduced` vào `docs/design/design-system.md` §4.3.1
+- [X] T009 Test kiến trúc: thêm `src/shared/motion` vào kiểm tra "shared không import module" trong `src/modules/m01/architecture.test.ts` (hoặc test kiến trúc dùng chung hiện có)
 
 **Checkpoint**: `npm run ci` PASS; `<html>` có `data-motion`, `data-decor`.
 
@@ -29,13 +29,13 @@
 
 **Independent Test**: quickstart M7, M8, M9.
 
-- [ ] T010 [P] [US3] Test `src/shared/motion/MotionSwitch.test.tsx`: `role="switch"`, nhãn "Hiệu ứng chuyển động", câu phụ "Tắt để Mila và hiệu ứng trang trí đứng yên."; render khi `VITE_FEATURE_MASCOT=off`; bấm đổi `aria-checked` và store
-- [ ] T011 [P] [US3] Test `src/app/mascot/MascotHost.test.tsx`: công tắc tắt → lượt ghé mới không gọi `navigator.vibrate`; bật → gọi một lần 30 ms
-- [ ] T012 [US3] Đổi chuỗi `mascot.motion` / `mascot.motionHint` (VI/EN) trong `src/shared/mascot/dialogue/vi.ts`, `en.ts` theo spec-Mascot v1.4; cập nhật `src/shared/mascot/dialogue/catalog.test.ts`
-- [ ] T013 [US3] Cài `src/shared/motion/MotionSwitch.tsx` (+ `.module.css`, chuyển style từ `MascotMotionSwitch`); xóa `src/shared/mascot/MascotMotionSwitch.tsx` (+ test, css) và export trong `src/shared/mascot/index.ts`
-- [ ] T014 [US3] `src/modules/m01/offline-package/OfflinePage.tsx`: render `MotionSwitch` không điều kiện (thay `MascotMotionSwitch`)
-- [ ] T015 [US3] `src/app/mascot/MascotHost.tsx`: `StepContext.reducedMotion` = `still` (giảm chuyển động hoặc công tắc tắt); kiểm `getMotion()` trước `navigator.vibrate` (R-14)
-- [ ] T016 [US3] E2E `e2e/m01/mascot-motion.spec.ts`: đổi nhãn công tắc; thêm ca cờ Mila tắt vẫn có công tắc (M7); thêm ca `saveData`/`deviceMemory` qua `addInitScript` → `data-decor="off"` (M9)
+- [X] T010 [P] [US3] Test `src/shared/motion/MotionSwitch.test.tsx`: `role="switch"`, nhãn "Hiệu ứng chuyển động", câu phụ "Tắt để Mila và hiệu ứng trang trí đứng yên."; render khi `VITE_FEATURE_MASCOT=off`; bấm đổi `aria-checked` và store
+- [X] T011 [P] [US3] Test `src/app/mascot/MascotHost.test.tsx`: công tắc tắt → lượt ghé mới không gọi `navigator.vibrate`; bật → gọi một lần 30 ms
+- [X] T012 [US3] Đổi chuỗi `mascot.motion` / `mascot.motionHint` (VI/EN) trong `src/shared/mascot/dialogue/vi.ts`, `en.ts` theo spec-Mascot v1.4; cập nhật `src/shared/mascot/dialogue/catalog.test.ts`
+- [X] T013 [US3] Cài `src/shared/motion/MotionSwitch.tsx` (+ `.module.css`, chuyển style từ `MascotMotionSwitch`); xóa `src/shared/mascot/MascotMotionSwitch.tsx` (+ test, css) và export trong `src/shared/mascot/index.ts`
+- [X] T014 [US3] `src/modules/m01/offline-package/OfflinePage.tsx`: render `MotionSwitch` không điều kiện (thay `MascotMotionSwitch`)
+- [X] T015 [US3] `src/app/mascot/MascotHost.tsx`: `StepContext.reducedMotion` = `still` (giảm chuyển động hoặc công tắc tắt); kiểm `getMotion()` trước `navigator.vibrate` (R-14)
+- [X] T016 [US3] E2E `e2e/m01/mascot-motion.spec.ts`: đổi nhãn công tắc; thêm ca cờ Mila tắt vẫn có công tắc (M7); thêm ca `saveData`/`deviceMemory` qua `addInitScript` → `data-decor="off"` (M9)
 
 **Checkpoint**: M7–M9 PASS.
 
@@ -45,10 +45,10 @@
 
 **Independent Test**: quickstart M1, M2.
 
-- [ ] T017 [P] [US1] E2E `e2e/m01/motion-press.spec.ts`: nhấn giữ nút chính SCR-M01-003 và thẻ tuyến → `getComputedStyle(…).transform` là scale < 1 trong lúc giữ, `boundingBox` phần tử kề không đổi; `reducedMotion: 'reduce'` → `transform: none`
-- [ ] T018 [P] [US1] `src/shared/ui/Button.module.css`: `:root[data-motion='full'] .button:active:not(:disabled)` scale + transition token
-- [ ] T019 [P] [US1] `src/modules/m01/catalog/RouteCard.module.css`: nhấn scale; `@media (hover: hover)` nhấc `translateY` khi `data-motion='full'`
-- [ ] T020 [P] [US1] `src/modules/m01/recommendation/RecommendPage.module.css` (`.optionText`, `.submit`), `src/modules/m02/session/TripPage.module.css` (nút Quét QR), `src/modules/m02/journey/RouteJourneyMap.module.css` (`.open`): nhấn scale theo cùng quy tắc
+- [X] T017 [P] [US1] E2E `e2e/m01/motion-press.spec.ts`: nhấn giữ nút chính SCR-M01-003 và thẻ tuyến → `getComputedStyle(…).transform` là scale < 1 trong lúc giữ, `boundingBox` phần tử kề không đổi; `reducedMotion: 'reduce'` → `transform: none`
+- [X] T018 [P] [US1] `src/shared/ui/Button.module.css`: `:root[data-motion='full'] .button:active:not(:disabled)` scale + transition token
+- [X] T019 [P] [US1] `src/modules/m01/catalog/RouteCard.module.css`: nhấn scale; `@media (hover: hover)` nhấc `translateY` khi `data-motion='full'`
+- [X] T020 [P] [US1] `src/modules/m01/recommendation/RecommendPage.module.css` (`.optionText`, `.submit`), `src/modules/m02/session/TripPage.module.css` (nút Quét QR), `src/modules/m02/journey/RouteJourneyMap.module.css` (`.open`): nhấn scale theo cùng quy tắc
 
 **Checkpoint**: M1–M2 PASS; M03 không đổi.
 
@@ -58,15 +58,15 @@
 
 **Independent Test**: quickstart M3–M6.
 
-- [ ] T021 [P] [US2] Test `src/shared/ui/ProgressTrail.test.tsx`: xác định → `role="progressbar"`, `aria-valuenow/max`, nhãn; không xác định → không `aria-valuenow`
-- [ ] T022 [P] [US2] Test `src/modules/m02/journey/unlockSignal.test.ts`: `takeUnlock` trả một lần rồi `null`
-- [ ] T023 [P] [US2] Test `src/modules/m02/journey/RouteJourneyMap.test.tsx`: có thanh dưới câu tiến độ (câu nguyên văn); `unlock` → điểm có `data-unlock`; không `unlock` → không
-- [ ] T024 [US2] Cài `src/shared/ui/ProgressTrail.tsx` (+ `.module.css`): `scaleX`, `footprint.svg` mask ở đầu, vệt không xác định (dùng ở US4); T1/T2 gate theo `data-motion`
-- [ ] T025 [US2] Cài `src/modules/m02/journey/unlockSignal.ts` (`markUnlock`, `takeUnlock`) theo data-model §3
-- [ ] T026 [US2] `src/modules/m02/content/ScanContent.tsx`: gọi `markUnlock(checkpointId, k - 1)` tại onClick "Quay lại" đang phát `m02.content.backPressed` khi `afterNewVisit` (không đổi điều kiện hay điều hướng)
-- [ ] T027 [US2] `src/modules/m02/journey/RouteJourneyMap.tsx` (+ `.module.css`): `ProgressTrail` dưới câu tiến độ; prop `unlock?: { checkpointId; fromK }`: điểm nảy (`--duration-feedback`, `--ease-spring`), đoạn SVG tới điểm kế `stroke-dashoffset` (`--duration-trail-draw`), thanh tăng từ `fromK`; nhánh giảm chuyển động chỉ đổi màu/opacity ≤ 150 ms
-- [ ] T028 [US2] `src/modules/m02/session/TripPage.tsx`: `takeUnlock()` khi mount (chỉ khi có phiên), truyền cho `RouteJourneyMap`
-- [ ] T029 [US2] E2E `e2e/m02/motion-journey.spec.ts`: M3 (quét điểm 2 → quay lại → `data-unlock`, thanh 2/4), M4 (tải lại, quét lại → không), M5 (khách tự do không thanh), M6 (điểm cuối: dialog không trễ so với nền)
+- [X] T021 [P] [US2] Test `src/shared/ui/ProgressTrail.test.tsx`: xác định → `role="progressbar"`, `aria-valuenow/max`, nhãn; không xác định → không `aria-valuenow`
+- [X] T022 [P] [US2] Test `src/modules/m02/journey/unlockSignal.test.ts`: `takeUnlock` trả một lần rồi `null`
+- [X] T023 [P] [US2] Test `src/modules/m02/journey/RouteJourneyMap.test.tsx`: có thanh dưới câu tiến độ (câu nguyên văn); `unlock` → điểm có `data-unlock`; không `unlock` → không
+- [X] T024 [US2] Cài `src/shared/ui/ProgressTrail.tsx` (+ `.module.css`): `scaleX`, `footprint.svg` mask ở đầu, vệt không xác định (dùng ở US4); T1/T2 gate theo `data-motion`
+- [X] T025 [US2] Cài `src/modules/m02/journey/unlockSignal.ts` (`markUnlock`, `takeUnlock`) theo data-model §3
+- [X] T026 [US2] `src/modules/m02/content/ScanContent.tsx`: gọi `markUnlock(checkpointId, k - 1)` tại onClick "Quay lại" đang phát `m02.content.backPressed` khi `afterNewVisit` (không đổi điều kiện hay điều hướng)
+- [X] T027 [US2] `src/modules/m02/journey/RouteJourneyMap.tsx` (+ `.module.css`): `ProgressTrail` dưới câu tiến độ; prop `unlock?: { checkpointId; fromK }`: điểm nảy (`--duration-feedback`, `--ease-spring`), đoạn SVG tới điểm kế `stroke-dashoffset` (`--duration-trail-draw`), thanh tăng từ `fromK`; nhánh giảm chuyển động chỉ đổi màu/opacity ≤ 150 ms
+- [X] T028 [US2] `src/modules/m02/session/TripPage.tsx`: `takeUnlock()` khi mount (chỉ khi có phiên), truyền cho `RouteJourneyMap`
+- [X] T029 [US2] E2E `e2e/m02/motion-journey.spec.ts`: M3 (quét điểm 2 → quay lại → `data-unlock`, thanh 2/4), M4 (tải lại, quét lại → không), M5 (khách tự do không thanh), M6 (điểm cuối: dialog không trễ so với nền)
 
 **Checkpoint**: M3–M6 PASS.
 
@@ -76,9 +76,9 @@
 
 **Independent Test**: quickstart M10.
 
-- [ ] T030 [P] [US4] E2E `e2e/m01/motion-package.spec.ts`: ảnh trễ 800 ms → có `role="progressbar"` không `aria-valuenow`, không chữ `%`; xong → dấu ✓ (`data-package-ready`), thanh mất; lỗi lưu (`failNextActivation`) → không thanh, câu lỗi như cũ
-- [ ] T031 [US4] `src/modules/m01/route-detail/PackagePanel.tsx` (+ `.module.css`): `ProgressTrail indeterminate` cạnh chip khi `busy`; `useRef` trạng thái trước → `downloading` sang sẵn sàng thì hiện `check.svg` một lần
-- [ ] T032 [US4] `src/modules/m01/offline-package/OfflinePage.tsx` (+ `.module.css`): như T031 cho dòng gói đang tải
+- [X] T030 [P] [US4] E2E `e2e/m01/motion-package.spec.ts`: ảnh trễ 800 ms → có `role="progressbar"` không `aria-valuenow`, không chữ `%`; xong → dấu ✓ (`data-package-ready`), thanh mất; lỗi lưu (`failNextActivation`) → không thanh, câu lỗi như cũ
+- [X] T031 [US4] `src/modules/m01/route-detail/PackagePanel.tsx` (+ `.module.css`): `ProgressTrail indeterminate` cạnh chip khi `busy`; `useRef` trạng thái trước → `downloading` sang sẵn sàng thì hiện `check.svg` một lần
+- [X] T032 [US4] `src/modules/m01/offline-package/OfflinePage.tsx` (+ `.module.css`): như T031 cho dòng gói đang tải
 
 **Checkpoint đợt 1**: `npm run ci`, E2E m01/m02 PASS; M1–M10; ghi validation report §2.
 

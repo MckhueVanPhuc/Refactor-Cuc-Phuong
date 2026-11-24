@@ -1,0 +1,51 @@
+/*
+ * Thanh "đang tải" lấy màu chữ của panel (paper trên kính tối ở chi tiết tuyến, mực trên thẻ sáng ở Tài nguyên); dấu ✓ nền
+ * forest bật một lần khi gói vừa sẵn sàng (T1, design-system §4.3.1, §5.3)
+ */
+.trail {
+  /* Panel gói là flex/grid: thanh chiếm hết hàng của nó */
+  flex: 1 0 100%;
+  width: 100%;
+}
+
+.ready {
+  display: inline-grid;
+  place-items: center;
+  width: var(--space-8);
+  height: var(--space-8);
+  color: var(--color-white);
+  background: var(--color-m01-forest);
+  border-radius: 50%;
+}
+
+.check {
+  --icon-size: var(--space-5);
+}
+
+:root[data-motion='full'] .ready {
+  animation: ready-pop var(--duration-feedback) var(--ease-spring) both;
+}
+
+:root[data-motion='reduced'] .ready {
+  animation: ready-fade var(--duration-feedback-reduced) var(--ease-standard) both;
+}
+
+@keyframes ready-pop {
+  from {
+    transform: scale(0.4);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes ready-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

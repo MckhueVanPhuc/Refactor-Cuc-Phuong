@@ -64,9 +64,9 @@ export const vi = {
     /** Dòng tên trên bong bóng (design-system §9.3) */
     name: NAME,
     ask: `Hỏi ${NAME}`,
-    /** Công tắc "Chuyển động của Mila" ở màn Tài nguyên (v1.3, BR-MAS-21) */
-    motion: `Chuyển động của ${NAME}`,
-    motionHint: `Tắt để ${NAME} đứng yên.`,
+    /** Công tắc "Hiệu ứng chuyển động" ở màn Tài nguyên (v1.3; nhãn v1.4, BR-MAS-21) */
+    motion: 'Hiệu ứng chuyển động',
+    motionHint: `Tắt để ${NAME} và hiệu ứng trang trí đứng yên.`,
     /** Dòng gợi ý dưới Mila trong lớp phủ giới thiệu (v1.3, US-MAS-01) */
     introHint: 'Chạm để bắt đầu',
     dismiss: 'Đóng lời nhắn',

@@ -171,6 +171,7 @@ Token mới (bổ sung vào bảng trên, đều về `0ms` khi `prefers-reduced
 | `--ease-spring` | `cubic-bezier(0.34, 1.56, 0.64, 1)` | T1 | Nảy nhẹ (vượt 1 lần) |
 | `--ease-standard` | `cubic-bezier(0.2, 0, 0, 1)` | T1–T3 | Mặc định cho vào/ra và chuyển cảnh |
 | `--press-scale` | 0.97 | T1 | Tỷ lệ khi nhấn (§5.4) |
+| `--duration-feedback-reduced` | 150ms | T1 | Phản hồi khi giảm chuyển động hoặc công tắc tắt: chỉ đổi màu/opacity (không về 0) |
 
 #### 4.3.2 Ngân sách hiệu năng (bắt buộc)
 
@@ -239,8 +240,8 @@ Các quy tắc sau chỉ ghép từ token đã có, để thống nhất khi tri
 | Nội dung dài trong bảng (M03) | Ô Chi tiết của nhật ký (lý do và trước/sau), cả ở SCR-M03-009 lẫn panel "Nhật ký của mục" trong editor, rút gọn tối đa 3 dòng; dài hơn thì nút chữ "…Xem thêm" (`aria-haspopup="dialog"`, vùng chạm 44px) mở hộp thoại chỉ đọc có đủ nội dung và một nút "Đóng". Cột kết quả luôn bằng chữ. |
 | Hover/pressed | Không thêm màu mới; dùng lớp phủ trong suốt lên màu nền sẵn có, xem 5.4. |
 | Skeleton (v1.4) | Khối `m01-line` bo như phần tử thật, đúng kích thước phần tử sẽ hiện (không dịch bố cục); vệt sáng trắng 40% lướt chéo như nắng qua tán lá (`--duration-shimmer`, T2). Có chữ trạng thái cho trình đọc màn hình (`role="status"`, ẩn thị giác) như hiện nay. Giảm chuyển động: khối đứng yên. |
-| Thanh tiến trình hành trình (v1.4, SCR-M02-001) | **Xác định**: tỷ lệ k/n lấy từ phiên. Rãnh `m01-line`, phần đã đi `m01-forest`, cao 8px, bo tròn; icon `footprint.svg` (mask, `m01-forest`) ở đầu phần đã đi. Đặt dưới câu "Đã quét QR: k/n" (câu giữ nguyên, là thông tin chính); thanh có `role="progressbar"` với `aria-valuenow`/`aria-valuemax`. Tăng bằng `transform: scaleX` (`--duration-feedback`, T1). Không phải slot của Mila. |
-| Thanh "đang tải" của gói (v1.4, SCR-M01-003/004) | **Không xác định** (M01 không báo phần trăm): rãnh `m01-line`, một vệt `m01-forest` dạng đường mòn trôi lặp (`--duration-shimmer`, T2); không số, không giả tiến độ. Đi cùng nhãn "Đang tải…" sẵn có; xong thì vệt dừng và dấu `check.svg` hiện (T1). Giảm chuyển động: vệt đứng yên giữa rãnh. |
+| Thanh tiến trình hành trình (v1.4, SCR-M02-001) | **Xác định**: tỷ lệ k/n lấy từ phiên. Màu `m02-scanner-success` trên bề mặt scanner (rãnh 22%), cao `--space-2`, bo tròn; icon `footprint.svg` (mask, cùng màu) ở đầu phần đã đi. Đặt dưới câu "Đã quét QR: k/n" (câu giữ nguyên, là thông tin chính); thanh có `role="progressbar"` với `aria-valuenow`/`aria-valuemax`. Tăng bằng `transform: scaleX` (`--duration-feedback`, T1). Không phải slot của Mila. |
+| Thanh "đang tải" của gói (v1.4, SCR-M01-003/004) | **Không xác định** (M01 không báo phần trăm): rãnh và vệt cùng màu chữ của panel (rãnh 22%), vệt dạng đường mòn trôi lặp (`--duration-shimmer`, T2); không số, không giả tiến độ. Đi cùng nhãn "Đang tải…" sẵn có; xong thì vệt dừng và dấu `check.svg` hiện (T1). Giảm chuyển động: vệt đứng yên giữa rãnh. |
 | Nút dịch "→" (M03, [Spec AI Integration](../spec/spec-AI_integration.md) §5.5) | Nút phụ nhỏ giữa ô tiếng Việt và ô tiếng Anh của mỗi cặp song ngữ; hiện ký tự chữ "→" (U+2192), không dùng file icon. Nền `white`, viền `control border`, chữ `accent`; bo `--radius-md`; vùng chạm tối thiểu 44×44px; tên truy cập "Dịch sang tiếng Anh". Không bấm được thì theo dòng Disabled/unavailable. Trên màn hẹp, khi hai ô xếp chồng, nút nằm giữa hai ô. |
 | Trạng thái dịch (M03) | Một dòng 14px ngay dưới ô tiếng Anh, gắn với ô bằng `aria-describedby`. "Đang dịch…" màu `secondary`, `role="status"`. Lỗi dùng cách hiển thị của Thông báo lỗi (màu `error`, `role="alert"`) kèm nút chữ "Thử lại"; không tự đóng. Không làm đổi bố cục ô. |
 

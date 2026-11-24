@@ -32,7 +32,7 @@ Phản chiếu lên DOM: `<html data-motion="…" data-decor="…">`; cập nh�
 | Trường | Kiểu | Ghi chú |
 |---|---|---|
 | `checkpointId` | string | Điểm vừa ghi lượt ghé lần đầu |
-| `fromK` | number | Số điểm đã quét trước lượt này (thanh tăng từ đây) |
+| (suy ra) | number | Thanh tăng từ k − 1 lên k; SCR-M02-001 tự tính từ số lượt ghé, không lưu |
 
 Nơi ở: `src/modules/m02/journey/unlockSignal.ts`. Ghi khi du khách bấm "Quay lại" từ nội dung của một lượt ghé mới không phải điểm cuối (cùng điều kiện `afterNewVisit` của `m02.content.backPressed`). Đọc **một lần** khi SCR-M02-001 mount (`takeUnlock`), rồi xóa. Không phải dữ liệu chuyến, không vào `PlaySession`, `CheckpointVisit` hay `SessionSyncRecord`.
 

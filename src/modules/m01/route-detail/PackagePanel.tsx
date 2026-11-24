@@ -2,6 +2,7 @@
 // Tải về / Tải lại / Cập nhật; không có Hủy khi đang tải; khi gói sẵn sàng hiện dòng hướng dẫn quét (US-M01-03 mục 5).
 import { useId } from 'react';
 import { useM01Messages } from '../i18n/useM01Messages';
+import { PackageProgress } from '../offline-package/PackageProgress';
 import type { PackageOpResult } from '../offline-package/packageOps';
 import { activeStatusOf, candidateStatusOf, statusLabel } from '../offline-package/packageStatus';
 import { MascotFigure, MascotSlot } from '../../../shared/mascot/index';
@@ -56,6 +57,7 @@ export function PackagePanel({
           </span>
         )}
       </p>
+      <PackageProgress busy={busy} ready={ready} label={messages.offline.status.downloading} />
       {/* Mila nói về lần tải (MAS-B-020, 021, 026) trong panel gói (spec-Mascot §5.1) */}
       <MascotSlot id="package-panel" modes={['AVATAR']} />
       {active === 'readyOutdated' && <p className={styles.note}>{messages.routeDetail.outdated}</p>}

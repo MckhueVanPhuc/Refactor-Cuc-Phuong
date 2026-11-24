@@ -8,7 +8,7 @@ import { MESSAGE_META, messageText } from '../../shared/mascot/dialogue/catalog'
 import { subscribeMascotEvents, type CtaId, type MascotEvent, type StampedEvent } from '../../shared/mascot/events';
 import { initialState, nextDeadline, step, type MascotState, type Mode, type Rule, type StepContext } from '../../shared/mascot/machine';
 import { RULES } from '../../shared/mascot/rules';
-import { useMotion } from '../../shared/mascot/motion';
+import { getMotion, useMotion } from '../../shared/mascot/motion';
 import { useSlots, type SlotEntry } from '../../shared/mascot/slots';
 import { markMascotFailed, markVisitConfirmed } from '../../shared/mascot/visitConfirm';
 import { PATHS } from '../paths';
@@ -57,12 +57,13 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
   const motion = useMotion();
   const still = reducedMotion || !motion;
   const typing = !still;
-  const ctxRef = useRef<StepContext>({ availableModes: modesOf(slots), reducedMotion, language, typing, random: Math.random });
+  // Rung (BR-MAS-19 v1.4) cũng tắt theo công tắc: engine nhận `still` làm `reducedMotion` (specs/006 R-14)
+  const ctxRef = useRef<StepContext>({ availableModes: modesOf(slots), reducedMotion: still, language, typing, random: Math.random });
   const broken = useRef(false);
 
   useLayoutEffect(() => {
-    ctxRef.current = { availableModes: modesOf(slots), reducedMotion, language, typing, random: Math.random };
-  }, [slots, reducedMotion, language, typing]);
+    ctxRef.current = { availableModes: modesOf(slots), reducedMotion: still, language, typing, random: Math.random };
+  }, [slots, still, language, typing]);
 
   const dispatch = useCallback(
     (event: StampedEvent) => {
@@ -72,6 +73,8 @@ function Host({ pathname, navigate, rules = RULES }: Props) {
         stateRef.current = next;
         setState(next);
         for (const effect of effects) {
+          // Luật rung trực tiếp (điểm cuối) không qua trọng tài: kiểm công tắc ở đây
+          if (!getMotion()) continue;
           try {
             navigator.vibrate?.(effect.ms);
           } catch {

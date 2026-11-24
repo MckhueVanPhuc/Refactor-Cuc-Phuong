@@ -19,6 +19,7 @@ import { Gallery } from './Gallery';
 import { filterMedia } from './mediaFilter';
 import { MediaList } from './MediaList';
 import styles from './ScanContent.module.css';
+import { markUnlock } from '../journey/unlockSignal';
 import { ScanNotice } from './ScanNotice';
 import { selectContentSource, type ContentView } from './selectContentSource';
 import { usePackageImage } from './usePackageImage';
@@ -235,7 +236,12 @@ export function ScanContent({
           to={backTo}
           // Mila nhắc cất máy khi quay về hành trình sau một lượt ghé mới (spec-Mascot BR-MAS-13; specs/005 T066).
           // Chỉ phát tín hiệu; điều hướng của link giữ nguyên
-          onClick={() => emitMascotEvent({ type: 'm02.content.backPressed', afterNewVisit: Boolean(scan?.visitCreated && !scan.finalPromptNeeded) })}
+          onClick={() => {
+            const afterNewVisit = Boolean(scan?.visitCreated && !scan.finalPromptNeeded);
+            emitMascotEvent({ type: 'm02.content.backPressed', afterNewVisit });
+            // Hiệu ứng mở khóa ở màn chuyến đi (specs/006 R-05): chỉ đánh dấu UI, không đổi điều hướng hay dữ liệu
+            if (afterNewVisit && scan?.visit) markUnlock(scan.visit.checkpointId);
+          }}
         >
           {messages.content.back}
         </Link>
