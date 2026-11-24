@@ -145,8 +145,8 @@ export function OfflinePage() {
       {anyReady && <p className={styles.hint}>{messages.routeDetail.scanHint}</p>}
       {entries?.length === 0 && (
         <div className={styles.withMila}>
-          {/* MAS-B-023: Mila nghỉ cạnh câu rỗng */}
-          <MascotFigure pose="rest" />
+          {/* MAS-B-023: Mila nấp sau lá cạnh câu rỗng (v1.4, Behavior Matrix §3b) */}
+          <MascotFigure pose="peek" />
           <p className={styles.empty}>{messages.offline.empty}</p>
         </div>
       )}

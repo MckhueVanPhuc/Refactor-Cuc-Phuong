@@ -2,7 +2,7 @@
 // Hai bề mặt: `scanner` tối cho phiên và scanner (SCR-M02-001), `reader` sáng cho văn bản dài (SCR-M02-002…004).
 // Header có tiêu đề màn và nút VI/EN của M01 (M01 là writer duy nhất của LanguagePreference); dưới header là vùng
 // thông báo một lần mà màn đặt vào bằng <FieldNotice>.
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ViewTransition, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import logoUrl from '../../../../assets/icons/logo-emblem.png';
 import { emitMascotEvent } from '../../../shared/mascot/index';
@@ -73,7 +73,10 @@ export function FieldLayout({ surface, title, children }: { surface: FieldSurfac
         )}
       </div>
       <main className={styles.main} id="m02-main" tabIndex={-1}>
-        <NoticeSlotContext.Provider value={noticeSlot}>{children}</NoticeSlotContext.Provider>
+        <NoticeSlotContext.Provider value={noticeSlot}>
+          {/* Chuyển cảnh khi đổi màn (specs/006 R-01, R-07): trình duyệt không hỗ trợ thì đổi tức thì */}
+          <ViewTransition>{children}</ViewTransition>
+        </NoticeSlotContext.Provider>
       </main>
     </div>
   );

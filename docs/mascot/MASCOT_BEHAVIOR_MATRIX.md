@@ -114,7 +114,7 @@ Chỉ đổi tư thế hoặc animation của phản ứng sẵn có; sự kiệ
 | Behavior | Hiện tại | Từ v1.4 | Ghi chú |
 |---|---|---|---|
 | MAS-B-006, MAS-B-023 | MA-10 `rest` (INLINE cạnh câu rỗng) | MA-16 `peek` | Danh mục rỗng, Tài nguyên rỗng |
-| MAS-B-050 | MA-07 `thumbs-up`, AN-SUCCESS | MA-14 `amazed`, AN-SUCCESS | Lượt ghé thường (cấp 1); câu xác nhận 050 giữ nguyên (BR-MAS-24) |
+| MAS-B-050 | MA-07 `thumbs-up`, AN-SUCCESS | (chưa áp) | Phản ứng ở AVATAR luôn vẽ ảnh đầu tròn MA-11 nên tư thế không hiện; `amazed` đã có ảnh nhưng chưa có chỗ dùng (specs/006 DV-05) |
 | MAS-B-051, 055, 062, 064 | MA-08 `cheer` | MA-08 + MA-22 khung 2 (đổi nhịp với cú nhảy) | Mốc cấp 2 và ăn mừng cấp 3 |
 | MAS-B-056 | MA-02 `map`, AN-POP | MA-15 `walk` + khung 2 (AN-WALK: 2 bước, ≤ 1200ms) rồi về tư thế ngữ cảnh | Quay lại SCR-M02-001 sau lượt ghé mới ("Bây giờ tham quan thôi!") |
 | MAS-B-063 | MA-08 tĩnh cạnh huy hiệu | MA-17 `proud` (có chớp mắt `ma-20-proud-blink`) | Màn kết quả sau ăn mừng, mở lại màn |

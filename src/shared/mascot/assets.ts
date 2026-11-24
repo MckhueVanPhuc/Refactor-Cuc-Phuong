@@ -21,6 +21,20 @@ const POSE_FILE: Record<PoseId, string> = {
   rest: 'ma-10-rest',
   avatar: 'ma-11-avatar',
   point: 'ma-13-point',
+  sorry: 'ma-12-sorry',
+  amazed: 'ma-14-amazed',
+  walk: 'ma-15-walk',
+  peek: 'ma-16-peek',
+  proud: 'ma-17-proud',
+};
+
+/** Tư thế đợt 4 thiếu ảnh → dùng tư thế cũ gần nhất (Behavior Matrix §3b; contracts/motion-ui-contract.md §5). */
+export const POSE_FALLBACK: Partial<Record<PoseId, PoseId>> = {
+  sorry: 'confused',
+  amazed: 'thumbsUp',
+  walk: 'map',
+  peek: 'rest',
+  proud: 'cheer',
 };
 
 export type PoseAsset = { src240: string; src480: string };
@@ -33,7 +47,10 @@ export function poseAsset(pose: PoseId): PoseAsset | null {
   const base = POSE_FILE[pose];
   const [small, large] = pose === 'avatar' ? ['96', '192'] : ['240', '480'];
   const src240 = byName.get(`${base}-${small}`);
-  if (!src240) return null;
+  if (!src240) {
+    const fallback = POSE_FALLBACK[pose];
+    return fallback ? poseAsset(fallback) : null;
+  }
   return { src240, src480: byName.get(`${base}-${large}`) ?? src240 };
 }
 

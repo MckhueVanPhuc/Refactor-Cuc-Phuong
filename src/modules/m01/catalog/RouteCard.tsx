@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import type { LanguageCode } from '../../../shared/contracts/languagePreference';
 import type { PublishedRoute } from '../../../shared/contracts/publishedRoute';
+import { useReveal } from '../../../shared/motion/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { formatDistanceKm } from '../format';
 import { messagesFor } from '../i18n';
@@ -26,6 +27,8 @@ export function RouteCard({
   const messages = messagesFor(language);
   const [imageFailed, setImageFailed] = useState(false);
   const showImage = thumbnailUrl !== undefined && !imageFailed;
+  // Thẻ dưới màn đầu hiện dần khi cuộn tới, một lần (specs/006 R-08)
+  const reveal = useReveal(`route-card-${route.routeId}`);
   const stats = messages.catalog.stats({
     n: route.checkpointCount,
     km: formatDistanceKm(route.distanceKm, language),
@@ -33,16 +36,10 @@ export function RouteCard({
   });
 
   return (
-    <Link className={styles.card} to={PATHS.routeDetail(route.routeId)}>
+    <Link className={styles.card} to={PATHS.routeDetail(route.routeId)} ref={reveal}>
       <div className={styles.media}>
         {showImage ? (
-          <img
-            className={styles.thumbnail}
-            src={thumbnailUrl}
-            alt=""
-            loading="lazy"
-            onError={() => setImageFailed(true)}
-          />
+          <img className={styles.thumbnail} src={thumbnailUrl} alt="" loading="lazy" onError={() => setImageFailed(true)} />
         ) : (
           <div className={styles.thumbnail} data-testid="thumbnail-placeholder" aria-hidden="true" />
         )}

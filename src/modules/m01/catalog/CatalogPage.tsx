@@ -68,7 +68,7 @@ export function CatalogPage() {
       )}
       {catalog.status === 'ready' && routes.length === 0 && (
         <div className={styles.withMila}>
-          <MascotFigure pose="rest" />
+          <MascotFigure pose="peek" />
           <p className={styles.message}>{messages.catalog.empty}</p>
         </div>
       )}

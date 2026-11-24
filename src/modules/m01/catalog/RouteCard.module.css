@@ -149,7 +149,15 @@
  * FieldLayout) khi `data-motion="full"`; co về --press-scale, không đổi bố cục. Giảm chuyển động / công tắc tắt: chỉ lớp phủ.
  */
 :root[data-motion='full'] [data-surface] .card {
-  transition: transform var(--duration-press) var(--ease-standard);
+  transition:
+    transform var(--duration-press) var(--ease-standard),
+    opacity var(--duration-reveal) var(--ease-standard);
+}
+
+/* Thẻ dưới màn đầu chờ cuộn tới (specs/006 R-08): chỉ opacity + transform, chỗ của thẻ giữ nguyên (không dịch bố cục) */
+:root[data-motion='full'] [data-surface] .card[data-reveal='hidden'] {
+  opacity: 0;
+  transform: translateY(var(--space-3));
 }
 
 :root[data-motion='full'] [data-surface] .card:active {
