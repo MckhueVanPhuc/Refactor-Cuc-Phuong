@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Dành cho | Người tạo ảnh Mila (chủ dự án) |
-| Ngày | 2026-11-21; cập nhật 2026-11-22 (đợt 1 đã giao; đợt 2 bắt buộc; đợt 3 mắt nhắm — spec-Mascot v1.1) |
+| Ngày | 2026-11-21; cập nhật 2026-11-22 (đợt 1 đã giao; đợt 2 bắt buộc; đợt 3 mắt nhắm — spec-Mascot v1.1); 2026-11-24 đợt 4 (§9, spec-Mascot v1.4, CHG-MOTION-2026-11-24-01) |
 | Liên quan | [Asset spec](MASCOT_ASSET_SPECIFICATION.md) §4–§5; AGENTS.md §4 (ảnh do người dùng cung cấp; agent chỉ cắt, đổi cỡ, nén) |
 
 Agent không tạo được ảnh nhân vật. Bạn tạo ảnh bằng công cụ AI đã dùng để làm concept sheet; agent kiểm tra, căn chỉnh và xuất bản dùng trên web.
@@ -37,7 +37,7 @@ Chưa có ảnh nào thì app dùng hình giữ chỗ (đĩa tròn), nên thiế
 4. **Cùng cỡ nhân vật** giữa các ảnh toàn thân: chiều cao từ chân tới đỉnh tai khoảng 80% chiều cao ảnh; bàn chân chạm cùng một đường ngang (trừ `cheer` đang nhảy).
 5. Ánh sáng từ **trên-trái**, đổ bóng mềm trên nhân vật; **không đổ bóng xuống nền**, không vệt sáng, không lấp lánh.
 6. **Không chữ, không ký hiệu** trong ảnh (không "?", "!", "Zzz", ngôi sao, tim). Giao diện tự vẽ nếu cần.
-7. Không đạo cụ ngoài danh sách: không cúp, huy chương, đồng xu, rương, laptop, loa, biển cảnh báo, khiên, mũ.
+7. Không đạo cụ ngoài danh sách: không cúp, huy chương, đồng xu, rương, laptop, loa, biển cảnh báo, khiên, mũ. Ngoại lệ duy nhất (v1.4): một chiếc lá rừng lớn trong `ma-16-peek`.
 8. Giữ ba neo nhận diện: **lông nâu–kem**, **khăn xanh lá có lá trắng**, **ba lô xanh rêu có cuộn chăn** (avatar không cần ba lô). Bám theo **sheet 1** (bản có nhãn, nền trắng).
 
 ## 3. Cách tạo
@@ -165,3 +165,83 @@ Năm ảnh mắt nhắm nhắm đủ hai mắt, biểu cảm đúng. Công cụ 
 
 Khi giao: chép tệp vào `assets/mascot/source/` và báo agent "đã có ảnh đợt 2 / đợt 3", kèm xác nhận quyền sử dụng như đợt 1 (bạn tự thiết kế).
 
+## 9. Đợt 4 (spec-Mascot v1.4, 2026-11-24)
+
+Cho giai đoạn motion (change brief CHG-MOTION-2026-11-24-01). Thiếu ảnh nào thì app dùng tư thế cũ gần nhất ([Behavior Matrix](MASCOT_BEHAVIOR_MATRIX.md) §3b), nên không phải chờ đủ 9 tệp.
+
+### 9.1 Đợt 4A — năm tư thế mới (tạo từ đầu)
+
+Cách làm như đợt 2 (§8.1): đính kèm sheet 1, `ma-01-wave.png`, `ma-08-cheer.png`; dán **Prompt nhân vật** §4 (giữ nguyên) rồi prompt tư thế dưới đây. Nửa thân: mép cắt chạm đáy khung.
+
+| Tệp | Loại | Dùng ở đâu |
+|---|---|---|
+| `ma-12-sorry.png` | Nửa thân | Xin lỗi nhẹ khi `CONFLICT` (thay `confused` đang tạm dùng) |
+| `ma-14-amazed.png` | Nửa thân | Lượt ghé được ghi, nội dung điểm mới hiện ra |
+| `ma-15-walk.png` | Toàn thân, nhìn ngang | Quay lại màn chuyến đi sau lượt ghé mới ("Bây giờ tham quan thôi!") |
+| `ma-16-peek.png` | Nửa thân, có lá | Trạng thái rỗng (danh mục, Tài nguyên) |
+| `ma-17-proud.png` | Toàn thân | Màn kết quả, đứng cạnh huy hiệu |
+
+`ma-12-sorry.png`
+
+```text
+Half body from the hips up, front three-quarter view, both paws held together in front of the chest, head slightly lowered and tilted, ears a little down, small apologetic smile, eyebrows gently raised. Mildly sorry, warm and reassuring. Not crying, not sad, not dramatic.
+```
+
+`ma-14-amazed.png`
+
+```text
+Half body from the hips up, front three-quarter view, both paws raised near the cheeks in delighted surprise, eyes wide open and sparkling with big white highlights, small round open "wow" mouth, ears perked up. Joyful discovery, excited but gentle. No sparkles, no stars, no symbols around the character.
+```
+
+`ma-15-walk.png`
+
+```text
+Full body, clean side view facing right, walking forward mid-stride on a trail: left leg forward, right leg back, arms swinging naturally, backpack clearly visible on the back, tail behind. Happy determined smile, looking ahead to the right. Clear readable silhouette that still reads well when shown very small (48 px). Feet on the same baseline as the other full-body poses. No ground, no path, no motion lines.
+```
+
+`ma-16-peek.png`
+
+```text
+Half body, the character peeking out from behind one large fresh green forest leaf held upright with one paw, the leaf covers the lower half of the body, only the head, one shoulder and the other paw are visible, curious friendly eyes looking to the right, small playful smile. The leaf is a single simple broad tropical forest leaf, natural green with soft veins, no flowers, no other plants.
+```
+
+`ma-17-proud.png`
+
+```text
+Full body, standing, three-quarter view to the right, both paws on the hips, chest out, chin slightly up, confident proud satisfied smile with eyes open, bandana and backpack clearly visible. Feeling of "I finished the whole trail!". No trophy, no medal, no flag, no props.
+```
+
+### 9.2 Đợt 4B — bốn khung phụ (sửa vùng trên ảnh đã duyệt)
+
+Cách làm như đợt 3 (§8.2): **không tạo ảnh mới**; mở ảnh gốc đã duyệt, dùng chức năng sửa vùng chọn, chỉ tô vùng ghi trong bảng. Bật "giữ kích thước gốc" và "nền trong suốt" nếu công cụ có. Nếu ảnh trả về khác cỡ hoặc có nền, agent ghép vùng khác biệt lên ảnh gốc như đợt 3. Làm 4B sau khi `walk` và `proud` của 4A đã duyệt.
+
+| Tệp | Từ ảnh gốc | Vùng tô chọn | Dùng cho |
+|---|---|---|---|
+| `ma-15-walk-f2.png` | `ma-15-walk.png` | Hai chân và hai tay | Bước 2 khung (AN-WALK) |
+| `ma-21-wave-f2.png` | `ma-01-wave.png` | Cánh tay đang vẫy và bàn tay | Vẫy tay thật khi giới thiệu (MA-21) |
+| `ma-22-cheer-f2.png` | `ma-08-cheer.png` | Hai cánh tay | Ăn mừng 2 nhịp (MA-22) |
+| `ma-20-proud-blink.png` | `ma-17-proud.png` | Vùng hai mắt | Chớp mắt ở màn kết quả (prompt §8.2) |
+
+`ma-15-walk-f2.png`
+
+```text
+Edit only the selected legs and arms. Show the opposite step of the same walk cycle: right leg forward, left leg back, arms swinging the opposite way. Keep the body, head, backpack, tail, size, position, lighting and transparent background exactly unchanged. Feet stay on the same baseline. No other changes.
+```
+
+`ma-21-wave-f2.png`
+
+```text
+Edit only the selected raised arm and paw. Same waving gesture, but the forearm tilted about 30 degrees toward the head, as the other half of a friendly wave. Keep everything outside the selection exactly unchanged: same pose, face, size, position, lighting and transparent background. No other changes.
+```
+
+`ma-22-cheer-f2.png`
+
+```text
+Edit only the selected arms. Both arms raised in a wide V shape, paws open, slightly lower and wider than the original, as the second beat of a happy cheer. Keep everything outside the selection exactly unchanged: same jump, face, size, position, lighting and transparent background. No confetti, no stars. No other changes.
+```
+
+### 9.3 Giao và kiểm
+
+- Checklist §6; đạo cụ lá chỉ ở `ma-16-peek`.
+- Chép vào `assets/mascot/source/`, báo agent "đã có ảnh đợt 4A" / "đợt 4B", kèm xác nhận quyền sử dụng (OD-MAS-07).
+- Agent kiểm như §7 (4A) và §8.3 (4B: so từng điểm ảnh, chỉ vùng đã tô được khác), xuất WebP và đo ngân sách precache (≤ 120 KB thêm vào, change brief §5).

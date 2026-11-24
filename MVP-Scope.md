@@ -113,6 +113,10 @@ Hai function này đi cùng một increment. Thiếu chúng thì admin vẫn gõ
 
 Năm function đi cùng một increment. Thiếu chúng thì app chạy như hiện tại; không chặn luồng `Must` nào. Mila không thêm điểm, huy hiệu hay phần thưởng: dòng "Hint chain, hidden message, điểm, huy hiệu hoặc leaderboard" ở §4 giữ nguyên.
 
+### 3.7 Motion & micro-interactions trên màn du khách
+
+Chuyển động phản hồi, chuyển cảnh và trang trí trên SCR-M01-001…004 và SCR-M02-001…005 theo [design-system](docs/design/design-system.md) §4.3.1 (ba tầng T1/T2/T3) và công tắc "Hiệu ứng chuyển động" của [Spec Mascot](docs/spec/spec-Mascot.md) BR-MAS-21 (v1.4); change brief CHG-MOTION-2026-11-24-01, gói `specs/006-visitor-motion/`. Priority **Could** (quyết định 2026-11-24). Chỉ là hình thức: không đổi luồng, dữ liệu hay câu cố định; ăn mừng chỉ các sự kiện đã có, §4 Won't giữ nguyên.
+
 ## 4. Won't — ngoài MVP
 
 | Capability | Phạm vi | Ghi chú |
