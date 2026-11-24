@@ -772,3 +772,70 @@ Branch `feat/mascot-polish`, tách từ `feat/mascot-us6` (PR #77 chưa merge); 
 | DV-89 | Lighthouse (hiệu năng, truy cập) với cờ bật | NOT RUN |
 | DV-90 | spec-Mascot US-MAS-03 mục 1 vẫn ghi "shows MSG-MAS-040" dù từ v1.2 câu 040 chỉ là minh họa (DV-78). Spec là nguồn canonical nên không sửa trong gói code; cần một chỉnh sửa spec có ghi lịch sử | Chờ chủ dự án |
 | DV-91 | Màn Quét QR SCR-M02-005 không có Mila (DV-77); muốn có thì cần sửa spec-Mascot §5.1 trước | Chờ chủ dự án |
+
+## 19. Đợt 2026-11-24 — Phase 19: spec-Mascot v1.5 (T110–T115) — CHG-MASCOT-2026-11-24-05
+
+### 19.1 Đã làm
+
+| Việc | Tệp |
+|---|---|
+| Cử chỉ tự động mỗi 4–7 s, 2–3 nhịp ≤ 3 s; thở nhẹ liên tục ở DOCK sau cử chỉ hay câu (`settle`); SCR-M01-002 vào màn đứng chờ | `src/shared/mascot/config.ts`, `rules.ts`, `types.ts`; `src/app/mascot/Mascot.module.css` |
+| Bong bóng không có nút ở lại 15 s mọi màn (`MASCOT_BUBBLE_READ_MS`) | `src/shared/mascot/arbiter.ts`, `config.ts` |
+| SCR-M01-002: Mila DOCK cạnh tiêu đề (MAS-B-088), MSG-MAS-010 mỗi lần mở form (`everyVisit`: không cooldown, không tính BR-MAS-07); MAS-B-011 DOCK khi có kết quả; không có kết quả → không DOCK | `rules.ts`, `arbiter.ts`; `RecommendPage.tsx`, `RecommendResultsPage.tsx` (+ `.module.css`) |
+| Ô AVATAR và đầu màn Gợi ý tuyến trống không chiếm chỗ; bong bóng đầu màn Gợi ý tuyến đuôi lên như danh mục | `src/shared/mascot/MascotSlot.tsx` (+ `.module.css`), `Mascot.module.css` |
+
+### 19.2 Test đổi có chủ đích
+
+| Test | Lý do |
+|---|---|
+| `machine.test.ts` thời gian đọc | 3–7 s → 15 s (§5.4 v1.5) |
+| `rules.test.ts` cử chỉ tự động (3 ca), ngữ cảnh đang thao tác (1 ca) | 8–15 s / ≤ 1,5 s → 4–7 s / ≤ 3 s; về `settle` |
+| `rules.test.ts` MAS-B-010, 011 | AVATAR một lần mỗi lần tải → DOCK, mỗi lần mở; không kết quả → không DOCK |
+| `rules.test.ts` MAS-B-026 | câu 021 ở lại 15 s: mốc thời gian của ca "thành công ở giữa" dời sau 15 s |
+| `App.mascot.test.tsx` | `recommend-head` là DOCK |
+| `e2e/m01/mascot-motion.spec.ts` Q18 | tên cử chỉ mới; chỉ thở nhẹ chạy liên tục (SC-MAS-014: có công tắc); chờ tới 18 s vì cử chỉ đầu có thể là chớp mắt |
+| `e2e/m02/mascot-end.spec.ts` (3 ca), `e2e/m02/mascot-layout.spec.ts` (1 ca) | câu ăn mừng ở lại 15 s rồi Mila mới về DOCK; câu 070 chờ câu ăn mừng đóng (hẹn lại sẵn có), không bị mất |
+
+### 19.3 Lệnh kiểm chứng
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 742; 2447 pass, 133 skipped; build OK, precache 113 mục (2881,93 KiB) |
+| `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` | 1 | 126 pass, 1 fail: MAS-B-008 (`mascot-prepare.spec.ts:97`) — nút trong bong bóng "không ổn định" khi máy tải nặng (DV-85). Chạy riêng 5 lần: 5 pass; `--project=m01` hai lần liền: 53/53 và 53/53 |
+| Chụp SCR-M01-002 ở 320 và 390 px (spec tạm, đã xóa) | 0 | Mila cạnh tiêu đề không đè chữ; bong bóng dưới, đuôi lên; × chỉ đóng bong bóng, không còn khoảng trống |
+
+### 19.4 Còn mở
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-92 | Câu ăn mừng ở màn kết quả nay ở lại 15 s ở mode CELEBRATE (Mila cỡ lớn) trước khi về DOCK. Đúng D2 của CHG-MASCOT-2026-11-24-05, nhưng có thể muốn Mila về DOCK sau ≤ 2,4 s và giữ bong bóng; cần chủ dự án xem | Chờ chủ dự án |
+| DV-93 | Nhãn công tắc vẫn là "Chuyển động của Mila" — đổi thành "Hiệu ứng chuyển động" thuộc gói 006 (spec-Mascot v1.4, CHG-MOTION-2026-11-24-01) | Chờ gói 006 |
+| DV-87, 88, 89 | Thiết bị thật, trình đọc màn hình, Lighthouse | NOT RUN |
+
+### 19.5 Đầu màn Gợi ý tuyến — phương án C (2026-11-24)
+
+Chủ dự án thấy tiêu đề bị Mila đẩy xuống, để lộ khoảng trống; xem 5 phương án mockup (A–E) và chọn **C "tấm biển kính"**: tiêu đề trên tấm kính mờ cùng chất liệu ô chọn, Mila đứng ở mép phải tấm, đầu nhô lên trên mép. Cài trong `RecommendPage.module.css` (`.head`, `.head::before`), `MascotSlot.module.css` (Mila 72px ở màn < 360px để tiêu đề giữ một dòng); ghi ở design-system §9.2. Kiểm: lint token 742 pass; `mascot-prepare`, `mascot-layout`, `recommend` (m01) 12/12 pass; chụp 320/390 px form, sau khi đóng bong bóng, trang kết quả.
+
+### 19.6 Màn kết quả — phương án E và DV-92 (2026-11-24)
+
+Chủ dự án thấy cụm huy hiệu + Mila lệch trái, xem 5 phương án mockup (A Mila thay huy hiệu, B Mila sau huy hiệu, C con dấu dưới chân Mila, D Mila trên huy hiệu, E Mila xuống thẻ hẹn gặp lại) và chọn **E**; chọn sửa DV-92 "Mila về cỡ nhỏ ngay sau phần ăn mừng" (brief D6, D7; spec-Mascot v1.5 OD-MAS-27, 28; OD-MAS-10 đổi).
+
+| Việc | Tệp |
+|---|---|
+| Huy hiệu đứng một mình ở giữa; slot `end-hero` vào thẻ "Hẹn gặp lại" thay trái tim (tắt Mila: trái tim như cũ); thẻ là `::before` hàng dưới nên chiều cao không đổi khi Mila đổi cỡ | `src/modules/m02/end/EndPage.tsx` (+ `.module.css`) |
+| `--mascot-size-dock-end` 104 → 72 px; lúc ăn mừng 1,5 lần (108 px), nhô lên trên mép thẻ; bong bóng ở trên thẻ, đuôi xuống | `src/shared/ui/tokens.css`, `src/app/mascot/Mascot.module.css`, design-system §9.2 |
+| Ăn mừng là khoảng giữ `MASCOT_CELEBRATION_MS` (`status: CELEBRATING`), rồi DOCK với `keepBubble` (câu ở lại 15 s); × trong lúc ăn mừng → về DOCK ngay | `rules.ts`, `types.ts`, `arbiter.ts`, `machine.ts` |
+
+Test đổi có chủ đích: `rules.test.ts` MAS-B-062 (DOCK sau 2,4 s, câu còn; câu đóng khi hết thời gian đọc); `e2e/m02/mascot-layout.spec.ts` (Mila ăn mừng 108 px, DOCK 72 px, câu còn khi đã về DOCK); `e2e/m02/mascot-end.spec.ts` (DOCK trong 5 s, bỏ `test.slow` của 19.2).
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 742; 2447 pass, 133 skipped; build OK, precache 113 mục (2884,26 KiB) |
+| `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` | 0 | 127 pass |
+| Chụp SCR-M02-003 ở 320/390 px lúc 1,2 s, 4 s, 17,5 s (spec tạm, đã xóa) | 0 | Huy hiệu giữa; Mila ăn mừng trong thẻ rồi về cỡ đứng, câu còn; thẻ không đổi chiều cao |
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-92 | Mila cỡ lớn suốt 15 s ở màn kết quả | Đã sửa (D7) |
+| DV-94 | Nhãn "Đã tham quan" ở danh sách điểm SCR-M02-003 (từ đợt thiết kế lại màn kết quả) lệch spec-M02 SC-M02-013 ("Đã quét QR", không diễn đạt là có mặt). Chủ dự án quyết định giữ nguyên (2026-11-24). Muốn hợp lệ với spec thì phải sửa spec-M02 | Chấp nhận lệch theo quyết định chủ dự án |
+| DV-95 | Khi `CONFLICT`, màn kết quả có hình Mila trong banner và Mila DOCK trong thẻ "Hẹn gặp lại" cùng lúc (đã có từ trước, khi DOCK còn cạnh huy hiệu); spec-Mascot v1.4 §5.1 "tối đa một Mila trên màn" | Mở — xử lý cùng gói 006 hoặc một sửa nhỏ |

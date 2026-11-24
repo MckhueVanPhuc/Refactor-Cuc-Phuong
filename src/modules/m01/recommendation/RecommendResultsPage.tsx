@@ -63,12 +63,14 @@ export function RecommendResultsPage() {
           {messages.recommend.changeChoices}
         </button>
       )}
-      <h1 className={styles.title}>
-        <TintIcon name="leaf" className={styles.leaf} />
-        {messages.recommend.resultsTitle}
-      </h1>
-      {/* Mila cạnh tiêu đề (spec-Mascot §5.1 SCR-M01-002 "Heading", AVATAR) */}
-      <MascotSlot id="recommend-head" modes={['AVATAR']} />
+      <div className={styles.head}>
+        <h1 className={styles.title}>
+          <TintIcon name="leaf" className={styles.leaf} />
+          {messages.recommend.resultsTitle}
+        </h1>
+        {/* Mila đứng cạnh tiêu đề khi có kết quả (spec-Mascot v1.5 §5.1, DOCK); không có kết quả thì ô trống, không chiếm chỗ */}
+        <MascotSlot id="recommend-head" modes={['DOCK']} size="recommend" />
+      </div>
       <p className={styles.criteria}>
         {labels.map((label, index) => (
           <span key={label}>

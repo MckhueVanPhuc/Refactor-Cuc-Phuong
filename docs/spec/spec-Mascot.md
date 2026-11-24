@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | Module | Mascot (cross-cutting visitor experience capability used by M01 and M02) |
-| Version | 1.3 |
-| Status | Behavioral baseline for the mascot capability (AGENTS.md §3.1). Implementation follows the approved change briefs CHG-MASCOT-2026-11-21-01, CHG-MASCOT-2026-11-22-02, CHG-MASCOT-2026-11-23-03 and CHG-MASCOT-2026-11-23-04. |
-| Last updated | 2026-11-23 |
+| Version | 1.5 |
+| Status | Behavioral baseline for the mascot capability (AGENTS.md §3.1). Implementation follows the approved change briefs CHG-MASCOT-2026-11-21-01, CHG-MASCOT-2026-11-22-02, CHG-MASCOT-2026-11-23-03, CHG-MASCOT-2026-11-23-04, CHG-MOTION-2026-11-24-01 and CHG-MASCOT-2026-11-24-05. |
+| Last updated | 2026-11-24 |
 | Consumers | Visitor web app: M01 screens SCR-M01-001…004, M02 screens SCR-M02-001…004 |
 | Depends on | spec-M01 v3.2 and spec-M02 v3.3 (clarification 4: check-in feedback may be presented by Mila, BR-MAS-24) |
 | Design input | docs/mascot/ (design package of 2026-11-20, updated 2026-11-21 and 2026-11-22) |
@@ -26,7 +26,7 @@ In scope:
 - Short help when scanning is hard: inactivity on the scanner and repeated identical scan failures (BR-MAS-09, BR-MAS-10).
 - Celebrations in three tiers when a visit is first recorded, at progress milestones and when the trip ends (BR-MAS-23).
 - A help sentence that fits the situation of the screen when the visitor taps Mila, and defined behavior for repeated taps (BR-MAS-12, BR-MAS-22).
-- Short ambient gestures between events on the screens where Mila waits, and a control that pauses all of Mila's motion (BR-MAS-21).
+- Short ambient gestures between events on the screens where Mila waits, and a control that pauses all of Mila's motion together with the decorative motion of the visitor screens (BR-MAS-21; v1.4).
 - Explicit behavior for each visitor activity context: reading, listening, watching, waiting for a scan, loading, interacting, error, leaving (BR-MAS-20).
 - Behavior that is the same online and offline (BR-MAS-15).
 
@@ -48,7 +48,8 @@ Out of scope:
 | Mila | The mascot character (user decision 2026-11-21). The name is the same in Vietnamese and English. Mila has no stated gender; documents refer to Mila by name or as "it". |
 | Slot | A place reserved by a screen's layout where Mila may appear (§5.1). Mila never appears outside a slot and never overlaps other content. |
 | Display mode | How Mila appears in a slot: `INTRO`, `DOCK`, `AVATAR`, `INLINE` or `CELEBRATE` (§5.1). |
-| Pose | One of Mila's fixed images (waving, map, thinking, backpack, binoculars, magnifier, thumbs-up, cheer, confused, resting, pointing, avatar). |
+| Pose | One of Mila's fixed images (waving, map, thinking, backpack, binoculars, magnifier, thumbs-up, cheer, confused, resting, pointing, avatar; v1.4: sorry, amazed, walking, peeking, proud). Which pose a reaction uses belongs to the design package (§5.5). |
+| Decorative motion | Motion of the visitor screens that gives no feedback on a visitor action and carries no information (tier T3 of design-system §4.3: light, drifting leaves, confetti, counting numbers). Paused by the motion control of BR-MAS-21 (v1.4). |
 | Bubble | Mila's speech bubble showing one catalog message (§5.6). |
 | Mascot event | A notification that something defined in §5.2 has happened in M01 or M02. |
 | Priority class | P0–P7 ordering used to choose between reactions (BR-MAS-05). |
@@ -108,17 +109,17 @@ Out of scope:
 ### US-MAS-07 — Prepare with Mila
 
 1. A started package download shows MSG-MAS-020; a ready package shows MSG-MAS-021; a failure shows MSG-MAS-024 or MSG-MAS-025 according to the failure; no percentage is ever shown or implied.
-2. A recommendation with results shows MSG-MAS-011; two consecutive empty results show Mila as an illustration next to the fixed message and its existing "Xem tất cả tuyến" button (v1.2: no second button).
+2. Every time the recommendation form opens, Mila stands next to its heading (`DOCK`) and shows MSG-MAS-010 (v1.5). A recommendation with results shows MSG-MAS-011 with Mila standing next to the results heading; two consecutive empty results show Mila as an illustration next to the fixed message and its existing "Xem tất cả tuyến" button (v1.2: no second button).
 
 ### US-MAS-08 — Finish the trip with Mila
 
-1. Given the visitor has just confirmed the end of the trip and the session is `HOAN_TAT`, when the trip result screen SCR-M02-003 opens, then Mila celebrates once (motion at most `MASCOT_CELEBRATION_MS`, skippable by a tap) with MSG-MAS-063 if every journey checkpoint was scanned, otherwise MSG-MAS-062, then stays next to the badge.
-2. Reopening the result screen later shows Mila next to the badge without a celebration.
+1. Given the visitor has just confirmed the end of the trip and the session is `HOAN_TAT`, when the trip result screen SCR-M02-003 opens, then Mila celebrates once (motion at most `MASCOT_CELEBRATION_MS`, skippable by a tap) with MSG-MAS-063 if every journey checkpoint was scanned, otherwise MSG-MAS-062; when the motion ends Mila returns to its standing place in the farewell card while the sentence stays for its reading time (v1.5).
+2. Reopening the result screen later shows Mila in the farewell card without a celebration (v1.5; before: next to the badge).
 
 ### US-MAS-09 — Mila feels alive, and the visitor can pause it
 
-1. Given Mila waits in a `DOCK` slot on SCR-M01-001, SCR-M02-001 (scanner closed) or SCR-M02-003 with no bubble, then every `MASCOT_AMBIENT_MIN_MS`–`MASCOT_AMBIENT_MAX_MS` Mila makes one short gesture (BR-MAS-21).
-2. Given the visitor switches the motion control off on the Resources screen SCR-M01-004 (v1.3), then no animation of Mila runs on any screen, bubble text appears at once, and Mila stays visible; switching it on resumes gestures.
+1. Given Mila waits in a `DOCK` slot on SCR-M01-001, SCR-M01-002, SCR-M02-001 (scanner closed) or SCR-M02-003 with no bubble, then every `MASCOT_AMBIENT_MIN_MS`–`MASCOT_AMBIENT_MAX_MS` Mila makes one gesture of two or three beats, and between gestures Mila breathes gently (BR-MAS-21; v1.5).
+2. Given the visitor switches the motion control off on the Resources screen SCR-M01-004 (v1.3), then no animation of Mila and no decorative motion runs on any screen, bubble text appears at once, the phone does not vibrate, and Mila stays visible; switching it on resumes gestures (v1.4).
 3. Given the device asks for reduced motion, then the motion control starts switched off.
 4. On reading screens, during media, while a dialog is open and while the page is hidden, Mila makes no ambient gesture (BR-MAS-20).
 
@@ -156,7 +157,7 @@ sequenceDiagram
 | FR-MAS-008 | When tapped, react visibly and show the help sentence that fits the situation of the screen; handle repeated taps as BR-MAS-22 (US-MAS-06). | Required |
 | FR-MAS-009 | Never change, delay, hide or replace any behavior, data or fixed message of spec-M01 or spec-M02, except the check-in feedback toast, which Mila's confirming bubble replaces as BR-MAS-24 defines. | Required |
 | FR-MAS-010 | Work identically offline; never require the network for any reaction. | Required |
-| FR-MAS-011 | Make short ambient gestures on the screens where Mila waits, and offer a motion control on the Resources screen SCR-M01-004 that pauses all of Mila's motion on every screen without hiding Mila (US-MAS-09, BR-MAS-21; v1.3). | Required |
+| FR-MAS-011 | Make short ambient gestures on the screens where Mila waits, and offer a motion control on the Resources screen SCR-M01-004 that pauses all of Mila's motion and all decorative motion on every screen without hiding Mila (US-MAS-09, BR-MAS-21; v1.3, v1.4). | Required |
 | FR-MAS-012 | Adapt to the visitor's activity context as BR-MAS-20 defines (US-MAS-05, US-MAS-09). | Required |
 
 ### 5.1 Slots and display modes
@@ -172,15 +173,19 @@ sequenceDiagram
 | Screen | Slot | Modes |
 |---|---|---|
 | SCR-M01-001 route catalog | Hero area; empty and error states | INTRO, DOCK; INLINE |
-| SCR-M01-002 recommendations | Heading; empty result | AVATAR; INLINE |
+| SCR-M01-002 recommendations | Heading of the form and of the results (v1.5); empty result | DOCK; INLINE |
 | SCR-M01-003 route detail | Start panel (never on the safety warning block); package panel; offline decision dialog header | AVATAR, INLINE |
 | SCR-M01-004 offline resources | Package panel; empty state | AVATAR, INLINE |
 | SCR-M02-001 trip and scanner | Next to the Scan action; next to the notice area; scanner overlay strip below the frame; end-of-trip dialog header | DOCK; INLINE; AVATAR; INLINE |
 | SCR-M02-002 checkpoint content | Where the visit toast appears (Mila's bubble is the check-in feedback, BR-MAS-24) | AVATAR |
-| SCR-M02-003 trip result | Next to the completion badge | CELEBRATE, INLINE |
+| SCR-M02-003 trip result | In the farewell card "Hẹn gặp lại…", in place of its heart icon (v1.5); the completion badge stands alone | CELEBRATE, DOCK |
 | SCR-M02-004 QR link page | Where the visit toast appears (with a session; BR-MAS-24); next to the free-visitor hint (without) | AVATAR; INLINE (OD-MAS-14) |
 
-The motion control of BR-MAS-21 is shown once, on the Resources screen SCR-M01-004, while Mila is enabled; screen headers have no motion control (v1.3).
+The motion control of BR-MAS-21 is shown once, on the Resources screen SCR-M01-004, also when Mila is disabled by the release switch (v1.4); screen headers have no motion control (v1.3).
+
+A slot without Mila takes no space; when Mila appears the content below moves down, and Mila never covers content (v1.5, design-system §9.2). On SCR-M01-002 Mila stands next to the heading of the form, and next to the results heading only when there are results; with no result Mila is only the illustration next to the fixed message (v1.5).
+
+Mila appears at most once on a screen. The journey progress bar of SCR-M02-001 and the package download bar use a non-character marker; they are not slots (v1.4, user decision 2026-11-24).
 
 On SCR-M01-001 the hero has two columns: the title and the "Route suggestions" action on the left; the decorative hills and Mila in `DOCK` on the right. A bubble of the catalog opens below the hero with its tail pointing up to Mila; Mila does not move, and the route list moves down by the bubble's height and back when it closes (design-system §9).
 
@@ -225,7 +230,7 @@ There is no "sync in progress", "journey paused" or "content read" event: spec-M
 | BR-MAS-04 | **Truthful wording.** No message states or implies arrival or presence for a visit (spec-M02 SC-M02-013), says that every checkpoint must be scanned (BR-M02-006, 007), says that data was sent before `SYNCED`, or promises offline content that is not in a ready package. |
 | BR-MAS-05 | **Priority.** Reactions belong to one class: P0 safety, P1 blocking error, P2 system feedback, P3 visitor request, P4 success, P5 progress, P6 guidance, P7 ambient. A higher class interrupts a lower one. At most one bubble is visible. At most one reaction waits, for at most `MASCOT_QUEUE_TTL_MS`; P5–P7 never wait. |
 | BR-MAS-06 | **No repetition.** Each message has a cooldown (§5.6 metadata in the design package). The same message is not shown again within its cooldown. Memory of what was said lasts for the current page load only. The same event received twice within 500 ms is handled once. |
-| BR-MAS-07 | **Proactive limit.** At most `MASCOT_PROACTIVE_LIMIT` reactions of classes P5–P7 are shown in any `MASCOT_PROACTIVE_WINDOW_MIN` window across the app. |
+| BR-MAS-07 | **Proactive limit.** At most `MASCOT_PROACTIVE_LIMIT` reactions of classes P5–P7 are shown in any `MASCOT_PROACTIVE_WINDOW_MIN` window across the app. Exception (v1.5, user decision 2026-11-24): MSG-MAS-010 is shown every time the recommendation form opens, has no cooldown and does not count towards this limit. |
 | BR-MAS-08 | **Focus contexts.** While media plays, while a dialog other than the end-of-trip prompt is open, or while the page is hidden, only P0–P1 apply and only as `INLINE`. All timers stop while the page is hidden and restart from zero when it is shown. |
 | BR-MAS-09 | **Inactivity.** Inactivity is measured only on the open scanner and, once per page load, on the route catalog (§5.4). It is never measured on SCR-M02-001 outside the scanner, on reading screens, during media, or on SCR-M01-003. Meaningful activity (touch, key, scroll, a code read, a mascot event) resets the timer. |
 | BR-MAS-10 | **Repeated failure.** Two consecutive identical scan failures (`INVALID`, or connection needed) on one visit of SCR-M02-001 trigger one help message; a different result resets the count. Two consecutive package failures for the same route trigger MSG-MAS-026. Two consecutive empty recommendations trigger MSG-MAS-013. |
@@ -235,11 +240,11 @@ There is no "sync in progress", "journey paused" or "content read" event: spec-M
 | BR-MAS-14 | **Free visitor.** Without a session Mila shows scanner help and error illustrations only; no progress, celebration or trip messages. |
 | BR-MAS-15 | **Offline.** All images and messages used by Mila are available on the device once the app shell is cached; no reaction needs the network. If an image is unavailable Mila is not shown and the screen works as without Mila. |
 | BR-MAS-16 | **Failure isolation.** Any failure of the mascot system leaves the screen working exactly as without Mila. |
-| BR-MAS-17 | **Reduced motion.** When the device asks for reduced motion, every animation becomes an immediate change or a fade of at most 150 ms, celebration particles are not shown, bubble text appears at once, and the motion control of BR-MAS-21 starts switched off. |
+| BR-MAS-17 | **Reduced motion.** When the device asks for reduced motion, every animation becomes an immediate change or a fade of at most 150 ms, celebration particles are not shown, bubble text appears at once, and the motion control of BR-MAS-21 starts switched off. The same applies to the decorative motion of the visitor screens (v1.4). |
 | BR-MAS-18 | **Privacy.** Mascot events and reactions are not stored and not sent anywhere; no analytics are added. |
-| BR-MAS-19 | **Vibration.** When the visit of a checkpoint is recorded for the first time (US-MAS-02), the phone vibrates once for `MASCOT_VIBRATION_MS` where the browser supports it; never on any other event, and never while reduced motion is requested (user decision 2026-11-21, OD-MAS-09). |
+| BR-MAS-19 | **Vibration.** When the visit of a checkpoint is recorded for the first time (US-MAS-02), the phone vibrates once for `MASCOT_VIBRATION_MS` where the browser supports it; never on any other event, and never while reduced motion is requested or the motion control of BR-MAS-21 is off (user decision 2026-11-21, OD-MAS-09; motion control added in v1.4). |
 | BR-MAS-20 | **Activity contexts** (user decision 2026-11-22). *Reading* an article (SCR-M02-002/004 after the arrival reaction): no further reaction except a requested help sentence and P0–P2. *Listening* to audio or *watching* video: BR-MAS-08; a visible bubble closes at once. *Waiting for a scan* (scanner open): only the scanner timers of §5.4 and scan results. *Loading*: a message only when the wait passes its threshold (MSG-MAS-005, 044), never repeating text the screen already shows. *Interacting*: a reaction that is not the direct result of the visitor's own action (timer-driven help, reminders, ambient gestures) is dropped if it would start within `MASCOT_INTERACTION_GRACE_MS` of a touch, scroll or key press. *Error*: illustration next to the error, help only on repetition (BR-MAS-10); Mila never adds a button that duplicates the screen's own action. *Leaving*: on a screen change, pending reactions of the old screen are dropped, except a success reaction carried to the content it opened. |
-| BR-MAS-21 | **Ambient motion and motion control** (user decision 2026-11-22, option A). On SCR-M01-001, SCR-M02-001 with the scanner closed and SCR-M02-003, when Mila is in `DOCK` without a bubble, Mila makes one short gesture (at most 1.5 s) at a random interval between `MASCOT_AMBIENT_MIN_MS` and `MASCOT_AMBIENT_MAX_MS`; never in the contexts of BR-MAS-08 or on reading screens. A looping animation of a reaction (waiting for a lookup or a download) runs at most `MASCOT_LOOP_MAX_MS` per occurrence. The Resources screen SCR-M01-004 shows one motion control for the whole app (v1.3, user decision 2026-11-23; switch "Chuyển động của {name}" / "{name}'s motion", state on or off); screen headers have none. Off: no animation of Mila runs, no particles, bubble text appears at once; Mila and its bubbles stay. The choice lasts for the current page load and is not stored (BR-MAS-18). This satisfies WCAG 2.2.2 for motion that lasts more than 5 s; the user accepted on 2026-11-23 that the control sits on one screen, reached from the Resources tab (on a trip screen the visitor leaves the trip view to reach it). |
+| BR-MAS-21 | **Ambient motion and motion control** (user decision 2026-11-22, option A). On SCR-M01-001, SCR-M01-002 (v1.5), SCR-M02-001 with the scanner closed and SCR-M02-003, when Mila is in `DOCK` without a bubble, Mila makes one gesture of two or three beats (at most `MASCOT_AMBIENT_GESTURE_MS`) at a random interval between `MASCOT_AMBIENT_MIN_MS` and `MASCOT_AMBIENT_MAX_MS`, and breathes gently between gestures (v1.5, user decision 2026-11-24); never in the contexts of BR-MAS-08 or on reading screens. A looping animation of a reaction (waiting for a lookup or a download) runs at most `MASCOT_LOOP_MAX_MS` per occurrence. The Resources screen SCR-M01-004 shows one motion control for the whole app (v1.3, user decision 2026-11-23; v1.4, user decision 2026-11-24: switch "Hiệu ứng chuyển động" / "Motion effects", state on or off, shown also when Mila is disabled by the release switch); screen headers have none. Off: no animation of Mila runs, no particles, no decorative motion (§1.1), no vibration (BR-MAS-19), bubble text appears at once; Mila and its bubbles stay, and feedback to the visitor's own actions remains as a change of color or a fade of at most 150 ms (design-system §4.3). The choice lasts for the current page load and is not stored (BR-MAS-18). This satisfies WCAG 2.2.2 for motion that lasts more than 5 s; the user accepted on 2026-11-23 that the control sits on one screen, reached from the Resources tab (on a trip screen the visitor leaves the trip view to reach it). |
 | BR-MAS-22 | **Repeated taps** (user decision 2026-11-22). Taps within `MASCOT_TAP_DEBOUNCE_MS` count once. A running animation is not restarted. At most one bubble is visible; a tap while a help bubble is shown follows US-MAS-06 item 2. `MASCOT_DIZZY_TAPS` taps within `MASCOT_DIZZY_WINDOW_MS` show the dizzy reaction once per page load (confused pose, wobble, MSG-MAS-085); afterwards taps behave normally. Mila never falls or shows harm. |
 | BR-MAS-24 | **Mila confirms the recorded visit** (user decision 2026-11-23, CHG-MASCOT-2026-11-23-03). When the visit of a journey checkpoint is recorded for the first time and is not the final checkpoint, Mila's celebrating bubble (MSG-MAS-050, 051, 055 or 058) is the check-in feedback of spec-M02 §8: its text states that the scan was recorded, it has the `status` role so assistive technology announces it once, and the "Đã ghi nhận lượt quét." toast is not shown. The toast is shown exactly as before whenever Mila cannot confirm: the release switch is off; Mila is hidden after a failure (BR-MAS-15, 16); the screen has no ready slot; or the confirming bubble has not appeared within `MASCOT_CONFIRM_FALLBACK_MS` of the visit being recorded. For the final checkpoint the end-of-trip prompt (BR-M02-021) is the feedback; Mila only vibrates and no toast is shown. The visitor never sees both the toast and the confirming bubble, and never sees neither. |
 | BR-MAS-23 | **Celebration tiers** (user decision 2026-11-22). Tier 1, an ordinary newly recorded visit: one hop and MSG-MAS-050. Tier 2, milestones, in this order of precedence when several apply: the first visit of the session (MSG-MAS-051), half of the checkpoints when n ≥ 4 (MSG-MAS-055), one checkpoint left when n ≥ 3 (MSG-MAS-058): two hops, a few falling leaves and the milestone sentence. Tier 3, the end of a completed trip (US-MAS-08): the full celebration with MSG-MAS-063 or MSG-MAS-062. Ending early is celebrated as positively as a full trip. Tiers are reactions only: nothing is counted, collected or stored, and MVP-Scope §4 stays Won't. Vibration follows BR-MAS-19 unchanged. |
@@ -260,7 +265,8 @@ Provisional values to be validated in the field by the project owner, like `LOOK
 | `MASCOT_QUEUE_TTL_MS` | 4 000 ms | BR-MAS-05 |
 | `MASCOT_CELEBRATION_MS` | 2 400 ms | US-MAS-08 |
 | `MASCOT_VIBRATION_MS` | 30 ms | BR-MAS-19 |
-| `MASCOT_AMBIENT_MIN_MS` / `MASCOT_AMBIENT_MAX_MS` | 8 000 / 15 000 ms | BR-MAS-21 |
+| `MASCOT_AMBIENT_MIN_MS` / `MASCOT_AMBIENT_MAX_MS` | 4 000 / 7 000 ms (v1.5; before 8 000 / 15 000) | BR-MAS-21 |
+| `MASCOT_AMBIENT_GESTURE_MS` | 3 000 ms (v1.5; before 1 500) | BR-MAS-21: longest ambient gesture |
 | `MASCOT_LOOP_MAX_MS` | 5 000 ms | BR-MAS-21 |
 | `MASCOT_INTERACTION_GRACE_MS` | 2 000 ms | BR-MAS-20 |
 | `MASCOT_TAP_DEBOUNCE_MS` | 400 ms | BR-MAS-22 |
@@ -268,7 +274,7 @@ Provisional values to be validated in the field by the project owner, like `LOOK
 | `MASCOT_CONFIRM_FALLBACK_MS` | 1 000 ms | BR-MAS-24: show the toast if Mila's confirming bubble has not appeared |
 | `MASCOT_TYPE_CPS` | 30 characters per second | Bubble text appearing progressively; a tap on the bubble shows it at once |
 | Bubble length | ≤ 90 characters after substitution, at most 2 sentences; exception: MSG-MAS-001 in the introduction overlay (v1.3), which waits for a tap | §5.6 |
-| Bubble reading time | 3 000 + max(0, 45 ms × characters − 1 800) ms, at most 7 000 ms | Bubbles without action |
+| `MASCOT_BUBBLE_READ_MS` — bubble reading time | 15 000 ms after the text is complete (v1.5, user decision 2026-11-24; before 3 000–7 000 ms by length); the close button ends it earlier; leaving the screen ends it | Bubbles without action, on every screen |
 
 ### 5.5 Appearance
 
@@ -329,7 +335,7 @@ Proposed wording for review. `{name}` is `Mila`; `{k}` scanned checkpoints, `{n}
 | MSG-MAS-075 | Network back after MSG-MAS-074 | Có sóng lại rồi! | Signal's back! |
 | MSG-MAS-085 | Dizzy reaction (BR-MAS-22) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 
-Accessible names (new): "Chuyển động của {name}" / "{name}'s motion" for the motion switch on SCR-M01-004 (state on/off); "{name}" for the introduction overlay dialog, with the hint "Chạm để bắt đầu" / "Tap to start"; "Hỏi {name}" / "Ask {name}" for tapping Mila; "Đóng lời nhắn" / "Dismiss message" for a bubble's close button; "Chưa" / "Not now" for the second button of MSG-MAS-049.
+Accessible names (new): "Hiệu ứng chuyển động" / "Motion effects" for the motion switch on SCR-M01-004 (state on/off; v1.4, before: "Chuyển động của {name}"), with the hint "Tắt để {name} và hiệu ứng trang trí đứng yên." / "Turn off to keep {name} and decorations still."; "{name}" for the introduction overlay dialog, with the hint "Chạm để bắt đầu" / "Tap to start"; "Hỏi {name}" / "Ask {name}" for tapping Mila; "Đóng lời nhắn" / "Dismiss message" for a bubble's close button; "Chưa" / "Not now" for the second button of MSG-MAS-049.
 
 ## 6. Key entities
 
@@ -349,7 +355,7 @@ None. Mascot events are transient notifications; Mila's state, cooldowns and tim
 | SC-MAS-008 | With reduced motion requested, no mascot animation runs. |
 | SC-MAS-009 | A free visitor never sees progress or celebration. |
 | SC-MAS-010 | Opening a public QR link shows its content without any mascot introduction or added delay. |
-| SC-MAS-011 | With the motion control off, no animation of Mila runs on any screen and Mila stays visible. |
+| SC-MAS-011 | With the motion control off, no animation of Mila and no decorative motion runs on any screen, and Mila stays visible (v1.4). |
 | SC-MAS-012 | No ambient gesture starts on a reading screen, during media, while a dialog is open or within `MASCOT_INTERACTION_GRACE_MS` of a visitor touch, scroll or key press. |
 | SC-MAS-013 | Any sequence of taps never shows two bubbles at once, never restarts a running animation, and shows the dizzy reaction at most once per page load. |
 | SC-MAS-015 | Every newly recorded non-final visit shows exactly one check-in feedback: Mila's confirming bubble or, when Mila cannot present it, the toast; never both, never neither (BR-MAS-24). |
@@ -363,7 +369,7 @@ None. Mascot events are transient notifications; Mila's state, cooldowns and tim
 | SCR-M01-001 | screens/screen-spec/M01/screen-spec-SCR-M01-001.md | Slots of §5.1; two-column hero; introduction overlay; MSG-MAS-001, 004, 005, 008, 009, 012, 085 |
 | SCR-M01-002 | screens/screen-spec/M01/screen-spec-SCR-M01-002.md | Slots; MSG-MAS-010, 011, 013 |
 | SCR-M01-003 | screens/screen-spec/M01/screen-spec-SCR-M01-003.md | Slots; MSG-MAS-014, 020, 021, 024–026 |
-| SCR-M01-004 | screens/screen-spec/M01/screen-spec-SCR-M01-004.md | Slots; motion control (v1.3); MSG-MAS-020, 021, 024, 025 |
+| SCR-M01-004 | screens/screen-spec/M01/screen-spec-SCR-M01-004.md | Slots; motion control (v1.3; label and visibility v1.4); MSG-MAS-020, 021, 024, 025 |
 | SCR-M02-001 | screens/screen-spec/M02/screen-spec-SCR-M02-001.md | Slots; MSG-MAS-030–049, 056, 057, 061, 074, 075, 085 |
 | SCR-M02-002 | screens/screen-spec/M02/screen-spec-SCR-M02-002.md | Slot; MSG-MAS-050–055, 058, 059 |
 | SCR-M02-003 | screens/screen-spec/M02/screen-spec-SCR-M02-003.md | Slot; MSG-MAS-062, 063, 065, 070, 085 |
@@ -391,7 +397,7 @@ No new screen. Screen specs are derived documents and are updated only after thi
 | OD-MAS-07 | Usage rights of the image generation tool | **Decided 2026-11-21:** the user confirms when delivering the images; no image enters the repository before. **Confirmed 2026-11-22:** the user designed the images and confirmed the usage rights. |
 | OD-MAS-08 | MVP priority | **Decided 2026-11-21:** Could (no Must flow depends on Mila). |
 | OD-MAS-09 | A short vibration when a visit is recorded? | **Decided 2026-11-21:** yes, 30 ms, where supported (BR-MAS-19). |
-| OD-MAS-10 | On SCR-M02-003, does Mila stand next to the approved completion badge or replace it? | **Decided 2026-11-21:** next to it; the badge stays (§5.1). |
+| OD-MAS-10 | On SCR-M02-003, does Mila stand next to the approved completion badge or replace it? | **Decided 2026-11-21:** next to it; the badge stays (§5.1). **Changed 2026-11-24 (v1.5, OD-MAS-27):** the badge stands alone; Mila moves to the farewell card. |
 | OD-MAS-11 | Show the progress "{k}/{n}" in Mila's bubble next to the unchanged toast "Đã ghi nhận lượt quét."? | **Decided 2026-11-21:** yes (MSG-MAS-050). |
 | OD-MAS-12 | Timing values of §5.4 | **Decided 2026-11-21:** provisional values, validated in the field by the project owner (§9). |
 | OD-MAS-13 | New sentence for a valid QR outside the journey (MSG-MAS-052), which also fills the "outside journey" feedback the design system expects | **Decided 2026-11-21:** yes. |
@@ -401,6 +407,14 @@ No new screen. Screen specs are derived documents and are updated only after thi
 | OD-MAS-17 | Make Mila more animated, given that motion lasting more than 5 s needs a pause control (WCAG 2.2.2)? | **Decided 2026-11-22:** option A, ambient gestures every 8–15 s on waiting screens plus a motion control in the header (BR-MAS-21). **Changed 2026-11-23 (v1.3):** the control moves from the headers to the Resources screen SCR-M01-004. |
 | OD-MAS-19 | Visit confirmation shown twice (toast and Mila) | **Decided 2026-11-23:** option C — Mila's bubble replaces the toast when it can present it; the toast stays the fallback; no toast at the final checkpoint (BR-MAS-24). |
 | OD-MAS-20 | Lines close to fixed messages (030, 065, and the not yet built 011, 013, 021, 024, 025, 040, 043, 054) | **Decided 2026-11-23:** keep 030 and 065; 013, 024, 025, 040, 054 become illustrations; 011, 012, 021, 043 reworded (§5.6). |
+| OD-MAS-21 | One control for all decorative motion, or one for Mila only? (CHG-MOTION-2026-11-24-01, OD-MOT-01…03) | **Decided 2026-11-24:** one control "Hiệu ứng chuyển động" in BR-MAS-21 for Mila and the decorative motion; shown also when Mila is disabled; not stored. |
+| OD-MAS-22 | Mila walking along the journey progress bar (a second figure on SCR-M02-001)? (OD-MOT-06) | **Decided 2026-11-24:** no; Mila appears at most once on a screen (§5.1); the bar uses a footprint marker. |
+| OD-MAS-23 | Ambient gestures felt rare and too short (phone/laptop review 2026-11-24) | **Decided 2026-11-24:** every 4–7 s, two or three beats up to 3 s, gentle breathing between gestures (BR-MAS-21). |
+| OD-MAS-24 | Bubbles closed before the visitor could read them | **Decided 2026-11-24:** 15 s on every screen; the visitor may close earlier (§5.4). |
+| OD-MAS-25 | Mila disappeared from the recommendation screen and never came back | **Decided 2026-11-24:** Mila stands next to the heading (`DOCK`); MSG-MAS-010 every time the form opens (§5.1, BR-MAS-07, US-MAS-07). |
+| OD-MAS-26 | Empty space left where Mila was | **Decided 2026-11-24:** a slot without Mila takes no space on every screen (§5.1; design-system §9.2). |
+| OD-MAS-27 | Badge and Mila side by side looked unbalanced on SCR-M02-003 (owner review 2026-11-24, five mockups) | **Decided 2026-11-24:** option E — the completion badge stands alone centred; Mila replaces the heart icon of the farewell card; with Mila disabled the heart stays (§5.1, US-MAS-08). |
+| OD-MAS-28 | Large celebrating Mila stayed for the whole 15 s reading time (DV-92) | **Decided 2026-11-24:** the celebration motion lasts at most `MASCOT_CELEBRATION_MS`, then Mila returns to its standing size and place while the sentence stays (US-MAS-08). |
 | OD-MAS-18 | Confirmation button after the introduction on the language step | **Decided 2026-11-23 (v1.3):** the introduction becomes a centred overlay with one sentence, closed by a tap ("Chạm để bắt đầu"), no skip button (US-MAS-01). |
 
 ## 11. Relationship to other documents
@@ -412,7 +426,8 @@ No new screen. Screen specs are derived documents and are updated only after thi
 | AGENTS.md | Must list this file in §3.1 and §4, and add ownership rows for docs/mascot/ and assets/mascot/, before this spec is a baseline. |
 | Derived documents to update after approval | function list (new file for this capability); docs/design/design-system.md (§4.3 motion, §5.4 "no extra motion" rule, new Mascot section and tokens); screen specs and screen lists of M01 and M02; docs/architecture/environment.md (switch, if OD-MAS-15); README.md, docs/README.md. |
 | Design package | docs/mascot/ is the design input. On conflict, this specification wins. |
-| Change briefs | CHG-MASCOT-2026-11-21-01 for documentation sync and local frontend implementation; CHG-MASCOT-2026-11-22-02 for v1.1; CHG-MASCOT-2026-11-23-03 for v1.2 (with one line of spec-M02 §8). No backend, cloud or data change is involved. |
+| Change briefs | CHG-MASCOT-2026-11-21-01 for documentation sync and local frontend implementation; CHG-MASCOT-2026-11-22-02 for v1.1; CHG-MASCOT-2026-11-23-03 for v1.2 (with one line of spec-M02 §8); CHG-MASCOT-2026-11-23-04 for v1.3; CHG-MOTION-2026-11-24-01 for v1.4 (motion of the visitor screens, package specs/006-visitor-motion); CHG-MASCOT-2026-11-24-05 for v1.5. No backend, cloud or data change is involved. |
+| docs/design/design-system.md | §4.3 defines the motion tiers T1 feedback, T2 transition, T3 decorative (v1.4); the motion control of BR-MAS-21 pauses Mila and T3. |
 
 ### 11.1 Traceability (US → FR → BR → SC)
 
@@ -433,6 +448,8 @@ No new screen. Screen specs are derived documents and are updated only after thi
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.5 | 2026-11-24 | Change brief CHG-MASCOT-2026-11-24-05 (approved 2026-11-24) after the owner's review of a build: ambient gestures every 4–7 s with two or three beats up to 3 s and gentle breathing between them, also on SCR-M01-002 (BR-MAS-21, US-MAS-09.1, §5.4); bubbles without action stay 15 s on every screen (§5.4 `MASCOT_BUBBLE_READ_MS`); on SCR-M01-002 Mila stands next to the heading (`DOCK`) and says MSG-MAS-010 every time the form opens, outside cooldown and the proactive limit (§5.1, BR-MAS-07, US-MAS-07.2); a slot without Mila takes no space (§5.1); on SCR-M02-003 the badge stands alone and Mila moves to the farewell card, the celebration motion ends after `MASCOT_CELEBRATION_MS` while the sentence stays (§5.1, US-MAS-08). OD-MAS-23…28; OD-MAS-10 changed. No new message, event or priority. |
+| 1.4 | 2026-11-24 | Change brief CHG-MOTION-2026-11-24-01 (approved 2026-11-24) for motion and micro-interactions on the visitor screens: the motion control becomes "Hiệu ứng chuyển động" / "Motion effects", pauses Mila and the decorative motion (new glossary term), stops the vibration, and is shown also when Mila is disabled (BR-MAS-17, 19, 21; US-MAS-09; FR-MAS-011; SC-MAS-011; §5.1; OD-MAS-21); Mila appears at most once on a screen, progress bars are not slots (§5.1; OD-MAS-22); new poses sorry, amazed, walking, peeking, proud listed in the glossary (images by the user, AGENTS.md §4). No change to events, priorities, messages or slots. |
 | 1.3 | 2026-11-23 | Change brief CHG-MASCOT-2026-11-23-04 (approved 2026-11-23) after a phone test: the introduction becomes a one-time overlay with one longer sentence closed by a tap, no skip button (US-MAS-01, `INTRO`, BR-MAS-02, 11, §5.4 exception, MSG-MAS-001; MSG-MAS-002 removed; OD-MAS-18 decided; SC-MAS-016); the motion control moves from the headers to the Resources screen SCR-M01-004 (BR-MAS-21, FR-MAS-011, US-MAS-09, SC-MAS-014, OD-MAS-17); two-column catalog hero with the hills and Mila, bubble below the hero (§5.1); MSG-MAS-056 reworded. |
 | 1.2 | 2026-11-23 | Change brief CHG-MASCOT-2026-11-23-03 (approved 2026-11-23) after an overlap review between Mila's lines and the M01/M02 screen copy: Mila's confirming bubble replaces the check-in toast, which stays the fallback; no toast at the final checkpoint (new BR-MAS-24, `MASCOT_CONFIRM_FALLBACK_MS`, SC-MAS-015; spec-M02 §8 clarification 4); BR-MAS-02 and FR-MAS-009 name the exceptions; MSG-MAS-050, 051, 055, 058 state that the scan was recorded; 011, 012, 021, 043 reworded; 013, 024, 025, 040, 054 become illustrations; 030 and 065 kept (OD-MAS-19, 20). |
 | 1.1 | 2026-11-22 | Change brief CHG-MASCOT-2026-11-22-02 (approved 2026-11-22) after the user's review and a phone test: tap answers fit the situation (BR-MAS-12, MSG-MAS-012, 033, 043, 065) and repeated taps are defined (BR-MAS-22, MSG-MAS-085); celebration tiers with a new "one checkpoint left" milestone and a different end sentence for a full trip (BR-MAS-23, MSG-MAS-058, 063); activity contexts including the new "interacting" rule (BR-MAS-20); ambient gestures and a motion control in the header (BR-MAS-21, OD-MAS-17), loops limited to 5 s; new limits in §5.4; US-MAS-09; FR-MAS-011, 012; SC-MAS-011 to 014. Introduction confirmation deferred (OD-MAS-18). |

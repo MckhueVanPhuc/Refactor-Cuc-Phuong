@@ -30,7 +30,7 @@ src/shared/mascot/                    # Engine thuần và thành phần màn d�
 ├── config.ts        # ngưỡng thời gian (giá trị tạm, MAS-D-11)
 ├── assets.ts        # (7) registry: poseId → { src240, src480 }, ảnh chớp mắt (import ảnh qua Vite)
 ├── flag.ts          # công tắc phát hành VITE_FEATURE_MASCOT
-├── motion.ts        # công tắc "Chuyển động của Mila" (trong bộ nhớ)
+├── motion.ts        # công tắc chuyển động (trong bộ nhớ); v1.4 chuyển sang src/shared/motion/ (specs/006)
 ├── slots.ts         # registry slot: màn đăng ký chỗ, host đọc
 ├── visitConfirm.ts  # Mila xác nhận lượt ghé thay toast (BR-MAS-24)
 ├── MascotSlot.tsx   # chỗ đặt Mila trong layout của màn (host portal vào)
@@ -117,7 +117,7 @@ Mỗi điểm phát được thêm kèm một test: test hành vi cũ vẫn PASS
 | Slot | Màn | Mode | INLINE (`MascotFigure`) trên cùng màn |
 |---|---|---|---|
 | `catalog-hero` | SCR-M01-001 | INTRO, DOCK | Câu rỗng (`rest`), lỗi nguồn (`confused`) |
-| `recommend-head` | SCR-M01-002 (form và trang kết quả) | AVATAR | Câu không có kết quả (`think`) |
+| `recommend-head` | SCR-M01-002 (form và trang kết quả) | DOCK (v1.5) | Câu không có kết quả (`think`) |
 | `start-panel` | SCR-M01-003, phía trên nút Bắt đầu | AVATAR | Lỗi Start (`confused`); đầu dialog quyết định offline (`backpack`) |
 | `package-panel` | SCR-M01-003, SCR-M01-004 (dòng gói vừa bấm tải) | AVATAR | Câu lỗi gói (`confused`); SCR-M01-004 rỗng (`rest`) |
 | `trip-dock` | SCR-M02-001 | DOCK | Từ chối handoff / không chuyến; `INVALID`, `CONNECTION_NEEDED` (`confused`) |
@@ -136,7 +136,7 @@ Mỗi điểm phát được thêm kèm một test: test hành vi cũ vẫn PASS
 
 - Ảnh WebP 240 px precache; 480 px nạp bằng `<img srcset>` theo DPR, `loading="lazy"`, `decoding="async"`. Ảnh mascot không bao giờ là phần tử LCP (không có trên `/q/…` lúc đầu, MAS-BR-10).
 - Animation chỉ `transform`/`opacity`, có `will-change` trong lúc chạy rồi gỡ ra.
-- Vòng lặp của một phản ứng ≤ 5 s mỗi lượt (`MASCOT_LOOP_MAX_MS`); cử chỉ tự động (BR-MAS-21) là một hẹn giờ ngẫu nhiên 8–15 s trong cùng cơ chế `nextDeadline`, không `setInterval`; dừng hết khi `document.hidden` hoặc công tắc chuyển động tắt.
+- Vòng lặp của một phản ứng ≤ 5 s mỗi lượt (`MASCOT_LOOP_MAX_MS`); cử chỉ tự động (BR-MAS-21) là một hẹn giờ ngẫu nhiên 4–7 s (v1.5), thở nhẹ giữa hai cử chỉ là animation CSS lặp, không timer JS, trong cùng cơ chế `nextDeadline`, không `setInterval`; dừng hết khi `document.hidden` hoặc công tắc chuyển động tắt.
 - Chớp mắt đổi ảnh MA-20 (đã nạp sẵn cùng ảnh tư thế), không tải ảnh lúc chớp.
 - Hẹn giờ không hoạt động dùng một `setTimeout` duy nhất được đặt lại, không dùng `setInterval`.
 - Engine tách chunk `mascot` (vẫn precache), nạp sau khi màn đầu đã hiện (`requestIdleCallback`, có fallback `setTimeout`).
@@ -149,7 +149,7 @@ Mỗi điểm phát được thêm kèm một test: test hành vi cũ vẫn PASS
 - Không chiếm focus; nút × và CTA nằm trong thứ tự tab tự nhiên của slot.
 - Tương phản bong bóng (v1.1, kiểu "Giấy dã ngoại", design-system §9.3): nền `--mascot-bubble-surface` (#fffaf0), chữ `m01-ink` (14.52:1); trên scanner dùng `--color-m02-scanner-surface` + `--color-m02-scanner-text` (12.86:1) kèm viền `secondary` như quy tắc §5.3.
 - Giảm chuyển động theo MAS-FR-12.
-- Công tắc "Chuyển động của Mila" (BR-MAS-21) ở màn Tài nguyên SCR-M01-004 (v1.3; v1.1 đặt ở thanh đầu trang): `<button role="switch" aria-checked>`, vùng chạm 44 px; tắt thì engine ngừng lịch cử chỉ và component bỏ `data-mascot-animation`, chữ hiện ngay. Đây là cơ chế tạm dừng cho WCAG 2.2.2.
+- Công tắc "Hiệu ứng chuyển động" (BR-MAS-21; nhãn v1.4) ở màn Tài nguyên SCR-M01-004 (v1.3; v1.1 đặt ở thanh đầu trang); v1.4 hiện cả khi cờ Mila tắt: `<button role="switch" aria-checked>`, vùng chạm 44 px; tắt thì engine ngừng lịch cử chỉ và component bỏ `data-mascot-animation`, chữ hiện ngay. Đây là cơ chế tạm dừng cho WCAG 2.2.2.
 - Chữ hiện dần: phần tử chữ hiển thị dần có `aria-hidden`, một bản đầy đủ cho trình đọc màn hình (ẩn thị giác) để câu được đọc một lần.
 - Thông báo tạm đóng: mascot rời DOM (không chỉ ẩn bằng CSS), để trình đọc màn hình chỉ đọc thông báo an toàn.
 

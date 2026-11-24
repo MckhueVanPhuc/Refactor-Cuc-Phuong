@@ -39,7 +39,7 @@ const runningMascotAnimations = (page: Page) =>
       .filter((a) => a.playState === 'running' && (a.effect as KeyframeEffect | null)?.target?.closest('[data-mascot-mode]')).length,
   );
 
-test('Q18 — Mila đứng chờ ở danh mục: có cử chỉ tự động trong 16 giây; mọi animation dừng trong 5 giây (SC-MAS-014)', async ({ page }) => {
+test('Q18 (v1.5) — Mila đứng chờ ở danh mục: có cử chỉ tự động (lần đầu có thể là chớp mắt nên chờ tới 18 giây); cử chỉ ≤ 3 giây; chỉ có thở nhẹ chạy liên tục (SC-MAS-014: có công tắc)', async ({ page }) => {
   await page.addInitScript(() => {
     const seen: string[] = [];
     (window as unknown as SeenWindow).__mascotAnimations = seen;
@@ -51,17 +51,22 @@ test('Q18 — Mila đứng chờ ở danh mục: có cử chỉ tự động tro
   });
   await returningVisitor(page);
   await expect
-    .poll(() => page.evaluate(() => (window as unknown as SeenWindow).__mascotAnimations!.some((a) => ['tilt', 'wave', 'hop'].includes(a))), {
-      timeout: 17_000,
+    .poll(() => page.evaluate(() => (window as unknown as SeenWindow).__mascotAnimations!.some((a) => a.startsWith('gesture'))), {
+      timeout: 18_000,
     })
     .toBe(true);
   const endTimes = await page.evaluate(() =>
     document
       .getAnimations()
       .filter((a) => (a.effect as KeyframeEffect | null)?.target?.closest('[data-mascot-mode]'))
-      .map((a) => Number(a.effect!.getComputedTiming().endTime)),
+      .map((a) => ({ end: Number(a.effect!.getComputedTiming().endTime), name: (a as CSSAnimation).animationName ?? '' })),
   );
-  for (const end of endTimes) expect(end).toBeLessThanOrEqual(5_000);
+  // Cử chỉ và phản ứng có hạn: ≤ 3 s (BR-MAS-21 v1.5) trong giới hạn 5 s; chỉ thở nhẹ ở DOCK chạy liên tục, dừng được bằng
+  // công tắc ở Tài nguyên (Q19)
+  for (const { end, name } of endTimes) {
+    if (Number.isFinite(end)) expect(end).toBeLessThanOrEqual(5_000);
+    else expect(name).toContain('mascot-breathe');
+  }
 });
 
 test('Q19, Q33 — tắt công tắc ở Tài nguyên: không animation nào của Mila chạy ở danh mục, Mila vẫn hiện; bật lại thì có lại (SC-MAS-011)', async ({ page }) => {

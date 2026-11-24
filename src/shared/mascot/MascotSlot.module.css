@@ -10,6 +10,27 @@
   min-height: var(--mascot-size-sm);
 }
 
+/*
+ * Ô không có Mila không chiếm chỗ (spec-Mascot v1.5 §5.1, design-system §9.2): ô AVATAR và đầu màn Gợi ý tuyến chỉ có
+ * Mila khi có phản ứng, nên lúc trống bỏ hẳn khỏi bố cục (cả khoảng `gap` của khung cha), không để lại khoảng trống.
+ */
+.slot[data-mascot-size='sm']:empty,
+.slot[data-mascot-dock='recommend']:empty {
+  display: none;
+}
+
+/* Đầu màn Gợi ý tuyến (v1.5): cỡ DOCK như hero danh mục ở màn hẹp */
+.slot[data-mascot-dock='recommend'] {
+  --mascot-dock-size: var(--mascot-size-dock-catalog-narrow);
+}
+
+/* Màn hẹp nhất: tiêu đề Gợi ý tuyến giữ một dòng trên tấm biển, Mila nhỏ lại (design-system §9.2, v1.5) */
+@media (max-width: 22.4375em) {
+  .slot[data-mascot-dock='recommend'] {
+    --mascot-dock-size: var(--mascot-size-md);
+  }
+}
+
 .slot[data-mascot-dock='catalog'] {
   --mascot-dock-size: var(--mascot-size-dock-catalog);
 }

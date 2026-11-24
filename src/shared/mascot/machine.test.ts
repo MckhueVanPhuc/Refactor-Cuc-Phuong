@@ -39,10 +39,10 @@ describe('step — chuyển trạng thái nền', () => {
     expect(gone).toMatchObject({ status: 'HIDDEN', view: null, bubble: null });
   });
 
-  it('thời gian đọc: 3–7 giây theo độ dài (spec-Mascot §5.4)', () => {
-    expect(readingTimeMs('ngắn')).toBe(3_000);
-    expect(readingTimeMs('x'.repeat(60))).toBe(3_900);
-    expect(readingTimeMs('x'.repeat(200))).toBe(7_000);
+  it('thời gian đọc: 15 giây cho mọi câu, mọi màn (spec-Mascot v1.5 §5.4; trước 3–7 giây theo độ dài)', () => {
+    expect(readingTimeMs('ngắn')).toBe(15_000);
+    expect(readingTimeMs('x'.repeat(60))).toBe(15_000);
+    expect(readingTimeMs('x'.repeat(200))).toBe(15_000);
   });
 
   it('chữ hiện dần (v1.1, R-20): thời gian tự ẩn tính từ khi chữ hiện đủ; không hiện dần thì như cũ', () => {

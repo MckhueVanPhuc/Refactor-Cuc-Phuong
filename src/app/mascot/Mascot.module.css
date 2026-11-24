@@ -145,13 +145,38 @@ button.figure:focus-visible {
   left: calc(50% - var(--space-2));
 }
 
+/*
+ * Thẻ "Hẹn gặp lại" màn kết quả (v1.5, phương án E): Mila đứng ở đầu thẻ; lúc ăn mừng lớn hơn (1,5 lần cỡ đứng) nhưng
+ * không lớn cỡ xl; bong bóng ở hàng trên, đuôi ở cạnh dưới chỉ xuống Mila (cả lúc ăn mừng lẫn lúc đứng)
+ */
+:global([data-mascot-dock='end']) .mascot[data-mascot-mode='CELEBRATE'] .figure {
+  width: calc(var(--mascot-dock-size) * 1.5);
+}
+
+:global([data-mascot-dock='end']) .mascot .bubble {
+  max-width: min(100%, calc(var(--mascot-bubble-max-width) + var(--space-8) * 2));
+  border-radius: var(--mascot-bubble-radius) var(--mascot-bubble-radius) var(--mascot-bubble-radius) var(--mascot-bubble-radius-tail);
+}
+
+:global([data-mascot-dock='end']) .mascot .bubble::before {
+  top: auto;
+  right: auto;
+  bottom: calc(var(--space-2) * -1);
+  left: calc(var(--space-3) + var(--mascot-dock-size) / 2 - var(--space-2));
+  border: 0;
+  border-right: var(--mascot-bubble-border) solid var(--color-m01-forest);
+  border-bottom: var(--mascot-bubble-border) solid var(--color-m01-forest);
+}
+
 /* Hero danh mục (v1.3, design-system §9.3a): bong bóng nằm dưới hero, đuôi ở cạnh trên chỉ lên Mila bên phải */
-:global([data-mascot-dock='catalog']) .mascot[data-mascot-mode='DOCK'] .bubble {
+:global([data-mascot-dock='catalog']) .mascot[data-mascot-mode='DOCK'] .bubble,
+:global([data-mascot-dock='recommend']) .mascot[data-mascot-mode='DOCK'] .bubble {
   max-width: min(100%, calc(var(--mascot-bubble-max-width) + var(--space-8) * 2));
   border-radius: var(--mascot-bubble-radius) var(--mascot-bubble-radius-tail) var(--mascot-bubble-radius) var(--mascot-bubble-radius);
 }
 
-:global([data-mascot-dock='catalog']) .mascot[data-mascot-mode='DOCK'] .bubble::before {
+:global([data-mascot-dock='catalog']) .mascot[data-mascot-mode='DOCK'] .bubble::before,
+:global([data-mascot-dock='recommend']) .mascot[data-mascot-mode='DOCK'] .bubble::before {
   top: calc(var(--space-2) * -1);
   right: calc(var(--mascot-dock-size) / 2 - var(--space-2));
   bottom: auto;
@@ -388,6 +413,30 @@ button.figure:focus-visible {
 /* Cử chỉ tự động "vẫy" (v1.1, AN-AMBIENT): lắc lư nhẹ cùng ảnh vẫy tay */
 .mascot[data-mascot-animation='wave'] .figure {
   animation: mascot-wave var(--duration-mascot-loop) var(--ease-in-out) both;
+}
+
+/*
+ * Cử chỉ tự động 2–3 nhịp, mỗi cử chỉ ≤ MASCOT_AMBIENT_GESTURE_MS 3 s (spec-Mascot v1.5 BR-MAS-21; Asset spec AN-AMBIENT):
+ * nhún 3 × 600 ms, nghiêng 4 × 600 ms, vẫy 2 × 1200 ms
+ */
+.mascot[data-mascot-animation='gestureHop'] .figure {
+  animation: mascot-hop-once var(--duration-mascot-hop) var(--ease-out) 3;
+}
+
+.mascot[data-mascot-animation='gestureTilt'] .figure {
+  animation: mascot-tilt var(--duration-mascot-hop) var(--ease-in-out) 4;
+}
+
+.mascot[data-mascot-animation='gestureWave'] .figure {
+  animation: mascot-wave var(--duration-mascot-loop) var(--ease-in-out) 2;
+}
+
+/*
+ * Đứng chờ ở DOCK sau một cử chỉ hay một câu: thở nhẹ liên tục (v1.5, BR-MAS-21). Animation CSS chỉ dùng transform,
+ * không timer JS; dừng khi giảm chuyển động hoặc công tắc tắt (component bỏ data-mascot-animation) — WCAG 2.2.2.
+ */
+.mascot[data-mascot-mode='DOCK'][data-mascot-animation='settle'] .figure {
+  animation: mascot-breathe calc(var(--duration-mascot-loop) * 2) var(--ease-in-out) infinite;
 }
 
 /* Vòng chờ: tối đa ~4,8 s mỗi lượt rồi đứng yên (v1.1, BR-MAS-21; research R-25) */

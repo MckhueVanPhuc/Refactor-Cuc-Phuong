@@ -122,11 +122,11 @@ Quy ước: **Auto** = test tự động; **Manual** = kiểm tay; **Device** = 
 | MAS-TC-111 | Chạm dồn trong 400 ms tính một lần; chạm khi animation đang chạy không chạy lại; không bao giờ có hai bong bóng | Auto |
 | MAS-TC-112 | Chạm 5 lần trong 3 s → chóng mặt (085, ảnh bối rối) một lần mỗi lần tải trang; lần sau chạm như thường | Auto |
 | MAS-TC-113 | Ba cấp ăn mừng: điểm thường AN-SUCCESS + 050; điểm đầu, nửa (n ≥ 4), còn 1 (n ≥ 3) AN-MILESTONE + 051/055/058 theo thứ tự ưu tiên; kết thúc đủ điểm 063, sớm 062 | Auto |
-| MAS-TC-114 | Cử chỉ tự động chỉ ở SCR-M01-001, SCR-M02-001 (scanner đóng), SCR-M02-003; khoảng cách 8–15 s; không lặp cùng cử chỉ liền nhau | Auto (đồng hồ giả trong engine) |
+| MAS-TC-114 | Cử chỉ tự động chỉ ở SCR-M01-001, SCR-M01-002 (v1.5), SCR-M02-001 (scanner đóng), SCR-M02-003; khoảng cách 4–7 s, mỗi cử chỉ ≤ 3 s (v1.5); không lặp cùng cử chỉ liền nhau | Auto (đồng hồ giả trong engine) |
 | MAS-TC-115 | Không cử chỉ tự động ở trang đọc bài, khi phát media, khi có hộp thoại, trong 2 s sau chạm/cuộn/phím (SC-MAS-012) | Auto |
-| MAS-TC-116 | Công tắc "Chuyển động của Mila" (màn Tài nguyên) tắt → `getAnimations()` của Mila rỗng trên mọi màn, Mila vẫn hiện, chữ hiện ngay (SC-MAS-011) | Auto |
+| MAS-TC-116 | Công tắc "Hiệu ứng chuyển động" (màn Tài nguyên) tắt → `getAnimations()` của Mila và của hiệu ứng trang trí T3 rỗng trên mọi màn, Mila vẫn hiện, chữ hiện ngay, không rung (SC-MAS-011, v1.4) | Auto |
 | MAS-TC-117 | Giảm chuyển động → công tắc khởi đầu ở "tắt" | Auto |
-| MAS-TC-118 | Công tắc (v1.3): `role="switch"`, `aria-checked`, tên "Chuyển động của Mila", vùng chạm ≥ 44 px, chỉ ở màn Tài nguyên SCR-M01-004; thanh đầu trang không còn nút chuyển động; tắt cờ Mila thì không có công tắc | Auto |
+| MAS-TC-118 | Công tắc (v1.3; v1.4): `role="switch"`, `aria-checked`, tên "Hiệu ứng chuyển động", vùng chạm ≥ 44 px, chỉ ở màn Tài nguyên SCR-M01-004; thanh đầu trang không còn nút chuyển động; tắt cờ Mila thì công tắc **vẫn có** (v1.4) | Auto |
 | MAS-TC-119 | Không animation tự chạy nào của một phản ứng kéo dài quá 5 s mỗi lượt (SC-MAS-014) | Auto |
 | MAS-TC-120 | Chữ hiện dần: trình đọc màn hình nhận câu đầy đủ một lần; thời lượng tự ẩn tính từ khi chữ hiện đủ | Auto + Device |
 | MAS-TC-121 | Bố cục ở cỡ mới (112/128/104/56/200 px) và bong bóng kiểu A ở 320–430 px: không đè, không cuộn ngang | Auto |

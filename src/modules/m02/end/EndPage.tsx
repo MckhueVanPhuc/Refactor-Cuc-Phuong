@@ -6,7 +6,7 @@
 import { useEffect, useId, useRef } from 'react';
 import { Link, useLocation } from 'react-router';
 import { PATHS } from '../../../app/paths';
-import { emitMascotEvent, MascotFigure, MascotSlot } from '../../../shared/mascot/index';
+import { emitMascotEvent, isMascotEnabled, MascotFigure, MascotSlot } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { FieldLayout } from '../layout/FieldLayout';
@@ -75,14 +75,11 @@ export function EndPage() {
       {ended && (
         <section className={styles.result} data-session-id={ended.sessionId} data-status={ended.status}>
           <div className={styles.hero}>
-            {/* Mila đứng cạnh huy hiệu (spec-Mascot OD-MAS-10); không bật Mila thì slot không render, huy hiệu đứng một mình */}
-            <div className={styles.badgeRow}>
-              <span className={styles.badge} aria-hidden="true">
-                <TintIcon name="check" className={styles.check} />
-                <TintIcon name="leaf" className={styles.sprig} />
-              </span>
-              <MascotSlot id="end-hero" modes={END_MODES} size="end" />
-            </div>
+            {/* Huy hiệu đứng một mình ở giữa (thiết kế đã duyệt 2026-11-11); Mila ở thẻ "Hẹn gặp lại" (spec-Mascot v1.5, OD-MAS-27) */}
+            <span className={styles.badge} aria-hidden="true">
+              <TintIcon name="check" className={styles.check} />
+              <TintIcon name="leaf" className={styles.sprig} />
+            </span>
             <h1 className={styles.title}>{messages.end.title}</h1>
             <p className={styles.thanks}>{messages.end.thanks}</p>
             <span className={styles.divider} aria-hidden="true">
@@ -91,10 +88,12 @@ export function EndPage() {
             <p className={styles.wish}>{messages.end.wish}</p>
           </div>
 
-          <p className={styles.farewell}>
-            <TintIcon name="heart" className={styles.heart} />
-            <span className={styles.farewellText}>{messages.end.farewell}</span>
-          </p>
+          {/* Thẻ hẹn gặp lại: Mila thay trái tim (spec-Mascot v1.5, phương án E); tắt Mila thì trái tim như cũ. Lúc ăn mừng Mila
+              lớn hơn và bong bóng ở hàng trên thẻ, đuôi chỉ xuống Mila */}
+          <div className={styles.farewell}>
+            {isMascotEnabled() ? <MascotSlot id="end-hero" modes={END_MODES} size="end" /> : <TintIcon name="heart" className={styles.heart} />}
+            <p className={styles.farewellText}>{messages.end.farewell}</p>
+          </div>
 
           {/* Mila chỉ là hình cạnh thông báo: không câu, không nút (BR-M02-011; MAS-B-072) */}
           {sync === 'CONFLICT' && (

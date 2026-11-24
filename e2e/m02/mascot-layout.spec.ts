@@ -54,6 +54,7 @@ test('v1.1 — cỡ Mila (design-system §9.2): chuyến đi 128 px, avatar tran
 });
 
 test('SCR-M02-003 màn kết quả: lúc ăn mừng ở 320 px, rồi hình tĩnh cạnh huy hiệu ở mọi chiều rộng', async ({ page }) => {
+  test.slow();
   await prepare(page);
   await page.setViewportSize({ width: 320, height: 780 });
   await page.goto('/');
@@ -70,13 +71,13 @@ test('SCR-M02-003 màn kết quả: lúc ăn mừng ở 320 px, rồi hình tĩn
   await expect(page.locator('[data-mascot-slot="end-hero"] [data-mascot-mode="CELEBRATE"] [data-mascot-message]')).toBeVisible();
   await expectMascotOverlapsNothing(page);
   await expectNoHorizontalScroll(page);
-  // Ở 320 px, Mila ăn mừng co lại vừa chỗ cạnh huy hiệu (không quá cỡ xl 200 px)
-  const celebrate = await figureWidth(page, 'end-hero', 'CELEBRATE');
-  expect(celebrate).toBeGreaterThanOrEqual(120);
-  expect(celebrate).toBeLessThanOrEqual(200);
+  // v1.5 (phương án E): Mila ăn mừng trong thẻ "Hẹn gặp lại", 1,5 lần cỡ đứng 72 px
+  expect(await figureWidth(page, 'end-hero', 'CELEBRATE')).toBe(108);
   await page.screenshot({ path: 'test-results/mascot-end-celebrate-320.png' });
-  await expect(page.locator('[data-mascot-slot="end-hero"] [data-mascot-mode="DOCK"]')).toBeVisible({ timeout: 10_000 });
-  expect(await figureWidth(page, 'end-hero', 'DOCK')).toBe(104);
+  // v1.5 (DV-92): hết phần ăn mừng (≤ 2,4 s) Mila về DOCK 72 px trong thẻ, câu ăn mừng vẫn hiện
+  await expect(page.locator('[data-mascot-slot="end-hero"] [data-mascot-mode="DOCK"]')).toBeVisible({ timeout: 5_000 });
+  await expect(page.locator('[data-mascot-slot="end-hero"] [data-mascot-mode="DOCK"] [data-mascot-message]')).toBeVisible();
+  expect(await figureWidth(page, 'end-hero', 'DOCK')).toBe(72);
   await checkLayoutAcrossWidths(page, async () => {
     await expect(page.getByRole('heading', { name: vi.end.title })).toBeVisible();
   });

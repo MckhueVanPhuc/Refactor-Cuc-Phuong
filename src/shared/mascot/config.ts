@@ -14,11 +14,13 @@ export const MASCOT_VIBRATION_MS = 30;
 export const MASCOT_CONFIRM_FALLBACK_MS = 1_000;
 /** Chữ trong bong bóng hiện dần, ký tự mỗi giây (spec-Mascot v1.1 §5.4; research R-20). */
 export const MASCOT_TYPE_CPS = 30;
-/** Cử chỉ tự động ở màn Mila đứng chờ: khoảng cách ngẫu nhiên giữa hai cử chỉ (BR-MAS-21). */
-export const MASCOT_AMBIENT_MIN_MS = 8_000;
-export const MASCOT_AMBIENT_MAX_MS = 15_000;
-/** Một cử chỉ tự động dài nhất (Asset spec AN-AMBIENT). */
-export const MASCOT_AMBIENT_GESTURE_MS = 1_500;
+/** Cử chỉ tự động ở màn Mila đứng chờ: khoảng cách ngẫu nhiên giữa hai cử chỉ (BR-MAS-21; v1.5: 4–7 s, trước 8–15 s). */
+export const MASCOT_AMBIENT_MIN_MS = 4_000;
+export const MASCOT_AMBIENT_MAX_MS = 7_000;
+/** Một cử chỉ tự động 2–3 nhịp, dài nhất chừng này (BR-MAS-21 v1.5; Asset spec AN-AMBIENT; trước 1 500). */
+export const MASCOT_AMBIENT_GESTURE_MS = 3_000;
+/** Bong bóng không có nút ở lại chừng này sau khi chữ hiện đủ, ở mọi màn (spec-Mascot v1.5 §5.4; trước 3–7 s). */
+export const MASCOT_BUBBLE_READ_MS = 15_000;
 /** Chớp mắt: ảnh mắt nhắm hiện chừng này (Asset spec AN-BLINK; `--duration-mascot-blink`). */
 export const MASCOT_BLINK_MS = 120;
 /** Chạm nhiều lần (BR-MAS-22): chạm dồn trong khoảng này tính một lần; số lần chạm trong cửa sổ để "chóng mặt". */
@@ -27,8 +29,8 @@ export const MASCOT_DIZZY_TAPS = 5;
 export const MASCOT_DIZZY_WINDOW_MS = 3_000;
 /** Câu bắt đầu chuyến hiện sau khi câu gợi ý cố định của màn đã hiện (Behavior Matrix MAS-B-030). */
 export const MASCOT_TRIP_START_DELAY_MS = 800;
-/** Màn Mila đứng chờ: danh mục, chuyến đi (scanner đóng), màn kết quả. */
-export const MASCOT_AMBIENT_PATHS: readonly string[] = ['/', '/trip', '/trip/end'];
+/** Màn Mila đứng chờ: danh mục, Gợi ý tuyến (v1.5), chuyến đi (scanner đóng), màn kết quả. */
+export const MASCOT_AMBIENT_PATHS: readonly string[] = ['/', '/recommend', '/recommend/results', '/trip', '/trip/end'];
 /** Cùng mức ưu tiên: câu mới chỉ thay câu cũ đã hiện ít nhất chừng này (State Machine §5.2). */
 export const MASCOT_SAME_PRIORITY_MIN_MS = 1_500;
 /** Sự kiện giống hệt trong khoảng này chỉ xử lý một lần (BR-MAS-06). */
