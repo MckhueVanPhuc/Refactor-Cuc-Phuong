@@ -109,6 +109,13 @@ function endBubble(s: MascotState, ctx: StepContext, now: number, effects: Effec
   const bubble = s.bubble;
   if (!bubble) return;
   s.bubble = null;
+  // Du khách đóng câu khi Mila đang ăn mừng: hiệu ứng kết thúc ngay, về đích sau phần ăn mừng (US-MAS-08 mục 2)
+  if (byUser && s.hold?.status === 'CELEBRATING' && s.hold.then) {
+    const then = s.hold.then;
+    s.hold = null;
+    admit(s, then, ctx, now, effects);
+    return;
+  }
   const next = byUser ? lastSilent(bubble.then) : bubble.then;
   if (next) {
     admit(s, next, ctx, now, effects);

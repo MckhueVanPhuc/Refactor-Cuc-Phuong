@@ -59,10 +59,11 @@ const accept = (route: Route) => route.fulfill({ status: 200, json: { result: 'A
 const dock = (page: Page) => page.locator('[data-mascot-slot="end-hero"] [data-mascot-mode="DOCK"]');
 
 test('Q12, Q24 — kết thúc sớm (1/3 điểm): Mila ăn mừng một lần (062) rồi đứng yên cạnh huy hiệu; tải lại: chỉ hình tĩnh', async ({ page }) => {
+  // v1.5 (DV-92): Mila về DOCK sau phần ăn mừng (≤ 2,4 s), câu ăn mừng ở lại 15 s
   await endTrip(page, { intake: accept });
   await expect.poll(() => seen(page)).toContain('MSG-MAS-062');
   await expect(page.locator('[data-mascot-message="MSG-MAS-062"]')).toContainText('1');
-  await expect(dock(page)).toBeVisible({ timeout: 10_000 });
+  await expect(dock(page)).toBeVisible({ timeout: 5_000 });
   await expect(page.getByText(vi.end.syncSynced)).toBeVisible();
 
   await page.reload();
@@ -73,19 +74,22 @@ test('Q12, Q24 — kết thúc sớm (1/3 điểm): Mila ăn mừng một lần 
 });
 
 test('Q23 — quét đủ mọi điểm rồi kết thúc: câu 063 "đủ 3 điểm" thay 062 (MAS-B-064, BR-MAS-23 cấp 3)', async ({ page }) => {
+  test.slow();
   await endTrip(page, { intake: accept, before: ['Q1a', 'Q2'] });
   await expect.poll(() => seen(page)).toContain('MSG-MAS-063');
   expect(await seen(page)).not.toContain('MSG-MAS-062');
   await expect(page.locator('[data-mascot-message="MSG-MAS-063"]')).toHaveText('Bạn đã quét đủ 3 điểm của tuyến. Tuyệt vời!');
-  await expect(dock(page)).toBeVisible({ timeout: 10_000 });
+  await expect(dock(page)).toBeVisible({ timeout: 5_000 });
 });
 
 test('kết thúc khi mất sóng → "Chờ gửi", Mila nói chuyến đã lưu trên máy (070), không nói "đã gửi"', async ({ page, context }) => {
+  // Câu 070 chờ câu ăn mừng 15 s đóng rồi mới hiện (hẹn lại khi đang có bong bóng; spec-Mascot v1.5 §5.4)
+  test.slow();
   // page.route vẫn chạy khi context offline: mock phải tự trả lỗi mạng (như mockIntake của sync.spec.ts)
   await endTrip(page, { intake: (route) => route.abort('internetdisconnected'), offline: context });
   await expect(page.getByText(vi.end.syncPending)).toBeVisible();
   // Trước đó có thể có câu khác của chuyến (v1.1: 030 khi bắt đầu chuyến); chỉ kiểm 062 rồi 070
-  await expect.poll(() => seen(page), { timeout: 15_000 }).toContain('MSG-MAS-070');
+  await expect.poll(() => seen(page), { timeout: 25_000 }).toContain('MSG-MAS-070');
   const said = await seen(page);
   expect(said.indexOf('MSG-MAS-062')).toBeGreaterThanOrEqual(0);
   expect(said.indexOf('MSG-MAS-062')).toBeLessThan(said.indexOf('MSG-MAS-070'));

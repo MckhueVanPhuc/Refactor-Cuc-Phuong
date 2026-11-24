@@ -23,7 +23,11 @@ export type AnimationId =
   | 'thumb'
   | 'celebrate'
   | 'wave'
-  | 'dizzy';
+  | 'dizzy'
+  /** Cử chỉ tự động 2–3 nhịp (BR-MAS-21 v1.5): nhún, nghiêng, vẫy, nhìn quanh */
+  | 'gestureHop'
+  | 'gestureTilt'
+  | 'gestureWave';
 export type Status = 'HIDDEN' | 'INTRO' | 'IDLE' | 'SPEAKING' | 'BUSY' | 'CELEBRATING' | 'SUPPRESSED';
 export type Blocker = 'DIALOG' | 'MEDIA' | 'AUTO_END';
 
@@ -36,6 +40,10 @@ export type Intent = {
   animation?: AnimationId;
   /** Du khách chủ động hỏi (chạm Mila): không cooldown (BR-MAS-12, v1.1) */
   requested?: boolean;
+  /** Câu nói mỗi lần mở màn (MSG-MAS-010, v1.5): không cooldown, không tính vào BR-MAS-07 */
+  everyVisit?: boolean;
+  /** Đổi tư thế/mode mà giữ bong bóng đang hiện (v1.5, DV-92: hết ăn mừng → DOCK, câu ăn mừng ở lại) */
+  keepBubble?: boolean;
   message?: { id: MessageId; params?: MessageParams };
   /** Trạng thái hiển thị trong lúc giữ (`holdMs`): đang chờ hệ thống, đang ăn mừng */
   status?: 'BUSY' | 'CELEBRATING';

@@ -18,26 +18,6 @@
   text-shadow: 0 var(--space-1) var(--space-4) var(--color-m01-deep);
 }
 
-/*
- * Huy hiệu và Mila đứng cạnh nhau, chân cùng một đường (spec-Mascot OD-MAS-10). Không bật Mila thì hàng chỉ có huy
- * hiệu, căn giữa như ảnh mẫu. Bong bóng của Mila là thẻ sáng: bỏ bóng chữ của lời chào trên ảnh.
- */
-.badgeRow {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  /* Nhành lá của huy hiệu chìa ra ngoài mép đĩa một khoảng --space-6: chừa chỗ cho nó */
-  gap: calc(var(--space-6) + var(--space-2));
-  max-width: 100%;
-  text-align: start;
-  text-shadow: none;
-}
-
-.badgeRow > [data-mascot-slot] {
-  flex: 0 1 auto;
-  min-width: 0;
-}
-
 /* Huy hiệu hoàn thành: đĩa paper, dấu tích xanh rừng, nhành lá ở góc; là điểm nhấn duy nhất có chuyển động */
 .badge {
   position: relative;
@@ -122,14 +102,33 @@
   background: color-mix(in srgb, var(--color-paper) 55%, transparent);
 }
 
-/* —— Thẻ hẹn gặp lại: kính mờ sáng, tim | vạch | câu in nghiêng xanh rừng —— */
+/*
+ * —— Thẻ hẹn gặp lại: kính mờ sáng, Mila (hoặc tim khi tắt Mila) | vạch | câu in nghiêng xanh rừng ——
+ * v1.5 (phương án E, chủ dự án chọn 2026-11-24): Mila đứng ở đầu thẻ, chỗ của trái tim; lúc ăn mừng Mila lớn hơn, nhô lên trên mép,
+ * bong bóng ở hàng trên thẻ đuôi chỉ xuống Mila. Thẻ là ::before của hàng dưới nên chiều cao thẻ không đổi khi Mila đổi cỡ.
+ * Slot và khung Mila không tạo hộp riêng (display: contents).
+ */
 .farewell {
-  display: flex;
+  /* Lúc ăn mừng Mila lớn hơn thẻ: phần nhô lên trên mép thẻ */
+  --farewell-rise-celebrate: calc(var(--space-8) + var(--space-3));
+
+  position: relative;
+  display: grid;
+  grid-template-areas:
+    'bubble bubble'
+    'lead text';
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: var(--space-4);
+  column-gap: var(--space-3);
   margin: 0;
-  padding: var(--space-4) var(--space-5);
   color: var(--color-m01-forest);
+}
+
+.farewell::before {
+  content: '';
+  grid-row: 2;
+  grid-column: 1 / -1;
+  align-self: stretch;
   background: color-mix(in srgb, var(--color-paper) 88%, transparent);
   backdrop-filter: blur(var(--space-2));
   border-radius: var(--radius-lg);
@@ -138,15 +137,46 @@
 
 .heart {
   --icon-size: var(--space-6);
+
+  position: relative;
+  grid-area: lead;
+  margin-left: var(--space-5);
 }
 
 .farewellText {
+  position: relative;
+  grid-area: text;
+  margin: var(--space-4) var(--space-5) var(--space-4) 0;
   padding-left: var(--space-4);
   font-size: calc(var(--font-size-body) * 1.125);
   font-style: italic;
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
   border-left: var(--border-width-thin) solid color-mix(in srgb, var(--color-m01-forest) 45%, transparent);
+}
+
+.farewell > :global([data-mascot-slot='end-hero']),
+.farewell > :global([data-mascot-slot='end-hero']) > :global([data-mascot-mode]) {
+  display: contents;
+}
+
+/* Mila đứng: giữa thẻ, chỗ của trái tim. Lúc ăn mừng: chân trên đáy thẻ, phần lớn hơn nhô lên trên mép, thẻ không cao thêm */
+.farewell > :global([data-mascot-slot='end-hero']) > :global([data-mascot-mode]) > :first-child {
+  position: relative;
+  grid-area: lead;
+  margin-left: var(--space-3);
+}
+
+.farewell > :global([data-mascot-slot='end-hero']) > :global([data-mascot-mode='CELEBRATE']) > :first-child {
+  align-self: end;
+  margin-top: calc(var(--farewell-rise-celebrate) * -1);
+}
+
+/* Bong bóng ở hàng trên thẻ, cách đủ chỗ cho đầu Mila lúc ăn mừng */
+.farewell > :global([data-mascot-slot='end-hero']) > :global([data-mascot-mode]) > :nth-child(2) {
+  grid-area: bubble;
+  justify-self: start;
+  margin-bottom: calc(var(--farewell-rise-celebrate) + var(--space-2));
 }
 
 /* Chuyến không gửi được: banner đặc trên ảnh, vạch đỏ cạnh trái */

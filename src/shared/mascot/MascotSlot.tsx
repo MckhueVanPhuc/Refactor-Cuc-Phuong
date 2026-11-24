@@ -13,7 +13,7 @@ type Props = {
   /** Hành động của CTA thuộc màn (ví dụ "Đóng camera" gọi đúng nút đóng hiện có) */
   onCta?: (cta: CtaId) => void;
   /** Cỡ DOCK của chỗ này (v1.1, design-system §9.2): hero danh mục, màn chuyến đi, cạnh huy hiệu màn kết quả */
-  size?: 'catalog' | 'trip' | 'end';
+  size?: 'catalog' | 'recommend' | 'trip' | 'end';
 };
 
 /** Mode cố định lớn nhất quyết định chỗ giữ sẵn; INTRO tràn trong khu vực hero, không giữ chỗ riêng. */

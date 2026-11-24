@@ -219,12 +219,16 @@ describe('US4 — Kết thúc chuyến cùng Mila (US-MAS-08)', () => {
   const ended = (justEnded: boolean, status: 'HOAN_TAT' | 'BO_DO' = 'HOAN_TAT', n = 5): Stamped => ({ type: 'm02.trip.ended', status, k: 3, n, justEnded, at: 10 });
   const sync = (status: 'PENDING' | 'SYNCED' | 'CONFLICT', online: boolean, at: number): Stamped => ({ type: 'm02.sync.statusChanged', status, online, at });
 
-  it('MAS-B-062: vừa kết thúc HOAN_TAT → ăn mừng một lần với {k} rồi về hình tĩnh cạnh huy hiệu (MAS-B-063)', () => {
+  it('MAS-B-062 (v1.5, DV-92): ăn mừng ≤ 2,4 s với {k}, rồi Mila về DOCK nhỏ mà câu vẫn ở lại; hết thời gian đọc thì câu đóng', () => {
     let { state } = play([end, ended(true)]);
     expect(state.view).toMatchObject({ mode: 'CELEBRATE', pose: 'cheer', animation: 'celebrate' });
     expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-062', params: { k: 3 } });
-    state = play([{ type: 'mascot.tick', at: state.bubble!.expiresAt! }], [], CTX, state).state;
-    expect(state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'cheer', animation: null } });
+    const expires = state.bubble!.expiresAt!;
+    state = play([{ type: 'mascot.tick', at: state.hold!.until }], [], CTX, state).state;
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'cheer', animation: 'settle' });
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-062' });
+    state = play([{ type: 'mascot.tick', at: expires }], [], CTX, state).state;
+    expect(state).toMatchObject({ bubble: null, view: { mode: 'DOCK', pose: 'cheer' } });
   });
 
   it('chạm đóng khi đang ăn mừng → về hình tĩnh ngay', () => {
@@ -278,26 +282,27 @@ describe('v1.1 — Cử chỉ tự động (MAS-B-086, BR-MAS-21)', () => {
     return play([{ type: 'mascot.user.closedBubble', at: 800 }], [], zero, s).state;
   };
 
-  it('DOCK đứng yên ở danh mục → hẹn cử chỉ sau 8–15 s; tới hạn: một cử chỉ ≤ 1,5 s rồi về tư thế cũ', () => {
+  it('DOCK đứng yên ở danh mục → hẹn cử chỉ sau 4–7 s; tới hạn: một cử chỉ 2–3 nhịp ≤ 3 s rồi về tư thế cũ, thở nhẹ (v1.5)', () => {
     const s = settled();
     expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
-    expect(s.timers['ambient']).toBe(800 + 8_000);
-    const gesture = play([{ type: 'mascot.tick', at: 8_800 }], [], zero, s).state;
+    expect(s.timers['ambient']).toBe(800 + 4_000);
+    const gesture = play([{ type: 'mascot.tick', at: 4_800 }], [], zero, s).state;
     expect(gesture.view).toMatchObject({ mode: 'DOCK', behaviorId: 'MAS-B-086' });
     expect(gesture.bubble).toBeNull();
     // Cử chỉ không có lời: không thêm vào giới hạn câu chủ động (mốc 700 là câu chào 004)
     expect(gesture.proactiveLog).toEqual(s.proactiveLog);
-    expect(gesture.hold!.until - 8_800).toBeLessThanOrEqual(1_500);
+    expect(gesture.hold!.until - 4_800).toBeLessThanOrEqual(3_000);
     const back = play([{ type: 'mascot.tick', at: gesture.hold!.until }], [], zero, gesture).state;
-    expect(back.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
-    expect(back.timers['ambient']).toBe(gesture.hold!.until + 8_000);
+    // Về tư thế ngữ cảnh với `settle`: CSS cho Mila thở nhẹ liên tục ở DOCK (Mascot.module.css)
+    expect(back.view).toMatchObject({ mode: 'DOCK', pose: 'map', animation: 'settle' });
+    expect(back.timers['ambient']).toBe(gesture.hold!.until + 4_000);
   });
 
-  it('khoảng cách lớn nhất 15 s; không lặp cùng cử chỉ hai lần liền', () => {
+  it('khoảng cách lớn nhất 7 s (v1.5); không lặp cùng cử chỉ hai lần liền', () => {
     const high = { ...CTX, random: () => 0.999 };
     let s = play(catalog, [], high).state;
     s = play([{ type: 'mascot.tick', at: 700 }, { type: 'mascot.user.closedBubble', at: 800 }], [], high, s).state;
-    expect(s.timers['ambient']).toBeLessThanOrEqual(800 + 15_000);
+    expect(s.timers['ambient']).toBeLessThanOrEqual(800 + 7_000);
     const first = play([{ type: 'mascot.tick', at: s.timers['ambient']! }], [], zero, s).state;
     const firstLook = `${first.view!.pose}/${first.view!.animation}`;
     let r = play([{ type: 'mascot.tick', at: first.hold!.until }], [], zero, first).state;
@@ -314,7 +319,7 @@ describe('v1.1 — Cử chỉ tự động (MAS-B-086, BR-MAS-21)', () => {
     // Công tắc tắt → hủy lịch; bật lại → hẹn lại
     const off = play([{ type: 'mascot.motion.changed', on: false, at: 900 }], [], zero, settled()).state;
     expect(off.timers['ambient']).toBeUndefined();
-    expect(play([{ type: 'mascot.motion.changed', on: true, at: 1_000 }], [], zero, off).state.timers['ambient']).toBe(9_000);
+    expect(play([{ type: 'mascot.motion.changed', on: true, at: 1_000 }], [], zero, off).state.timers['ambient']).toBe(5_000);
     // Scanner mở trên màn chuyến đi: tới hạn không có cử chỉ
     const trip = play(
       [
@@ -324,9 +329,9 @@ describe('v1.1 — Cử chỉ tự động (MAS-B-086, BR-MAS-21)', () => {
       [],
       zero,
     ).state;
-    expect(trip.timers['ambient']).toBe(10 + 8_000);
+    expect(trip.timers['ambient']).toBe(10 + 4_000);
     const scanning = play([{ type: 'm02.scanner.opened', hasSession: true, k: 0, at: 20 }], [], zero, trip).state;
-    expect(play([{ type: 'mascot.tick', at: 8_010 }], [], zero, scanning).state.view?.behaviorId).not.toBe('MAS-B-086');
+    expect(play([{ type: 'mascot.tick', at: 4_010 }], [], zero, scanning).state.view?.behaviorId).not.toBe('MAS-B-086');
     // Trang đọc bài: không hẹn
     const reading = play([{ type: 'app.route.changed', path: '/trip/qr/Q1a', at: 0 }], [], zero).state;
     expect(reading.timers['ambient']).toBeUndefined();
@@ -482,12 +487,12 @@ describe('v1.1 — Cử chỉ tự động nhường du khách đang thao tác (
     { type: 'mascot.user.closedBubble', at: 800 },
   ];
 
-  it('cuộn danh mục ngay trước hạn cử chỉ → không cử chỉ; hẹn lại 8–15 s sau', () => {
-    const s = play([...catalog, { type: 'app.user.activity', at: 8_000 }], [], zero).state;
+  it('cuộn danh mục ngay trước hạn cử chỉ → không cử chỉ; hẹn lại 4–7 s sau (v1.5)', () => {
+    const s = play([...catalog, { type: 'app.user.activity', at: 4_000 }], [], zero).state;
     const due = s.timers['ambient']!;
     const skipped = play([{ type: 'mascot.tick', at: due }], [], zero, s).state;
     expect(skipped.view?.behaviorId).not.toBe('MAS-B-086');
-    expect(skipped.timers['ambient']).toBe(due + 8_000);
+    expect(skipped.timers['ambient']).toBe(due + 4_000);
   });
 
   it('trang đọc bài không có cử chỉ tự động', () => {
@@ -584,28 +589,37 @@ describe('US7 — Chuẩn bị cùng Mila (US-MAS-07; T056)', () => {
     expect(play([{ type: 'm01.catalog.interacted', at: 21_000 }], [], CTX, shown).state.bubble).toBeNull();
   });
 
-  it('MAS-B-010: mở Gợi ý tuyến lần đầu → sau 400 ms câu 010 ở AVATAR; mở lại không nói nữa', () => {
+  it('MAS-B-088 + 010 (v1.5): mở Gợi ý tuyến → Mila đứng DOCK ngay, sau 400 ms câu 010; mở lại mỗi lần đều nói, × chỉ đóng câu', () => {
     let { state } = play([{ type: 'app.route.changed', path: '/recommend', at: 0 }, { type: 'm01.recommend.opened', at: 10 }, { type: 'mascot.tick', at: 409 }]);
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'map', behaviorId: 'MAS-B-088' });
     expect(state.bubble).toBeNull();
     state = play([{ type: 'mascot.tick', at: 410 }], [], CTX, state).state;
-    expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'think' });
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
     expect(state.bubble?.messageId).toBe('MSG-MAS-010');
-    state = play(
-      [{ type: 'app.route.changed', path: '/', at: 5_000 }, { type: 'app.route.changed', path: '/recommend', at: 6_000 }, { type: 'm01.recommend.opened', at: 6_010 }, { type: 'mascot.tick', at: 6_500 }],
-      [],
-      CTX,
-      state,
-    ).state;
-    expect(state.bubble).toBeNull();
+    // × đóng câu: Mila vẫn đứng ở DOCK (không biến mất, không để khoảng trống)
+    const closed = play([{ type: 'mascot.user.closedBubble', at: 1_000 }], [], CTX, state).state;
+    expect(closed.bubble).toBeNull();
+    expect(closed.view).toMatchObject({ mode: 'DOCK', behaviorId: 'MAS-B-088' });
+    // Mở lại nhiều lần trong 10 phút: mỗi lần đều nói (không cooldown, không tính vào BR-MAS-07)
+    for (const at of [5_000, 10_000, 15_000, 20_000]) {
+      state = play(
+        [{ type: 'app.route.changed', path: '/', at }, { type: 'app.route.changed', path: '/recommend', at: at + 100 }, { type: 'm01.recommend.opened', at: at + 110 }, { type: 'mascot.tick', at: at + 600 }],
+        [],
+        CTX,
+        state,
+      ).state;
+      expect(state.bubble?.messageId).toBe('MSG-MAS-010');
+    }
   });
 
-  it('MAS-B-011: có kết quả → câu 011 (P4, AVATAR); không có kết quả → không câu (MAS-B-012/013 chỉ là hình cạnh câu cố định, v1.2)', () => {
+  it('MAS-B-011 (v1.5): có kết quả → câu 011 (P4) với Mila DOCK cạnh tiêu đề; không có kết quả → không câu, không DOCK (chỉ hình cạnh câu cố định)', () => {
     const results = play([{ type: 'app.route.changed', path: '/recommend/results', at: 0 }, { type: 'm01.recommend.resolved', count: 2, at: 10 }]).state;
-    expect(results.view).toMatchObject({ mode: 'AVATAR', pose: 'thumbsUp' });
+    expect(results.view).toMatchObject({ mode: 'DOCK', pose: 'thumbsUp' });
     expect(results.bubble).toMatchObject({ messageId: 'MSG-MAS-011', priority: 4 });
 
     const empty = play([{ type: 'app.route.changed', path: '/recommend/results', at: 0 }, { type: 'm01.recommend.resolved', count: 0, at: 10 }, { type: 'm01.recommend.resolved', count: 0, at: 2_000 }]).state;
     expect(empty.bubble).toBeNull();
+    expect(empty.view).toBeNull();
   });
 
   it('MAS-B-014: tuyến có cảnh báo an toàn → sau 500 ms nhắc ở slot panel Bắt đầu, một lần mỗi tuyến', () => {
@@ -661,8 +675,8 @@ describe('US7 — Chuẩn bị cùng Mila (US-MAS-07; T056)', () => {
 
       expect(onDetail([started(100), resolved(2_000), started(3_000), resolved(4_000, { online: false })]).bubble).toBeNull();
       expect(onDetail([started(100, true), resolved(2_000, { update: true }), started(3_000, true), resolved(4_000, { update: true })]).bubble).toBeNull();
-      // Thành công ở giữa → đếm lại từ đầu
-      expect(onDetail([started(100), resolved(2_000), started(3_000), resolved(4_000, { kind: 'ready' }), { type: 'mascot.tick', at: 8_000 }, started(9_000), resolved(10_000)]).bubble).toBeNull();
+      // Thành công ở giữa → đếm lại từ đầu (câu 021 ở lại 15 s sau khi hiện, v1.5)
+      expect(onDetail([started(100), resolved(2_000), started(3_000), resolved(4_000, { kind: 'ready' }), { type: 'mascot.tick', at: 20_000 }, started(21_000), resolved(22_000)]).bubble).toBeNull();
     });
 
     it('MAS-B-026: hai lần tải lỗi nhanh (trong 500 ms) vẫn là hai thao tác, không bị chống trùng', () => {

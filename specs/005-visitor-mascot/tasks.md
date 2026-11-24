@@ -384,6 +384,22 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 - [X] T108 [US9] `MascotMotionSwitch` thay `MascotMotionToggle`; bỏ khỏi `VisitorLayout.tsx`, `FieldLayout.tsx`; thêm vào `OfflinePage.tsx` (R-28)
 - [X] T109 Chạy `npm run ci`, kiểm cổng, `npx playwright test`; ghi validation report §14
 
+## Phase 19: v1.5 — Mila động nhiều hơn, lời thoại 15 giây, Mila đứng ở Gợi ý tuyến, ô trống không chiếm chỗ (US7, US9) — CHG-MASCOT-2026-11-24-05
+
+**Goal**: spec-Mascot v1.5 (BR-MAS-07, 21; US-MAS-07.2, 09.1; §5.1; §5.4).
+
+### Tests ⚠️
+
+- [X] T110 [P] [US9] `src/shared/mascot/rules.test.ts`: lịch cử chỉ 4–7 s, cử chỉ ≤ 3 s, về `settle` (thở nhẹ); `machine.test.ts`: thời gian đọc 15 s mọi câu
+- [X] T111 [P] [US7] `src/shared/mascot/rules.test.ts`: MAS-B-088 DOCK khi mở form, MSG-MAS-010 mỗi lần mở (5 lần trong 20 s đều nói), × chỉ đóng câu; MAS-B-011 DOCK khi có kết quả, không có kết quả thì không DOCK; MAS-B-026 theo thời gian đọc mới; `App.mascot.test.tsx`: `recommend-head` là DOCK
+
+### Implementation
+
+- [X] T112 [US9] `src/shared/mascot/config.ts`: `MASCOT_AMBIENT_MIN_MS`/`MAX_MS` 4 000/7 000, `MASCOT_AMBIENT_GESTURE_MS` 3 000, `MASCOT_BUBBLE_READ_MS` 15 000, `/recommend`, `/recommend/results` vào màn đứng chờ; `arbiter.ts` thời gian đọc 15 s, `everyVisit` bỏ cooldown và BR-MAS-07; `types.ts` animation `gestureHop`, `gestureTilt`, `gestureWave`
+- [X] T113 [US9] `src/shared/mascot/rules.ts` cử chỉ 2–3 nhịp; `src/app/mascot/Mascot.module.css` animation cử chỉ nhiều nhịp và thở nhẹ liên tục ở DOCK `settle`
+- [X] T114 [US7] `rules.ts` MAS-B-088, MAS-B-010 (DOCK, mỗi lần mở), MAS-B-011 (DOCK); `RecommendPage.tsx`, `RecommendResultsPage.tsx` (+ `.module.css`): đầu màn hai cột như hero danh mục, slot `recommend-head` DOCK cỡ `recommend`; `MascotSlot` (+ `.module.css`): ô AVATAR và đầu màn Gợi ý tuyến trống thì không chiếm chỗ; bong bóng đuôi lên như danh mục
+- [X] T115 Chạy `npm run ci`, `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil`; chụp SCR-M01-002 ở 320/390 px; ghi validation report §19
+
 
 
 ### Phase Dependencies

@@ -7,7 +7,7 @@ import { loadMascotHost } from './mascot/loadHost';
 /** Mọi slot của contract UI §2 (cùng mode các màn khai báo) và mọi tư thế màn dùng cho hình INLINE */
 const SLOTS = [
   ['catalog-hero', ['INTRO', 'DOCK']],
-  ['recommend-head', ['AVATAR']],
+  ['recommend-head', ['DOCK']],
   ['start-panel', ['AVATAR']],
   ['package-panel', ['AVATAR']],
   ['trip-dock', ['DOCK']],

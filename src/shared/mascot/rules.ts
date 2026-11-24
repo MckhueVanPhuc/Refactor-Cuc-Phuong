@@ -3,6 +3,7 @@
 import {
   MASCOT_AMBIENT_GESTURE_MS,
   MASCOT_CATALOG_HINT_MS,
+  MASCOT_CELEBRATION_MS,
   MASCOT_DIZZY_TAPS,
   MASCOT_DIZZY_WINDOW_MS,
   MASCOT_LOOKUP_SLOW_MS,
@@ -134,7 +135,7 @@ const US2: Rule[] = [
 const PENDING_NOTE_DELAY_MS = 4_000;
 const PENDING_NOTE_RETRY_MS = 1_000;
 
-/** MAS-B-063: hình tĩnh cạnh huy hiệu. Chuyến tự kết thúc (BO_DO) chỉ nghỉ, không mừng. */
+/** MAS-B-063: Mila đứng trong thẻ "Hẹn gặp lại" (v1.5, phương án E). Chuyến tự kết thúc (BO_DO) chỉ nghỉ, không mừng. */
 const endDock = (status: 'HOAN_TAT' | 'BO_DO'): Intent => ({
   behaviorId: 'MAS-B-063',
   priority: 7,
@@ -146,6 +147,8 @@ const US4: Rule[] = [
   // MAS-B-062 / 064 → 063: vừa bấm Kết thúc trong lần tải trang này → ăn mừng một lần (cấp 3, BR-MAS-23), rồi về hình
   // tĩnh. Quét đủ mọi điểm của hành trình (k = n) → 064 / 063; kết thúc sớm → 062, mừng tích cực như nhau.
   // Mở lại hoặc tải lại màn kết quả: chỉ hình tĩnh (Q12). Đóng bong bóng sớm → về hình tĩnh ngay (đích `then` không lời).
+  // v1.5 (DV-92): phần ăn mừng chỉ kéo dài `MASCOT_CELEBRATION_MS`; hết thì Mila về DOCK nhỏ trong thẻ "Hẹn gặp lại",
+  // bong bóng ở lại đủ thời gian đọc (`keepBubble`).
   on('MAS-B-062', 'm02.trip.ended', (event) =>
     event.justEnded && event.status === 'HOAN_TAT'
       ? {
@@ -157,7 +160,9 @@ const US4: Rule[] = [
               pose: 'cheer',
               animation: 'celebrate',
               message: event.n > 0 && event.k >= event.n ? { id: 'MSG-MAS-063', params: { n: event.n } } : { id: 'MSG-MAS-062', params: { k: event.k } },
-              then: endDock(event.status),
+              status: 'CELEBRATING',
+              holdMs: MASCOT_CELEBRATION_MS,
+              then: { ...endDock(event.status), animation: 'settle', keepBubble: true },
             },
           ],
         }
@@ -359,6 +364,10 @@ const US6: Rule[] = [
 
 /** Mila nói xong thì về tư thế bản đồ ở hero danh mục */
 const CATALOG_SETTLE: Intent = { ...CATALOG_DOCK, animation: 'settle' };
+
+/** MAS-B-088 (v1.5): Mila đứng cạnh tiêu đề màn Gợi ý tuyến (form, và trang kết quả khi có tuyến phù hợp). */
+const RECOMMEND_DOCK: Intent = { behaviorId: 'MAS-B-088', priority: 7, mode: 'DOCK', pose: 'map' };
+const RECOMMEND_SETTLE: Intent = { ...RECOMMEND_DOCK, animation: 'settle' };
 const PACKAGE_SLOT = 'package-panel';
 const SAFETY_TIMER = 'safety:';
 
@@ -401,15 +410,19 @@ const US7: Rule[] = [
       ],
     };
   }),
-  // MAS-B-010: mở Gợi ý tuyến lần đầu trong lần tải trang → sau 400 ms, AVATAR cạnh tiêu đề
-  on('MAS-B-010', 'm01.recommend.opened', (_event, { state }) => (state.once['RECOMMEND_HINT'] ? null : { timers: { recommendHint: 400 } })),
+  // MAS-B-088 + MAS-B-010 (v1.5): Mila đứng cạnh tiêu đề Gợi ý tuyến (DOCK) và mỗi lần mở form đều nói câu gợi ý sau
+  // 400 ms; câu này không cooldown, không tính vào giới hạn câu chủ động (BR-MAS-07)
+  on('MAS-B-010', 'm01.recommend.opened', () => ({ intents: [{ ...RECOMMEND_DOCK, animation: 'enter' }], timers: { recommendHint: 400 } })),
   onTimer('MAS-B-010:show', 'recommendHint', () => ({
-    intents: [{ behaviorId: 'MAS-B-010', priority: 6, mode: 'AVATAR', pose: 'think', animation: 'pop', message: { id: 'MSG-MAS-010' }, once: 'RECOMMEND_HINT' }],
+    intents: [
+      { behaviorId: 'MAS-B-010', priority: 6, mode: 'DOCK', pose: 'map', animation: 'pop', message: { id: 'MSG-MAS-010' }, everyVisit: true, then: RECOMMEND_SETTLE },
+    ],
   })),
-  // MAS-B-011: có kết quả gợi ý. Không có kết quả (MAS-B-012, 013): chỉ hình cạnh câu cố định (v1.2), màn tự đặt.
+  // MAS-B-011: có kết quả gợi ý → Mila đứng cạnh tiêu đề kết quả (v1.5). Không có kết quả (MAS-B-012, 013): chỉ hình
+  // cạnh câu cố định (v1.2), màn tự đặt; không DOCK để trên màn chỉ có một Mila (OD-MAS-22).
   on('MAS-B-011', 'm01.recommend.resolved', (event) =>
     event.count >= 1
-      ? { intents: [{ behaviorId: 'MAS-B-011', priority: 4, mode: 'AVATAR', pose: 'thumbsUp', animation: 'hop', message: { id: 'MSG-MAS-011' } }] }
+      ? { intents: [{ behaviorId: 'MAS-B-011', priority: 4, mode: 'DOCK', pose: 'thumbsUp', animation: 'hop', message: { id: 'MSG-MAS-011' }, then: RECOMMEND_SETTLE }] }
       : null,
   ),
   // MAS-B-014: panel Bắt đầu hiện lần đầu, tuyến có Cảnh báo an toàn → sau 500 ms nhắc đọc, một lần mỗi tuyến; Mila ở slot
@@ -470,11 +483,12 @@ type Gesture = { id: string; pose?: PoseId; animation: AnimationId };
 
 /** Nhóm cử chỉ ngắn (Asset spec AN-AMBIENT). Cử chỉ đổi tư thế quay về tư thế ngữ cảnh khi hết. */
 const GESTURES: readonly Gesture[] = [
-  { id: 'look', pose: 'binoculars', animation: 'tilt' },
-  { id: 'wave', pose: 'wave', animation: 'wave' },
-  { id: 'hop', animation: 'hop' },
-  { id: 'tilt', animation: 'tilt' },
-  { id: 'pack', pose: 'backpack', animation: 'hop' },
+  // v1.5 (BR-MAS-21): mỗi cử chỉ 2–3 nhịp, ≤ MASCOT_AMBIENT_GESTURE_MS
+  { id: 'look', pose: 'binoculars', animation: 'gestureTilt' },
+  { id: 'wave', pose: 'wave', animation: 'gestureWave' },
+  { id: 'hop', animation: 'gestureHop' },
+  { id: 'tilt', animation: 'gestureTilt' },
+  { id: 'pack', pose: 'backpack', animation: 'gestureHop' },
   // AN-BLINK: chỉ khi tư thế hiện tại có ảnh mắt nhắm MA-20 (MAS-TC-122)
   { id: 'blink', animation: 'blink' },
 ];

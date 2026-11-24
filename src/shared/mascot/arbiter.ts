@@ -1,6 +1,7 @@
 // Trọng tài ưu tiên của Mila (spec-Mascot BR-MAS-05…08, 17, 19; specs/005 research R-05). Hàm thuần: nhận bản nháp
 // state đã sao chép và thời điểm, ghi kết quả vào bản nháp đó.
 import {
+  MASCOT_BUBBLE_READ_MS,
   MASCOT_INTERACTION_GRACE_MS,
   MASCOT_PROACTIVE_LIMIT,
   MASCOT_PROACTIVE_WINDOW_MS,
@@ -12,9 +13,9 @@ import {
 import { MESSAGE_META, messageText } from './dialogue/catalog';
 import type { Effect, Intent, MascotState, StepContext } from './types';
 
-/** Thời gian đọc bong bóng không có nút: 3–7 giây (spec-Mascot §5.4). */
-export function readingTimeMs(text: string): number {
-  return Math.min(7_000, Math.max(3_000, 1_200 + 45 * text.length));
+/** Thời gian đọc bong bóng không có nút, mọi câu như nhau (spec-Mascot v1.5 §5.4 `MASCOT_BUBBLE_READ_MS`). */
+export function readingTimeMs(_text: string): number {
+  return MASCOT_BUBBLE_READ_MS;
 }
 
 /** Thời gian chữ hiện dần hết câu (spec-Mascot v1.1 §5.4, `MASCOT_TYPE_CPS`). */
@@ -22,7 +23,8 @@ export function typingTimeMs(text: string): number {
   return Math.ceil((text.length * 1000) / MASCOT_TYPE_CPS);
 }
 
-const isProactive = (intent: Intent) => intent.priority >= 5 && Boolean(intent.message);
+// MSG-MAS-010 mỗi lần mở Gợi ý tuyến không tính vào giới hạn câu chủ động (BR-MAS-07 v1.5)
+const isProactive = (intent: Intent) => intent.priority >= 5 && Boolean(intent.message) && !intent.everyVisit;
 
 /** Bỏ khung và bong bóng, hàng đợi, hẹn giờ giữ (P0 an toàn, đổi màn, lỗi). */
 export function clearPresence(s: MascotState): void {
@@ -53,7 +55,7 @@ export function admit(s: MascotState, intent: Intent, ctx: StepContext, now: num
   if (intent.source && s.lastActivityAt !== null && now - s.lastActivityAt < MASCOT_INTERACTION_GRACE_MS) return false;
 
   const meta = intent.message ? MESSAGE_META[intent.message.id] : undefined;
-  if (!carried && intent.message && meta && !intent.requested) {
+  if (!carried && intent.message && meta && !intent.requested && !intent.everyVisit) {
     const last = s.lastShownAt[intent.message.id];
     if (last !== undefined && now - last < meta.cooldownMs) return false;
   }
@@ -73,7 +75,7 @@ export function admit(s: MascotState, intent: Intent, ctx: StepContext, now: num
   }
 
   const current = s.bubble;
-  if (current) {
+  if (current && !intent.keepBubble) {
     if (intent.priority > current.priority) {
       if (intent.message) enqueue(s, intent, now, 'busy');
       return false;
