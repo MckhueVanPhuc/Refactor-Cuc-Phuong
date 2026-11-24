@@ -158,3 +158,28 @@ describe('Mascot — chớp mắt (AN-BLINK; research R-24)', () => {
     expect(onAssetError).not.toHaveBeenCalled();
   });
 });
+
+describe('Mascot — khung 2 (specs/006 T053; R-11)', () => {
+  const walking: ViewState = { mode: 'DOCK', pose: 'walk', animation: 'walk', seq: 1, behaviorId: 'MAS-B-056' };
+
+  it('bước (AN-WALK) có ảnh khung 2 chồng lên ảnh gốc', () => {
+    const { container } = renderMascot(walking, { typing: true });
+    expect(container.querySelector('[data-mascot-frame2]')?.getAttribute('src')).toMatch(/ma-15-walk-f2-240\.webp$/);
+    expect(container.querySelector('[data-mascot-base]')).not.toBeNull();
+  });
+
+  it('giảm chuyển động / công tắc tắt → không khung 2', () => {
+    const { container } = renderMascot(walking, { typing: false });
+    expect(container.querySelector('[data-mascot-frame2]')).toBeNull();
+  });
+
+  it('không có ảnh khung 2 (vẫy, ăn mừng chưa đạt kiểm) → chỉ ảnh gốc', () => {
+    const { container } = renderMascot({ mode: 'DOCK', pose: 'wave', animation: 'gestureWave', seq: 1, behaviorId: 'MAS-B-086' }, { typing: true });
+    expect(container.querySelector('[data-mascot-frame2]')).toBeNull();
+  });
+
+  it('animation không có cử động hai khung → không khung 2', () => {
+    const { container } = renderMascot({ mode: 'DOCK', pose: 'walk', animation: 'settle', seq: 1, behaviorId: 'MAS-B-033' }, { typing: true });
+    expect(container.querySelector('[data-mascot-frame2]')).toBeNull();
+  });
+});

@@ -114,12 +114,15 @@ const US2: Rule[] = [
     };
   }),
   // MAS-B-033: DOCK trên màn chuyến đi, tư thế theo tiến độ (State Machine §3.1)
-  on('MAS-B-033', 'm02.trip.shown', (event) =>
+  on('MAS-B-033', 'm02.trip.shown', (event, { state }) =>
     event.hasSession
       ? {
           // Tiến độ của màn cho câu chạm (MAS-B-036); bộ đếm `screen:` tự xóa khi đổi màn
           counters: { 'screen:k': event.k, 'screen:n': event.n, 'screen:final': event.finalVisited ? 1 : 0 },
-          intents: [{ behaviorId: 'MAS-B-033', priority: 7, mode: 'DOCK', pose: event.finalVisited ? 'thumbsUp' : event.k > 0 ? 'map' : 'binoculars', animation: 'enter' }],
+          // Vừa quay về sau lượt ghé mới: MAS-B-056 đặt tư thế (ngạc nhiên rồi sải bước) và tự về tư thế này sau đó (DV-05)
+          intents: state.counters['nature:pending']
+            ? []
+            : [{ behaviorId: 'MAS-B-033', priority: 7, mode: 'DOCK', pose: event.finalVisited ? 'thumbsUp' : event.k > 0 ? 'map' : 'binoculars', animation: 'enter' }],
         }
       : null,
   ),
@@ -561,6 +564,9 @@ function backTo(state: RuleView['state']): Intent | undefined {
   return asked ?? { behaviorId: view.behaviorId, priority: 7, mode: 'DOCK', pose: view.pose, animation: 'settle' };
 }
 
+/** Mila ngạc nhiên trong lúc điểm vừa ghé được mở khóa (≈ nảy + vẽ đường mòn của specs/006 US2) rồi mới nói 056 */
+const UNLOCK_AMAZED_MS = 900;
+
 const US8: Rule[] = [
   on('MAS-B-012', 'mascot.user.tapped', (_event, { state, now }) => {
     // MAS-B-089: chạm dồn tính một lần
@@ -657,20 +663,21 @@ const US8: Rule[] = [
     const turn = state.counters['nature:turn'] ?? 0;
     const reminders: MessageId[] = ['MSG-MAS-057a', 'MSG-MAS-057b', 'MSG-MAS-057c', 'MSG-MAS-057d', 'MSG-MAS-057e'];
     const id: MessageId = NATURE_REMINDERS_APPROVED && turn % 2 === 1 ? reminders[Math.floor(turn / 2) % reminders.length]! : 'MSG-MAS-056';
+    const speak: Intent = {
+      behaviorId: 'MAS-B-056',
+      priority: 6,
+      mode: 'DOCK',
+      // v1.4 (Behavior Matrix §3b): Mila sải bước "đi tham quan thôi"
+      pose: 'walk',
+      animation: 'walk',
+      message: { id },
+      then: { behaviorId: 'MAS-B-033', priority: 7, mode: 'DOCK', pose: event.finalVisited ? 'thumbsUp' : event.k > 0 ? 'map' : 'binoculars', animation: 'settle' },
+    };
     return {
       counters: { 'nature:pending': null, 'nature:turn': turn + 1 },
-      intents: [
-        {
-          behaviorId: 'MAS-B-056',
-          priority: 6,
-          mode: 'DOCK',
-          // v1.4 (Behavior Matrix §3b): Mila sải bước "đi tham quan thôi"
-          pose: 'walk',
-          animation: 'walk',
-          message: { id },
-          then: { behaviorId: 'MAS-B-033', priority: 7, mode: 'DOCK', pose: event.finalVisited ? 'thumbsUp' : event.k > 0 ? 'map' : 'binoculars', animation: 'settle' },
-        },
-      ],
+      // DV-05 (chủ dự án chọn 2026-11-24): trong lúc điểm vừa ghé được mở khóa trên hành trình, Mila ngạc nhiên thích thú
+      // (`amazed`, không lời) rồi mới sải bước và nói 056
+      intents: [{ behaviorId: 'MAS-B-056', priority: 6, mode: 'DOCK', pose: 'amazed', animation: 'pop', holdMs: UNLOCK_AMAZED_MS, then: speak }],
     };
   }),
 ];

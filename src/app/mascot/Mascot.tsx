@@ -2,7 +2,7 @@
 // chỗ), bong bóng có đuôi chỉ về Mila, nút đóng, CTA. Không quyết định khi nào nói; không chiếm focus.
 import { useEffect, useState } from 'react';
 import type { CtaId, Language } from '../../shared/mascot/events';
-import { blinkAsset, poseAsset, type PoseAsset } from '../../shared/mascot/assets';
+import { blinkAsset, frame2Asset, poseAsset, type PoseAsset } from '../../shared/mascot/assets';
 import { MASCOT_BLINK_MS } from '../../shared/mascot/config';
 import { labelsFor } from '../../shared/mascot/dialogue/catalog';
 import type { ViewState } from '../../shared/mascot/types';
@@ -68,6 +68,9 @@ function useBlink(view: ViewState, still: boolean): { blink: PoseAsset | null; o
   return { blink: closed ? asset : null, onBlinkError: () => setClosed(false) };
 }
 
+/** Animation có cử động hai khung (specs/006 R-11): vẫy khi giới thiệu, ăn mừng, bước */
+const FRAME2_ANIMATIONS: ReadonlySet<string> = new Set(['intro', 'gestureWave', 'milestone', 'celebrate', 'walk']);
+
 function Pose({ view, still, onAssetError }: { view: ViewState; still: boolean; onAssetError: () => void }) {
   // AVATAR dùng ảnh đầu và vai MA-11 (Asset spec §3): ảnh toàn thân quá nhỏ để đọc ở cỡ này
   const pose = (view.mode === 'AVATAR' ? poseAsset('avatar') : null) ?? poseAsset(view.pose);
@@ -75,6 +78,8 @@ function Pose({ view, still, onAssetError }: { view: ViewState; still: boolean; 
   const [smallOnly, setSmallOnly] = useState(false);
   const { blink, onBlinkError } = useBlink(view, still);
   const asset = blink ?? pose;
+  // Khung 2 chồng khít ảnh gốc; CSS đổi qua lại bằng steps(1) trong thời lượng animation sẵn có (không timer JS)
+  const frame2 = !still && view.mode !== 'AVATAR' && view.animation && FRAME2_ANIMATIONS.has(view.animation) ? frame2Asset(view.pose) : null;
   if (!asset) {
     return (
       <span className={styles.placeholder} data-mascot-placeholder="">
@@ -82,7 +87,7 @@ function Pose({ view, still, onAssetError }: { view: ViewState; still: boolean; 
       </span>
     );
   }
-  return (
+  const image = (
     <img
       className={styles.image}
       src={asset.src240}
@@ -90,8 +95,16 @@ function Pose({ view, still, onAssetError }: { view: ViewState; still: boolean; 
       alt=""
       decoding="async"
       data-mascot-blink={blink ? '' : undefined}
+      data-mascot-base={frame2 ? '' : undefined}
       onError={() => (blink ? onBlinkError() : smallOnly ? onAssetError() : setSmallOnly(true))}
     />
+  );
+  if (!frame2) return image;
+  return (
+    <>
+      {image}
+      <img className={styles.frame2} src={frame2.src240} srcSet={srcSetOf(frame2, smallOnly)} alt="" decoding="async" data-mascot-frame2="" />
+    </>
   );
 }
 

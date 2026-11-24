@@ -1,0 +1,51 @@
+/*
+ * Lá rơi một lần trong --duration-confetti (T3). Lớp phủ toàn khu vực cha (cha cần position: relative), không nhận con
+ * trỏ, không chiếm chỗ. Chỉ transform/opacity. Ba sắc lá từ token.
+ */
+.layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.leaf {
+  position: absolute;
+  top: calc(var(--space-8) * -1);
+  left: var(--x);
+  color: var(--color-m01-line);
+  opacity: 0;
+  animation: leaf-fall var(--duration-confetti) var(--ease-standard) calc(var(--delay) * var(--duration-confetti) * 0.35) both;
+}
+
+.leaf[data-tone='1'] {
+  color: var(--color-m01-amber);
+}
+
+.leaf[data-tone='2'] {
+  color: var(--color-m02-scanner-success);
+}
+
+.icon {
+  --icon-size: var(--space-5);
+}
+
+@keyframes leaf-fall {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg) scale(var(--scale));
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  85% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(var(--drift), calc(var(--space-8) * 12)) rotate(var(--turn)) scale(var(--scale));
+  }
+}

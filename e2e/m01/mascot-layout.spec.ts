@@ -59,7 +59,8 @@ for (const { width, size } of [
     const lineHeight = await title.evaluate((element) => parseFloat(getComputedStyle(element).lineHeight));
     expect((await title.boundingBox())!.height).toBeLessThan(lineHeight * 1.5);
     // Dải đồi: span trang trí con trực tiếp của hero (icon được nhúng dạng data URI nên không tìm theo tên tệp)
-    const hills = title.locator('xpath=..').locator(':scope > span[aria-hidden="true"]');
+    // Dải đồi (không tính lớp nắng/lá trang trí của specs/006 US8)
+    const hills = title.locator('xpath=..').locator(':scope > span[aria-hidden="true"]:not([data-hero-decor])');
     await expect(hills).toHaveCount(1);
     await expect(hills).toBeVisible();
     expect((await hills.boundingBox())!.width).toBeGreaterThan(mila);

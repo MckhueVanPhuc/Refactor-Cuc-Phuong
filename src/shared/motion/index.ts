@@ -2,4 +2,5 @@
 export { getMotion, setMotion, subscribeMotion, useMotion } from './store';
 export { MotionSwitch } from './MotionSwitch';
 export { resetRevealForTest, useReveal } from './reveal';
+export { LEAF_CONFETTI_MAX, LeafConfetti } from './LeafConfetti';
 export { readMotionLevel, useMotionAttributes, useMotionLevel, type MotionLevel } from './level';

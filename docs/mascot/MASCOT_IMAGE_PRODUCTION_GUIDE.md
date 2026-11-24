@@ -245,3 +245,13 @@ Edit only the selected arms. Both arms raised in a wide V shape, paws open, slig
 - Checklist §6; đạo cụ lá chỉ ở `ma-16-peek`.
 - Chép vào `assets/mascot/source/`, báo agent "đã có ảnh đợt 4A" / "đợt 4B", kèm xác nhận quyền sử dụng (OD-MAS-07).
 - Agent kiểm như §7 (4A) và §8.3 (4B: so từng điểm ảnh, chỉ vùng đã tô được khác), xuất WebP và đo ngân sách precache (≤ 120 KB thêm vào, change brief §5).
+
+### 9.4 Kết quả đợt 4 (2026-11-24)
+
+- **4A đạt cả 5 ảnh**: nền trong suốt thật, cùng phong cách; đã xuất (assets/mascot/README.md "Đợt 4").
+- **4B**: `ma-15-walk-f2` đạt (thân và đầu trùng ảnh gốc, chỉ chân và tay đổi). **Ba ảnh cần làm lại**, vì công cụ vẽ lại cả hình nên ghép vùng không chồng khít được:
+  - `ma-21-wave-f2`: đầu vẽ lại to hơn và lệch chỗ → khi đổi khung đầu "nhảy".
+  - `ma-22-cheer-f2`: thân vẽ lại khác tư thế → vùng ghép bị mờ.
+  - `ma-20-proud-blink`: tông màu ngả cam; sau khi cân màu, vùng mõm vẫn xám hơn ảnh gốc → nháy màu khi chớp.
+- Cách làm lại khuyến nghị: dùng trình sửa ảnh có lớp (Photopea, Photoshop, Krita) như cuối §8.2 — mở **ảnh gốc đã duyệt**, chỉ vẽ lại tay (hoặc mắt) trên một lớp riêng, xuất PNG **cùng kích thước**, không cắt, không đổi cỡ. Nếu dùng công cụ AI, chọn chế độ sửa vùng chọn và bật "giữ phần còn lại" (nếu có).
+- Trong lúc chờ, app chạy vẫy tay, ăn mừng và đứng tự hào với ảnh gốc (không đổi khung, `proud` không chớp mắt).

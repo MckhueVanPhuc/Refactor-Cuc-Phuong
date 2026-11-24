@@ -41,3 +41,13 @@ Vùng ghép chiếm 1,7–2,9% diện tích ảnh. Theo quyết định của ch
 4. Thu nhỏ từng nửa, WebP chất lượng 0,82, cỡ 480 và 240.
 
 Cỡ 240: sorry 14,9 KB, amazed 15,6 KB, walk 11,2 KB, peek 16,0 KB, proud 12,4 KB — tổng 70,1 KB vào precache (ngân sách đợt 4 ≤ 120 KB, còn chỗ cho 4 khung phụ của T052). Ảnh gốc trong `source/` giữ nguyên.
+
+## Đợt 4B — khung phụ (2026-11-24, specs/006 T052)
+
+Cùng cách ghép vùng khác biệt của ảnh mắt nhắm (mục trên), thêm ba bước vì ảnh khung phụ khác cỡ và vẽ lại cả hình:
+
+1. **Đăng ký**: dò tỉ lệ đồng đều (0,94–1,06) và độ lệch, căn đáy–giữa nhân vật, từ thô (1/8) đến mịn (1/2).
+2. **Cân màu**: khớp tuyến tính từng kênh khung phụ → ảnh gốc trên vùng cùng phủ kín.
+3. **Đặt**: dùng đúng phép biến đổi của ảnh gốc đã xuất (suy từ bbox ảnh gốc và bbox ảnh web 480), nên khung phụ chồng khít.
+
+Kết quả kiểm bằng mắt (ảnh so sánh phóng to): chỉ `ma-15-walk-f2` đạt (vùng ghép 26% là chân và tay; thân, đầu trùng ảnh gốc) → xuất 240/480 (12,0 KB / 35,2 KB). `ma-21-wave-f2`, `ma-22-cheer-f2`, `ma-20-proud-blink` **không xuất** (đầu lệch cỡ, thân mờ, mõm đổi màu); chờ chủ dự án làm lại (hướng dẫn tạo ảnh §9.4).

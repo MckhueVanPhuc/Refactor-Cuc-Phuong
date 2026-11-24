@@ -3,10 +3,11 @@
 // "Đã tham quan" kèm giờ quét (SC-M02-013, spec-M02 3.3 clarification 3). Trạng thái đồng bộ đọc từ PendingSyncItem;
 // việc gửi gắn ở US7. Không có thao tác thử lại, sửa hay xóa của du khách (BR-M02-011); không có nút "Dừng chuyến đi".
 // Bố cục theo ảnh mẫu người dùng duyệt 2026-11-11: lời chào trên ảnh rừng, thẻ hẹn gặp lại, thẻ danh sách, nút về danh mục.
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { Link, useLocation } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { emitMascotEvent, isMascotEnabled, MascotFigure, MascotSlot } from '../../../shared/mascot/index';
+import { LeafConfetti } from '../../../shared/motion/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { FieldLayout } from '../layout/FieldLayout';
@@ -16,6 +17,8 @@ import styles from './EndPage.module.css';
 import { takeEndedHere, type EndRouteState } from './useEndTrip';
 
 const END_MODES = ['CELEBRATE', 'DOCK'] as const;
+/** Như `MASCOT_CELEBRATION_MS` / `--duration-confetti` (design-system §4.3.1) */
+const END_CELEBRATION_MS = 2_400;
 
 function clockTime(iso: string): string {
   const d = new Date(iso);
@@ -33,6 +36,8 @@ function useEndMascotSignals(
   ended: { sessionId: string; status: string; journeyCheckpoints: readonly unknown[] } | null,
   k: number | null,
   sync: SyncStatus,
+  /** Vừa bấm Kết thúc trong lần tải trang này và chuyến hoàn tất: màn chạy ăn mừng một lần (specs/006 US7) */
+  onCelebrate: () => void,
 ) {
   const sent = useRef<string | null>(null);
   const sessionId = ended?.sessionId;
@@ -42,8 +47,10 @@ function useEndMascotSignals(
     if (!sessionId || k === null || sent.current === sessionId) return;
     if (status !== 'HOAN_TAT' && status !== 'BO_DO') return;
     sent.current = sessionId;
-    emitMascotEvent({ type: 'm02.trip.ended', status, k, n, justEnded: takeEndedHere(sessionId) });
-  }, [sessionId, status, k, n]);
+    const justEnded = takeEndedHere(sessionId);
+    emitMascotEvent({ type: 'm02.trip.ended', status, k, n, justEnded });
+    if (justEnded && status === 'HOAN_TAT') onCelebrate();
+  }, [sessionId, status, k, n, onCelebrate]);
   useEffect(() => {
     if (sync) emitMascotEvent({ type: 'm02.sync.statusChanged', status: sync, online: navigator.onLine !== false });
   }, [sync]);
@@ -68,13 +75,29 @@ export function EndPage() {
           .filter((v) => order.has(v.checkpointId))
           .sort((a, b) => order.get(a.checkpointId)!.sequence - order.get(b.checkpointId)!.sequence)
       : [];
-  useEndMascotSignals(ended, visits.status === 'ready' ? scanned.length : null, sync);
+  // Ăn mừng của màn (specs/006 US7, R-12): huy hiệu đóng dấu, confetti lá, danh sách hiện lần lượt; một lần, ≤ 2,4 s,
+  // chạm bất kỳ đâu thì về trạng thái cuối. Mở lại màn: tĩnh. Không thêm chữ hay số mới (FR-MOT-016)
+  const [celebrating, setCelebrating] = useState(false);
+  const [celebrate] = useState(() => () => setCelebrating(true));
+  useEffect(() => {
+    if (!celebrating) return undefined;
+    const id = window.setTimeout(() => setCelebrating(false), END_CELEBRATION_MS);
+    return () => window.clearTimeout(id);
+  }, [celebrating]);
+  useEndMascotSignals(ended, visits.status === 'ready' ? scanned.length : null, sync, celebrate);
 
   return (
     <FieldLayout surface="finish">
       {ended && (
-        <section className={styles.result} data-session-id={ended.sessionId} data-status={ended.status}>
+        <section
+          className={styles.result}
+          data-session-id={ended.sessionId}
+          data-status={ended.status}
+          data-celebrate={celebrating ? '' : undefined}
+          onPointerDown={celebrating ? () => setCelebrating(false) : undefined}
+        >
           <div className={styles.hero}>
+            {celebrating && <LeafConfetti count={28} />}
             {/* Huy hiệu đứng một mình ở giữa (thiết kế đã duyệt 2026-11-11); Mila ở thẻ "Hẹn gặp lại" (spec-Mascot v1.5, OD-MAS-27) */}
             <span className={styles.badge} aria-hidden="true">
               <TintIcon name="check" className={styles.check} />
@@ -91,7 +114,12 @@ export function EndPage() {
           {/* Thẻ hẹn gặp lại: Mila thay trái tim (spec-Mascot v1.5, phương án E); tắt Mila thì trái tim như cũ. Lúc ăn mừng Mila
               lớn hơn và bong bóng ở hàng trên thẻ, đuôi chỉ xuống Mila */}
           <div className={styles.farewell}>
-            {isMascotEnabled() ? <MascotSlot id="end-hero" modes={END_MODES} size="end" /> : <TintIcon name="heart" className={styles.heart} />}
+            {/* CONFLICT: Mila đã là hình trong banner, nên thẻ dùng trái tim — một Mila trên màn (spec-Mascot §5.1; specs/006 DV-95) */}
+            {isMascotEnabled() && sync !== 'CONFLICT' ? (
+              <MascotSlot id="end-hero" modes={END_MODES} size="end" />
+            ) : (
+              <TintIcon name="heart" className={styles.heart} />
+            )}
             <p className={styles.farewellText}>{messages.end.farewell}</p>
           </div>
 
@@ -118,8 +146,8 @@ export function EndPage() {
               )}
             </div>
             <ol className={styles.list}>
-              {scanned.map((visit) => (
-                <li className={styles.item} key={visit.checkpointId}>
+              {scanned.map((visit, index) => (
+                <li className={styles.item} key={visit.checkpointId} style={{ '--i': index } as CSSProperties}>
                   <span className={styles.name}>{order.get(visit.checkpointId)!.checkpointName[language]}</span>
                   <span className={styles.meta}>
                     <span className={styles.visited}>{messages.end.visited}</span>
