@@ -2,7 +2,6 @@
 export { emitMascotEvent, holdMascotSignal, type CtaId, type MascotEvent } from './events';
 export { isMascotEnabled } from './flag';
 export { MascotFigure } from './MascotFigure';
-export { MascotMotionSwitch } from './MascotMotionSwitch';
 export { MascotSlot } from './MascotSlot';
 export type { Mode, PoseId } from './types';
 export { useMascotConfirms, type VisitConfirmation } from './visitConfirm';

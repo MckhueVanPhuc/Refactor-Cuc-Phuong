@@ -1,7 +1,7 @@
 // Công tắc "Chuyển động" (specs/005 tasks T082; spec-Mascot BR-MAS-17, 21; research R-17).
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { resetMascotEventsForTest, subscribeMascotEvents } from './events';
-import { getMotion, resetMotionForTest, setMotion } from './motion';
+import { resetMascotEventsForTest, subscribeMascotEvents } from '../mascot/events';
+import { getMotion, resetMotionForTest, setMotion } from './store';
 
 const reduced = (matches: boolean) =>
   vi.stubGlobal('matchMedia', (media: string) => ({ matches: media.includes('reduce') && matches, media, addEventListener() {}, removeEventListener() {} }));

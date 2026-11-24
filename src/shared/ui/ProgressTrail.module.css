@@ -1,0 +1,84 @@
+/*
+ * Thanh "đường mòn" (design-system §5.3 v1.4). Rãnh nhạt, phần đã đi đậm, cao --space-2, bo tròn. Màu theo currentColor.
+ * Chuyển động gate theo `data-motion` trên <html> (specs/006 R-02): tăng giá trị T1, vệt trôi T2.
+ */
+.trail {
+  --trail-progress: 0;
+
+  position: relative;
+  height: var(--space-2);
+  margin-block: var(--space-2);
+  background: color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: var(--space-2);
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: currentColor;
+  border-radius: inherit;
+  transform: scaleX(var(--trail-progress));
+  transform-origin: left center;
+}
+
+/*
+ * Lớp mang dấu chân trượt theo giá trị bằng transform (không đổi bố cục). Dấu chân ở mép phải của lớp; lớp lùi sang
+ * trái (giá trị − 1), nên phần dư tràn về phía trái, không tạo thanh cuộn ngang.
+ */
+.marker {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translateX(calc((var(--trail-progress) - 1) * 100%));
+}
+
+.footprint {
+  --icon-size: var(--space-5);
+
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+:root[data-motion='full'] .fill,
+:root[data-motion='full'] .marker {
+  transition: transform var(--duration-feedback) var(--ease-standard);
+}
+
+/* Giảm chuyển động / công tắc tắt: không trượt, chỉ hiện giá trị mới bằng mờ dần ngắn (T1) */
+:root[data-motion='reduced'] .fill,
+:root[data-motion='reduced'] .marker {
+  transition: opacity var(--duration-feedback-reduced) var(--ease-standard);
+}
+
+/* —— Không xác định: một vệt đường mòn trôi lặp; không số —— */
+.drift {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 30%;
+  background: currentColor;
+  border-radius: inherit;
+  transform: translateX(116%);
+}
+
+.trail[data-indeterminate] {
+  overflow: hidden;
+}
+
+:root[data-motion='full'] .drift {
+  animation: trail-drift var(--duration-shimmer) var(--ease-in-out) infinite;
+}
+
+@keyframes trail-drift {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(340%);
+  }
+}

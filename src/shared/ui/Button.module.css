@@ -51,3 +51,15 @@
   border-color: var(--color-m03-border);
   cursor: not-allowed;
 }
+
+/*
+ * Phản hồi nhấn (design-system §5.4 v1.4, T1; specs/006 US1): chỉ trên màn du khách (`[data-surface]` của VisitorLayout,
+ * FieldLayout) khi `data-motion="full"`; co về --press-scale, không đổi bố cục. Giảm chuyển động / công tắc tắt: chỉ lớp phủ.
+ */
+:root[data-motion='full'] [data-surface] .button:not(:disabled) {
+  transition: transform var(--duration-press) var(--ease-standard);
+}
+
+:root[data-motion='full'] [data-surface] .button:not(:disabled):active {
+  transform: scale(var(--press-scale));
+}

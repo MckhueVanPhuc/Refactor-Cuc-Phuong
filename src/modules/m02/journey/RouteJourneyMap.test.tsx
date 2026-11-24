@@ -39,6 +39,24 @@ describe('RouteJourneyMap', () => {
     expect(screen.getByText(viMessages.journey.progress({ scanned: 1, total: 3 }))).toBeTruthy();
   });
 
+  it('thanh tiến trình k/n dưới câu tiến độ, câu giữ nguyên văn (specs/006 T023; E-SCR-M02-001-25)', () => {
+    render(<RouteJourneyMap checkpoints={CHECKPOINTS} visits={[visit]} onOpen={() => {}} />);
+    const label = viMessages.journey.progress({ scanned: 1, total: 3 });
+    expect(screen.getByText(label)).toBeTruthy();
+    const bar = screen.getByRole('progressbar', { name: label });
+    expect(bar.getAttribute('aria-valuenow')).toBe('1');
+    expect(bar.getAttribute('aria-valuemax')).toBe('3');
+  });
+
+  it('mở khóa: điểm vừa ghé có data-unlock; không có dấu hoặc điểm chưa quét → không (specs/006 T023)', () => {
+    const { rerender } = render(<RouteJourneyMap checkpoints={CHECKPOINTS} visits={[visit]} onOpen={() => {}} unlock="C2" />);
+    expect(items().filter((li) => li.hasAttribute('data-unlock')).map((li) => li.getAttribute('data-checkpoint'))).toEqual(['C2']);
+    rerender(<RouteJourneyMap checkpoints={CHECKPOINTS} visits={[visit]} onOpen={() => {}} />);
+    expect(items().some((li) => li.hasAttribute('data-unlock'))).toBe(false);
+    rerender(<RouteJourneyMap checkpoints={CHECKPOINTS} visits={[visit]} onOpen={() => {}} unlock="C3" />);
+    expect(items().some((li) => li.hasAttribute('data-unlock'))).toBe(false);
+  });
+
   it('tên theo ngôn ngữ hiện tại và đổi ngay khi đổi VI/EN (SC-M02-019)', () => {
     render(<RouteJourneyMap checkpoints={CHECKPOINTS} visits={[visit]} onOpen={() => {}} />);
     expect(screen.getByText('Cây chò ngàn năm')).toBeTruthy();

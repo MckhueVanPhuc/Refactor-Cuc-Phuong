@@ -118,6 +118,20 @@
   --ease-out: ease-out;
   --ease-in: ease-in;
   --ease-in-out: ease-in-out;
+  /* §4.3.1 — ba tầng chuyển động của màn du khách (v1.4, specs/006) */
+  --duration-press: 120ms;
+  --duration-feedback: 300ms;
+  /* T1 khi giảm chuyển động: chỉ đổi màu/opacity, không về 0 */
+  --duration-feedback-reduced: 150ms;
+  --duration-trail-draw: 600ms;
+  --duration-reveal: 300ms;
+  --duration-shimmer: 1600ms;
+  --duration-confetti: 2400ms;
+  --duration-count-up: 800ms;
+  --duration-ambient-drift: 6000ms;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --press-scale: 0.97;
 
   /* §9.2 — mascot Mila (spec-Mascot §5.1; specs/005 mascot-ui-contract §4) */
   --mascot-size-sm: 56px;
@@ -167,5 +181,42 @@
     --duration-mascot-loop: 0ms;
     --duration-mascot-milestone: 0ms;
     --duration-mascot-blink: 0ms;
+    --duration-press: 0ms;
+    --duration-feedback: 0ms;
+    --duration-trail-draw: 0ms;
+    --duration-reveal: 0ms;
+    --duration-shimmer: 0ms;
+    --duration-confetti: 0ms;
+    --duration-count-up: 0ms;
+    --duration-ambient-drift: 0ms;
+    --press-scale: 1;
   }
+}
+
+/* Công tắc "Hiệu ứng chuyển động" tắt (spec-Mascot v1.4 BR-MAS-21; specs/006 R-02): như giảm chuyển động */
+:root[data-motion='reduced'] {
+  --duration-page: 0ms;
+  --duration-expand: 0ms;
+  --duration-pulse: 0ms;
+  --duration-toast-enter: 0ms;
+  --duration-toast-exit: 0ms;
+  --duration-scanner-frame: 0ms;
+  --duration-dialog: 0ms;
+  --duration-mascot-enter: 0ms;
+  --duration-mascot-exit: 0ms;
+  --duration-mascot-pop: 0ms;
+  --duration-mascot-hop: 0ms;
+  --duration-mascot-celebrate: 0ms;
+  --duration-mascot-loop: 0ms;
+  --duration-mascot-milestone: 0ms;
+  --duration-mascot-blink: 0ms;
+  --duration-press: 0ms;
+  --duration-feedback: 0ms;
+  --duration-trail-draw: 0ms;
+  --duration-reveal: 0ms;
+  --duration-shimmer: 0ms;
+  --duration-confetti: 0ms;
+  --duration-count-up: 0ms;
+  --duration-ambient-drift: 0ms;
+  --press-scale: 1;
 }

@@ -3,6 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { writeLanguagePreference } from '../../modules/m01/storage/languageWriter';
 import { emitMascotEvent, MascotSlot } from '../../shared/mascot/index';
+import { setMotion } from '../../shared/mascot/motion';
 import { intent, rule, say } from '../../shared/mascot/testing';
 import { MascotHost } from './MascotHost';
 
@@ -115,6 +116,17 @@ describe('MascotHost', () => {
     act(() => opened());
     await screen.findByText(/First scan recorded/);
     expect(vibrate).toHaveBeenCalledWith(30);
+  });
+
+  it('công tắc "Hiệu ứng chuyển động" tắt → không rung (spec-Mascot v1.4 BR-MAS-19; specs/006 T011)', async () => {
+    const vibrate = vi.fn();
+    Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+    setMotion(false);
+    setup([rule('m02.scanner.opened', { intents: [intent({ priority: 4, message: { id: 'MSG-MAS-051' }, vibrate: true })], effects: [{ kind: 'vibrate', ms: 30 }] })]);
+    act(() => opened());
+    await screen.findByText(/First scan recorded/);
+    expect(vibrate).not.toHaveBeenCalled();
+    setMotion(true);
   });
 
   it('"đang thao tác" (BR-MAS-20, R-19): cuộn trong 2 s trước hẹn giờ → hướng dẫn theo hẹn giờ bị bỏ', async () => {

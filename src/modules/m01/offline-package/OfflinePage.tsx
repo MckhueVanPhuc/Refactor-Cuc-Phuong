@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
-import { MascotFigure, MascotMotionSwitch, MascotSlot } from '../../../shared/mascot/index';
+import { MascotFigure, MascotSlot } from '../../../shared/mascot/index';
+import { MotionSwitch } from '../../../shared/motion/index';
 import { Dialog } from '../../../shared/ui/Dialog';
 import { useM01Services } from '../api/services';
 import { catalogStoreFor } from '../catalog/catalogStore';
@@ -15,6 +16,7 @@ import styles from './OfflinePage.module.css';
 import { downloadWithMascot } from './mascotSignals';
 import type { PackageOpResult } from './packageOps';
 import { activeStatusOf, candidateStatusOf, statusLabel, type ActiveStatus, type CandidateStatus } from './packageStatus';
+import { PackageProgress } from './PackageProgress';
 import { packageOpsFor, usePackageEntries } from './usePackages';
 
 const CHIP_CLASS: Record<ActiveStatus | CandidateStatus, string | undefined> = {
@@ -67,6 +69,7 @@ function PackageRow({
           </span>
         )}
       </p>
+      <PackageProgress busy={busy} ready={active === 'readyCurrent' || active === 'readyOutdated'} label={messages.offline.status.downloading} />
       {pkg && (
         <p className={styles.meta}>
           {messages.offline.essentialsSavedAt({ time: formatCapturedAt(pkg.routeEssentials.capturedAt, language) })}
@@ -138,7 +141,7 @@ export function OfflinePage() {
     <>
       <h1 className={styles.title}>{messages.screenTitle.offline}</h1>
       {/* Công tắc chuyển động duy nhất của Mila (spec-Mascot v1.3 BR-MAS-21; design-system §9.5) */}
-      <MascotMotionSwitch language={language} />
+      <MotionSwitch language={language} />
       {anyReady && <p className={styles.hint}>{messages.routeDetail.scanHint}</p>}
       {entries?.length === 0 && (
         <div className={styles.withMila}>

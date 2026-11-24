@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useState, useSyncExternalStore } from 'react';
 import { RouterProvider } from 'react-router';
 import { registerM02BusyCheck } from '../modules/m02/pwa/registerBusy';
+import { useMotionAttributes } from '../shared/motion/index';
 import { loadMascotHost } from './mascot/loadHost';
 import { UpdatePrompt } from './pwa/UpdatePrompt';
 import { createAppRouter } from './router';
@@ -9,6 +10,8 @@ export function App() {
   const [router] = useState(createAppRouter);
   // Mascot Mila (specs/005): host lazy, chỉ khi VITE_FEATURE_MASCOT=on
   const [MascotHost] = useState(loadMascotHost);
+  // Mức chuyển động → data-motion / data-decor trên <html> cho CSS (specs/006 R-02)
+  useMotionAttributes();
 
   useEffect(() => {
     // M02: không áp bản mới khi có phiên đang chạy hoặc đang quét/đồng bộ (research M02 R-15). Đồng bộ, trước mọi import()

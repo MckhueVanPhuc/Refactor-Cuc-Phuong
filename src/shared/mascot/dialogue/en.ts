@@ -58,8 +58,8 @@ export const en: MascotDialogue = {
   labels: {
     name: NAME,
     ask: `Ask ${NAME}`,
-    motion: `${NAME}'s motion`,
-    motionHint: `Turn off to keep ${NAME} still.`,
+    motion: 'Motion effects',
+    motionHint: `Turn off to keep ${NAME} and decorations still.`,
     introHint: 'Tap to start',
     dismiss: 'Dismiss message',
     notNow: 'Not now',

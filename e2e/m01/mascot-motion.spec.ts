@@ -1,4 +1,4 @@
-// Công tắc "Chuyển động của Mila" và cử chỉ tự động (specs/005 tasks T083, T104; spec-Mascot v1.3 BR-MAS-17, 21;
+// Công tắc "Hiệu ứng chuyển động" (v1.4; trước "Chuyển động của Mila") và cử chỉ tự động (specs/005 tasks T083, T104; spec-Mascot v1.3 BR-MAS-17, 21;
 // SC-MAS-011, 014; quickstart Q18–Q20, Q33). v1.3: công tắc duy nhất ở màn Tài nguyên, header không còn nút. Danh mục của du khách quay lại: câu chào 004 → đóng → Mila đứng chờ ở hero.
 import { expect, test, type Page } from '@playwright/test';
 import { chooseLanguage, mockPublication } from './network';
@@ -18,7 +18,7 @@ async function returningVisitor(page: Page) {
   await expect(page.locator('[data-mascot-slot="catalog-hero"] [data-mascot-mode="DOCK"]')).toBeVisible();
 }
 
-const motionSwitch = (page: Page) => page.getByRole('switch', { name: /Chuyển động của Mila/ });
+const motionSwitch = (page: Page) => page.getByRole('switch', { name: /Hiệu ứng chuyển động/ });
 
 /** Mở màn Tài nguyên bằng thanh tab (điều hướng trong app, không tải lại: công tắc chỉ sống trong lần tải trang). */
 async function openResources(page: Page) {
@@ -73,7 +73,7 @@ test('Q19, Q33 — tắt công tắc ở Tài nguyên: không animation nào c�
   await returningVisitor(page);
   await openResources(page);
   await expect(motionSwitch(page)).toHaveAttribute('aria-checked', 'true');
-  await expect(motionSwitch(page)).toContainText('Tắt để Mila đứng yên.');
+  await expect(motionSwitch(page)).toContainText('Tắt để Mila và hiệu ứng trang trí đứng yên.');
   await motionSwitch(page).click();
   await expect(motionSwitch(page)).toHaveAttribute('aria-checked', 'false');
   await openCatalog(page);
@@ -99,10 +99,10 @@ test('Q33 — header của màn M01 và M02 không còn nút chuyển động; c
   await mockPublication(page);
   await page.goto('/');
   await chooseLanguage(page);
-  await expect(page.locator('[data-mascot-motion-switch], [data-mascot-motion-toggle]')).toHaveCount(0);
+  await expect(page.locator('[data-motion-switch], [data-mascot-motion-toggle]')).toHaveCount(0);
   await page.goto('/trip');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(page.locator('[data-mascot-motion-switch], [data-mascot-motion-toggle]')).toHaveCount(0);
+  await expect(page.locator('[data-motion-switch], [data-mascot-motion-toggle]')).toHaveCount(0);
   await page.goto('/offline');
   await expect(motionSwitch(page)).toBeVisible();
 });

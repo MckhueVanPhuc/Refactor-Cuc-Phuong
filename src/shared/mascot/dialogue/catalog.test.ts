@@ -79,7 +79,7 @@ describe('catalog Mila', () => {
     expect(MESSAGE_META['MSG-MAS-001'].autoHide).toBe(false);
     expect(messageText('vi', 'MSG-MAS-056')).toBe('Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé.');
     expect(messageText('en', 'MSG-MAS-056')).toBe('Time to explore! Remember to scan at the next stop.');
-    expect(labelsFor('vi')).toMatchObject({ introHint: 'Chạm để bắt đầu', motion: 'Chuyển động của Mila', motionHint: 'Tắt để Mila đứng yên.' });
-    expect(labelsFor('en')).toMatchObject({ introHint: 'Tap to start', motion: "Mila's motion", motionHint: 'Turn off to keep Mila still.' });
+    expect(labelsFor('vi')).toMatchObject({ introHint: 'Chạm để bắt đầu', motion: 'Hiệu ứng chuyển động', motionHint: 'Tắt để Mila và hiệu ứng trang trí đứng yên.' });
+    expect(labelsFor('en')).toMatchObject({ introHint: 'Tap to start', motion: 'Motion effects', motionHint: 'Turn off to keep Mila and decorations still.' });
   });
 });
