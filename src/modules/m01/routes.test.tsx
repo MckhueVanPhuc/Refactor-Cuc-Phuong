@@ -40,7 +40,7 @@ describe('route M01', () => {
     ]);
     // Gợi ý tuyến thuộc nhóm Tuyến
     expect(tabs.getByRole('link', { name: 'Tuyến' }).getAttribute('aria-current')).toBe('page');
-    expect(screen.getByRole('link', { name: 'Danh mục tuyến' }).getAttribute('href')).toBe('/');
+    expect(screen.getByRole('link', { name: 'Danh mục tuyến Cúc Phương Quest' }).getAttribute('href')).toBe('/');
     // Thanh app không còn liên kết "Tài nguyên offline"
     expect(within(screen.getByRole('banner')).queryByRole('link', { name: 'Tài nguyên offline' })).toBeNull();
   });

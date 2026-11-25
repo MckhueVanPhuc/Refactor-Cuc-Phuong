@@ -133,6 +133,7 @@ Giá trị bổ sung:
 | Toast exit | 200ms | ease-in | Thông báo trượt lên + mờ dần |
 | Scanner frame | 1000ms | linear | Khung ngắm QR nhấp nháy |
 | Dialog overlay | 250ms | ease-out | Backdrop + panel xuất hiện |
+| Ảnh thẻ tuyến phóng nhẹ | 250ms | ease-out | Ảnh route card phóng 3% khi rê chuột hoặc giữ; chỉ khi `data-motion="full"` (tắt khi giảm chuyển động hoặc công tắc chuyển động tắt) |
 | Mascot vào / ra slot | 250ms / 150–200ms | ease-out / ease-in | Mila xuất hiện, rời slot (§9) |
 | Mascot đổi tư thế, bật bong bóng | 200ms (crossfade 150ms) | ease-out | Mỗi lời thoại mới |
 | Mascot phản hồi một lần (nhún, nghiêng, lật nhìn quanh, giơ ngón cái) | 300–1200ms | ease-out | Thành công, lỗi, chờ quét |
@@ -201,9 +202,9 @@ Spacing không có `--space-7` . Các giá trị sau chưa có tên token; dùng
 
 | Component | Hướng hình ảnh |
 |---|---|
-| Header/navigation | Vị trí rõ, nhãn ngắn, focus nhìn thấy được, padding safe-area. |
-| Tab bar (du khách M01) | Thanh cố định ở đáy mọi màn M01 (người dùng duyệt 2026-11-21): ba cột Tuyến · Quét QR · Tài nguyên, chú thích ngắn 14px dưới icon. Nền `white`, viền trên `line`, bóng `--shadow-bottom-nav`, chừa vùng an toàn. Nút Quét ở giữa là đĩa tròn 60px nền `forest` icon `paper`, viền trắng, nổi nửa thân trên mép thanh. Tab đang mở dùng `forest`, chữ đậm và vạch trên, không chỉ đổi màu; mỗi tab là vùng chạm ≥ 44px. Không có trên màn chọn ngôn ngữ và các màn M02. |
-| Route card | Chiều cao linh hoạt, thumbnail tùy chọn, tên trước, metadata được hỗ trợ bên dưới. Độ khó dùng tên category. |
+| Header/navigation | Vị trí rõ, nhãn ngắn, focus nhìn thấy được, padding safe-area. Thanh app M01: logo kèm tên "Cúc Phương Quest" serif 18px màu `paper` bên phải logo, cả hai cùng một liên kết về danh mục; màn hẹp thì tên xuống hai dòng (người dùng duyệt 2026-11-25). |
+| Tab bar (du khách M01) | Thanh cố định ở đáy mọi màn M01 (người dùng duyệt 2026-11-21): ba cột Tuyến · Quét QR · Tài nguyên, chú thích ngắn 14px dưới icon. Thanh nổi nền `white`, bo `--radius-lg` cả bốn góc, cách hai cạnh và đáy màn `--space-3` (cộng vùng an toàn), viền 1px `line`, bóng `--shadow-bottom-nav` kèm `--shadow-card`. Nút Quét ở giữa là đĩa tròn 60px nền `forest` icon `paper`, viền trắng, nổi nửa thân trên mép thanh. Tab đang mở dùng `forest`, chữ đậm và vạch trên, không chỉ đổi màu; mỗi tab là vùng chạm ≥ 44px. Không có trên màn chọn ngôn ngữ và các màn M02. |
+| Route card | Chiều cao linh hoạt, thumbnail tùy chọn, tên trước, metadata được hỗ trợ bên dưới. Độ khó dùng tên category. Thẻ M01 (người dùng duyệt 2026-11-25): ảnh không cắt vòm; nửa dưới ảnh làm mờ và phủ `deep` đậm dần tới 88% ở đáy, tên tuyến serif màu `paper` kèm dấu ghim nổi đè lên phần đó; thân thẻ trắng phẳng bên dưới. Lớp phủ luôn có nên tên vẫn đọc được khi không có ảnh. Ảnh phóng 3% khi rê chuột hoặc giữ (§4.3). Cuối danh sách có dải rừng `forest-band` lặp ngang, `forest` 26%, làm mặt đất phía trên thanh tab. Tất cả chỉ trang trí, ẩn với trình đọc màn hình. |
 | Journey item | Nhãn checkpoint, thứ tự và chỉ báo đã ghé; nội dung được chọn có highlight riêng. |
 | Status chip | Nhãn ngắn và icon tùy chọn; dùng từ vựng trạng thái của entity nguồn. |
 | Package panel | Nhãn readiness/freshness của bản đang dùng tách khỏi tiến trình/lỗi candidate; không bịa phần trăm. |
@@ -382,6 +383,7 @@ Hệ quả cho thiết kế: các cặp trên 4.5:1 dùng được cho chữ th�
 - Ngoại lệ do người dùng duyệt 2026-11-08 cho bước chọn ngôn ngữ của SCR-M01-001: agent vẽ `flag-vi.svg`, `flag-en.svg` và `divider-mountain.svg` trong assets/icons/. Hai cờ giữ màu của chính lá cờ; hình núi chỉ dùng làm mask, màu lấy từ token. Cờ chỉ để trang trí, không thay chữ "Tiếng Việt"/"English".
 - Ngoại lệ do người dùng duyệt 2026-11-10 cho nút Quét của SCR-M02-001: agent vẽ `qr-scan.svg` (camera trong khung quét) trong assets/icons/. Chỉ dùng làm mask, màu theo chữ của nút; icon đứng trước chữ "Quét QR", không thay chữ.
 - Ngoại lệ do người dùng duyệt 2026-11-11 cho màn kết quả chuyến SCR-M02-003 (theo ảnh mẫu người dùng cung cấp): agent vẽ `check.svg` (dấu tích của huy hiệu hoàn thành), `heart.svg` (thẻ hẹn gặp lại) và `home.svg` (nút "Về danh sách tuyến") trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; luôn đi kèm chữ, không thay chữ.
+- Ngoại lệ do người dùng duyệt 2026-11-25 cho trang trí danh mục tuyến SCR-M01-001: agent vẽ `forest-band.svg` (dải rừng lặp ngang cuối danh sách, lưới 240×56) trong assets/icons/. Hình khối đặc, chỉ dùng làm mask, màu lấy từ token; chỉ trang trí, ẩn với trình đọc màn hình.
 - Ảnh mascot Mila không phải icon: nằm trong `assets/mascot/`, bản gốc do người dùng cung cấp (§9). Hiệu ứng lá rơi của Mila dùng lại `leaf.svg` làm mask, màu từ token.
 - Motion v1.4 (CHG-MOTION-2026-11-24-01): agent vẽ `footprint.svg` (dấu chân ở đầu thanh tiến trình hành trình, §5.3) và `sun-rays.svg` (tia nắng trang trí ở hero SCR-M01-001, T3) trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; trang trí có `aria-hidden`. Confetti lá màn kết thúc dùng lại `leaf.svg`.
 - Ngoại lệ do người dùng duyệt 2026-11-21 cho toast dùng chung và thanh tab: agent vẽ `close.svg` (dấu ✕ của nút đóng toast) trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; nút có tên truy cập bằng chữ.

@@ -1,21 +1,23 @@
 /*
- * Thanh tab dưới (design-system §5 "Tab bar"): nền trắng cố định ở đáy, bóng --shadow-bottom-nav, chừa vùng an toàn của
- * điện thoại. Ba cột bằng nhau; nút Quét tròn forest nổi lên giữa, viền trắng. Chú thích 14 px dưới icon (§3).
+ * Thanh tab dưới (design-system §5 "Tab bar"): thanh nền trắng nổi ở đáy, bo --radius-lg cả bốn góc, cách hai cạnh
+ * và đáy màn --space-3 (cộng vùng an toàn của điện thoại). Ba cột bằng nhau; nút Quét tròn forest nổi lên giữa,
+ * viền trắng. Chú thích 14 px dưới icon (§3).
  */
 .bar {
   position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  right: var(--space-3);
+  bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  left: var(--space-3);
   z-index: 6;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: end;
-  height: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px));
-  padding: 0 var(--space-2) calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+  height: var(--tab-bar-height);
+  padding: 0 var(--space-2) var(--space-2);
   background: var(--color-white);
-  border-top: var(--border-width-thin) solid var(--color-m01-line);
-  box-shadow: var(--shadow-bottom-nav);
+  border: var(--border-width-thin) solid var(--color-m01-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-bottom-nav), var(--shadow-card);
 }
 
 .tab,

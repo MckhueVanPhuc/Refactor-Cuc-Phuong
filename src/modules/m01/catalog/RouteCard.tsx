@@ -43,14 +43,15 @@ export function RouteCard({
         ) : (
           <div className={styles.thumbnail} data-testid="thumbnail-placeholder" aria-hidden="true" />
         )}
-      </div>
-      <div className={styles.body}>
+        {/* Tên tuyến nổi trên nửa dưới ảnh đã làm mờ */}
         <h2 className={styles.name}>
           <span className={styles.pin}>
             <TintIcon name="map-pin" />
           </span>
           {route.name[language]}
         </h2>
+      </div>
+      <div className={styles.body}>
         <p className={styles.description}>{route.shortDescription[language]}</p>
         <p className={styles.stats}>
           {/* Chữ đầy đủ theo bảng copy cho trình đọc màn hình; ba mục có icon chỉ để nhìn */}

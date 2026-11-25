@@ -45,6 +45,9 @@ export function VisitorLayout() {
       <header className={styles.appBar}>
         <Link className={styles.brand} to={PATHS.catalog}>
           <img className={styles.logo} src={logoUrl} alt={messages.nav.catalog} />
+          {/* Tên sản phẩm là tên riêng, giống nhau ở VI và EN (như thanh app M03). Dấu cách để tên truy cập của
+              liên kết là "Danh mục tuyến Cúc Phương Quest" */}{' '}
+          <span className={styles.brandName}>Cúc Phương Quest</span>
         </Link>
         {/* Công tắc "Chuyển động" của Mila (spec-Mascot BR-MAS-21; chỉ có khi Mila bật) */}
         <LanguageControl tone="onDark" />

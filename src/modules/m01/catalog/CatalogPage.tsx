@@ -90,6 +90,13 @@ export function CatalogPage() {
               </li>
             ))}
       </ul>
+
+      {/* Dải rừng trang trí khép cuối danh sách, trên thanh tab nổi */}
+      {routes.length > 0 && (
+        <div className={styles.ground} aria-hidden="true">
+          <TintIcon name="forest-band" className={styles.forestBand} />
+        </div>
+      )}
     </>
   );
 }
