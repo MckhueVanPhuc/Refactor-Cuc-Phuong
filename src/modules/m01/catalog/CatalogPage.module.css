@@ -259,6 +259,25 @@
   list-style: none;
 }
 
+/*
+ * Dải rừng cuối danh sách (forest-band.svg lặp theo chiều ngang): bóng cây forest nhạt làm "mặt đất" để danh sách
+ * khép lại thay vì để thẻ cuối lơ lửng trên thanh tab. Chỉ trang trí.
+ */
+.ground {
+  /* Tràn hết bề ngang cột nội dung; hạ sát thanh tab nổi */
+  margin: var(--space-8) calc(var(--space-5) * -1) calc(var(--space-3) * -1);
+}
+
+.ground .forestBand {
+  display: block;
+  width: 100%;
+  height: calc(var(--space-8) * 2);
+  color: color-mix(in srgb, var(--color-m01-forest) 26%, transparent);
+  mask-size: auto 100%;
+  mask-repeat: repeat-x;
+  mask-position: center bottom;
+}
+
 .message {
   color: var(--color-m01-secondary);
 }

@@ -33,10 +33,24 @@
 .brand {
   display: flex;
   align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
   min-height: var(--touch-target);
-  /* Logo bên trái, nút VI/EN bên phải; điều hướng nằm ở thanh tab dưới */
+  /* Logo và tên sản phẩm bên trái, nút VI/EN bên phải; điều hướng nằm ở thanh tab dưới */
   margin-right: auto;
+  color: inherit;
+  text-decoration: none;
   border-radius: var(--radius-sm);
+}
+
+/* Tên sản phẩm cạnh logo: serif như tiêu đề trang; màn hẹp thì xuống hai dòng thay vì đè nút VI/EN */
+.brandName {
+  min-width: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-section-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  color: var(--color-paper);
 }
 
 .logo {
