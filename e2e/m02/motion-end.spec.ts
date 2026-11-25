@@ -47,6 +47,8 @@ async function endTrip(page: Page, { intake, offline, before = [] }: Options) {
   }
   if (offline) await offline.setOffline(true);
   await page.evaluate(() => (window as unknown as M02TestWindow).__cpqTestHooks!.m02!.scan!('http://localhost:4173/q/Q3'));
+  // spec-M02 v3.4 (BR-M02-021): câu hỏi kết thúc chuyến hiện khi về màn chuyến đi
+  await page.getByRole('link', { name: vi.content.back }).click();
   await page.waitForFunction(() => {
     const dialog = document.querySelector('[role="alertdialog"]');
     return Boolean(dialog?.parentElement && getComputedStyle(dialog.parentElement).position === 'fixed');

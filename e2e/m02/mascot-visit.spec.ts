@@ -57,13 +57,17 @@ test('Q4, Q5 — mã đầu tiên: 051 thay toast (v1.2), nội dung không ch�
   await expect(page.locator('[data-mascot-message]')).toHaveCount(0);
 });
 
-test('Q6 — điểm cuối: hộp thoại hiện ngay, Mila là hình trong hộp thoại; "Đi tiếp" → 061', async ({ page }) => {
+test('Q6 (v1.6) — điểm cuối: trang nội dung xác nhận như mọi điểm; về chuyến đi → hộp thoại có một Mila; "Đi tiếp" → 061', async ({ page }) => {
   await startTrip(page);
   await scan(page, 'Q3');
+  await expect(bubble(page, 'MSG-MAS-051')).toBeVisible();
+  await expect(page.getByRole('alertdialog')).toHaveCount(0);
+  await page.getByRole('link', { name: vi.content.back }).click();
   const dialog = page.getByRole('alertdialog');
-  await expect(dialog).toContainText(vi.endPrompt.question);
-  await expect(dialog.locator('[data-mascot-figure="cheer"]')).toBeVisible();
-  await expect(page.locator('[data-mascot-message]')).toHaveCount(0);
+  await expect(dialog).toContainText(vi.endPrompt.someLeft({ r: 2 }));
+  // Một Mila trên màn: hình trong hộp thoại, Mila đứng trên nút Quét tạm ẩn (spec-Mascot §5.1)
+  await expect(dialog.locator('[data-mascot-figure="think"]')).toBeVisible();
+  await expect(page.locator('[data-mascot-mode]')).toHaveCount(0);
   await page.waitForFunction(() => {
     const element = document.querySelector('[role="alertdialog"]');
     return Boolean(element?.parentElement && getComputedStyle(element.parentElement).position === 'fixed');

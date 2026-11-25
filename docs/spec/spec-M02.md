@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | Module | M02 — Field Quest Experience |
-| Version | 3.3 (clarification 4) |
+| Version | 3.4 |
 | Status | MVP implementation baseline — aligned to M03 v3.7 and M01 v3.2 |
-| Supersedes | 3.2 (previous repository baseline: 2.0) |
-| Last updated | 2026-11-23 |
+| Supersedes | 3.3 (clarification 4) |
+| Last updated | 2026-11-25 |
 | Inputs | M01 handoff/language/package; M03 live QR lookup |
 | Output | Terminal anonymous `SessionSyncRecord` to M03 |
 
@@ -26,7 +26,7 @@ In scope:
 - Look up every scanned QR in M03 when online and show the content of that QR, or a closure notice, or an invalid-QR message.
 - Read the content of that QR from the ready package when offline or when the lookup fails.
 - Restore an in-progress session after app reload.
-- Complete at the final checkpoint (Finish or the end-of-trip prompt), abandon when a new handoff starts, and end a forgotten session automatically after 24 hours.
+- Let the visitor end the trip at any time with a confirmation: completed when the final checkpoint was visited, otherwise abandoned; abandon when a new handoff starts; end a forgotten session automatically after 24 hours.
 - Retry terminal-session synchronization.
 - Let a free visitor, including someone who never opened the app before, open a QR from the phone camera for information without creating progress.
 
@@ -91,10 +91,10 @@ Dependencies:
 
 ### US-M02-05 — Complete or abandon a session
 
-1. The Finish action becomes available after the checkpoint with the largest `sequence` is visited.
-2. Visitor confirmation changes the session to `HOAN_TAT` even if earlier checkpoints were skipped.
+1. The Finish action ("Kết thúc chuyến") is available at any time while the session is in progress (v3.4). It asks for confirmation with the end-of-trip prompt of §5.1: when every journey checkpoint has a visit, "Bạn đã quét mã ở tất cả {n} điểm. Kết thúc chuyến đi?"; otherwise "Bạn còn {r} điểm chưa quét mã. Vẫn kết thúc chuyến đi?" (`r` = journey checkpoints without a visit), with [Kết thúc] and [Đi tiếp].
+2. Visitor confirmation changes the session to `HOAN_TAT` when the checkpoint with the largest `sequence` was visited, even if earlier checkpoints were skipped; otherwise to `BO_DO` (v3.4: the visitor stopped before the final checkpoint). [Đi tiếp] changes nothing.
 3. A valid new handoff while a session is running creates the replacement session and changes the old session to `BO_DO` as one logical operation; failure to create the replacement leaves the old session running.
-4. When the visit of the final checkpoint is recorded for the first time, M02 immediately asks "Bạn đã quét điểm cuối. Kết thúc chuyến đi?" with [Kết thúc] and [Đi tiếp]. [Kết thúc] changes the session to `HOAN_TAT`; [Đi tiếp] keeps the session running and the Finish action stays available (BR-M02-021).
+4. When the visit of the final checkpoint is recorded for the first time, the content screen shows the usual check-in feedback, and M02 shows the end-of-trip prompt once, the next time the trip screen opens (normally when the visitor goes back from the content). [Kết thúc] changes the session to `HOAN_TAT`; [Đi tiếp] keeps the session running and the Finish action stays available (BR-M02-021).
 5. When the app is opened or brought back to the screen and the in-progress session started more than 24 hours ago, M02 ends it without any visitor action: `HOAN_TAT` if the final checkpoint was visited, otherwise `BO_DO`. `endedAt` is the latest `checkedInAt` of the session, or `startedAt` when nothing was scanned; the record is queued for synchronization and the visitor sees a short notice (BR-M02-022).
 
 ### US-M02-06 — Synchronize terminal data
@@ -155,6 +155,8 @@ flowchart TD
     R -->|Yes| W{End-of-trip prompt or Finish confirmed?}
     W -->|Yes| S[HOAN_TAT]
     W -->|Continue| F
+    F --> X{Finish confirmed before the final checkpoint?}
+    X -->|Yes| AB
     S --> T[Queue immutable sync record]
     Z[App opened with a session started more than 24 hours ago] --> Y{Final checkpoint visited?}
     Y -->|Yes| S
@@ -252,15 +254,15 @@ Language on this page follows BR-M02-024: the stored preference, otherwise the d
 | FR-M02-012 | Handle QR outside journey without recording progress. | Required |
 | FR-M02-013 | Distinguish `INVALID` and `TEMPORARILY_CLOSED` outcomes from connectivity/source failure. | Required |
 | FR-M02-014 | Apply current `LanguagePreference` to available content, including which audio/video files are shown. | Required |
-| FR-M02-015 | Enable Finish after the highest-sequence checkpoint is visited. | Required |
-| FR-M02-016 | Complete on confirmation; do not require every earlier checkpoint. | Required |
+| FR-M02-015 | Offer Finish at any time during an in-progress session, behind a confirmation that states whether every journey checkpoint was scanned or how many were not (v3.4). | Required |
+| FR-M02-016 | On confirmation, end as `HOAN_TAT` when the final checkpoint was visited, without requiring every earlier checkpoint, otherwise as `BO_DO` (v3.4). | Required |
 | FR-M02-017 | Atomically create the replacement session and change the previous active session to `BO_DO` when a new handoff is accepted. | Required |
 | FR-M02-018 | Persist terminal immutable sync data and retry until acknowledged, conflicted or rejected. | Required |
 | FR-M02-019 | Prevent free visitors from producing progress/report data. | Required |
 | FR-M02-020 | Never write M01/M03-owned source data. | Required |
 | FR-M02-021 | Show the closure notice for a `TEMPORARILY_CLOSED` answer, record no visit and never show visit content. | Required |
 | FR-M02-022 | Record the visit for a QR that is not in the frozen journey when the online lookup answers `VALID` with a `checkpointId` of the frozen journey; never change the frozen journey. | Required |
-| FR-M02-023 | Ask the visitor to end the trip as soon as the final checkpoint's visit is first recorded. | Required |
+| FR-M02-023 | Ask the visitor to end the trip once after the final checkpoint's visit is first recorded, on the next opening of the trip screen (v3.4). | Required |
 | FR-M02-024 | End an in-progress session automatically when the app is opened more than 24 hours after the session started, as `HOAN_TAT` if the final checkpoint was visited and otherwise `BO_DO`, and queue it for synchronization. | Required |
 | FR-M02-025 | Serve the public QR link page `/q/{qrIdentifier}` opened from a phone camera: no blocking step, language from the stored preference or the device, session handling as an in-app scan when an in-progress session exists in the same browser, otherwise free-visitor mode. | Required |
 | FR-M02-026 | Accept in the in-app scanner only codes that are a public QR link of the current environment (`QR_PUBLIC_BASE_URL`) and take `qrIdentifier` from it; any other content shows the invalid-QR message without a lookup. | Required |
@@ -400,7 +402,8 @@ These texts are fixed by M02 (the closure notice is not supplied by M03).
 | No offline resource for the QR | Chưa có nội dung offline cho điểm này. | No offline content is available for this point. |
 | Source failure (QR in journey) | Chưa tải được nội dung mới. Đang dùng nội dung đã lưu nếu có. | The latest content could not be loaded. Saved content is shown if available. |
 | Offline or source failure (QR not in the frozen journey) | Cần có kết nối mạng để kiểm tra mã QR này. | A connection is needed to check this QR code. |
-| End-of-trip prompt (buttons: Kết thúc / Đi tiếp) | Bạn đã quét điểm cuối. Kết thúc chuyến đi? | You have scanned the last point. End the trip? (buttons: End / Continue) |
+| End-of-trip prompt, every journey checkpoint scanned (buttons: Kết thúc / Đi tiếp) | Bạn đã quét mã ở tất cả {n} điểm. Kết thúc chuyến đi? | You've scanned all {n} checkpoints. End your trip? (buttons: End / Continue) |
+| End-of-trip prompt, {r} journey checkpoints not scanned (buttons: Kết thúc / Đi tiếp) | Bạn còn {r} điểm chưa quét mã. Vẫn kết thúc chuyến đi? | {r} checkpoints not scanned yet. End your trip anyway? ("1 checkpoint" when r = 1) |
 | Session ended automatically, final checkpoint visited | Chuyến đi trước đã tự kết thúc và được ghi là hoàn thành. | Your previous trip was ended automatically and recorded as completed. |
 | Session ended automatically, final checkpoint not visited | Chuyến đi trước đã tự kết thúc vì đã quá 24 giờ. | Your previous trip was ended automatically because more than 24 hours have passed. |
 | Free-visitor hint (any scan without a session, in-app or from the phone camera) | Bạn đang xem tự do, lượt quét này không được ghi vào chuyến đi. Muốn ghi lại hành trình, hãy chọn tuyến. | You are browsing freely; this scan is not recorded in a trip. To record your trip, choose a route. |
@@ -417,7 +420,7 @@ These texts are fixed by M02 (the closure notice is not supplied by M03).
 | BR-M02-004 | Visits are unique by session and checkpoint, not QR. |
 | BR-M02-005 | **Recording a visit.** A scan records a visit only when it is accepted: online, when the lookup answers `VALID` and the QR's checkpoint belongs to the frozen journey (through the frozen identifiers or the returned `checkpointId`, BR-M02-020); offline or when the lookup fails, when the QR is in the frozen journey. An online `TEMPORARILY_CLOSED` or `INVALID` answer records nothing. A lookup that gives no answer within `LOOKUP_TIMEOUT_SECONDS` (provisional: 8 seconds) counts as a lookup failure. The visit is recorded before the content is shown, and a content failure never removes it. A visit means a QR was scanned; it is not proof of presence and is never worded as such. |
 | BR-M02-006 | Journey order is not enforced; `sequence` determines display order and the final checkpoint only. `sequence` may have gaps; the numbers shown to the visitor count the ordered list continuously. |
-| BR-M02-007 | Completion (`HOAN_TAT`) means the final checkpoint was visited and either the visitor confirmed the end (Finish or the end-of-trip prompt, BR-M02-021) or the session was ended automatically (BR-M02-022). It never requires 100% checkpoint coverage. |
+| BR-M02-007 | Completion (`HOAN_TAT`) means the final checkpoint was visited and either the visitor confirmed the end (Finish or the end-of-trip prompt, BR-M02-021) or the session was ended automatically (BR-M02-022). It never requires 100% checkpoint coverage. A visitor who confirms the end before the final checkpoint was visited ends the session as `BO_DO` (v3.4); the result screen and the synchronization treat it like any terminal session. |
 | BR-M02-008 | A QR whose checkpoint is not in the journey never creates progress or changes route. A QR is outside the journey when it is not in the frozen identifiers and the lookup does not resolve it to a journey checkpoint (BR-M02-020). |
 | BR-M02-009 | Content is per QR. While online, M02 shows the content returned by M03 for the scanned QR when the outcome is `VALID`, for both connectivity modes; the package content for that QR is used only when the device is offline or the lookup fails. Content for a QR outside the journey always comes from M03. |
 | BR-M02-010 | Terminal session business data is immutable. |
@@ -431,7 +434,7 @@ These texts are fixed by M02 (the closure notice is not supplied by M03).
 | BR-M02-018 | A missing offline resource is not an invalid QR. When online M02 asks M03 for that QR only and never changes the package; when offline it shows the fixed "no offline content" message; when online but the lookup fails, it behaves as offline. |
 | BR-M02-019 | M02 sends `routeId` in a lookup only when a session exists. Free visitors send none. |
 | BR-M02-020 | **Codes added after the session started.** The frozen journey keeps the QR identifiers of the handoff version, so a code that M03 added to a journey checkpoint later (a visit point published after the trip started, possibly installed to replace an old code that is then revoked) is not in it. When such a code is scanned online and the lookup answers `VALID` with a `checkpointId` that belongs to the frozen journey, M02 records the visit of that checkpoint (once per checkpoint, with the scanned `qrIdentifier` and the frozen name and `sequence`) before showing the content. The frozen journey itself never changes. Offline, or when the lookup fails, such a code cannot be resolved and shows the connection-needed message. |
-| BR-M02-021 | **End-of-trip prompt.** When the visit of the final checkpoint (the journey checkpoint with the largest `sequence`) is recorded for the first time in a session, M02 shows the end-of-trip prompt once. [Kết thúc] has the same effect as confirming Finish; [Đi tiếp] changes nothing and the Finish action stays available until the session ends. The prompt is not shown again for later scans of that checkpoint. |
+| BR-M02-021 | **End-of-trip prompt.** When the visit of the final checkpoint (the journey checkpoint with the largest `sequence`) is recorded for the first time in a session, the content screen shows the usual check-in feedback and M02 shows the end-of-trip prompt once, the next time the trip screen (SCR-M02-001) opens in that browser tab (v3.4; before: immediately on the content screen). The prompt is the same confirmation as Finish, with the wording of §5.1 for the current number of scanned checkpoints. [Kết thúc] has the same effect as confirming Finish; [Đi tiếp] changes nothing and the Finish action stays available until the session ends. The prompt is not shown again for later scans of that checkpoint. If the trip screen is not opened again in that tab, the visitor still has Finish and the automatic end of BR-M02-022. |
 | BR-M02-022 | **Automatic end of a forgotten session.** Each time the app is opened or brought back to the screen (a page load, or the page becoming visible again; the check is repeatable and harmless), before any handoff is processed, M02 checks the in-progress session. If more than 24 hours have passed since its `startedAt` (device clock), M02 ends it as `HOAN_TAT` when the final checkpoint was visited and as `BO_DO` otherwise, sets `endedAt` to the latest `checkedInAt` of the session or to `startedAt` when no visit exists, builds and queues the terminal `SessionSyncRecord` exactly like any other terminal session, and shows the matching notice of §5.1. A session that is never opened again on that device is never ended or synchronized; this is accepted for the MVP. |
 | BR-M02-023 | **Public QR link.** Every printed code is the link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` (M03 BR-M03-B04). M02 takes `qrIdentifier` from the last path segment, both in the in-app scanner and on the link page. Content that is not such a link, or a link whose base is not the current environment's `QR_PUBLIC_BASE_URL`, is an invalid QR for the in-app scanner and is answered with the invalid-QR message without a lookup. When the camera cannot be used (permission denied or none), the in-app scanner shows the fixed camera message of §5.1 and the visitor can scan with the phone's own camera app instead (BR-M02-024). |
 | BR-M02-024 | **QR link page.** Opening `/q/{qrIdentifier}` first applies BR-M02-022, then: when an in-progress session exists in the same browser, the scan is handled exactly like an in-app scan; otherwise the page is in free-visitor mode (no `routeId` sent, nothing recorded) with the free-visitor hint. It never creates a session and never asks for a route or a language first. Language is the stored `LanguagePreference`, or, when none exists, Vietnamese if the device language is Vietnamese and English otherwise; the VI/EN switch on the page is the M01 language control, so M01 stays the only writer of `LanguagePreference`. A session in another browser or in an installed app that the camera does not open is not visible; this limit is accepted. |
@@ -507,6 +510,7 @@ stateDiagram-v2
     DANG_DIEN_RA --> HOAN_TAT: Final checkpoint visited and end confirmed
     DANG_DIEN_RA --> HOAN_TAT: Automatic end after 24 hours, final checkpoint visited
     DANG_DIEN_RA --> BO_DO: New handoff accepted
+    DANG_DIEN_RA --> BO_DO: End confirmed before the final checkpoint is visited
     DANG_DIEN_RA --> BO_DO: Automatic end after 24 hours, final checkpoint not visited
     HOAN_TAT --> [*]
     BO_DO --> [*]
@@ -518,9 +522,9 @@ stateDiagram-v2
 |---|---|
 | Session start | Validate version 3, authorization, unused and expiry; create/restore the session; show a clear message for a version 2, expired, used or revoked handoff; show the notice when a forgotten session was ended automatically; show the session start hint about the in-app scanner. |
 | Journey map | Ordered checkpoints with continuous display numbers, checkpoint names in the chosen language and visited state, labelled as scanned QR rather than arrival. |
-| QR scan/result | Scan, validation outcome, check-in feedback (also for a code added after the session started; a toast, or the mascot's bubble when the mascot capability can present it — spec-Mascot BR-MAS-24; with the mascot capability on, the end-of-trip prompt is the feedback when the final checkpoint is first visited), the closure notice, the invalid-QR message and the connection messages of §5.1. |
+| QR scan/result | Scan, validation outcome, check-in feedback (also for a code added after the session started; a toast, or the mascot's bubble when the mascot capability can present it — spec-Mascot BR-MAS-24; since v3.4 the final checkpoint gets the same feedback), the closure notice, the invalid-QR message and the connection messages of §5.1. |
 | Checkpoint content | The content of the scanned QR: checkpoint name, object name, introduction, images; audio/video controls only when the content shown carries audio/video; unavailable states. |
-| Session completion | Visit summary, Finish confirmation and the end-of-trip prompt shown when the final checkpoint is first visited. |
+| Session completion | Visit summary; Finish at any time with its confirmation; the end-of-trip prompt on the trip screen after the final checkpoint is first visited (v3.4). |
 | QR link page | Public page `/q/{qrIdentifier}` opened from a phone camera: content of the scanned QR, VI/EN switch, closure notice, invalid-QR and connection messages, and the free-visitor hint with a link to the route catalog when no session exists. |
 
 Free-visitor QR entry may reuse QR result/content screens without session controls.
@@ -543,7 +547,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 | SC-M02-012 | A missing offline resource is never reported as an invalid QR. |
 | SC-M02-013 | No screen words a visit as proof that the visitor was physically at the place: a visit is labelled only "Đã quét QR" / "QR scanned" (the trip result list of SCR-M02-003 labels it "Đã tham quan" / "Visited"), and no fixed message or label states or implies arrival or presence (for example "đã đến", "có mặt", "arrived"). |
 | SC-M02-014 | While online, a code added later to a journey checkpoint records that checkpoint's visit once, so a code change during a trip never prevents Finish when the device is online. |
-| SC-M02-015 | Recording the final checkpoint's visit always shows the end-of-trip prompt once. |
+| SC-M02-015 | Recording the final checkpoint's visit always shows the end-of-trip prompt once, on the next opening of the trip screen in that tab (v3.4); Finish is available at any time and confirming it before the final checkpoint ends the session as `BO_DO`. |
 | SC-M02-016 | After the app is opened, no session older than 24 hours stays in progress; it becomes `HOAN_TAT` or `BO_DO` by the rule of BR-M02-022 and is synchronized like any terminal session. |
 | SC-M02-017 | A printed code scanned with a phone's own camera while online always opens the visit point, with no language or route step first (except where the phone cannot open the link in the browser, for example an app installed on the iPhone home screen; BR-M02-024, §9). |
 | SC-M02-018 | Opening a QR link never creates a session; it records a visit only when an in-progress session exists in the same browser and the scan is accepted. |
@@ -577,7 +581,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 - A missing offline resource asks M03 for that QR only when online and never changes the package.
 - A code added after the session started is resolved through the online lookup's `checkpointId`; the frozen journey is never changed.
 - Printed codes are public links; the phone's own camera opens a page that needs no earlier step; sessions are recognized only in the same browser; only the in-app scanner is guaranteed offline.
-- The end-of-trip prompt appears when the final checkpoint is first visited; a forgotten session ends automatically 24 hours after it started, as completed when the final checkpoint was visited, otherwise abandoned. There is no separate "stop trip" button.
+- The end-of-trip prompt appears on the trip screen after the final checkpoint is first visited; a forgotten session ends automatically 24 hours after it started, as completed when the final checkpoint was visited, otherwise abandoned. The visitor can end the trip at any time with Finish and a confirmation (v3.4, user decision 2026-11-25): completed when the final checkpoint was visited, otherwise abandoned. There is no separate "stop trip" button: Finish is that action.
 - No guest account or device identifier is introduced.
 - Page-open performance and the size of local storage are not behavioral requirements of this specification; they are left to technical design.
 
@@ -625,6 +629,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.4 | 2026-11-25 | Owner review of production (change brief CHG-MASCOT-2026-11-25-06, approved 2026-11-25): Finish is available at any time during a session behind a confirmation whose wording depends on the scanned checkpoints (US-M02-05 items 1-2, FR-M02-015, §5.1: two new prompt texts replace "Bạn đã quét điểm cuối. Kết thúc chuyến đi?"); confirming before the final checkpoint was visited ends the session as `BO_DO` (BR-M02-007, FR-M02-016, state diagram, §10) — completion keeps its meaning, so M03 reports are unchanged; the end-of-trip prompt moves from the content screen to the next opening of the trip screen, and the final checkpoint gets the usual check-in feedback (US-M02-05 item 4, FR-M02-023, BR-M02-021, §7, §8). No entity, contract or write-order change. |
 | 3.3 (clarification 4) | 2026-11-23 | §8 check-in feedback: presented by a toast, or by the mascot's bubble when spec-Mascot BR-MAS-24 applies; the toast stays the fallback whenever the mascot cannot present it. With the mascot capability on, when the final checkpoint is first visited the end-of-trip prompt (BR-M02-021) is the feedback and no toast is shown; with it off, M02 behaves exactly as before. Change brief CHG-MASCOT-2026-11-23-03 (approved 2026-11-23). No rule, data, contract or write-order change. |
 | 3.3 (clarification 3) | 2026-11-11 | SC-M02-013: user decision for the end-screen redesign: the trip result list (SCR-M02-003) labels a visit "Đã tham quan" / "Visited"; every other screen keeps "Đã quét QR" / "QR scanned", and the presence words stay banned. Wording only; no behavior or contract change. |
 | 3.3 (clarification 2) | 2026-11-04 | SC-M02-013: the English visit label is "QR scanned" (was "Scanned"), matching the screen copy table and the "QR" of the Vietnamese "Đã quét QR". Wording only; no behavior or contract change. |

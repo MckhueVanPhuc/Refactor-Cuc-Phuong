@@ -79,16 +79,16 @@ Mockup HTML tĩnh: [mockup-SCR-M01-003.html](../../html/mockup-SCR-M01-003.html)
 | Start lỗi | Chưa bắt đầu được. Hãy thử lại. | Could not start. Please try again. |
 | Tuyến không còn nhận chuyến mới | Tuyến này hiện không nhận chuyến mới. | This route is not available for new trips right now. |
 | Lỗi nguồn, đang dùng bản lưu | Chưa tải được thông tin mới. Đang hiển thị thông tin đã lưu. | Could not load the latest information. Showing saved information. |
-| Mila nhắc đọc Cảnh báo an toàn (MSG-MAS-014) | Trước khi đi, bạn đọc kỹ phần Cảnh báo an toàn giúp mình nhé. | Before you head out, please read the Safety warning. |
+| Mila nhắc đọc Cảnh báo an toàn, mỗi lần vào màn (MSG-MAS-014, v1.6) | Trước khi đi, bạn đọc kỹ phần Cảnh báo an toàn giúp mình nhé. | Before you head out, please read the Safety warning. |
 | Mila khi bắt đầu tải gói (MSG-MAS-020) | Mình đang xếp nội dung vào ba lô. Giữ trang này mở nhé. | Packing your route into the backpack. Keep this page open. |
 | Mila khi gói sẵn sàng (MSG-MAS-021) | Giờ các điểm này xem được cả khi mất sóng. | These stops now work without signal. |
 | Mila khi tải lỗi (nguồn hoặc mạng) (MSG-MAS-024) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
 | Mila khi máy không cho lưu (MSG-MAS-025) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
 | Mila khi tải lỗi lần 2 liên tiếp (MSG-MAS-026) | Vẫn chưa được. Có mạng thì bạn vẫn đi được, chỉ vài điểm cần sóng để xem. | Still no luck. You can go without it, but some stops will need signal. |
-| Chạm Mila (màn M01) (MSG-MAS-009) | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
+| Chạm Mila, tuyến có Cảnh báo an toàn (MSG-MAS-017, v1.6; câu ở panel Bắt đầu) | Đọc kỹ Cảnh báo an toàn, tải gói nếu cần, rồi bấm Bắt đầu nhé. | Read the Safety warning, download the pack if you need it, then tap Start. |
+| Chạm Mila, tuyến không có Cảnh báo an toàn (MSG-MAS-019; câu ở panel Bắt đầu) | Tải gói nếu cần, rồi bấm Bắt đầu nhé. | Download the pack if you need it, then tap Start. |
 | Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
 | Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
-| Chạm Mila lần nữa (MSG-MAS-012) | Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn. | Tap Route suggestions and I'll pick by your time and interests. |
 | Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 
 ## 4. States

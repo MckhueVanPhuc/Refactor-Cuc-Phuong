@@ -52,7 +52,13 @@ describe('i18n M02', () => {
   it('câu chép đúng spec-M02 §5.1 và bảng copy screen spec (mẫu mỗi nhóm)', () => {
     expect(vi.notice.invalid).toBe('Mã không còn hiệu lực hoặc không tồn tại.');
     expect(en.notice.connectionNeeded).toBe('A connection is needed to check this QR code.');
-    expect(vi.endPrompt.question).toBe('Bạn đã quét điểm cuối. Kết thúc chuyến đi?');
+    expect(vi.endPrompt.allScanned({ n: 5 })).toBe('Bạn đã quét mã ở tất cả 5 điểm. Kết thúc chuyến đi?');
+    expect(vi.endPrompt.someLeft({ r: 2 })).toBe('Bạn còn 2 điểm chưa quét mã. Vẫn kết thúc chuyến đi?');
+    expect(en.endPrompt.allScanned({ n: 5 })).toBe("You've scanned all 5 checkpoints. End your trip?");
+    expect([en.endPrompt.someLeft({ r: 1 }), en.endPrompt.someLeft({ r: 2 })]).toEqual([
+      '1 checkpoint not scanned yet. End your trip anyway?',
+      '2 checkpoints not scanned yet. End your trip anyway?',
+    ]);
     expect([en.endPrompt.end, en.endPrompt.continue]).toEqual(['End', 'Continue']);
     expect(vi.trip.scanned).toBe('Đã quét QR');
     expect(en.handoff.expired).toBe('This start has expired (over 24 hours). Please start again from the route list.');

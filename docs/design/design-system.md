@@ -152,7 +152,7 @@ Mọi chuyển động của màn du khách M01/M02 thuộc đúng một tầng.
 |---|---|---|---|
 | **T1 Phản hồi** | Kết quả trực tiếp của thao tác: nhấn nút/thẻ, lượt ghé được ghi (điểm nảy, đường mòn vẽ tới điểm kế, thanh tiến trình tăng), dấu ✓ khi gói sẵn sàng, lỗi | ≤ 300ms (đường mòn ≤ 600ms) | Vẫn có phản hồi nhưng chỉ đổi màu hoặc mờ dần ≤ 150ms, không dịch chuyển, không co giãn |
 | **T2 Chuyển cảnh** | Đổi màn (View Transitions), mở thẻ/accordion, dialog, thẻ hiện dần khi cuộn, skeleton, thanh "đang tải" | ≤ 300ms; skeleton và thanh "đang tải" lặp theo nhịp | Đổi tức thì; skeleton và thanh "đang tải" đứng yên (vẫn có chữ trạng thái) |
-| **T3 Trang trí** | Không mang thông tin: tia nắng, lá trôi, confetti lá, số đếm lên, dải "hoàn thành tuyến" | Mỗi lượt ≤ 2400ms; lá trôi nền lặp tối đa 5s rồi dừng | Tắt hẳn; hiện ngay trạng thái cuối (số cuối, dải đã hiện) |
+| **T3 Trang trí** | Không mang thông tin: tia nắng, lá trôi, confetti lá, số đếm lên, dải "hoàn thành tuyến" | Mỗi lượt ≤ 2400ms; tia nắng và lá trôi ở hero danh mục lặp liên tục khi trang trí bật (v1.6, CHG-MASCOT-2026-11-25-06) — được phép vì công tắc "Hiệu ứng chuyển động" dừng được (WCAG 2.2.2) | Tắt hẳn; hiện ngay trạng thái cuối (số cuối, dải đã hiện) |
 
 Mila theo quy tắc riêng ở trên và §9; công tắc §9.5 dừng cả Mila lẫn T3.
 
@@ -167,7 +167,7 @@ Token mới (bổ sung vào bảng trên, đều về `0ms` khi `prefers-reduced
 | `--duration-shimmer` | 1600ms | T2 | Vệt sáng của skeleton, thanh "đang tải" (mỗi nhịp) |
 | `--duration-confetti` | 2400ms | T3 | Confetti lá màn kết thúc |
 | `--duration-count-up` | 800ms | T3 | Số liệu đếm lên |
-| `--duration-ambient-drift` | 6000ms | T3 | Lá trôi, tia nắng ở hero (mỗi nhịp; tối đa 5s mỗi lượt hiển thị thì dừng ở khung cuối) |
+| `--duration-ambient-drift` | 6000ms | T3 | Lá trôi, tia nắng ở hero (mỗi vòng; lặp liên tục từ v1.6, hai lá lệch nhau nửa vòng; tia nắng sáng lên rồi dịu xuống mỗi nửa vòng) |
 | `--ease-spring` | `cubic-bezier(0.34, 1.56, 0.64, 1)` | T1 | Nảy nhẹ (vượt 1 lần) |
 | `--ease-standard` | `cubic-bezier(0.2, 0, 0, 1)` | T1–T3 | Mặc định cho vào/ra và chuyển cảnh |
 | `--press-scale` | 0.97 | T1 | Tỷ lệ khi nhấn (§5.4) |
@@ -254,6 +254,7 @@ Các quy tắc sau chỉ ghép từ token đã có, để thống nhất khi tri
 | Nền đặc: nút chính M01 (`forest`), nút chính M03 (`accent`) | Đen 12% | Đen 20% | `--overlay-fill-hover` `rgba(0,0,0,0.12)`; `--overlay-fill-pressed` `rgba(0,0,0,0.20)` |
 | Bề mặt sáng: hàng danh sách, nút phụ, thẻ bấm được (trên `paper`, `white`, `muted`) | Đen 4% | Đen 8% | `--overlay-surface-hover` `rgba(0,0,0,0.04)`; `--overlay-surface-pressed` `rgba(0,0,0,0.08)` |
 | Scanner (nền tối) | Trắng 8% | Trắng 14% | `--overlay-scanner-hover` `rgba(255,255,255,0.08)`; `--overlay-scanner-pressed` `rgba(255,255,255,0.14)` |
+| Lớp phủ sau hộp thoại đáy màn (hộp thoại kết thúc chuyến, v1.6) | — | — | `--overlay-scrim` `rgba(0,0,0,0.5)`: che hành trình phía sau; bảng hộp thoại nền `white` đặc, chữ `ink`, bo `--radius-lg`, `--shadow-modal`, nằm ở đáy màn trong tầm ngón cái; không dùng kính mờ |
 
 Quy tắc:
 - Hover chỉ áp dụng khi thiết bị có con trỏ (`@media (hover: hover)`); pressed (`:active`) áp dụng mọi thiết bị. Phần tử disabled không có hover/pressed.
@@ -433,8 +434,8 @@ Mila chỉ hiện trong slot do layout của màn đặt sẵn và chiếm chỗ
 |---|---|---|
 | `--mascot-size-sm` | 56px | AVATAR (ảnh avatar MA-11), cạnh toast trang nội dung |
 | `--mascot-size-md` | 72px | INLINE (cạnh câu thông báo, lỗi, dialog) |
-| `--mascot-size-dock-catalog` | 112px | DOCK ở hero SCR-M01-001 (màn ≥ 360px) |
-| `--mascot-size-dock-catalog-narrow` | 88px | DOCK ở hero SCR-M01-001 khi màn hẹp hơn 360px, để tiêu đề không xuống dòng (v1.3) |
+| `--mascot-size-dock-catalog` | 96px | DOCK ở hero SCR-M01-001 (màn ≥ 360px; v1.6: 112px → 96px, phương án C) |
+| `--mascot-size-dock-catalog-narrow` | 88px | DOCK ở hero SCR-M01-001 khi màn hẹp hơn 360px, để nút "Gợi ý tuyến" vẫn một dòng (v1.3; v1.6) |
 | `--mascot-size-dock-trip` | 128px | DOCK trên nút Quét QR, SCR-M02-001 |
 | `--mascot-size-dock-end` | 72px (v1.5; trước 104px cạnh huy hiệu) | DOCK trong thẻ "Hẹn gặp lại", SCR-M02-003 (phương án E, 2026-11-24): Mila thay trái tim, căn giữa thẻ; lúc ăn mừng 1,5 lần cỡ này, bong bóng ở hàng trên thẻ đuôi chỉ xuống. Huy hiệu đứng một mình ở giữa đầu màn |
 | `--mascot-size-xl` | 200px | Lớp phủ giới thiệu (INTRO), CELEBRATE |
@@ -457,9 +458,13 @@ Kiểu **"Giấy dã ngoại"** (chọn 2026-11-22 từ mockup): bong bóng là 
 - Nút đóng "×" nhỏ (biểu tượng 12px, màu `m01-secondary`), tên truy cập "Đóng lời nhắn", vùng chạm 44px; nút hành động theo quy tắc nút của §5.3.
 - Bong bóng không dùng màu làm tín hiệu duy nhất và không thay vùng thông báo (§5.3 "Vùng thông báo").
 
-### 9.3a Đầu màn danh mục (SCR-M01-001, v1.3)
+### 9.3a Đầu màn danh mục (SCR-M01-001, v1.6 — phương án C)
 
-- Lưới hai cột. Trái: tiêu đề "Danh mục tuyến" một dòng (có lá non) và nút "Gợi ý tuyến" xếp dọc. Phải: dải đồi trang trí (icon `hills`, `m01-forest` 22%) luôn hiện, Mila DOCK đứng trên đồi (`--mascot-size-dock-catalog`, màn < 360px dùng `--mascot-size-dock-catalog-narrow`). Đầu màn cao bằng Mila.
+- Chủ dự án chọn phương án C ngày 2026-11-25 (CHG-MASCOT-2026-11-25-06) trong bốn phương án A–D, để đổi VI/EN chỉ đổi chữ, không dịch chuyển phần tử.
+- Hàng 1: tiêu đề "Danh mục tuyến" / "Routes" một dòng (có lá non), chiếm cả bề ngang.
+- Hàng 2: nút "Gợi ý tuyến" kéo hết phần bên trái (nhãn một dòng, mũi tên ở mép phải; màn < 360px bỏ mũi tên và bớt đệm); bên phải là cột **bề rộng cố định** bằng cỡ Mila, Mila DOCK đứng trên dải đồi trang trí (icon `hills`, `m01-forest` 22%) tràn sang trái phía sau nút. Cỡ Mila `--mascot-size-dock-catalog`, màn < 360px `--mascot-size-dock-catalog-narrow`. Hàng 2 được kéo lên `--space-2` vào phần đệm dòng của tiêu đề; Mila không đè chữ.
+- Không ô nào co giãn theo độ dài chữ: ở cả VI và EN Mila cùng cỡ, nút và Mila cùng chỗ.
+- Tia nắng và hai chiếc lá trôi (T3) nằm sau dải đồi trong cột của Mila, lặp liên tục khi trang trí bật (§4.3.1).
 - Bong bóng của danh mục mở **dưới** đầu màn, căn phải, rộng tối đa `--mascot-bubble-max-width` (màn hẹp: toàn chiều rộng), đuôi ở cạnh trên chỉ lên Mila. Mila không đổi chỗ; danh sách tuyến trượt xuống bằng chiều cao bong bóng (`--duration-mascot-pop`) và trượt về khi bong bóng đóng.
 
 ### 9.3b Lớp phủ giới thiệu (INTRO, v1.3)

@@ -50,6 +50,8 @@ async function finishTrip(page: Page) {
   await expect(page.getByText(vi.notice.sessionStartHint)).toBeVisible();
   await page.waitForFunction(() => Boolean((window as unknown as M02TestWindow).__cpqTestHooks?.m02?.scan));
   await page.evaluate(() => (window as unknown as M02TestWindow).__cpqTestHooks!.m02!.scan!('http://localhost:4173/q/Q3'));
+  // spec-M02 v3.4 (BR-M02-021): câu hỏi kết thúc chuyến hiện khi về màn chuyến đi
+  await page.getByRole('link', { name: vi.content.back }).click();
   await page.waitForFunction(() => {
     const dialog = document.querySelector('[role="alertdialog"]');
     return Boolean(dialog?.parentElement && getComputedStyle(dialog.parentElement).position === 'fixed');
@@ -131,6 +133,8 @@ test.describe('V26 — 503, 429, offline → PENDING; gửi lại khi trang hi�
     intake.setOffline(true);
     // Offline: Q3 có trong journey → vẫn ghi lượt ghé (nguồn gói), câu hỏi kết thúc hiện như thường
     await page.evaluate(() => (window as unknown as M02TestWindow).__cpqTestHooks!.m02!.scan!('http://localhost:4173/q/Q3'));
+    // spec-M02 v3.4 (BR-M02-021): câu hỏi kết thúc chuyến hiện khi về màn chuyến đi
+    await page.getByRole('link', { name: vi.content.back }).click();
     await page.waitForFunction(() => {
       const dialog = document.querySelector('[role="alertdialog"]');
       return Boolean(dialog?.parentElement && getComputedStyle(dialog.parentElement).position === 'fixed');

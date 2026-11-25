@@ -33,6 +33,12 @@ export const MESSAGE_META: Record<MessageId, MessageMeta> = {
   'MSG-MAS-011': { priority: 4, cooldownMs: 30_000, autoHide: true },
   'MSG-MAS-013': { priority: 2, cooldownMs: MIN, autoHide: false, cta: ['seeAll'], role: 'status' },
   'MSG-MAS-014': { priority: 6, cooldownMs: 0, autoHide: true },
+  // v1.6: câu chạm theo màn M01 (BR-MAS-12)
+  'MSG-MAS-015': { priority: 3, cooldownMs: 10_000, autoHide: true },
+  'MSG-MAS-016': { priority: 3, cooldownMs: 10_000, autoHide: true },
+  'MSG-MAS-017': { priority: 3, cooldownMs: 10_000, autoHide: true },
+  'MSG-MAS-018': { priority: 3, cooldownMs: 10_000, autoHide: true },
+  'MSG-MAS-019': { priority: 3, cooldownMs: 10_000, autoHide: true },
   'MSG-MAS-020': { priority: 5, cooldownMs: 0, autoHide: false },
   'MSG-MAS-021': { priority: 4, cooldownMs: 0, autoHide: true },
   'MSG-MAS-024': { priority: 2, cooldownMs: 30_000, autoHide: true, role: 'status' },

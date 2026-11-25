@@ -18,7 +18,7 @@ Các Type/pattern trong inventory và §8 là đề xuất trình bày; control 
 
 **Shown when:** Camera điện thoại mở link công khai `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` trong trình duyệt. Trang không đi qua màn chọn ngôn ngữ hay chọn tuyến.
 
-**The user leaves when:** Chọn liên kết sang danh mục tuyến (SCR-M01-001); hoặc, khi có phiên và quét điểm cuối lần đầu, chuyển sang câu hỏi kết thúc chuyến (SCR-M02-003).
+**The user leaves when:** Chọn liên kết sang danh mục tuyến (SCR-M01-001); khi có phiên và quét điểm cuối lần đầu, câu hỏi kết thúc chuyến chờ tới lần mở màn chuyến đi kế tiếp (spec-M02 v3.4 BR-M02-021).
 
 ## 2. Mockup
 
@@ -68,7 +68,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-004.html](../../html/mockup-SCR-M02-004.html)
 |---|---|---|
 | Loading | Spinner | Đang tra cứu |
 | Free-visitor content | Nội dung kèm gợi ý và liên kết danh mục | Không có phiên chạy trong cùng trình duyệt, lookup `VALID` |
-| Session scan | Xử lý như quét trong app: ghi lượt ghé nếu được chấp nhận, rồi nội dung; câu hỏi kết thúc khi quét điểm cuối lần đầu | Có phiên `DANG_DIEN_RA` trong cùng trình duyệt |
+| Session scan | Xử lý như quét trong app: ghi lượt ghé nếu được chấp nhận, rồi nội dung; điểm cuối được xác nhận như mọi điểm, câu hỏi kết thúc ở màn chuyến đi (v3.4) | Có phiên `DANG_DIEN_RA` trong cùng trình duyệt |
 | Out of journey | Nội dung live, không lượt ghé | Có phiên nhưng điểm dừng ngoài journey |
 | Closure notice | Thông báo tạm đóng | `TEMPORARILY_CLOSED` |
 | Invalid | Thông báo mã không hợp lệ | `INVALID` |

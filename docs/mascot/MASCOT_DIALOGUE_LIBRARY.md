@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED** — mọi câu cần người dùng duyệt trước khi đưa vào bảng copy của screen spec |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04) |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); 2026-11-25 theo spec-Mascot v1.6 (CHG-MASCOT-2026-11-25-06): MAS-MSG-015…019 mới (chủ dự án duyệt nguyên văn VI 2026-11-25; EN theo nhãn nút thật), MAS-MSG-014 mỗi lần vào màn |
 | Quy ước | Tài liệu này là **nguồn chữ** của mascot. [Behavior Matrix](MASCOT_BEHAVIOR_MATRIX.md) chép lại câu để dễ đọc; khi lệch nhau, tài liệu này thắng |
 
 ## 1. Quy tắc viết
@@ -39,10 +39,15 @@ Cột **P** là mức ưu tiên ([State Machine](MASCOT_STATE_MACHINE.md) §5): 
 | MAS-MSG-005 | Danh mục đang tải > 600 ms | Mạng chậm | Mình đang mở bản đồ các tuyến… | Unfolding the route map… | Bình thản | Tới khi tải xong | — | P7 | Có | — |
 | MAS-MSG-008 | 20 s không thao tác ở danh mục | Lần đầu trong lần tải trang, chưa cuộn, chưa chạm thẻ | Chưa biết chọn tuyến nào? Để mình gợi ý cho. | Not sure which route? Let me suggest one. | Gợi mở | Không tự ẩn | "Gợi ý tuyến" (`m01.nav.recommend`) | P6 | Không | 1 lần/tải trang |
 | MAS-MSG-009 | Chạm mascot ở danh mục | Du khách hỏi | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. | Hữu ích | Tự ẩn | — | P3 | Có | 10 s |
-| MAS-MSG-010 | `m01.recommend.opened` | Lần đầu mở Gợi ý tuyến trong lần tải trang | Bạn có bao lâu, đi cùng ai, thích gì? Chọn mỗi nhóm một ý nhé. | How long, with whom, and what do you enjoy? Pick one of each. | Tò mò | Tự ẩn | — | P6 | Không | 1 lần/tải trang |
+| MAS-MSG-010 | `m01.recommend.opened` | Mỗi lần mở form Gợi ý tuyến (v1.5); câu chạm đầu tiên ở form (v1.6) | Bạn có bao lâu, đi cùng ai, thích gì? Chọn mỗi nhóm một ý nhé. | How long, with whom, and what do you enjoy? Pick one of each. | Tò mò | Tự ẩn | — | P6 | Không | 1 lần/tải trang |
 | MAS-MSG-011 | `m01.recommend.resolved{count≥1}` | Có kết quả | Đây là những tuyến hợp với bạn! | Here are the routes that suit you! | Vui | Tự ẩn | — | P4 | Có | 30 s |
 | MAS-MSG-013 | `m01.recommend.resolved{count=0}` lần 2 liên tiếp | Đã đổi tiêu chí mà vẫn rỗng | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) | Động viên | Không tự ẩn | — | P6 | Có | 60 s |
-| MAS-MSG-014 | `m01.routeDetail.startPanelVisible` | Tuyến có cảnh báo an toàn; panel Bắt đầu lần đầu vào khung nhìn | Trước khi đi, bạn đọc kỹ phần Cảnh báo an toàn giúp mình nhé. | Before you head out, please read the Safety warning. | Quan tâm, nghiêm túc vừa phải | Tự ẩn | — | P6 | Có | 1 lần/tuyến/tải trang |
+| MAS-MSG-014 | `m01.routeDetail.startPanelVisible` | Tuyến có cảnh báo an toàn; panel Bắt đầu vào khung nhìn, mỗi lần vào màn chi tiết (v1.6) | Trước khi đi, bạn đọc kỹ phần Cảnh báo an toàn giúp mình nhé. | Before you head out, please read the Safety warning. | Quan tâm, nghiêm túc vừa phải | Tự ẩn | — | P6 | Có | 1 lần/tuyến/tải trang |
+| MAS-MSG-015 | Chạm mascot ở form Gợi ý tuyến (lần thứ hai) | Du khách hỏi (v1.6) | Chọn đủ ba mục rồi bấm Xem tuyến phù hợp nhé. | Pick all three, then tap Show matching routes. | Hữu ích | Tự ẩn | — | P3 | Có | 10 s |
+| MAS-MSG-016 | Chạm mascot ở trang kết quả gợi ý | Du khách hỏi (v1.6) | Chạm vào một tuyến để xem chi tiết, hoặc bấm Đổi tiêu chí. | Tap a route for details, or tap Change choices. | Hữu ích | Tự ẩn | — | P3 | Có | 10 s |
+| MAS-MSG-017 | Chạm mascot ở chi tiết tuyến có Cảnh báo an toàn | Du khách hỏi (v1.6); câu ở panel Bắt đầu | Đọc kỹ Cảnh báo an toàn, tải gói nếu cần, rồi bấm Bắt đầu nhé. | Read the Safety warning, download the pack if you need it, then tap Start. | Hữu ích | Tự ẩn | — | P3 | Có | 10 s |
+| MAS-MSG-018 | Chạm mascot ở Tài nguyên | Du khách hỏi (v1.6); câu ở ô gói | Tải gói trước khi vào rừng để xem tuyến khi mất sóng. | Download the pack before you go, so the route works without signal. | Hữu ích | Tự ẩn | — | P3 | Có | 10 s |
+| MAS-MSG-019 | Chạm mascot ở chi tiết tuyến không có Cảnh báo an toàn | Du khách hỏi (v1.6); câu ở panel Bắt đầu | Tải gói nếu cần, rồi bấm Bắt đầu nhé. | Download the pack if you need it, then tap Start. | Hữu ích | Tự ẩn | — | P3 | Có | 10 s |
 | MAS-MSG-020 | `m01.package.downloadStarted` | Bắt đầu tải hoặc cập nhật | Mình đang xếp nội dung vào ba lô. Giữ trang này mở nhé. | Packing your route into the backpack. Keep this page open. | Bận rộn, vui | Tới khi xong hoặc lỗi | — | P5 | Có | — |
 | MAS-MSG-021 | `m01.package.ready` | Gói `SAN_SANG` | Giờ các điểm này xem được cả khi mất sóng. | These stops now work without signal. | Tự hào | Tự ẩn | — | P4 | Có | — |
 | MAS-MSG-024 | `m01.package.failed{reason=source\|download}` | Lần lỗi đầu | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) | Bình tĩnh | Tự ẩn | — | P2 | Có | 30 s |

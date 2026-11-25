@@ -1,21 +1,25 @@
 /*
- * SCR-M01-001 — hero serif có lá non và dải đồi nhạt ở góc phải (design-system §3, §5.1). Đồi và lá chỉ trang trí;
+ * SCR-M01-001 — hero serif có lá non và dải đồi nhạt ở góc phải (design-system §3, §5.1, §9.3a). Đồi và lá chỉ trang trí;
  * hành động khám phá "Gợi ý tuyến" là viên thuốc trắng có la bàn, dễ tìm trên điện thoại.
  */
 .hero {
-  /* Cỡ Mila ở hero theo token, nhỏ hơn ở màn hẹp nhất (design-system §9.2, v1.3) */
+  /* Cỡ Mila ở hero theo token, nhỏ hơn ở màn hẹp nhất (design-system §9.2) */
   --hero-mila: var(--mascot-size-dock-catalog);
 
   position: relative;
   display: grid;
+  /*
+   * v1.6 (CHG-MASCOT-2026-11-25-06 D4, phương án C): tiêu đề một hàng riêng; hàng dưới là nút "Gợi ý tuyến" bên trái và
+   * Mila đứng trên dải đồi trong cột bề rộng cố định bên phải. Không ô nào co giãn theo độ dài chữ, nên đổi VI/EN chỉ
+   * đổi chữ: Mila cùng cỡ, nút và Mila cùng chỗ.
+   */
   grid-template-areas:
-    'title scene'
+    'title title'
     'action scene'
     'bubble bubble';
-  /* Cột trái đúng bề rộng tiêu đề (một dòng); Mila co trong phần còn lại, tối đa cỡ token, nên không bao giờ đè tiêu đề */
-  grid-template-columns: max-content minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) var(--hero-mila);
   align-items: end;
-  column-gap: var(--space-1);
+  column-gap: var(--space-3);
   margin-bottom: var(--space-5);
   padding-top: var(--space-1);
 }
@@ -28,8 +32,9 @@
 
 /*
  * Nắng và lá trôi (T3, specs/006 R-13): nằm sau dải đồi trong ô của Mila, không nhận con trỏ, không chiếm chỗ. Chỉ hiện và
- * chạy khi có trang trí (`data-decor="on"`); chạy một lần trong 80% của --duration-ambient-drift (4,8 s) rồi đứng ở
- * khung cuối (≤ 5 s, WCAG 2.2.2); tạm dừng khi lớp phủ giới thiệu đang mở.
+ * chạy khi có trang trí (`data-decor="on"`). v1.6 (CHG-MASCOT-2026-11-25-06 D4): lặp liên tục, mỗi vòng
+ * --duration-ambient-drift; dừng bằng công tắc "Hiệu ứng chuyển động" (WCAG 2.2.2), giảm chuyển động, tiết kiệm dữ liệu;
+ * tạm dừng khi lớp phủ giới thiệu đang mở.
  */
 .decor {
   position: relative;
@@ -54,7 +59,7 @@
   color: color-mix(in srgb, var(--color-m01-amber) 55%, transparent);
   opacity: 0.5;
   transform-origin: top left;
-  animation: rays-glow calc(var(--duration-ambient-drift) * 0.8) var(--ease-in-out) both;
+  animation: rays-glow calc(var(--duration-ambient-drift) * 0.5) var(--ease-in-out) infinite alternate both;
 }
 
 .drift {
@@ -64,7 +69,7 @@
   top: 0;
   color: color-mix(in srgb, var(--color-m01-forest) 45%, transparent);
   opacity: 0;
-  animation: leaf-drift calc(var(--duration-ambient-drift) * 0.8) var(--ease-in-out) both;
+  animation: leaf-drift var(--duration-ambient-drift) var(--ease-in-out) infinite both;
 }
 
 .driftA {
@@ -73,7 +78,8 @@
 
 .driftB {
   left: 45%;
-  animation-delay: calc(var(--duration-ambient-drift) * 0.03);
+  /* Lệch nửa vòng: luôn có một chiếc lá đang trôi */
+  animation-delay: calc(var(--duration-ambient-drift) * -0.5);
 }
 
 :root:has([data-mascot-mode='INTRO']) .decor > * {
@@ -82,16 +88,12 @@
 
 @keyframes rays-glow {
   0% {
-    opacity: 0.2;
+    opacity: 0.25;
     transform: rotate(-4deg);
   }
 
-  50% {
-    opacity: 0.6;
-  }
-
   100% {
-    opacity: 0.45;
+    opacity: 0.6;
     transform: rotate(2deg);
   }
 }
@@ -102,11 +104,11 @@
     transform: translate(0, 0) rotate(0deg);
   }
 
-  20% {
+  15% {
     opacity: 1;
   }
 
-  85% {
+  80% {
     opacity: 0.8;
   }
 
@@ -144,7 +146,7 @@
   grid-area: scene;
   justify-self: end;
   align-self: end;
-  width: min(var(--hero-mila), 100%);
+  width: var(--hero-mila);
   height: auto;
   aspect-ratio: 1;
 }
@@ -160,7 +162,8 @@
   z-index: 1;
   display: flex;
   grid-area: title;
-  margin-bottom: var(--space-4);
+  /* Hàng dưới cao bằng Mila: kéo lên một chút để nút không cách xa tiêu đề; Mila ở cột phải nên không đè chữ */
+  margin-bottom: calc(var(--space-2) * -1);
   white-space: nowrap;
   align-items: center;
   gap: var(--space-2);
@@ -178,7 +181,7 @@
   outline: none;
 }
 
-/* Màn hẹp nhất: tiêu đề cỡ di động để vẫn một dòng cạnh Mila */
+/* Màn hẹp nhất: tiêu đề cỡ di động */
 @media (max-width: 22.4375em) {
   .title {
     font-size: var(--font-size-page-heading-mobile);
@@ -204,11 +207,14 @@
   z-index: 1;
   display: inline-flex;
   grid-area: action;
-  justify-self: start;
+  justify-self: stretch;
+  /* Nút cách đáy bằng bóng đổ của Mila trên đồi */
+  margin-bottom: var(--space-1);
   align-items: center;
   gap: var(--space-2);
   min-height: var(--touch-target);
   padding: 0 var(--space-4);
+  white-space: nowrap;
   font-size: var(--font-size-meta);
   font-weight: var(--font-weight-semibold);
   color: var(--color-m01-ink);
@@ -226,7 +232,22 @@
 .chevron {
   --icon-size: var(--space-4);
 
-  margin-left: var(--space-1);
+  margin-left: auto;
+}
+
+/* Màn hẹp nhất: nút vẫn một dòng ở cả VI/EN ("Route suggestions") — bớt khoảng đệm và bỏ mũi tên trang trí */
+@media (max-width: 22.4375em) {
+  .hero {
+    column-gap: var(--space-2);
+  }
+
+  .recommendLink {
+    padding: 0 var(--space-3);
+  }
+
+  .chevron {
+    display: none;
+  }
 }
 
 .list {

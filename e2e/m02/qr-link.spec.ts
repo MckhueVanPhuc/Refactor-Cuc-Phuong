@@ -48,7 +48,11 @@ test('V21 — /q/… khi có phiên trong cùng trình duyệt → như quét tr
   expect(requests.at(-1)).toEqual({ p_qr_identifier: 'Q1a', p_route_id: 'A' });
 
   await page.goto('/q/Q3');
-  await expect(page.getByRole('alertdialog')).toContainText(vi.endPrompt.question);
+  await expectCheckInFeedback(page);
+  await expect(page.getByRole('alertdialog')).toHaveCount(0);
+  // spec-M02 v3.4 (BR-M02-021): câu hỏi kết thúc chuyến chờ tới khi mở màn chuyến đi
+  await page.goto('/trip');
+  await expect(page.getByRole('alertdialog')).toContainText(vi.endPrompt.someLeft({ r: 1 }));
   const visits = (await dumpStores(page, ['checkpointVisits'])).checkpointVisits as { checkpointId: string }[];
   expect(visits.map((v) => v.checkpointId).sort()).toEqual(['C1', 'C3']);
 });

@@ -3,7 +3,7 @@
 // cờ tắt (unit test ContentPage, QrLinkPage) vẫn thấy toast.
 import { expect, test, type Page } from '@playwright/test';
 import { vi } from '../../src/modules/m02/i18n/vi';
-import { expectCheckInFeedback, seedValidContext, visitBubble, visitToast } from './helpers';
+import { expectCheckInFeedback, seedValidContext, visitBubble } from './helpers';
 import { mockIntakeUnavailable, mockLookup, mockStorage } from './network';
 
 const BASE = 'http://localhost:4173';
@@ -47,13 +47,13 @@ test.describe('Mila hiện được', () => {
     await expect(visitBubble(page)).toHaveText('Đã ghi nhận! Chỉ còn một điểm nữa thôi!');
   });
 
-  test('Q29 — điểm cuối: hộp thoại kết thúc chuyến là lời xác nhận, không toast, không bong bóng', async ({ page }) => {
+  test('Q29 (v1.6) — điểm cuối: Mila xác nhận như mọi điểm, không hộp thoại ở trang nội dung; về chuyến đi → hộp thoại', async ({ page }) => {
     await startTrip(page);
     await scan(page, 'Q3');
-    await expect(page.getByRole('alertdialog')).toContainText(vi.endPrompt.question);
-    await page.waitForTimeout(1_300);
-    await expect(visitToast(page)).toHaveCount(0);
-    await expect(page.locator('[data-mascot-message]')).toHaveCount(0);
+    expect(await expectCheckInFeedback(page)).toBe('mascot');
+    await expect(page.getByRole('alertdialog')).toHaveCount(0);
+    await back(page);
+    await expect(page.getByRole('alertdialog')).toContainText(vi.endPrompt.someLeft({ r: 2 }));
   });
 });
 

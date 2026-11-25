@@ -28,10 +28,10 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 
 | # | Element ID | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|---|
-| 1 | E-SCR-M02-003-01 | End-of-trip prompt | Dialog | VI: "Bạn đã quét điểm cuối. Kết thúc chuyến đi?" (EN: "You have scanned the last point. End the trip?") | Conditional | Hiện đúng một lần khi lượt ghé điểm cuối được ghi lần đầu; không hiện lại cho lần quét sau (BR-M02-021) |
-| 2 | E-SCR-M02-003-02 | Action: Kết thúc | Button | VI: "Kết thúc" (EN: "End") | Yes | Tác dụng giống xác nhận Finish: phiên thành `HOAN_TAT` (BR-M02-007) |
+| 1 | E-SCR-M02-003-01 | End-of-trip prompt | Dialog (bảng nền đặc ở đáy màn SCR-M02-001, lớp phủ tối `--overlay-scrim`; Mila chỉ ở đầu hộp thoại) | Quét đủ mọi điểm: VI "Bạn đã quét mã ở tất cả {n} điểm. Kết thúc chuyến đi?" (EN "You've scanned all {n} checkpoints. End your trip?"); còn điểm chưa quét: VI "Bạn còn {r} điểm chưa quét mã. Vẫn kết thúc chuyến đi?" (EN "{r} checkpoints not scanned yet. End your trip anyway?") — spec-M02 v3.4 §5.1 | Conditional | Tự mở đúng một lần ở màn chuyến đi kế tiếp sau khi lượt ghé điểm cuối được ghi lần đầu, không ở trang nội dung; không hiện lại cho lần quét sau (BR-M02-021 v3.4) |
+| 2 | E-SCR-M02-003-02 | Action: Kết thúc | Button | VI: "Kết thúc" (EN: "End") | Yes | Tác dụng giống xác nhận Finish: phiên thành `HOAN_TAT` khi đã quét điểm cuối, ngược lại `BO_DO` (BR-M02-007 v3.4) |
 | 3 | E-SCR-M02-003-03 | Action: Đi tiếp | Button | VI: "Đi tiếp" (EN: "Continue") | Yes | Không đổi gì; Finish vẫn khả dụng đến khi phiên kết thúc |
-| 4 | E-SCR-M02-003-04 | Finish confirmation | Dialog | Xác nhận kết thúc khi dùng Finish | Conditional | Finish chỉ khả dụng khi đã quét điểm có `sequence` lớn nhất |
+| 4 | E-SCR-M02-003-04 | Finish confirmation | Dialog | Xác nhận kết thúc khi dùng Finish, cùng hộp thoại và câu như E-SCR-M02-003-01 | Conditional | Finish khả dụng mọi lúc trong chuyến (FR-M02-015 v3.4) |
 | 5 | E-SCR-M02-003-05 | Visit summary | List | Các điểm đã quét: tên theo ngôn ngữ, thứ tự, `checkedInAt` | Yes | Từ `PlaySession` và `CheckpointVisit` local; nhãn "Đã tham quan" kèm giờ quét, không phải "đã đến" (SC-M02-013, spec-M02 3.3 clarification 3) |
 | 6 | E-SCR-M02-003-06 | Completion result | Text | Phiên đã hoàn tất kèm danh sách điểm đã quét | Conditional | Hiện sau [Kết thúc]; không yêu cầu quét 100% điểm (FR-M02-016) |
 | 7 | E-SCR-M02-003-07 | Sync status | Text/badge | Trạng thái đồng bộ: chờ đồng bộ, đã đồng bộ, conflict/bị từ chối | Conditional | Theo `PendingSyncItem.syncStatus` (`PENDING`/`SYNCED`/`CONFLICT`); không có trang hàng đợi sync |
@@ -103,7 +103,7 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | FR-M02-015 | Finish sau điểm có `sequence` lớn nhất |
 | FR-M02-016 | Hoàn tất khi xác nhận |
 | FR-M02-018 | Hàng đợi đồng bộ bất biến, retry/conflict/rejected |
-| FR-M02-023 | Câu hỏi kết thúc chuyến khi quét điểm cuối lần đầu |
+| FR-M02-023 | Câu hỏi kết thúc chuyến ở lần mở màn chuyến đi kế tiếp sau lượt quét điểm cuối đầu tiên (v3.4) |
 | FR-MAS-001, FR-MAS-002, FR-MAS-003, FR-MAS-009 | Mascot Mila: slot, phản ứng theo sự kiện, lời thoại theo ngôn ngữ, không đổi hành vi của màn (Spec Mascot) |
 
 ## 8. Responsive and accessibility notes

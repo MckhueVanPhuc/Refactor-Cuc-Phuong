@@ -91,11 +91,12 @@ describe('QrLinkPage', () => {
     expect(fakeLookup.calls).toEqual([{ qrIdentifier: 'Q1b', routeId: ROUTE_A }]);
   });
 
-  it('có phiên + điểm cuối lần đầu → câu hỏi kết thúc chuyến như trong app (BR-M02-021)', async () => {
+  it('có phiên + điểm cuối lần đầu → xác nhận lượt quét như mọi điểm; câu hỏi kết thúc chuyến chờ ở màn chuyến đi (BR-M02-021 v3.4)', async () => {
     fakeM01.setLanguage({ languageCode: 'vi' });
     await seedSession();
     openLink('/q/Q3');
-    expect((await screen.findByRole('alertdialog')).textContent).toContain(viMessages.endPrompt.question);
+    expect(await screen.findByText(viMessages.trip.visitRecorded)).toBeTruthy();
+    expect(screen.queryByRole('alertdialog')).toBeNull();
   });
 
   it('có phiên + TEMPORARILY_CLOSED → thông báo tạm đóng, không nội dung, không lượt ghé', async () => {

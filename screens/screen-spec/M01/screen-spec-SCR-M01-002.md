@@ -76,10 +76,11 @@ Chữ cố định khác của màn này:
 | Mila khi mở Gợi ý tuyến (MSG-MAS-010) | Bạn có bao lâu, đi cùng ai, thích gì? Chọn mỗi nhóm một ý nhé. | How long, with whom, and what do you enjoy? Pick one of each. |
 | Mila khi có kết quả gợi ý (MSG-MAS-011) | Đây là những tuyến hợp với bạn! | Here are the routes that suit you! |
 | Mila sau 2 lần không có kết quả (nút "Xem tất cả tuyến") (MSG-MAS-013) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
-| Chạm Mila (màn M01) (MSG-MAS-009) | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
+| Chạm Mila ở form (MSG-MAS-010, spec-Mascot v1.6) | Bạn có bao lâu, đi cùng ai, thích gì? Chọn mỗi nhóm một ý nhé. | How long, with whom, and what do you enjoy? Pick one of each. |
+| Chạm Mila lần nữa ở form (MSG-MAS-015) | Chọn đủ ba mục rồi bấm Xem tuyến phù hợp nhé. | Pick all three, then tap Show matching routes. |
+| Chạm Mila ở trang kết quả (MSG-MAS-016) | Chạm vào một tuyến để xem chi tiết, hoặc bấm Đổi tiêu chí. | Tap a route for details, or tap Change choices. |
 | Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
 | Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
-| Chạm Mila lần nữa (MSG-MAS-012) | Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn. | Tap Route suggestions and I'll pick by your time and interests. |
 | Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 
 ## 4. States

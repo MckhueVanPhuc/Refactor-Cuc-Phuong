@@ -34,6 +34,8 @@ test('chuyến trọn vẹn với Mila bật: không khóa lưu trữ mới, sto
 
   await scan(page, 'Q3');
   // Hộp thoại đã có style cố định ở đáy rồi mới bấm (như sync.spec.ts)
+  // spec-M02 v3.4 (BR-M02-021): câu hỏi kết thúc chuyến hiện khi về màn chuyến đi
+  await page.getByRole('link', { name: vi.content.back }).click();
   await page.waitForFunction(() => {
     const dialog = document.querySelector('[role="alertdialog"]');
     return Boolean(dialog?.parentElement && getComputedStyle(dialog.parentElement).position === 'fixed');

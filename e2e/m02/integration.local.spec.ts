@@ -94,8 +94,10 @@ async function finishTrip(page: Page) {
   await page.goto(`/q/${world.q1a}`);
   await expectCheckInFeedback(page);
   await page.goto(`/q/${world.q2}`);
-  await expect(page.getByRole('alertdialog')).toContainText(vi.endPrompt.question);
-  // Hộp thoại dùng CSS tải theo chunk: chờ lớp phủ cố định rồi mới bấm
+  await expectCheckInFeedback(page);
+  // spec-M02 v3.4 (BR-M02-021): câu hỏi kết thúc chuyến hiện khi mở màn chuyến đi; hộp thoại dùng CSS tải theo chunk
+  await page.goto('/trip');
+  await expect(page.getByRole('alertdialog')).toContainText(vi.endPrompt.allScanned({ n: 2 }));
   await page.waitForFunction(() => {
     const dialog = document.querySelector('[role="alertdialog"]');
     return Boolean(dialog?.parentElement && getComputedStyle(dialog.parentElement).position === 'fixed');

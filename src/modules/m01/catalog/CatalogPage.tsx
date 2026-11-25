@@ -36,7 +36,7 @@ export function CatalogPage() {
 
   return (
     <>
-      {/* Hero hai cột (design-system §9.3a, v1.3): trái tiêu đề và "Gợi ý tuyến"; phải dải đồi và Mila đứng trên đồi;
+      {/* Hero phương án C (design-system §9.3a, v1.6): tiêu đề một hàng; hàng dưới "Gợi ý tuyến" và Mila đứng trên đồi;
           bong bóng của Mila mở ở hàng dưới cùng, Mila không đổi chỗ */}
       <div className={styles.hero}>
         <h1 className={styles.title}>
@@ -48,7 +48,7 @@ export function CatalogPage() {
           {messages.nav.recommend}
           <TintIcon name="chevron-right" className={styles.chevron} />
         </Link>
-        {/* Nắng và lá trôi sau dải đồi (design-system §4.3.1 T3, §7; specs/006 US8): chỉ trang trí, tự dừng ≤ 5 s */}
+        {/* Nắng và lá trôi sau dải đồi (design-system §4.3.1 T3, §7; specs/006 US8): chỉ trang trí, lặp liên tục (v1.6), công tắc dừng */}
         <span className={styles.decor} aria-hidden="true" data-hero-decor="">
           <TintIcon name="sun-rays" className={styles.rays} />
           <TintIcon name="leaf" className={`${styles.drift} ${styles.driftA}`} />

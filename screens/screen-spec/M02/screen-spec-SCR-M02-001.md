@@ -46,7 +46,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | 16 | E-SCR-M02-001-16 | Connection-needed message | Banner | VI: "Cần có kết nối mạng để kiểm tra mã QR này." | Conditional | Offline hoặc lỗi tra cứu với mã không thuộc journey đóng băng; không phải mã không hợp lệ |
 | 17 | E-SCR-M02-001-17 | Source failure notice | Text | VI: "Chưa tải được nội dung mới. Đang dùng nội dung đã lưu nếu có." | Conditional | Lỗi nguồn với mã thuộc journey; khác `INVALID` và khác tạm đóng (FR-M02-013) |
 | 18 | E-SCR-M02-001-18 | Free-visitor hint | Text | VI: "Bạn đang xem tự do, lượt quét này không được ghi vào chuyến đi. Muốn ghi lại hành trình, hãy chọn tuyến." | Conditional | Hiện cho mọi lượt quét khi không có phiên; không tạo phiên/lượt ghé/bản ghi đồng bộ (FR-M02-019) |
-| 19 | E-SCR-M02-001-19 | Action: Finish | Button | Mở xác nhận kết thúc chuyến | Conditional | Chỉ khả dụng sau khi đã quét điểm có `sequence` lớn nhất; còn khả dụng sau khi chọn "Đi tiếp" (FR-M02-015, BR-M02-021) |
+| 19 | E-SCR-M02-001-19 | Action: Finish | Button | Mở xác nhận kết thúc chuyến (E-SCR-M02-003-01…04) | Conditional | spec-M02 v3.4: khả dụng mọi lúc khi có phiên `DANG_DIEN_RA`; vẫn còn sau khi chọn "Đi tiếp" (FR-M02-015, BR-M02-021). Xác nhận trước khi quét điểm cuối → `BO_DO` (BR-M02-007) |
 | 20 | E-SCR-M02-001-20 | Action: Mở nội dung điểm đã quét | Tap item | Mở SCR-M02-002 cho đúng mã đã quét | Conditional | Quét lại hiển thị nội dung mã đó và thời điểm ghé cũ |
 | 21 | E-SCR-M02-001-21 | Replace-session failure message | Banner | Không tạo được phiên thay thế; phiên cũ vẫn chạy | Conditional | Tạo phiên mới và đổi phiên cũ `BO_DO` là một thao tác nguyên tử (BR-M02-013) |
 | 22 | E-SCR-M02-001-22 | Previous-trip sync error | Text một dòng | Chuyến đi đã kết thúc nhưng không gửi được về hệ thống (theo bảng copy) | Conditional | Hiện khi có `PendingSyncItem` ở `CONFLICT`; không có trang hàng đợi, không cho sửa dữ liệu chuyến đi (BR-M02-011) |
@@ -122,7 +122,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | Connection needed | Thông báo cần kết nối | Offline/lỗi tra cứu, mã ngoài journey đóng băng |
 | Out of journey (VALID) | Nội dung live, không lượt ghé, không đổi journey | Lookup `VALID` nhưng điểm dừng ngoài journey |
 | Free-visitor | Nội dung kèm gợi ý khách tự do | Quét khi không có phiên |
-| Final checkpoint visited | Câu hỏi kết thúc chuyến (SCR-M02-003), Finish khả dụng | Lượt ghé điểm cuối ghi lần đầu |
+| Final checkpoint visited | Câu hỏi kết thúc chuyến mở một lần ở màn này khi du khách quay về (v3.4, BR-M02-021) | Lượt ghé điểm cuối ghi lần đầu |
 | Sync error visible | Lỗi đồng bộ hiển thị trong phiên/kết quả | Conflict/rejected (xem SCR-M02-003) |
 
 ## 5. Interactions and navigation
@@ -168,7 +168,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | FR-M02-006 | Lấy `qrIdentifier` từ link, phân giải online/offline |
 | FR-M02-007, FR-M02-008, FR-M02-009 | Ghi lượt ghé, mọi thứ tự, quét lặp |
 | FR-M02-012, FR-M02-013 | Mã ngoài journey, phân biệt `INVALID`/tạm đóng/lỗi nguồn |
-| FR-M02-015 | Finish sau điểm cuối |
+| FR-M02-015 | Finish mọi lúc, có xác nhận (v3.4) |
 | FR-M02-017 | Thay phiên nguyên tử |
 | FR-M02-018 | Tình trạng đồng bộ hiển thị trong phiên |
 | FR-M02-019 | Chế độ khách tự do |

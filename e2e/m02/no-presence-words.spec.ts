@@ -3,6 +3,8 @@
 // "Q1a" — đó là nội dung giả, không phải định danh được render.)
 import { expect, test, type Page } from '@playwright/test';
 import { contextV3 } from '../../src/modules/m02/api/fake/fixtures';
+import { en } from '../../src/modules/m02/i18n/en';
+import { vi } from '../../src/modules/m02/i18n/vi';
 import { callM01Hook, seedValidContext } from './helpers';
 import { mockIntakeUnavailable, mockLookup, mockStorage } from './network';
 
@@ -57,6 +59,7 @@ for (const language of ['vi', 'en'] as const) {
     await expect(page.getByRole('alert')).toBeVisible();
     screens.closed = await visibleText(page);
     await scan(page, 'Q3');
+    await page.getByRole('link', { name: (language === 'vi' ? vi : en).content.back }).click();
     await expect(page.getByRole('alertdialog')).toBeVisible();
     screens.finalPrompt = await visibleText(page);
     await page.waitForFunction(() => {

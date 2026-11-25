@@ -1,15 +1,18 @@
 /*
- * Hộp thoại kết thúc chuyến, nổi ở đáy màn trong tầm với ngón cái. Màu lấy từ biến bề mặt của FieldLayout
- * (scanner tối hoặc reader sáng); [Kết thúc] là hành động chính, [Đi tiếp] là hành động phụ.
+ * Hộp thoại kết thúc chuyến (CHG-MASCOT-2026-11-25-06 D9): bảng nền đặc ở đáy màn, trong tầm với ngón cái, trên lớp phủ
+ * tối che hành trình. Một bảng sáng như nhau ở mọi bề mặt (không kính mờ) để chữ luôn đọc rõ. [Kết thúc] là hành động
+ * chính, [Đi tiếp] là hành động phụ. Xuất hiện theo "Dialog overlay" của design-system §4.3 (T2; giảm chuyển động: tức thì).
  */
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: 15;
+  z-index: 40;
   display: grid;
   align-items: end;
-  padding: var(--space-5);
-  background: var(--overlay-fill-pressed);
+  padding: var(--space-4);
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  background: var(--overlay-scrim);
+  animation: final-fade var(--duration-dialog) var(--ease-out) both;
 }
 
 .dialog {
@@ -19,14 +22,14 @@
   max-width: calc(var(--space-8) * 15);
   margin: 0 auto;
   padding: var(--space-5);
-  color: var(--m02-fg);
-  background: var(--m02-surface);
-  border: var(--border-width-thin) solid var(--m02-line);
+  color: var(--color-ink);
+  background: var(--color-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-modal);
+  animation: final-rise var(--duration-dialog) var(--ease-out) both;
 }
 
-/* Hình Mila (nếu có) giữa đầu hộp thoại */
+/* Hình Mila giữa đầu hộp thoại */
 .dialog > :first-child:not(.question) {
   justify-self: center;
 }
@@ -36,6 +39,7 @@
   font-size: var(--font-size-row-title);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
+  text-align: center;
 }
 
 .actions {
@@ -57,24 +61,37 @@
 }
 
 .end {
-  color: var(--m02-bg);
-  background: var(--m02-success);
-  border: var(--border-width-thin) solid var(--m02-success);
+  color: var(--color-white);
+  background: var(--color-success);
+  border: var(--border-width-thin) solid var(--color-success);
 }
 
 .continue {
-  color: var(--m02-fg);
+  color: var(--color-ink);
   background: transparent;
-  border: var(--border-width-thin) solid var(--m02-line);
+  border: var(--border-width-thin) solid var(--color-m03-control-border);
 }
 
 .end:focus-visible,
 .continue:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline: var(--focus-ring-width) solid var(--color-m01-forest);
   outline-offset: var(--focus-ring-offset);
 }
 
 .end:disabled,
 .continue:disabled {
   cursor: progress;
+}
+
+@keyframes final-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes final-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-5));
+  }
 }

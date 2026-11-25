@@ -23,12 +23,13 @@ async function seedSession() {
 }
 
 describe('finishSession', () => {
-  it('chưa có lượt ghé điểm cuối → không kết thúc (FR-M02-015)', async () => {
+  it('v3.4: chưa có lượt ghé điểm cuối → BO_DO + endedAt + PendingSyncItem PENDING (FR-M02-015; BR-M02-007)', async () => {
     await seedSession();
     await recordVisit(SESSION, 'C1', 'Q1a', at('2026-11-04T02:10:00.000Z'));
-    expect(await finishSession(SESSION, at('2026-11-04T03:00:00.000Z'))).toEqual({ kind: 'FINAL_NOT_VISITED' });
-    expect((await playSessionsTable.get(SESSION))!.status).toBe('DANG_DIEN_RA');
-    expect(await pendingSyncItemsTable.count()).toBe(0);
+    const result = await finishSession(SESSION, at('2026-11-04T03:00:00.000Z'));
+    expect(result).toMatchObject({ kind: 'FINISHED', session: { status: 'BO_DO', endedAt: '2026-11-04T03:00:00.000Z' } });
+    expect((await playSessionsTable.get(SESSION))!.status).toBe('BO_DO');
+    expect((await pendingSyncItemsTable.toArray()).map((i) => [i.syncStatus, i.record.status])).toEqual([['PENDING', 'BO_DO']]);
   });
 
   it('điểm cuối đã ghé, bỏ qua C1, C2 → HOAN_TAT + endedAt + PendingSyncItem PENDING cùng lúc (BR-M02-007; SC-M02-005)', async () => {

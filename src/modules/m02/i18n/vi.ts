@@ -24,9 +24,10 @@ export const vi = {
       'Không dùng được camera. Hãy cho phép truy cập camera hoặc quét mã bằng ứng dụng máy ảnh của điện thoại.',
     sessionStartHint: 'Trong chuyến đi, hãy quét bằng nút Quét trong ứng dụng để lượt ghé được ghi lại.',
   },
-  // spec-M02 §5.1: câu hỏi cuối chuyến và hai nút
+  // spec-M02 §5.1 (v3.4): câu hỏi kết thúc chuyến theo số điểm đã quét mã, và hai nút
   endPrompt: {
-    question: 'Bạn đã quét điểm cuối. Kết thúc chuyến đi?',
+    allScanned: ({ n }: { n: number }) => `Bạn đã quét mã ở tất cả ${n} điểm. Kết thúc chuyến đi?`,
+    someLeft: ({ r }: { r: number }) => `Bạn còn ${r} điểm chưa quét mã. Vẫn kết thúc chuyến đi?`,
     end: 'Kết thúc',
     continue: 'Đi tiếp',
   },

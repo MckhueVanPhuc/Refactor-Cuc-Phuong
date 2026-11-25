@@ -400,6 +400,23 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 - [X] T114 [US7] `rules.ts` MAS-B-088, MAS-B-010 (DOCK, mỗi lần mở), MAS-B-011 (DOCK); `RecommendPage.tsx`, `RecommendResultsPage.tsx` (+ `.module.css`): đầu màn hai cột như hero danh mục, slot `recommend-head` DOCK cỡ `recommend`; `MascotSlot` (+ `.module.css`): ô AVATAR và đầu màn Gợi ý tuyến trống thì không chiếm chỗ; bong bóng đuôi lên như danh mục
 - [X] T115 Chạy `npm run ci`, `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil`; chụp SCR-M01-002 ở 320/390 px; ghi validation report §19
 
+## Phase 20: v1.6 — câu chạm theo màn, Mila mỗi lần vào màn, đầu màn danh mục C, kết thúc chuyến mọi lúc (US2, US4, US7, US8) — CHG-MASCOT-2026-11-25-06
+
+**Goal**: spec-Mascot v1.6 (BR-MAS-07, 12, 20, 24; US-MAS-02.4, 02.6, 07.2, 07.3; §5.1; §5.6) và spec-M02 v3.4 (FR-M02-015, 016, 023; BR-M02-007, 021).
+
+### Tests ⚠️
+
+- [X] T116 [P] [US8] `src/shared/mascot/rules.test.ts`: MAS-B-090 câu chạm theo màn (form 010 → 015, kết quả 016, chi tiết 017/019 ở `start-panel`, Tài nguyên 018 ở `package-panel`); chỉ lời xác nhận lượt quét được mang sang màn mới (011 không chặn 010); MAS-B-014 mỗi lần vào màn; điểm cuối có câu xác nhận; `dialogue/catalog.test.ts` 52 câu; `e2e/m01/mascot-revisit.spec.ts` (mới): chào mỗi lần mở form kể cả "Đổi tiêu chí", câu chạm theo màn
+- [X] T117 [P] [US4] `src/modules/m02/end/EndFlow.test.tsx`, `storage/terminalTransition.test.ts`, `i18n/i18n.test.ts`, `qr-link/QrLinkPage.test.tsx`; e2e `end.spec.ts` (V16, V17, V17b mới, V19), `mascot-visit.spec.ts` Q6, `mascot-confirm.spec.ts` Q29, `qr-link.spec.ts`, `no-presence-words.spec.ts` và các spec kết thúc chuyến khác: Finish mọi lúc, hai câu hỏi, câu hỏi ở màn chuyến đi, kết thúc sớm → `BO_DO`, một Mila trong hộp thoại
+
+### Implementation
+
+- [X] T118 [US8] `src/shared/mascot/dialogue/{vi,en,catalog}.ts` MSG-MAS-015…019; `rules.ts` `helpLines` theo màn + slot, MAS-B-014 `everyVisit`, MAS-B-050 bỏ ngoại lệ điểm cuối, MAS-B-061 luôn DOCK; `machine.ts` chỉ mang câu `role="status"` sang màn mới
+- [X] T119 [US2] `src/app/mascot/Mascot.module.css`: AVATAR `success`/`milestone` lặp mỗi `--duration-mascot-celebrate`, lá rơi lặp
+- [X] T120 [US7] `src/modules/m01/catalog/CatalogPage.module.css` phương án C (cột Mila cố định, nút một dòng, màn < 360 px bỏ mũi tên), nắng và lá lặp liên tục; `tokens.css` `--mascot-size-dock-catalog` 96 px; e2e `mascot-layout.spec.ts` Q32 (VI/EN cùng chỗ), `motion-hero.spec.ts` M17
+- [X] T121 [US4] `src/modules/m02/end/FinalPrompt.tsx` (+ css): bảng nền đặc ở đáy màn qua portal, `--overlay-scrim`, câu theo k/n, Mila `cheer`/`think`; `finalPromptSignal.ts` (mới); `TripPage.tsx` Finish mọi lúc, câu hỏi chờ, ẩn slot `trip-dock` khi hộp thoại mở; `ScanContent.tsx`, `ContentPage.tsx` bỏ hộp thoại; `storage/terminalTransition.ts` `BO_DO` khi chưa quét điểm cuối; `i18n/{vi,en}.ts`
+- [X] T122 Đồng bộ spec-Mascot v1.6, spec-M02 v3.4, design-system, Behavior Matrix, Dialogue Library, screen spec; chạy `npm run ci`, `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil`; chụp 320/390 px; ghi validation report §20
+
 
 
 ### Phase Dependencies

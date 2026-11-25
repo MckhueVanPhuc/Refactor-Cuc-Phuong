@@ -12,7 +12,6 @@ import {
   MASCOT_SCANNER_LOOK_MS,
   MASCOT_TAP_DEBOUNCE_MS,
   MASCOT_TRIP_START_DELAY_MS,
-  MASCOT_VIBRATION_MS,
   MASCOT_WELCOME_BACK_MS,
   NATURE_REMINDERS_APPROVED,
 } from './config';
@@ -86,11 +85,11 @@ const US2: Rule[] = [
   // MAS-B-050, 051, 055, 066: lượt ghé được ghi lần đầu, theo ba cấp ăn mừng (BR-MAS-23). Cấp 1 (điểm thường): nhún một
   // lần + 050. Cấp 2 (mốc, ưu tiên đầu tiên > nửa (n ≥ 4) > còn một điểm (n ≥ 3)): nhảy hai lần, lá rơi + câu của mốc.
   // Bong bóng này là lời xác nhận lượt ghé thay toast (BR-MAS-24). Mỗi lượt ghé chỉ một phản ứng (VISIT:<visitRef>), kể cả
-  // khi trang nội dung mount lại từ router state (lùi/tiến, tải lại). Điểm cuối: hộp thoại cuối chuyến hiện ngay, Mila chỉ rung.
+  // khi trang nội dung mount lại từ router state (lùi/tiến, tải lại). v1.6 (D6): điểm cuối được xác nhận như mọi điểm; câu
+  // hỏi kết thúc chuyến hiện khi du khách về màn chuyến đi (spec-M02 BR-M02-021 v3.4).
   on('MAS-B-050', 'm02.visit.recorded', (event, { state }) => {
     const once = `VISIT:${event.visitRef}`;
     if (state.once[once]) return null;
-    if (event.isFinal) return { once: [once], effects: [{ kind: 'vibrate', ms: MASCOT_VIBRATION_MS }] };
     const milestone = { priority: 4, mode: 'AVATAR', pose: 'cheer', animation: 'milestone', vibrate: true, once } as const;
     if (event.k === 1) return { intents: [{ ...milestone, behaviorId: 'MAS-B-051', message: { id: 'MSG-MAS-051' } }] };
     if (event.n >= 4 && event.k === Math.ceil(event.n / 2)) {
@@ -126,9 +125,10 @@ const US2: Rule[] = [
         }
       : null,
   ),
-  // MAS-B-061: "Đi tiếp" ở câu hỏi cuối chuyến — câu nằm ở slot đang có (DOCK ở chuyến đi, AVATAR ở trang nội dung)
-  on('MAS-B-061', 'm02.finalPrompt.continued', (_event, { ctx }) => ({
-    intents: [{ behaviorId: 'MAS-B-061', priority: 5, mode: ctx.availableModes.includes('DOCK') ? 'DOCK' : 'AVATAR', pose: 'thumbsUp', animation: 'pop', message: { id: 'MSG-MAS-061' } }],
+  // MAS-B-061: "Đi tiếp" ở câu hỏi kết thúc chuyến — v1.6: hộp thoại chỉ ở màn chuyến đi, nên câu luôn ở DOCK trên nút Quét
+  // (ô này đăng ký lại ngay khi hộp thoại đóng; câu chờ ô theo hàng đợi slot)
+  on('MAS-B-061', 'm02.finalPrompt.continued', () => ({
+    intents: [{ behaviorId: 'MAS-B-061', priority: 5, mode: 'DOCK', pose: 'thumbsUp', animation: 'pop', message: { id: 'MSG-MAS-061' } }],
   })),
 ];
 
@@ -373,6 +373,7 @@ const CATALOG_SETTLE: Intent = { ...CATALOG_DOCK, animation: 'settle' };
 const RECOMMEND_DOCK: Intent = { behaviorId: 'MAS-B-088', priority: 7, mode: 'DOCK', pose: 'map' };
 const RECOMMEND_SETTLE: Intent = { ...RECOMMEND_DOCK, animation: 'settle' };
 const PACKAGE_SLOT = 'package-panel';
+const START_SLOT = 'start-panel';
 const SAFETY_TIMER = 'safety:';
 
 const US7: Rule[] = [
@@ -429,14 +430,14 @@ const US7: Rule[] = [
       ? { intents: [{ behaviorId: 'MAS-B-011', priority: 4, mode: 'DOCK', pose: 'thumbsUp', animation: 'hop', message: { id: 'MSG-MAS-011' }, then: RECOMMEND_SETTLE }] }
       : null,
   ),
-  // MAS-B-014: panel Bắt đầu hiện lần đầu, tuyến có Cảnh báo an toàn → sau 500 ms nhắc đọc, một lần mỗi tuyến; Mila ở slot
-  // của panel Bắt đầu, không bao giờ trong khối cảnh báo
-  on('MAS-B-014', 'm01.routeDetail.startPanelVisible', (event, { state }) =>
-    event.hasSafetyWarning && !state.once[`SAFETY:${event.routeRef}`] ? { timers: { [`${SAFETY_TIMER}${event.routeRef}`]: 500 } } : null,
+  // MAS-B-014: panel Bắt đầu hiện, tuyến có Cảnh báo an toàn → sau 500 ms nhắc đọc; v1.6 (D3): mỗi lần vào màn chi tiết,
+  // không cooldown, không tính vào giới hạn câu chủ động. Mila ở slot của panel Bắt đầu, không bao giờ trong khối cảnh báo.
+  // `screen:safety` cho câu chạm của màn (MAS-B-090) biết tuyến có cảnh báo.
+  on('MAS-B-014', 'm01.routeDetail.startPanelVisible', (event) =>
+    event.hasSafetyWarning ? { counters: { 'screen:safety': 1 }, timers: { [`${SAFETY_TIMER}${event.routeRef}`]: 500 } } : null,
   ),
   on('MAS-B-014:show', 'mascot.timer', (event) => {
     if (!event.name.startsWith(SAFETY_TIMER)) return null;
-    const routeRef = event.name.slice(SAFETY_TIMER.length);
     return {
       intents: [
         {
@@ -446,8 +447,8 @@ const US7: Rule[] = [
           pose: 'point',
           animation: 'pop',
           message: { id: 'MSG-MAS-014' },
-          once: `SAFETY:${routeRef}`,
-          slot: 'start-panel',
+          everyVisit: true,
+          slot: START_SLOT,
         },
       ],
     };
@@ -535,7 +536,7 @@ const AMBIENT: Rule[] = [
 
 // —— US8 (v1.1): hỏi Mila theo ngữ cảnh, chạm nhiều lần, bắt đầu chuyến, chào lại, nhắc cất máy ——
 
-type HelpLine = { behaviorId: string; id: MessageId; pose: PoseId; params?: { r: number } };
+type HelpLine = { behaviorId: string; id: MessageId; pose: PoseId; params?: { r: number }; slot?: string };
 
 /** Câu hướng dẫn của màn đang mở, theo tình huống (spec-Mascot BR-MAS-12 v1.1). */
 function helpLines(state: RuleView['state']): HelpLine[] {
@@ -549,7 +550,21 @@ function helpLines(state: RuleView['state']): HelpLine[] {
   }
   if (path === '/trip/end') return [{ behaviorId: 'MAS-B-065', id: 'MSG-MAS-065', pose: 'thumbsUp' }];
   if (path.startsWith('/trip/qr/') || path.startsWith('/q/')) return [{ behaviorId: 'MAS-B-059', id: 'MSG-MAS-059', pose: 'point' }];
-  // Các màn M01: danh mục, gợi ý, chi tiết tuyến, tài nguyên
+  // v1.6 (CHG-MASCOT-2026-11-25-06 D2): mỗi màn M01 có câu của chính nó (MAS-B-090); câu ở chỗ Mila của màn
+  if (path === '/recommend') {
+    return [
+      { behaviorId: 'MAS-B-090', id: 'MSG-MAS-010', pose: 'map' },
+      { behaviorId: 'MAS-B-090', id: 'MSG-MAS-015', pose: 'point' },
+    ];
+  }
+  if (path === '/recommend/results') return [{ behaviorId: 'MAS-B-090', id: 'MSG-MAS-016', pose: 'point' }];
+  if (path.startsWith('/routes/')) {
+    // Chi tiết tuyến: Mila ở panel Bắt đầu, không bao giờ trong khối Cảnh báo an toàn hay ô Gói tải trước
+    const id = state.counters['screen:safety'] ? 'MSG-MAS-017' : 'MSG-MAS-019';
+    return [{ behaviorId: 'MAS-B-090', id, pose: 'point', slot: START_SLOT }];
+  }
+  if (path === '/offline') return [{ behaviorId: 'MAS-B-090', id: 'MSG-MAS-018', pose: 'backpack', slot: PACKAGE_SLOT }];
+  // Danh mục tuyến
   return [
     { behaviorId: 'MAS-B-009', id: 'MSG-MAS-009', pose: 'point' },
     { behaviorId: 'MAS-B-009', id: 'MSG-MAS-012', pose: 'point' },
@@ -605,6 +620,7 @@ const US8: Rule[] = [
           animation: 'hop',
           message: { id: line.id, ...(line.params ? { params: line.params } : {}) },
           requested: true,
+          ...(line.slot ? { slot: line.slot } : {}),
           ...(then ? { then } : {}),
         },
       ],

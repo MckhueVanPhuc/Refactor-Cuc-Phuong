@@ -32,19 +32,20 @@ export async function endSessionInTx(
 
 export type FinishResult =
   | { kind: 'FINISHED'; session: PlaySessionRow; record: SessionSyncRecord }
-  /** Finish chỉ khả dụng khi checkpoint cuối đã có lượt ghé (FR-M02-015) */
-  | { kind: 'FINAL_NOT_VISITED' }
   | { kind: 'NOT_RUNNING' };
 
-/** Finish / [Kết thúc]: `HOAN_TAT` kể cả khi bỏ qua điểm trước (FR-M02-016; BR-M02-007). */
+/**
+ * Finish / [Kết thúc] (spec-M02 v3.4 FR-M02-015, 016; BR-M02-007): có ở mọi lúc trong chuyến. Điểm cuối đã có lượt ghé →
+ * `HOAN_TAT` kể cả khi bỏ qua điểm trước; chưa có → `BO_DO` (du khách dừng trước điểm cuối). `endedAt` như nhau.
+ */
 export async function finishSession(sessionId: string, now: Date = new Date()): Promise<FinishResult> {
   return visitorDb.transaction('rw', M02_SESSION_TABLES, async () => {
     const session = await playSessionsTable.get(sessionId);
     if (session?.status !== 'DANG_DIEN_RA') return { kind: 'NOT_RUNNING' } as const;
     const finalId = finalCheckpointId(session);
     const finalVisit = finalId ? await checkpointVisitsTable.get([sessionId, finalId]) : undefined;
-    if (!finalVisit) return { kind: 'FINAL_NOT_VISITED' } as const;
-    const ended = await endSessionInTx(session, 'HOAN_TAT', (visits) => confirmedEndedAt(session, visits, now));
+    const status: TerminalStatus = finalVisit ? 'HOAN_TAT' : 'BO_DO';
+    const ended = await endSessionInTx(session, status, (visits) => confirmedEndedAt(session, visits, now));
     return { kind: 'FINISHED', ...ended } as const;
   });
 }
