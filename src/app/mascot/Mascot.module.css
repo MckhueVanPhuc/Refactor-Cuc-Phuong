@@ -398,6 +398,24 @@ button.figure:focus-visible {
   animation-duration: var(--duration-mascot-milestone);
 }
 
+/*
+ * v1.6 (CHG-MASCOT-2026-11-25-06 D5): ở trang nội dung (AVATAR) Mila mừng lượt quét suốt thời gian bong bóng hiện —
+ * nhún (cấp 1) hoặc nhảy hai lần (cấp 2) lặp mỗi 2,4 s, lá rơi liên tục. Bong bóng đóng thì Mila rời màn nên vòng lặp
+ * dừng theo; công tắc chuyển động, giảm chuyển động bỏ data-mascot-animation và lá (WCAG 2.2.2).
+ */
+.mascot[data-mascot-mode='AVATAR'][data-mascot-animation='success'] .figure {
+  animation: mascot-hop-repeat var(--duration-mascot-celebrate) var(--ease-out) infinite both;
+}
+
+.mascot[data-mascot-mode='AVATAR'][data-mascot-animation='milestone'] .figure {
+  animation: mascot-hop-twice-repeat var(--duration-mascot-celebrate) var(--ease-out) infinite both;
+}
+
+.mascot[data-mascot-mode='AVATAR'][data-mascot-animation='milestone'] .leaf {
+  animation-duration: var(--duration-mascot-celebrate);
+  animation-iteration-count: infinite;
+}
+
 .mascot[data-mascot-animation='thumb'] .figure {
   animation: mascot-pop var(--duration-mascot-pop) var(--ease-out) both;
 }
@@ -616,6 +634,41 @@ button.figure:focus-visible {
   }
 
   50% {
+    transform: scaleY(0.97);
+  }
+}
+
+/* Một nhịp nhún ở 25% đầu chu kỳ rồi đứng yên (AN-SUCCESS lặp, v1.6) */
+@keyframes mascot-hop-repeat {
+  0%,
+  25%,
+  100% {
+    transform: none;
+  }
+
+  11% {
+    transform: translateY(calc(var(--space-2) * -1)) scaleY(1.03);
+  }
+
+  20% {
+    transform: scaleY(0.98);
+  }
+}
+
+/* Hai nhịp nhảy ở nửa đầu chu kỳ rồi đứng yên (AN-MILESTONE lặp, v1.6) */
+@keyframes mascot-hop-twice-repeat {
+  0%,
+  50%,
+  100% {
+    transform: none;
+  }
+
+  12%,
+  37% {
+    transform: translateY(calc(var(--space-2) * -1.25)) scaleY(1.03);
+  }
+
+  25% {
     transform: scaleY(0.97);
   }
 }

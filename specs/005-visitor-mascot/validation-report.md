@@ -839,3 +839,29 @@ Test đổi có chủ đích: `rules.test.ts` MAS-B-062 (DOCK sau 2,4 s, câu c�
 | DV-92 | Mila cỡ lớn suốt 15 s ở màn kết quả | Đã sửa (D7) |
 | DV-94 | Nhãn "Đã tham quan" ở danh sách điểm SCR-M02-003 (từ đợt thiết kế lại màn kết quả) lệch spec-M02 SC-M02-013 ("Đã quét QR", không diễn đạt là có mặt). Chủ dự án quyết định giữ nguyên (2026-11-24). Muốn hợp lệ với spec thì phải sửa spec-M02 | Chấp nhận lệch theo quyết định chủ dự án |
 | DV-95 | Khi `CONFLICT`, màn kết quả có hình Mila trong banner và Mila DOCK trong thẻ "Hẹn gặp lại" cùng lúc (đã có từ trước, khi DOCK còn cạnh huy hiệu); spec-Mascot v1.4 §5.1 "tối đa một Mila trên màn" | Mở — xử lý cùng gói 006 hoặc một sửa nhỏ |
+
+## 20. Đợt 2026-11-25 — Phase 20: spec-Mascot v1.6, spec-M02 v3.4 (T116–T122) — CHG-MASCOT-2026-11-25-06
+
+Chủ dự án thử bản Production sau #80–#82 và báo 10 lỗi (brief §1). Nguyên nhân "Mila chỉ chào lần đầu" ở Gợi ý tuyến tái hiện được bằng e2e mới: bấm "Đổi tiêu chí" ngay sau câu 011 → câu 011 (P4) được mang sang form, chặn câu 010. Các lần vào bằng link và Back không lỗi.
+
+| Việc | Tệp |
+|---|---|
+| Câu chạm theo màn M01 (MSG-MAS-015…019), chi tiết tuyến ở slot `start-panel`, Tài nguyên ở `package-panel` | `src/shared/mascot/dialogue/*`, `rules.ts` |
+| Chỉ lời xác nhận lượt quét (`role="status"`) được mang sang màn mới | `machine.ts` |
+| MSG-MAS-014 mỗi lần vào màn (`everyVisit`) | `rules.ts` |
+| Trang nội dung: nhún / nhảy hai lần lặp mỗi 2,4 s, lá rơi liên tục khi bong bóng còn hiện | `src/app/mascot/Mascot.module.css` |
+| Đầu màn danh mục phương án C, Mila 96 px, nút một dòng ở 320 px (bỏ mũi tên), nắng và lá lặp | `CatalogPage.module.css`, `tokens.css` |
+| Finish mọi lúc; hộp thoại nền đặc ở đáy màn, một Mila; câu theo k/n; câu hỏi chờ tới màn chuyến đi; kết thúc trước điểm cuối → `BO_DO` | `src/modules/m02/end/*`, `session/TripPage.tsx`, `content/*`, `storage/terminalTransition.ts`, `i18n/*` |
+
+Test đổi có chủ đích: `rules.test.ts` (điểm cuối có câu 050; MAS-B-014 nhắc lại khi quay lại cùng tuyến); `catalog.test.ts` (47 → 52 câu); `terminalTransition.test.ts` (chưa quét điểm cuối → `BO_DO` thay vì từ chối); `EndFlow.test.tsx`, `i18n.test.ts`, `QrLinkPage.test.tsx`; e2e `end.spec.ts` V16/V17/V19, `mascot-visit.spec.ts` Q6, `mascot-confirm.spec.ts` Q29, `qr-link.spec.ts`, `no-presence-words.spec.ts`, các spec đi tới màn kết quả (thêm bước "Quay lại" trước hộp thoại), `mascot-layout.spec.ts` Q32 (96 px, Mila ở hàng dưới tiêu đề, VI/EN cùng chỗ), `motion-hero.spec.ts` M17 (lặp vô hạn, tắt công tắc thì dừng). Test mới: `e2e/m01/mascot-revisit.spec.ts`, V17b, unit MAS-B-090 và luật mang câu.
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 766; 2500 pass, 133 skipped; build OK, precache 120 mục (2990,54 KiB) |
+| `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil` | 0 | 151 pass |
+| Chụp đầu màn danh mục 320/390 px VI và EN; trang nội dung lúc 1,5 s và 9,5 s; hộp thoại ở màn chuyến đi (spec tạm, đã xóa) | 0 | VI/EN cùng vị trí và cỡ; lúc 9,5 s Mila vẫn `milestone`, 6 lá; hộp thoại nền trắng đặc, phủ tối, một Mila (`think`) |
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-96 | Câu hỏi kết thúc chuyến lưu ở `sessionStorage` của tab (tín hiệu UI, không phải dữ liệu phiên): du khách đóng tab sau lượt quét điểm cuối và mở lại sẽ không được hỏi; vẫn còn nút Kết thúc chuyến và tự kết thúc sau 24 giờ (BR-M02-021 v3.4 ghi rõ) | Chấp nhận |
+| DV-97 | MSG-MAS-019 (chi tiết tuyến không có Cảnh báo an toàn) rút từ câu 017 chủ dự án duyệt, bỏ phần cảnh báo; chủ dự án xem lại khi thử | Mở |

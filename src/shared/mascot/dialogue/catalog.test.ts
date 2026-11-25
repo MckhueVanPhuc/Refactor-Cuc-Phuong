@@ -12,9 +12,10 @@ const FORBIDDEN = [/đã đến/i, /tới nơi/i, /có mặt/i, /arriv/i, /you'r
 const longest = (items: readonly string[]) => items.reduce((a, b) => (b.length > a.length ? b : a), '');
 
 describe('catalog Mila', () => {
-  // v1.1 (2026-11-23): + 012, 033, 043, 065, 085 (Phase 10, 14); + 058, 063 (Phase 15); v1.3: − 002 (gộp vào 001)
-  it('đủ 47 câu của spec-Mascot §5.6 (v1.3), cùng bộ khóa ở hai ngôn ngữ và trong metadata', () => {
-    expect(MESSAGE_IDS).toHaveLength(47);
+  // v1.1 (2026-11-23): + 012, 033, 043, 065, 085 (Phase 10, 14); + 058, 063 (Phase 15); v1.3: − 002 (gộp vào 001);
+  // v1.6: + 015…019 (câu chạm theo màn M01)
+  it('đủ 52 câu của spec-Mascot §5.6 (v1.6), cùng bộ khóa ở hai ngôn ngữ và trong metadata', () => {
+    expect(MESSAGE_IDS).toHaveLength(52);
     expect(MESSAGE_IDS).not.toContain('MSG-MAS-002');
     expect(Object.keys(en.messages).sort()).toEqual(Object.keys(vi.messages).sort());
     expect(Object.keys(MESSAGE_META).sort()).toEqual([...MESSAGE_IDS].sort());

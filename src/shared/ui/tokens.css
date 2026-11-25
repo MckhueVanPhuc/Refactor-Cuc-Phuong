@@ -56,6 +56,8 @@
   --overlay-surface-pressed: rgba(0, 0, 0, 0.08);
   --overlay-scanner-hover: rgba(255, 255, 255, 0.08);
   --overlay-scanner-pressed: rgba(255, 255, 255, 0.14);
+  /* §5.4 — lớp phủ tối sau hộp thoại đáy màn (hộp thoại kết thúc chuyến, CHG-MASCOT-2026-11-25-06) */
+  --overlay-scrim: rgba(0, 0, 0, 0.5);
 
   /* §3 — typography */
   --font-sans: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -138,7 +140,7 @@
   --mascot-size-md: 72px;
   --mascot-size-lg: 160px;
   /* v1.1 (2026-11-22): Mila lớn hơn ở chỗ đứng chờ; INTRO/CELEBRATE 200px */
-  --mascot-size-dock-catalog: 112px;
+  --mascot-size-dock-catalog: 96px;
   /* Hero danh mục khi màn < 360px: tiêu đề vẫn một dòng cạnh Mila (v1.3) */
   --mascot-size-dock-catalog-narrow: 88px;
   --mascot-size-dock-trip: 128px;

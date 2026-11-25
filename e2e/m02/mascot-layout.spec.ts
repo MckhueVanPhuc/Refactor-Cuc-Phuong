@@ -61,6 +61,8 @@ test('SCR-M02-003 màn kết quả: lúc ăn mừng ở 320 px, rồi hình tĩn
   await seedValidContext(page);
   await page.goto('/trip');
   await scan(page, 'Q3');
+  // spec-M02 v3.4 (BR-M02-021): câu hỏi kết thúc chuyến hiện khi về màn chuyến đi
+  await page.getByRole('link', { name: vi.content.back }).click();
   await page.waitForFunction(() => {
     const dialog = document.querySelector('[role="alertdialog"]');
     return Boolean(dialog?.parentElement && getComputedStyle(dialog.parentElement).position === 'fixed');

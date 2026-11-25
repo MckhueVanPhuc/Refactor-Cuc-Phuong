@@ -1,13 +1,15 @@
 // SCR-M02-001 — Phiên trải nghiệm & Quét QR (tasks T032, T047, T075; screen spec §4). Vào `/trip` gọi enterTrip một
 // lần; sau đó journey, lượt ghé và phiên đọc theo thời gian thực (tab khác đổi cũng thấy). Nút Quét mở scanner (chunk
 // lazy `m02-scanner`); mã đọc được đi qua processScannedText rồi sang `/trip/qr/:qrIdentifier` với kết quả trong router
-// state. Finish chỉ có sau khi điểm cuối đã quét (FR-M02-015); không có nút "Dừng chuyến đi".
+// state. spec-M02 v3.4: nút "Kết thúc chuyến" có ở mọi lúc trong chuyến, qua hộp thoại xác nhận (FR-M02-015); câu hỏi
+// kết thúc chuyến tự mở một lần khi du khách về màn này sau lượt quét đầu tiên ở điểm cuối (BR-M02-021).
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { emitMascotEvent, MascotFigure, MascotSlot } from '../../../shared/mascot/index';
 import { ScanNotice, type ScanNoticeKind } from '../content/ScanNotice';
 import { FinalPrompt } from '../end/FinalPrompt';
+import { takeFinalPrompt } from '../end/finalPromptSignal';
 import { useEndTrip } from '../end/useEndTrip';
 import type { M02Messages } from '../i18n';
 import { useM02Messages } from '../i18n/useM02Messages';
@@ -120,6 +122,11 @@ export function TripPage() {
   const visitCount = visits.status === 'ready' ? visits.value.length : null;
   useTripMascotSignals(entry, session?.journeyCheckpoints.length ?? null, visitCount, finalVisited);
   useScannerMascotSignals(scanning, session !== null, visitCount ?? 0);
+  // Câu hỏi kết thúc chuyến đang chờ từ lượt quét điểm cuối (BR-M02-021 v3.4): hỏi một lần khi màn có phiên và lượt ghé
+  const sessionId = session?.sessionId;
+  useEffect(() => {
+    if (sessionId && finalVisited && takeFinalPrompt(sessionId)) setConfirmingFinish(true);
+  }, [sessionId, finalVisited]);
 
   const handleText = useCallback(
     async (text: string) => {
@@ -145,6 +152,8 @@ export function TripPage() {
           finalPromptNeeded: result.finalPromptNeeded,
         });
         setStayNotice({ kind: result.display.kind, freeVisitor: result.freeVisitor });
+        // Lượt quét điểm cuối ghi ngay tại màn này (kết quả không có nội dung để mở): hỏi luôn
+        if (result.finalPromptNeeded) setConfirmingFinish(true);
       } finally {
         setLookingUp(false);
       }
@@ -185,15 +194,16 @@ export function TripPage() {
       </div>
       {entry.status === 'done' && (
         <div className={styles.actions}>
-          {/* Mila đứng trên nút Quét, tư thế theo tiến độ (MAS-B-033; specs/005 T042) */}
+          {/* Mila đứng trên nút Quét, tư thế theo tiến độ (MAS-B-033; specs/005 T042). Hộp thoại kết thúc chuyến có hình Mila
+              riêng: lúc hộp thoại mở, ô này không đăng ký — một Mila trên màn (spec-Mascot §5.1) */}
           <div className={styles.dock}>
-            <MascotSlot id="trip-dock" modes={['DOCK']} size="trip" />
+            {!confirmingFinish && <MascotSlot id="trip-dock" modes={['DOCK']} size="trip" />}
           </div>
           <button type="button" className={styles.scan} onClick={() => setScanning(true)} disabled={lookingUp}>
             <span className={styles.scanIcon} aria-hidden="true" />
             {messages.trip.scan}
           </button>
-          {session && finalVisited && (
+          {session && (
             <button type="button" className={styles.finish} onClick={() => setConfirmingFinish(true)}>
               {messages.trip.finish}
             </button>
@@ -205,8 +215,14 @@ export function TripPage() {
           <QrScanner onDetected={(text) => void handleText(text)} onClose={() => setScanning(false)} mascot />
         </Suspense>
       )}
-      {session && confirmingFinish && (
-        <FinalPrompt onEnd={() => void endTrip(session.sessionId)} onContinue={() => setConfirmingFinish(false)} busy={ending} />
+      {session && confirmingFinish && visitCount !== null && (
+        <FinalPrompt
+          k={visitCount}
+          n={session.journeyCheckpoints.length}
+          onEnd={() => void endTrip(session.sessionId)}
+          onContinue={() => setConfirmingFinish(false)}
+          busy={ending}
+        />
       )}
     </FieldLayout>
   );

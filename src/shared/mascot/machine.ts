@@ -9,6 +9,7 @@ import {
   MASCOT_QUEUE_TTL_MS,
   MASCOT_SAME_PRIORITY_MIN_MS,
 } from './config';
+import { MESSAGE_META } from './dialogue/catalog';
 import type { MascotEventType } from './events';
 import { RULES } from './rules';
 import type { Blocker, Effect, Intent, MascotState, Rule, StampedEvent, Status, StepContext, StepResult } from './types';
@@ -225,7 +226,12 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
       const bubble = s.bubble;
       // Câu thành công (P4) vừa phát ở màn cũ được mang sang màn mới (lượt ghé mới → điều hướng sang nội dung)
       // Chỉ câu thành công (P4) được mang sang (BR-MAS-20 "rời màn"); câu chạm hay lỗi của màn cũ không theo sang
-      const carry = bubble && bubble.priority === 4 && now - bubble.shownAt < MASCOT_SAME_PRIORITY_MIN_MS ? bubble.intent : null;
+      // v1.6 (D1): chỉ lời xác nhận lượt quét (`role="status"`, BR-MAS-24) — câu 011 của trang kết quả không theo về form
+      // Gợi ý tuyến và chặn lời chào của form
+      const carry =
+        bubble && bubble.priority === 4 && MESSAGE_META[bubble.messageId].role === 'status' && now - bubble.shownAt < MASCOT_SAME_PRIORITY_MIN_MS
+          ? bubble.intent
+          : null;
       clearPresence(s);
       s.timers = {};
       s.closed = false;

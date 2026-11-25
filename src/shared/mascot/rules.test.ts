@@ -183,9 +183,9 @@ describe('US2 — Mila ăn mừng tiến độ có thật (US-MAS-02)', () => {
     expect(again.effects).toEqual([]);
   });
 
-  it('điểm cuối: không bong bóng (dialog cuối chuyến hiện ngay), vẫn rung (BR-MAS-19)', () => {
+  it('v1.6: điểm cuối được xác nhận như mọi điểm (câu hỏi kết thúc chuyến ở màn chuyến đi), có rung (BR-MAS-19)', () => {
     const { state, effects } = play([content(0), visit(2, 2, 10, true)]);
-    expect(state.bubble).toBeNull();
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-050', params: { k: 2, n: 2 } });
     expect(effects).toEqual([{ kind: 'vibrate', ms: 30 }]);
   });
 
@@ -367,6 +367,41 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
     s = play([{ type: 'mascot.user.closedBubble', at: 1_500 }, tap(2_000)], [], CTX, s).state;
     expect(s.bubble?.messageId).toBe('MSG-MAS-009');
     expect(s.proactiveLog).toEqual(log);
+  });
+
+  it('MAS-B-090 (v1.6): mỗi màn M01 có câu chạm riêng; chi tiết tuyến nói ở panel Bắt đầu, tài nguyên ở ô gói', () => {
+    const tapOn = (path: string, start: Stamped[] = []) => {
+      const view: Stamped = { type: 'm01.recommend.opened', at: 10 };
+      const s = play([{ type: 'app.route.changed', path, at: 0 }, ...(start.length ? start : [view]), { type: 'mascot.user.closedBubble', at: 900 }]).state;
+      return play([tap(1_000)], [], CTX, s.view ? s : { ...s, view: { mode: 'AVATAR', pose: 'point', animation: null, seq: 1, behaviorId: 'T' } }).state;
+    };
+    let s = tapOn('/recommend');
+    expect(s.bubble?.messageId).toBe('MSG-MAS-010');
+    s = play([tap(1_600)], [], CTX, s).state;
+    expect(s.bubble?.messageId).toBe('MSG-MAS-015');
+    expect(tapOn('/recommend/results').bubble?.messageId).toBe('MSG-MAS-016');
+
+    const safety: Stamped = { type: 'm01.routeDetail.startPanelVisible', routeRef: 'r1', hasSafetyWarning: true, at: 10 };
+    const withWarning = tapOn('/routes/r1', [safety, { type: 'mascot.tick', at: 600 }]);
+    expect(withWarning.bubble?.messageId).toBe('MSG-MAS-017');
+    expect(withWarning.view).toMatchObject({ slot: 'start-panel' });
+    const noWarning = tapOn('/routes/r2', [{ ...safety, routeRef: 'r2', hasSafetyWarning: false }]);
+    expect(noWarning.bubble?.messageId).toBe('MSG-MAS-019');
+    expect(noWarning.view).toMatchObject({ slot: 'start-panel' });
+
+    const offline = tapOn('/offline', [{ type: 'mascot.tick', at: 20 }]);
+    expect(offline.bubble?.messageId).toBe('MSG-MAS-018');
+    expect(offline.view).toMatchObject({ slot: 'package-panel' });
+  });
+
+  it('v1.6: đổi màn chỉ mang theo lời xác nhận lượt quét — câu 011 của trang kết quả không chặn lời chào 010 của form', () => {
+    let s = play([
+      { type: 'app.route.changed', path: '/recommend/results', at: 0 },
+      { type: 'm01.recommend.resolved', count: 2, at: 10 },
+    ]).state;
+    expect(s.bubble?.messageId).toBe('MSG-MAS-011');
+    s = play([{ type: 'app.route.changed', path: '/recommend', at: 500 }, { type: 'm01.recommend.opened', at: 510 }, { type: 'mascot.tick', at: 1_000 }], [], CTX, s).state;
+    expect(s.bubble?.messageId).toBe('MSG-MAS-010');
   });
 
   it('MAS-B-032 / 036 / 037: chuyến đi chưa quét → 032; giữa chặng → 033 "Còn {r}"; quét đủ → 032; scanner mở → 043', () => {
@@ -629,19 +664,19 @@ describe('US7 — Chuẩn bị cùng Mila (US-MAS-07; T056)', () => {
     expect(empty.view).toBeNull();
   });
 
-  it('MAS-B-014: tuyến có cảnh báo an toàn → sau 500 ms nhắc ở slot panel Bắt đầu, một lần mỗi tuyến', () => {
+  it('MAS-B-014 (v1.6): tuyến có cảnh báo an toàn → sau 500 ms nhắc ở slot panel Bắt đầu, mỗi lần vào màn', () => {
     const visible = (routeRef: string, hasSafetyWarning: boolean, at: number): Stamped => ({ type: 'm01.routeDetail.startPanelVisible', routeRef, hasSafetyWarning, at });
     let { state } = play([{ type: 'app.route.changed', path: '/routes/r1', at: 0 }, visible('r1', true, 100), { type: 'mascot.tick', at: 600 }]);
     expect(state.view).toMatchObject({ mode: 'AVATAR', pose: 'point', slot: 'start-panel' });
     expect(state.bubble?.messageId).toBe('MSG-MAS-014');
-    // Quay lại cùng tuyến: không nhắc nữa; tuyến khác có cảnh báo: nhắc
+    // Quay lại cùng tuyến: nhắc lại (v1.6, D3); tuyến khác có cảnh báo: nhắc
     state = play(
       [{ type: 'app.route.changed', path: '/', at: 10_000 }, { type: 'app.route.changed', path: '/routes/r1', at: 11_000 }, visible('r1', true, 11_100), { type: 'mascot.tick', at: 11_600 }],
       [],
       CTX,
       state,
     ).state;
-    expect(state.bubble).toBeNull();
+    expect(state.bubble?.messageId).toBe('MSG-MAS-014');
     state = play([{ type: 'app.route.changed', path: '/routes/r2', at: 20_000 }, visible('r2', true, 20_100), { type: 'mascot.tick', at: 20_600 }], [], CTX, state).state;
     expect(state.bubble?.messageId).toBe('MSG-MAS-014');
 

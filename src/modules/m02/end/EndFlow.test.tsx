@@ -4,6 +4,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { contextV3 } from '../api/fake/fixtures';
+import { resetFinalPromptForTest } from './finalPromptSignal';
 import { vi as viMessages } from '../i18n/vi';
 import { m02Routes } from '../routes';
 import { handleScannedText } from '../scan/scanBridge';
@@ -44,6 +45,7 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date(Date.parse(AUTHORIZED_AT) + 60_000));
   fakeM01.reset();
+  resetFinalPromptForTest();
   fakeM01.setLanguage({ languageCode: 'vi' });
 });
 
@@ -51,36 +53,50 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('kết thúc chuyến', () => {
-  it('Finish chỉ có sau khi điểm cuối đã quét (FR-M02-015)', async () => {
+describe('kết thúc chuyến (spec-M02 v3.4)', () => {
+  it('nút Kết thúc chuyến có ở mọi lúc trong chuyến (FR-M02-015)', async () => {
     const router = await startTrip();
-    expect(finishButton()).toBeNull();
+    expect(finishButton()).not.toBeNull();
     await scan('Q1a');
-    await backToTrip(router);
-    expect(finishButton()).toBeNull();
-    await scan('Q3');
     await backToTrip(router);
     expect(finishButton()).not.toBeNull();
   });
 
-  it('quét điểm cuối lần đầu → câu hỏi một lần; [Đi tiếp] giữ phiên; quét lại không hỏi (BR-M02-021; SC-M02-015)', async () => {
+  it('quét điểm cuối lần đầu → trang nội dung không hỏi; về màn chuyến đi → hỏi một lần; [Đi tiếp] giữ phiên (BR-M02-021; SC-M02-015)', async () => {
     const router = await startTrip();
     await scan('Q3');
-    expect((await screen.findByRole('alertdialog')).textContent).toContain(viMessages.endPrompt.question);
+    await screen.findByRole('heading', { name: 'Đối tượng Q3' });
+    expect(prompt()).toBeNull();
+
+    await backToTrip(router);
+    expect((await screen.findByRole('alertdialog')).textContent).toContain(viMessages.endPrompt.someLeft({ r: 2 }));
     fireEvent.click(screen.getByRole('button', { name: viMessages.endPrompt.continue }));
     await waitFor(() => expect(prompt()).toBeNull());
     expect((await playSessionsTable.toArray()).map((s) => s.status)).toEqual(['DANG_DIEN_RA']);
 
+    // Về lại màn chuyến đi, quét lại điểm cuối: không hỏi lần nữa
+    await scan('Q1a');
     await backToTrip(router);
-    expect(finishButton()).not.toBeNull();
+    expect(prompt()).toBeNull();
     await scan('Q3');
     await screen.findByRole('heading', { name: 'Đối tượng Q3' });
+    await backToTrip(router);
     expect(prompt()).toBeNull();
   });
 
+  it('quét đủ mọi điểm → câu "đã quét mã ở tất cả {n} điểm"', async () => {
+    const router = await startTrip();
+    for (const qr of ['Q1a', 'Q2', 'Q3']) {
+      await scan(qr);
+      await backToTrip(router);
+    }
+    expect((await screen.findByRole('alertdialog')).textContent).toContain(viMessages.endPrompt.allScanned({ n: 3 }));
+  });
+
   it('bàn phím: câu hỏi mở với focus ở [Kết thúc]; Esc = [Đi tiếp], phiên vẫn chạy (WCAG 2.1.1)', async () => {
-    await startTrip();
+    const router = await startTrip();
     await scan('Q3');
+    await backToTrip(router);
     await screen.findByRole('alertdialog');
     expect(document.activeElement?.textContent).toBe(viMessages.endPrompt.end);
     fireEvent.keyDown(document, { key: 'Escape' });
@@ -88,26 +104,40 @@ describe('kết thúc chuyến', () => {
     expect((await playSessionsTable.toArray()).map((s) => s.status)).toEqual(['DANG_DIEN_RA']);
   });
 
-  it('[Kết thúc] → HOAN_TAT kể cả khi bỏ qua điểm trước; mục hàng đợi PENDING; sang màn kết quả (FR-M02-016)', async () => {
-    await startTrip();
+  it('[Kết thúc] sau điểm cuối → HOAN_TAT kể cả khi bỏ qua điểm trước; mục hàng đợi PENDING; sang màn kết quả (FR-M02-016)', async () => {
+    const router = await startTrip();
     await scan('Q3');
+    await backToTrip(router);
     fireEvent.click(await screen.findByRole('button', { name: viMessages.endPrompt.end }));
     expect(await screen.findByRole('heading', { name: viMessages.end.title })).toBeTruthy();
     expect((await playSessionsTable.toArray()).map((s) => s.status)).toEqual(['HOAN_TAT']);
     expect((await pendingSyncItemsTable.toArray()).map((i) => i.syncStatus)).toEqual(['PENDING']);
   });
 
+  it('Kết thúc trước điểm cuối → xác nhận "còn {r} điểm" → BO_DO, mục hàng đợi PENDING, màn kết quả (BR-M02-007 v3.4)', async () => {
+    const router = await startTrip();
+    await scan('Q1a');
+    await backToTrip(router);
+    expect(prompt()).toBeNull();
+    fireEvent.click(finishButton()!);
+    expect((await screen.findByRole('alertdialog')).textContent).toContain(viMessages.endPrompt.someLeft({ r: 2 }));
+    fireEvent.click(screen.getByRole('button', { name: viMessages.endPrompt.end }));
+    await screen.findByRole('heading', { name: viMessages.end.title });
+    expect((await playSessionsTable.toArray()).map((s) => s.status)).toEqual(['BO_DO']);
+    expect((await pendingSyncItemsTable.toArray()).map((i) => i.syncStatus)).toEqual(['PENDING']);
+    expect(screen.getAllByRole('listitem').map((li) => li.textContent)[0]).toContain('Cổng rừng');
+  });
+
   it('Finish → xác nhận → màn kết quả: danh sách điểm đã quét theo thứ tự, trạng thái chờ gửi, về danh sách tuyến', async () => {
     const router = await startTrip();
     await scan('Q3');
-    fireEvent.click(await screen.findByRole('button', { name: viMessages.endPrompt.continue }));
-    // Trình quét ở SCR-M02-001: quay lại phiên rồi quét tiếp
     await backToTrip(router);
+    fireEvent.click(await screen.findByRole('button', { name: viMessages.endPrompt.continue }));
     await scan('Q1b');
     await backToTrip(router);
 
     fireEvent.click(finishButton()!);
-    expect((await screen.findByRole('alertdialog')).textContent).toContain(viMessages.endPrompt.question);
+    expect((await screen.findByRole('alertdialog')).textContent).toContain(viMessages.endPrompt.someLeft({ r: 1 }));
     fireEvent.click(screen.getByRole('button', { name: viMessages.endPrompt.end }));
 
     await screen.findByRole('heading', { name: viMessages.end.title });
@@ -123,9 +153,10 @@ describe('kết thúc chuyến', () => {
   });
 
   it('không có nút "Dừng chuyến đi" ở màn phiên và màn kết quả (SR-SCR-M02-003-003)', async () => {
-    await startTrip();
+    const router = await startTrip();
     expect(screen.queryByRole('button', { name: /dừng chuyến/i })).toBeNull();
     await scan('Q3');
+    await backToTrip(router);
     fireEvent.click(await screen.findByRole('button', { name: viMessages.endPrompt.end }));
     await screen.findByRole('heading', { name: viMessages.end.title });
     expect(screen.queryByRole('button', { name: /dừng chuyến/i })).toBeNull();

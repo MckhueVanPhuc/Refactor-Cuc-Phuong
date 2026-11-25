@@ -5,10 +5,9 @@
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '../../../app/paths';
-import { emitMascotEvent, isMascotEnabled, MascotFigure, MascotSlot, useMascotConfirms } from '../../../shared/mascot/index';
+import { emitMascotEvent, MascotFigure, MascotSlot, useMascotConfirms } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
-import { FinalPrompt } from '../end/FinalPrompt';
-import { useEndTrip } from '../end/useEndTrip';
+import { markFinalPrompt } from '../end/finalPromptSignal';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { FieldNotice } from '../layout/FieldLayout';
 import { Toast } from '../../../shared/ui/Toast';
@@ -132,13 +131,12 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
   const messages = useM02Messages();
   const language = useM02DisplayLanguage();
   // Lời xác nhận lượt ghé (spec-M02 §8, clarification 4): toast, hoặc bong bóng của Mila khi Mila hiện được
-  // (spec-Mascot BR-MAS-24). Điểm cuối khi Mila bật: hộp thoại kết thúc chuyến là lời xác nhận, không toast.
+  // (spec-Mascot BR-MAS-24). v3.4: điểm cuối cũng vậy — câu hỏi kết thúc chuyến hiện ở màn chuyến đi (BR-M02-021).
   const confirmedBy = useMascotConfirms(newVisitRef(scan));
-  const finalWithMila = scan.finalPromptNeeded && isMascotEnabled();
   return (
     <>
       {/* Lượt ghé vừa ghi: toast nổi, không đẩy nội dung xuống */}
-      {scan.visitCreated && confirmedBy === 'toast' && !finalWithMila && (
+      {scan.visitCreated && confirmedBy === 'toast' && (
         <Toast key={scan.visit?.checkedInAt ?? scan.qrIdentifier} closeLabel={messages.toast.close}>
           {messages.trip.visitRecorded}
         </Toast>
@@ -183,7 +181,6 @@ export function ScanContent({
   qrIdentifier,
   showBack,
   backTo = PATHS.m02SessionEntry,
-  onPromptContinue,
 }: {
   /** `undefined` = đang tra cứu */
   scan: ScanResult | undefined;
@@ -192,16 +189,16 @@ export function ScanContent({
   showBack: boolean;
   /** Đích của "Quay lại"; mặc định là hành trình của phiên */
   backTo?: string;
-  /** Việc thêm khi chọn [Đi tiếp] (ContentPage ghi đè router state để không hỏi lại) */
-  onPromptContinue?: () => void;
 }) {
   const messages = useM02Messages();
   const [view, setView] = useState<ContentView | undefined>(undefined);
-  const { endTrip, ending } = useEndTrip();
-  const [promptDismissed, setPromptDismissed] = useState(false);
-  // Lượt ghé điểm cuối vừa ghi lần đầu → hỏi kết thúc chuyến một lần (BR-M02-021; FR-M02-023)
-  const promptSessionId = scan?.finalPromptNeeded && !promptDismissed ? scan.session?.sessionId : undefined;
   useScanMascotSignals(scan);
+  // Lượt ghé điểm cuối vừa ghi lần đầu → câu hỏi kết thúc chuyến chờ ở màn chuyến đi (spec-M02 v3.4 BR-M02-021; FR-M02-023)
+  const finalVisitRef = scan?.finalPromptNeeded && scan.session ? newVisitRef(scan) : null;
+  const finalSessionId = scan?.session?.sessionId;
+  useEffect(() => {
+    if (finalVisitRef && finalSessionId) markFinalPrompt(finalSessionId, finalVisitRef);
+  }, [finalVisitRef, finalSessionId]);
 
   useEffect(() => {
     if (!scan) return undefined;
@@ -237,24 +234,15 @@ export function ScanContent({
           // Mila nhắc cất máy khi quay về hành trình sau một lượt ghé mới (spec-Mascot BR-MAS-13; specs/005 T066).
           // Chỉ phát tín hiệu; điều hướng của link giữ nguyên
           onClick={() => {
+            // Sau lượt quét điểm cuối, màn chuyến đi mở câu hỏi kết thúc chuyến: Mila không nhắc cất máy (MAS-B-056)
             const afterNewVisit = Boolean(scan?.visitCreated && !scan.finalPromptNeeded);
             emitMascotEvent({ type: 'm02.content.backPressed', afterNewVisit });
             // Hiệu ứng mở khóa ở màn chuyến đi (specs/006 R-05): chỉ đánh dấu UI, không đổi điều hướng hay dữ liệu
-            if (afterNewVisit && scan?.visit) markUnlock(scan.visit.checkpointId);
+            if (scan?.visitCreated && scan.visit) markUnlock(scan.visit.checkpointId);
           }}
         >
           {messages.content.back}
         </Link>
-      )}
-      {promptSessionId && (
-        <FinalPrompt
-          onEnd={() => void endTrip(promptSessionId)}
-          onContinue={() => {
-            setPromptDismissed(true);
-            onPromptContinue?.();
-          }}
-          busy={ending}
-        />
       )}
     </>
   );

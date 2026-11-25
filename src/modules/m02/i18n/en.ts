@@ -22,7 +22,9 @@ export const en: M02Messages = {
     sessionStartHint: 'During your trip, scan with the Scan button in the app so that your visits are recorded.',
   },
   endPrompt: {
-    question: 'You have scanned the last point. End the trip?',
+    allScanned: ({ n }: { n: number }) => `You've scanned all ${n} checkpoints. End your trip?`,
+    someLeft: ({ r }: { r: number }) =>
+      r === 1 ? '1 checkpoint not scanned yet. End your trip anyway?' : `${r} checkpoints not scanned yet. End your trip anyway?`,
     end: 'End',
     continue: 'Continue',
   },

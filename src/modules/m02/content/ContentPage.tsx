@@ -2,7 +2,7 @@
 // (tải lại trang, chạm điểm đã quét) thì gọi viewScannedPoint — không ghi lượt ghé. Phần hiển thị ở ScanContent, dùng
 // chung với trang mở từ camera điện thoại (SCR-M02-004).
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { FieldLayout } from '../layout/FieldLayout';
 import type { ScanResult } from '../scan/processScan';
@@ -13,7 +13,6 @@ import { ScanContent } from './ScanContent';
 export function ContentPage() {
   const { qrIdentifier = '' } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
   const state = (location.state ?? {}) as ContentRouteState;
   const [scan, setScan] = useState<ScanResult | undefined>(state.scan);
 
@@ -29,11 +28,6 @@ export function ContentPage() {
     };
   }, [qrIdentifier, state.scan]);
 
-  // [Đi tiếp]: ghi đè router state để quay lại / tải lại trang không hỏi lần nữa
-  const rewriteState = () => {
-    if (scan) navigate(location.pathname, { replace: true, state: { ...state, scan: { ...scan, finalPromptNeeded: false } } satisfies ContentRouteState });
-  };
-
   return (
     <FieldLayout surface="article">
       <ScanContent
@@ -42,7 +36,6 @@ export function ContentPage() {
         showBack
         // Có phiên → về hành trình (SCR-M02-001); khách tự do quét từ thanh tab → về màn đã mở thanh tab
         backTo={scan?.session || !state.returnTo ? PATHS.m02SessionEntry : state.returnTo}
-        onPromptContinue={rewriteState}
       />
     </FieldLayout>
   );

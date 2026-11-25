@@ -21,6 +21,12 @@ export const vi = {
     'MSG-MAS-011': 'Đây là những tuyến hợp với bạn!',
     'MSG-MAS-013': 'Thử xem tất cả tuyến, biết đâu có tuyến bạn thích.',
     'MSG-MAS-014': 'Trước khi đi, bạn đọc kỹ phần Cảnh báo an toàn giúp mình nhé.',
+    // v1.6 (CHG-MASCOT-2026-11-25-06 D2): câu chạm Mila theo từng màn M01 (BR-MAS-12)
+    'MSG-MAS-015': 'Chọn đủ ba mục rồi bấm Xem tuyến phù hợp nhé.',
+    'MSG-MAS-016': 'Chạm vào một tuyến để xem chi tiết, hoặc bấm Đổi tiêu chí.',
+    'MSG-MAS-017': 'Đọc kỹ Cảnh báo an toàn, tải gói nếu cần, rồi bấm Bắt đầu nhé.',
+    'MSG-MAS-019': 'Tải gói nếu cần, rồi bấm Bắt đầu nhé.',
+    'MSG-MAS-018': 'Tải gói trước khi vào rừng để xem tuyến khi mất sóng.',
     'MSG-MAS-020': 'Mình đang xếp nội dung vào ba lô. Giữ trang này mở nhé.',
     'MSG-MAS-021': 'Giờ các điểm này xem được cả khi mất sóng.',
     'MSG-MAS-024': 'Tải chưa xong. Ra chỗ sóng mạnh hơn rồi thử lại nhé.',

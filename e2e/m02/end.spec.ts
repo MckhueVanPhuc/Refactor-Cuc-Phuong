@@ -60,17 +60,21 @@ async function back(page: Page) {
   await expect(page.getByRole('listitem')).toHaveCount(3);
 }
 
-test('V16 — quét Q3 lần đầu: câu hỏi một lần; [Đi tiếp] → Finish còn; quét lại Q3 không hỏi', async ({ page }) => {
+test('V16 (v3.4) — quét Q3 lần đầu: trang nội dung không hỏi; về chuyến đi → hỏi một lần; [Đi tiếp] → Finish còn; quét lại Q3 không hỏi', async ({ page }) => {
   await startTrip(page);
-  await scan(page, 'Q3');
-  await expect(page.getByRole('alertdialog')).toContainText(vi.endPrompt.question);
-  await (await promptButton(page, vi.endPrompt.continue)).click();
-  await expect(page.getByRole('alertdialog')).toHaveCount(0);
-
-  await back(page);
   await expect(page.getByRole('button', { name: vi.trip.finish })).toBeVisible();
   await scan(page, 'Q3');
   await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q3' })).toBeVisible();
+  await expect(page.getByRole('alertdialog')).toHaveCount(0);
+  await back(page);
+  await expect(page.getByRole('alertdialog')).toContainText(vi.endPrompt.someLeft({ r: 2 }));
+  await (await promptButton(page, vi.endPrompt.continue)).click();
+  await expect(page.getByRole('alertdialog')).toHaveCount(0);
+
+  await expect(page.getByRole('button', { name: vi.trip.finish })).toBeVisible();
+  await scan(page, 'Q3');
+  await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q3' })).toBeVisible();
+  await back(page);
   await expect(page.getByRole('alertdialog')).toHaveCount(0);
   expect((await stores(page)).sessions.map((s) => s.status)).toEqual(['DANG_DIEN_RA']);
 });
@@ -78,6 +82,7 @@ test('V16 — quét Q3 lần đầu: câu hỏi một lần; [Đi tiếp] → Fi
 test('V17 — [Kết thúc] khi chưa quét C2 → HOAN_TAT; mục hàng đợi PENDING cùng lúc; màn kết quả', async ({ page }) => {
   await startTrip(page);
   await scan(page, 'Q3');
+  await back(page);
   await (await promptButton(page, vi.endPrompt.end)).click();
   await expect(page).toHaveURL(/\/trip\/end$/);
   await expect(page.getByRole('heading', { name: vi.end.title })).toBeVisible();
@@ -85,6 +90,20 @@ test('V17 — [Kết thúc] khi chưa quét C2 → HOAN_TAT; mục hàng đợi 
   const { sessions, items } = await stores(page);
   expect(sessions.map((s) => s.status)).toEqual(['HOAN_TAT']);
   expect(items).toEqual([expect.objectContaining({ sessionId: sessions[0]!.sessionId, syncStatus: 'PENDING', record: expect.objectContaining({ status: 'HOAN_TAT' }) })]);
+});
+
+test('V17b (v3.4) — Kết thúc chuyến trước điểm cuối → xác nhận "còn {r} điểm" → BO_DO; mục hàng đợi PENDING; màn kết quả', async ({ page }) => {
+  await startTrip(page);
+  await scan(page, 'Q1a');
+  await back(page);
+  await page.getByRole('button', { name: vi.trip.finish }).click();
+  await expect(page.getByRole('alertdialog')).toContainText(vi.endPrompt.someLeft({ r: 2 }));
+  await (await promptButton(page, vi.endPrompt.end)).click();
+  await expect(page).toHaveURL(/\/trip\/end$/);
+  await expect(page.getByRole('heading', { name: vi.end.title })).toBeVisible();
+  const { sessions, items } = await stores(page);
+  expect(sessions.map((s) => s.status)).toEqual(['BO_DO']);
+  expect(items).toEqual([expect.objectContaining({ syncStatus: 'PENDING', record: expect.objectContaining({ status: 'BO_DO' }) })]);
 });
 
 test('V18 — handoff mới khi đang có phiên → cũ BO_DO + mục hàng đợi, mới chạy', async ({ page }) => {
@@ -118,8 +137,8 @@ test.describe('V19 — giờ thiết bị +24 h rồi đưa trang hiện lại',
       await startTrip(page);
       if (visitedFinal) {
         await scan(page, 'Q3');
-        await (await promptButton(page, vi.endPrompt.continue)).click();
         await back(page);
+        await (await promptButton(page, vi.endPrompt.continue)).click();
       }
       const before = (await stores(page)).sessions[0]!;
       await page.clock.setSystemTime(Date.parse(before.startedAt) + DAY + 60_000);

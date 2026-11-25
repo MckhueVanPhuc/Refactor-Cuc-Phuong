@@ -36,6 +36,8 @@ test('V27 — phiên đang chạy, chỉ mở tab M01: Cập nhật bị hoãn; 
   await expect(page.locator('[data-entry="RESTORED"]')).toBeAttached();
   await page.waitForFunction(() => Boolean((window as unknown as M02TestWindow).__cpqTestHooks?.m02?.scan));
   await page.evaluate(() => (window as unknown as M02TestWindow).__cpqTestHooks!.m02!.scan!('http://localhost:4173/q/Q3'));
+  // spec-M02 v3.4 (BR-M02-021): câu hỏi kết thúc chuyến hiện khi về màn chuyến đi
+  await page.getByRole('link', { name: vi.content.back }).click();
   await page.waitForFunction(() => {
     const dialog = document.querySelector('[role="alertdialog"]');
     return Boolean(dialog?.parentElement && getComputedStyle(dialog.parentElement).position === 'fixed');
