@@ -43,14 +43,31 @@
   border-radius: var(--radius-sm);
 }
 
-/* Tên sản phẩm cạnh logo: serif như tiêu đề trang; màn hẹp thì xuống hai dòng thay vì đè nút VI/EN */
+/*
+ * Tên sản phẩm cạnh logo, dạng logo chữ hai dòng ngăn với logo bằng vạch amber mảnh: "Cúc Phương" serif cỡ body đậm
+ * màu paper, "Quest" serif nghiêng cỡ meta màu amber (7.60:1 trên deep, §5.3). Hai dòng cố định nên không đè nút VI/EN
+ * kể cả ở màn hẹp nhất.
+ */
 .brandName {
+  display: grid;
   min-width: 0;
+  padding-left: var(--space-3);
   font-family: var(--font-serif);
-  font-size: var(--font-size-section-title);
-  font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
+  white-space: nowrap;
+  border-left: var(--border-width-thin) solid color-mix(in srgb, var(--color-m01-amber) 45%, transparent);
+}
+
+.brandPlace {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-paper);
+}
+
+.brandQuest {
+  font-size: var(--font-size-meta);
+  font-style: italic;
+  color: var(--color-m01-amber);
 }
 
 .logo {
