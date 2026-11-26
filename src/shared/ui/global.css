@@ -5,9 +5,22 @@
   box-sizing: border-box;
 }
 
+/*
+ * Không màn nào cuộn ngang ở cấp trang (WCAG 1.4.10): phần thừa ngang bị cắt thay vì cho vuốt ngang cả trang. Vùng cuộn
+ * ngang riêng (bảng, thư viện ảnh) vẫn cuộn bên trong khung của nó. `clip` không tạo khung cuộn nên thanh trên cùng
+ * (position: sticky) vẫn dính; trình duyệt chưa có `clip` dùng `hidden` trên <html> (truyền lên viewport).
+ */
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
+@supports (overflow: clip) {
+  html,
+  body {
+    overflow-x: clip;
+  }
 }
 
 body {
