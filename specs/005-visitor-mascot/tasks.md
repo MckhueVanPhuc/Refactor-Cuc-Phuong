@@ -432,6 +432,21 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 - [X] T126 [US8] `src/shared/mascot/{events,types,machine,rules,index}.ts`: `next` trong `m02.trip.entered`/`shown`, `tripNext` trong trạng thái; `dialogue/{vi,en}.ts` câu 030, 033, 056, `nextStopText` (≤ 90 ký tự)
 - [X] T127 Đồng bộ spec-Mascot v1.7, spec-M02 v3.5, design-system, Behavior Matrix, Dialogue Library, Testing Checklist, screen spec, contract sự kiện; chạy `npm run ci`, `npx playwright test --project=m02`; chụp 390 px; ghi validation report §21
 
+## Phase 22: v1.8 — màn quét có VI/EN, khung quét, màn lỗi camera có hướng dẫn, nút Kết thúc chính khi quét đủ, gợi ý khách tự do lên đầu trang (US2, US5) — CHG-MASCOT-2026-11-27-08
+
+**Goal**: spec-Mascot v1.8 (§5.1: không Mila ở màn lỗi camera); screen spec SCR-M02-001 E-01, 09, 10, 11, 12, 19, 27 (mới); SCR-M02-002 E-16, SCR-M02-004 E-03, SCR-M02-005 E-01, 04.
+
+### Tests ⚠️
+
+- [X] T128 [P] [US5] `src/modules/m02/scanner/QrScanner.test.tsx`: VI/EN trong scanner, nhãn điểm đang tìm, màn lỗi camera (icon, ba bước, "Thử lại" trước "Đóng camera", không Mila), `isAppleMobile`; e2e `scan.spec.ts` (V23 các bước; BUG-020 mới), `mascot-scanner.spec.ts` MAS-B-038 v1.8
+- [X] T129 [P] [US2] `src/modules/m02/end/EndFlow.test.tsx`: thẻ quét đủ, thứ tự nút khi chưa / đã quét đủ; `qr-link/QrLinkPage.test.tsx`: gợi ý khách tự do trước bài viết; e2e `qr-link.spec.ts` V20 gợi ý trong khung nhìn
+
+### Implementation
+
+- [X] T130 [US5] `src/modules/m02/scanner/QrScanner.tsx` (+ css): hàng tiêu đề serif với `LanguageControl`, nhãn `target`, khung bốn góc + vạch quét, màn lỗi camera, `isAppleMobile`; `assets/icons/camera-off.svg` (mới)
+- [X] T131 [US2] `src/modules/m02/session/TripPage.tsx` (+ css): `scannerTarget`, thẻ quét đủ, lá xoay khi kiểm tra mã; `content/ScanContent.tsx`, `qr-link/FreeVisitorHint.tsx` (+ css), `shared/ui/Toast.tsx`: câu khách tự do là toast 4 giây, nút "Chọn tuyến" cùng Mila ở cuối bài; `i18n/{vi,en}.ts`
+- [X] T132 Đồng bộ spec-Mascot v1.8, design-system, Behavior Matrix, screen spec SCR-M02-001/002/004/005; chạy `npm run ci`, `npx playwright test --project=m02 --project=m02-cam-evil`; chụp 390 px; ghi validation report §22
+
 
 
 ### Phase Dependencies

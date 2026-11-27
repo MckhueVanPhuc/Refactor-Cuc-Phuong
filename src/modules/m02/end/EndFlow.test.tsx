@@ -2,7 +2,8 @@
 // lookup và Storage giả.
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PRELOAD_TIMEOUT_MS, preloadM02Routes } from '../testing/preloadRoutes';
 import { contextV3 } from '../api/fake/fixtures';
 import { resetFinalPromptForTest } from './finalPromptSignal';
 import { vi as viMessages } from '../i18n/vi';
@@ -14,6 +15,9 @@ import { fakeM01 } from '../testing/fakeM01Port';
 vi.mock('../m01Port', () => import('../testing/fakeM01Port'));
 vi.mock('../api/mediaUrl', () => ({ mediaUrlClient: { signedUrls: async () => new Map() } }));
 vi.mock('../api/lookupClient', async () => ({ lookupClient: (await import('../api/fake/fakeLookup')).createFakeLookup() }));
+
+// Nạp sẵn màn lazy để ca đầu tiên không quá thời gian chờ khi máy chậm (DV-100)
+beforeAll(() => preloadM02Routes(), PRELOAD_TIMEOUT_MS);
 
 const AUTHORIZED_AT = '2026-11-04T01:00:00.000Z';
 const BASE = 'http://localhost:5174';
@@ -91,6 +95,21 @@ describe('kết thúc chuyến (spec-M02 v3.4)', () => {
       await backToTrip(router);
     }
     expect((await screen.findByRole('alertdialog')).textContent).toContain(viMessages.endPrompt.allScanned({ n: 3 }));
+    // M02-15 (CHG-MASCOT-2026-11-27-08 D1): đóng câu hỏi → thẻ quét đủ, "Kết thúc chuyến" là nút chính trước "Quét QR"
+    fireEvent.click(screen.getByRole('button', { name: viMessages.endPrompt.continue }));
+    await waitFor(() => expect(prompt()).toBeNull());
+    const card = document.querySelector('[data-all-scanned]') as HTMLElement;
+    expect(card.textContent).toContain(viMessages.trip.allScanned({ n: 3 }));
+    expect([...card.querySelectorAll('button')].map((b) => b.textContent)).toEqual([viMessages.trip.finish, viMessages.trip.scan]);
+  });
+
+  it('chưa quét đủ → không có thẻ quét đủ; "Quét QR" vẫn là nút chính trước "Kết thúc chuyến" (M02-15)', async () => {
+    const router = await startTrip();
+    await scan('Q1a');
+    await backToTrip(router);
+    expect(document.querySelector('[data-all-scanned]')).toBeNull();
+    const names = screen.getAllByRole('button').map((b) => b.textContent);
+    expect(names.indexOf(viMessages.trip.scan)).toBeLessThan(names.indexOf(viMessages.trip.finish));
   });
 
   it('bàn phím: câu hỏi mở với focus ở [Kết thúc]; Esc = [Đi tiếp], phiên vẫn chạy (WCAG 2.1.1)', async () => {

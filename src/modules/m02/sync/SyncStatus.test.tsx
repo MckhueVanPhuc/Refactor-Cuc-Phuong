@@ -1,7 +1,8 @@
 // Trạng thái đồng bộ trên giao diện (tasks T086; E-SCR-M02-003-07, -08; E-SCR-M02-001-22; BR-M02-011).
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PRELOAD_TIMEOUT_MS, preloadM02Routes } from '../testing/preloadRoutes';
 import type { SessionSyncRecord } from '../../../shared/contracts/sessionSyncRecord';
 import { CHECKPOINTS, ROUTE_A } from '../api/fake/fixtures';
 import { vi as viMessages } from '../i18n/vi';
@@ -13,6 +14,9 @@ import { fakeM01 } from '../testing/fakeM01Port';
 vi.mock('../m01Port', () => import('../testing/fakeM01Port'));
 vi.mock('../api/mediaUrl', () => ({ mediaUrlClient: { signedUrls: async () => new Map() } }));
 vi.mock('../api/lookupClient', async () => ({ lookupClient: (await import('../api/fake/fakeLookup')).createFakeLookup() }));
+
+// Nạp sẵn màn lazy để ca đầu tiên không quá thời gian chờ khi máy chậm (DV-100)
+beforeAll(() => preloadM02Routes(), PRELOAD_TIMEOUT_MS);
 
 const SESSION = '5b1e2d3c-4a5f-4e6d-8c7b-9a0f1e2d3c4b';
 const ENDED_AT = '2026-11-04T03:00:00.000Z';

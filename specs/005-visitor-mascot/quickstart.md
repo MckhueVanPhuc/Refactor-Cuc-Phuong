@@ -24,7 +24,7 @@
 |---|---|---|---|
 | Q1 | Trình duyệt sạch → chọn "Tiếng Việt" | Danh mục hiện; Mila INTRO nói MSG-MAS-001 rồi 002; danh mục cuộn/bấm được | US1, SC-MAS-010 |
 | Q2 | Tải lại trang | Không INTRO; có MSG-MAS-004 một lần | US1 |
-| Q3 | Context mới mở `/q/Q1a` | Nội dung như trước, không INTRO, Mila chỉ là minh họa cạnh gợi ý khách tự do | US1, OD-MAS-14 |
+| Q3 | Context mới mở `/q/Q1a` | Nội dung như trước, không INTRO, Mila chỉ là minh họa cạnh nút "Chọn tuyến" của khách tự do (v1.8: câu gợi ý là toast) | US1, OD-MAS-14 |
 | Q4 | Start tuyến 4 điểm, quét Q1 | Nội dung hiện ngay; toast cũ còn; MSG-MAS-051; không chờ animation | US2 |
 | Q5 | Quét điểm 2 | MSG-MAS-055 (2 = ⌈4/2⌉); quét lại điểm 1: không ăn mừng | US2 |
 | Q6 | Quét điểm cuối | Dialog cuối chuyến hiện ngay (so mốc thời gian với cờ `off`); Mila trong đầu dialog | SC-MAS-005 |

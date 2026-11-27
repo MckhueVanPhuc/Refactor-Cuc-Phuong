@@ -233,7 +233,7 @@ Mỗi dòng giữ nguyên ID của spec-Mascot; BR là tham chiếu nguồn, chi
 | SCR-M02-001 | Cạnh nút Quét QR; cạnh vùng thông báo; dải dưới khung trong scanner; đầu dialog cuối chuyến | DOCK; INLINE; AVATAR; INLINE |
 | SCR-M02-002 | Cạnh toast lượt ghé | AVATAR |
 | SCR-M02-003 | Cạnh huy hiệu hoàn thành | CELEBRATE, INLINE |
-| SCR-M02-004 | Cạnh toast (có phiên); cạnh gợi ý khách tự do (không phiên) | AVATAR; INLINE |
+| SCR-M02-004 | Cạnh toast (có phiên); cạnh nút "Chọn tuyến" của khách tự do ở cuối bài (không phiên; v1.8) | AVATAR; INLINE |
 
 ### Giới hạn tạm (spec-Mascot §5.4)
 

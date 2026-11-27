@@ -38,6 +38,19 @@ describe('Toast', () => {
     expect(screen.queryByRole('status')).toBeNull();
   });
 
+  it('durationMs riêng (toast khách tự do 4 giây, 2026-11-27) → tự đóng đúng lúc đó', () => {
+    render(
+      <Toast closeLabel="Đóng thông báo" durationMs={4_000} icon="compass">
+        Bạn đang xem tự do.
+      </Toast>,
+    );
+    advance(3_999);
+    expect(screen.queryByRole('status')).not.toBeNull();
+    advance(1);
+    advance(LEAVE_MS);
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
   it('nút đóng ẩn toast ngay', () => {
     show();
     fireEvent.click(screen.getByRole('button', { name: 'Đóng thông báo' }));
