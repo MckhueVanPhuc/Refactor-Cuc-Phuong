@@ -37,11 +37,12 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | 7 | E-SCR-M02-002-07 | Media play control | Button | Phát/dừng từng tệp | Conditional | Chỉ phát khi người dùng bấm; chỉ online; đổi VI/EN dừng tệp không còn trong danh sách |
 | 8 | E-SCR-M02-002-08 | Visit time | Text | `checkedInAt` của lượt ghé (nếu mã thuộc phiên), hiển thị theo giờ của thiết bị, dạng hh:mm dd/mm/yyyy | Conditional | Diễn đạt là lượt quét, không phải bằng chứng hiện diện |
 | 9 | E-SCR-M02-002-09 | Loading state | Spinner | Đang tải nội dung | Conditional | Hiện khi đang tra cứu/đọc package |
-| 10 | E-SCR-M02-002-10 | No-offline-content message | Banner | VI: "Chưa có nội dung offline cho điểm này." | Conditional | Package `SAN_SANG` không có resource cho mã này và đang offline; không phải mã không hợp lệ (BR-M02-018) |
-| 11 | E-SCR-M02-002-11 | Source-failure notice | Text | VI: "Chưa tải được nội dung mới. Đang dùng nội dung đã lưu nếu có." | Conditional | Lookup lỗi với mã thuộc journey; khác `INVALID` |
+| 10 | E-SCR-M02-002-10 | No-offline-content message | Banner | VI: "Chưa có nội dung offline cho điểm này." Một thẻ có tên điểm làm tiêu đề, dòng "Khi có mạng, mở Tài nguyên để tải gói của tuyến này." và nút "Mở Tài nguyên" (SCR-M01-004) (2026-11-27, CHG-MASCOT-2026-11-27-09) | Conditional | Package `SAN_SANG` không có resource cho mã này và đang offline; không phải mã không hợp lệ (BR-M02-018) |
+| 11 | E-SCR-M02-002-11 | Source-failure notice | Text | VI: "Chưa tải được nội dung mới. Đang dùng nội dung đã lưu nếu có." | Conditional | Chỉ khi đang hiển thị nội dung từ gói (2026-11-27, BUG-028: không hiện cùng thông báo không có nội dung offline);  Lookup lỗi với mã thuộc journey; khác `INVALID` |
 | 12 | E-SCR-M02-002-12 | Outdated-package warning | Text | Cảnh báo package cũ | Conditional | Hiện khi dùng nội dung từ package `SAN_SANG + OUTDATED` và biết trạng thái |
-| 13 | E-SCR-M02-002-13 | ONLINE_AVAILABLE unavailable message | Banner | Điểm dừng có mạng không có nội dung offline | Conditional | Khi offline hoặc lỗi tra cứu với `ONLINE_AVAILABLE` (US-M02-03 mục 3) |
+| 13 | E-SCR-M02-002-13 | ONLINE_AVAILABLE unavailable message | Banner | Điểm dừng có mạng không có nội dung offline: một thẻ có tên điểm làm tiêu đề, câu "Điểm này cần có mạng để xem nội dung." và nút "Thử lại" (2026-11-27) | Conditional | Khi offline hoặc lỗi tra cứu với `ONLINE_AVAILABLE` (US-M02-03 mục 3) |
 | 14 | E-SCR-M02-002-14 | Media error | Text | Tệp audio/video không phát được | Conditional | Lỗi nội dung không xóa lượt ghé đã ghi |
+| 20 | E-SCR-M02-002-20 | Connection-needed card (2026-11-27) | Banner | Như E-SCR-M02-001-16: tiêu đề, câu cố định, "Lượt quét chưa được tính." khi có phiên, nút "Thử lại"; không có nút × (thẻ là nội dung duy nhất của trang) | Conditional | Mã không thuộc journey khi offline hoặc tra cứu lỗi |
 | 15 | E-SCR-M02-002-15 | Closure notice | Banner | VI: "Khu vực này đang tạm đóng. Vui lòng dừng lại hoặc quay về theo hướng dẫn của Ban Quản lý." | Conditional | Khi lookup `TEMPORARILY_CLOSED`; không có nội dung nào của điểm (BR-M02-015) |
 | 16 | E-SCR-M02-002-16 | Free-visitor hint | Text | VI: "Bạn đang xem tự do, lượt quét này không được ghi vào chuyến đi. Muốn ghi lại hành trình, hãy chọn tuyến." Hiện bằng toast nổi ngay dưới thanh app, tự đóng sau 4 giây, không đẩy nội dung; nút "Chọn tuyến" (cùng Mila nếu bật) ở cuối bài, không lặp câu (2026-11-27, BUG-015, CHG-MASCOT-2026-11-27-08, chủ dự án chọn) | Conditional | Hiện cho mọi lượt xem khi không có phiên |
 | 17 | E-SCR-M02-002-17 | Action: Quay lại | Button | Về scanner/phiên | Yes | None |
@@ -58,6 +59,11 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | Nút media | Phát · Dừng | Play · Pause |
 | Thời điểm ghé | Quét lúc {thời điểm} | Scanned at {time} |
 | Nút quay lại | Quay lại | Back |
+| Hướng dẫn tải gói (E-10, 2026-11-27) | Khi có mạng, mở Tài nguyên để tải gói của tuyến này. | When you're online, open Resources to download this route's pack. |
+| Nút mở Tài nguyên (E-10) | Mở Tài nguyên | Open Resources |
+| Nút thử lại (E-13, E-20) | Thử lại | Try again |
+| Tiêu đề chưa kiểm tra được mã (E-20) | Chưa kiểm tra được mã này | This code couldn't be checked |
+| Lượt quét chưa được tính (E-20, có phiên) | Lượt quét chưa được tính. | This scan wasn't counted. |
 | Nhãn tệp audio/video | Âm thanh {n} · Video {n} | Audio {n} · Video {n} |
 | Tiêu đề khối ảnh | Thư viện ảnh | Photo gallery |
 | Tiêu đề phần giới thiệu | Giới thiệu {tên đối tượng} | About {object name} |

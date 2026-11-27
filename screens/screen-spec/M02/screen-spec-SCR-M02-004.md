@@ -8,7 +8,7 @@
 | Actor | Bất kỳ ai quét mã bằng camera điện thoại |
 | Priority | Must |
 | Mockup | [mockup-SCR-M02-004.html](../../html/mockup-SCR-M02-004.html) (HTML tĩnh, chưa sign-off UX) |
-| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.3](../../../docs/spec/spec-Mascot.md) cho Mila |
+| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.3](../../../docs/spec/spec-Mascot.md) cho Mila Thông báo chưa kiểm tra được mã và thẻ không có nội dung dùng chung với SCR-M02-002 (E-SCR-M02-002-10, -13, -20; CHG-MASCOT-2026-11-27-09) |
 
 Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (US-M02-09, FR-M02-025/026, BR-M02-023 đến 025) và link công khai theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md) BR-M03-B04. Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 

@@ -8,7 +8,7 @@
 | Actor | Visitor có phiên; khách tự do |
 | Priority | Must |
 | Mockup | Canvas mockup được người dùng duyệt 2026-11-21 (artboard "SCR-M02-005 Quét QR"); không có file trong screens/html/ |
-| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) |
+| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) Thông báo kết quả quét như E-SCR-M02-001-15, -16 (tiêu đề, "Thử lại", ×; CHG-MASCOT-2026-11-27-09) |
 
 Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (US-M02-02, US-M02-07, FR-M02-006, 007, 019, 026, BR-M02-005, 012, 019, 022, 023). Màn này là một điểm vào mới cho trình quét trong app đã có ở SCR-M02-001, mở từ thanh tab của M01 (quyết định người dùng 2026-11-21); không thêm hành vi, field, permission hay transition nào vào baseline. Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất.
 

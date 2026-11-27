@@ -447,71 +447,17 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 - [X] T131 [US2] `src/modules/m02/session/TripPage.tsx` (+ css): `scannerTarget`, thẻ quét đủ, lá xoay khi kiểm tra mã; `content/ScanContent.tsx`, `qr-link/FreeVisitorHint.tsx` (+ css), `shared/ui/Toast.tsx`: câu khách tự do là toast 4 giây, nút "Chọn tuyến" cùng Mila ở cuối bài; `i18n/{vi,en}.ts`
 - [X] T132 Đồng bộ spec-Mascot v1.8, design-system, Behavior Matrix, screen spec SCR-M02-001/002/004/005; chạy `npm run ci`, `npx playwright test --project=m02 --project=m02-cam-evil`; chụp 390 px; ghi validation report §22
 
+## Phase 23: v1.9 — thông báo khi không xem được nội dung và khi chưa kiểm tra được mã (US2, US5) — CHG-MASCOT-2026-11-27-09
 
+**Goal**: spec-Mascot v1.9 (§5.1: không hình Mila trong thông báo kết quả quét; Mila đứng chờ bối rối ở SCR-M02-001); screen spec SCR-M02-001 E-15, 16; SCR-M02-002 E-10, 11, 13, 20 (mới); SCR-M02-004, 005.
 
-### Phase Dependencies
+### Tests ⚠️
 
-- **Setup (Phase 1)**: không phụ thuộc; T001–T005 song song.
-- **Foundational (Phase 2)**: sau Setup; chặn mọi story. Test T006–T012 song song, viết trước T013–T022.
-- **US3 (Phase 3)**: sau Foundational; đi trước các story khác (luật an toàn và test bố cục dùng chung).
-- **US1, US2, US4 (Phase 4–6)**: sau US3; có thể song song giữa các story (khác tệp), trừ các task cùng tệp làm tuần tự: `TripPage.tsx` (T042, T051), `ScanContent.tsx` (T040, T055, T066).
-- **T073, T074** (thêm sau analyze): thuộc Phase 2, chạy cùng nhóm test T006–T012; T074 mở rộng khi thêm slot ở mỗi story.
-- **US5, US6 (Phase 7–8)**: sau US3; US6 dùng payload `m02.scan.resolved` mà US2 (T040) thêm.
-- **US7 (Phase 9)**: sau US3 và US1 (dùng slot `catalog-hero` của T035).
-- **US8 (Phase 10)**: sau US2 (slot `trip-dock`, `content-toast`) và US1.
-- **Polish (Phase 11)**: sau các story cần giao; T070 chờ người dùng.
-- **v1.1 (Phase 12–17)**: sau pilot (Phase 1–6). Phase 12 trước (nền giao diện cho mọi phase sau). Phase 13 sau 12. Phase 14 cùng hoặc sau Phase 10 (chạm theo ngữ cảnh T063–T065). Phase 15 sau US2/US4. Phase 16 sau 13 (dùng `source: ambient`). Phase 17 chờ ảnh MA-20. Cùng tệp làm tuần tự: `rules.ts`, `machine.ts`, `Mascot.tsx`.
+- [X] T133 [P] [US2] `src/modules/m02/content/ContentPage.test.tsx`: BUG-028 một thẻ, "Mở Tài nguyên"; điểm cần mạng "Thử lại"; `ScanNotice.test.tsx`: tiêu đề, "chưa được tính", "Thử lại", ×, không Mila; e2e `outside-closed.spec.ts` (thẻ mới, Thử lại), `qr-link.spec.ts` V22
+- [X] T134 [P] [US5] `src/shared/mascot/rules.test.ts`: lần lỗi đầu Mila đứng chờ bối rối (MAS-B-043→044, 046); e2e `mascot-scanner.spec.ts` Q10 (một Mila)
 
-### User Story Dependencies
+### Implementation
 
-- US3: Foundational.
-- US1: US3.
-- US2: US3.
-- US4: US3.
-- US5: US3; cùng tệp `TripPage.tsx` với US2.
-- US6: US2 (T040).
-- US7: US1 (T035).
-- US8: US1, US2.
-- US9 (v1.1): pilot; Phase 12 → 13 → 16; Phase 17 chờ ảnh.
-
-### Within Each User Story
-
-Test (FAIL) → luật trong `rules.ts` → điểm phát/slot/figure trong module → E2E PASS → checkpoint chạy lại T026.
-
----
-
-## Parallel Example
-
-```text
-# Foundational — test viết song song:
-T006 architecture.test.ts | T007 events.test.ts | T008 arbiter.test.ts | T009 catalog.test.ts
-T010 machine.test.ts | T011 MascotSlot/MascotFigure tests | T012 MascotHost.test.tsx
-
-# US7 — điểm phát ở các tệp khác nhau:
-T059 RecommendPage.tsx | T060 StartPanel.tsx + OfflineDecisionDialog.tsx | T061 PackagePanel.tsx + OfflinePage.tsx | T062 CatalogPage.tsx
-```
-
----
-
-## Implementation Strategy
-
-### Pilot trước (G5)
-
-1. Phase 1–2 (nền), Phase 3 (US3 tránh đường).
-2. Phase 4–6 (US1, US2, US4): ba khoảnh khắc pilot.
-3. **Dừng và kiểm**: quickstart Q1–Q8, Q12–Q14 với cờ `on` ở `dev:fake`/`e2e`; người dùng thử trên điện thoại. Production cờ vẫn `off`.
-
-### Giao dần
-
-- G6: US5, US6 (M02 đầy đủ).
-- G7: US7 (M01).
-- G8: US8 (chạm hỏi, nhắc thiên nhiên — câu nhắc chỉ bật khi Ban Quản lý duyệt, đổi `NATURE_REMINDERS_APPROVED`).
-- G8b (v1.1, theo thứ tự đã chốt với chủ dự án 2026-11-22): Phase 12 (bong bóng, cỡ) → 13 (công tắc, cử chỉ) → 10 + 14 (chạm) → 15 (ba cấp) → 16 (đang thao tác) → 17 (chớp mắt, khi có ảnh). Thử lại trên điện thoại sau Phase 13.
-- G9: T070 khi có ảnh; kiểm thực địa; bật cờ Production.
-
-## Notes
-
-- Mỗi phase một branch và một PR, như các gói trước; không commit/push khi người dùng chưa yêu cầu.
-- Test FAIL trước khi cài; ghi bằng chứng vào validation report.
-- Không sửa test hiện có để "cho qua"; chỉ **thêm** ca (T048 thêm vào `scan-evil.spec.ts`).
-- Không đưa ảnh nhân vật vào repo trước T070.
+- [X] T135 [US2] `src/modules/m02/content/{ScanNotice,ScanContent,ContentPage}.tsx` (+ css), `qr-link/QrLinkPage.tsx`, `session/TripPage.tsx`, `scan/ScanPage.tsx`, `i18n/{vi,en}.ts`: câu nguồn dự phòng chỉ khi có nội dung gói; thẻ không có nội dung; thẻ chưa kiểm tra được mã có tiêu đề, "chưa được tính", "Thử lại", ×
+- [X] T136 [US5] `src/shared/mascot/rules.ts`: MAS-B-046/047 lần đầu là tư thế bối rối ở DOCK
+- [X] T137 Đồng bộ spec-Mascot v1.9, design-system, Behavior Matrix, screen spec SCR-M02-001/002/004/005; chạy `npm run ci`, `npx playwright test --project=m02 --project=m02-cam-evil`; chụp 390 px; ghi validation report §23

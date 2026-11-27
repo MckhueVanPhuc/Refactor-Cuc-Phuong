@@ -59,6 +59,13 @@ export const vi = {
     allScanned: 'Đã quét mã ở tất cả các điểm',
     next: 'Tiếp theo',
   },
+  // Thông báo kết quả quét (E-SCR-M02-001-15, -16; E-SCR-M02-002-20; CHG-MASCOT-2026-11-27-09)
+  scanNotice: {
+    uncheckedTitle: 'Chưa kiểm tra được mã này',
+    notCounted: 'Lượt quét chưa được tính.',
+    notCountedJourney: 'Lượt quét chưa được tính. Hành trình bên dưới giữ nguyên.',
+    retry: 'Thử lại',
+  },
   scanner: {
     title: 'Quét mã QR',
     instruction: 'Đưa mã QR của điểm dừng vào khung.',
@@ -82,6 +89,10 @@ export const vi = {
   content: {
     outdatedPackage: 'Nội dung này lấy từ gói tải trước đã cũ, có thể chưa phải bản mới nhất.',
     needsNetwork: 'Điểm này cần có mạng để xem nội dung.',
+    // Thẻ không có nội dung (E-SCR-M02-002-10, -13; CHG-MASCOT-2026-11-27-09)
+    downloadHint: 'Khi có mạng, mở Tài nguyên để tải gói của tuyến này.',
+    openResources: 'Mở Tài nguyên',
+    retry: 'Thử lại',
     mediaError: 'Không phát được tệp này.',
     play: 'Phát',
     pause: 'Dừng',

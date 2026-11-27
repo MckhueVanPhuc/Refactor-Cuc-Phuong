@@ -138,6 +138,43 @@
   margin-top: var(--space-1);
 }
 
+/* —— Thẻ không có nội dung (CHG-MASCOT-2026-11-27-09; design-system §5 "Thông báo kết quả quét") —— */
+.noticeTitle {
+  margin: 0 0 var(--space-1);
+  font-weight: var(--font-weight-semibold);
+}
+
+.noticeSecondary {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-meta);
+  color: var(--color-ink-secondary);
+}
+
+/* Nút viền trong thẻ: "Mở Tài nguyên" (liên kết) hoặc "Thử lại" (nút) */
+.noticeAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  margin-top: var(--space-3);
+  padding: 0 var(--space-5);
+  font: var(--font-weight-semibold) var(--font-size-body) / 1 var(--font-sans);
+  color: var(--color-ink);
+  text-decoration: none;
+  background: transparent;
+  border: var(--border-width-thin) solid var(--notice-accent);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+
+.noticeAction:hover {
+  background-image: linear-gradient(var(--overlay-surface-hover), var(--overlay-surface-hover));
+}
+
+.noticeAction:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 .noticeLink {
   display: inline-flex;
   align-items: center;

@@ -865,7 +865,7 @@ describe('US5 — Mila giúp khi quét khó (US-MAS-03; T047)', () => {
     expect(failed.bubble).toBeNull();
   });
 
-  it('MAS-B-043 → 044: đọc được mã → Mila kiểm tra ở DOCK (BUSY); quá 3 s → "sóng hơi yếu"; có kết quả → câu đóng, về tư thế hành trình', () => {
+  it('MAS-B-043 → 044: đọc được mã → Mila kiểm tra ở DOCK (BUSY); quá 3 s → "sóng hơi yếu"; có kết quả lỗi lần đầu → câu đóng, Mila bối rối không lời (v1.9)', () => {
     let state = run(onTrip(1), [opened(1, 0), started(0), { type: 'm02.scanner.detected', at: 5_000 }, { type: 'm02.scanner.closed', at: 5_010 }]);
     expect(state.status).toBe('BUSY');
     expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'magnifier', animation: 'search' });
@@ -873,13 +873,14 @@ describe('US5 — Mila giúp khi quét khó (US-MAS-03; T047)', () => {
     expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-044', expiresAt: null });
     state = run(state, [resolved('CONNECTION_NEEDED', 9_000)]);
     expect(state.bubble).toBeNull();
-    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'confused' });
     expect(state.status).toBe('IDLE');
   });
 
-  it('MAS-B-046: hai lần liên tiếp mã không hợp lệ → câu 046; lần đầu chỉ là hình cạnh câu cố định', () => {
+  it('MAS-B-046: hai lần liên tiếp mã không hợp lệ → câu 046; lần đầu Mila đứng chờ bối rối, không lời (v1.9: không còn hình trong thông báo)', () => {
     let state = run(onTrip(1), [{ type: 'm02.scanner.detected', at: 1_000 }, resolved('INVALID', 1_100)]);
     expect(state.bubble).toBeNull();
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'confused', behaviorId: 'MAS-B-046' });
     state = run(state, [{ type: 'm02.scanner.detected', at: 5_000 }, resolved('INVALID', 5_100)]);
     expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'confused' });
     expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-046', priority: 2, expiresAt: null });

@@ -101,6 +101,25 @@ describe('ContentPage', () => {
     expect((await screen.findByRole('alert')).textContent).toContain(viMessages.notice.noOfflineResource);
   });
 
+  it('BUG-028: không có nội dung offline → một thẻ duy nhất (tên điểm, câu cố định, hướng dẫn, "Mở Tài nguyên"), không có câu "Đang dùng nội dung đã lưu"', async () => {
+    renderContent('Q1a', { scan: scanOf('Q1a', { kind: 'PACKAGE', checkpoint: c1 }) });
+    const card = await screen.findByRole('alert');
+    expect(card.textContent).toContain(c1.checkpointName.vi);
+    expect(card.textContent).toContain(viMessages.notice.noOfflineResource);
+    expect(card.textContent).toContain(viMessages.content.downloadHint);
+    expect(screen.getByRole('link', { name: viMessages.content.openResources }).getAttribute('href')).toBe('/offline');
+    expect(screen.queryByText(viMessages.notice.sourceFailureInJourney)).toBeNull();
+  });
+
+  it('điểm cần mạng khi offline → "Thử lại" chạy lại đúng mã; có mạng lại thì hiện nội dung live', async () => {
+    renderContent('Q2', { scan: scanOf('Q2', { kind: 'PACKAGE', checkpoint: c2 }) });
+    expect((await screen.findByRole('alert')).textContent).toContain(viMessages.content.needsNetwork);
+    expect(screen.queryByText(viMessages.notice.sourceFailureInJourney)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: viMessages.content.retry }));
+    // Không có phiên trong Storage giả của tệp này: lần tra lại đi theo luồng khách tự do và lookup giả trả nội dung live
+    expect(await screen.findByRole('heading', { name: LIVE_CONTENT['Q2']!.objectName.vi })).toBeTruthy();
+  });
+
   it('ảnh lỗi → placeholder; chữ vẫn hiện', async () => {
     const { container } = renderContent('Q1a', { scan: live('Q1a') });
     const img = await screen.findByRole('img', { name: 'Đối tượng Q1a' });

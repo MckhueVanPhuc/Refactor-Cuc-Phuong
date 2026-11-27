@@ -84,7 +84,12 @@ test.describe('V22 — offline, đã từng mở app (shell đã cache)', () => 
     await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
     await context.setOffline(true);
     await page.goto('/q/Q1a');
-    await expect(page.getByRole('alert')).toHaveText(vi.notice.connectionNeeded);
+    // CHG-MASCOT-2026-11-27-09: cùng thẻ như trong app — tiêu đề, câu cố định, "Thử lại"; khách tự do không có dòng "chưa được tính"
+    const notice = page.getByRole('alert');
+    await expect(notice).toContainText(vi.scanNotice.uncheckedTitle);
+    await expect(notice).toContainText(vi.notice.connectionNeeded);
+    await expect(notice).not.toContainText(vi.scanNotice.notCounted);
+    await expect(notice.getByRole('button', { name: vi.scanNotice.retry })).toBeVisible();
     await expect(page.getByText(vi.notice.freeVisitor)).toBeVisible();
     expect(await m02StoreCounts(page)).toEqual([0, 0, 0]);
     await context.setOffline(false);

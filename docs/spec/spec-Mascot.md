@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | Module | Mascot (cross-cutting visitor experience capability used by M01 and M02) |
-| Version | 1.8 |
-| Status | Behavioral baseline for the mascot capability (AGENTS.md §3.1). Implementation follows the approved change briefs CHG-MASCOT-2026-11-21-01, CHG-MASCOT-2026-11-22-02, CHG-MASCOT-2026-11-23-03, CHG-MASCOT-2026-11-23-04, CHG-MOTION-2026-11-24-01, CHG-MASCOT-2026-11-24-05, CHG-MASCOT-2026-11-25-06, CHG-MASCOT-2026-11-27-07 and CHG-MASCOT-2026-11-27-08. |
+| Version | 1.9 |
+| Status | Behavioral baseline for the mascot capability (AGENTS.md §3.1). Implementation follows the approved change briefs CHG-MASCOT-2026-11-21-01, CHG-MASCOT-2026-11-22-02, CHG-MASCOT-2026-11-23-03, CHG-MASCOT-2026-11-23-04, CHG-MOTION-2026-11-24-01, CHG-MASCOT-2026-11-24-05, CHG-MASCOT-2026-11-25-06, CHG-MASCOT-2026-11-27-07, CHG-MASCOT-2026-11-27-08 and CHG-MASCOT-2026-11-27-09. |
 | Last updated | 2026-11-27 |
 | Consumers | Visitor web app: M01 screens SCR-M01-001…004, M02 screens SCR-M02-001…004 |
 | Depends on | spec-M01 v3.2 and spec-M02 v3.5 (check-in feedback may be presented by Mila, BR-MAS-24; end-of-trip prompt on SCR-M02-001, BR-M02-021) |
@@ -193,7 +193,9 @@ On SCR-M01-001 the hero has the title on its own row; below it, the "Route sugge
 
 While the end-of-trip dialog of SCR-M02-001 is open, Mila appears only in the dialog header; the standing Mila next to the Scan action is hidden and returns when the dialog closes (v1.6).
 
-Mila does not appear on: the language step panel, the safety warning block of SCR-M01-003, any closure notice, article text, the image gallery, media players, the delete-package dialog, the app update prompt, the camera-unavailable panel of the scanner (v1.8: the screen shows its own camera icon and steps, also when Mila is disabled), and M03.
+On SCR-M02-001 a scan that ends in an invalid code or a code that could not be checked no longer shows an illustration in the notice: the first time, the standing Mila takes the confused pose without a bubble; the second identical failure in a row shows MSG-MAS-046 or MSG-MAS-048 there as before (BR-MAS-10). One Mila on the screen (v1.9).
+
+Mila does not appear on: the language step panel, the safety warning block of SCR-M01-003, any closure notice, article text, the image gallery, media players, the delete-package dialog, the app update prompt, the camera-unavailable panel of the scanner (v1.8: the screen shows its own camera icon and steps, also when Mila is disabled), the scan-result notices for an invalid code or a code that could not be checked (v1.9: on SCR-M02-001 the standing Mila reacts instead, see below), and M03.
 
 ### 5.2 Mascot events (logical)
 
@@ -440,7 +442,7 @@ No new screen. Screen specs are derived documents and are updated only after thi
 | AGENTS.md | Must list this file in §3.1 and §4, and add ownership rows for docs/mascot/ and assets/mascot/, before this spec is a baseline. |
 | Derived documents to update after approval | function list (new file for this capability); docs/design/design-system.md (§4.3 motion, §5.4 "no extra motion" rule, new Mascot section and tokens); screen specs and screen lists of M01 and M02; docs/architecture/environment.md (switch, if OD-MAS-15); README.md, docs/README.md. |
 | Design package | docs/mascot/ is the design input. On conflict, this specification wins. |
-| Change briefs | CHG-MASCOT-2026-11-21-01 for documentation sync and local frontend implementation; CHG-MASCOT-2026-11-22-02 for v1.1; CHG-MASCOT-2026-11-23-03 for v1.2 (with one line of spec-M02 §8); CHG-MASCOT-2026-11-23-04 for v1.3; CHG-MOTION-2026-11-24-01 for v1.4 (motion of the visitor screens, package specs/006-visitor-motion); CHG-MASCOT-2026-11-24-05 for v1.5; CHG-MASCOT-2026-11-25-06 for v1.6; CHG-MASCOT-2026-11-27-07 for v1.7; CHG-MASCOT-2026-11-27-08 for v1.8. No backend, cloud or data change is involved. |
+| Change briefs | CHG-MASCOT-2026-11-21-01 for documentation sync and local frontend implementation; CHG-MASCOT-2026-11-22-02 for v1.1; CHG-MASCOT-2026-11-23-03 for v1.2 (with one line of spec-M02 §8); CHG-MASCOT-2026-11-23-04 for v1.3; CHG-MOTION-2026-11-24-01 for v1.4 (motion of the visitor screens, package specs/006-visitor-motion); CHG-MASCOT-2026-11-24-05 for v1.5; CHG-MASCOT-2026-11-25-06 for v1.6; CHG-MASCOT-2026-11-27-07 for v1.7; CHG-MASCOT-2026-11-27-08 for v1.8; CHG-MASCOT-2026-11-27-09 for v1.9. No backend, cloud or data change is involved. |
 | docs/design/design-system.md | §4.3 defines the motion tiers T1 feedback, T2 transition, T3 decorative (v1.4); the motion control of BR-MAS-21 pauses Mila and T3. |
 
 ### 11.1 Traceability (US → FR → BR → SC)
@@ -462,6 +464,7 @@ No new screen. Screen specs are derived documents and are updated only after thi
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.9 | 2026-11-27 | Change brief CHG-MASCOT-2026-11-27-09 (approved 2026-11-27) after a tester review: the scan-result notices (invalid code, code not checked) no longer show Mila; on SCR-M02-001 the standing Mila takes the confused pose on the first failure, so the screen shows one Mila (§5.1). No new message, event, priority or slot. |
 | 1.8 | 2026-11-27 | Change brief CHG-MASCOT-2026-11-27-08 (approved 2026-11-27) after a tester review of the scanner: Mila no longer appears on the camera-unavailable panel, which gets its own camera icon and steps to allow the camera (§5.1); the camera-failed event still stops the scanner timers. On the QR link page without a session the free-visitor sentence becomes a 4-second toast at the top, so Mila's illustration stands next to the "Chọn tuyến" action at the end of the content (§5.1). No new message, event, priority or slot. |
 | 1.7 | 2026-11-27 | Change brief CHG-MASCOT-2026-11-27-07 (approved 2026-11-27) after a tester review of the trip screen: MSG-MAS-030 and 056 name the suggested next checkpoint `{next}` (§5.6) instead of repeating the session-start hint, and are not said when there is no next checkpoint (BR-MAS-02, 13); MSG-MAS-033 drops the count that the trip screen now shows (BR-MAS-12). Mila keeps its slot next to the Scan action (§5.1 unchanged). No new event, priority or slot. |
 | 1.6 | 2026-11-25 | Change brief CHG-MASCOT-2026-11-25-06 (approved 2026-11-25) after the owner's review of production: tap sentences per M01 screen, new MSG-MAS-015…019, route detail sentence in the Start panel slot (BR-MAS-12); MSG-MAS-014 every time the Start panel is visible, outside cooldown and the proactive limit (US-MAS-07.3, BR-MAS-07); only a visit confirmation is carried to the next screen, so MSG-MAS-010 is shown on every opening of the form (BR-MAS-20, US-MAS-07.2); catalog hero option C (§5.1); celebration motion on the content screen repeats while the bubble is shown (US-MAS-02.6); following spec-M02 v3.4 the final checkpoint is confirmed like any other visit and the end-of-trip prompt opens on SCR-M02-001 with one Mila (US-MAS-02.4, BR-MAS-24, SC-MAS-005, 015, §5.1). OD-MAS-29…33. No new event or priority. |

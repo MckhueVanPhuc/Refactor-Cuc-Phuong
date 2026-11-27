@@ -127,9 +127,40 @@ function newVisitRef(scan: ScanResult): string | null {
   return [scan.visit.sessionId, scan.visit.checkpointId, scan.visit.checkedInAt].join(':');
 }
 
-function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | undefined }) {
+/**
+ * Không xem được nội dung (E-SCR-M02-002-10, -13; CHG-MASCOT-2026-11-27-09): một thẻ có tên điểm, câu cố định và việc
+ * du khách làm được tiếp — điểm cần gói: mở Tài nguyên khi có mạng; điểm cần mạng: thử lại.
+ */
+function UnavailableCard({ view, onRetry }: { view: Extract<ContentView, { kind: 'NO_OFFLINE' }>; onRetry: (() => void) | undefined }) {
   const messages = useM02Messages();
   const language = useM02DisplayLanguage();
+  const needsPackage = view.reason === 'MISSING_RESOURCE';
+  return (
+    <Notice tone="info" role="alert">
+      <p className={styles.noticeTitle} data-unavailable={view.reason}>
+        {view.checkpointName[language]}
+      </p>
+      <p className={styles.noticeText}>{needsPackage ? messages.notice.noOfflineResource : messages.content.needsNetwork}</p>
+      {needsPackage ? (
+        <>
+          <p className={styles.noticeSecondary}>{messages.content.downloadHint}</p>
+          <Link className={styles.noticeAction} to={PATHS.offline}>
+            {messages.content.openResources}
+          </Link>
+        </>
+      ) : (
+        onRetry && (
+          <button type="button" className={styles.noticeAction} onClick={onRetry}>
+            {messages.content.retry}
+          </button>
+        )
+      )}
+    </Notice>
+  );
+}
+
+function ContentNotices({ scan, view, onRetry }: { scan: ScanResult; view: ContentView | undefined; onRetry: (() => void) | undefined }) {
+  const messages = useM02Messages();
   // Lời xác nhận lượt ghé (spec-M02 §8, clarification 4): toast, hoặc bong bóng của Mila khi Mila hiện được
   // (spec-Mascot BR-MAS-24). v3.4: điểm cuối cũng vậy — câu hỏi kết thúc chuyến hiện ở màn chuyến đi (BR-M02-021).
   const confirmedBy = useMascotConfirms(newVisitRef(scan));
@@ -142,7 +173,8 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
         </Toast>
       )}
       <FieldNotice>
-      {scan.display.kind === 'PACKAGE' && (
+      {/* BUG-028: câu "Đang dùng nội dung đã lưu nếu có" chỉ khi thật sự đang hiện nội dung từ gói (spec-M02 §5.1) */}
+      {scan.display.kind === 'PACKAGE' && view?.kind === 'PACKAGE' && (
         <Notice tone="info">
           {/* MAS-B-054 (v1.2): Mila với ba lô minh họa cạnh câu nguồn dự phòng; không khi Mila đang xác nhận lượt ghé mới */}
           {scan.visitCreated ? (
@@ -160,17 +192,10 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
           <p className={styles.noticeText}>{messages.content.outdatedPackage}</p>
         </Notice>
       )}
-      {view?.kind === 'NO_OFFLINE' && (
-        <Notice tone="info" role="alert">
-          <p className={styles.noticeText}>
-            <strong>{view.checkpointName[language]}</strong>
-          </p>
-          <p className={styles.noticeText}>
-            {view.reason === 'ONLINE_ONLY' ? messages.content.needsNetwork : messages.notice.noOfflineResource}
-          </p>
-        </Notice>
+      {view?.kind === 'NO_OFFLINE' && <UnavailableCard view={view} onRetry={onRetry} />}
+      {(view?.kind === 'CLOSED' || view?.kind === 'INVALID' || view?.kind === 'CONNECTION_NEEDED') && (
+        <ScanNotice kind={view.kind} notCounted={scan.session && !scan.freeVisitor ? 'plain' : null} onRetry={onRetry} />
       )}
-      {(view?.kind === 'CLOSED' || view?.kind === 'INVALID' || view?.kind === 'CONNECTION_NEEDED') && <ScanNotice kind={view.kind} />}
       </FieldNotice>
       {/* Gợi ý khách tự do: toast nổi 4 giây ngay dưới thanh app, không đẩy nội dung (BUG-015; CHG-MASCOT-2026-11-27-08
           D9, chủ dự án chọn 2026-11-27). Liên kết "Chọn tuyến" ở cuối bài (FreeVisitorHint) */}
@@ -188,6 +213,7 @@ export function ScanContent({
   qrIdentifier,
   showBack,
   backTo = PATHS.m02SessionEntry,
+  onRetry,
 }: {
   /** `undefined` = đang tra cứu */
   scan: ScanResult | undefined;
@@ -196,6 +222,8 @@ export function ScanContent({
   showBack: boolean;
   /** Đích của "Quay lại"; mặc định là hành trình của phiên */
   backTo?: string;
+  /** "Thử lại" khi chưa kiểm tra được mã hoặc điểm cần mạng: trang chạy lại đúng luồng của mã này (CHG-…-09) */
+  onRetry?: () => void;
 }) {
   const messages = useM02Messages();
   const [view, setView] = useState<ContentView | undefined>(undefined);
@@ -221,7 +249,7 @@ export function ScanContent({
 
   return (
     <>
-      {scan && <ContentNotices scan={scan} view={view} />}
+      {scan && <ContentNotices scan={scan} view={view} onRetry={onRetry} />}
       <article className={styles.article} data-qr={qrIdentifier} data-view={view?.kind ?? 'LOADING'}>
         {!view && (
           <p className={styles.loading} role="status">

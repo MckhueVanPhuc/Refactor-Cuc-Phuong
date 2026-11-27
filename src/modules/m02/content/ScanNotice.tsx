@@ -2,15 +2,33 @@
 // FR-M02-013): tạm đóng (một câu cho cả `ROUTE` và `CHECKPOINT`), mã không hợp lệ, cần kết nối. Lỗi kết nối không bao
 // giờ hiện là mã không hợp lệ. Mã ngoài hành trình (`VALID`) không có thông báo: màn hiện nội dung live, không lượt ghé
 // (spec và screen spec không chốt chữ nào cho trường hợp này). Màu theo bề mặt của FieldLayout (scanner tối / reader sáng).
+// CHG-MASCOT-2026-11-27-09: cùng một thẻ ở mọi màn (SCR-M02-001, 002, 004, 005). Chưa kiểm tra được mã: tiêu đề, câu cố
+// định, "Lượt quét chưa được tính." khi có phiên, nút "Thử lại"; × đóng ở màn có hành trình. Không có hình Mila trong
+// thẻ (spec-Mascot v1.9): ở SCR-M02-001 Mila đứng chờ đổi tư thế thay vào.
 import { useEffect } from 'react';
-import { emitMascotEvent, MascotFigure } from '../../../shared/mascot/index';
+import { emitMascotEvent } from '../../../shared/mascot/index';
+import { TintIcon } from '../../../shared/ui/Icon';
 import { useM02Messages } from '../i18n/useM02Messages';
 import styles from './ScanNotice.module.css';
 
 export type ScanNoticeKind = 'CLOSED' | 'INVALID' | 'CONNECTION_NEEDED';
 
-/** `mila`: hình Mila cạnh câu `INVALID`, `CONNECTION_NEEDED` (MAS-B-046, 047); màn Quét QR SCR-M02-005 nằm ngoài spec-Mascot nên tắt. */
-export function ScanNotice({ kind, freeVisitor = false, mila = true }: { kind: ScanNoticeKind; freeVisitor?: boolean; mila?: boolean }) {
+export function ScanNotice({
+  kind,
+  freeVisitor = false,
+  notCounted = null,
+  onRetry,
+  onDismiss,
+}: {
+  kind: ScanNoticeKind;
+  freeVisitor?: boolean;
+  /** Có phiên và mã chưa kiểm tra được: `journey` ở màn Chuyến đi (thêm "Hành trình bên dưới giữ nguyên."), `plain` ở màn khác */
+  notCounted?: 'journey' | 'plain' | null;
+  /** "Thử lại": tra lại đúng mã vừa quét (chỉ cho mã chưa kiểm tra được) */
+  onRetry?: (() => void) | undefined;
+  /** Nút × (màn có hành trình hoặc nút Quét bên dưới) */
+  onDismiss?: (() => void) | undefined;
+}) {
   const messages = useM02Messages();
   // Mila rời màn khi có thông báo tạm đóng (spec-Mascot BR-MAS-03; specs/005 T028). Chỉ phát tín hiệu.
   useEffect(() => {
@@ -21,19 +39,28 @@ export function ScanNotice({ kind, freeVisitor = false, mila = true }: { kind: S
     INVALID: { text: messages.notice.invalid, tone: styles.error },
     CONNECTION_NEEDED: { text: messages.notice.connectionNeeded, tone: styles.info },
   }[kind];
+  const unchecked = kind === 'CONNECTION_NEEDED';
   return (
     <div className={`${styles.notice} ${tone}`} role="alert" data-scan-notice={kind}>
-      {/* Không bao giờ có Mila cạnh thông báo tạm đóng (BR-MAS-03) */}
-      {mila && kind !== 'CLOSED' ? (
-        <div className={styles.withMila}>
-          <MascotFigure pose="confused" size="sm" />
-          <p className={styles.text}>{text}</p>
-        </div>
-      ) : (
-        <p className={styles.text}>{text}</p>
+      {onDismiss && (
+        <button type="button" className={styles.dismiss} aria-label={messages.toast.close} onClick={onDismiss}>
+          <TintIcon name="close" />
+        </button>
+      )}
+      {unchecked && <p className={styles.title}>{messages.scanNotice.uncheckedTitle}</p>}
+      <p className={styles.text}>{text}</p>
+      {unchecked && notCounted && (
+        <p className={styles.secondary}>
+          {notCounted === 'journey' ? messages.scanNotice.notCountedJourney : messages.scanNotice.notCounted}
+        </p>
       )}
       {/* Gợi ý khách tự do hiện với mọi kết quả khi không có phiên (US-M02-07) */}
       {freeVisitor && <p className={styles.text}>{messages.notice.freeVisitor}</p>}
+      {unchecked && onRetry && (
+        <button type="button" className={styles.action} onClick={onRetry}>
+          {messages.scanNotice.retry}
+        </button>
+      )}
     </div>
   );
 }
