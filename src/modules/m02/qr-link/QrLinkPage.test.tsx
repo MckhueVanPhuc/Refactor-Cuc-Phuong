@@ -1,7 +1,8 @@
 // SCR-M02-004 (tasks T078; BR-M02-024; FR-M02-025; SC-M02-017) với cổng M01, lookup và Storage giả.
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PRELOAD_TIMEOUT_MS, preloadM02Routes } from '../testing/preloadRoutes';
 import type { FakeLookup } from '../api/fake/fakeLookup';
 import { CHECKPOINTS, ROUTE_A } from '../api/fake/fixtures';
 import { lookupClient } from '../api/lookupClient';
@@ -15,6 +16,9 @@ import { fakeM01 } from '../testing/fakeM01Port';
 vi.mock('../m01Port', () => import('../testing/fakeM01Port'));
 vi.mock('../api/mediaUrl', () => ({ mediaUrlClient: { signedUrls: async () => new Map() } }));
 vi.mock('../api/lookupClient', async () => ({ lookupClient: (await import('../api/fake/fakeLookup')).createFakeLookup() }));
+
+// Nạp sẵn màn lazy để ca đầu tiên không quá thời gian chờ khi máy chậm (DV-100)
+beforeAll(() => preloadM02Routes(), PRELOAD_TIMEOUT_MS);
 
 const fakeLookup = lookupClient as FakeLookup;
 const SESSION = '5b1e2d3c-4a5f-4e6d-8c7b-9a0f1e2d3c4b';
@@ -71,6 +75,16 @@ describe('QrLinkPage', () => {
     vi.stubGlobal('navigator', { ...navigator, language: device });
     openLink('/q/Q1a');
     expect(await screen.findByText(hint)).toBeTruthy();
+  });
+
+  it('BUG-015: gợi ý khách tự do ở vùng thông báo đầu trang, đứng trước bài viết (CHG-MASCOT-2026-11-27-08 D9)', async () => {
+    fakeM01.setLanguage({ languageCode: 'vi' });
+    openLink('/q/Q1a');
+    await screen.findByRole('heading', { name: 'Đối tượng Q1a' });
+    const hint = document.querySelector('[data-free-visitor]')!;
+    const article = document.querySelector('article[data-qr]')!;
+    expect(hint.compareDocumentPosition(article) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(article.contains(hint)).toBe(false);
   });
 
   it('không phiên → khách tự do: gợi ý + "Chọn tuyến" về "/", lookup không gửi routeId', async () => {

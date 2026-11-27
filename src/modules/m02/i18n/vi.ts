@@ -41,6 +41,8 @@ export const vi = {
     previousTripSyncError: 'Chuyến đi trước không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này.',
     // Nút Finish (E-SCR-M02-001-19)
     finish: 'Kết thúc chuyến',
+    // Thẻ quét đủ (E-SCR-M02-001-27; CHG-MASCOT-2026-11-27-08)
+    allScanned: ({ n }: { n: number }) => `Bạn đã quét đủ ${n}/${n} điểm!`,
   },
   // Nút đóng toast dùng chung (bảng copy SCR-M02-001, 2026-11-21)
   toast: {
@@ -62,6 +64,11 @@ export const vi = {
     instruction: 'Đưa mã QR của điểm dừng vào khung.',
     close: 'Đóng camera',
     retry: 'Thử lại',
+    // Nhãn điểm đang tìm và hướng dẫn bật camera (E-SCR-M02-001-10, -11; CHG-MASCOT-2026-11-27-08)
+    lookingFor: ({ number, name }: { number: number; name: string }) => `Đang tìm điểm ${number} · ${name}`,
+    howToTitle: 'Cách bật camera',
+    stepsIos: ['Bấm nút aA bên trái địa chỉ web', 'Chọn Cài đặt trang web → Camera → Cho phép', 'Quay lại và bấm Thử lại'] as readonly string[],
+    stepsOther: ['Bấm biểu tượng bên trái địa chỉ web', 'Chọn Quyền → Camera → Cho phép', 'Quay lại và bấm Thử lại'] as readonly string[],
   },
   // SCR-M02-001: handoff không dùng được
   handoff: {

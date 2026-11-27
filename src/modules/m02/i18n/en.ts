@@ -37,6 +37,7 @@ export const en: M02Messages = {
     previousTripSyncError: 'Your previous trip could not be sent to the system. It is still saved on this device.',
     // Nút Finish (E-SCR-M02-001-19)
     finish: 'End trip',
+    allScanned: ({ n }) => `You've scanned all ${n} points!`,
   },
   toast: {
     close: 'Dismiss',
@@ -56,6 +57,10 @@ export const en: M02Messages = {
     instruction: "Point the camera at the stop's QR code.",
     close: 'Close camera',
     retry: 'Try again',
+    lookingFor: ({ number, name }) => `Looking for stop ${number} · ${name}`,
+    howToTitle: 'How to turn on the camera',
+    stepsIos: ['Tap aA next to the web address', 'Choose Website Settings → Camera → Allow', 'Come back and tap Try again'],
+    stepsOther: ['Tap the icon to the left of the web address', 'Choose Permissions → Camera → Allow', 'Come back and tap Try again'],
   },
   handoff: {
     outdatedVersion: 'This trip data is from an older version. Please choose a route and start again.',

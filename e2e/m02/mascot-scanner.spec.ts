@@ -77,7 +77,7 @@ test('Q10 — hai lần liên tiếp mã không hợp lệ: lần đầu chỉ h
   await expect(notice).toContainText(vi.notice.invalid);
 });
 
-test('MAS-B-038 — camera bị từ chối: Mila minh họa cạnh câu camera cố định, không bong bóng', async ({ page }) => {
+test('MAS-B-038 (v1.8) — camera bị từ chối: không Mila, icon camera và các bước bật camera; không bong bóng', async ({ page }) => {
   await page.addInitScript(() => {
     navigator.mediaDevices.getUserMedia = async () => {
       throw new DOMException('denied', 'NotAllowedError');
@@ -87,6 +87,8 @@ test('MAS-B-038 — camera bị từ chối: Mila minh họa cạnh câu camera 
   await page.getByRole('button', { name: vi.trip.scan, exact: true }).click();
   const failure = page.getByRole('dialog', { name: vi.scanner.title }).getByRole('alert');
   await expect(failure).toContainText(vi.notice.cameraUnavailable);
-  await expect(failure.locator('[data-mascot-figure="confused"]')).toBeVisible();
+  const dialog = page.getByRole('dialog', { name: vi.scanner.title });
+  await expect(dialog.getByRole('heading', { name: vi.scanner.howToTitle })).toBeVisible();
+  await expect(dialog.locator('[data-mascot-figure], [data-mascot-slot]')).toHaveCount(0);
   await expect(page.locator('[data-mascot-message]')).toHaveCount(0);
 });

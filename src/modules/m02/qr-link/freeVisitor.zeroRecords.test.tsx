@@ -2,7 +2,8 @@
 // mở `/q/{id}` không phiên với mọi kết quả lookup → ba store M02 đều rỗng, không bao giờ tạo phiên.
 import { render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PRELOAD_TIMEOUT_MS, preloadM02Routes } from '../testing/preloadRoutes';
 import { lookupClient } from '../api/lookupClient';
 import type { FakeLookup } from '../api/fake/fakeLookup';
 import type { LookupOutcome } from '../api/lookupClient';
@@ -15,6 +16,9 @@ import { fakeM01 } from '../testing/fakeM01Port';
 vi.mock('../m01Port', () => import('../testing/fakeM01Port'));
 vi.mock('../api/mediaUrl', () => ({ mediaUrlClient: { signedUrls: async () => new Map() } }));
 vi.mock('../api/lookupClient', async () => ({ lookupClient: (await import('../api/fake/fakeLookup')).createFakeLookup() }));
+
+// Nạp sẵn màn lazy để ca đầu tiên không quá thời gian chờ khi máy chậm (DV-100)
+beforeAll(() => preloadM02Routes(), PRELOAD_TIMEOUT_MS);
 
 const fakeLookup = lookupClient as FakeLookup;
 

@@ -171,6 +171,9 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
         </Notice>
       )}
       {(view?.kind === 'CLOSED' || view?.kind === 'INVALID' || view?.kind === 'CONNECTION_NEEDED') && <ScanNotice kind={view.kind} />}
+      {/* Gợi ý khách tự do ở vùng thông báo đầu trang, trước ảnh và bài viết (BUG-015; CHG-MASCOT-2026-11-27-08 D9).
+          Trước: sau bài viết, bài dài thì gần như không ai thấy */}
+      {scan.freeVisitor && <FreeVisitorHint />}
       </FieldNotice>
     </>
   );
@@ -225,8 +228,6 @@ export function ScanContent({
         {view?.kind === 'PACKAGE' && <PackageArticle view={view} />}
         {scan?.visit && <p className={styles.visitTime}>{messages.content.scannedAt({ time: visitTime(scan.visit.checkedInAt) })}</p>}
       </article>
-      {/* Gợi ý khách tự do sau nội dung, như mockup-SCR-M02-004: du khách thấy nội dung trước */}
-      {scan?.freeVisitor && <FreeVisitorHint />}
       {showBack && (
         <Link
           className={styles.back}

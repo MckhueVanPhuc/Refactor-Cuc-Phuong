@@ -890,3 +890,32 @@ Test đổi có chủ đích: `rules.test.ts` (030/056 mang `next`, 033 không s
 | DV-99 | Mila giữ chỗ trên nút Quét, không lên dưới thẻ tuyến như mockup (brief D7) | Chủ dự án xem lại khi thử |
 | DV-100 | Lần chạy `npm run ci` đầu và Playwright nhiều worker trên máy này: test đầu của vài tệp (EndFlow, TripPage.free, QrLinkPage) quá `asyncUtilTimeout` 3 s khi nạp lazy route lần đầu, nhiều spec e2e quá 30 s khi tải nặng; chạy lại / một worker thì PASS. Bản gốc trên `main` đo được 3,07 s cho cùng test, đã sát ngưỡng | Ghi nhận, không sửa trong đợt này |
 | DV-101 | Mockup tĩnh `screens/html/mockup-SCR-M02-001.html` chưa có thẻ tuyến và điểm tiếp theo | Stale, ngoài phạm vi |
+
+## 22. Đợt 2026-11-27 — Phase 22: spec-Mascot v1.8 (T128–T132) — CHG-MASCOT-2026-11-27-08
+
+Bảng test của tester (M02-15, 16, 17, 18, 25, 37; BUG-015, BUG-020). Chủ dự án chốt: đèn pin để sau; màn lỗi camera chỉ giữ icon, bỏ Mila; hướng dẫn bật camera tách iPhone / Android.
+
+| Việc | Tệp |
+|---|---|
+| Scanner: hàng tiêu đề serif với VI/EN (BUG-020), nhãn "Đang tìm điểm {i} · {tên}", khung bốn góc + vạch quét | `src/modules/m02/scanner/QrScanner.tsx` (+ css) |
+| Màn lỗi camera: icon `camera-off.svg` (mới) lắc một lần, các bước bật camera theo trình duyệt (`isAppleMobile`), "Thử lại" nút chính; không Mila | như trên, `assets/icons/camera-off.svg`, `i18n/{vi,en}.ts` |
+| Quét đủ: thẻ "Bạn đã quét đủ {n}/{n} điểm!", "Kết thúc chuyến" nút chính, "Quét QR" nút phụ; lá xoay khi kiểm tra mã | `src/modules/m02/session/TripPage.tsx` (+ css) |
+| Gợi ý khách tự do ở vùng thông báo đầu trang (BUG-015) | `content/ScanContent.tsx`, `qr-link/FreeVisitorHint.module.css` |
+| Nạp sẵn màn lazy trong 6 tệp test dựng route M02 (DV-100) | `src/modules/m02/testing/preloadRoutes.ts` (mới) |
+
+M02-15: pop-up hỏi kết thúc ở màn nội dung điểm cuối đã bỏ từ spec-M02 v3.4 (PR #83); dòng test còn ghi theo v3.3. Nếu tester vẫn thấy pop-up ở màn nội dung, bản họ thử chưa có #83.
+
+Test đổi có chủ đích: e2e `mascot-scanner.spec.ts` MAS-B-038 (không còn Mila ở màn lỗi camera). Test mới: unit scanner (VI/EN, nhãn điểm, màn lỗi, `isAppleMobile`), thẻ quét đủ và thứ tự nút, gợi ý khách tự do trước bài viết; e2e BUG-020, V23 các bước, V20 gợi ý trong khung nhìn.
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 768; 2515 pass, 133 skipped; build OK, precache 118 mục (3006,28 KiB) |
+| `npx playwright test --project=m02 --project=m02-cam-evil --workers=1` | 0 | 84 pass |
+| Chụp 390 px: scanner có chuyến, lỗi camera VI/EN, quét đủ, trang mã QR khách tự do (spec tạm, đã xóa) | 0 | Đúng như mockup của tester; gợi ý khách tự do thấy ngay dưới thanh app |
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-100 | Ca đầu của các tệp test dựng route lazy quá 3 s khi máy chậm | **Đã sửa** (`preloadM02Routes` trong `beforeAll`) |
+| DV-102 | Vitest giữ danh sách icon cũ trong `node_modules/.vitest-cache` sau khi thêm `camera-off.svg` (`import.meta.glob` eager) → "Không có icon"; xóa cache thì PASS. CI sạch không bị | Ghi nhận |
+| DV-103 | Đèn pin trong scanner (mockup tester) | Để sau (D5) |
+| DV-104 | Các bước bật camera theo tên menu của Chrome / Safari hiện tại; trình duyệt khác (Firefox, Samsung Internet) dùng bộ bước Chrome | Chấp nhận; chủ dự án xem lại khi thử máy thật |

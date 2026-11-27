@@ -13,11 +13,14 @@ import { takeFinalPrompt } from '../end/finalPromptSignal';
 import { useEndTrip } from '../end/useEndTrip';
 import type { M02Messages } from '../i18n';
 import { useM02Messages } from '../i18n/useM02Messages';
+import type { ManifestCheckpoint } from '../../../shared/contracts/journeyManifest';
+import { TintIcon } from '../../../shared/ui/Icon';
 import { nextCheckpoint, RouteJourneyMap } from '../journey/RouteJourneyMap';
 import { takeUnlock } from '../journey/unlockSignal';
 import { FieldLayout, FieldNotice } from '../layout/FieldLayout';
 import { useBusyWhile } from '../pwa/registerBusy';
 import { processScannedText, type ScanResult } from '../scan/processScan';
+import type { ScannerTarget } from '../scanner/QrScanner';
 import { setScanHandler } from '../scan/scanBridge';
 import type { CheckpointVisitRow } from '../storage/rows';
 import { useRunningSession, useSessionVisits } from '../storage/readers';
@@ -44,6 +47,13 @@ export const contentPath = (qrIdentifier: string) => `${PATHS.m02SessionEntry}/q
 export type ContentRouteState = { scan?: ScanResult; review?: true; returnTo?: string };
 
 type EntryState = { status: 'entering' } | { status: 'done'; result: EntryResult };
+
+/** Điểm gợi ý kế tiếp với số hiển thị (đếm liên tục theo `sequence`, BR-M02-006); quét hết → `null`. */
+function scannerTarget(checkpoints: readonly ManifestCheckpoint[], visits: readonly CheckpointVisitRow[]): ScannerTarget | null {
+  const ordered = [...checkpoints].sort((a, b) => a.sequence - b.sequence);
+  const next = nextCheckpoint(ordered, new Set(visits.map((v) => v.checkpointId)));
+  return next ? { number: ordered.indexOf(next) + 1, name: next.checkpointName } : null;
+}
 
 function useTripEntry(): EntryState {
   const [state, setState] = useState<EntryState>({ status: 'entering' });
@@ -123,11 +133,11 @@ export function TripPage() {
   const finalId = session ? finalCheckpointId(session) : undefined;
   const finalVisited = visits.status === 'ready' && visits.value.some((visit) => visit.checkpointId === finalId);
   const visitCount = visits.status === 'ready' ? visits.value.length : null;
-  // Điểm gợi ý kế tiếp cho Mila nói tên (MSG-MAS-030, 056 v1.7); quét hết → null
-  const next =
-    session && visits.status === 'ready'
-      ? (nextCheckpoint(session.journeyCheckpoints, new Set(visits.value.map((v) => v.checkpointId)))?.checkpointName ?? null)
-      : null;
+  // Điểm gợi ý kế tiếp (MSG-MAS-030, 056 v1.7; nhãn "Đang tìm điểm…" của scanner); quét hết → null
+  const target = session && visits.status === 'ready' ? scannerTarget(session.journeyCheckpoints, visits.value) : null;
+  const next = target?.name ?? null;
+  // Quét đủ mọi điểm (k = n): "Kết thúc chuyến" thành nút chính (E-SCR-M02-001-27)
+  const allScanned = Boolean(session) && visitCount !== null && visitCount > 0 && target === null;
   useTripMascotSignals(entry, session?.journeyCheckpoints.length ?? null, visitCount, finalVisited, next);
   useScannerMascotSignals(scanning, session !== null, visitCount ?? 0);
   // Câu hỏi kết thúc chuyến đang chờ từ lượt quét điểm cuối (BR-M02-021 v3.4): hỏi một lần khi màn có phiên và lượt ghé
@@ -185,7 +195,9 @@ export function TripPage() {
             </p>
           )}
           {lookingUp && (
-            <p className={`${styles.notice} ${styles.info}`} role="status">
+            <p className={`${styles.notice} ${styles.info} ${styles.lookingUp}`} role="status">
+              {/* Lá xoay trong lúc kiểm tra mã (E-SCR-M02-001-12); giảm chuyển động: đứng yên */}
+              <TintIcon name="leaf" className={styles.leaf} />
               {messages.trip.lookingUp}
             </p>
           )}
@@ -213,20 +225,37 @@ export function TripPage() {
           <div className={styles.dock}>
             {!confirmingFinish && <MascotSlot id="trip-dock" modes={['DOCK']} size="trip" />}
           </div>
-          <button type="button" className={styles.scan} onClick={() => setScanning(true)} disabled={lookingUp}>
-            <span className={styles.scanIcon} aria-hidden="true" />
-            {messages.trip.scan}
-          </button>
-          {session && (
-            <button type="button" className={styles.finish} onClick={() => setConfirmingFinish(true)}>
-              {messages.trip.finish}
-            </button>
+          {allScanned && session ? (
+            // Quét đủ: việc chính là kết thúc chuyến; Quét QR thành nút phụ (CHG-MASCOT-2026-11-27-08 D1). Trượt lên khi
+            // điểm vừa quét làm đủ (dấu mở khóa của lần quay về này)
+            <div className={styles.doneCard} data-all-scanned="" data-enter={unlock ? '' : undefined}>
+              <p className={styles.doneText}>{messages.trip.allScanned({ n: session.journeyCheckpoints.length })}</p>
+              <button type="button" className={styles.scan} onClick={() => setConfirmingFinish(true)}>
+                {messages.trip.finish}
+              </button>
+              <button type="button" className={styles.finish} onClick={() => setScanning(true)} disabled={lookingUp}>
+                <span className={styles.scanIcon} aria-hidden="true" />
+                {messages.trip.scan}
+              </button>
+            </div>
+          ) : (
+            <>
+              <button type="button" className={styles.scan} onClick={() => setScanning(true)} disabled={lookingUp}>
+                <span className={styles.scanIcon} aria-hidden="true" />
+                {messages.trip.scan}
+              </button>
+              {session && (
+                <button type="button" className={styles.finish} onClick={() => setConfirmingFinish(true)}>
+                  {messages.trip.finish}
+                </button>
+              )}
+            </>
           )}
         </div>
       )}
       {scanning && (
         <Suspense fallback={null}>
-          <QrScanner onDetected={(text) => void handleText(text)} onClose={() => setScanning(false)} mascot />
+          <QrScanner onDetected={(text) => void handleText(text)} onClose={() => setScanning(false)} mascot target={target} />
         </Suspense>
       )}
       {session && confirmingFinish && visitCount !== null && (

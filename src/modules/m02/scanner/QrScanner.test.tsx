@@ -1,9 +1,10 @@
 // Trình quét QR (tasks T038; research R-13; BR-M02-023) với `@zxing/browser` và `getUserMedia` giả.
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { en } from '../i18n/en';
 import { vi as viMessages } from '../i18n/vi';
 import { fakeM01 } from '../testing/fakeM01Port';
-import { QrScanner, resetScannerMemoryForTest } from './QrScanner';
+import { isAppleMobile, QrScanner, resetScannerMemoryForTest } from './QrScanner';
 
 vi.mock('../m01Port', () => import('../testing/fakeM01Port'));
 
@@ -107,5 +108,47 @@ describe('QrScanner', () => {
     render(<QrScanner onDetected={() => {}} onClose={() => {}} />);
     expect((await screen.findByRole('alert')).textContent).toContain(viMessages.notice.cameraUnavailable);
     expect(zxing.decode).not.toHaveBeenCalled();
+  });
+
+  // —— CHG-MASCOT-2026-11-27-08 (M02-16, M02-17; BUG-020) ——
+  it('hàng tiêu đề có VI/EN của M01 (BUG-020); đổi ngôn ngữ thì chữ scanner đổi ngay, camera vẫn mở', async () => {
+    render(<QrScanner onDetected={() => {}} onClose={() => {}} />);
+    const dialog = screen.getByRole('dialog', { name: viMessages.scanner.title });
+    // Cổng M01 giả: control VI/EN là chỗ đặt; nút thật có test ở e2e
+    expect(within(dialog).getByTestId('m01-language-control').getAttribute('data-tone')).toBe('onDark');
+    await waitFor(() => expect(zxing.decode).toHaveBeenCalledTimes(1));
+    act(() => fakeM01.setLanguage({ languageCode: 'en' }));
+    expect(within(dialog).getByRole('heading', { name: en.scanner.title })).toBeTruthy();
+    expect(zxing.decode).toHaveBeenCalledTimes(1);
+  });
+
+  it('có điểm tiếp theo → nhãn "Đang tìm điểm {i} · {tên}" theo ngôn ngữ; không có → không nhãn', async () => {
+    const target = { number: 2, name: { vi: 'Cây chò ngàn năm', en: 'Thousand-year-old tree' } };
+    const { rerender } = render(<QrScanner onDetected={() => {}} onClose={() => {}} target={target} />);
+    expect(screen.getByText(viMessages.scanner.lookingFor({ number: 2, name: 'Cây chò ngàn năm' }))).toBeTruthy();
+    rerender(<QrScanner onDetected={() => {}} onClose={() => {}} />);
+    expect(document.querySelector('[data-scanner-target]')).toBeNull();
+  });
+
+  it('lỗi camera: icon, câu cố định, ba bước bật camera, "Thử lại" trước "Đóng camera"; không có Mila (spec-Mascot v1.8)', async () => {
+    zxing.decode.mockRejectedValueOnce(new DOMException('camera', 'NotAllowedError'));
+    render(<QrScanner onDetected={() => {}} onClose={() => {}} mascot />);
+    await screen.findByRole('alert');
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.hasAttribute('data-camera-failed')).toBe(true);
+    expect(within(dialog).getByRole('heading', { name: viMessages.scanner.howToTitle })).toBeTruthy();
+    expect(within(dialog).getAllByRole('listitem').map((li) => li.textContent)).toEqual([...viMessages.scanner.stepsOther]);
+    const buttons = within(dialog)
+      .getAllByRole('button')
+      .map((button) => button.textContent);
+    expect(buttons.slice(-2)).toEqual([viMessages.scanner.retry, viMessages.scanner.close]);
+    expect(dialog.querySelector('[data-mascot-slot], [data-mascot-figure]')).toBeNull();
+  });
+
+  it('các bước bật camera theo trình duyệt: iPhone/iPad (kể cả iPadOS báo Macintosh) → Safari; máy khác → Chrome', () => {
+    expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)', maxTouchPoints: 5 })).toBe(true);
+    expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', maxTouchPoints: 5 })).toBe(true);
+    expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', maxTouchPoints: 0 })).toBe(false);
+    expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8)', maxTouchPoints: 5 })).toBe(false);
   });
 });

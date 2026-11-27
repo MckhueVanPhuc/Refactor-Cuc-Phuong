@@ -28,10 +28,10 @@ Không có mockup HTML trong repo. Không dùng mockup để suy ngược busine
 
 | # | Element ID | Element | Type | Content / data source | Required | Validation |
 |---|---|---|---|---|---|---|
-| 1 | E-SCR-M02-005-01 | Language control VI/EN | Toggle (control của M01) | `LanguagePreference` | Yes | M01 là nơi ghi duy nhất (BR-M01-001) |
+| 1 | E-SCR-M02-005-01 | Language control VI/EN | Toggle (control của M01) | `LanguagePreference`; cũng ở hàng tiêu đề của trình quét (2026-11-27, BUG-020) | Yes | M01 là nơi ghi duy nhất (BR-M01-001) |
 | 2 | E-SCR-M02-005-02 | Screen title | Header text | Như tiêu đề trình quét của SCR-M02-001 | Yes | Non-empty |
 | 3 | E-SCR-M02-005-03 | Trình quét QR | Lớp camera toàn màn hình (như E-SCR-M02-001-10) | Camera sau của thiết bị | Yes | Mở ngay khi vào màn; quyền do trình duyệt cấp |
-| 4 | E-SCR-M02-005-04 | Camera unavailable | Text + action | Câu cố định "Không dùng được camera…" và "Thử lại" | Conditional | Như E-SCR-M02-001-11 (BR-M02-023) |
+| 4 | E-SCR-M02-005-04 | Camera unavailable | Text + action | Câu cố định "Không dùng được camera…" và "Thử lại"; icon và các bước bật camera như E-SCR-M02-001-11 (2026-11-27) | Conditional | Như E-SCR-M02-001-11 (BR-M02-023) |
 | 5 | E-SCR-M02-005-05 | Đang kiểm tra mã | Status text | "Đang kiểm tra mã QR…" | Conditional | Trong lúc tra cứu |
 | 6 | E-SCR-M02-005-06 | Kết quả ở lại màn | Banner | Mã không hợp lệ; khu vực tạm đóng; cần kết nối mạng; kèm câu gợi ý khách tự do khi không có phiên | Conditional | Như thông báo cùng loại của SCR-M02-001 (FR-M02-013, 021) |
 | 7 | E-SCR-M02-005-07 | Action: Quét QR | Button | Mở lại trình quét | Yes | Vô hiệu khi đang tra cứu |

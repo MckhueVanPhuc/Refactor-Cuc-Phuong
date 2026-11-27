@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED**. Các dòng có "(FUTURE)" bị chặn bởi MVP-Scope §4 |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); MAS-B-074, 075 đồng bộ BR-MAS-20 (T071); 2026-11-25 theo spec-Mascot v1.6 (CHG-MASCOT-2026-11-25-06): MAS-B-014 mỗi lần vào màn, MAS-B-090 mới, MAS-B-050/051/055/066 cả điểm cuối, MAS-B-060 chỉ ở SCR-M02-001; 2026-11-27 theo spec-Mascot v1.7 (CHG-MASCOT-2026-11-27-07): MAS-B-030, 056 nói điểm tiếp theo, MAS-B-036 bỏ số điểm còn lại |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); MAS-B-074, 075 đồng bộ BR-MAS-20 (T071); 2026-11-25 theo spec-Mascot v1.6 (CHG-MASCOT-2026-11-25-06): MAS-B-014 mỗi lần vào màn, MAS-B-090 mới, MAS-B-050/051/055/066 cả điểm cuối, MAS-B-060 chỉ ở SCR-M02-001; 2026-11-27 theo spec-Mascot v1.7 (CHG-MASCOT-2026-11-27-07): MAS-B-030, 056 nói điểm tiếp theo, MAS-B-036 bỏ số điểm còn lại; 2026-11-27 theo spec-Mascot v1.8 (CHG-MASCOT-2026-11-27-08): MAS-B-038 không còn hình Mila |
 | Đọc kèm | Sự kiện và ưu tiên: [State Machine](MASCOT_STATE_MACHINE.md). Chữ: [Dialogue Library](MASCOT_DIALOGUE_LIBRARY.md) (thư viện thắng nếu lệch). Tư thế (MA-xx) và animation (AN-xx): [Asset spec](MASCOT_ASSET_SPECIFICATION.md) |
 
 Quy ước:
@@ -50,7 +50,7 @@ Quy ước:
 | MAS-B-033 | M02 | SCR-M02-001 | `m02.trip.entered{RESTORED}` hoặc `m02.trip.shown` | Có phiên | 0 | `IDLE` (DOCK) | AN-ENTER; tư thế theo [State Machine](MASCOT_STATE_MACHINE.md) §3.1 | — | — | — | Đổi màn | P7 |
 | MAS-B-034 | M02 | SCR-M02-001 | `app.visibility.changed{visible}` | Có phiên; trang đã ẩn > 10 phút; không có thông báo tự kết thúc | 500 ms | `SPEAKING` (DOCK) | AN-POP, MA-01 | Chào mừng quay lại! Hành trình của bạn vẫn còn nguyên. (034) | Welcome back! Your trip is just as you left it. | — | Tự ẩn | P6 |
 | MAS-B-035 | M02 | Mọi màn M02 | Thông báo tự kết thúc chuyến trước đang hiện (`useAutoEndNotice`) | — | 0 | `SUPPRESSED` (chỉ P0–P2) | — | — | — | Thông báo cố định như cũ | Thông báo đóng / đổi màn | P1 |
-| MAS-B-038 | M02 | SCR-M02-001 (scanner) | `m02.scanner.cameraFailed` | — | 0 | `IDLE` (INLINE trên câu camera) | AN-TILT, MA-09 | — | — | Thử lại / Đóng camera như cũ | Camera chạy / đóng | P1 |
+| MAS-B-038 | M02 | SCR-M02-001 (scanner) | `m02.scanner.cameraFailed` | v1.8: không Mila ở màn lỗi camera (màn có icon camera gạch chéo riêng) | 0 | — (chỉ hủy hẹn giờ của scanner) | — | — | — | Thử lại / Đóng camera như cũ | Camera chạy / đóng | P1 |
 | MAS-B-040 | M02 | SCR-M02-001 (scanner) | `m02.scanner.opened` | Phiên chưa có lượt ghé nào **hoặc** khách tự do; lần mở đầu trong lần tải trang | 600 ms (sau khi camera hiện hình) | `IDLE` (INLINE, v1.2) | AN-TILT, MA-13 | — (chỉ minh họa từ v1.2) (040) | — (illustration only since v1.2) | Khung quét không bị che | Tự ẩn, đọc được mã, đóng | P6 |
 | MAS-B-041 | M02 | SCR-M02-001 (scanner) | Hẹn giờ 15 s không đọc được mã | Scanner còn mở; motion được phép | 15 s | `IDLE` | AN-LOOK, MA-05 | — | — | — | Đọc được mã, đóng | P7 |
 | MAS-B-042 | M02 | SCR-M02-001 (scanner) | Hẹn giờ 30 s | Chưa nói trong lần mở này | 30 s | `SPEAKING` | AN-POP, MA-13 | Chưa quét được? Thử lại gần hơn và tránh chỗ chói nắng. (042) | No luck yet? Move a little closer and avoid the glare. | — | Tự ẩn, đọc được mã | P6 |

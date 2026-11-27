@@ -1,6 +1,7 @@
 // Quickstart M02 V5–V8, V23 và phần journey của V1 (tasks T039). Lần quét đầu `Q1a` của V5 đi qua camera giả
 // (`qr-q1a.y4m`, project m02); các mã khác đi qua `window.__cpqTestHooks.m02.scan`, cùng đường parseQrLink → processScan.
 import { expect, test, type Page } from '@playwright/test';
+import { en } from '../../src/modules/m02/i18n/en';
 import { vi } from '../../src/modules/m02/i18n/vi';
 import { dumpStores, expectCheckInFeedback, seedValidContext } from './helpers';
 import { mockLookup } from './network';
@@ -119,6 +120,25 @@ test('V23 — camera bị từ chối khi bấm "Quét" → thông báo camera c
   await startTrip(page);
   await page.getByRole('button', { name: vi.trip.scan }).click();
   await expect(page.getByRole('dialog').getByRole('alert')).toContainText(vi.notice.cameraUnavailable);
+  // M02-17: các bước bật camera (Chromium của Playwright → bộ bước Chrome)
+  await expect(page.getByRole('dialog').getByRole('listitem')).toHaveText([...vi.scanner.stepsOther]);
   await page.getByRole('button', { name: vi.scanner.close }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
+});
+
+test('BUG-020 — đổi VI/EN ngay trong scanner, không cần đóng camera', async ({ page }) => {
+  // Camera chờ mãi: scanner giữ mở (camera giả của project m02 đọc mã ngay và đóng scanner)
+  await page.addInitScript(() => {
+    navigator.mediaDevices.getUserMedia = () => new Promise(() => {});
+  });
+  await mockLookup(page);
+  await startTrip(page);
+  await page.getByRole('button', { name: vi.trip.scan }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('heading', { name: vi.scanner.title })).toBeVisible();
+  await dialog.getByRole('button', { name: 'EN', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: en.scanner.title })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: en.scanner.close })).toBeVisible();
+  // Có chuyến, chưa quét điểm nào → nhãn điểm đang tìm là điểm 1
+  await expect(dialog.locator('[data-scanner-target]')).toHaveText(en.scanner.lookingFor({ number: 1, name: 'Forest gate' }));
 });

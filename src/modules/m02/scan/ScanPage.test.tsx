@@ -2,7 +2,8 @@
 // (BR-M02-023): có phiên → lượt quét của phiên (BR-M02-005); không có → khách tự do, không ghi gì (US-M02-07).
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PRELOAD_TIMEOUT_MS, preloadM02Routes } from '../testing/preloadRoutes';
 import type { FakeLookup } from '../api/fake/fakeLookup';
 import { CHECKPOINTS, ROUTE_A } from '../api/fake/fixtures';
 import { lookupClient } from '../api/lookupClient';
@@ -16,6 +17,9 @@ import { handleScannedText } from './scanBridge';
 vi.mock('../m01Port', () => import('../testing/fakeM01Port'));
 vi.mock('../api/mediaUrl', () => ({ mediaUrlClient: { signedUrls: async () => new Map() } }));
 vi.mock('../api/lookupClient', async () => ({ lookupClient: (await import('../api/fake/fakeLookup')).createFakeLookup() }));
+
+// Nạp sẵn màn lazy để ca đầu tiên không quá thời gian chờ khi máy chậm (DV-100)
+beforeAll(() => preloadM02Routes(), PRELOAD_TIMEOUT_MS);
 
 const fakeLookup = lookupClient as FakeLookup;
 const SESSION = '5b1e2d3c-4a5f-4e6d-8c7b-9a0f1e2d3c4b';

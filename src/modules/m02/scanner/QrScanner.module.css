@@ -1,9 +1,12 @@
 /*
- * Scanner toàn màn hình trên bề mặt rừng tối (design-system §2.2, mockup-SCR-M02-001 "Đang quét"): khung vuông bo góc
- * với khung ngắm nhịp theo `--duration-scanner-frame` (tắt khi giảm chuyển động: token về 0ms).
+ * Scanner toàn màn hình trên bề mặt rừng tối (design-system §2.2, §5 "Scanner"; mockup-SCR-M02-001 "Đang quét").
+ * CHG-MASCOT-2026-11-27-08: hàng tiêu đề serif có VI/EN; khung bốn góc amber với vạch quét chạy lên xuống
+ * (`--duration-scanner-frame`; giảm chuyển động / công tắc tắt: vạch đứng giữa khung); màn lỗi camera có icon, các bước
+ * bật camera, "Thử lại" nút chính amber.
  */
 .overlay {
   --focus-ring-color: var(--color-m02-scanner-warning);
+  --scanner-amber: var(--color-m01-amber);
 
   position: fixed;
   inset: 0;
@@ -15,25 +18,49 @@
 }
 
 .panel {
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
   width: 100%;
   max-width: calc(var(--space-8) * 15);
+  min-height: 100%;
   margin: 0 auto;
   padding: var(--space-6) var(--space-5) var(--space-8);
 }
 
+/* Hàng tiêu đề như thanh đầu trang M02 (FieldLayout): tiêu đề trái, VI/EN phải */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* Serif như "Chuyến đi" của thanh đầu trang scanner (design-system §3) */
 .title {
   margin: 0;
-  font-size: var(--font-size-page-heading-mobile);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-page-heading);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-heading);
+}
+
+/* Nhãn điểm đang tìm: viên viền amber, chỉ gợi ý */
+.target {
+  align-self: flex-start;
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--scanner-amber);
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--scanner-amber) 55%, transparent);
+  border-radius: var(--radius-lg);
 }
 
 .instruction {
   margin: 0;
   font-size: var(--font-size-meta);
+  text-align: center;
   color: var(--color-m02-scanner-secondary);
 }
 
@@ -57,70 +84,225 @@
 }
 
 .reticle {
+  --corner-size: 22%;
+  --corner-width: calc(var(--border-width-thick) + var(--border-width-thin));
+
   position: relative;
   width: 62%;
   aspect-ratio: 1 / 1;
-  border: calc(var(--border-width-thick) + var(--border-width-thin)) solid var(--color-m02-scanner-text);
-  border-radius: var(--radius-md);
-  animation: pulse var(--duration-scanner-frame) linear infinite alternate;
 }
 
-@keyframes pulse {
+/* Bốn góc amber của khung ngắm */
+.corner {
+  position: absolute;
+  width: var(--corner-size);
+  height: var(--corner-size);
+  border: 0 solid var(--scanner-amber);
+}
+
+.corner[data-corner='tl'] {
+  top: 0;
+  left: 0;
+  border-top-width: var(--corner-width);
+  border-left-width: var(--corner-width);
+  border-top-left-radius: var(--radius-md);
+}
+
+.corner[data-corner='tr'] {
+  top: 0;
+  right: 0;
+  border-top-width: var(--corner-width);
+  border-right-width: var(--corner-width);
+  border-top-right-radius: var(--radius-md);
+}
+
+.corner[data-corner='bl'] {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: var(--corner-width);
+  border-left-width: var(--corner-width);
+  border-bottom-left-radius: var(--radius-md);
+}
+
+.corner[data-corner='br'] {
+  right: 0;
+  bottom: 0;
+  border-right-width: var(--corner-width);
+  border-bottom-width: var(--corner-width);
+  border-bottom-right-radius: var(--radius-md);
+}
+
+/* Vạch quét: lớp phủ cả khung trượt bằng transform; mặc định (giảm chuyển động) vạch đứng giữa khung */
+.sweep {
+  position: absolute;
+  inset: 8% 6%;
+  transform: translateY(50%);
+}
+
+.scanLine {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: var(--border-width-thick);
+  background: linear-gradient(90deg, transparent, var(--color-m02-scanner-success), transparent);
+  box-shadow: 0 0 var(--space-3) var(--color-m02-scanner-success);
+}
+
+:root[data-motion='full'] .sweep {
+  animation: sweep var(--duration-scanner-frame) ease-in-out infinite alternate;
+}
+
+@keyframes sweep {
   from {
-    opacity: 1;
+    transform: translateY(0);
   }
 
   to {
-    opacity: 0.45;
+    transform: translateY(100%);
   }
 }
 
+/* —— Màn lỗi camera (E-SCR-M02-001-11) —— */
 .failure {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
+}
+
+.cameraOff {
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  width: calc(var(--space-8) * 3);
+  height: calc(var(--space-8) * 3);
+  color: var(--color-m02-scanner-text);
+  background: var(--color-m02-scanner-surface);
+  border: var(--border-width-thick) dashed var(--scanner-amber);
+  border-radius: 50%;
+}
+
+.cameraOffIcon {
+  --icon-size: calc(var(--space-8) + var(--space-4));
+}
+
+/* Lắc nhẹ một lần khi hiện lỗi (T1); giảm chuyển động / công tắc tắt: đứng yên */
+:root[data-motion='full'] .cameraOff {
+  animation: shake var(--duration-feedback) var(--ease-standard) both;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+
+  25% {
+    transform: rotate(-8deg);
+  }
+
+  75% {
+    transform: rotate(8deg);
+  }
+}
+
+.failureText {
+  margin: 0;
   padding: var(--space-4);
   background: var(--color-m02-scanner-surface);
   border-left: var(--border-width-thick) solid var(--color-m02-scanner-warning);
   border-radius: var(--radius-sm);
 }
 
-.failureText {
-  margin: 0;
+.howTo {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width-thin) solid var(--color-m02-scanner-secondary);
+  border-radius: var(--radius-lg);
 }
 
-.secondary,
+.howToTitle {
+  margin: 0;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--scanner-amber);
+}
+
+.steps {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: var(--space-6) 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-meta);
+  counter-increment: step;
+}
+
+/* Số bước trong vòng amber */
+.steps li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: var(--space-6);
+  height: var(--space-6);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m02-scanner-bg);
+  background: var(--scanner-amber);
+  border-radius: 50%;
+}
+
+/* —— Nút ở đáy —— */
+.actions {
+  display: grid;
+  gap: var(--space-3);
+  /* Nút luôn ở đáy màn */
+  margin-top: auto;
+}
+
+.primary,
 .close {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--touch-target);
+  width: 100%;
+  min-height: var(--touch-target-m01-primary);
   padding: 0 var(--space-4);
   font: var(--font-weight-semibold) var(--font-size-body) / 1 var(--font-sans);
-  color: var(--color-m02-scanner-text);
-  background: var(--color-m02-scanner-surface);
-  border: var(--border-width-thin) solid var(--color-m02-scanner-secondary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   cursor: pointer;
 }
 
-.close {
-  width: 100%;
+/* "Thử lại": nút chính amber (design-system §5 "Scanner") */
+.primary {
+  color: var(--color-m02-scanner-bg);
+  background: var(--scanner-amber);
+  border: var(--border-width-thin) solid var(--scanner-amber);
 }
 
-.secondary:hover,
+.close {
+  color: var(--color-m02-scanner-text);
+  background: var(--color-m02-scanner-surface);
+  border: var(--border-width-thin) solid var(--color-m02-scanner-secondary);
+}
+
+.primary:hover {
+  background-image: linear-gradient(var(--overlay-fill-hover), var(--overlay-fill-hover));
+}
+
 .close:hover {
   background-image: linear-gradient(var(--overlay-scanner-hover), var(--overlay-scanner-hover));
 }
 
-.secondary:focus-visible,
+.primary:focus-visible,
 .close:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
-}
-
-/* Câu camera có Mila minh họa bên trái (design-system §9.2 INLINE) */
-.withMila {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
 }

@@ -29,6 +29,9 @@ test('V20 — /q/Q1a không phiên, thiết bị vi-VN chưa có preference → 
   await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q1a' })).toBeVisible();
   await expect(page.getByText('Giới thiệu trực tuyến Q1a.')).toBeVisible();
   await expect(page.getByText(vi.notice.freeVisitor)).toBeVisible();
+  // BUG-015 (CHG-MASCOT-2026-11-27-08): gợi ý ở vùng thông báo đầu trang, thấy ngay khi mở, không cần cuộn
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(page.getByText(vi.notice.freeVisitor)).toBeInViewport();
   await expect(page.getByRole('link', { name: vi.qrLink.chooseRoute })).toHaveAttribute('href', '/');
   // Không có bước chọn ngôn ngữ của M01 trước nội dung
   await expect(page.getByText('Chọn ngôn ngữ', { exact: true })).toHaveCount(0);
