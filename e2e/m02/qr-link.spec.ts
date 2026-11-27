@@ -28,11 +28,13 @@ test('V20 — /q/Q1a không phiên, thiết bị vi-VN chưa có preference → 
   await page.goto('/q/Q1a');
   await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q1a' })).toBeVisible();
   await expect(page.getByText('Giới thiệu trực tuyến Q1a.')).toBeVisible();
-  await expect(page.getByText(vi.notice.freeVisitor)).toBeVisible();
-  // BUG-015 (CHG-MASCOT-2026-11-27-08): gợi ý ở vùng thông báo đầu trang, thấy ngay khi mở, không cần cuộn
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await expect(page.getByText(vi.notice.freeVisitor)).toBeInViewport();
+  // BUG-015 (CHG-MASCOT-2026-11-27-08 D9): câu là toast nổi ngay dưới thanh app, thấy ngay khi mở; tự đóng sau 4 giây
+  const toast = page.getByRole('status').filter({ hasText: vi.notice.freeVisitor });
+  await expect(toast).toBeInViewport();
   await expect(page.getByRole('link', { name: vi.qrLink.chooseRoute })).toHaveAttribute('href', '/');
+  await expect(toast).toHaveCount(0, { timeout: 6_000 });
+  // Toast đã đóng: "Chọn tuyến" ở cuối bài vẫn còn
+  await expect(page.getByRole('link', { name: vi.qrLink.chooseRoute })).toBeVisible();
   // Không có bước chọn ngôn ngữ của M01 trước nội dung
   await expect(page.getByText('Chọn ngôn ngữ', { exact: true })).toHaveCount(0);
   expect(requests).toEqual([{ p_qr_identifier: 'Q1a' }]);

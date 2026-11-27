@@ -3,14 +3,16 @@ import { expect, test } from '@playwright/test';
 import { vi } from '../../src/modules/m02/i18n/vi';
 import { mockLookup, mockStorage } from './network';
 
-test('Q3 — lần đầu mở /q/Q1a: nội dung như trước, không giới thiệu, Mila chỉ là hình cạnh gợi ý khách tự do', async ({ page }) => {
+test('Q3 — lần đầu mở /q/Q1a: nội dung như trước, không giới thiệu, Mila chỉ là hình cạnh nút "Chọn tuyến" của khách tự do', async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(navigator, 'language', { get: () => 'vi-VN' }));
   await mockLookup(page);
   await mockStorage(page);
   await page.goto('/q/Q1a');
   await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q1a' })).toBeVisible();
+  // 2026-11-27 (CHG-MASCOT-2026-11-27-08 D9): câu là toast ở đầu trang; khối cuối bài chỉ còn Mila và "Chọn tuyến"
+  await expect(page.getByRole('status').filter({ hasText: vi.notice.freeVisitor })).toBeVisible();
   const hint = page.locator('[data-free-visitor]');
-  await expect(hint.getByText(vi.notice.freeVisitor)).toBeVisible();
+  await expect(hint.getByRole('link', { name: vi.qrLink.chooseRoute })).toBeVisible();
   await expect(hint.locator('[data-mascot-figure="map"]')).toBeVisible();
   await expect(page.locator('[data-mascot-mode="INTRO"], [data-mascot-intro]')).toHaveCount(0);
   await expect(page.locator('[data-mascot-message]')).toHaveCount(0);

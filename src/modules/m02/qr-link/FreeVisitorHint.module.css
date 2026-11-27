@@ -1,43 +1,34 @@
-/* Gợi ý khách tự do: nền surface của bề mặt, vạch info, liên kết "Chọn tuyến" gạch chân, vùng chạm theo --touch-target.
-   Đặt ở vùng thông báo đầu trang (2026-11-27, BUG-015), nên không cần lề trên riêng. */
+/*
+ * Khối "Chọn tuyến" của khách tự do ở cuối bài (2026-11-27, CHG-MASCOT-2026-11-27-08): Mila (nếu bật) bên trái, nút viền
+ * "Chọn tuyến" bên phải. Câu gợi ý là toast ở đầu trang nên khối không có chữ dài.
+ */
 .hint {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: start;
-  gap: var(--space-1) var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--m02-surface);
-  border-left: var(--border-width-thick) solid var(--m02-info);
-  border-radius: var(--radius-sm);
-}
-
-/* Hình Mila (nếu có) ở cột 1 suốt hai hàng; chữ và liên kết ở cột 2 */
-.hint > :first-child:not(.text) {
-  grid-row: span 2;
-}
-
-.text,
-.link {
-  grid-column: 2;
-}
-
-.text {
-  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
 }
 
 .link {
   display: inline-flex;
+  flex: 1;
   align-items: center;
-  justify-self: start;
-  min-height: var(--touch-target);
+  justify-content: center;
+  min-height: var(--touch-target-m01-primary);
+  padding: 0 var(--space-4);
   font-weight: var(--font-weight-semibold);
   color: var(--m02-fg);
-  text-decoration: underline;
-  text-underline-offset: var(--space-1);
+  text-decoration: none;
+  background: var(--m02-surface);
+  border: var(--border-width-thin) solid var(--m02-info);
+  border-radius: var(--radius-lg);
+}
+
+.link:hover {
+  background-image: linear-gradient(var(--overlay-fill-hover), var(--overlay-fill-hover));
 }
 
 .link:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
-  border-radius: var(--radius-sm);
 }

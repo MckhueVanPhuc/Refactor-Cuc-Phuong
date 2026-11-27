@@ -1,5 +1,5 @@
 // SCR-M02-004 (tasks T078; BR-M02-024; FR-M02-025; SC-M02-017) với cổng M01, lookup và Storage giả.
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { createMemoryRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PRELOAD_TIMEOUT_MS, preloadM02Routes } from '../testing/preloadRoutes';
@@ -8,6 +8,7 @@ import { CHECKPOINTS, ROUTE_A } from '../api/fake/fixtures';
 import { lookupClient } from '../api/lookupClient';
 import { en } from '../i18n/en';
 import { vi as viMessages } from '../i18n/vi';
+import { FREE_VISITOR_TOAST_MS } from './FreeVisitorHint';
 import { m02Routes } from '../routes';
 import { resetAutoEndNoticeForTest } from '../session/autoEnd';
 import { checkpointVisitsTable, pendingSyncItemsTable, playSessionsTable } from '../storage/tables';
@@ -77,14 +78,19 @@ describe('QrLinkPage', () => {
     expect(await screen.findByText(hint)).toBeTruthy();
   });
 
-  it('BUG-015: gợi ý khách tự do ở vùng thông báo đầu trang, đứng trước bài viết (CHG-MASCOT-2026-11-27-08 D9)', async () => {
+  it('BUG-015: câu khách tự do là toast nổi (role status, không trong bài); "Chọn tuyến" ở cuối bài, không lặp câu (CHG-MASCOT-2026-11-27-08 D9)', async () => {
     fakeM01.setLanguage({ languageCode: 'vi' });
     openLink('/q/Q1a');
     await screen.findByRole('heading', { name: 'Đối tượng Q1a' });
-    const hint = document.querySelector('[data-free-visitor]')!;
+    const toast = (await screen.findByText(viMessages.notice.freeVisitor)).closest('[role="status"]')!;
     const article = document.querySelector('article[data-qr]')!;
-    expect(hint.compareDocumentPosition(article) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(article.contains(hint)).toBe(false);
+    expect(toast).toBeTruthy();
+    expect(article.parentElement!.contains(toast)).toBe(false);
+    const block = document.querySelector('[data-free-visitor]')!;
+    expect(article.compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(block.textContent).not.toContain(viMessages.notice.freeVisitor);
+    expect(within(block as HTMLElement).getByRole('link', { name: viMessages.qrLink.chooseRoute })).toBeTruthy();
+    expect(FREE_VISITOR_TOAST_MS).toBe(4_000);
   });
 
   it('không phiên → khách tự do: gợi ý + "Chọn tuyến" về "/", lookup không gửi routeId', async () => {

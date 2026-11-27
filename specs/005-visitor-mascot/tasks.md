@@ -444,7 +444,7 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 ### Implementation
 
 - [X] T130 [US5] `src/modules/m02/scanner/QrScanner.tsx` (+ css): hàng tiêu đề serif với `LanguageControl`, nhãn `target`, khung bốn góc + vạch quét, màn lỗi camera, `isAppleMobile`; `assets/icons/camera-off.svg` (mới)
-- [X] T131 [US2] `src/modules/m02/session/TripPage.tsx` (+ css): `scannerTarget`, thẻ quét đủ, lá xoay khi kiểm tra mã; `content/ScanContent.tsx`, `qr-link/FreeVisitorHint.module.css`: gợi ý khách tự do ở vùng thông báo; `i18n/{vi,en}.ts`
+- [X] T131 [US2] `src/modules/m02/session/TripPage.tsx` (+ css): `scannerTarget`, thẻ quét đủ, lá xoay khi kiểm tra mã; `content/ScanContent.tsx`, `qr-link/FreeVisitorHint.tsx` (+ css), `shared/ui/Toast.tsx`: câu khách tự do là toast 4 giây, nút "Chọn tuyến" cùng Mila ở cuối bài; `i18n/{vi,en}.ts`
 - [X] T132 Đồng bộ spec-Mascot v1.8, design-system, Behavior Matrix, screen spec SCR-M02-001/002/004/005; chạy `npm run ci`, `npx playwright test --project=m02 --project=m02-cam-evil`; chụp 390 px; ghi validation report §22
 
 

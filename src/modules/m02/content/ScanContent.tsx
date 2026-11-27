@@ -11,7 +11,7 @@ import { markFinalPrompt } from '../end/finalPromptSignal';
 import { useM02DisplayLanguage, useM02Messages } from '../i18n/useM02Messages';
 import { FieldNotice } from '../layout/FieldLayout';
 import { Toast } from '../../../shared/ui/Toast';
-import { FreeVisitorHint } from '../qr-link/FreeVisitorHint';
+import { FREE_VISITOR_TOAST_MS, FreeVisitorHint } from '../qr-link/FreeVisitorHint';
 import type { ScanResult } from '../scan/processScan';
 import { useSession, useSessionVisits } from '../storage/readers';
 import { Gallery } from './Gallery';
@@ -171,10 +171,14 @@ function ContentNotices({ scan, view }: { scan: ScanResult; view: ContentView | 
         </Notice>
       )}
       {(view?.kind === 'CLOSED' || view?.kind === 'INVALID' || view?.kind === 'CONNECTION_NEEDED') && <ScanNotice kind={view.kind} />}
-      {/* Gợi ý khách tự do ở vùng thông báo đầu trang, trước ảnh và bài viết (BUG-015; CHG-MASCOT-2026-11-27-08 D9).
-          Trước: sau bài viết, bài dài thì gần như không ai thấy */}
-      {scan.freeVisitor && <FreeVisitorHint />}
       </FieldNotice>
+      {/* Gợi ý khách tự do: toast nổi 4 giây ngay dưới thanh app, không đẩy nội dung (BUG-015; CHG-MASCOT-2026-11-27-08
+          D9, chủ dự án chọn 2026-11-27). Liên kết "Chọn tuyến" ở cuối bài (FreeVisitorHint) */}
+      {scan.freeVisitor && (
+        <Toast key={`free:${scan.qrIdentifier}`} closeLabel={messages.toast.close} durationMs={FREE_VISITOR_TOAST_MS} icon="compass">
+          {messages.notice.freeVisitor}
+        </Toast>
+      )}
     </>
   );
 }
@@ -228,6 +232,8 @@ export function ScanContent({
         {view?.kind === 'PACKAGE' && <PackageArticle view={view} />}
         {scan?.visit && <p className={styles.visitTime}>{messages.content.scannedAt({ time: visitTime(scan.visit.checkedInAt) })}</p>}
       </article>
+      {/* Khách tự do: Mila và nút "Chọn tuyến" ở cuối bài, luôn còn đường về danh mục khi toast đã đóng */}
+      {scan?.freeVisitor && <FreeVisitorHint />}
       {showBack && (
         <Link
           className={styles.back}

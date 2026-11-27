@@ -33,7 +33,7 @@ Bảng test của tester (chat 2026-11-27, kèm 2 mockup):
 | D6 | Màn lỗi camera: icon camera gạch chéo (`camera-off.svg`, agent vẽ) lắc một lần; khung "Cách bật camera" ba bước, **tách iPhone / iPad (Safari) và máy khác (Chrome)**; "Thử lại" là nút chính amber, "Đóng camera" nút viền. Câu cố định của spec-M02 §5.1 giữ nguyên |
 | D7 | **Màn lỗi camera không có Mila** (spec-Mascot v1.8 §5.1; MAS-B-038 chỉ còn hủy hẹn giờ của scanner) — một hình minh họa, có cả khi Mila tắt |
 | D8 | Đang kiểm tra mã: icon lá xoay cạnh dòng "Đang kiểm tra mã QR…"; giảm chuyển động: đứng yên |
-| D9 | Gợi ý khách tự do lên **vùng thông báo đầu trang** (dưới thanh app, trước ảnh và bài viết), SCR-M02-002 và SCR-M02-004; câu cố định giữ nguyên |
+| D9 | Gợi ý khách tự do (SCR-M02-002, 004): câu cố định là **toast 4 giây** nổi dưới thanh app, không đẩy nội dung; nút **"Chọn tuyến"** cùng Mila ở cuối bài, không lặp câu. Chủ dự án chọn sau khi xem bản đặt ở vùng thông báo (banner đẩy nội dung, đè lên ảnh đầu trang) |
 
 ## 3. Phạm vi file được phép
 

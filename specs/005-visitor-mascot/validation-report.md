@@ -900,18 +900,19 @@ Bảng test của tester (M02-15, 16, 17, 18, 25, 37; BUG-015, BUG-020). Chủ d
 | Scanner: hàng tiêu đề serif với VI/EN (BUG-020), nhãn "Đang tìm điểm {i} · {tên}", khung bốn góc + vạch quét | `src/modules/m02/scanner/QrScanner.tsx` (+ css) |
 | Màn lỗi camera: icon `camera-off.svg` (mới) lắc một lần, các bước bật camera theo trình duyệt (`isAppleMobile`), "Thử lại" nút chính; không Mila | như trên, `assets/icons/camera-off.svg`, `i18n/{vi,en}.ts` |
 | Quét đủ: thẻ "Bạn đã quét đủ {n}/{n} điểm!", "Kết thúc chuyến" nút chính, "Quét QR" nút phụ; lá xoay khi kiểm tra mã | `src/modules/m02/session/TripPage.tsx` (+ css) |
-| Gợi ý khách tự do ở vùng thông báo đầu trang (BUG-015) | `content/ScanContent.tsx`, `qr-link/FreeVisitorHint.module.css` |
+| Gợi ý khách tự do (BUG-015): câu là toast 4 giây (icon la bàn) ngay dưới thanh app; nút "Chọn tuyến" cùng Mila ở cuối bài. Bản đầu đặt ở vùng thông báo (banner) bị chủ dự án đổi vì đẩy nội dung, đè lên ảnh đầu trang | `content/ScanContent.tsx`, `qr-link/FreeVisitorHint.tsx` (+ css), `shared/ui/Toast.tsx` (`durationMs`, `icon`) |
 | Nạp sẵn màn lazy trong 6 tệp test dựng route M02 (DV-100) | `src/modules/m02/testing/preloadRoutes.ts` (mới) |
 
 M02-15: pop-up hỏi kết thúc ở màn nội dung điểm cuối đã bỏ từ spec-M02 v3.4 (PR #83); dòng test còn ghi theo v3.3. Nếu tester vẫn thấy pop-up ở màn nội dung, bản họ thử chưa có #83.
 
-Test đổi có chủ đích: e2e `mascot-scanner.spec.ts` MAS-B-038 (không còn Mila ở màn lỗi camera). Test mới: unit scanner (VI/EN, nhãn điểm, màn lỗi, `isAppleMobile`), thẻ quét đủ và thứ tự nút, gợi ý khách tự do trước bài viết; e2e BUG-020, V23 các bước, V20 gợi ý trong khung nhìn.
+Test đổi có chủ đích: e2e `mascot-scanner.spec.ts` MAS-B-038 (không còn Mila ở màn lỗi camera); `mascot-qr-link.spec.ts` Q3 (Mila cạnh nút "Chọn tuyến", câu ở toast). Test mới: unit scanner (VI/EN, nhãn điểm, màn lỗi, `isAppleMobile`), thẻ quét đủ và thứ tự nút, gợi ý khách tự do trước bài viết; e2e BUG-020, V23 các bước, V20 toast trong khung nhìn rồi tự đóng, "Chọn tuyến" còn lại; unit Toast `durationMs`.
 
 | Lệnh | Exit | Kết quả |
 |---|---|---|
-| `npm run ci` | 0 | lint token 768; 2515 pass, 133 skipped; build OK, precache 118 mục (3006,28 KiB) |
+| `npm run ci` (sau khi đổi sang toast) | 0 | lint token 768; 2516 pass, 133 skipped; build OK, precache 118 mục (3006,24 KiB) |
+| `npx playwright test --project=m02 --workers=1` các spec khách tự do (qr-link, mascot-qr-link, scan-tab, motion-journey, mascot-layout) sau khi đổi sang toast | 0 | 15 pass |
 | `npx playwright test --project=m02 --project=m02-cam-evil --workers=1` | 0 | 84 pass |
-| Chụp 390 px: scanner có chuyến, lỗi camera VI/EN, quét đủ, trang mã QR khách tự do (spec tạm, đã xóa) | 0 | Đúng như mockup của tester; gợi ý khách tự do thấy ngay dưới thanh app |
+| Chụp 390 px: scanner có chuyến, lỗi camera VI/EN, quét đủ, trang mã QR khách tự do lúc 0,5 s và 5 s (spec tạm, đã xóa) | 0 | Đúng như mockup của tester; toast khách tự do nổi trên ảnh, không đẩy nội dung, tự đóng; "Chọn tuyến" còn ở cuối bài |
 
 | # | Mục | Trạng thái |
 |---|---|---|
