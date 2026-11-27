@@ -865,3 +865,28 @@ Test đổi có chủ đích: `rules.test.ts` (điểm cuối có câu 050; MAS-
 |---|---|---|
 | DV-96 | Câu hỏi kết thúc chuyến lưu ở `sessionStorage` của tab (tín hiệu UI, không phải dữ liệu phiên): du khách đóng tab sau lượt quét điểm cuối và mở lại sẽ không được hỏi; vẫn còn nút Kết thúc chuyến và tự kết thúc sau 24 giờ (BR-M02-021 v3.4 ghi rõ) | Chấp nhận |
 | DV-97 | MSG-MAS-019 (chi tiết tuyến không có Cảnh báo an toàn) rút từ câu 017 chủ dự án duyệt, bỏ phần cảnh báo; chủ dự án xem lại khi thử | Mở |
+
+## 21. Đợt 2026-11-27 — Phase 21: spec-Mascot v1.7, spec-M02 v3.5 (T123–T127) — CHG-MASCOT-2026-11-27-07
+
+Tester góp ý màn Chuyến đi lúc đang đi (M02-04, 13, 14; brief §1). Chủ dự án duyệt làm trọn, chọn tên tuyến từ gói offline và nâng spec-M02 lên v3.5 cho việc đó.
+
+| Việc | Tệp |
+|---|---|
+| Thẻ "Tuyến đang đi", thanh chia đoạn, "Còn r điểm"; hàng đã quét vòng ✓ và mũi tên ›; điểm tiếp theo viền amber, nhãn "Tiếp theo" | `src/modules/m02/journey/RouteJourneyMap.tsx` (+ css), `i18n/{vi,en}.ts` |
+| Tên tuyến từ `routeEssentials.name` của gói sẵn sàng cùng tuyến | `src/modules/m02/session/useRouteName.ts` (mới), `TripPage.tsx` |
+| Mila nói điểm tiếp theo (030, 056), 033 bỏ số điểm; `next` trong sự kiện, `tripNext` trong trạng thái; câu ≤ 90 ký tự | `src/shared/mascot/{events,types,machine,rules,index}.ts`, `dialogue/{vi,en}.ts` |
+
+Test đổi có chủ đích: `rules.test.ts` (030/056 mang `next`, 033 không số); `catalog.test.ts` (056 mới, thêm từ cấm "đến nơi", tham số `next`); `machine.test.ts`, `MascotHost.test.tsx` (câu mẫu 030 → 042 vì 030 cần `next`); e2e `mascot-companion.spec.ts` Q21. Test mới: unit thẻ tuyến, thanh chia đoạn, điểm tiếp theo, hàng đã quét, tên tuyến có/không gói, 030 khi không có điểm tiếp theo và tên dài; e2e v1.7 bắt đầu chuyến.
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 767; 2508 pass, 133 skipped; build OK, precache 118 mục (2998,19 KiB) |
+| `npx playwright test --project=m02 --workers=1` | 0 | 82 pass |
+| Chụp 390 px: 0/3 có gói, 1/3, 1/3 EN, không gói (spec tạm, đã xóa) | 0 | Thẻ tuyến đúng; không gói thì không dòng tên; ✓ và › ở điểm đã quét; "Tiếp theo" ở điểm chưa quét đầu tiên; Mila nói tên điểm |
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-98 | Câu 030 của mockup tester "Đến nơi, tìm tem QR…" đổi thành "Tìm tem QR ở đó rồi bấm Quét QR nhé!" vì "đến nơi/tới nơi" ngụ ý có mặt (BR-MAS-04) | Chấp nhận |
+| DV-99 | Mila giữ chỗ trên nút Quét, không lên dưới thẻ tuyến như mockup (brief D7) | Chủ dự án xem lại khi thử |
+| DV-100 | Lần chạy `npm run ci` đầu và Playwright nhiều worker trên máy này: test đầu của vài tệp (EndFlow, TripPage.free, QrLinkPage) quá `asyncUtilTimeout` 3 s khi nạp lazy route lần đầu, nhiều spec e2e quá 30 s khi tải nặng; chạy lại / một worker thì PASS. Bản gốc trên `main` đo được 3,07 s cho cùng test, đã sát ngưỡng | Ghi nhận, không sửa trong đợt này |
+| DV-101 | Mockup tĩnh `screens/html/mockup-SCR-M02-001.html` chưa có thẻ tuyến và điểm tiếp theo | Stale, ngoài phạm vi |

@@ -16,8 +16,8 @@ import {
   NATURE_REMINDERS_APPROVED,
 } from './config';
 import { blinkAsset } from './assets';
-import type { MessageId } from './dialogue/catalog';
-import type { MascotEvent } from './events';
+import { messageText, type MessageId } from './dialogue/catalog';
+import type { BilingualName, MascotEvent } from './events';
 import type { AnimationId, Intent, PoseId, Rule, RuleResult, RuleView } from './types';
 
 type EventOf<T extends MascotEvent['type']> = Extract<MascotEvent, { type: T }>;
@@ -225,6 +225,16 @@ function tripDock(state: RuleView['state'], animation: AnimationId = 'settle'): 
 }
 
 const onTripWithSession = (state: RuleView['state']) => state.hasSession && state.path === '/trip';
+
+/**
+ * Câu nói điểm tiếp theo (MSG-MAS-030, 056 v1.7): chỉ khi có điểm tiếp theo và câu vừa giới hạn bong bóng ở cả hai
+ * ngôn ngữ (đổi VI/EN không làm câu biến mất giữa chừng; spec-Mascot §5.6).
+ */
+function nextStopMessage(id: 'MSG-MAS-030' | 'MSG-MAS-056', next: BilingualName | null): NonNullable<Intent['message']> | null {
+  if (!next) return null;
+  const params = { next };
+  return messageText('vi', id, params) && messageText('en', id, params) ? { id, params } : null;
+}
 
 const US5: Rule[] = [
   // MAS-B-040: lần mở đầu trong lần tải trang, chưa có lượt ghé hoặc khách tự do → chờ camera chạy rồi minh họa (v1.2)
@@ -545,7 +555,8 @@ function helpLines(state: RuleView['state']): HelpLine[] {
     if (state.counters['screen:scanner']) return [{ behaviorId: 'MAS-B-037', id: 'MSG-MAS-043', pose: 'binoculars' }];
     const k = state.counters['screen:k'] ?? 0;
     const n = state.counters['screen:n'] ?? 0;
-    if (k > 0 && n - k >= 1 && !state.counters['screen:final']) return [{ behaviorId: 'MAS-B-036', id: 'MSG-MAS-033', pose: 'map', params: { r: n - k } }];
+    // v1.7: câu 033 không còn số điểm (thẻ tuyến đã hiện)
+    if (k > 0 && n - k >= 1 && !state.counters['screen:final']) return [{ behaviorId: 'MAS-B-036', id: 'MSG-MAS-033', pose: 'map' }];
     return [{ behaviorId: 'MAS-B-032', id: 'MSG-MAS-032', pose: 'point' }];
   }
   if (path === '/trip/end') return [{ behaviorId: 'MAS-B-065', id: 'MSG-MAS-065', pose: 'thumbsUp' }];
@@ -630,9 +641,11 @@ const US8: Rule[] = [
   on('MAS-B-030', 'm02.trip.entered', (event, { state }) =>
     event.kind === 'STARTED' && !state.once['TRIP_START'] ? { timers: { tripStart: MASCOT_TRIP_START_DELAY_MS }, once: ['TRIP_START'] } : null,
   ),
-  onTimer('MAS-B-030:show', 'tripStart', ({ state }) =>
+  onTimer('MAS-B-030:show', 'tripStart', ({ state }) => {
+    // v1.7: câu nói điểm tiếp theo; không có điểm tiếp theo (hành trình rỗng) thì không nói
+    const message = nextStopMessage('MSG-MAS-030', state.tripNext);
     // Du khách đã mở scanner (đúng điều câu này gợi ý): không nói sau lớp scanner
-    state.view?.mode === 'DOCK' && !state.counters['screen:scanner']
+    return message && state.view?.mode === 'DOCK' && !state.counters['screen:scanner']
       ? {
           intents: [
             {
@@ -641,13 +654,13 @@ const US8: Rule[] = [
               mode: 'DOCK',
               pose: 'wave',
               animation: 'pop',
-              message: { id: 'MSG-MAS-030' },
+              message,
               then: { behaviorId: 'MAS-B-033', priority: 7, mode: 'DOCK', pose: state.view.pose, animation: 'settle' },
             },
           ],
         }
-      : null,
-  ),
+      : null;
+  }),
   // MAS-B-034: mở lại app giữa chuyến sau ≥ 10 phút (không khi đang có thông báo tự kết thúc)
   on('MAS-B-034', 'app.visibility.changed', (event, { state, now }) =>
     event.visible &&
@@ -678,22 +691,25 @@ const US8: Rule[] = [
     if (!event.hasSession || !state.counters['nature:pending']) return null;
     const turn = state.counters['nature:turn'] ?? 0;
     const reminders: MessageId[] = ['MSG-MAS-057a', 'MSG-MAS-057b', 'MSG-MAS-057c', 'MSG-MAS-057d', 'MSG-MAS-057e'];
-    const id: MessageId = NATURE_REMINDERS_APPROVED && turn % 2 === 1 ? reminders[Math.floor(turn / 2) % reminders.length]! : 'MSG-MAS-056';
-    const speak: Intent = {
+    const reminder = NATURE_REMINDERS_APPROVED && turn % 2 === 1 ? reminders[Math.floor(turn / 2) % reminders.length]! : null;
+    // v1.7: câu 056 nói điểm tiếp theo; không có điểm tiếp theo thì lượt này không có bong bóng (BR-MAS-13)
+    const message = reminder ? { id: reminder } : nextStopMessage('MSG-MAS-056', event.next ?? null);
+    const settle: Intent = { behaviorId: 'MAS-B-033', priority: 7, mode: 'DOCK', pose: event.finalVisited ? 'thumbsUp' : event.k > 0 ? 'map' : 'binoculars', animation: 'settle' };
+    const speak: Intent | null = message && {
       behaviorId: 'MAS-B-056',
       priority: 6,
       mode: 'DOCK',
       // v1.4 (Behavior Matrix §3b): Mila sải bước "đi tham quan thôi"
       pose: 'walk',
       animation: 'walk',
-      message: { id },
-      then: { behaviorId: 'MAS-B-033', priority: 7, mode: 'DOCK', pose: event.finalVisited ? 'thumbsUp' : event.k > 0 ? 'map' : 'binoculars', animation: 'settle' },
+      message,
+      then: settle,
     };
     return {
       counters: { 'nature:pending': null, 'nature:turn': turn + 1 },
       // DV-05 (chủ dự án chọn 2026-11-24): trong lúc điểm vừa ghé được mở khóa trên hành trình, Mila ngạc nhiên thích thú
       // (`amazed`, không lời) rồi mới sải bước và nói 056
-      intents: [{ behaviorId: 'MAS-B-056', priority: 6, mode: 'DOCK', pose: 'amazed', animation: 'pop', holdMs: UNLOCK_AMAZED_MS, then: speak }],
+      intents: [{ behaviorId: 'MAS-B-056', priority: 6, mode: 'DOCK', pose: 'amazed', animation: 'pop', holdMs: UNLOCK_AMAZED_MS, then: speak ?? settle }],
     };
   }),
 ];

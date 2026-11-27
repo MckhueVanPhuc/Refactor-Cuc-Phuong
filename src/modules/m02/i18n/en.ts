@@ -46,6 +46,10 @@ export const en: M02Messages = {
     heading: 'Journey',
     notScanned: 'Not scanned',
     progress: ({ scanned, total }) => `QR scanned: ${scanned}/${total} points`,
+    currentRoute: 'Current route',
+    remaining: ({ r }) => (r === 1 ? '1 stop left' : `${r} stops left`),
+    allScanned: 'Every stop scanned',
+    next: 'Next',
   },
   scanner: {
     title: 'Scan a QR code',

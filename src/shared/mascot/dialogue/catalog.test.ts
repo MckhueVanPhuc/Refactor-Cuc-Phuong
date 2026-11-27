@@ -8,7 +8,7 @@ import { MESSAGE_IDS, MESSAGE_META, labelsFor, messageText } from './catalog';
 import { en } from './en';
 import { vi } from './vi';
 
-const FORBIDDEN = [/đã đến/i, /tới nơi/i, /có mặt/i, /arriv/i, /you're at/i, /made it to/i, /bắt buộc/i, /\bmust\b/i];
+const FORBIDDEN = [/đã đến/i, /tới nơi/i, /đến nơi/i, /có mặt/i, /arriv/i, /you're at/i, /made it to/i, /bắt buộc/i, /\bmust\b/i];
 const longest = (items: readonly string[]) => items.reduce((a, b) => (b.length > a.length ? b : a), '');
 
 describe('catalog Mila', () => {
@@ -24,7 +24,8 @@ describe('catalog Mila', () => {
   for (const language of ['vi', 'en'] as const) {
     const cheers = (language === 'vi' ? vi : en).cheers;
     const cheer = cheers.indexOf(longest(cheers));
-    const params = { k: 99, n: 99, count: 99, cheer };
+    // v1.7: tên điểm tiếp theo dài cỡ tên thật dài nhất của fixture (câu tự rút gọn khi quá 90 ký tự)
+    const params = { k: 99, n: 99, count: 99, cheer, next: { vi: 'Rừng nguyên sinh cây Đăng ngàn năm', en: 'Primary forest of the thousand-year Dang tree' } };
 
     it(`${language}: mọi câu ≤ 90 ký tự với tham số dài nhất, không rỗng, tên là Mila`, () => {
       for (const id of MESSAGE_IDS) {
@@ -78,8 +79,10 @@ describe('catalog Mila', () => {
     );
     expect(messageText('en', 'MSG-MAS-001')).toBe("Hi! I'm Mila, Cúc Phương's otter explorer. I'll be with you throughout this visit. Let's pick a route!");
     expect(MESSAGE_META['MSG-MAS-001'].autoHide).toBe(false);
-    expect(messageText('vi', 'MSG-MAS-056')).toBe('Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé.');
-    expect(messageText('en', 'MSG-MAS-056')).toBe('Time to explore! Remember to scan at the next stop.');
+    // v1.7: câu 056 nói điểm tiếp theo (CHG-MASCOT-2026-11-27-07)
+    const next = { vi: 'Động Người Xưa', en: 'Prehistoric Man Cave' };
+    expect(messageText('vi', 'MSG-MAS-056', { next })).toBe('Điểm tiếp theo: Động Người Xưa. Tham quan xong thì đi tiếp và quét mã nhé!');
+    expect(messageText('en', 'MSG-MAS-056', { next })).toBe('Next stop: Prehistoric Man Cave. Take your time here, then scan there.');
     expect(labelsFor('vi')).toMatchObject({ introHint: 'Chạm để bắt đầu', motion: 'Hiệu ứng chuyển động', motionHint: 'Tắt để Mila và hiệu ứng trang trí đứng yên.' });
     expect(labelsFor('en')).toMatchObject({ introHint: 'Tap to start', motion: 'Motion effects', motionHint: 'Turn off to keep Mila and decorations still.' });
   });

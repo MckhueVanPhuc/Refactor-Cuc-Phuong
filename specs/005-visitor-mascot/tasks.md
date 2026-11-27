@@ -417,6 +417,21 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 - [X] T121 [US4] `src/modules/m02/end/FinalPrompt.tsx` (+ css): bảng nền đặc ở đáy màn qua portal, `--overlay-scrim`, câu theo k/n, Mila `cheer`/`think`; `finalPromptSignal.ts` (mới); `TripPage.tsx` Finish mọi lúc, câu hỏi chờ, ẩn slot `trip-dock` khi hộp thoại mở; `ScanContent.tsx`, `ContentPage.tsx` bỏ hộp thoại; `storage/terminalTransition.ts` `BO_DO` khi chưa quét điểm cuối; `i18n/{vi,en}.ts`
 - [X] T122 Đồng bộ spec-Mascot v1.6, spec-M02 v3.4, design-system, Behavior Matrix, Dialogue Library, screen spec; chạy `npm run ci`, `npx playwright test --project=m01 --project=m02 --project=m02-cam-evil`; chụp 320/390 px; ghi validation report §20
 
+## Phase 21: v1.7 — màn Chuyến đi lúc đang đi: thẻ tuyến, điểm tiếp theo, hàng đã quét, Mila nói điểm tiếp theo (US2, US8) — CHG-MASCOT-2026-11-27-07
+
+**Goal**: spec-Mascot v1.7 (BR-MAS-02, 12, 13; §5.6 MSG-MAS-030, 033, 056, `{next}`) và spec-M02 v3.5 (§5.1 "Content inputs", §7, §11); screen spec SCR-M02-001 E-07, E-25, E-26.
+
+### Tests ⚠️
+
+- [X] T123 [P] [US8] `src/shared/mascot/rules.test.ts`: 030 và 056 mang `next`, không có điểm tiếp theo → không nói, tên dài → rút câu / không nói, 033 không còn số; `dialogue/catalog.test.ts` 056 mới, từ cấm "đến nơi", tham số `next`; `machine.test.ts`, `MascotHost.test.tsx` đổi câu mẫu 030 → 042 (030 cần `next`)
+- [X] T124 [P] [US2] `src/modules/m02/journey/RouteJourneyMap.test.tsx`: thẻ tuyến, thanh chia đoạn, điểm tiếp theo, hàng đã quét; `session/TripPage.entry.test.tsx`: tên tuyến từ gói / không gói; e2e `mascot-companion.spec.ts` (Q21 đổi câu; test v1.7 mới)
+
+### Implementation
+
+- [X] T125 [US2] `src/modules/m02/journey/RouteJourneyMap.tsx` (+ css): thẻ tuyến, thanh chia đoạn, vòng ✓, mũi tên ›, nhãn "Tiếp theo"; `session/useRouteName.ts` (mới) đọc `routeEssentials.name` qua m01Port; `TripPage.tsx` truyền tên tuyến và `next` cho Mila; `i18n/{vi,en}.ts`
+- [X] T126 [US8] `src/shared/mascot/{events,types,machine,rules,index}.ts`: `next` trong `m02.trip.entered`/`shown`, `tripNext` trong trạng thái; `dialogue/{vi,en}.ts` câu 030, 033, 056, `nextStopText` (≤ 90 ký tự)
+- [X] T127 Đồng bộ spec-Mascot v1.7, spec-M02 v3.5, design-system, Behavior Matrix, Dialogue Library, Testing Checklist, screen spec, contract sự kiện; chạy `npm run ci`, `npx playwright test --project=m02`; chụp 390 px; ghi validation report §21
+
 
 
 ### Phase Dependencies

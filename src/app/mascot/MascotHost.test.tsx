@@ -17,7 +17,7 @@ afterEach(() => {
   Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
 });
 
-const speak = rule('m02.scanner.opened', say({ mode: 'DOCK', message: { id: 'MSG-MAS-030' } }));
+const speak = rule('m02.scanner.opened', say({ mode: 'DOCK', message: { id: 'MSG-MAS-042' } }));
 const opened = () => emitMascotEvent({ type: 'm02.scanner.opened', hasSession: true, k: 0 });
 
 function setup(rules = [speak]) {
@@ -34,7 +34,7 @@ function setup(rules = [speak]) {
 
 describe('MascotHost', () => {
   it('màn có hai slot cùng mode → Mila vào slot ý định chỉ định, không phải slot đăng ký sau cùng (SCR-M01-003, T060/T061)', async () => {
-    const toStart = rule('m02.scanner.opened', say({ mode: 'AVATAR', slot: 'start-panel', message: { id: 'MSG-MAS-030' } }));
+    const toStart = rule('m02.scanner.opened', say({ mode: 'AVATAR', slot: 'start-panel', message: { id: 'MSG-MAS-042' } }));
     render(
       <>
         <MascotSlot id="start-panel" modes={['AVATAR']} />
@@ -43,16 +43,16 @@ describe('MascotHost', () => {
       </>,
     );
     act(() => opened());
-    const bubble = await screen.findByText('At each stop, look for the QR sign and tap Scan QR.');
+    const bubble = await screen.findByText('No luck yet? Move a little closer and avoid the glare.');
     expect(bubble.closest('[data-mascot-slot="start-panel"]')).not.toBeNull();
   });
 
   it('sự kiện → bong bóng trong đúng slot, chữ theo ngôn ngữ thiết bị khi chưa có lựa chọn', async () => {
     setup();
     act(() => opened());
-    const bubble = await screen.findByText('At each stop, look for the QR sign and tap Scan QR.');
+    const bubble = await screen.findByText('No luck yet? Move a little closer and avoid the glare.');
     expect(bubble.closest('[data-mascot-slot="trip-dock"]')).not.toBeNull();
-    expect(bubble.getAttribute('data-mascot-message')).toBe('MSG-MAS-030');
+    expect(bubble.getAttribute('data-mascot-message')).toBe('MSG-MAS-042');
     expect(bubble.getAttribute('lang')).toBe('en');
     expect(document.activeElement).toBe(document.body);
   });
@@ -60,29 +60,29 @@ describe('MascotHost', () => {
   it('đổi ngôn ngữ → bong bóng đổi chữ, cùng câu (MAS-B-080)', async () => {
     setup();
     act(() => opened());
-    await screen.findByText('At each stop, look for the QR sign and tap Scan QR.');
+    await screen.findByText('No luck yet? Move a little closer and avoid the glare.');
     await act(async () => writeLanguagePreference('vi'));
-    const vi = await screen.findByText('Ở mỗi điểm dừng, tìm tem QR rồi bấm Quét QR nhé.');
-    expect(vi.getAttribute('data-mascot-message')).toBe('MSG-MAS-030');
+    const vi = await screen.findByText('Chưa quét được? Thử lại gần hơn và tránh chỗ chói nắng.');
+    expect(vi.getAttribute('data-mascot-message')).toBe('MSG-MAS-042');
   });
 
   it('trang ẩn → bỏ bong bóng', async () => {
     setup();
     act(() => opened());
-    await screen.findByText(/At each stop/);
+    await screen.findByText(/No luck yet/);
     act(() => {
       Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
       document.dispatchEvent(new Event('visibilitychange'));
     });
-    await waitFor(() => expect(screen.queryByText(/At each stop/)).toBeNull());
+    await waitFor(() => expect(screen.queryByText(/No luck yet/)).toBeNull());
   });
 
   it('nút đóng chỉ đóng bong bóng; Mila (DOCK) vẫn ở slot', async () => {
     setup();
     act(() => opened());
-    await screen.findByText(/At each stop/);
+    await screen.findByText(/No luck yet/);
     act(() => screen.getByRole('button', { name: 'Dismiss message' }).click());
-    await waitFor(() => expect(screen.queryByText(/At each stop/)).toBeNull());
+    await waitFor(() => expect(screen.queryByText(/No luck yet/)).toBeNull());
     expect(document.querySelector('[data-mascot-mode="DOCK"]')).not.toBeNull();
   });
 
@@ -134,7 +134,7 @@ describe('MascotHost', () => {
     try {
       const timed = [
         rule('m02.scanner.opened', { timers: { help: 3_000 } }),
-        rule('mascot.timer', (event) => (event.type === 'mascot.timer' && event.name === 'help' ? say({ source: 'timer', message: { id: 'MSG-MAS-030' } }) : null)),
+        rule('mascot.timer', (event) => (event.type === 'mascot.timer' && event.name === 'help' ? say({ source: 'timer', message: { id: 'MSG-MAS-042' } }) : null)),
       ];
       setup(timed);
       await act(async () => opened());
@@ -145,14 +145,14 @@ describe('MascotHost', () => {
       await act(async () => {
         vi.advanceTimersByTime(1_600);
       });
-      expect(screen.queryByText(/At each stop/)).toBeNull();
+      expect(screen.queryByText(/No luck yet/)).toBeNull();
 
       // Lần sau không có thao tác → câu hiện
       await act(async () => opened());
       await act(async () => {
         vi.advanceTimersByTime(3_100);
       });
-      expect(screen.queryByText(/At each stop/)).not.toBeNull();
+      expect(screen.queryByText(/No luck yet/)).not.toBeNull();
     } finally {
       vi.useRealTimers();
     }

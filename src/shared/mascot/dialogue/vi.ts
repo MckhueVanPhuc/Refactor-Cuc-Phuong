@@ -2,8 +2,23 @@
 // SCR-M02-001…004 (đã đồng bộ 2026-11-21). Không chuỗi nào nói "đã đến/có mặt" (SC-M02-013).
 /** `cheer`: chỉ số trong `cheers` của ngôn ngữ đang hiển thị (đổi VI/EN không ra câu lai). */
 /** `r`: số điểm còn lại (n − k) cho câu chạm giữa chặng. */
-export type MessageParams = { k?: number; n?: number; r?: number; count?: number; cheer?: number };
+/** `next`: tên hai ngôn ngữ của điểm gợi ý kế tiếp (v1.7, `{next}` của spec-Mascot §5.6); câu chọn nhánh của mình. */
+export type BilingualName = { vi: string; en: string };
+export type MessageParams = { k?: number; n?: number; r?: number; count?: number; cheer?: number; next?: BilingualName };
 type Text = string | ((p: MessageParams) => string);
+
+/** Giới hạn bong bóng sau khi thay tham số (spec-Mascot §5.4) */
+export const MASCOT_BUBBLE_MAX_CHARS = 90;
+
+/**
+ * Câu có `{next}` (spec-Mascot §5.6 v1.7): cả câu nếu ≤ 90 ký tự, không thì chỉ câu đầu; câu đầu cũng quá 90 ký tự →
+ * chuỗi rỗng, luật không cho nói (tên điểm rất dài). Luật chỉ phát câu khi có điểm tiếp theo.
+ */
+export function nextStopText(first: string, rest: string): string {
+  const full = `${first} ${rest}`;
+  if ([...full].length <= MASCOT_BUBBLE_MAX_CHARS) return full;
+  return [...first].length <= MASCOT_BUBBLE_MAX_CHARS ? first : '';
+}
 
 const NAME = 'Mila';
 const CHEERS = ['Tuyệt!', 'Hay quá!', 'Thêm một điểm nữa!'];
@@ -32,9 +47,11 @@ export const vi = {
     'MSG-MAS-024': 'Tải chưa xong. Ra chỗ sóng mạnh hơn rồi thử lại nhé.',
     'MSG-MAS-025': 'Máy chưa cho mình lưu. Xem lại bộ nhớ trống hoặc chế độ ẩn danh nhé.',
     'MSG-MAS-026': 'Vẫn chưa được. Có mạng thì bạn vẫn đi được, chỉ vài điểm cần sóng để xem.',
-    'MSG-MAS-030': 'Ở mỗi điểm dừng, tìm tem QR rồi bấm Quét QR nhé.',
+    // v1.7 (CHG-MASCOT-2026-11-27-07): nói điểm tiếp theo thay vì lặp câu gợi ý bắt đầu phiên
+    'MSG-MAS-030': ({ next }) => nextStopText(`Điểm tiếp theo: ${next?.vi ?? ''}.`, 'Tìm tem QR ở đó rồi bấm Quét QR nhé!'),
     'MSG-MAS-032': 'Thấy tem thì bấm Quét QR. Chạm điểm đã quét để đọc lại nhé.',
-    'MSG-MAS-033': ({ r = 0 }) => `Còn ${r} điểm nữa. Thấy tem thì bấm Quét QR nhé.`,
+    // v1.7: thẻ tuyến đã hiện số điểm còn lại
+    'MSG-MAS-033': 'Chạm điểm đã quét để đọc lại, hoặc quét tem QR ở điểm tiếp theo nhé.',
     'MSG-MAS-043': 'Lại gần tem hơn và tránh chỗ chói nắng nhé.',
     'MSG-MAS-034': 'Chào mừng quay lại! Hành trình của bạn vẫn còn nguyên.',
     'MSG-MAS-040': 'Đưa tem QR vào giữa khung và giữ máy yên một chút.',
@@ -49,7 +66,7 @@ export const vi = {
     'MSG-MAS-054': 'Mất sóng cũng không sao, mình mở bản đã tải sẵn cho bạn.',
     'MSG-MAS-055': 'Đã ghi nhận! Bạn đã quét được nửa số điểm rồi đó!',
     'MSG-MAS-058': 'Đã ghi nhận! Chỉ còn một điểm nữa thôi!',
-    'MSG-MAS-056': 'Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé.',
+    'MSG-MAS-056': ({ next }) => nextStopText(`Điểm tiếp theo: ${next?.vi ?? ''}.`, 'Tham quan xong thì đi tiếp và quét mã nhé!'),
     'MSG-MAS-057a': 'Đi nhẹ, nói khẽ để nghe được tiếng rừng nhé.',
     'MSG-MAS-057b': 'Ngắm thôi, đừng hái hay mang gì ra khỏi rừng nhé.',
     'MSG-MAS-057c': 'Giữ rác trong ba lô cho tới khi gặp thùng rác nhé.',

@@ -51,6 +51,11 @@ export const vi = {
     heading: 'Hành trình',
     notScanned: 'Chưa quét',
     progress: ({ scanned, total }: { scanned: number; total: number }) => `Đã quét QR: ${scanned}/${total} điểm`,
+    // Thẻ tuyến và điểm tiếp theo (E-SCR-M02-001-26, -07; CHG-MASCOT-2026-11-27-07)
+    currentRoute: 'Tuyến đang đi',
+    remaining: ({ r }: { r: number }) => `Còn ${r} điểm`,
+    allScanned: 'Đã quét mã ở tất cả các điểm',
+    next: 'Tiếp theo',
   },
   scanner: {
     title: 'Quét mã QR',

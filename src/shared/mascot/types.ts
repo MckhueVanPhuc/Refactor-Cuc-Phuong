@@ -1,5 +1,5 @@
 // Kiểu của engine Mila (specs/005 data-model §2). Chỉ UI state trong bộ nhớ; không lưu (BR-MAS-01).
-import type { Language, MascotEvent, MascotEventType, StampedEvent } from './events';
+import type { BilingualName, Language, MascotEvent, MascotEventType, StampedEvent } from './events';
 import type { MessageId, MessageParams } from './dialogue/catalog';
 
 export type Mode = 'INTRO' | 'DOCK' | 'AVATAR' | 'CELEBRATE';
@@ -120,6 +120,8 @@ export type MascotState = {
   /** Công tắc "Chuyển động" (v1.1): tắt thì không cử chỉ tự động (BR-MAS-21) */
   motion: boolean;
   hasSession: boolean;
+  /** Điểm gợi ý kế tiếp của màn chuyến đi (v1.7), từ `m02.trip.entered`/`shown`; xóa khi đổi màn */
+  tripNext: BilingualName | null;
   path: string;
   /** Lần chạm / cuộn / bấm phím gần nhất (BR-MAS-20) */
   lastActivityAt: number | null;

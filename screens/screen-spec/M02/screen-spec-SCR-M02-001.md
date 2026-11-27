@@ -8,7 +8,7 @@
 | Actor | Visitor có phiên; khách tự do dùng nút Quét |
 | Priority | Must; đồng bộ Should |
 | Mockup | [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html) (HTML tĩnh, chưa sign-off UX) |
-| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.4](../../../docs/spec/spec-Mascot.md) cho Mila; thanh tiến trình hành trình theo design-system §5.3 (v1.4, CHG-MOTION-2026-11-24-01) |
+| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.4](../../../docs/spec/spec-Mascot.md) cho Mila; thanh tiến trình hành trình theo design-system §5.3 (v1.4, CHG-MOTION-2026-11-24-01); thẻ tuyến, điểm tiếp theo và hàng đã quét theo [Spec M02 v3.5](../../../docs/spec/spec-M02.md) §7 và Spec Mascot v1.7 (CHG-MASCOT-2026-11-27-07) |
 
 Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (handoff theo [Spec M01 v3.2](../../../docs/spec/spec-M01.md), lookup theo [Spec M03 v3.7](../../../docs/spec/spec-M03.md)). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
@@ -34,7 +34,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | 4 | E-SCR-M02-001-04 | Session start hint | Text | VI: "Trong chuyến đi, hãy quét bằng nút Quét trong ứng dụng để lượt ghé được ghi lại." (EN theo Spec M02 §5.1) | Conditional | Hiện khi bắt đầu phiên |
 | 5 | E-SCR-M02-001-05 | Auto-end notice | Banner | VI: "Chuyến đi trước đã tự kết thúc và được ghi là hoàn thành." hoặc "Chuyến đi trước đã tự kết thúc vì đã quá 24 giờ." (EN theo Spec M02 §5.1) | Conditional | Chọn câu theo `HOAN_TAT` (đã thăm điểm cuối) hoặc `BO_DO`; hiện sau khi tự đóng phiên quá 24 giờ |
 | 6 | E-SCR-M02-001-06 | Route journey map | Ordered list | `PlaySession.journeyCheckpoints` (frozen từ handoff), sắp theo `sequence` | Yes | Không dựng lại từ M03; số thứ tự hiển thị đếm liên tục dù `sequence` có khoảng trống (BR-M02-006) |
-| 7 | E-SCR-M02-001-07 | Journey item | List item | Số thứ tự hiển thị, `checkpointName` theo ngôn ngữ hiện tại, trạng thái đã quét | Yes | Nhãn "Đã quét QR", không bao giờ diễn đạt là "đã đến" (BR-M02-005, SC-M02-013) |
+| 7 | E-SCR-M02-001-07 | Journey item | List item | Số thứ tự hiển thị, `checkpointName` theo ngôn ngữ hiện tại, trạng thái đã quét. v3.5: điểm đã quét có vòng ✓ thay số (danh sách có thứ tự vẫn đọc số cho trình đọc màn hình) và mũi tên › báo chạm được (E-20); điểm chưa quét đầu tiên theo thứ tự hiển thị là **điểm tiếp theo**: viền amber, nhãn "Tiếp theo" | Yes | Nhãn "Đã quét QR", không bao giờ diễn đạt là "đã đến" (BR-M02-005, SC-M02-013). "Tiếp theo" chỉ là gợi ý: điểm nào cũng quét được, không khóa điểm (BR-M02-006); quét hết thì không có điểm tiếp theo |
 | 8 | E-SCR-M02-001-08 | Item visited time | Text | `CheckpointVisit.checkedInAt` đầu tiên | Conditional | Giá trị đầu tiên bất biến; chỉ hiện với điểm đã quét |
 | 9 | E-SCR-M02-001-09 | Action: Quét | Button | Mở scanner trong app; khách tự do dùng cùng nút khi không có phiên | Yes | Luôn khả dụng khi không có thao tác chặn |
 | 10 | E-SCR-M02-001-10 | QR scanner | Camera view (vùng hoặc toàn màn hình) | Đọc nội dung mã QR | Conditional | Chỉ nhận link `{QR_PUBLIC_BASE_URL}/q/{qrIdentifier}` của môi trường hiện tại; mã khác hoặc base khác → thông báo mã không hợp lệ, không tra cứu (FR-M02-026, BR-M02-023) |
@@ -52,7 +52,8 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | 22 | E-SCR-M02-001-22 | Previous-trip sync error | Text một dòng | Chuyến đi đã kết thúc nhưng không gửi được về hệ thống (theo bảng copy) | Conditional | Hiện khi có `PendingSyncItem` ở `CONFLICT`; không có trang hàng đợi, không cho sửa dữ liệu chuyến đi (BR-M02-011) |
 | 23 | E-SCR-M02-001-23 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Cạnh nút Quét QR (DOCK); cạnh vùng thông báo (INLINE); dải dưới khung trong scanner (AVATAR, không đè khung quét); đầu dialog cuối chuyến (INLINE, không làm chậm dialog). Không có Mila khi có thông báo tạm đóng. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
 | 24 | E-SCR-M02-001-24 | Công tắc "Chuyển động" của Mila | **Bỏ ở v1.3**: thanh đầu trang không còn nút chuyển động; công tắc duy nhất ở màn Tài nguyên SCR-M01-004 (Spec Mascot BR-MAS-21) | — | — | — |
-| 25 | E-SCR-M02-001-25 | Journey progress bar (v1.4) | Progress bar | Tỷ lệ k/n: số điểm đã quét / số điểm của `PlaySession.journeyCheckpoints` (cùng nguồn với câu "Đã quét QR: k/n điểm") | Yes (khi có phiên) | Chỉ hình thức, đặt dưới câu tiến độ; câu giữ nguyên là thông tin chính. `role="progressbar"`, `aria-valuenow` = k, `aria-valuemax` = n; dấu chân ở đầu phần đã đi; không phải slot của Mila (Spec Mascot §5.1). Tăng khi có lượt ghé mới (design-system §4.3.1 T1). Không diễn đạt là "đã đến" (SC-M02-013) |
+| 25 | E-SCR-M02-001-25 | Journey progress bar (v1.4; chia đoạn từ 2026-11-27) | Progress bar trong thẻ tuyến (E-26) | Mỗi điểm của `PlaySession.journeyCheckpoints` một đoạn theo thứ tự hiển thị: đã quét màu success, điểm tiếp theo màu amber, còn lại rãnh mờ; k/n cùng nguồn với câu "Đã quét QR: k/n điểm" | Yes (khi có phiên) | Chỉ hình thức; câu tiến độ giữ nguyên là thông tin chính. `role="progressbar"`, `aria-valuenow` = k, `aria-valuemax` = n; không phải slot của Mila (Spec Mascot §5.1). Đoạn của điểm vừa có lượt ghé mới sáng lên khi quay về (design-system §4.3.1 T1). Không diễn đạt là "đã đến" (SC-M02-013) |
+| 26 | E-SCR-M02-001-26 | Route summary card (2026-11-27) | Card đầu hành trình | Nhãn "Tuyến đang đi"; tên tuyến = `routeEssentials.name` theo ngôn ngữ hiện tại của gói `SAN_SANG` đang dùng cùng `routeId` của phiên (Spec M02 v3.5 §5.1 "Content inputs"); E-25; câu "Đã quét QR: k/n điểm"; "Còn {r} điểm" (r = n − k) hoặc "Đã quét mã ở tất cả các điểm" | Yes (khi có phiên) | Không có gói hoặc đọc lỗi: không có dòng tên tuyến, phần còn lại giữ nguyên. Tên tuyến chỉ để hiển thị, không ghi vào phiên hay dữ liệu đồng bộ |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Các câu đã cố định trong Spec M02 §5.1 (tạm đóng, mã không hợp lệ, cần kết nối, lỗi nguồn, gợi ý khách tự do, gợi ý bắt đầu phiên, phiên tự kết thúc) được dùng nguyên văn như ghi ở bảng inventory.
 
@@ -62,6 +63,10 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | Nút quét | Quét QR | Scan QR |
 | Nhãn đã quét | Đã quét QR | QR scanned |
 | Tiêu đề hành trình | Hành trình | Journey |
+| Nhãn thẻ tuyến (E-26) | Tuyến đang đi | Current route |
+| Số điểm còn lại (E-26) | Còn {r} điểm | {r} stops left (r = 1: "1 stop left") |
+| Đã quét hết (E-26) | Đã quét mã ở tất cả các điểm | Every stop scanned |
+| Nhãn điểm tiếp theo (E-07) | Tiếp theo | Next |
 | Nhãn chưa quét | Chưa quét | Not scanned |
 | Số điểm đã quét | Đã quét QR: {n}/{tổng} điểm | QR scanned: {n}/{total} points |
 | Tiêu đề scanner | Quét mã QR | Scan a QR code |
@@ -80,7 +85,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | Camera bị từ chối/không có | Không dùng được camera. Hãy cho phép truy cập camera hoặc quét mã bằng ứng dụng máy ảnh của điện thoại. | The camera cannot be used. Allow camera access, or scan the code with your phone's own camera app. |
 | Thay phiên lỗi | Chưa bắt đầu được chuyến mới. Chuyến hiện tại vẫn đang chạy. | Could not start the new trip. Your current trip is still in progress. |
 | Chuyến trước không gửi được (E-SCR-M02-001-22) | Chuyến đi trước không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này. | Your previous trip could not be sent to the system. It is still saved on this device. |
-| Mila khi bắt đầu chuyến (MSG-MAS-030) | Ở mỗi điểm dừng, tìm tem QR rồi bấm Quét QR nhé. | At each stop, look for the QR sign and tap Scan QR. |
+| Mila khi bắt đầu chuyến (MSG-MAS-030, v1.7) | Điểm tiếp theo: {next}. Tìm tem QR ở đó rồi bấm Quét QR nhé! | Next stop: {next}. Find its QR sign there and tap Scan QR! |
 | Chạm Mila (SCR-M02-001) (MSG-MAS-032) | Thấy tem thì bấm Quét QR. Chạm điểm đã quét để đọc lại nhé. | Spot a sign? Tap Scan QR. Tap a scanned stop to read it again. |
 | Mila chào khi mở lại app giữa chuyến (MSG-MAS-034) | Chào mừng quay lại! Hành trình của bạn vẫn còn nguyên. | Welcome back! Your trip is just as you left it. |
 | Mila hướng dẫn quét lần đầu (MSG-MAS-040) | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) |
@@ -89,7 +94,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | Mila sau 2 lần mã không hợp lệ (MSG-MAS-046) | Hãy quét tem QR của Vườn ở điểm dừng. Tem cũ thì thử tem khác nếu có. | Scan a park QR sign at the stop. If it looks old, try another one. |
 | Mila sau 2 lần cần kết nối (MSG-MAS-048) | Mã này cần có sóng để kiểm tra. Điểm trong tuyến vẫn quét được khi mất sóng. | This code needs signal to check. Stops on your route still scan offline. |
 | Mila gợi ý tắt camera (nút "Đóng camera" / "Chưa") (MSG-MAS-049) | Mình tắt camera cho đỡ tốn pin nhé? | Shall I turn the camera off to save battery? (buttons "Close camera" / "Not now") |
-| Mila khi quay lại hành trình sau lượt ghé mới (MSG-MAS-056) | Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé. | Time to explore! Remember to scan at the next stop. |
+| Mila khi quay lại hành trình sau lượt ghé mới, còn điểm tiếp theo (MSG-MAS-056, v1.7) | Điểm tiếp theo: {next}. Tham quan xong thì đi tiếp và quét mã nhé! | Next stop: {next}. Take your time here, then scan there. |
 | Mila nhắc ứng xử với thiên nhiên (a, chờ Ban Quản lý duyệt) (MSG-MAS-057a) | Đi nhẹ, nói khẽ để nghe được tiếng rừng nhé. | Walk softly and talk quietly, the forest is listening. |
 | Mila nhắc ứng xử với thiên nhiên (b) (MSG-MAS-057b) | Ngắm thôi, đừng hái hay mang gì ra khỏi rừng nhé. | Look, don't pick. Leave everything as you found it. |
 | Mila nhắc ứng xử với thiên nhiên (c) (MSG-MAS-057c) | Giữ rác trong ba lô cho tới khi gặp thùng rác nhé. | Keep your litter in your bag until you find a bin. |
@@ -100,7 +105,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | Mila khi có sóng lại (MSG-MAS-075) | Có sóng lại rồi! | Signal's back! |
 | Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
 | Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
-| Chạm Mila giữa chặng, còn {r} điểm (MSG-MAS-033) | Còn {r} điểm nữa. Thấy tem thì bấm Quét QR nhé. | {r} stops to go. Spot a sign? Tap Scan QR. (r = 1: "1 stop to go. Spot a sign? Tap Scan QR.") |
+| Chạm Mila giữa chặng (MSG-MAS-033, v1.7) | Chạm điểm đã quét để đọc lại, hoặc quét tem QR ở điểm tiếp theo nhé. | Tap a scanned stop to read it again, or scan the sign at the next stop. |
 | Chạm Mila khi đang mở camera (MSG-MAS-043) | Lại gần tem hơn và tránh chỗ chói nắng nhé. | Move closer to the sign and avoid the glare. |
 | Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 | Nút phụ khi Mila gợi ý tắt camera | Chưa | Not now |
@@ -110,7 +115,7 @@ Mockup HTML tĩnh: [mockup-SCR-M02-001.html](../../html/mockup-SCR-M02-001.html)
 | State | What the user sees | Trigger |
 |---|---|---|
 | Handoff rejected | Thông báo rõ và hướng dẫn bắt đầu lại từ M01 | Handoff version 2, đã dùng, hết hạn, `REVOKED` hoặc thiếu |
-| Session started | Journey map, gợi ý quét bằng nút trong app | Handoff hợp lệ tạo phiên `DANG_DIEN_RA` |
+| Session started | Thẻ tuyến (E-26), journey map với điểm 1 là điểm tiếp theo, gợi ý quét bằng nút trong app | Handoff hợp lệ tạo phiên `DANG_DIEN_RA` |
 | Session restored | Cùng phiên và lượt ghé cũ | Reload/mở lại khi có phiên chạy |
 | Previous session auto-ended | Thông báo phiên trước đã tự kết thúc | Phiên quá 24 giờ khi mở app/quay lại màn hình |
 | Scanning | Camera view | Chọn Quét |

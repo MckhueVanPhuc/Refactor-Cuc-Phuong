@@ -158,7 +158,7 @@ Chạm vào Mila thì Mila phản ứng và nói câu gợi ý hợp tình huố
 
 **Why this priority**: Tương tác chủ động, giao sau khi hành vi thụ động đã được kiểm (FR-MAS-008; BR-MAS-13). Lời nhắc thiên nhiên còn chờ Ban Quản lý duyệt câu chữ.
 
-**Independent Test**: Chạm Mila ở danh mục: MSG-MAS-009, chạm lần nữa: 012; ở SCR-M02-001 chưa quét: 032, giữa chặng: 033 ("Còn {r} điểm"), scanner mở: 043; ở màn nội dung: 059; ở màn kết quả: 065. Chạm 5 lần trong 3 giây: 085 một lần. Quét một điểm mới rồi quay về hành trình: MSG-MAS-056; lần sau: một câu trong MSG-MAS-057a–e.
+**Independent Test**: Chạm Mila ở danh mục: MSG-MAS-009, chạm lần nữa: 012; ở SCR-M02-001 chưa quét: 032, giữa chặng: 033 (v1.7: "Chạm điểm đã quét để đọc lại…"), scanner mở: 043; ở màn nội dung: 059; ở màn kết quả: 065. Chạm 5 lần trong 3 giây: 085 một lần. Quét một điểm mới rồi quay về hành trình: MSG-MAS-056 (v1.7: "Điểm tiếp theo: {next}…"); lần sau: một câu trong MSG-MAS-057a–e.
 
 **Acceptance Scenarios**:
 

@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED**. Các dòng có "(FUTURE)" bị chặn bởi MVP-Scope §4 |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); MAS-B-074, 075 đồng bộ BR-MAS-20 (T071); 2026-11-25 theo spec-Mascot v1.6 (CHG-MASCOT-2026-11-25-06): MAS-B-014 mỗi lần vào màn, MAS-B-090 mới, MAS-B-050/051/055/066 cả điểm cuối, MAS-B-060 chỉ ở SCR-M02-001 |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); MAS-B-074, 075 đồng bộ BR-MAS-20 (T071); 2026-11-25 theo spec-Mascot v1.6 (CHG-MASCOT-2026-11-25-06): MAS-B-014 mỗi lần vào màn, MAS-B-090 mới, MAS-B-050/051/055/066 cả điểm cuối, MAS-B-060 chỉ ở SCR-M02-001; 2026-11-27 theo spec-Mascot v1.7 (CHG-MASCOT-2026-11-27-07): MAS-B-030, 056 nói điểm tiếp theo, MAS-B-036 bỏ số điểm còn lại |
 | Đọc kèm | Sự kiện và ưu tiên: [State Machine](MASCOT_STATE_MACHINE.md). Chữ: [Dialogue Library](MASCOT_DIALOGUE_LIBRARY.md) (thư viện thắng nếu lệch). Tư thế (MA-xx) và animation (AN-xx): [Asset spec](MASCOT_ASSET_SPECIFICATION.md) |
 
 Quy ước:
@@ -44,7 +44,7 @@ Quy ước:
 
 | Behavior ID | Module | Screen | Trigger Event | Condition | Delay | Mascot State | Animation/Pose | Dialogue (VN) | Dialogue (EN) | UI Action | Exit Condition | Priority |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| MAS-B-030 | M02 | SCR-M02-001 | `m02.trip.entered{STARTED}` | Câu gợi ý bắt đầu phiên đã hiện ở vùng thông báo | 800 ms | `SPEAKING` (DOCK) | AN-ENTER → AN-HOP, MA-01 | Ở mỗi điểm dừng, tìm tem QR rồi bấm Quét QR nhé. (030) | At each stop, look for the QR sign and tap Scan QR. | Nút Quét QR không bị che | Tự ẩn, bấm Quét | P6 |
+| MAS-B-030 | M02 | SCR-M02-001 | `m02.trip.entered{STARTED}` | Câu gợi ý bắt đầu phiên đã hiện ở vùng thông báo; có điểm tiếp theo (v1.7) | 800 ms | `SPEAKING` (DOCK) | AN-ENTER → AN-HOP, MA-01 | Điểm tiếp theo: {next}. Tìm tem QR ở đó rồi bấm Quét QR nhé! (030) | Next stop: {next}. Find its QR sign there and tap Scan QR! | Nút Quét QR không bị che | Tự ẩn, bấm Quét | P6 |
 | MAS-B-031 | M02 | SCR-M02-001 | `m02.trip.entered{REJECTED\|FREE}` | — | 0 | `IDLE` (INLINE cạnh câu thông báo) | AN-TILT, MA-09 | — | — | Link "Chọn tuyến" như cũ | Đổi màn | P1 |
 | MAS-B-032 | M02 | SCR-M02-001 | `mascot.user.tapped` | Scanner đóng; chưa có lượt ghé, hoặc đã quét đủ (v1.1: có lượt ghé và còn điểm → MAS-B-036) | 0 | `SPEAKING` | AN-POP, MA-13 | Thấy tem thì bấm Quét QR. Chạm điểm đã quét để đọc lại nhé. (032) | Spot a sign? Tap Scan QR. Tap a scanned stop to read it again. | — | Tự ẩn | P3 |
 | MAS-B-033 | M02 | SCR-M02-001 | `m02.trip.entered{RESTORED}` hoặc `m02.trip.shown` | Có phiên | 0 | `IDLE` (DOCK) | AN-ENTER; tư thế theo [State Machine](MASCOT_STATE_MACHINE.md) §3.1 | — | — | — | Đổi màn | P7 |
@@ -67,7 +67,7 @@ Quy ước:
 | MAS-B-053 | M02 | SCR-M02-002 | Mở lại điểm đã quét (`review`) hoặc quét lại điểm đã có lượt ghé | — | — | `HIDDEN` trên màn đọc | — | — | — | Câu "Quét lúc …" như cũ | — | — |
 | MAS-B-054 | M02 | SCR-M02-002 | `m02.scan.resolved{PACKAGE}` | Không trùng với MAS-B-050/051 đang hiện (nếu trùng thì bỏ, vì P5 < P4) | 0 | `IDLE` (INLINE, v1.2) | AN-TILT, MA-04 | — (chỉ minh họa từ v1.2) (054) | — (illustration only since v1.2) | Câu nguồn dự phòng cố định giữ nguyên | Tự ẩn | P5 |
 | MAS-B-055 | M02 | SCR-M02-002 / 004 | `m02.visit.recorded` | k = ⌈n/2⌉, n ≥ 4 (v1.6: cả điểm cuối) | 0 | `CELEBRATING` → `SPEAKING` | AN-MILESTONE (cấp 2), MA-08 | Đã ghi nhận! Bạn đã quét được nửa số điểm rồi đó! (055) | Recorded! You've scanned half of your stops! | — | Tự ẩn | P5 (thay MAS-B-050 ở lượt này) |
-| MAS-B-056 | M02 | SCR-M02-001 | `m02.trip.shown{cameFromNewVisit}` | Lần thứ 1, 3, 5… trong phiên; không phải sau điểm cuối | 600 ms | `SPEAKING` (DOCK) | AN-POP, MA-02 | Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé. (056) | Time to explore! Remember to scan at the next stop. | — | Tự ẩn, bấm Quét | P6 |
+| MAS-B-056 | M02 | SCR-M02-001 | `m02.trip.shown{cameFromNewVisit}` | Lần thứ 1, 3, 5… trong phiên; không phải sau điểm cuối; có điểm tiếp theo (v1.7) | 600 ms | `SPEAKING` (DOCK) | AN-POP, MA-02 | Điểm tiếp theo: {next}. Tham quan xong thì đi tiếp và quét mã nhé! (056) | Next stop: {next}. Take your time here, then scan there. | — | Tự ẩn, bấm Quét | P6 |
 | MAS-B-057 | M02 | SCR-M02-001 | Như MAS-B-056 | Lần thứ 2, 4, 6…; pool đã được Ban Quản lý duyệt | 600 ms | `SPEAKING` (DOCK) | AN-POP, MA-10 | Pool MAS-MSG-057a–e | Pool MAS-MSG-057a–e | — | Tự ẩn | P6 |
 | MAS-B-058 | M02 | SCR-M02-002 / 004 | `m02.media.playing` | — | 0 | `SUPPRESSED` | AN-EXIT | — | — | — | `m02.media.stopped` + 2 s | — |
 | MAS-B-059 | M02 | SCR-M02-002 / 004 | `mascot.user.tapped` | Mascot đang hiện (AVATAR) | 0 | `SPEAKING` | AN-POP, MA-13 | Vuốt ảnh để xem thêm, kéo xuống để đọc phần giới thiệu. (059) | Swipe the photos, then scroll down to read more. | — | Tự ẩn | P3 |
@@ -96,7 +96,7 @@ Quy ước:
 
 | Behavior ID | Module | Screen | Trigger Event | Condition | Delay | Mascot State | Animation/Pose | Dialogue (VN) | Dialogue (EN) | UI Action | Exit Condition | Priority |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| MAS-B-036 | M02 | SCR-M02-001 | `mascot.user.tapped` | Scanner đóng; có lượt ghé và còn r = n − k ≥ 1 điểm | 0 | `SPEAKING` | AN-POP, MA-02 | Còn {r} điểm nữa. Thấy tem thì bấm Quét QR nhé. (033) | {r} stops to go. Spot a sign? Tap Scan QR. | — | Tự ẩn | P3 |
+| MAS-B-036 | M02 | SCR-M02-001 | `mascot.user.tapped` | Scanner đóng; có lượt ghé và còn r = n − k ≥ 1 điểm | 0 | `SPEAKING` | AN-POP, MA-02 | Chạm điểm đã quét để đọc lại, hoặc quét tem QR ở điểm tiếp theo nhé. (033, v1.7) | Tap a scanned stop to read it again, or scan the sign at the next stop. | — | Tự ẩn | P3 |
 | MAS-B-037 | M02 | SCR-M02-001 (scanner) | `mascot.user.tapped` | Scanner mở (Mila ở AVATAR dải dưới) | 0 | `SPEAKING` | AN-POP, MA-05 | Lại gần tem hơn và tránh chỗ chói nắng nhé. (043) | Move closer to the sign and avoid the glare. | — | Tự ẩn | P3 |
 | MAS-B-064 | M02 | SCR-M02-003 | `m02.trip.ended{HOAN_TAT}` | Như MAS-B-062 nhưng k = n (quét đủ mọi điểm của hành trình) | 400 ms | `CELEBRATING` (mode CELEBRATE) | AN-CELEBRATE (cấp 3) + lá rơi, MA-08 | Bạn đã quét đủ {n} điểm của tuyến. Tuyệt vời! (063) | You scanned all {n} stops of the route. Amazing! | Như MAS-B-062 | ≤ 2,4 s chuyển động; hết câu hoặc chạm → MAS-B-063 | P4 |
 | MAS-B-065 | M02 | SCR-M02-003 | `mascot.user.tapped` | Mila ở DOCK cạnh huy hiệu | 0 | `SPEAKING` | AN-POP, MA-07 | Cảm ơn bạn đã đi cùng mình hôm nay! (065) | Thanks for exploring with me today! | — | Tự ẩn | P3 |
@@ -117,7 +117,7 @@ Chỉ đổi tư thế hoặc animation của phản ứng sẵn có; sự kiệ
 | MAS-B-006, MAS-B-023 | MA-10 `rest` (INLINE cạnh câu rỗng) | MA-16 `peek` | Danh mục rỗng, Tài nguyên rỗng |
 | MAS-B-050 | MA-07 `thumbs-up`, AN-SUCCESS | (không đổi) | Phản ứng ở AVATAR luôn vẽ ảnh đầu tròn MA-11 nên tư thế không hiện; `amazed` dùng ở MAS-B-056 (specs/006 DV-05) |
 | MAS-B-051, 055, 062, 064 | MA-08 `cheer` | MA-08 + MA-22 khung 2 (đổi nhịp với cú nhảy) | Mốc cấp 2 và ăn mừng cấp 3 |
-| MAS-B-056 | MA-02 `map`, AN-POP | MA-14 `amazed` không lời 900 ms trong lúc điểm được mở khóa (DV-05, chủ dự án chọn 2026-11-24), rồi MA-15 `walk` + khung 2 (AN-WALK: 2 bước, ≤ 1200ms) khi nói, rồi về tư thế ngữ cảnh | Quay lại SCR-M02-001 sau lượt ghé mới ("Bây giờ tham quan thôi!") |
+| MAS-B-056 | MA-02 `map`, AN-POP | MA-14 `amazed` không lời 900 ms trong lúc điểm được mở khóa (DV-05, chủ dự án chọn 2026-11-24), rồi MA-15 `walk` + khung 2 (AN-WALK: 2 bước, ≤ 1200ms) khi nói, rồi về tư thế ngữ cảnh | Quay lại SCR-M02-001 sau lượt ghé mới (câu 056 "Điểm tiếp theo: …", v1.7) |
 | MAS-B-063 | MA-08 tĩnh cạnh huy hiệu | MA-17 `proud` (có chớp mắt `ma-20-proud-blink`) | Màn kết quả sau ăn mừng, mở lại màn |
 | MAS-B-072 | MA-09 tĩnh | MA-12 `sorry` | `CONFLICT` |
 | MAS-B-001 (INTRO) | MA-01, AN-GREET lắc lư | MA-01 + MA-21 khung 2 (vẫy tay thật, 2 nhịp) | |

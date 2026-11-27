@@ -1,5 +1,5 @@
 // Lời thoại tiếng Anh của Mila: tương đương tự nhiên của spec-Mascot §5.6, dùng thuật ngữ "route", "stop", "Scan QR".
-import type { MascotDialogue } from './vi';
+import { nextStopText, type MascotDialogue } from './vi';
 
 const NAME = 'Mila';
 const CHEERS = ['Nice!', 'Great!', 'One more on the trail!'];
@@ -26,9 +26,9 @@ export const en: MascotDialogue = {
     'MSG-MAS-024': "The download didn't finish. Find a stronger signal and try again.",
     'MSG-MAS-025': "Your phone won't let me save. Check free space or private browsing.",
     'MSG-MAS-026': 'Still no luck. You can go without it, but some stops will need signal.',
-    'MSG-MAS-030': 'At each stop, look for the QR sign and tap Scan QR.',
+    'MSG-MAS-030': ({ next }) => nextStopText(`Next stop: ${next?.en ?? ''}.`, 'Find its QR sign there and tap Scan QR!'),
     'MSG-MAS-032': 'Spot a sign? Tap Scan QR. Tap a scanned stop to read it again.',
-    'MSG-MAS-033': ({ r = 0 }) => (r === 1 ? '1 stop to go. Spot a sign? Tap Scan QR.' : `${r} stops to go. Spot a sign? Tap Scan QR.`),
+    'MSG-MAS-033': 'Tap a scanned stop to read it again, or scan the sign at the next stop.',
     'MSG-MAS-043': 'Move closer to the sign and avoid the glare.',
     'MSG-MAS-034': 'Welcome back! Your trip is just as you left it.',
     'MSG-MAS-040': 'Fit the QR sign inside the frame and hold still for a moment.',
@@ -43,7 +43,7 @@ export const en: MascotDialogue = {
     'MSG-MAS-054': "No signal? No worries, here's the saved version.",
     'MSG-MAS-055': "Recorded! You've scanned half of your stops!",
     'MSG-MAS-058': 'Recorded! Just one stop to go!',
-    'MSG-MAS-056': 'Time to explore! Remember to scan at the next stop.',
+    'MSG-MAS-056': ({ next }) => nextStopText(`Next stop: ${next?.en ?? ''}.`, 'Take your time here, then scan there.'),
     'MSG-MAS-057a': 'Walk softly and talk quietly, the forest is listening.',
     'MSG-MAS-057b': "Look, don't pick. Leave everything as you found it.",
     'MSG-MAS-057c': 'Keep your litter in your bag until you find a bin.',

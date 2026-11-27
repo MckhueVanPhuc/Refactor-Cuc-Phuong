@@ -68,6 +68,7 @@ export function initialState(): MascotState {
     online: true,
     motion: true,
     hasSession: false,
+    tripNext: null,
     path: '',
     lastActivityAt: null,
   };
@@ -185,6 +186,7 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
     s.lastEventAt[dedupeKey] = now;
   }
   if ('hasSession' in event) s.hasSession = event.hasSession;
+  if (event.type === 'm02.trip.entered' || event.type === 'm02.trip.shown') s.tripNext = event.next ?? null;
 
   switch (event.type) {
     case 'app.visibility.changed':
@@ -236,6 +238,7 @@ export function step(state: MascotState, event: StampedEvent, ctx: StepContext, 
       s.timers = {};
       s.closed = false;
       s.path = event.path;
+      s.tripNext = null;
       s.blockers = s.blockers.filter((b) => b === 'AUTO_END');
       for (const name of Object.keys(s.counters)) if (name.startsWith('screen:')) delete s.counters[name];
       if (carry) s.queued = { intent: carry, at: now, carried: true };

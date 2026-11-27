@@ -2,7 +2,7 @@
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { contextV3 } from '../api/fake/fixtures';
+import { contextV3, readyPackage } from '../api/fake/fixtures';
 import { vi as viMessages } from '../i18n/vi';
 import { failNextCreateSession } from '../storage/faultInjection';
 import { playSessionsTable } from '../storage/tables';
@@ -40,6 +40,19 @@ describe('TripPage — vào phiên', () => {
     expect(await screen.findByText(viMessages.notice.sessionStartHint)).toBeTruthy();
     expect(screen.getByRole('heading', { name: viMessages.screenTitle.trip })).toBeTruthy();
     expect(await playSessionsTable.count()).toBe(1);
+  });
+
+  it('thẻ tuyến: có gói sẵn sàng cùng tuyến → tên tuyến từ routeEssentials; không có gói → không dòng tên (spec-M02 v3.5)', async () => {
+    fakeM01.setContext(context);
+    fakeM01.setPackage(readyPackage());
+    const { unmount } = renderTrip();
+    expect(await screen.findByText('Tuyến A')).toBeTruthy();
+    expect(screen.getByText(viMessages.journey.currentRoute)).toBeTruthy();
+    unmount();
+    fakeM01.setPackage(null, context.routeId);
+    renderTrip();
+    expect(await screen.findByText(viMessages.journey.currentRoute)).toBeTruthy();
+    expect(screen.queryByText('Tuyến A')).toBeNull();
   });
 
   it('mở lại với cùng handoff → "Session restored": cùng phiên, không gợi ý lại, không phiên mới', async () => {

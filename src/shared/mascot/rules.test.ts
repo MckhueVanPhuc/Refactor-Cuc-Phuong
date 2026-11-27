@@ -7,6 +7,9 @@ import { ambientGestures, RULES } from './rules';
 import { messageText } from './dialogue/catalog';
 import { CTX, rule, say } from './testing';
 
+/** Điểm gợi ý kế tiếp mẫu cho câu 030/056 (v1.7) */
+const NEXT = { vi: 'Khu hồ Mạc', en: 'Mac Lake' };
+
 type Stamped = MascotEvent & { at: number };
 const probe = rule('m02.scanner.cameraStarted', say({ priority: 4, mode: 'DOCK', message: { id: 'MSG-MAS-051' } }));
 
@@ -404,9 +407,12 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
     expect(s.bubble?.messageId).toBe('MSG-MAS-010');
   });
 
-  it('MAS-B-032 / 036 / 037: chuyến đi chưa quét → 032; giữa chặng → 033 "Còn {r}"; quét đủ → 032; scanner mở → 043', () => {
+  it('MAS-B-032 / 036 / 037: chuyến đi chưa quét → 032; giữa chặng → 033 (v1.7: không số điểm); quét đủ → 032; scanner mở → 043', () => {
     expect(play([tap(1_000)], [], CTX, trip(0)).state.bubble?.messageId).toBe('MSG-MAS-032');
-    expect(play([tap(1_000)], [], CTX, trip(1)).state.bubble).toMatchObject({ messageId: 'MSG-MAS-033', params: { r: 2 } });
+    const midway = play([tap(1_000)], [], CTX, trip(1)).state.bubble;
+    expect(midway?.messageId).toBe('MSG-MAS-033');
+    expect(midway?.params).toBeUndefined();
+    expect(messageText('vi', 'MSG-MAS-033')).toBe('Chạm điểm đã quét để đọc lại, hoặc quét tem QR ở điểm tiếp theo nhé.');
     expect(play([tap(1_000)], [], CTX, trip(3, 3, true)).state.bubble?.messageId).toBe('MSG-MAS-032');
     const scanning = play([{ type: 'm02.scanner.opened', hasSession: true, k: 1, at: 20 }], [], CTX, trip(1)).state;
     expect(play([tap(1_000)], [], CTX, scanning).state.bubble?.messageId).toBe('MSG-MAS-043');
@@ -433,15 +439,41 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
     expect(again.view).toEqual(shown.view);
   });
 
-  it('MAS-B-030: chuyến mới bắt đầu → sau 800 ms câu 030', () => {
+  it('MAS-B-030: chuyến mới bắt đầu → sau 800 ms câu 030 nói điểm tiếp theo (v1.7)', () => {
     let s = play([
       { type: 'app.route.changed', path: '/trip', at: 0 },
-      { type: 'm02.trip.shown', hasSession: true, k: 0, n: 3, finalVisited: false, at: 10 },
-      { type: 'm02.trip.entered', kind: 'STARTED', hasSession: true, k: 0, n: 3, at: 10 },
+      { type: 'm02.trip.shown', hasSession: true, k: 0, n: 3, finalVisited: false, next: NEXT, at: 10 },
+      { type: 'm02.trip.entered', kind: 'STARTED', hasSession: true, k: 0, n: 3, next: NEXT, at: 10 },
     ]).state;
     expect(s.bubble).toBeNull();
     s = play([{ type: 'mascot.tick', at: 810 }], [], CTX, s).state;
-    expect(s.bubble?.messageId).toBe('MSG-MAS-030');
+    expect(s.bubble).toMatchObject({ messageId: 'MSG-MAS-030', params: { next: NEXT } });
+    expect(messageText('vi', 'MSG-MAS-030', s.bubble!.params)).toBe('Điểm tiếp theo: Khu hồ Mạc. Tìm tem QR ở đó rồi bấm Quét QR nhé!');
+    expect(messageText('en', 'MSG-MAS-030', s.bubble!.params)).toBe('Next stop: Mac Lake. Find its QR sign there and tap Scan QR!');
+  });
+
+  it('v1.7: không có điểm tiếp theo (hành trình rỗng) → không nói 030', () => {
+    let s = play([
+      { type: 'app.route.changed', path: '/trip', at: 0 },
+      { type: 'm02.trip.shown', hasSession: true, k: 0, n: 0, finalVisited: false, next: null, at: 10 },
+      { type: 'm02.trip.entered', kind: 'STARTED', hasSession: true, k: 0, n: 0, next: null, at: 10 },
+    ]).state;
+    s = play([{ type: 'mascot.tick', at: 810 }], [], CTX, s).state;
+    expect(s.bubble).toBeNull();
+  });
+
+  it('v1.7: tên điểm dài → câu 030 chỉ còn câu đầu; câu đầu cũng quá 90 ký tự → không nói (spec-Mascot §5.6)', () => {
+    const long = { vi: 'Đường mòn ven suối dẫn tới hang động cổ', en: 'Streamside trail to the ancient cave' };
+    expect(messageText('vi', 'MSG-MAS-030', { next: long })).toBe(`Điểm tiếp theo: ${long.vi}.`);
+    const tooLong = { vi: 'x'.repeat(80), en: 'y'.repeat(80) };
+    expect(messageText('vi', 'MSG-MAS-030', { next: tooLong })).toBe('');
+    let s = play([
+      { type: 'app.route.changed', path: '/trip', at: 0 },
+      { type: 'm02.trip.shown', hasSession: true, k: 0, n: 3, finalVisited: false, next: tooLong, at: 10 },
+      { type: 'm02.trip.entered', kind: 'STARTED', hasSession: true, k: 0, n: 3, next: tooLong, at: 10 },
+    ]).state;
+    s = play([{ type: 'mascot.tick', at: 810 }], [], CTX, s).state;
+    expect(s.bubble).toBeNull();
   });
 
   it('MAS-B-034: mở lại app giữa chuyến sau ≥ 10 phút → 034; dưới 10 phút → không', () => {
@@ -451,12 +483,12 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
   });
 
   it('MAS-B-056: quay về hành trình từ nội dung của lượt ghé mới → 056 một lần; không phải lượt ghé mới → không', () => {
-    const back = (afterNewVisit: boolean) =>
+    const back = (afterNewVisit: boolean, next: { vi: string; en: string } | null = NEXT) =>
       play([
         { type: 'app.route.changed', path: '/trip/qr/Q1a', at: 0 },
         { type: 'm02.content.backPressed', afterNewVisit, at: 5_000 },
         { type: 'app.route.changed', path: '/trip', at: 5_010 },
-        { type: 'm02.trip.shown', hasSession: true, k: 1, n: 3, finalVisited: false, at: 5_020 },
+        { type: 'm02.trip.shown', hasSession: true, k: 1, n: 3, finalVisited: false, next, at: 5_020 },
       ]).state;
     // DV-05 (specs/006): trước tiên Mila ngạc nhiên (không lời) trong lúc điểm được mở khóa
     const first = back(true);
@@ -465,8 +497,14 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
     // Hết lúc ngạc nhiên: sải bước và nói 056 (v1.4, Behavior Matrix §3b; specs/006 T041)
     const spoken = play([{ type: 'mascot.tick', at: first.hold!.until }], [], CTX, first).state;
     expect(spoken.bubble?.messageId).toBe('MSG-MAS-056');
+    expect(messageText('vi', 'MSG-MAS-056', spoken.bubble!.params)).toBe('Điểm tiếp theo: Khu hồ Mạc. Tham quan xong thì đi tiếp và quét mã nhé!');
     expect(spoken.view).toMatchObject({ mode: 'DOCK', pose: 'walk', animation: 'walk' });
     expect(back(false).bubble).toBeNull();
+    // v1.7: không có điểm tiếp theo → ngạc nhiên rồi về tư thế ngữ cảnh, không bong bóng (BR-MAS-13)
+    const none = back(true, null);
+    const settled = play([{ type: 'mascot.tick', at: none.hold!.until }], [], CTX, none).state;
+    expect(settled.bubble).toBeNull();
+    expect(settled.view).toMatchObject({ mode: 'DOCK', pose: 'map' });
   });
 
   it('MAS-B-089: chạm dồn trong 400 ms tính một lần (không chạy lại animation)', () => {
@@ -739,7 +777,7 @@ describe('US7 — Chuẩn bị cùng Mila (US-MAS-07; T056)', () => {
 
 describe('US5 — Mila giúp khi quét khó (US-MAS-03; T047)', () => {
   type Resolved = Extract<MascotEvent, { type: 'm02.scan.resolved' }>;
-  const shown = (k: number, at: number): Stamped => ({ type: 'm02.trip.shown', hasSession: true, k, n: 3, finalVisited: false, at });
+  const shown = (k: number, at: number): Stamped => ({ type: 'm02.trip.shown', hasSession: true, k, n: 3, finalVisited: false, next: NEXT, at });
   const opened = (k: number, at: number, hasSession = true): Stamped => ({ type: 'm02.scanner.opened', hasSession, k, at });
   const started = (at: number): Stamped => ({ type: 'm02.scanner.cameraStarted', at });
   const resolved = (display: Resolved['display'], at: number): Stamped => ({
@@ -772,7 +810,7 @@ describe('US5 — Mila giúp khi quét khó (US-MAS-03; T047)', () => {
   });
 
   it('mở scanner khi câu bắt đầu chuyến (030) còn hiện ở DOCK → câu đóng, minh họa 040 vẫn tới (BR-MAS-20)', () => {
-    let state = play([{ type: 'app.route.changed', path: '/trip', at: 0 }, { type: 'm02.trip.entered', kind: 'STARTED', hasSession: true, k: 0, n: 3, at: 5 }, shown(0, 10)]).state;
+    let state = play([{ type: 'app.route.changed', path: '/trip', at: 0 }, { type: 'm02.trip.entered', kind: 'STARTED', hasSession: true, k: 0, n: 3, next: NEXT, at: 5 }, shown(0, 10)]).state;
     state = run(state, [{ type: 'mascot.tick', at: 810 }]);
     expect(state.bubble?.messageId).toBe('MSG-MAS-030');
     state = run(state, [opened(0, 1_000), started(1_100), { type: 'mascot.tick', at: 1_700 }]);

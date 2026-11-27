@@ -6,14 +6,14 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { PATHS } from '../../../app/paths';
-import { emitMascotEvent, MascotFigure, MascotSlot } from '../../../shared/mascot/index';
+import { emitMascotEvent, MascotFigure, MascotSlot, type BilingualName } from '../../../shared/mascot/index';
 import { ScanNotice, type ScanNoticeKind } from '../content/ScanNotice';
 import { FinalPrompt } from '../end/FinalPrompt';
 import { takeFinalPrompt } from '../end/finalPromptSignal';
 import { useEndTrip } from '../end/useEndTrip';
 import type { M02Messages } from '../i18n';
 import { useM02Messages } from '../i18n/useM02Messages';
-import { RouteJourneyMap } from '../journey/RouteJourneyMap';
+import { nextCheckpoint, RouteJourneyMap } from '../journey/RouteJourneyMap';
 import { takeUnlock } from '../journey/unlockSignal';
 import { FieldLayout, FieldNotice } from '../layout/FieldLayout';
 import { useBusyWhile } from '../pwa/registerBusy';
@@ -26,6 +26,7 @@ import { usePreviousTripSyncError } from '../sync/useSyncStatus';
 import type { RejectReason } from './decideEntry';
 import { enterTrip, type EntryResult } from './enterTrip';
 import styles from './TripPage.module.css';
+import { useRouteName } from './useRouteName';
 
 const QrScanner = lazy(async () => ({ default: (await import('../scanner/QrScanner')).QrScanner }));
 
@@ -103,6 +104,8 @@ export function TripPage() {
   const running = useRunningSession();
   const session = entry.status === 'done' && running.status === 'ready' ? running.value : null;
   const visits = useSessionVisits(session?.sessionId);
+  // Tên tuyến cho thẻ "Tuyến đang đi" từ gói sẵn sàng của cùng tuyến (spec-M02 v3.5; E-SCR-M02-001-26)
+  const routeName = useRouteName(session?.routeId);
   // Mở khóa checkpoint vừa ghé khi quay về (specs/006 R-05): đọc một lần lúc mở màn; tải lại trang thì không còn
   const [unlock] = useState(takeUnlock);
   const { endTrip, ending } = useEndTrip();
@@ -120,7 +123,12 @@ export function TripPage() {
   const finalId = session ? finalCheckpointId(session) : undefined;
   const finalVisited = visits.status === 'ready' && visits.value.some((visit) => visit.checkpointId === finalId);
   const visitCount = visits.status === 'ready' ? visits.value.length : null;
-  useTripMascotSignals(entry, session?.journeyCheckpoints.length ?? null, visitCount, finalVisited);
+  // Điểm gợi ý kế tiếp cho Mila nói tên (MSG-MAS-030, 056 v1.7); quét hết → null
+  const next =
+    session && visits.status === 'ready'
+      ? (nextCheckpoint(session.journeyCheckpoints, new Set(visits.value.map((v) => v.checkpointId)))?.checkpointName ?? null)
+      : null;
+  useTripMascotSignals(entry, session?.journeyCheckpoints.length ?? null, visitCount, finalVisited, next);
   useScannerMascotSignals(scanning, session !== null, visitCount ?? 0);
   // Câu hỏi kết thúc chuyến đang chờ từ lượt quét điểm cuối (BR-M02-021 v3.4): hỏi một lần khi màn có phiên và lượt ghé
   const sessionId = session?.sessionId;
@@ -189,7 +197,13 @@ export function TripPage() {
         data-entry={entry.status === 'done' ? entry.result.kind : 'ENTERING'}
       >
         {session && visits.status === 'ready' && (
-          <RouteJourneyMap checkpoints={session.journeyCheckpoints} visits={visits.value} onOpen={openVisit} unlock={unlock} />
+          <RouteJourneyMap
+            checkpoints={session.journeyCheckpoints}
+            visits={visits.value}
+            onOpen={openVisit}
+            unlock={unlock}
+            routeName={routeName}
+          />
         )}
       </div>
       {entry.status === 'done' && (
@@ -242,17 +256,27 @@ function useScannerMascotSignals(scanning: boolean, hasSession: boolean, k: numb
  * Tín hiệu cho Mila (specs/005 contracts/mascot-event-contract.md §3; T042): kết quả vào chuyến (một lần mỗi lần mở
  * màn) và tiến độ hành trình mỗi khi đổi. `journeyLength` null = không có phiên; `visitCount` null = đang đọc.
  */
-function useTripMascotSignals(entry: EntryState, journeyLength: number | null, visitCount: number | null, finalVisited: boolean) {
+function useTripMascotSignals(
+  entry: EntryState,
+  journeyLength: number | null,
+  visitCount: number | null,
+  finalVisited: boolean,
+  next: BilingualName | null,
+) {
   const hasSession = journeyLength !== null;
   const ready = entry.status === 'done' && (!hasSession || visitCount !== null);
   const entered = useRef(false);
   useEffect(() => {
     if (!ready || entered.current || entry.status !== 'done') return;
     entered.current = true;
-    emitMascotEvent({ type: 'm02.trip.entered', kind: entry.result.kind, hasSession, k: visitCount ?? 0, n: journeyLength ?? 0 });
-  }, [ready, entry, hasSession, visitCount, journeyLength]);
+    emitMascotEvent({ type: 'm02.trip.entered', kind: entry.result.kind, hasSession, k: visitCount ?? 0, n: journeyLength ?? 0, next });
+  }, [ready, entry, hasSession, visitCount, journeyLength, next]);
+  // Tên điểm kế tiếp đổi theo `vi`/`en` gộp thành khóa chuỗi để effect không chạy lại vì object mới mỗi lần render
+  const nextVi = next?.vi ?? null;
+  const nextEn = next?.en ?? null;
   useEffect(() => {
     if (!ready) return;
-    emitMascotEvent({ type: 'm02.trip.shown', hasSession, k: visitCount ?? 0, n: journeyLength ?? 0, finalVisited });
-  }, [ready, hasSession, visitCount, journeyLength, finalVisited]);
+    const nextName = nextVi !== null && nextEn !== null ? { vi: nextVi, en: nextEn } : null;
+    emitMascotEvent({ type: 'm02.trip.shown', hasSession, k: visitCount ?? 0, n: journeyLength ?? 0, finalVisited, next: nextName });
+  }, [ready, hasSession, visitCount, journeyLength, finalVisited, nextVi, nextEn]);
 }
