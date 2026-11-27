@@ -31,7 +31,7 @@ Bảng test của tester (chat 2026-11-27, 2 ảnh):
 | D3 | Chưa kiểm tra được mã (`CONNECTION_NEEDED`), mọi màn: tiêu đề **"Chưa kiểm tra được mã này"**, câu cố định, dòng **"Lượt quét chưa được tính."** (màn Chuyến đi: "Lượt quét chưa được tính. Hành trình bên dưới giữ nguyên."; khách tự do: không có dòng này vì không lượt nào được tính), nút **"Thử lại"**. SCR-M02-001 và SCR-M02-005: thêm nút **×** đóng thông báo. Trang `/q/…` dùng cùng thẻ, màu theo bề mặt |
 | D4 | Một Mila trên màn: thông báo kết quả quét (`INVALID`, `CONNECTION_NEEDED`) **không còn hình Mila**. Ở SCR-M02-001, lần lỗi đầu Mila đứng chờ đổi sang tư thế bối rối (không lời); lần lỗi thứ hai giống nhau vẫn nói MSG-MAS-046/048 ở chỗ cũ. Khác đề xuất ban đầu (ẩn Mila ở góc) vì Mila ở góc là chỗ của câu giúp đỡ lần hai |
 | D5 | BUG-031 bỏ (D của chủ dự án); toast xác nhận lượt quét giữ như cũ |
-| D6 | M02-31 có thể là lỗi chức năng (tester ghi đã tải gói mà vẫn "Chưa có nội dung offline"): chờ tester xác nhận gói "Sẵn sàng" ở màn Tài nguyên rồi mới điều tra; không sửa trong đợt này |
+| D6 | M02-31: tester ghi đã tải gói mà vẫn "Chưa có nội dung offline" — chủ dự án xác nhận 2026-11-27 không phải lỗi chức năng; chỉ sửa phần thông báo (D1, D2) |
 
 ## 3. Phạm vi file được phép
 
@@ -60,7 +60,7 @@ Bảng test của tester (chat 2026-11-27, 2 ảnh):
 
 - Không đổi toast xác nhận lượt quét (BUG-031 bỏ).
 - Không đổi điều kiện ghi lượt ghé hay cách tra cứu.
-- Không điều tra M02-31 khi chưa có xác nhận của tester (D6).
+- Không đổi cách đọc gói offline (M02-31 không phải lỗi chức năng, D6).
 
 ## 6. Validation gates
 

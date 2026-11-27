@@ -942,6 +942,6 @@ Test đổi có chủ đích: `rules.test.ts` MAS-B-043→044 và MAS-B-046 (l�
 
 | # | Mục | Trạng thái |
 |---|---|---|
-| DV-105 | M02-31: tester ghi đã tải gói mà vẫn "Chưa có nội dung offline". Gói chỉ được nhận khi đủ mọi byte ảnh (`readActiveOfflinePackage`); cần tester xác nhận màn Tài nguyên báo gói "Sẵn sàng" trước khi điều tra | Chờ tester |
+| DV-105 | M02-31: tester ghi đã tải gói mà vẫn "Chưa có nội dung offline". Gói chỉ được nhận khi đủ mọi byte ảnh (`readActiveOfflinePackage`); chủ dự án xác nhận 2026-11-27: không phải lỗi chức năng (gói chưa sẵn sàng khi thử) | Đóng |
 | DV-106 | Quét trong 0,8 s đầu sau khi bắt đầu chuyến: câu chào 030 của Mila tới sau và thay tư thế bối rối của lần lỗi đầu (thông báo vẫn đúng) | Chấp nhận |
 | DV-107 | BUG-031 (toast xác nhận lượt quét che thẻ phía trên vài giây) | Chủ dự án: không phải lỗi |
