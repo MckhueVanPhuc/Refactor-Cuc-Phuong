@@ -37,8 +37,8 @@ Quy tắc bắt buộc cho mọi điểm phát:
 | `m01.routeDetail.startPanelVisible` | `{ routeRef, hasSafetyWarning }` | `src/modules/m01/route-detail/StartPanel.tsx` — IntersectionObserver lần đầu | MAS-B-014 |
 | `m01.package.downloadStarted` | `{ routeRef, update }` | `downloadWithMascot` (`src/modules/m01/offline-package/mascotSignals.ts`) bọc lần tải du khách bấm ở `RouteDetailPage.tsx` và `OfflinePage.tsx` — trước `await`. Cập nhật lười không phát (DV-73) | MAS-B-020 |
 | `m01.package.resolved` | `{ routeRef, kind: PackageOpResult['kind'], reason?: PackageFailure, update, online }` | Như trên — sau `await` | MAS-B-021, 026 (022, 024, 025 chỉ là hình từ v1.2) |
-| `m02.trip.entered` | `{ kind: EntryResult['kind'], hasSession, k, n }` | `src/modules/m02/session/TripPage.tsx` — `useTripEntry` xong | MAS-B-030, 033 |
-| `m02.trip.shown` | `{ hasSession, k, n, finalVisited }` | `TripPage.tsx` — mount khi đã có phiên | MAS-B-033, 056, 057 |
+| `m02.trip.entered` | `{ kind: EntryResult['kind'], hasSession, k, n, next? }` — v1.7: `next` = tên `{ vi, en }` của điểm chưa quét đầu tiên theo thứ tự hiển thị, `null` khi không có | `src/modules/m02/session/TripPage.tsx` — `useTripEntry` xong | MAS-B-030, 033 |
+| `m02.trip.shown` | `{ hasSession, k, n, finalVisited, next? }` (v1.7, như trên) | `TripPage.tsx` — mount khi đã có phiên; phát lại khi k hoặc điểm tiếp theo đổi | MAS-B-033, 056 (nói `next`), 057 |
 | `m02.content.backPressed` | `{ afterNewVisit }` | `src/modules/m02/content/ScanContent.tsx` — `onClick` của `<Link>` "Quay lại" hiện có (`afterNewVisit` = `scan.visitCreated` và không phải điểm cuối); link vẫn điều hướng `/trip` như cũ | Host đánh dấu để `m02.trip.shown` kế tiếp kích hoạt MAS-B-056/057 |
 | `m02.scanner.opened` / `m02.scanner.closed` | `{ hasSession, k }` / — | `TripPage.tsx` — `setScanning(true/false)` | MAS-B-040…042, 049 |
 | `m02.scanner.cameraStarted` / `m02.scanner.cameraFailed` | — | `src/modules/m02/scanner/QrScanner.tsx` khi `mascot` bật (chỉ SCR-M02-001) — `decodeFromConstraints` resolve / camera không dùng được | Bắt đầu đếm MAS-B-040…049 / MAS-B-038 |

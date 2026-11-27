@@ -2,18 +2,71 @@
  * Journey map trên bề mặt scanner (mockup-SCR-M02-001 "Hành trình"). Điểm nhận diện của màn: một dải số thứ tự nối
  * nhau bằng đường mảnh như lối mòn trong rừng; điểm đã quét có số tô màu success của scanner. Mỗi điểm là thẻ kính mờ
  * trên ảnh nền. Trạng thái luôn có nhãn chữ, không chỉ màu (design-system §5 "M02 — Field Experience").
+ * CHG-MASCOT-2026-11-27-07: thẻ tuyến ở đầu với thanh chia đoạn; hàng đã quét có vòng ✓ và mũi tên ›; điểm tiếp theo
+ * viền amber và nhãn "Tiếp theo" (design-system §5.3 "Thẻ tuyến và hàng hành trình").
  */
 .journey {
   display: grid;
   gap: var(--space-4);
 }
 
-.header {
+.summary {
+  --journey-amber: var(--color-m01-amber);
+
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--m02-surface);
+  backdrop-filter: var(--m02-glass-blur, none);
+  border: var(--border-width-thin) solid var(--m02-surface-frame);
+  border-radius: var(--radius-lg);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--journey-amber);
+}
+
+/* Tên tuyến: serif như tiêu đề màn, nhỏ hơn một bậc */
+.routeName {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-m01-route-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  overflow-wrap: anywhere;
+}
+
+/* Thanh chia đoạn: mỗi điểm một đoạn (design-system §5.3, 2026-11-27) */
+.segments {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.segment {
+  flex: 1;
+  height: var(--space-2);
+  border-radius: var(--space-1);
+  background: color-mix(in srgb, var(--color-m02-scanner-secondary) 35%, transparent);
+}
+
+.segment[data-state='scanned'] {
+  background: var(--color-m02-scanner-success);
+}
+
+.segment[data-state='next'] {
+  background: var(--journey-amber);
+}
+
+.counts {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-3);
 }
 
 .heading {
@@ -25,6 +78,12 @@
 }
 
 .progress {
+  margin: 0;
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+}
+
+.remaining {
   margin: 0;
   font-size: var(--font-size-meta);
   color: var(--color-m02-scanner-secondary);
@@ -82,16 +141,32 @@
   border-radius: 50%;
 }
 
-.item:has(.open) .number {
+.item[data-state='scanned'] .number {
   color: var(--color-m02-scanner-bg);
   background: var(--color-m02-scanner-success);
   border-color: var(--color-m02-scanner-success);
 }
 
+.check {
+  --icon-size: var(--space-5);
+}
+
+/* Điểm tiếp theo: vòng số và khung thẻ viền amber (chỉ gợi ý, BR-M02-006) */
+.item[data-state='next'] .number {
+  color: var(--color-m01-amber);
+  border: var(--border-width-thick) solid var(--color-m01-amber);
+}
+
+.item[data-state='next'] .pending {
+  border: var(--border-width-thick) solid var(--color-m01-amber);
+}
+
 .open,
 .pending {
-  display: grid;
-  gap: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
   min-height: var(--touch-target);
   padding: var(--space-3) var(--space-4);
   text-align: left;
@@ -118,6 +193,30 @@
 .open:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
+}
+
+.body {
+  display: grid;
+  flex: 1;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.chevron {
+  --icon-size: var(--space-5);
+
+  color: var(--color-m02-scanner-secondary);
+}
+
+.nextBadge {
+  flex: none;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  color: var(--color-m02-scanner-bg);
+  background: var(--color-m01-amber);
+  border-radius: var(--radius-lg);
 }
 
 .name {
@@ -156,11 +255,7 @@
   transform: scale(var(--press-scale));
 }
 
-/* —— Thanh tiến trình và mở khóa checkpoint (design-system §4.3.1 T1, §5.3 v1.4; specs/006 US2) —— */
-.trail {
-  color: var(--color-m02-scanner-success);
-}
-
+/* —— Mở khóa checkpoint (design-system §4.3.1 T1, §5.3; specs/006 US2) —— */
 /* Điểm vừa có lượt ghé mới: vòng số nảy một lần; nửa dưới đường mòn của nó rồi nửa trên của điểm kế được vẽ ra */
 :root[data-motion='full'] .item[data-unlock] .number {
   animation: unlock-pop var(--duration-feedback) var(--ease-spring) both;
@@ -176,9 +271,26 @@
   animation: trail-draw calc(var(--duration-trail-draw) / 2) var(--ease-standard) calc(var(--duration-feedback) + var(--duration-trail-draw) / 2) both;
 }
 
+/* Đoạn của điểm vừa ghé trên thanh sáng lên từ trái sang (2026-11-27) */
+:root[data-motion='full'] .segment[data-unlock] {
+  transform-origin: left;
+  animation: segment-fill var(--duration-feedback) var(--ease-standard) both;
+}
+
 /* Giảm chuyển động / công tắc tắt: chỉ hiện màu mới bằng mờ dần ngắn, không nảy, không vẽ (T1) */
-:root[data-motion='reduced'] .item[data-unlock] .number {
+:root[data-motion='reduced'] .item[data-unlock] .number,
+:root[data-motion='reduced'] .segment[data-unlock] {
   animation: unlock-fade var(--duration-feedback-reduced) var(--ease-standard) both;
+}
+
+@keyframes segment-fill {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
 }
 
 @keyframes unlock-pop {

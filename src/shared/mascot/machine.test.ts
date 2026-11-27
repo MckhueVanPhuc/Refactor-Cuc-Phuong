@@ -18,22 +18,22 @@ describe('step — chuyển trạng thái nền', () => {
   });
 
   it('T1/T4: sự kiện có luật → hiện ở mode của slot; có câu thì SPEAKING', () => {
-    const rules = [rule('m02.scanner.detected', say({ mode: 'DOCK', pose: 'magnifier', message: { id: 'MSG-MAS-030' } }))];
+    const rules = [rule('m02.scanner.detected', say({ mode: 'DOCK', pose: 'magnifier', message: { id: 'MSG-MAS-042' } }))];
     const state = run([{ type: 'm02.scanner.detected', at: 1_000 }], rules);
     expect(state.status).toBe('SPEAKING');
     expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'magnifier' });
-    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-030', shownAt: 1_000 });
+    expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-042', shownAt: 1_000 });
   });
 
   it('T5: bong bóng tự ẩn sau thời gian đọc; DOCK ở lại, AVATAR rời', () => {
-    const dock = [rule('m02.scanner.detected', say({ mode: 'DOCK', message: { id: 'MSG-MAS-030' } }))];
+    const dock = [rule('m02.scanner.detected', say({ mode: 'DOCK', message: { id: 'MSG-MAS-042' } }))];
     const shown = run([{ type: 'm02.scanner.detected', at: 0 }], dock);
     const due = nextDeadline(shown)!;
     expect(due).toBe(shown.bubble!.expiresAt);
     const after = step(shown, { type: 'mascot.tick', at: due }, CTX, dock).state;
     expect(after).toMatchObject({ status: 'IDLE', bubble: null, view: { mode: 'DOCK' } });
 
-    const avatar = [rule('m02.scanner.detected', say({ mode: 'AVATAR', message: { id: 'MSG-MAS-030' } }))];
+    const avatar = [rule('m02.scanner.detected', say({ mode: 'AVATAR', message: { id: 'MSG-MAS-042' } }))];
     const shownAvatar = run([{ type: 'm02.scanner.detected', at: 0 }], avatar);
     const gone = step(shownAvatar, { type: 'mascot.tick', at: nextDeadline(shownAvatar)! }, CTX, avatar).state;
     expect(gone).toMatchObject({ status: 'HIDDEN', view: null, bubble: null });
@@ -46,8 +46,8 @@ describe('step — chuyển trạng thái nền', () => {
   });
 
   it('chữ hiện dần (v1.1, R-20): thời gian tự ẩn tính từ khi chữ hiện đủ; không hiện dần thì như cũ', () => {
-    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } }))];
-    const text = 'Ở mỗi điểm dừng, tìm tem QR rồi bấm Quét QR nhé.';
+    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-042' } }))];
+    const text = 'Chưa quét được? Thử lại gần hơn và tránh chỗ chói nắng.';
     const typed = step(initialState(), { type: 'm02.scanner.detected', at: 0 }, { ...CTX, typing: true }, rules).state;
     expect(typed.bubble!.expiresAt).toBe(Math.ceil((text.length * 1000) / 30) + readingTimeMs(text));
     const instant = step(initialState(), { type: 'm02.scanner.detected', at: 0 }, CTX, rules).state;
@@ -56,7 +56,7 @@ describe('step — chuyển trạng thái nền', () => {
 
   it('T9: thông báo tạm đóng → SUPPRESSED, xóa hàng đợi; câu sau bị bỏ tới khi đổi màn', () => {
     const rules = [
-      rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } })),
+      rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-042' } })),
       rule('m02.scanner.closed', say({ priority: 4, message: { id: 'MSG-MAS-050', params: { k: 1, n: 2 } } })),
     ];
     const suppressed = run(
@@ -73,7 +73,7 @@ describe('step — chuyển trạng thái nền', () => {
   });
 
   it('kết quả quét CLOSED cũng làm Mila rời màn (BR-MAS-03)', () => {
-    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } }))];
+    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-042' } }))];
     const state = run(
       [
         { type: 'm02.scanner.detected', at: 0 },
@@ -85,7 +85,7 @@ describe('step — chuyển trạng thái nền', () => {
   });
 
   it('T10: dialog khác, media, trang ẩn → bỏ câu (trừ P0–P1); dialog cuối chuyến không chặn', () => {
-    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } }))];
+    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-042' } }))];
     for (const blocker of [
       { type: 'app.dialog.changed', open: true, kind: 'OTHER' } as const,
       { type: 'm02.media.playing', mediaType: 'AUDIO' } as const,
@@ -100,7 +100,7 @@ describe('step — chuyển trạng thái nền', () => {
   });
 
   it('tín hiệu trạng thái không bị chống trùng: phát → dừng → phát trong 500 ms vẫn chặn', () => {
-    const rules = [rule('m02.scanner.detected', say({ mode: 'DOCK', message: { id: 'MSG-MAS-030' } }))];
+    const rules = [rule('m02.scanner.detected', say({ mode: 'DOCK', message: { id: 'MSG-MAS-042' } }))];
     const media = run(
       [
         { type: 'm02.media.playing', mediaType: 'AUDIO', at: 0 },
@@ -126,14 +126,14 @@ describe('step — chuyển trạng thái nền', () => {
   });
 
   it('mở dialog khác hoặc ẩn trang khi đang nói → bỏ bong bóng', () => {
-    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } }))];
+    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-042' } }))];
     const state = run([{ type: 'm02.scanner.detected', at: 0 }, { type: 'app.dialog.changed', open: true, kind: 'OTHER', at: 50 }], rules);
     expect(state.bubble).toBeNull();
   });
 
   it('đổi màn: hủy bong bóng P6, hẹn giờ, khung; giữ P4 vừa phát để màn mới hiện', () => {
     const rules = [
-      rule('m02.scanner.detected', { intents: [{ behaviorId: 'T', priority: 6, mode: 'DOCK', pose: 'map', message: { id: 'MSG-MAS-030' } }], timers: { idle: 15_000 } }),
+      rule('m02.scanner.detected', { intents: [{ behaviorId: 'T', priority: 6, mode: 'DOCK', pose: 'map', message: { id: 'MSG-MAS-042' } }], timers: { idle: 15_000 } }),
       rule('m02.scanner.closed', say({ priority: 4, mode: 'AVATAR', message: { id: 'MSG-MAS-051' } })),
     ];
     const p6 = run([{ type: 'm02.scanner.detected', at: 0 }, { type: 'app.route.changed', path: '/', at: 500 }], rules);
@@ -149,13 +149,13 @@ describe('step — chuyển trạng thái nền', () => {
   it('slot của màn chưa đăng ký: ý định mọi mức chờ tối đa 4 giây, hiện khi slot có (cuộc đua render)', () => {
     const noSlot = { ...CTX, availableModes: [] as const };
     const rules = [
-      rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } })),
+      rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-042' } })),
       rule('m02.scanner.closed', say({ priority: 4, message: { id: 'MSG-MAS-051' } })),
       rule('m02.scanner.opened', say({ priority: 7, pose: 'binoculars' })),
     ];
     const p6 = step(initialState(), { type: 'm02.scanner.detected', at: 0 }, noSlot, rules).state;
     expect(p6.queued).toMatchObject({ reason: 'slot' });
-    expect(step(p6, { type: 'mascot.slots.changed', at: 50 }, CTX, rules).state.bubble?.messageId).toBe('MSG-MAS-030');
+    expect(step(p6, { type: 'mascot.slots.changed', at: 50 }, CTX, rules).state.bubble?.messageId).toBe('MSG-MAS-042');
     const p7 = step(initialState(), { type: 'm02.scanner.opened', hasSession: true, k: 0, at: 0 }, noSlot, rules).state;
     expect(step(p7, { type: 'mascot.slots.changed', at: 50 }, CTX, rules).state.view).toMatchObject({ pose: 'binoculars' });
     const p4 = step(initialState(), { type: 'm02.scanner.closed', at: 0 }, noSlot, rules).state;
@@ -246,7 +246,7 @@ describe('step — chuyển trạng thái nền', () => {
   });
 
   it('T14: lỗi ảnh → HIDDEN', () => {
-    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } }))];
+    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-042' } }))];
     const state = run([{ type: 'm02.scanner.detected', at: 0 }, { type: 'mascot.asset.failed', at: 10 }], rules);
     expect(state).toMatchObject({ status: 'HIDDEN', view: null, bubble: null });
   });
@@ -255,7 +255,7 @@ describe('step — chuyển trạng thái nền', () => {
     const spy = vi.spyOn(Date, 'now').mockImplementation(() => {
       throw new Error('step không được đọc Date.now()');
     });
-    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-030' } }))];
+    const rules = [rule('m02.scanner.detected', say({ message: { id: 'MSG-MAS-042' } }))];
     const events = [{ type: 'm02.scanner.detected', at: 5 } as const, { type: 'mascot.tick', at: 10_000 } as const];
     expect(run(events, rules)).toEqual(run(events, rules));
     spy.mockRestore();

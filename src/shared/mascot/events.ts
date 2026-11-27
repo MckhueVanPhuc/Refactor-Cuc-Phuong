@@ -1,6 +1,9 @@
 // Sự kiện của Mila (specs/005 contracts/mascot-event-contract.md; research R-03). Bus chỉ sống trong bộ nhớ trình duyệt:
 // không lưu, không gửi đi (BR-MAS-01, 18). Điểm phát đặt SAU khi việc nghiệp vụ đã xong; không await.
+import type { BilingualName } from './dialogue/vi';
 import { isMascotEnabled } from './flag';
+
+export type { BilingualName };
 
 export type Language = 'vi' | 'en';
 
@@ -23,8 +26,16 @@ export type MascotEvent =
       online: boolean;
     }
   // M02
-  | { type: 'm02.trip.entered'; kind: 'STARTED' | 'RESTORED' | 'REJECTED' | 'FREE' | 'REPLACE_FAILED'; hasSession: boolean; k: number; n: number }
-  | { type: 'm02.trip.shown'; hasSession: boolean; k: number; n: number; finalVisited: boolean }
+  // `next`: tên điểm gợi ý kế tiếp (v1.7, CHG-MASCOT-2026-11-27-07); không có / `null` khi không có phiên hoặc đã quét hết
+  | {
+      type: 'm02.trip.entered';
+      kind: 'STARTED' | 'RESTORED' | 'REJECTED' | 'FREE' | 'REPLACE_FAILED';
+      hasSession: boolean;
+      k: number;
+      n: number;
+      next?: BilingualName | null;
+    }
+  | { type: 'm02.trip.shown'; hasSession: boolean; k: number; n: number; finalVisited: boolean; next?: BilingualName | null }
   | { type: 'm02.content.backPressed'; afterNewVisit: boolean }
   | { type: 'm02.scanner.opened'; hasSession: boolean; k: number }
   | { type: 'm02.scanner.closed' }

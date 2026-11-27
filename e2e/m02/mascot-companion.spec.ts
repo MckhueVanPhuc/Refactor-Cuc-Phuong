@@ -24,7 +24,7 @@ const scan = (page: Page, qr: string) => page.evaluate((text) => (window as unkn
 const ask = (page: Page) => page.getByRole('button', { name: 'Hỏi Mila' });
 const bubble = (page: Page, id: string) => page.locator(`[data-mascot-message="${id}"]`);
 
-test('Q21 — chuyến đi: chạm → 032; quét Q1a rồi quay lại → nhắc cất máy (056); chạm → "Còn 2 điểm nữa…" (033)', async ({ page }) => {
+test('Q21 — chuyến đi: chạm → 032; quét Q1a rồi quay lại → điểm tiếp theo (056 v1.7); chạm → 033', async ({ page }) => {
   await startTrip(page);
   await expect(page.locator('[data-mascot-slot="trip-dock"] [data-mascot-mode="DOCK"]')).toBeVisible();
   await ask(page).click();
@@ -34,10 +34,27 @@ test('Q21 — chuyến đi: chạm → 032; quét Q1a rồi quay lại → nhắ
   await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q1a' })).toBeVisible();
   await page.getByRole('link', { name: vi.content.back }).click();
   await expect(page).toHaveURL(/\/trip$/);
-  await expect(bubble(page, 'MSG-MAS-056')).toHaveText('Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé.');
+  // v1.7 (CHG-MASCOT-2026-11-27-07): điểm chưa quét đầu tiên theo thứ tự hiển thị là C2
+  await expect(bubble(page, 'MSG-MAS-056')).toHaveText('Điểm tiếp theo: Cây chò ngàn năm. Tham quan xong thì đi tiếp và quét mã nhé!');
   await page.getByRole('button', { name: 'Đóng lời nhắn' }).click();
   await ask(page).click();
-  await expect(bubble(page, 'MSG-MAS-033')).toHaveText('Còn 2 điểm nữa. Thấy tem thì bấm Quét QR nhé.');
+  await expect(bubble(page, 'MSG-MAS-033')).toHaveText('Chạm điểm đã quét để đọc lại, hoặc quét tem QR ở điểm tiếp theo nhé.');
+});
+
+test('v1.7 — bắt đầu chuyến: thẻ tuyến, điểm 1 là "Tiếp theo", Mila nói tên điểm tiếp theo (030); quét điểm 1 → ✓ và điểm 2 là "Tiếp theo"', async ({ page }) => {
+  await startTrip(page);
+  await expect(page.locator('[data-route-summary]')).toContainText(vi.journey.currentRoute);
+  await expect(page.locator('[data-route-summary]')).toContainText(vi.journey.remaining({ r: 3 }));
+  await expect(page.locator('[data-checkpoint="C1"]')).toHaveAttribute('data-state', 'next');
+  await expect(page.locator('[data-checkpoint="C1"]')).toContainText(vi.journey.next);
+  await expect(bubble(page, 'MSG-MAS-030')).toHaveText('Điểm tiếp theo: Cổng rừng. Tìm tem QR ở đó rồi bấm Quét QR nhé!');
+
+  await scan(page, 'Q1a');
+  await page.getByRole('link', { name: vi.content.back }).click();
+  await expect(page).toHaveURL(/\/trip$/);
+  await expect(page.locator('[data-checkpoint="C1"]')).toHaveAttribute('data-state', 'scanned');
+  await expect(page.locator('[data-checkpoint="C2"]')).toHaveAttribute('data-state', 'next');
+  await expect(page.locator('[data-route-summary]')).toContainText(vi.journey.remaining({ r: 2 }));
 });
 
 test('Q22 — chạm Mila 5 lần trong 3 giây → chóng mặt (085) một lần; lần sau chạm như thường', async ({ page }) => {

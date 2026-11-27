@@ -74,6 +74,56 @@ describe('RouteJourneyMap', () => {
     expect(onOpen).toHaveBeenCalledWith(visit);
   });
 
+  // —— CHG-MASCOT-2026-11-27-07: thẻ tuyến, điểm tiếp theo, hàng đã quét (E-SCR-M02-001-07, -25, -26) ——
+  it('thẻ tuyến: nhãn, tên tuyến theo ngôn ngữ, "Còn r điểm"; không có tên tuyến → không dòng tên', () => {
+    const { rerender } = render(
+      <RouteJourneyMap checkpoints={CHECKPOINTS} visits={[visit]} onOpen={() => {}} routeName={{ vi: 'Tuyến A', en: 'Route A' }} />,
+    );
+    const card = document.querySelector('[data-route-summary]') as HTMLElement;
+    expect(within(card).getByText(viMessages.journey.currentRoute)).toBeTruthy();
+    expect(within(card).getByText('Tuyến A')).toBeTruthy();
+    expect(within(card).getByText(viMessages.journey.progress({ scanned: 1, total: 3 }))).toBeTruthy();
+    expect(within(card).getByText(viMessages.journey.remaining({ r: 2 }))).toBeTruthy();
+    act(() => fakeM01.setLanguage({ languageCode: 'en' }));
+    expect(within(card).getByText('Route A')).toBeTruthy();
+    expect(within(card).getByText(en.journey.remaining({ r: 2 }))).toBeTruthy();
+    act(() => fakeM01.setLanguage({ languageCode: 'vi' }));
+    rerender(<RouteJourneyMap checkpoints={CHECKPOINTS} visits={[visit]} onOpen={() => {}} />);
+    expect(screen.queryByText('Tuyến A')).toBeNull();
+    expect(screen.getByText(viMessages.journey.currentRoute)).toBeTruthy();
+  });
+
+  it('thanh chia đoạn: mỗi điểm một đoạn theo thứ tự hiển thị; đã quét / tiếp theo / còn lại', () => {
+    render(<RouteJourneyMap checkpoints={[...CHECKPOINTS].reverse()} visits={[visit]} onOpen={() => {}} unlock="C2" />);
+    const bar = screen.getByRole('progressbar');
+    const segments = [...bar.children];
+    expect(segments.map((s) => s.getAttribute('data-state'))).toEqual(['next', 'scanned', 'pending']);
+    expect(segments.map((s) => s.hasAttribute('data-unlock'))).toEqual([false, true, false]);
+  });
+
+  it('điểm tiếp theo = điểm chưa quét đầu tiên theo thứ tự hiển thị, có nhãn "Tiếp theo"; quét hết → không có (BR-M02-006)', () => {
+    const { rerender } = render(<RouteJourneyMap checkpoints={CHECKPOINTS} visits={[visit]} onOpen={() => {}} />);
+    const [first, second, third] = items();
+    expect(first!.getAttribute('data-state')).toBe('next');
+    expect(within(first!).getByText(viMessages.journey.next)).toBeTruthy();
+    expect(within(second!).queryByText(viMessages.journey.next)).toBeNull();
+    expect(within(third!).queryByText(viMessages.journey.next)).toBeNull();
+    const all = CHECKPOINTS.map((c, i) => ({ ...visit, checkpointId: c.checkpointId, qrIdentifier: `Q${i}` }));
+    rerender(<RouteJourneyMap checkpoints={CHECKPOINTS} visits={all} onOpen={() => {}} />);
+    expect(screen.queryByText(viMessages.journey.next)).toBeNull();
+    expect(screen.getByText(viMessages.journey.allScanned)).toBeTruthy();
+  });
+
+  it('hàng đã quét: vòng ✓ thay số và mũi tên › trong nút; hàng chưa quét giữ số', () => {
+    render(<RouteJourneyMap checkpoints={CHECKPOINTS} visits={[visit]} onOpen={() => {}} />);
+    const [first, second] = items();
+    expect(second!.getAttribute('data-state')).toBe('scanned');
+    expect(second!.textContent!.trim().charAt(0)).not.toBe('2');
+    expect(within(screen.getByRole('button')).getByText(viMessages.trip.scanned)).toBeTruthy();
+    expect(screen.getByRole('button').querySelectorAll('[aria-hidden="true"]')).toHaveLength(1);
+    expect(first!.textContent!.trim().charAt(0)).toBe('1');
+  });
+
   it('không chữ nào nói "đã đến", "có mặt", "arrived" (SC-M02-013)', () => {
     const { container } = render(<RouteJourneyMap checkpoints={CHECKPOINTS} visits={[visit]} onOpen={() => {}} />);
     for (const word of ['đã đến', 'có mặt', 'arrived']) expect(container.textContent!.toLowerCase()).not.toContain(word);

@@ -143,5 +143,5 @@ Quy ước: **Auto** = test tự động; **Manual** = kiểm tay; **Device** = 
 | MAS-TC-134 | 013, 024, 025, 040, 054 không còn chữ (chỉ minh họa); 013 không có nút thứ hai | Auto |
 | MAS-TC-135 | Lớp phủ giới thiệu (v1.3): phủ cả màn, Mila và bong bóng ở giữa, "Chạm để bắt đầu", không nút "Bỏ qua" và không ×; chạm lần đầu khi chữ đang hiện dần → hiện hết; chạm tiếp → đóng, Mila về DOCK hero; Back/Esc đóng; focus vào lớp phủ và trả về tiêu đề (SC-MAS-016) | Auto |
 | MAS-TC-136 | Đầu màn danh mục 320–430 px: tiêu đề một dòng, dải đồi hiện, Mila trên đồi (88 px dưới 360 px); bong bóng mở dưới đầu màn, Mila không đổi chỗ, không đè nút/tiêu đề/thẻ tuyến | Auto |
-| MAS-TC-137 | Câu 056 v1.3: "Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé." | Auto |
+| MAS-TC-137 | Câu 056 v1.7: "Điểm tiếp theo: {next}. Tham quan xong thì đi tiếp và quét mã nhé!"; không có điểm tiếp theo thì không nói (v1.3: "Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé.") | Auto |
 

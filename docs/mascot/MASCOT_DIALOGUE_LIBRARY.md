@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 |---|---|
 | Trạng thái | **PROPOSED** — mọi câu cần người dùng duyệt trước khi đưa vào bảng copy của screen spec |
-| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); 2026-11-25 theo spec-Mascot v1.6 (CHG-MASCOT-2026-11-25-06): MAS-MSG-015…019 mới (chủ dự án duyệt nguyên văn VI 2026-11-25; EN theo nhãn nút thật), MAS-MSG-014 mỗi lần vào màn |
+| Ngày | 2026-11-20; cập nhật 2026-11-22 (v1.1) và 2026-11-23 theo spec-Mascot v1.2 (CHG-MASCOT-2026-11-23-03) và 2026-11-23 theo spec-Mascot v1.3 (CHG-MASCOT-2026-11-23-04); 2026-11-25 theo spec-Mascot v1.6 (CHG-MASCOT-2026-11-25-06): MAS-MSG-015…019 mới (chủ dự án duyệt nguyên văn VI 2026-11-25; EN theo nhãn nút thật), MAS-MSG-014 mỗi lần vào màn; 2026-11-27 theo spec-Mascot v1.7 (CHG-MASCOT-2026-11-27-07): MAS-MSG-030, 056 nói điểm tiếp theo `{next}`, MAS-MSG-033 bỏ số điểm còn lại |
 | Quy ước | Tài liệu này là **nguồn chữ** của mascot. [Behavior Matrix](MASCOT_BEHAVIOR_MATRIX.md) chép lại câu để dễ đọc; khi lệch nhau, tài liệu này thắng |
 
 ## 1. Quy tắc viết
@@ -58,7 +58,7 @@ Cột **P** là mức ưu tiên ([State Machine](MASCOT_STATE_MACHINE.md) §5): 
 
 | Message ID | Trigger | Ngữ cảnh | Tiếng Việt | English | Giọng | Thời lượng | CTA | P | Lặp | Cooldown |
 |---|---|---|---|---|---|---|---|---|---|---|
-| MAS-MSG-030 | `m02.trip.entered{kind=STARTED}` | Phiên mới | Ở mỗi điểm dừng, tìm tem QR rồi bấm Quét QR nhé. | At each stop, look for the QR sign and tap Scan QR. | Hào hứng | Tự ẩn | — | P6 | Không | 1 lần/phiên/tải trang |
+| MAS-MSG-030 | `m02.trip.entered{kind=STARTED}` | Phiên mới; có điểm tiếp theo (v1.7) | Điểm tiếp theo: {next}. Tìm tem QR ở đó rồi bấm Quét QR nhé! | Next stop: {next}. Find its QR sign there and tap Scan QR! | Hào hứng | Tự ẩn | — | P6 | Không | 1 lần/phiên/tải trang |
 | MAS-MSG-032 | Chạm mascot ở SCR-M02-001 | Du khách hỏi | Thấy tem thì bấm Quét QR. Chạm điểm đã quét để đọc lại nhé. | Spot a sign? Tap Scan QR. Tap a scanned stop to read it again. | Hữu ích | Tự ẩn | — | P3 | Có | 10 s |
 | MAS-MSG-034 | `app.visibility.visible` sau > 10 phút ẩn, có phiên | Mở lại app giữa chuyến | Chào mừng quay lại! Hành trình của bạn vẫn còn nguyên. | Welcome back! Your trip is just as you left it. | Ấm áp | Tự ẩn | — | P6 | Có | 30 phút |
 | MAS-MSG-040 | `m02.scanner.opened` | Phiên chưa có lượt ghé nào, hoặc khách tự do; lần mở đầu trong lần tải trang | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) | Hướng dẫn | Tự ẩn | — | P6 | Không | 1 lần/tải trang |
@@ -73,7 +73,7 @@ Cột **P** là mức ưu tiên ([State Machine](MASCOT_STATE_MACHINE.md) §5): 
 | MAS-MSG-052 | `m02.scan.resolved{display=LIVE}`, có phiên, không ghi lượt ghé | Mã ngoài hành trình | Điểm này không thuộc tuyến của bạn nên không tính vào hành trình. Cứ xem nhé! | This spot isn't on your route, so it won't count. Enjoy reading anyway! | Thân thiện, rõ ràng | Tự ẩn | — | P2 | Có | 1 phút |
 | MAS-MSG-054 | `m02.scan.resolved{display=PACKAGE}` | Mất sóng, dùng gói | — (chỉ minh họa từ v1.2) | — (illustration only since v1.2) | Trấn an | Tự ẩn | — | P5 | Có | 5 phút |
 | MAS-MSG-055 | `m02.visit.recorded` với k = ⌈n/2⌉, n ≥ 4 | Nửa số điểm | Đã ghi nhận! Bạn đã quét được nửa số điểm rồi đó! | Recorded! You've scanned half of your stops! | Khích lệ | Tự ẩn | — | P5 | Không | 1 lần/phiên |
-| MAS-MSG-056 | `m02.trip.shown` ngay sau khi xem nội dung của lượt ghé mới | Quay về hành trình | Bây giờ tham quan thôi! Ở điểm sau nhớ quét mã nhé. | Time to explore! Remember to scan at the next stop. | Nhẹ nhàng | Tự ẩn | — | P6 | Có | 10 phút |
+| MAS-MSG-056 | `m02.trip.shown` ngay sau khi xem nội dung của lượt ghé mới | Quay về hành trình; có điểm tiếp theo (v1.7) | Điểm tiếp theo: {next}. Tham quan xong thì đi tiếp và quét mã nhé! | Next stop: {next}. Take your time here, then scan there. | Nhẹ nhàng | Tự ẩn | — | P6 | Có | 10 phút |
 | MAS-MSG-057 | Như MAS-MSG-056, lần thứ 2 trở đi (xen kẽ) | Lời nhắc ứng xử với thiên nhiên (cần Ban Quản lý duyệt, MAS-D-05) | Pool, xem §3.4 | Pool, xem §3.4 | Tôn trọng | Tự ẩn | — | P6 | Có | 10 phút |
 | MAS-MSG-059 | Chạm mascot ở SCR-M02-002/004 | Du khách hỏi | Vuốt ảnh để xem thêm, kéo xuống để đọc phần giới thiệu. | Swipe the photos, then scroll down to read more. | Hữu ích | Tự ẩn | — | P3 | Có | 10 s |
 | MAS-MSG-061 | `m02.finalPrompt.continued` | Chọn "Đi tiếp" | Được thôi! Khi sẵn sàng, nút Kết thúc chuyến vẫn ở đây. | Sure! The End trip button is here whenever you're ready. | Thoải mái | Tự ẩn | — | P5 | Có | 2 phút |
@@ -115,7 +115,7 @@ Màn đã có câu cố định đủ rõ, nên mascot chỉ đứng cạnh câu
 | Message ID | Trigger | Ngữ cảnh | Tiếng Việt | English | Giọng | Thời lượng | CTA | P | Lặp | Cooldown |
 |---|---|---|---|---|---|---|---|---|---|---|
 | MAS-MSG-012 | Chạm mascot ở màn M01, lần chạm sau khi MAS-MSG-009 còn hiện | Du khách hỏi tiếp | Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn. | Tap Route suggestions and I'll pick by your time and interests. | Hữu ích | Tự ẩn | — | P3 | Có | — |
-| MAS-MSG-033 | Chạm mascot ở SCR-M02-001, scanner đóng, có lượt ghé, còn r = n − k ≥ 1 | Giữa chặng | Còn {r} điểm nữa. Thấy tem thì bấm Quét QR nhé. | {r} stops to go. Spot a sign? Tap Scan QR. (r = 1: "1 stop to go. Spot a sign? Tap Scan QR.") | Cổ vũ nhẹ | Tự ẩn | — | P3 | Có | — |
+| MAS-MSG-033 | Chạm mascot ở SCR-M02-001, scanner đóng, có lượt ghé, còn r = n − k ≥ 1 | Giữa chặng (v1.7: số điểm còn lại đã hiện trên thẻ tuyến) | Chạm điểm đã quét để đọc lại, hoặc quét tem QR ở điểm tiếp theo nhé. | Tap a scanned stop to read it again, or scan the sign at the next stop. | Cổ vũ nhẹ | Tự ẩn | — | P3 | Có | — |
 | MAS-MSG-043 | Chạm mascot khi scanner mở | Đang quét | Lại gần tem hơn và tránh chỗ chói nắng nhé. | Move closer to the sign and avoid the glare. | Hướng dẫn | Tự ẩn | — | P3 | Có | — |
 | MAS-MSG-058 | `m02.visit.recorded`, k = n − 1, n ≥ 3, không phải mốc đầu tiên hay nửa | Mốc cấp 2 | Đã ghi nhận! Chỉ còn một điểm nữa thôi! | Recorded! Just one stop to go! | Hào hứng | Tự ẩn | — | P4 | Không | 1 lần/phiên/tải trang |
 | MAS-MSG-063 | `m02.trip.ended{HOAN_TAT}`, vừa kết thúc, k = n | Cấp 3, quét đủ | Bạn đã quét đủ {n} điểm của tuyến. Tuyệt vời! | You scanned all {n} stops of the route. Amazing! | Tự hào | Tự ẩn | — | P4 | Không | 1 lần/phiên |
