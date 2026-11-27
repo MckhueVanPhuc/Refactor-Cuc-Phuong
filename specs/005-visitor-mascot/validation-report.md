@@ -938,6 +938,7 @@ Test đổi có chủ đích: `rules.test.ts` MAS-B-043→044 và MAS-B-046 (l�
 |---|---|---|
 | `npm run ci` | 0 | lint token 768; 2519 pass, 133 skipped; build OK, precache 117 mục (3010,32 KiB) |
 | `npx playwright test --project=m02 --project=m02-cam-evil --workers=1` | 0 | 84 pass |
+| `npx playwright test --project=m01 --workers=1` (sau khi CI của #88 báo lỗi `e2e/m01/pwa-offline.spec.ts` V24: còn so khớp nguyên câu "Cần có kết nối…" với thẻ mới) | 0 | 72 pass (V3 `language.spec.ts` lỗi chập chờn một lần, chạy lại PASS; không liên quan) |
 | Chụp 390 px: trang nội dung điểm cần gói / cần mạng (sau khi toast tắt), màn Chuyến đi khi chưa kiểm tra được mã, `/q/…` khách tự do (spec tạm, đã xóa) | 0 | Mỗi tình huống một thẻ có việc làm tiếp; màn Chuyến đi một Mila (bối rối) |
 
 | # | Mục | Trạng thái |
