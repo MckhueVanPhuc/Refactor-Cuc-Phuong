@@ -920,3 +920,29 @@ Test đổi có chủ đích: e2e `mascot-scanner.spec.ts` MAS-B-038 (không cò
 | DV-102 | Vitest giữ danh sách icon cũ trong `node_modules/.vitest-cache` sau khi thêm `camera-off.svg` (`import.meta.glob` eager) → "Không có icon"; xóa cache thì PASS. CI sạch không bị | Ghi nhận |
 | DV-103 | Đèn pin trong scanner (mockup tester) | Để sau (D5) |
 | DV-104 | Các bước bật camera theo tên menu của Chrome / Safari hiện tại; trình duyệt khác (Firefox, Samsung Internet) dùng bộ bước Chrome | Chấp nhận; chủ dự án xem lại khi thử máy thật |
+
+## 23. Đợt 2026-11-27 — Phase 23: spec-Mascot v1.9 (T133–T137) — CHG-MASCOT-2026-11-27-09
+
+Bảng test của tester (M02-23, 31, 34; BUG-028; BUG-031 chủ dự án bỏ: không phải lỗi).
+
+| Việc | Tệp |
+|---|---|
+| BUG-028: câu "Chưa tải được nội dung mới. Đang dùng nội dung đã lưu nếu có." chỉ khi đang hiện nội dung gói | `content/ScanContent.tsx` |
+| Thẻ không có nội dung: tên điểm, câu cố định; điểm cần gói: hướng dẫn + "Mở Tài nguyên" (`/offline`); điểm cần mạng: "Thử lại" | `content/ScanContent.tsx` (+ css), `ContentPage.tsx`, `qr-link/QrLinkPage.tsx` |
+| Thẻ chưa kiểm tra được mã, mọi màn: tiêu đề, câu cố định, "Lượt quét chưa được tính." (+ "Hành trình bên dưới giữ nguyên." ở màn Chuyến đi), "Thử lại"; × ở SCR-M02-001/005 | `content/ScanNotice.tsx` (+ css), `session/TripPage.tsx`, `scan/ScanPage.tsx`, `i18n/{vi,en}.ts` |
+| Một Mila trên màn: không hình Mila trong thông báo; lần lỗi đầu Mila đứng chờ bối rối | `content/ScanNotice.tsx`, `shared/mascot/rules.ts` |
+
+Test đổi có chủ đích: `rules.test.ts` MAS-B-043→044 và MAS-B-046 (lần lỗi đầu: tư thế bối rối thay vì hình trong thông báo); `ScanNotice.test.tsx` (tiêu đề trước câu cố định); e2e `mascot-scanner.spec.ts` Q10, `outside-closed.spec.ts` (thẻ mới), `qr-link.spec.ts` V22. Test mới: unit BUG-028, "Thử lại" ở trang nội dung, ScanNotice (chưa được tính, Thử lại, ×, không Mila); e2e "Thử lại" ở màn Chuyến đi.
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 768; 2519 pass, 133 skipped; build OK, precache 117 mục (3010,32 KiB) |
+| `npx playwright test --project=m02 --project=m02-cam-evil --workers=1` | 0 | 84 pass |
+| `npx playwright test --project=m01 --workers=1` (sau khi CI của #88 báo lỗi `e2e/m01/pwa-offline.spec.ts` V24: còn so khớp nguyên câu "Cần có kết nối…" với thẻ mới) | 0 | 72 pass (V3 `language.spec.ts` lỗi chập chờn một lần, chạy lại PASS; không liên quan) |
+| Chụp 390 px: trang nội dung điểm cần gói / cần mạng (sau khi toast tắt), màn Chuyến đi khi chưa kiểm tra được mã, `/q/…` khách tự do (spec tạm, đã xóa) | 0 | Mỗi tình huống một thẻ có việc làm tiếp; màn Chuyến đi một Mila (bối rối) |
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-105 | M02-31: tester ghi đã tải gói mà vẫn "Chưa có nội dung offline". Gói chỉ được nhận khi đủ mọi byte ảnh (`readActiveOfflinePackage`); chủ dự án xác nhận 2026-11-27: không phải lỗi chức năng (gói chưa sẵn sàng khi thử) | Đóng |
+| DV-106 | Quét trong 0,8 s đầu sau khi bắt đầu chuyến: câu chào 030 của Mila tới sau và thay tư thế bối rối của lần lỗi đầu (thông báo vẫn đúng) | Chấp nhận |
+| DV-107 | BUG-031 (toast xác nhận lượt quét che thẻ phía trên vài giây) | Chủ dự án: không phải lỗi |

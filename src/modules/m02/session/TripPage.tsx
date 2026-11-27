@@ -105,7 +105,8 @@ function EntryNotice({ result }: { result: EntryResult }) {
 }
 
 /** Kết quả quét ở lại SCR-M02-001: tạm đóng, mã không hợp lệ, cần kết nối (screen spec §4; tasks T062). */
-type StayNotice = { kind: ScanNoticeKind; freeVisitor: boolean };
+/** `text`: nội dung mã vừa đọc, để "Thử lại" tra lại đúng mã đó (CHG-MASCOT-2026-11-27-09) */
+type StayNotice = { kind: ScanNoticeKind; freeVisitor: boolean; text: string };
 
 export function TripPage() {
   const messages = useM02Messages();
@@ -169,7 +170,7 @@ export function TripPage() {
           inJourney: result.visit !== null,
           finalPromptNeeded: result.finalPromptNeeded,
         });
-        setStayNotice({ kind: result.display.kind, freeVisitor: result.freeVisitor });
+        setStayNotice({ kind: result.display.kind, freeVisitor: result.freeVisitor, text });
         // Lượt quét điểm cuối ghi ngay tại màn này (kết quả không có nội dung để mở): hỏi luôn
         if (result.finalPromptNeeded) setConfirmingFinish(true);
       } finally {
@@ -188,7 +189,17 @@ export function TripPage() {
     <FieldLayout surface="scanner" title={messages.screenTitle.trip}>
       {entry.status === 'done' && (
         <FieldNotice>
-          {stayNotice ? <ScanNotice kind={stayNotice.kind} freeVisitor={stayNotice.freeVisitor} /> : <EntryNotice result={entry.result} />}
+          {stayNotice ? (
+            <ScanNotice
+              kind={stayNotice.kind}
+              freeVisitor={stayNotice.freeVisitor}
+              notCounted={stayNotice.freeVisitor ? null : 'journey'}
+              onRetry={() => void handleText(stayNotice.text)}
+              onDismiss={() => setStayNotice(null)}
+            />
+          ) : (
+            <EntryNotice result={entry.result} />
+          )}
           {previousTripSyncError && (
             <p className={`${styles.notice} ${styles.error}`} data-previous-sync-error="">
               {messages.trip.previousTripSyncError}

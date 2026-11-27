@@ -20,7 +20,8 @@ const QrScanner = lazy(async () => ({ default: (await import('../scanner/QrScann
 /** Router state do thanh tab M01 đặt: màn đang mở để quay về khi đóng camera. */
 export type ScanPageState = { returnTo?: string };
 
-type StayNotice = { kind: ScanNoticeKind; freeVisitor: boolean };
+/** `text`: nội dung mã vừa đọc, để "Thử lại" tra lại đúng mã đó (CHG-MASCOT-2026-11-27-09) */
+type StayNotice = { kind: ScanNoticeKind; freeVisitor: boolean; text: string };
 
 /** Như `contentPath` của TripPage; khai báo lại để chunk màn Quét không kéo theo code màn Chuyến đi. */
 const contentPath = (qrIdentifier: string) => `${PATHS.m02SessionEntry}/qr/${encodeURIComponent(qrIdentifier)}`;
@@ -58,7 +59,7 @@ export function ScanPage() {
           void navigate(contentPath(result.qrIdentifier), { replace: true, state });
           return;
         }
-        setStayNotice({ kind: result.display.kind, freeVisitor: result.freeVisitor });
+        setStayNotice({ kind: result.display.kind, freeVisitor: result.freeVisitor, text });
       } finally {
         setLookingUp(false);
       }
@@ -73,7 +74,15 @@ export function ScanPage() {
     <FieldLayout surface="scanner" title={messages.scanner.title}>
       <FieldNotice>
         {/* Màn Quét QR (SCR-M02-005) nằm ngoài phạm vi spec-Mascot: không có Mila */}
-        {stayNotice && <ScanNotice kind={stayNotice.kind} freeVisitor={stayNotice.freeVisitor} mila={false} />}
+        {stayNotice && (
+          <ScanNotice
+            kind={stayNotice.kind}
+            freeVisitor={stayNotice.freeVisitor}
+            notCounted={stayNotice.freeVisitor ? null : 'plain'}
+            onRetry={() => void handleText(stayNotice.text)}
+            onDismiss={() => setStayNotice(null)}
+          />
+        )}
         {lookingUp && (
           <p className={styles.notice} role="status">
             {messages.trip.lookingUp}

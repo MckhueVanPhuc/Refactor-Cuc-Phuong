@@ -60,15 +60,18 @@ test('Q9 — scanner mở, chưa có lượt ghé: Mila minh họa ở dải dư
   await expect(page.locator('[data-mascot-slot="trip-dock"] [data-mascot-mode="DOCK"]')).toBeVisible();
 });
 
-test('Q10 — hai lần liên tiếp mã không hợp lệ: lần đầu chỉ hình cạnh câu cố định; lần hai Mila nói 046, câu cố định vẫn còn', async ({ page }) => {
+test('Q10 (v1.9) — hai lần liên tiếp mã không hợp lệ: lần đầu Mila đứng chờ bối rối, không hình trong thông báo; lần hai Mila nói 046, câu cố định vẫn còn', async ({ page }) => {
   await startTrip(page);
   const scan = (text: string) => page.evaluate((value) => (window as unknown as M02TestWindow).__cpqTestHooks!.m02!.scan!(value), text);
   const notice = page.locator('[data-scan-notice="INVALID"]');
 
   await scan('không phải mã của Vườn');
   await expect(notice).toContainText(vi.notice.invalid);
-  await expect(notice.locator('[data-mascot-figure="confused"]')).toBeVisible();
+  await expect(notice.locator('[data-mascot-figure]')).toHaveCount(0);
+  await expect(page.locator('[data-mascot-slot="trip-dock"] [data-mascot-mode="DOCK"]')).toHaveAttribute('data-mascot-pose', 'confused');
   await expect(page.locator('[data-mascot-message="MSG-MAS-046"]')).toHaveCount(0);
+  // Một Mila trên màn (spec-Mascot §5.1)
+  await expect(page.locator('[data-mascot-figure], [data-mascot-mode]')).toHaveCount(1);
 
   // Lần quét thứ hai là một thao tác khác (không rơi vào cửa sổ chống trùng 500 ms của BR-MAS-06)
   await page.waitForTimeout(600);

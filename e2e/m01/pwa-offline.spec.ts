@@ -40,7 +40,9 @@ test('V24 — offline: app shell phục vụ /, /routes/route-a, /q/{id}; VI/EN 
   // Trang link QR của M02 (SCR-M02-004) mở từ app shell; không có phiên nên offline báo cần kết nối (M02 V22)
   const qr = await page.goto('/q/qr-a1-1');
   expect(qr?.fromServiceWorker()).toBe(true);
-  await expect(page.getByRole('alert')).toHaveText(m02Vi.notice.connectionNeeded);
+  // CHG-MASCOT-2026-11-27-09: thẻ có tiêu đề và nút "Thử lại"; câu cố định của spec-M02 §5.1 vẫn nguyên văn
+  await expect(page.getByRole('alert')).toContainText(m02Vi.scanNotice.uncheckedTitle);
+  await expect(page.getByRole('alert')).toContainText(m02Vi.notice.connectionNeeded);
 
   const cachedUrls = await page.evaluate(async () => {
     const urls: string[] = [];

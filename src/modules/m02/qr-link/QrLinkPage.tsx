@@ -22,6 +22,8 @@ export function QrLinkPage() {
   const messages = useM02Messages();
   const { qrIdentifier = '' } = useParams();
   const [scan, setScan] = useState<ScanResult | undefined>(undefined);
+  // "Thử lại" (CHG-MASCOT-2026-11-27-09): xử lý lại đúng mã này
+  const [attempt, setAttempt] = useState(0);
   // Mỗi mã chỉ xử lý một lần (StrictMode chạy effect hai lần ở dev): các lần chạy effect dùng chung một promise
   const pending = useRef<{ qrIdentifier: string; result: Promise<ScanResult> } | null>(null);
   // Không áp bản build mới giữa lúc xử lý mã (research R-15)
@@ -43,11 +45,19 @@ export function QrLinkPage() {
     return () => {
       cancelled = true;
     };
-  }, [qrIdentifier]);
+  }, [qrIdentifier, attempt]);
 
   return (
     <FieldLayout surface="article" title={messages.screenTitle.qrLink}>
-      <ScanContent scan={scan} qrIdentifier={qrIdentifier} showBack={Boolean(scan?.session)} />
+      <ScanContent
+        scan={scan}
+        qrIdentifier={qrIdentifier}
+        showBack={Boolean(scan?.session)}
+        onRetry={() => {
+          pending.current = null;
+          setAttempt((n) => n + 1);
+        }}
+      />
     </FieldLayout>
   );
 }

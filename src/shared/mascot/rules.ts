@@ -326,7 +326,14 @@ const US5: Rule[] = [
           ? { behaviorId: 'MAS-B-046', priority: 2, mode: 'DOCK', pose: 'confused', animation: 'tilt', message: { id: 'MSG-MAS-046' } }
           : { behaviorId: 'MAS-B-048', priority: 2, mode: 'DOCK', pose: 'point', animation: 'pop', message: { id: 'MSG-MAS-048' } }
         : undefined;
-    const intents = [...(help ? [{ ...help, ...(back ? { then: back } : {}) }] : []), ...(back && state.hold?.status === 'BUSY' ? [back] : [])];
+    // v1.9 (CHG-MASCOT-2026-11-27-09): lần lỗi đầu không còn hình trong thông báo; Mila đứng chờ bối rối, không lời —
+    // một Mila trên màn (spec-Mascot §5.1). Lần hai vẫn là câu giúp ở trên
+    const puzzled: Intent | undefined =
+      count === 1
+        ? { behaviorId: event.display === 'INVALID' ? 'MAS-B-046' : 'MAS-B-047', priority: 2, mode: 'DOCK', pose: 'confused', animation: 'tilt' }
+        : undefined;
+    const react = help ?? puzzled;
+    const intents = [...(react ? [{ ...react, ...(back ? { then: back } : {}) }] : []), ...(back && state.hold?.status === 'BUSY' && !react ? [back] : [])];
     return { ...settle, counters, ...(intents.length ? { intents } : {}) };
   }),
 ];

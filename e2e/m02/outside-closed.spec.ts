@@ -64,9 +64,17 @@ test.describe('V14 — tạm đóng (ROUTE, CHECKPOINT) và INVALID: không nộ
     await mockLookup(page, { QX: 'ERROR' });
     await startTrip(page);
     await scan(page, 'QX');
-    await expect(page.getByRole('alert')).toHaveText(vi.notice.connectionNeeded);
+    const notice = page.getByRole('alert');
+    await expect(notice).toContainText(vi.scanNotice.uncheckedTitle);
+    await expect(notice).toContainText(vi.notice.connectionNeeded);
+    await expect(notice).toContainText(vi.scanNotice.notCountedJourney);
     await expect(page.getByText(vi.notice.invalid)).toHaveCount(0);
     await expect(page.getByText(vi.notice.temporarilyClosed)).toHaveCount(0);
+    expect(await visits(page)).toEqual([]);
+    // M02-23: "Thử lại" khi đã có mạng → tra lại đúng mã (QX ngoài hành trình → nội dung live, không lượt ghé)
+    await mockLookup(page);
+    await notice.getByRole('button', { name: vi.scanNotice.retry }).click();
+    await expect(page).toHaveURL(/\/trip\/qr\/QX$/);
     expect(await visits(page)).toEqual([]);
   });
 });

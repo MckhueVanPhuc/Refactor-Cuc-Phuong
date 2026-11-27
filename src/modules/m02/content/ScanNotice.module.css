@@ -4,6 +4,7 @@
  * vạch trái thành khung mảnh đều bốn cạnh trên lớp kính mờ.
  */
 .notice {
+  position: relative;
   display: grid;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
@@ -31,9 +32,65 @@
   margin: 0;
 }
 
-/* Câu thông báo có Mila minh họa bên trái (design-system §9.2 INLINE) */
-.withMila {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
+/* —— CHG-MASCOT-2026-11-27-09: tiêu đề, dòng phụ, nút Thử lại, nút × (design-system §5 "Thông báo kết quả quét") —— */
+.title {
+  margin: 0;
+  padding-right: var(--touch-target);
+  font-weight: var(--font-weight-semibold);
+}
+
+.secondary {
+  margin: 0;
+  font-size: var(--font-size-meta);
+  color: var(--m02-fg-secondary);
+}
+
+/* Có nút × thì chữ đầu tiên chừa chỗ cho nút */
+.dismiss + .text {
+  padding-right: var(--touch-target);
+}
+
+.dismiss {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  color: var(--m02-fg-secondary);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.action {
+  justify-self: start;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-5);
+  font: var(--font-weight-semibold) var(--font-size-body) / 1 var(--font-sans);
+  color: var(--m02-fg);
+  background: transparent;
+  border: var(--border-width-thin) solid var(--notice-accent);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+
+.dismiss:hover,
+.action:hover {
+  background-image: linear-gradient(var(--overlay-surface-hover), var(--overlay-surface-hover));
+}
+
+/* Bề mặt scanner tối: lớp phủ sáng */
+[data-surface='scanner'] .dismiss:hover,
+[data-surface='scanner'] .action:hover {
+  background-image: linear-gradient(var(--overlay-scanner-hover), var(--overlay-scanner-hover));
+}
+
+.dismiss:focus-visible,
+.action:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }

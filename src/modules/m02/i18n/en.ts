@@ -52,6 +52,12 @@ export const en: M02Messages = {
     allScanned: 'Every stop scanned',
     next: 'Next',
   },
+  scanNotice: {
+    uncheckedTitle: "This code couldn't be checked",
+    notCounted: "This scan wasn't counted.",
+    notCountedJourney: "This scan wasn't counted. Your journey below is unchanged.",
+    retry: 'Try again',
+  },
   scanner: {
     title: 'Scan a QR code',
     instruction: "Point the camera at the stop's QR code.",
@@ -72,6 +78,9 @@ export const en: M02Messages = {
   content: {
     outdatedPackage: 'This content comes from an outdated download and may not be the latest.',
     needsNetwork: 'This point needs a network connection to show its content.',
+    downloadHint: "When you're online, open Resources to download this route's pack.",
+    openResources: 'Open Resources',
+    retry: 'Try again',
     mediaError: 'This file cannot be played.',
     play: 'Play',
     pause: 'Pause',

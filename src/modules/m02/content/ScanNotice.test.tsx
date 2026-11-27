@@ -1,5 +1,5 @@
 // ScanNotice (tasks T058; BR-M02-015; FR-M02-013; US-M02-04 mục 2–4) với cổng M01 giả.
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CHECKPOINTS } from '../api/fake/fixtures';
 import { en } from '../i18n/en';
@@ -45,9 +45,30 @@ describe('ScanNotice', () => {
     const { display } = resolveScan({ journey: CHECKPOINTS, qrIdentifier: 'QX', lookup: { kind: 'SOURCE_ERROR' } });
     render(<ScanNotice kind={display.kind as ScanNoticeKind} />);
     const text = screen.getByRole('alert').textContent!;
-    expect(text).toBe(viMessages.notice.connectionNeeded);
+    // v1.9: tiêu đề "Chưa kiểm tra được mã này" rồi câu cố định nguyên văn (CHG-MASCOT-2026-11-27-09)
+    expect(text).toBe(viMessages.scanNotice.uncheckedTitle + viMessages.notice.connectionNeeded);
     expect(text).not.toContain(viMessages.notice.invalid);
     expect(text).not.toContain(viMessages.notice.temporarilyClosed);
+  });
+
+  it('CHG-…-09: chưa kiểm tra được mã → "chưa được tính" theo màn, "Thử lại" và × gọi đúng hành động; không có Mila', () => {
+    const onRetry = vi.fn();
+    const onDismiss = vi.fn();
+    const { rerender } = render(<ScanNotice kind="CONNECTION_NEEDED" notCounted="journey" onRetry={onRetry} onDismiss={onDismiss} />);
+    const notice = screen.getByRole('alert');
+    expect(notice.textContent).toContain(viMessages.scanNotice.notCountedJourney);
+    fireEvent.click(screen.getByRole('button', { name: viMessages.scanNotice.retry }));
+    fireEvent.click(screen.getByRole('button', { name: viMessages.toast.close }));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+    expect(notice.querySelector('[data-mascot-figure]')).toBeNull();
+    rerender(<ScanNotice kind="CONNECTION_NEEDED" notCounted="plain" onRetry={onRetry} />);
+    expect(screen.getByRole('alert').textContent).toContain(viMessages.scanNotice.notCounted);
+    expect(screen.getByRole('alert').textContent).not.toContain(viMessages.scanNotice.notCountedJourney);
+    expect(screen.queryByRole('button', { name: viMessages.toast.close })).toBeNull();
+    // Mã không hợp lệ: không có "Thử lại" (tra lại cũng không đổi kết quả)
+    rerender(<ScanNotice kind="INVALID" onRetry={onRetry} />);
+    expect(screen.queryByRole('button', { name: viMessages.scanNotice.retry })).toBeNull();
   });
 
   it('khách tự do: kèm gợi ý khách tự do', () => {
