@@ -36,6 +36,7 @@ M03 công bố trạng thái công khai của tuyến và hành trình bất bi�
 | `timeTags` | Array của đúng một giá trị Enum(`TIME_NGAN`, `TIME_VUA`, `TIME_DAI`) | Required | **suy ra** từ `durationMin`: ≤ 90 → `TIME_NGAN`; 91–180 → `TIME_VUA`; > 180 → `TIME_DAI` (BR-M03-C11) | không bao giờ là input |
 | `groupTags` | Array Enum | Required, ≥ 1, các giá trị phân biệt | `content.groupTags` | |
 | `experienceTags` | Array Enum | Required, ≥ 1, các giá trị phân biệt | `content.experienceTags` | |
+| `guideTags` | Array Enum | Required, ≥ 1, các giá trị phân biệt | `content.guideTags` | spec-M03 v3.8 (CHG-REC-2026-11-28-01); cột `guide_tags` |
 | `checkpointCount` | Integer ≥ 0 | Required | **suy ra** từ snapshot active | |
 | `hasOfflineRequiredCheckpoint` | Boolean | Required | **suy ra** từ snapshot active | |
 | `hasOfflineRouteMap` | Boolean | Required | **suy ra**: snapshot active có `offlineRouteMap` | |

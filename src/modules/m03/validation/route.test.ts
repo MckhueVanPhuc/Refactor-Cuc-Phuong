@@ -78,7 +78,8 @@ describe('lưu tuyến — BLOCKS_SAVE (BR-M03-C02, C03, L01; spec-M03 §5.3)', 
       targetFieldKey: 'groupTags',
       message: 'Tuyến độ khó Khó không thể gắn nhãn Gia đình có trẻ nhỏ. Hãy đổi độ khó hoặc bỏ nhãn.',
     });
-    expect(keys({ ...base, difficulty: 'KHO', groupTags: ['GROUP_CAN_DE_DANG'] })).toEqual(['MSG-TAG-CONFLICT']);
+    // v3.8: Đi theo đoàn gắn được mọi độ khó (BR-M03-C12)
+    expect(keys({ ...base, difficulty: 'KHO', groupTags: ['GROUP_DI_THEO_DOAN'] })).toEqual([]);
     expect(keys({ ...base, difficulty: 'KHO', groupTags: ['GROUP_CA_NHAN_NGUOI_LON'] })).toEqual([]);
     expect(keys({ ...base, difficulty: 'TRUNG_BINH', groupTags: ['GROUP_GIA_DINH_CO_TRE'] })).toEqual([]);
   });

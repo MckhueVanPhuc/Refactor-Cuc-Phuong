@@ -176,6 +176,37 @@
   outline-offset: var(--focus-ring-offset);
 }
 
+/*
+ * "Bỏ chọn tất cả" (spec-M01 v3.3, E-SCR-M01-002-18): nút chữ phụ cùng kiểu link "Đổi tiêu chí", căn giữa ngay trên
+ * nút lọc; chỉ hiện khi có ý được chọn. Vùng chạm 44 px.
+ */
+.clearAll {
+  --icon-size: var(--space-4);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  justify-self: center;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  font: var(--font-weight-semibold) var(--font-size-meta) var(--font-sans);
+  color: var(--color-m01-amber);
+  text-shadow: 0 var(--space-1) var(--space-3) var(--color-m01-deep);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.clearAll:hover {
+  text-decoration: underline;
+}
+
+.clearAll:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 .submit {
   --icon-size: var(--space-5);
 

@@ -50,12 +50,16 @@ export const en: M01Messages = {
     groupTag: {
       GROUP_CA_NHAN_NGUOI_LON: 'Individuals and adults',
       GROUP_GIA_DINH_CO_TRE: 'Family with young children',
-      GROUP_CAN_DE_DANG: 'Need an easy route',
+      GROUP_DI_THEO_DOAN: 'With a tour group',
     },
     experienceTag: {
       INTEREST_THIEN_NHIEN_CHUP_ANH: 'Nature and photography',
       INTEREST_TIM_HIEU: 'Learning',
       INTEREST_KHAM_PHA: 'Exploration',
+    },
+    guideTag: {
+      GUIDE_CO_HUONG_DAN_VIEN: 'With a guide',
+      GUIDE_TU_THAM_QUAN: 'Self-guided',
     },
   },
 
@@ -66,7 +70,8 @@ export const en: M01Messages = {
     changeChoices: 'Change choices',
     seeAllRoutes: 'See all routes',
     sourceUnavailable: 'Could not load the routes. Check your connection and try again.',
-    groupTitle: { time: 'Time', group: 'Who is going', experience: 'Experience' },
+    groupTitle: { time: 'Time', group: 'Who is going', experience: 'Experience', guide: 'Guide' },
+    clearAll: 'Clear all',
   },
 
   routeDetail: {

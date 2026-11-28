@@ -13,7 +13,8 @@ export type MascotEvent =
   | { type: 'm01.language.changed'; language: Language }
   | { type: 'm01.catalog.loaded'; status: 'ready' | 'unavailable' | 'loading'; count: number; stale: boolean; slow: boolean }
   | { type: 'm01.catalog.interacted' }
-  | { type: 'm01.recommend.opened' }
+  // fromResults: quay lại form từ trang kết quả ("Đổi tiêu chí", Back) — Mila không nói (spec-Mascot v1.11)
+  | { type: 'm01.recommend.opened'; fromResults: boolean }
   | { type: 'm01.recommend.resolved'; count: number }
   | { type: 'm01.routeDetail.startPanelVisible'; routeRef: string; hasSafetyWarning: boolean }
   | { type: 'm01.package.downloadStarted'; routeRef: string; update: boolean }

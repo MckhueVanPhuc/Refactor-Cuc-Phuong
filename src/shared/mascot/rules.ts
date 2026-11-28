@@ -434,8 +434,13 @@ const US7: Rule[] = [
     };
   }),
   // MAS-B-088 + MAS-B-010 (v1.5): Mila đứng cạnh tiêu đề Gợi ý tuyến (DOCK) và mỗi lần mở form đều nói câu gợi ý sau
-  // 400 ms; câu này không cooldown, không tính vào giới hạn câu chủ động (BR-MAS-07)
-  on('MAS-B-010', 'm01.recommend.opened', () => ({ intents: [{ ...RECOMMEND_DOCK, animation: 'enter' }], timers: { recommendHint: 400 } })),
+  // 400 ms; câu này không cooldown, không tính vào giới hạn câu chủ động (BR-MAS-07). v1.11 (CHG-REC-2026-11-28-01):
+  // quay lại từ trang kết quả ("Đổi tiêu chí", Back) thì chỉ đứng, không bong bóng; chạm Mila mới nói (MAS-B-090).
+  on('MAS-B-010', 'm01.recommend.opened', (event) =>
+    event.fromResults
+      ? { intents: [{ ...RECOMMEND_DOCK, animation: 'enter' }], timers: { recommendHint: null } }
+      : { intents: [{ ...RECOMMEND_DOCK, animation: 'enter' }], timers: { recommendHint: 400 } },
+  ),
   onTimer('MAS-B-010:show', 'recommendHint', () => ({
     intents: [
       { behaviorId: 'MAS-B-010', priority: 6, mode: 'DOCK', pose: 'map', animation: 'pop', message: { id: 'MSG-MAS-010' }, everyVisit: true, then: RECOMMEND_SETTLE },

@@ -125,7 +125,7 @@ Với tuyến cần gói offline (`hasOfflineRequiredCheckpoint` hoặc `hasOffl
 
 ### User Story 7 - Recommend routes — US-M01-02, phần gợi ý (Priority: P2)
 
-Du khách chọn một giá trị trong mỗi nhóm trong ba nhóm tag; M01 trả mọi tuyến khớp cả ba nhóm (exact-match), `0..N` kết quả.
+Du khách chọn 0..N giá trị trong mỗi nhóm của bốn nhóm tag (thời gian, đối tượng, trải nghiệm, hướng dẫn viên); trong nhóm HOẶC, giữa các nhóm VÀ, nhóm bỏ trống không lọc; `0..N` kết quả (spec-M01 v3.3, CHG-REC-2026-11-28-01).
 
 **Why this priority**: FN-M01-003 là Should; không chặn đường đi Must.
 

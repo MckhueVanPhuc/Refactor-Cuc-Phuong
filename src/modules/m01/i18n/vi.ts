@@ -56,12 +56,17 @@ export const vi = {
     groupTag: {
       GROUP_CA_NHAN_NGUOI_LON: 'Cá nhân/người lớn',
       GROUP_GIA_DINH_CO_TRE: 'Gia đình có trẻ nhỏ',
-      GROUP_CAN_DE_DANG: 'Cần đi dễ dàng',
+      GROUP_DI_THEO_DOAN: 'Đi theo đoàn',
     },
     experienceTag: {
       INTEREST_THIEN_NHIEN_CHUP_ANH: 'Thiên nhiên, chụp ảnh',
       INTEREST_TIM_HIEU: 'Tìm hiểu',
       INTEREST_KHAM_PHA: 'Khám phá',
+    },
+    // spec-M01 v3.3: nhãn cho du khách (M03 hiện "Đi cùng hướng dẫn viên" / "Tự tham quan được" cho cán bộ)
+    guideTag: {
+      GUIDE_CO_HUONG_DAN_VIEN: 'Cần hướng dẫn viên',
+      GUIDE_TU_THAM_QUAN: 'Tự tham quan',
     },
   },
 
@@ -74,7 +79,9 @@ export const vi = {
     changeChoices: 'Đổi tiêu chí',
     seeAllRoutes: 'Xem tất cả tuyến',
     sourceUnavailable: 'Chưa tải được danh sách tuyến. Hãy kiểm tra kết nối và thử lại.',
-    groupTitle: { time: 'Thời gian', group: 'Đối tượng', experience: 'Trải nghiệm' },
+    groupTitle: { time: 'Thời gian', group: 'Đối tượng', experience: 'Trải nghiệm', guide: 'Hướng dẫn viên' },
+    // Bỏ mọi ý đã chọn ở cả bốn nhóm (E-SCR-M01-002-18)
+    clearAll: 'Bỏ chọn tất cả',
   },
 
   // SCR-M01-003

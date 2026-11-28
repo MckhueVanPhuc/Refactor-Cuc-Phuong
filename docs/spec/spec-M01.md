@@ -5,14 +5,14 @@
 | Field | Value |
 |---|---|
 | Module | M01 — Route Planning & Preparation |
-| Version | 3.2 |
-| Status | MVP implementation baseline — aligned to M03 v3.7 and M02 v3.3 |
-| Supersedes | 3.1 (previous repository baseline: 2.0) |
-| Last updated | 2026-10-29 |
+| Version | 3.3 |
+| Status | MVP implementation baseline — aligned to M03 v3.8 and M02 v3.3 |
+| Supersedes | 3.2 (previous repository baseline: 2.0) |
+| Last updated | 2026-11-28 |
 | Primary consumers | Visitor web app, M02 |
 | Upstream system | M03 |
 
-This specification is self-contained and is the implementation source of truth for M01. UI mockups, physical API/database schemas and deployment details may refine implementation but must not change the behavior or contracts defined here without updating this document. Where M01 consumes a contract produced by M03, the M03 specification (v3.7) is the producer baseline and this document mirrors its shape.
+This specification is self-contained and is the implementation source of truth for M01. UI mockups, physical API/database schemas and deployment details may refine implementation but must not change the behavior or contracts defined here without updating this document. Where M01 consumes a contract produced by M03, the M03 specification (v3.8) is the producer baseline and this document mirrors its shape.
 
 ## 1. Purpose & Scope
 
@@ -24,7 +24,7 @@ M01 lets a visitor choose a language and route, read what a route offers, receiv
 
 - Select and change Vietnamese/English language.
 - Browse active routes as cards and open route details (images, descriptions, starting point, requirements, safety warning).
-- Recommend all routes matching three selected tag groups.
+- Recommend routes by four optional tag groups (time, visitor group, experience, guide), several values allowed per group.
 - Detect whether a route needs an offline package (it has `OFFLINE_REQUIRED` checkpoints or an offline route map).
 - Download, inspect, update and delete offline packages, including the essential route texts saved with them.
 - Show an estimated package size when M03 provides one.
@@ -77,7 +77,7 @@ M01 never writes M03-owned data. M02 never writes M01-owned data.
 ### US-M01-02 — Browse and recommend routes
 
 1. Given published data is available, when the visitor opens the catalog, then only routes with `status = HOAT_DONG` and a valid `activeContentVersion` appear, each as a card showing thumbnail, localized name and short description, distance, duration, difficulty, number of checkpoints and a mark when an offline package is needed.
-2. Given one valid value from each recommendation group, when recommendation runs, then every returned route contains all three selected tags.
+2. Given zero or more valid values in each of the four recommendation groups, when recommendation runs, then every returned route has, in every group where at least one value is chosen, at least one of the chosen values; a group with no value chosen does not filter; with no value chosen in any group, every selectable route is returned.
 3. Given no route matches, then an empty result is shown without weakening the criteria.
 4. Given a card image cannot be loaded, then a neutral placeholder is shown and the card stays usable.
 
@@ -137,8 +137,8 @@ flowchart TD
 ### 4.2 Route Discovery & Recommendation
 
 - Catalog input is the published Route projection from M03; it carries everything needed for cards and details.
-- Recommendation input requires exactly one `timeTag`, `groupTag` and `experienceTag`.
-- Matching is set containment across all three groups. A route's `timeTags` always holds exactly one value, derived by M03 from the route's expected duration; M01 matches it as given and never recomputes it.
+- Recommendation input holds zero or more distinct values in each of four groups: `timeTag`, `groupTag`, `experienceTag`, `guideTag`.
+- Matching: within a group the chosen values are alternatives (OR); across groups every group with a chosen value must match (AND); a group with no chosen value does not filter. With no value chosen in any group, every selectable route is returned. A route's `timeTags` always holds exactly one value, derived by M03 from the route's expected duration; M01 matches it as given and never recomputes it.
 - Results are not scored, sorted by relevance or capped by business rules.
 - A zero-result outcome offers criterion changes or catalog return.
 
@@ -238,7 +238,7 @@ stateDiagram-v2
 | FR-M01-001 | Select/change `vi` or `en` on any visitor screen, including the M02 QR link page | Persist and publish current preference; update available UI/content immediately. The normal entry asks for a language when none is stored; the QR link entry uses the device language without asking. | Reject unsupported value. |
 | FR-M01-002 | Open/refresh catalog | Show only `HOAT_DONG` routes with a valid published snapshot, each as a card: thumbnail, localized name and short description, distance, duration, difficulty, checkpoint count and an offline-needed mark. | Keep last local view when offline; do not claim it is current. An image that cannot load shows a neutral placeholder. |
 | FR-M01-003 | Select route | Show localized name, full description, starting point and how to get there, distance, duration, difficulty, gallery (first image is the cover), highlights, the checkpoint names in order, and, when present, participation requirements, preparation, best time, route map and the safety warning (prominent). | Do not synthesize missing public fields; hide absent optional fields. When offline, show the saved essential texts (FR-M01-014) and placeholders for images. |
-| FR-M01-004 | Three valid criteria | Return all active routes matching all three tags; support zero results. | Invalid/missing input prevents matching. |
+| FR-M01-004 | Zero or more valid values per group, four groups | Return all active routes that, in every group with a chosen value, carry at least one chosen value; support zero results. A tapped chosen value is removed; "Clear all" removes every chosen value. | Unknown values are ignored. A route value that M01 does not know is ignored rather than rejecting the route; a route without `guideTags` matches only when no guide value is chosen. |
 | FR-M01-005 | Select route | The route needs an offline package when `hasOfflineRequiredCheckpoint` or `hasOfflineRouteMap` is `true`; inspect package readiness/version. | Treat unreadable package as not ready. If the downloaded snapshot disagrees with the flags, follow the snapshot. |
 | FR-M01-006 | Package missing | Offer Download, Continue without download or Back, naming the checkpoints whose content may be unavailable and showing the estimated size (labelled as an estimate) when `estimatedOfflineSizeBytes` is present or "size not available" when it is absent; Continue still obeys Start guards. State that without network check-in works with the Scan button in the app. | No implicit choice; an absent estimate never blocks Download. |
 | FR-M01-007 | Download requested online | Fetch the current immutable snapshot, the offline resources of every QR of its offline-required checkpoints, the offline route map when present, and the essential route texts. | Do not publish partial data. |
@@ -256,7 +256,7 @@ Contract presence uses these terms: **Required** means the field and a value are
 
 #### Published Route input
 
-This is the Published Route projection produced by M03; its shape is identical to M03 v3.7. It exists only for routes that have been published at least once.
+This is the Published Route projection produced by M03; its shape is identical to M03 v3.8. It exists only for routes that have been published at least once.
 
 | Field path | Logical type | Presence | Constraints |
 |---|---|---|---|
@@ -297,8 +297,9 @@ This is the Published Route projection produced by M03; its shape is identical t
 | `durationMin` | Integer | Required | Greater than `0` and at most 1440; expected duration. |
 | `difficulty` | Enum(`NHE`, `TRUNG_BINH`, `KHO`) | Required | — |
 | `timeTags` | Array&lt;Enum(`TIME_NGAN`, `TIME_VUA`, `TIME_DAI`)&gt; | Required | Exactly one value, derived by M03 from `durationMin`. |
-| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Required | At least one allowed value; values are distinct. |
+| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_DI_THEO_DOAN`)&gt; | Required | At least one allowed value; values are distinct. |
 | `experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Required | At least one allowed value; values are distinct. |
+| `guideTags` | Array&lt;Enum(`GUIDE_CO_HUONG_DAN_VIEN`, `GUIDE_TU_THAM_QUAN`)&gt; | Required | At least one allowed value; values are distinct (M03 v3.8). Consumer tolerance: an absent array is treated as empty. |
 | `checkpointCount` | Integer | Required | Number of active checkpoints in the active snapshot; `>= 0`. |
 | `hasOfflineRequiredCheckpoint` | Boolean | Required | `true` when the active snapshot contains at least one `OFFLINE_REQUIRED` checkpoint. |
 | `hasOfflineRouteMap` | Boolean | Required | `true` when the active snapshot contains an `offlineRouteMap`. |
@@ -313,12 +314,13 @@ Only `HOAT_DONG` with a non-null `activeContentVersion` is selectable. Other sta
 Allowed recommendation values:
 
 - `timeTags`: `TIME_NGAN` (≤ 90 minutes), `TIME_VUA` (> 90–180 minutes), `TIME_DAI` (> 180 minutes).
-- `groupTags`: `GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG` (for visitors who need an easy route).
+- `groupTags`: `GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_DI_THEO_DOAN` (visitors travelling with a tour group). `GROUP_CAN_DE_DANG` is retired in M03 v3.8 and never returned.
 - `experienceTags`: `INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`.
+- `guideTags`: `GUIDE_CO_HUONG_DAN_VIEN` (the route can be walked with a guide; shown to visitors as "Cần hướng dẫn viên" / "With a guide"), `GUIDE_TU_THAM_QUAN` (the route can be walked without a guide; "Tự tham quan" / "Self-guided").
 
 #### JourneySnapshot input
 
-This is the immutable snapshot produced by M03; its shape is identical to M03 v3.7. It carries journey data only, plus the route-map image when M03 marks it as needed offline. Audio and video never appear in it.
+This is the immutable snapshot produced by M03; its shape is identical to M03 v3.8. It carries journey data only, plus the route-map image when M03 marks it as needed offline. Audio and video never appear in it.
 
 | Field path | Logical type | Presence | Constraints |
 |---|---|---|---|
@@ -425,7 +427,7 @@ The handoff contains journey metadata only. Offline text/images remain in `Offli
 
 | Area | Validation |
 |---|---|
-| Route | Active status, published version, bilingual name/short description/description/starting point, thumbnail present, positive distance/duration, exactly one time tag, at least one allowed value in each other tag group, both-or-none optional texts. |
+| Route | Active status, published version, bilingual name/short description/description/starting point, thumbnail present, positive distance/duration, exactly one time tag, at least one allowed value in `groupTags` and `experienceTags`, both-or-none optional texts. `guideTags` and tag values M01 does not know never make a route invalid (FR-M01-004). |
 | Snapshot | Published, version matches route, all checkpoint IDs/sequence unique, bilingual checkpoint names, QR arrays non-empty. |
 | Offline resource | Only offline-required checkpoints; exactly one resource per QR identifier of each such checkpoint; both languages present; every declared image readable. |
 | Offline route map | When the snapshot carries it, the declared image is readable and stored. |
@@ -456,7 +458,7 @@ The handoff contains journey metadata only. Offline text/images remain in `Offli
 |---|---|
 | BR-M01-001 | Only `vi` and `en` are supported; language changes do not change package state. M01 is the only writer of `LanguagePreference`; its language control is reused on every visitor screen, including the M02 QR link page, where the device language applies until a choice is stored. |
 | BR-M01-002 | Catalog and recommendations only use routes active with a published version. |
-| BR-M01-003 | Recommendation matches all three tag groups, returns 0..N routes and never auto-relaxes criteria. |
+| BR-M01-003 | Recommendation takes 0..N values per group across four groups (time, visitor group, experience, guide); OR within a group, AND across groups with a chosen value, no filter for an empty group; returns 0..N routes and never auto-relaxes criteria. |
 | BR-M01-004 | A package covers one route/version, the full manifest, one resource for every QR of every offline-required checkpoint, the offline route map when the snapshot carries one, and the essential route texts. |
 | BR-M01-005 | Package completeness and version freshness are separate concerns. |
 | BR-M01-006 | An old ready package stays usable while a new candidate is prepared or fails. |
@@ -492,7 +494,7 @@ A checkpoint is created and published once in M03 and may be listed by several r
 |---|---|---|
 | Route | Canonical published fields in §5.3 | M03; M01 reads |
 | Checkpoint | `checkpointId`, `sequence` (position in this route's list), bilingual `checkpointName`, `connectivityMode`, `qrIdentifiers[]`; the earlier term `QRCheckpoint` refers to this snapshot projection and is not a separate entity | M03; snapshot copied by M01 |
-| RecommendationContext | One value from each tag group | M01 |
+| RecommendationContext | Zero or more distinct values in each of four tag groups | M01 |
 | SelectedRouteContext | v3 handoff, expiry and manifest | M01 |
 | OfflinePackage | Route/version, readiness/freshness, manifest/resources, optional offline route map, route essentials | M01 |
 | OfflineResource | `qrIdentifier`, `checkpointId`, bilingual object name and introduction, images (one per QR of an offline-required checkpoint) | M01 local copy; source M03 |
@@ -530,7 +532,7 @@ These constraints are required regardless of the physical browser/database desig
 | Language control | VI/EN switch shown on every visitor screen, including the M02 QR link page. |
 | Route catalog | Browse active routes as cards (thumbnail, name, short description, distance, duration, difficulty, checkpoint count, offline-needed mark) and open recommendation. |
 | Route details | Show gallery, full description, starting point, participation requirements, preparation, best time, highlights, route map, prominent safety warning and the checkpoint names in order; show offline need/package state and Start. Offline: show the saved essential texts with their saved time. |
-| Recommendation | Capture three criteria and display 0..N results. |
+| Recommendation | Capture up to four optional criteria groups (several values each, tap again to deselect, "Clear all") and display 0..N results. |
 | Offline decision | Name the checkpoints whose content may be unavailable, show the estimated size (labelled as an estimate) or that it is not available, say that without network check-in works with the Scan button in the app, and offer Download, continue without download or return. |
 | Resource management | View package status/version, when the essential texts were saved, whether an offline route map is included, download/update and delete. |
 
@@ -541,7 +543,7 @@ Exact layout, component design and navigation polish are separate UI design conc
 | ID | Criterion |
 |---|---|
 | SC-M01-001 | Every selectable route is active and backed by a published snapshot. |
-| SC-M01-002 | Every recommendation result matches all three chosen tag groups. |
+| SC-M01-002 | Every recommendation result carries, in every group with a chosen value, at least one chosen value; with nothing chosen, results equal the selectable routes. |
 | SC-M01-003 | A package is exposed as ready only when complete for its manifest. |
 | SC-M01-004 | Update failure never removes the previous ready package. |
 | SC-M01-005 | Every successful Start writes one complete v3 context with a new UUID handoff and an expiry 24 hours after authorization. |
@@ -623,14 +625,14 @@ None of these may redefine the business contracts or state transitions above.
 
 | Contract | Producer guarantee | Consumer expectation |
 |---|---|---|
-| Published Route | M03 exposes only complete published route projections in the shape of M03 v3.7. The projection may carry `HOAT_DONG`, `TAM_DONG`, or `LUU_TRU`; only `HOAT_DONG` with a non-null `activeContentVersion` is selectable by M01. | M01 does not repair incomplete public data and hides absent optional fields. |
+| Published Route | M03 exposes only complete published route projections in the shape of M03 v3.8. The projection may carry `HOAT_DONG`, `TAM_DONG`, or `LUU_TRU`; only `HOAT_DONG` with a non-null `activeContentVersion` is selectable by M01. | M01 does not repair incomplete public data and hides absent optional fields. |
 | JourneySnapshot | M03 includes all active checkpoints, one conditional offline resource per QR of offline-required checkpoints, the optional offline route map and the optional size estimate, with consecutive version numbers per route. | M01 copies it without reconstructing the journey and tolerates a missing estimate. |
 | SelectedRouteContext v3 | M01 writes a complete atomic one-use handoff with an `expiresAt` 24 hours after `authorizedAt`. | M02 validates version 3/status/uniqueness/expiry before creating a session and rejects version 2. |
 | OfflinePackage | M01 exposes only active `SAN_SANG` data. | M02 never reads staging/partial packages and reads offline content per QR. |
 | Route essentials | M01-owned point-in-time copy of route texts. | Not a contract with M03 or M02; never presented as current when shown offline. |
 | LanguagePreference at QR link entry | M01 language control, reused on the M02 QR link page. | M02 uses the stored preference or, when none exists, the device language; M01 stays the only writer. |
 
-M03 v3.5, v3.6 and v3.7 change no contract consumed by M01. M03 v3.6 prints QR codes as public links that M02 serves; M01 supports that entry with its language control and its cached app shell (§12).
+M03 v3.5, v3.6 and v3.7 change no contract consumed by M01. M03 v3.8 changes the Published Route tags (`guideTags`, `GROUP_DI_THEO_DOAN`); JourneySnapshot is unchanged. M03 v3.6 prints QR codes as public links that M02 serves; M01 supports that entry with its language control and its cached app shell (§12).
 
 ### 11.3 Completion Checklist
 
@@ -642,7 +644,7 @@ M03 v3.5, v3.6 and v3.7 change no contract consumed by M01. M03 v3.6 prints QR c
 - [x] Handoff version 3 and its 24-hour expiry are specified.
 - [x] FRs, entities, screens and success criteria are internally linked.
 - [x] No external requirements document is needed to implement M01.
-- [x] Published Route and JourneySnapshot inputs mirror the M03 v3.7 producer contracts.
+- [x] Published Route and JourneySnapshot inputs mirror the M03 v3.8 producer contracts.
 - [x] M02 v3.3 aligned to `SelectedRouteContext v3`, per-QR offline resources and the live QR lookup result.
 
 ### 11.4 US → FR → BR → SC Traceability
@@ -660,6 +662,7 @@ M03 v3.5, v3.6 and v3.7 change no contract consumed by M01. M03 v3.6 prints QR c
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.3 | 2026-11-28 | CHG-REC-2026-11-28-01. Recommendation takes zero or more values per group across four groups; OR within a group, AND across groups, an empty group does not filter, nothing chosen returns every selectable route (US-M01-02, §4.2, FR-M01-004, BR-M01-003, SC-M01-002, RecommendationContext). Published Route input mirrors M03 v3.8: new `guideTags`; `groupTags` replaces `GROUP_CAN_DE_DANG` with `GROUP_DI_THEO_DOAN`. M01 tolerates an absent `guideTags` and unknown tag values during the rollout. |
 | 3.2 (clarification 3) | 2026-10-29 | Review-checklist decisions: new provisional `SOURCE_REQUEST_TIMEOUT_SECONDS` = 8 for source requests (§5.4, §9.3); a repeated Start creates no second context (FR-M01-012); a storage failure tells the visitor the download did not complete (§5.4); progress detail, size display format, notice wording and performance targets are deferred design work (§10.2). No contract change. |
 | 3.2 (clarification 2) | 2026-10-28 | §5.3 Published Route input: the range of `distanceKm` (at most 100, one decimal place) and `durationMin` (at most 1440) and distinct tag values mirror M03 v3.7 (clarification 3). The M01 consumer behavior and the contract shape are unchanged. |
 | 3.2 (clarification) | 2026-10-28 | §6.1, §6.2, §11.1: OfflineRouteMap and RouteEssentials are stated as values embedded in `OfflinePackage`, not entities; the ER no longer draws them (matches §6.4; Entity Dictionary HC-005). Clarification only; no behavior or contract change. |

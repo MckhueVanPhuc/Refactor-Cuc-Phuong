@@ -37,12 +37,17 @@ export const DISPLAY_NAMES = {
   groupTag: {
     GROUP_CA_NHAN_NGUOI_LON: 'Cá nhân/người lớn',
     GROUP_GIA_DINH_CO_TRE: 'Gia đình có trẻ nhỏ',
-    GROUP_CAN_DE_DANG: 'Cần đi dễ dàng',
+    GROUP_DI_THEO_DOAN: 'Đi theo đoàn',
   },
   experienceTag: {
     INTEREST_THIEN_NHIEN_CHUP_ANH: 'Thiên nhiên, chụp ảnh',
     INTEREST_TIM_HIEU: 'Tìm hiểu',
     INTEREST_KHAM_PHA: 'Khám phá',
+  },
+  // spec-M03 v3.8 §5.1
+  guideTag: {
+    GUIDE_CO_HUONG_DAN_VIEN: 'Đi cùng hướng dẫn viên',
+    GUIDE_TU_THAM_QUAN: 'Tự tham quan được',
   },
 } as const;
 

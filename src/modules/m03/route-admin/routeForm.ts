@@ -7,6 +7,7 @@ import type {
   DraftBilingual,
   ExperienceTag,
   GroupTag,
+  GuideTag,
   RouteContent,
   RouteEditor,
 } from '../contracts/adminDtos';
@@ -43,6 +44,7 @@ export type RouteForm = {
   difficulty: Difficulty | '';
   groupTags: GroupTag[];
   experienceTags: ExperienceTag[];
+  guideTags: GuideTag[];
   thumbnail: RouteImage | null;
   gallery: { image: RouteImage; caption: Pair }[];
   routeMap: RouteImage | null;
@@ -78,6 +80,7 @@ export const EMPTY_ROUTE_FORM: RouteForm = {
   difficulty: '',
   groupTags: [],
   experienceTags: [],
+  guideTags: [],
   thumbnail: null,
   gallery: [],
   routeMap: null,
@@ -91,7 +94,7 @@ export const EMPTY_ROUTE_FORM: RouteForm = {
 export function stepOf(fieldKey: string): StepId {
   const base = fieldKey.split('.')[0] ?? '';
   if (['thumbnailMediaId', 'name', 'shortDescription', 'distanceKm', 'durationMin', 'difficulty'].includes(base)) return 'card';
-  if (['groupTags', 'experienceTags'].includes(base)) return 'tags';
+  if (['groupTags', 'experienceTags', 'guideTags'].includes(base)) return 'tags';
   if (base === 'checkpointList') return 'checkpoints';
   return 'details';
 }
@@ -132,6 +135,7 @@ export function toRouteContent(form: RouteForm): RouteContent {
     offlineRouteMapRequired: Boolean(form.routeMap) && form.offlineRouteMapRequired,
     groupTags: form.groupTags,
     experienceTags: form.experienceTags,
+    guideTags: form.guideTags,
     galleryItems: form.gallery.map(({ image, caption }) => {
       const value = bilingual(caption);
       return value ? { mediaId: image.mediaId, caption: value } : { mediaId: image.mediaId };
@@ -203,6 +207,7 @@ export function fromRouteEditor(editor: RouteEditor): RouteForm {
     difficulty: content.difficulty ?? '',
     groupTags: content.groupTags ?? [],
     experienceTags: content.experienceTags ?? [],
+    guideTags: content.guideTags ?? [],
     thumbnail: image(content.thumbnailMediaId),
     gallery: (content.galleryItems ?? []).flatMap((item) => {
       const found = image(item.mediaId);

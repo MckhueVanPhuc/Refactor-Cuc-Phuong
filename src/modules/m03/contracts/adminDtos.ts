@@ -18,8 +18,10 @@ export type QrStatus = 'NHAP' | 'HOAT_DONG' | 'THU_HOI';
 export type RevisionStatus = 'NHAP' | 'PHAT_HANH' | 'LUU_TRU' | 'DA_BO';
 export type ConnectivityMode = 'ONLINE_AVAILABLE' | 'OFFLINE_REQUIRED';
 export type Difficulty = 'NHE' | 'TRUNG_BINH' | 'KHO';
-export type GroupTag = 'GROUP_CA_NHAN_NGUOI_LON' | 'GROUP_GIA_DINH_CO_TRE' | 'GROUP_CAN_DE_DANG';
+// spec-M03 v3.8 (CHG-REC-2026-11-28-01): GROUP_DI_THEO_DOAN thay GROUP_CAN_DE_DANG; thêm nhóm hướng dẫn viên
+export type GroupTag = 'GROUP_CA_NHAN_NGUOI_LON' | 'GROUP_GIA_DINH_CO_TRE' | 'GROUP_DI_THEO_DOAN';
 export type ExperienceTag = 'INTEREST_THIEN_NHIEN_CHUP_ANH' | 'INTEREST_TIM_HIEU' | 'INTEREST_KHAM_PHA';
+export type GuideTag = 'GUIDE_CO_HUONG_DAN_VIEN' | 'GUIDE_TU_THAM_QUAN';
 export type AdminRole = 'CONTENT_STAFF' | 'REVIEWER';
 export type AccountStatus = 'INVITATION_PENDING' | 'ACTIVE' | 'DEACTIVATED';
 export type SubjectType = 'ROUTE' | 'CHECKPOINT' | 'QRCODE';
@@ -47,6 +49,7 @@ export type RouteContent = {
   difficulty?: Difficulty;
   groupTags?: GroupTag[];
   experienceTags?: ExperienceTag[];
+  guideTags?: GuideTag[];
   thumbnailMediaId?: string;
   galleryItems?: { mediaId: string; caption?: DraftBilingual }[];
   routeMapMediaId?: string;

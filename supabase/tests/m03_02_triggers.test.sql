@@ -35,8 +35,8 @@ select is(pg_temp.problems('ROUTE', pg_temp.route('{"groupTags": ["GROUP_CA_NHAN
   'tags are distinct (DAC-M03-034)');
 select is(pg_temp.problems('ROUTE', pg_temp.route('{"difficulty": "KHO", "groupTags": ["GROUP_GIA_DINH_CO_TRE"]}')), '{groupTags}',
   'KHO with family tag is contradictory (DAC-M03-035)');
-select is(pg_temp.problems('ROUTE', pg_temp.route('{"difficulty": "KHO", "groupTags": ["GROUP_CAN_DE_DANG"]}')), '{groupTags}',
-  'KHO with easy-access tag is contradictory');
+select is(pg_temp.problems('ROUTE', pg_temp.route('{"difficulty": "KHO", "groupTags": ["GROUP_DI_THEO_DOAN"]}')), '{}',
+  'KHO with the tour-group tag is fine (spec-M03 v3.8, BR-M03-C12)');
 select is(pg_temp.problems('ROUTE', pg_temp.route('{"difficulty": "TRUNG_BINH", "groupTags": ["GROUP_GIA_DINH_CO_TRE"]}')), '{}',
   'family tag with another difficulty is fine');
 select is(pg_temp.problems('ROUTE', pg_temp.route(jsonb_build_object('galleryItems',

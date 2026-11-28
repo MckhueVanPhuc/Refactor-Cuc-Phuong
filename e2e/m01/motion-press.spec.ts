@@ -53,8 +53,8 @@ test('M1: nhấn giữ một ô tiêu chí ở Gợi ý tuyến → co lại', a
   await page.getByRole('link', { name: 'Gợi ý tuyến' }).click();
   // Bong bóng gợi ý của Mila hiện sau 400 ms và đẩy form xuống một lần: chờ nó trước khi nhấn
   await expect(page.locator('[data-mascot-message="MSG-MAS-010"]')).toBeVisible();
-  // Radio trong suốt đè lên ô chữ (ô kính) nhận con trỏ; ô chữ là phần co lại
-  const radio = page.getByRole('radio', { name: /Ngắn/ });
+  // Ô chọn (checkbox) trong suốt đè lên ô chữ (ô kính) nhận con trỏ; ô chữ là phần co lại (spec-M01 v3.3)
+  const radio = page.getByRole('checkbox', { name: /Ngắn/ });
   const pressed = await pressAndRead(page, radio, (el) => el.nextElementSibling!);
   expect(pressed).toMatch(/^matrix\(0\.9[0-9]+/);
 });
@@ -63,6 +63,6 @@ test('M2: giảm chuyển động → không co (chỉ lớp phủ màu)', async
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await openCatalog(page);
   await page.getByRole('link', { name: 'Gợi ý tuyến' }).click();
-  const radio = page.getByRole('radio', { name: /Ngắn/ });
+  const radio = page.getByRole('checkbox', { name: /Ngắn/ });
   expect(await pressAndRead(page, radio, (el) => el.nextElementSibling!)).toBe('none');
 });

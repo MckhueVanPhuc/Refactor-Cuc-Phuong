@@ -37,7 +37,7 @@ Tài liệu này chỉ tóm tắt ranh giới MVP. Khi có khác biệt, module 
 |---|---|---|---|
 | FN-M01-001 | Language Preference | Chọn, lưu và chia sẻ ngôn ngữ `vi/en`; nút đổi ngôn ngữ có trên mọi màn du khách; vào từ link QR thì dùng ngôn ngữ của máy, không chặn. | Must |
 | FN-M01-002 | Route Discovery | Thẻ tuyến và trang chi tiết tuyến (ảnh, mô tả, điểm xuất phát, yêu cầu, cảnh báo an toàn, tên các điểm dừng theo thứ tự) của các tuyến đang hoạt động. | Must |
-| FN-M01-003 | Route Recommendation | Exact-match đồng thời ba nhóm tag và trả `0..N` kết quả; nhãn thời gian do M03 suy ra. | Should |
+| FN-M01-003 | Route Recommendation | Lọc theo bốn nhóm tag tùy chọn (thời gian, đối tượng, trải nghiệm, hướng dẫn viên): trong nhóm HOẶC, giữa các nhóm VÀ, nhóm bỏ trống không lọc; trả `0..N` kết quả; nhãn thời gian do M03 suy ra (CHG-REC-2026-11-28-01). | Should |
 | FN-M01-004 | Offline Need & Decision | Xác định nhu cầu offline (điểm dừng cần tải trước hoặc sơ đồ tuyến offline), hiện dung lượng ước tính, cho phép Download, Continue hoặc Back và hướng dẫn quét bằng nút trong app khi không có mạng. | Should* |
 | FN-M01-005 | Offline Package Lifecycle | Tải gói theo từng mã QR, sơ đồ tuyến offline và chữ cốt lõi của tuyến; kiểm tra, publish atomic, cập nhật và xóa gói local; giữ bản cũ nếu cập nhật lỗi. | Should* |
 | FN-M01-006 | Route Start & Handoff | Kiểm tra điều kiện Start online/offline và tạo `SelectedRouteContext v3` dùng một lần, hạn 24 giờ. | Must |
@@ -121,7 +121,7 @@ Chuyển động phản hồi, chuyển cảnh và trang trí trên SCR-M01-001�
 
 | Capability | Phạm vi | Ghi chú |
 |---|---|---|
-| AI/ML recommendation, scoring hoặc relevance ranking | M01 | MVP chỉ exact-match ba nhóm tag. |
+| AI/ML recommendation, scoring hoặc relevance ranking | M01 | MVP chỉ lọc theo tag (HOẶC trong nhóm, VÀ giữa nhóm), không chấm điểm. |
 | Ép tải package hoặc offline audio/video | M01 | Du khách có thể tiếp tục khi online; package chỉ gồm chữ, ảnh tĩnh và sơ đồ tuyến khi được đánh dấu. |
 | Đồng bộ/recovery package hoặc tiến độ qua tài khoản, thiết bị hay trình duyệt khác | M01/M02 | Dữ liệu visitor chỉ lưu trên trình duyệt hiện tại. |
 | Khuyến khích cài app lên màn hình chính iPhone | M01/M02 | App đã cài trên iOS không nhận link mở từ camera và có dữ liệu riêng. |

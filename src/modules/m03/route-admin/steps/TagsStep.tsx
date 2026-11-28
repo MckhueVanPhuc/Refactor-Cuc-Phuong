@@ -1,8 +1,9 @@
-// Bước 3 "Nhãn" (tasks T111): nhãn nhóm, nhãn trải nghiệm; nhãn thời gian chỉ đọc, suy từ thời lượng (BR-M03-C11, C12).
+// Bước 3 "Nhãn" (tasks T111): nhãn nhóm, nhãn trải nghiệm, nhãn hướng dẫn viên (spec-M03 v3.8); nhãn thời gian chỉ đọc, suy từ thời lượng (BR-M03-C11, C12).
 import { Checkbox } from '../../../../shared/ui/Checkbox';
-import type { ExperienceTag, GroupTag } from '../../contracts/adminDtos';
+import type { ExperienceTag, GroupTag, GuideTag } from '../../contracts/adminDtos';
 import { DISPLAY_NAMES } from '../../messages/displayNames';
 import { FIELD_LABELS } from '../../messages/fieldLabels';
+import { HINTS } from '../../messages/hints';
 import { timeTagName } from '../../validation/routeDerived';
 import { parseNumber } from '../routeForm';
 import type { StepProps } from './shared';
@@ -16,6 +17,7 @@ function TagGroup<T extends string>({
   onChange,
   error,
   readOnly,
+  hint,
 }: {
   fieldKey: string;
   legend: string;
@@ -24,10 +26,22 @@ function TagGroup<T extends string>({
   onChange: (tags: T[]) => void;
   error: string | undefined;
   readOnly: boolean;
+  hint?: string;
 }) {
+  const hintId = `${fieldKey}-hint`;
   return (
-    <fieldset className={styles.group} data-field-key={fieldKey} tabIndex={-1}>
+    <fieldset
+      className={styles.group}
+      data-field-key={fieldKey}
+      tabIndex={-1}
+      {...(hint ? { 'aria-describedby': hintId } : {})}
+    >
       <legend className={styles.groupLabel}>{legend}</legend>
+      {hint ? (
+        <p id={hintId} className={styles.derived}>
+          {hint}
+        </p>
+      ) : null}
       <div className={styles.tags}>
         {(Object.entries(names) as [T, string][]).map(([tag, name]) => (
           <Checkbox
@@ -65,6 +79,16 @@ export function TagsStep({ form, update, errorFor, readOnly }: StepProps) {
         onChange={(experienceTags) => update((current) => ({ ...current, experienceTags }))}
         error={errorFor('experienceTags')}
         readOnly={readOnly}
+      />
+      <TagGroup<GuideTag>
+        fieldKey="guideTags"
+        legend={FIELD_LABELS.ROUTE.guideTags}
+        names={DISPLAY_NAMES.guideTag}
+        selected={form.guideTags}
+        onChange={(guideTags) => update((current) => ({ ...current, guideTags }))}
+        error={errorFor('guideTags')}
+        readOnly={readOnly}
+        hint={HINTS.guideTags}
       />
       <p className={styles.derived}>Nhãn thời gian: {timeTagName(parseNumber(form.durationMin))}</p>
     </>

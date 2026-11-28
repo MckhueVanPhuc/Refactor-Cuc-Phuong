@@ -6,7 +6,7 @@
 // - Cột nullable của trường Optional: `null` → bỏ property (contract coi Optional là vắng mặt).
 // - Cột Required là null hay cột lạ ngoài danh sách được để nguyên, nên schema strict từ chối dòng (không sửa dữ liệu).
 import { journeySnapshotSchema, type JourneySnapshot } from './journeySnapshot';
-import { publishedRouteSchema, type PublishedRoute } from './publishedRoute';
+import { publishedRouteConsumerSchema, type PublishedRoute } from './publishedRoute';
 
 type ColumnMap = Readonly<Record<string, { key: string; optional: boolean }>>;
 
@@ -35,6 +35,8 @@ const PUBLISHED_ROUTE_MAP = columnMap([
   ['time_tags', 'timeTags'],
   ['group_tags', 'groupTags'],
   ['experience_tags', 'experienceTags'],
+  // spec-M03 v3.8; cột thêm cuối view (migration 20261128090000_rec_01)
+  ['guide_tags', 'guideTags'],
   ['checkpoint_count', 'checkpointCount'],
   ['has_offline_required_checkpoint', 'hasOfflineRequiredCheckpoint'],
   ['has_offline_route_map', 'hasOfflineRouteMap'],
@@ -84,10 +86,13 @@ export function journeySnapshotFromRow(row: Record<string, unknown>): Record<str
   return mapRow(row, ACTIVE_JOURNEY_SNAPSHOT_MAP);
 }
 
-/** Dòng view → Published Route đã kiểm; dòng không hợp lệ → `null` (spec-M01 §5.4, §11.2: không sửa, không dùng). */
+/**
+ * Dòng view → Published Route đã kiểm; dòng không hợp lệ → `null` (spec-M01 §5.4, §11.2: không sửa, không dùng).
+ * Tag lạ bị bỏ và `guideTags` vắng thành rỗng thay vì loại tuyến (spec-M01 v3.3 FR-M01-004, brief D9).
+ */
 export function parsePublishedRouteRow(row: unknown): PublishedRoute | null {
   if (!isRecord(row)) return null;
-  const result = publishedRouteSchema.safeParse(publishedRouteFromRow(row));
+  const result = publishedRouteConsumerSchema.safeParse(publishedRouteFromRow(row));
   return result.success ? result.data : null;
 }
 

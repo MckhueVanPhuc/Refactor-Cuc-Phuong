@@ -1,8 +1,8 @@
 // SCR-M01-002 Gợi ý tuyến — trang kết quả riêng (FR-M01-004; BR-M01-003; screen spec §4 "Results", "Zero result").
-// Mọi tuyến chọn được chứa cả ba tag đã chọn, sắp A→Z; 0 kết quả không nới tiêu chí. Tiêu chí lấy từ bộ nhớ của layout
-// (HC-007): mở thẳng hoặc tải lại trang khi chưa đủ tiêu chí thì quay về form.
+// Ở mỗi nhóm có ý được chọn, tuyến chứa ít nhất một ý (HOẶC trong nhóm, VÀ giữa nhóm; spec-M01 v3.3), sắp A→Z; 0 kết
+// quả không nới tiêu chí. Tiêu chí lấy từ bộ nhớ của layout (HC-007); không chọn gì thì là mọi tuyến chọn được.
 import { useEffect } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { emitMascotEvent, MascotFigure, MascotSlot } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
@@ -25,23 +25,26 @@ export function RecommendResultsPage() {
   const catalog = useCatalog(source);
   const navigate = useNavigate();
   const location = useLocation();
-  const { criteria, focusChoiceOnReturn } = useRecommendationCriteria();
+  const { criteria, focusChoiceOnReturn, leftResults } = useRecommendationCriteria();
 
   const routes = catalog.status === 'ready' ? catalog.routes : [];
-  const result = recommend(routes, criteria, language);
-  const matched = result.kind === 'results' ? result.routes : [];
+  const matched = recommend(routes, criteria, language).routes;
   const thumbnails = useSignedUrls(
     media,
     matched.map((route) => route.thumbnail.sourceRef),
   );
 
   // Mila phản ứng với kết quả (MAS-B-011) khi danh sách đã tính xong; không đổi kết quả
-  const resolvedCount = catalog.status === 'ready' && result.kind === 'results' ? matched.length : null;
+  const resolvedCount = catalog.status === 'ready' ? matched.length : null;
   useEffect(() => {
     if (resolvedCount !== null) emitMascotEvent({ type: 'm01.recommend.resolved', count: resolvedCount });
   }, [resolvedCount]);
 
-  if (result.kind !== 'results') return <Navigate to={PATHS.recommend} replace />;
+  // Đã mở trang kết quả: form mở lại bằng quay lui ("Đổi tiêu chí", Back) thì Mila không nói (spec-Mascot v1.11).
+  // Đặt lúc mở, không lúc rời: form đọc cờ khi render, trước cleanup của trang này.
+  useEffect(() => {
+    leftResults.current = true;
+  }, [leftResults]);
 
   const labels = chosenLabels(criteriaGroups(messages), criteria);
 

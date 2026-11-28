@@ -8,7 +8,7 @@
 | Actor | Nhân viên nội dung, Quản lý |
 | Priority | Must |
 | Mockup | [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html) (HTML tĩnh, chỉ để xem tham khảo, không phải thiết kế chính thức; chưa sign-off UX) |
-| Status | Draft — đồng bộ [Spec M03 v3.7](../../../docs/spec/spec-M03.md) và [Spec AI Integration v1.0](../../../docs/spec/spec-AI_integration.md); mockup chưa có nút dịch |
+| Status | Draft — đồng bộ [Spec M03 v3.8](../../../docs/spec/spec-M03.md) và [Spec AI Integration v1.0](../../../docs/spec/spec-AI_integration.md); mockup chưa có nút dịch |
 
 Nguồn hành vi/contract: [Spec M03](../../../docs/spec/spec-M03.md) (US-M03-01/02/09, BR-M03-C02 đến C17, T01 đến T09, E14, F06, F07, F10, F11, L01 đến L13; giới hạn §5.3; thông báo §5.6) và [Spec AI Integration](../../../docs/spec/spec-AI_integration.md) v1.0 cho nút dịch (BR-AI-01 đến BR-AI-12, §5.5). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Giao diện chỉ dùng tên hiển thị và thông báo từ danh mục; mã trạng thái, tên trường nội bộ và định danh không hiện trên màn hình.
 
@@ -49,8 +49,9 @@ Mockup HTML tĩnh: [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html)
 | 19 | E-SCR-M03-002-19 | Route map upload + caption | File input | Ảnh sơ đồ tuyến (0–1) và chú thích vi/en | No | ≤ 2 MB; chú thích cả hai ngôn ngữ hoặc không, tối đa 200 ký tự; quyền sử dụng |
 | 20 | E-SCR-M03-002-20 | Offline route-map tick | Checkbox | "Sơ đồ này cần để định hướng khi không có mạng" | No | Mặc định tắt; chỉ chọn được khi tuyến có ảnh sơ đồ; gỡ ảnh khi đang chọn → tự bỏ chọn và hiện MSG-MAP-TICK-CLEARED lúc lưu; thay đổi được tô sáng ở màn xem lại |
 | 21 | E-SCR-M03-002-21 | Highlights (vi/en) | List nhập | Điểm nổi bật, mỗi mục có đủ vi và en | No | Tối đa 5 mục, mỗi ngôn ngữ ≤ 80 ký tự, một dòng; một mục cần cả hai ngôn ngữ |
-| 22 | E-SCR-M03-002-22 | Group tags | Multi-selector | Cá nhân/người lớn; Gia đình có trẻ nhỏ; Cần đi dễ dàng | Yes (xuất bản) | Ít nhất 1 khi xuất bản; không chọn trùng giá trị; không kết hợp mâu thuẫn với độ khó "Khó" (MSG-TAG-CONFLICT khi lưu) |
+| 22 | E-SCR-M03-002-22 | Group tags | Multi-selector | Cá nhân/người lớn; Gia đình có trẻ nhỏ; Đi theo đoàn (v3.8) | Yes (xuất bản) | Ít nhất 1 khi xuất bản; không chọn trùng giá trị; "Gia đình có trẻ nhỏ" không kết hợp với độ khó "Khó" (MSG-TAG-CONFLICT khi lưu) |
 | 23 | E-SCR-M03-002-23 | Experience tags | Multi-selector | Thiên nhiên, chụp ảnh; Tìm hiểu; Khám phá | Yes (xuất bản) | Ít nhất 1 khi xuất bản; không chọn trùng giá trị |
+| 39 | E-SCR-M03-002-39 | Guide tags (v3.8) | Multi-selector, ngay sau Trải nghiệm ở bước 3 | Đi cùng hướng dẫn viên; Tự tham quan được | Yes (xuất bản) | Ít nhất 1 khi xuất bản; không chọn trùng giá trị; gợi ý dưới ô: "Tuyến bắt buộc có hướng dẫn viên: chỉ chọn "Đi cùng hướng dẫn viên"." (spec-M03 §5.5) |
 | 24 | E-SCR-M03-002-24 | Time tag (derived) | Text (chỉ đọc) | Ngắn (≤ 90 phút) / Vừa (> 90–180) / Dài (> 180), tính từ thời lượng | Yes | Nhân viên không chọn được (BR-M03-C11, SC-M03-015) |
 | 25 | E-SCR-M03-002-25 | Checkpoint picker | Searchable list | Điểm dừng Đang hoạt động trong thư viện: tên, loại kết nối (tên hiển thị), số điểm tham quan, các tuyến khác đang dùng | Yes (bước 4) | Chỉ điểm dừng đang hoạt động được thêm (BR-M03-T01) |
 | 26 | E-SCR-M03-002-26 | Route checkpoint list | Ordered list (kéo thả) | Điểm dừng của tuyến theo thứ tự thăm; vị trí trong danh sách là thứ tự của tuyến | Yes (xuất bản) | Mỗi điểm dừng tối đa một lần (MSG-CHECKPOINT-DUPLICATE); tối đa 30 mục kể cả điểm đã đóng (MSG-LIMIT-CHECKPOINTS); bỏ điểm dừng khỏi bản nháp luôn được phép; cần ít nhất một điểm dừng đang hoạt động khi xuất bản (MSG-NO-ACTIVE-CHECKPOINT) |
@@ -151,7 +152,7 @@ Mockup HTML tĩnh: [mockup-SCR-M03-002.html](../../html/mockup-SCR-M03-002.html)
 | ID | Question | Blocking | Status | Resolution |
 |---|---|---|---|---|
 | OQ-SCR-M03-002-001 | Cách sắp xếp bằng bàn phím thay cho kéo thả | No | Resolved | Ngoài kéo thả, mỗi dòng có nút "Lên" / "Xuống" dùng được bằng bàn phím; hành vi giống kéo thả. |
-| OQ-SCR-M03-002-002 | Nhãn hiển thị của các ô và bước chính xác | No | Resolved | Nhãn bước: "1. Thẻ tuyến", "2. Chi tiết", "3. Nhóm khách và trải nghiệm", "4. Điểm dừng". Nhãn ô: "Ảnh đại diện", "Tên tuyến", "Mô tả ngắn", "Quãng đường (km)", "Thời lượng dự kiến (phút)", "Độ khó", "Mô tả đầy đủ", "Điểm xuất phát và cách đến", "Yêu cầu và điều kiện tham gia", "Cần chuẩn bị", "Thời điểm phù hợp", "Cảnh báo an toàn", "Ảnh chi tiết", "Sơ đồ tuyến", "Điểm nổi bật", "Nhóm khách", "Trải nghiệm", "Nhãn thời gian", "Danh sách điểm dừng của tuyến"; ô song ngữ thêm "(tiếng Việt)" / "(tiếng Anh)". Các nhãn này là `{Tên ô}` trong thông báo. |
+| OQ-SCR-M03-002-002 | Nhãn hiển thị của các ô và bước chính xác | No | Resolved | Nhãn bước: "1. Thẻ tuyến", "2. Chi tiết", "3. Nhóm khách và trải nghiệm", "4. Điểm dừng". Nhãn ô: "Ảnh đại diện", "Tên tuyến", "Mô tả ngắn", "Quãng đường (km)", "Thời lượng dự kiến (phút)", "Độ khó", "Mô tả đầy đủ", "Điểm xuất phát và cách đến", "Yêu cầu và điều kiện tham gia", "Cần chuẩn bị", "Thời điểm phù hợp", "Cảnh báo an toàn", "Ảnh chi tiết", "Sơ đồ tuyến", "Điểm nổi bật", "Nhóm khách", "Trải nghiệm", "Hướng dẫn viên" (v3.8), "Nhãn thời gian", "Danh sách điểm dừng của tuyến"; ô song ngữ thêm "(tiếng Việt)" / "(tiếng Anh)". Các nhãn này là `{Tên ô}` trong thông báo. |
 | OQ-SCR-M03-002-003 | Cách hiển thị MSG-LIMIT-TEXT khi cần số ký tự hiện có và tên ô | No | Resolved | Điền placeholder theo BR-M03-L13: tên ô như nhãn trên giao diện, số kèm đơn vị. |
 
 ## Completion checklist

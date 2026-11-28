@@ -33,8 +33,9 @@ const ENUMS: Record<keyof typeof DISPLAY_NAMES, readonly string[]> = {
   ],
   difficulty: ['NHE', 'TRUNG_BINH', 'KHO'],
   timeTag: ['TIME_NGAN', 'TIME_VUA', 'TIME_DAI'],
-  groupTag: ['GROUP_CA_NHAN_NGUOI_LON', 'GROUP_GIA_DINH_CO_TRE', 'GROUP_CAN_DE_DANG'],
+  groupTag: ['GROUP_CA_NHAN_NGUOI_LON', 'GROUP_GIA_DINH_CO_TRE', 'GROUP_DI_THEO_DOAN'],
   experienceTag: ['INTEREST_THIEN_NHIEN_CHUP_ANH', 'INTEREST_TIM_HIEU', 'INTEREST_KHAM_PHA'],
+  guideTag: ['GUIDE_CO_HUONG_DAN_VIEN', 'GUIDE_TU_THAM_QUAN'],
 };
 
 describe('tên hiển thị (spec-M03 §5.4)', () => {

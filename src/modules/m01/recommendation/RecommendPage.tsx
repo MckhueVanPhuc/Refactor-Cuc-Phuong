@@ -1,18 +1,18 @@
-// SCR-M01-002 Gợi ý tuyến — form (FR-M01-004; US-M01-02 mục 2–3; screen spec §3–§6). Mỗi nhóm là một radio group dùng
-// được bằng bàn phím (OQ-SCR-M01-002-002); nút lọc vô hiệu khi thiếu tiêu chí; bấm thì mở trang kết quả riêng
-// (RecommendResultsPage). Nguồn không đọc được thì báo nguồn. Tiêu chí chỉ ở React state của layout (HC-007).
-import { useEffect, useId, useRef } from 'react';
-import { useNavigate } from 'react-router';
+// SCR-M01-002 Gợi ý tuyến — form (FR-M01-004; US-M01-02 mục 2–3; screen spec §3–§6; spec-M01 v3.3). Mỗi nhóm là một
+// nhóm ô chọn nhiều dùng được bằng bàn phím (OQ-SCR-M01-002-002): chạm để chọn, chạm lại để bỏ; "Bỏ chọn tất cả" bỏ mọi
+// ý. Không chọn gì vẫn lọc được (trả mọi tuyến). Bấm lọc thì mở trang kết quả riêng (RecommendResultsPage). Nguồn không
+// đọc được thì báo nguồn. Tiêu chí chỉ ở React state của layout (HC-007).
+import { useEffect, useId, useRef, useState } from 'react';
+import { useNavigate, useNavigationType } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { emitMascotEvent, MascotSlot } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
 import { useM01Services } from '../api/services';
 import { useCatalog } from '../catalog/catalogStore';
 import { useM01Messages } from '../i18n/useM01Messages';
-import { useDisplayLanguage } from '../language/useLanguagePreference';
 import { useRecommendationCriteria } from './criteriaContext';
 import { criteriaGroups, type CriteriaGroup, type GroupKey } from './groups';
-import { recommend } from './recommend';
+import { hasAnyChoice } from './recommend';
 import styles from './RecommendPage.module.css';
 
 /** Trạng thái điều hướng: trang kết quả mở từ form nên "Đổi tiêu chí" chỉ cần quay lại một bước. */
@@ -37,16 +37,16 @@ function OptionLabel({ label }: { label: string }) {
 
 function ChoiceGroup({
   group,
-  value,
-  onChange,
+  values,
+  onToggle,
 }: {
   group: CriteriaGroup;
-  value: string | undefined;
-  onChange: (value: string) => void;
+  values: readonly string[];
+  onToggle: (value: string) => void;
 }) {
   const titleId = useId();
   return (
-    <div className={styles.group} role="radiogroup" aria-labelledby={titleId}>
+    <div className={styles.group} role="group" aria-labelledby={titleId}>
       <p className={styles.groupTitle} id={titleId}>
         <TintIcon name={group.icon} />
         {group.title}
@@ -55,11 +55,11 @@ function ChoiceGroup({
         {group.options.map((option) => (
           <label className={styles.option} key={option.value}>
             <input
-              type="radio"
+              type="checkbox"
               name={`recommend-${group.key}`}
               value={option.value}
-              checked={value === option.value}
-              onChange={() => onChange(option.value)}
+              checked={values.includes(option.value)}
+              onChange={() => onToggle(option.value)}
             />
             <OptionLabel label={option.label} />
           </label>
@@ -72,20 +72,25 @@ function ChoiceGroup({
 export function RecommendPage() {
   const { source } = useM01Services();
   const messages = useM01Messages();
-  const language = useDisplayLanguage();
   const catalog = useCatalog(source);
   const navigate = useNavigate();
-  const { criteria, setCriteria, focusChoiceOnReturn } = useRecommendationCriteria();
+  const navigationType = useNavigationType();
+  const { criteria, setCriteria, focusChoiceOnReturn, leftResults } = useRecommendationCriteria();
   const formRef = useRef<HTMLFormElement>(null);
 
-  const routes = catalog.status === 'ready' ? catalog.routes : [];
-  const complete = recommend(routes, criteria, language).kind === 'results';
   const groups = criteriaGroups(messages);
+  const anyChoice = hasAnyChoice(criteria);
 
-  // Mila hỏi tiêu chí khi mở form lần đầu (MAS-B-010); chỉ phát sự kiện, không đổi hành vi form
-  useEffect(() => emitMascotEvent({ type: 'm01.recommend.opened' }), []);
+  // Mila hỏi tiêu chí mỗi lần mở form (MAS-B-010); quay lui từ trang kết quả ("Đổi tiêu chí", Back: POP hoặc REPLACE)
+  // thì Mila chỉ đứng, không nói (spec-Mascot v1.11). Chỉ phát sự kiện, không đổi hành vi form.
+  // Chốt một lần lúc mở (StrictMode chạy effect hai lần nhưng giữ state)
+  const [fromResults] = useState(() => leftResults.current && navigationType !== 'PUSH');
+  useEffect(() => {
+    leftResults.current = false;
+    emitMascotEvent({ type: 'm01.recommend.opened', fromResults });
+  }, [fromResults, leftResults]);
 
-  // Quay về từ "Đổi tiêu chí": focus về lựa chọn đang chọn (không phải radio đầu tiên của nhóm)
+  // Quay về từ "Đổi tiêu chí": focus về lựa chọn đang chọn (không phải ô đầu tiên của nhóm)
   useEffect(() => {
     if (!focusChoiceOnReturn.current) return;
     focusChoiceOnReturn.current = false;
@@ -93,8 +98,18 @@ export function RecommendPage() {
     (form?.querySelector<HTMLInputElement>('input:checked') ?? form?.querySelector<HTMLInputElement>('input'))?.focus();
   }, [focusChoiceOnReturn]);
 
-  function update(key: GroupKey, value: string) {
-    setCriteria((previous) => ({ ...previous, [key]: value }));
+  function toggle(key: GroupKey, value: string) {
+    setCriteria((previous) => {
+      const current = previous[key] ?? [];
+      const next = current.includes(value) ? current.filter((other) => other !== value) : [...current, value];
+      return { ...previous, [key]: next };
+    });
+  }
+
+  function clearAll() {
+    setCriteria(() => ({}));
+    // Nút biến mất khi không còn ý nào: đưa focus về ô đầu tiên để bàn phím không mất chỗ
+    formRef.current?.querySelector<HTMLInputElement>('input')?.focus();
   }
 
   return (
@@ -114,18 +129,24 @@ export function RecommendPage() {
         onSubmit={(event) => {
           event.preventDefault();
           const state: RecommendResultsState = { fromForm: true };
-          if (complete) void navigate(PATHS.recommendResults, { state });
+          if (catalog.status === 'ready') void navigate(PATHS.recommendResults, { state });
         }}
       >
         {groups.map((group) => (
           <ChoiceGroup
             key={group.key}
             group={group}
-            value={criteria[group.key]}
-            onChange={(value) => update(group.key, value)}
+            values={criteria[group.key] ?? []}
+            onToggle={(value) => toggle(group.key, value)}
           />
         ))}
-        <button type="submit" className={styles.submit} disabled={!complete || catalog.status !== 'ready'}>
+        {anyChoice && (
+          <button type="button" className={styles.clearAll} onClick={clearAll}>
+            <TintIcon name="close" />
+            {messages.recommend.clearAll}
+          </button>
+        )}
+        <button type="submit" className={styles.submit} disabled={catalog.status !== 'ready'}>
           <TintIcon name="send" />
           {messages.recommend.submit}
         </button>

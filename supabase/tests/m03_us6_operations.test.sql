@@ -42,7 +42,7 @@ begin
       'name', jsonb_build_object('vi', p_name, 'en', p_name || ' (en)'), 'shortDescription', '{"vi": "Ngắn", "en": "Short"}'::jsonb,
       'description', '{"vi": "Dài", "en": "Long"}'::jsonb, 'startingPoint', '{"vi": "Cổng", "en": "Gate"}'::jsonb,
       'distanceKm', 2, 'durationMin', 60, 'difficulty', 'NHE', 'groupTags', '["GROUP_CA_NHAN_NGUOI_LON"]'::jsonb,
-      'experienceTags', '["INTEREST_KHAM_PHA"]'::jsonb, 'thumbnailMediaId', v_thumb, 'noSafetyWarningConfirmed', true,
+      'experienceTags', '["INTEREST_KHAM_PHA"]'::jsonb, 'guideTags', '["GUIDE_TU_THAM_QUAN"]'::jsonb, 'thumbnailMediaId', v_thumb, 'noSafetyWarningConfirmed', true,
       'offlineRouteMapRequired', false,
       'checkpointList', (select jsonb_agg(jsonb_build_object('checkpointId', c) order by n) from unnest(p_checkpoints) with ordinality u(c, n))),
     jsonb_build_array(jsonb_build_object('mediaId', v_thumb, 'usageRightsConfirmed', true)));

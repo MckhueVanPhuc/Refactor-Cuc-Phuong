@@ -708,8 +708,9 @@ Route content (`subjectType = ROUTE`):
 | `content.distanceKm` | Decimal | Conditional | Required for publication; greater than `0`. | M03 §6.1.1 |
 | `content.durationMin` | Integer | Conditional | Required for publication; greater than `0`. | M03 §6.1.1 |
 | `content.difficulty` | Enum(`NHE`, `TRUNG_BINH`, `KHO`) | Conditional | Required for publication. | M03 §6.1.1 |
-| `content.groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Conditional | Required and non-empty for publication; no contradiction with `difficulty`. | M03 §6.1.1; BR-M03-C12 |
+| `content.groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_DI_THEO_DOAN`)&gt; | Conditional | Required and non-empty for publication; no contradiction with `difficulty`. | M03 §6.1.1; BR-M03-C12 (v3.8) |
 | `content.experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Conditional | Required and non-empty for publication. | M03 §6.1.1 |
+| `content.guideTags` | Array&lt;Enum(`GUIDE_CO_HUONG_DAN_VIEN`, `GUIDE_TU_THAM_QUAN`)&gt; | Conditional | Required and non-empty for publication; values are distinct. | M03 §6.1.1; BR-M03-C12 (v3.8) |
 | `content.thumbnailMediaId` | UUID | Conditional | Required for publication; an `IMAGE` Media of this Route. | M03 §6.1.1 |
 | `content.galleryItems` | Array&lt;Object&gt; | Optional | Ordered; the first is the cover. | M03 §6.1.1 |
 | `content.galleryItems[].mediaId` | UUID | Required | Required for every item; an `IMAGE` Media of this Route. | M03 §6.1.1 |
