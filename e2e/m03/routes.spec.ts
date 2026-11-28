@@ -32,6 +32,8 @@ async function buildPublishableRoute(page: Page) {
   await page.getByRole('button', { name: /Nhãn/ }).click();
   await page.getByLabel('Cá nhân/người lớn').check();
   await page.getByLabel('Khám phá').check();
+  // spec-M03 v3.8: Hướng dẫn viên bắt buộc khi xuất bản
+  await page.getByLabel('Tự tham quan được').check();
   await expect(page.getByText('Nhãn thời gian: Vừa')).toBeVisible();
 
   await page.getByRole('button', { name: /Điểm dừng/ }).click();

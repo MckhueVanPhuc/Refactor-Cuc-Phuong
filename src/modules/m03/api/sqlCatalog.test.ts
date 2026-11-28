@@ -49,7 +49,7 @@ describe('Danh mục SQL khớp TypeScript (T170)', () => {
     }
     expect(Object.keys(sql).sort()).toEqual([
       'accountStatus', 'checkpointStatus', 'closureSource', 'connectivityMode', 'difficulty', 'experienceTag', 'groupTag',
-      'qrStatus', 'revisionStatus', 'role', 'routeStatus',
+      'guideTag', 'qrStatus', 'revisionStatus', 'role', 'routeStatus',
     ]);
     for (const [kind, names] of Object.entries(sql)) {
       expect(names).toEqual(DISPLAY_NAMES[kind as keyof typeof DISPLAY_NAMES]);

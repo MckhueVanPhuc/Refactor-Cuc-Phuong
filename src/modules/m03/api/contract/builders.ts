@@ -61,6 +61,7 @@ export function contractBuilders(api: () => AdminApi) {
         difficulty: 'TRUNG_BINH',
         groupTags: ['GROUP_CA_NHAN_NGUOI_LON'],
         experienceTags: ['INTEREST_KHAM_PHA'],
+        guideTags: ['GUIDE_TU_THAM_QUAN'],
         thumbnailMediaId: mediaId,
         offlineRouteMapRequired: false,
         checkpointList: checkpointIds.map((checkpointId) => ({ checkpointId })),

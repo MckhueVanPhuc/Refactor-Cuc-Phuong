@@ -33,9 +33,10 @@ for (const language of ['Tiếng Việt', 'English'] as const) {
     await callM01Hook(page, 'seedPackage', packageFromPublication(routes.A, snapshots.A, { versionStatus: 'OUTDATED' }));
 
     await page.goto('/recommend');
-    await page.getByRole('radio').nth(1).check();
-    await page.getByRole('radio').nth(4).check();
-    await page.getByRole('radio').nth(8).check();
+    await page.getByRole('checkbox').nth(1).check();
+    await page.getByRole('checkbox').nth(4).check();
+    await page.getByRole('checkbox').nth(8).check();
+    await page.getByRole('checkbox').nth(10).check();
     await page.locator('form button[type=submit]').click();
     await expectClean(page, 'gợi ý');
 

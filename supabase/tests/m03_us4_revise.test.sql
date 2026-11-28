@@ -46,7 +46,7 @@ create function pg_temp.route_content(p_name text, p_thumb text, p_list jsonb) r
   select jsonb_build_object('name', jsonb_build_object('vi', p_name, 'en', p_name || ' (en)'), 'shortDescription', '{"vi": "Ngắn", "en": "Short"}'::jsonb,
     'description', '{"vi": "Mô tả", "en": "Description"}'::jsonb, 'startingPoint', '{"vi": "Cổng", "en": "Gate"}'::jsonb,
     'distanceKm', 3, 'durationMin', 120, 'difficulty', 'NHE', 'groupTags', '["GROUP_CA_NHAN_NGUOI_LON"]'::jsonb,
-    'experienceTags', '["INTEREST_TIM_HIEU"]'::jsonb, 'thumbnailMediaId', p_thumb, 'noSafetyWarningConfirmed', true,
+    'experienceTags', '["INTEREST_TIM_HIEU"]'::jsonb, 'guideTags', '["GUIDE_TU_THAM_QUAN"]'::jsonb, 'thumbnailMediaId', p_thumb, 'noSafetyWarningConfirmed', true,
     'offlineRouteMapRequired', false, 'checkpointList', p_list) $$;
 -- a published route listing the given checkpoints
 create function pg_temp.route(p_name text, p_checkpoints text[]) returns text language plpgsql as $$

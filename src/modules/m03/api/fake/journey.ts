@@ -211,6 +211,7 @@ export function publishedRouteOf(store: FakeStore, routeId: string): PublishedRo
     timeTags: timeTag ? [timeTag] : [],
     groupTags: content.groupTags ?? [],
     experienceTags: content.experienceTags ?? [],
+    guideTags: content.guideTags ?? [],
     ...routeDerivedValues(snapshot),
     activeContentVersion: snapshot.contentVersion,
   };

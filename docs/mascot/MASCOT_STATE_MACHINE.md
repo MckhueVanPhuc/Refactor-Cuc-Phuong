@@ -88,7 +88,7 @@ Cột "Nguồn" chỉ nơi trong code hiện tại sẽ phát sự kiện (chỉ
 | `m01.language.selected` | `LanguageGate.tsx` (nút chọn) | Ghi `LanguagePreference` thành công **từ panel** | `{ language }` | MAS-B-001 | Không (chính `LanguagePreference` đã lưu bởi M01) |
 | `m01.language.changed` | `LanguageControl` (nút VI/EN) | Đổi ngôn ngữ | `{ language }` | Bong bóng đang hiện đổi ngôn ngữ (MAS-B-080) | Không |
 | `m01.catalog.loaded` | `CatalogPage.tsx` (theo `catalog.status`) | `loading` → `ready` / `unavailable` | `{ status, count, stale }` | MAS-B-004…007 | Không |
-| `m01.recommend.opened` | `RecommendPage.tsx` | Mount | — | MAS-B-010 | Không |
+| `m01.recommend.opened` | `RecommendPage.tsx` | Mount | `fromResults` (v1.11: quay lại từ trang kết quả → không nói) | MAS-B-010 | Không |
 | `m01.recommend.resolved` | `RecommendPage.tsx` | Bấm "Xem tuyến phù hợp" có kết quả | `{ count }` | MAS-B-011…013 | Không |
 | `m01.routeDetail.startPanelVisible` | `StartPanel.tsx` (IntersectionObserver) | Panel Bắt đầu vào khung nhìn lần đầu | `{ routeId, hasSafetyWarning }` | MAS-B-014 | Không |
 | `m01.start.resolved` | `StartPanel.tsx` (`StartResult`) | Có kết quả Start | `{ kind }` | Lỗi → MAS-B-015; thành công → không (M02 tiếp nhận) | Không |

@@ -33,6 +33,7 @@ function routeRow(): Record<string, unknown> {
     time_tags: a.timeTags,
     group_tags: a.groupTags,
     experience_tags: a.experienceTags,
+    guide_tags: a.guideTags,
     checkpoint_count: a.checkpointCount,
     has_offline_required_checkpoint: a.hasOfflineRequiredCheckpoint,
     has_offline_route_map: a.hasOfflineRouteMap,

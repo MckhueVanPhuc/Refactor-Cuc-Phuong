@@ -20,6 +20,7 @@ export const FIELD_LABELS = {
     difficulty: 'Độ khó',
     groupTags: 'Nhóm đối tượng',
     experienceTags: 'Trải nghiệm',
+    guideTags: 'Hướng dẫn viên',
     thumbnailMediaId: 'Ảnh đại diện',
     galleryItems: 'Ảnh chi tiết',
     galleryCaption: 'Chú thích ảnh',

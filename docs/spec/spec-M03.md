@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | Module | M03 — Operations & Content Administration |
-| Version | 3.7 |
-| Status | MVP implementation baseline — aligned with M01 v3.2 and M02 v3.3 (see §11) |
-| Supersedes | 3.6 (previous repository baseline: 2.0) |
-| Last updated | 2026-11-05 |
+| Version | 3.8 |
+| Status | MVP implementation baseline — aligned with M01 v3.3 and M02 v3.3 (see §11) |
+| Supersedes | 3.7 (previous repository baseline: 2.0) |
+| Last updated | 2026-11-28 |
 | Consumers | M01 route/snapshot; M02 live content/QR lookup |
 | Producer input | M02 terminal anonymous sessions |
 
@@ -330,7 +330,7 @@ A checkpoint is created and published once and can then be chosen by any number 
 
 | ID | Requirement | Behavioral baseline |
 |---|---|---|
-| FR-M03-001 | Create/update route drafts: bilingual information, images, participation requirements, safety warning, starting point, two selectable tag groups, system-derived time tag/checkpoint count/offline flags, the choice to include the route map in the offline package, and the ordered choice of published checkpoints. | Required |
+| FR-M03-001 | Create/update route drafts: bilingual information, images, participation requirements, safety warning, starting point, three selectable tag groups (visitor group, experience, guide), system-derived time tag/checkpoint count/offline flags, the choice to include the route map in the offline package, and the ordered choice of published checkpoints. | Required |
 | FR-M03-002 | Create/update checkpoints independently of routes, in a shared library: system-generated identity, bilingual name, unique Vietnamese name and connectivity mode; one checkpoint may be listed by many routes. | Required |
 | FR-M03-003 | Manage multiple QR objects per checkpoint with system-generated unguessable identifiers, a permanent public QR link encoded in a downloadable printable code image. | Required |
 | FR-M03-004 | Manage per-QR bilingual content (object name, introduction), images and, only for checkpoints that work with network, optional audio/video with size/count limits and usage-rights confirmation. | Required |
@@ -397,8 +397,9 @@ This is the exact payload consumed by M01 as **Published Route input**. It exist
 | `durationMin` | Integer | Required | Greater than `0` and at most 1440; expected duration. |
 | `difficulty` | Enum(`NHE`, `TRUNG_BINH`, `KHO`) | Required | — |
 | `timeTags` | Array&lt;Enum(`TIME_NGAN`, `TIME_VUA`, `TIME_DAI`)&gt; | Required | Exactly one value, derived by M03 from `durationMin` (BR-M03-C11); never entered by staff. |
-| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Required | At least one allowed value; values are distinct. |
+| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_DI_THEO_DOAN`)&gt; | Required | At least one allowed value; values are distinct. |
 | `experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Required | At least one allowed value; values are distinct. |
+| `guideTags` | Array&lt;Enum(`GUIDE_CO_HUONG_DAN_VIEN`, `GUIDE_TU_THAM_QUAN`)&gt; | Required | At least one allowed value; values are distinct. |
 | `checkpointCount` | Integer | Required | Number of active checkpoints in the active snapshot; `>= 0`. |
 | `hasOfflineRequiredCheckpoint` | Boolean | Required | `true` when the active snapshot contains at least one `OFFLINE_REQUIRED` checkpoint. |
 | `hasOfflineRouteMap` | Boolean | Required | `true` when the active snapshot contains an `offlineRouteMap` (BR-M03-C16). |
@@ -414,8 +415,9 @@ Allowed enums and their administrative display labels (messages shown to staff u
 
 - `difficulty`: `NHE` "Nhẹ", `TRUNG_BINH` "Trung bình", `KHO` "Khó".
 - `timeTags` (derived): `TIME_NGAN` "Ngắn" (≤ 90 minutes), `TIME_VUA` "Vừa" (> 90–180 minutes), `TIME_DAI` "Dài" (> 180 minutes).
-- `groupTags`: `GROUP_CA_NHAN_NGUOI_LON` "Cá nhân/người lớn", `GROUP_GIA_DINH_CO_TRE` "Gia đình có trẻ nhỏ", `GROUP_CAN_DE_DANG` "Cần đi dễ dàng" (for visitors who need an easy route).
+- `groupTags`: `GROUP_CA_NHAN_NGUOI_LON` "Cá nhân/người lớn", `GROUP_GIA_DINH_CO_TRE` "Gia đình có trẻ nhỏ", `GROUP_DI_THEO_DOAN` "Đi theo đoàn" (visitors travelling with a tour group). `GROUP_CAN_DE_DANG` "Cần đi dễ dàng" is retired in v3.8; the code is never reused.
 - `experienceTags`: `INTEREST_THIEN_NHIEN_CHUP_ANH` "Thiên nhiên, chụp ảnh", `INTEREST_TIM_HIEU` "Tìm hiểu", `INTEREST_KHAM_PHA` "Khám phá".
+- `guideTags`: `GUIDE_CO_HUONG_DAN_VIEN` "Đi cùng hướng dẫn viên" (the route can be walked with a park guide), `GUIDE_TU_THAM_QUAN` "Tự tham quan được" (the route can be walked without a guide). A route that requires a guide carries only `GUIDE_CO_HUONG_DAN_VIEN`. M01 shows these to visitors as "Cần hướng dẫn viên" and "Tự tham quan".
 
 Before publication, every both-language field must contain both `vi` and `en`; every both-or-none field is either complete in both languages or absent in both.
 
@@ -639,7 +641,7 @@ Rules are grouped by theme. IDs are `BR-M03-<group letter><number>`. Groups appe
 | BR-M03-C09 | **No-warning confirmation.** If `safetyWarning` is empty, the review screen shows the checkbox "Tôi xác nhận tuyến không có cảnh báo an toàn cần nêu" and publication is blocked until it is ticked. The tick is stored in the revision content as `noSafetyWarningConfirmed`, is copied into later drafts, and is reset to `false` whenever a safety warning is entered, so removing a warning later requires the tick again. The checkbox is shown only when the field is empty and the stored confirmation is `false`. |
 | BR-M03-C10 | The review screen highlights every change to the safety warning, the participation requirements and the offline route-map tick, because there is no second reviewer. |
 | BR-M03-C11 | **Derived values.** The time tag is computed from `durationMin`: up to and including 90 minutes `TIME_NGAN`; above 90 up to and including 180 `TIME_VUA`; above 180 `TIME_DAI`. It is a classification for recommendation, not a claim about any visitor's actual time, and `durationMin` is the duration expected per Park Management guidance. Staff cannot select it. The checkpoint count, the offline-required flag, the offline-route-map flag and the checkpoint name list are computed from the active journey snapshot (draft or never-activated checkpoints are not counted) and change exactly when the snapshot version changes. |
-| BR-M03-C12 | **Tags.** At least one group tag and at least one experience tag are required; both groups allow several values. No new tag groups in MVP. Each group holds a set of distinct values (a value cannot be selected twice), so a group has at most as many values as its enum has. Tags must reflect the real character of the route, not be used to appear in more recommendation results — this is a UI guideline that the system cannot verify. The system blocks a contradictory combination **when saving a draft**: `difficulty = KHO` cannot be combined with `GROUP_GIA_DINH_CO_TRE` or `GROUP_CAN_DE_DANG`. Message example: "Tuyến độ khó Khó không thể gắn nhãn Gia đình có trẻ nhỏ. Hãy đổi độ khó hoặc bỏ nhãn." |
+| BR-M03-C12 | **Tags.** At least one group tag, at least one experience tag and at least one guide tag are required; all three groups allow several values. No tag groups beyond these three selectable groups and the derived time tag (v3.8 adds the guide group, CHG-REC-2026-11-28-01). Each group holds a set of distinct values (a value cannot be selected twice), so a group has at most as many values as its enum has. Tags must reflect the real character of the route, not be used to appear in more recommendation results — this is a UI guideline that the system cannot verify. The system blocks a contradictory combination **when saving a draft**: `difficulty = KHO` cannot be combined with `GROUP_GIA_DINH_CO_TRE`. `GROUP_DI_THEO_DOAN` combines with every difficulty. Message example: "Tuyến độ khó Khó không thể gắn nhãn Gia đình có trẻ nhỏ. Hãy đổi độ khó hoặc bỏ nhãn." |
 | BR-M03-C13 | **[REMOVED in v3.4]** Emergency-contact directory and the route's emergency-contact field. The directory, the contact selection on routes and every rule that depended on them were removed. The ID is retired and is not reused. |
 | BR-M03-C14 | **Route images.** The thumbnail is required; the detail gallery holds 0 to 8 images, the first being the cover, each with an optional caption; the route map holds 0 or 1 image with an optional caption. Every image is at most 2 MB and must have usage rights confirmed before the revision that uses it is published. Uploading gallery images follows BR-M03-E14. |
 | BR-M03-C15 | Route information changes (any field of BR-M03-C02) do not create a new journey version, with one exception: changes to the offline route map (BR-M03-C16). They are effective after publication. These texts have no version number of their own, so a copy that M01 stores for offline use is a point-in-time copy made at download time and M03 cannot update it. M01 can select only routes that are `HOAT_DONG` with a valid active journey version. |
@@ -664,7 +666,7 @@ BR-M03-C02 editor fields:
 | 2 Route details | Route map image (0–1, optional caption) | caption vi + en | No | Detail |
 | 2 Route details | Tick "Sơ đồ này cần để định hướng khi không có mạng" (available only when a route map exists; default off) | — | No | Offline package |
 | 2 Route details | Highlights (0–5 items) | vi + en | No | Detail |
-| 3 Tags | Group tags (at least 1) and experience tags (at least 1) | — | Yes | Recommendation, detail |
+| 3 Tags | Group tags (at least 1), experience tags (at least 1) and guide tags (at least 1) | — | Yes | Recommendation, detail |
 | 4 Checkpoints | Choice of published checkpoints and their visiting order (groups T and D) | — | At least one active checkpoint | Detail (names) |
 
 System-derived and not entered: time tag, checkpoint count, offline-required flag, offline-route-map flag, checkpoint name list.
@@ -952,6 +954,7 @@ One short line under the field; nothing else gets a hint (BR-M03-L12).
 | Thời điểm phù hợp | Gợi ý mùa hoặc buổi trong ngày, không phải giờ được phép đi. |
 | Cảnh báo an toàn | Rủi ro và cách phòng tránh khi tuyến vẫn mở. Nếu có đoạn không còn an toàn, hãy dùng Đóng tạm. |
 | Âm thanh/video của điểm dừng cần tải trước | Điểm dừng cần tải trước chỉ nhận chữ và ảnh. |
+| Hướng dẫn viên | Tuyến bắt buộc có hướng dẫn viên: chỉ chọn "Đi cùng hướng dẫn viên". |
 
 ### 5.6 Message catalog
 
@@ -1082,8 +1085,9 @@ These are logical attributes only. They do not prescribe tables, columns, keys, 
 | `distanceKm` | Decimal | Conditional | Required for publication; greater than `0`, at most `ROUTE_DISTANCE_MAX_KM`, at most one decimal place. |
 | `durationMin` | Integer | Conditional | Required for publication; greater than `0`, at most `ROUTE_DURATION_MAX_MIN`. |
 | `difficulty` | Enum(`NHE`, `TRUNG_BINH`, `KHO`) | Conditional | Required for publication. |
-| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG`)&gt; | Conditional | Required and non-empty for publication; values are distinct; no contradiction with `difficulty` (BR-M03-C12), checked at save. |
+| `groupTags` | Array&lt;Enum(`GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_DI_THEO_DOAN`)&gt; | Conditional | Required and non-empty for publication; values are distinct; no contradiction with `difficulty` (BR-M03-C12), checked at save. |
 | `experienceTags` | Array&lt;Enum(`INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA`)&gt; | Conditional | Required and non-empty for publication; values are distinct. |
+| `guideTags` | Array&lt;Enum(`GUIDE_CO_HUONG_DAN_VIEN`, `GUIDE_TU_THAM_QUAN`)&gt; | Conditional | Required and non-empty for publication; values are distinct. |
 | `thumbnailMediaId` | UUID | Conditional | Required for publication; references an `IMAGE` Media of this route. |
 | `galleryItems` | Array&lt;Object&gt; | Optional | At most `ROUTE_GALLERY_MAX_IMAGES`; ordered; the first is the cover. |
 | `galleryItems[].mediaId` | UUID | Required | Required for every array item; references an `IMAGE` Media of this route. |
@@ -1144,7 +1148,7 @@ The time tag, checkpoint count, offline-required flag and checkpoint name list a
 | Revision | `subjectId` | String | Required | `routeId`, `checkpointId` or `qrIdentifier`. |
 | Revision | `revisionNumber` | Integer | Required | Starts at `1` per subject; `+1` for each new revision; never reused. |
 | Revision | `status` | Enum(`NHAP`, `PHAT_HANH`, `LUU_TRU`, `DA_BO`) | Required | Lifecycle below; at most one `NHAP` and at most one `PHAT_HANH` per subject. |
-| Revision | `content` | Object | Required | Editable public content of the subject. Immutable once `PHAT_HANH`. |
+| Revision | `content` | Object | Required | Editable public content of the subject. Immutable once `PHAT_HANH`, with one approved exception: the v3.8 data migration (CHG-REC-2026-11-28-01) removed `GROUP_CAN_DE_DANG` from `groupTags` and set `guideTags` to both values in every existing route revision, without a new revision or audit entry. |
 | Revision | `basedOnRevisionNumber` | Integer | Optional | The published revision this draft was copied from; for a restore, the earlier revision restored. |
 | Revision | `createdByUserId` / `createdAt` | String / DateTime | Required | UTC. |
 | Revision | `lastEditedByUserId` / `lastEditedAt` | String / DateTime | Required | Used for the stale message and the "tự xuất bản" flag. |
@@ -1315,7 +1319,7 @@ The login and credential screens are mandatory M03 entry/support screens even th
 - Park Management decides which route maps are needed for orientation without network; M03 only records the choice.
 - Park staff understand that a checkpoint can be shared by several routes and that changing it changes every route that lists it.
 - The same real area is represented by one checkpoint reused by routes, not duplicated.
-- `GROUP_CAN_DE_DANG` means "suitable for visitors who need an easy route"; the contradictory-tag rule (BR-M03-C12) depends on this meaning.
+- `GROUP_DI_THEO_DOAN` means "suitable for visitors travelling with a tour group"; it is not a difficulty signal, so the contradictory-tag rule (BR-M03-C12) does not apply to it. Visitors who need an easy route rely on the route difficulty.
 - The public live lookup and the session intake are open to anyone without an account; abuse protection (for example rate limiting) is a technical guard decided in the architecture documents, and the MVP accepts that a forged but well-formed session record could reach a report.
 - A permanent Production domain is secured before the first real code is printed; visitors scan most often with the phone's own camera, and both scanning ways lead to the same live lookup.
 - Staff tell printed codes apart by the visit point name printed under the code. Two visit points of one checkpoint may share a name, and a label printed before a rename keeps the old name; in both cases staff identify the code by scanning it, which works for published visit points only.
@@ -1327,7 +1331,7 @@ The login and credential screens are mandatory M03 entry/support screens even th
 - Identifiers are system-generated and unguessable; users never type them.
 - No review queue or second-person approval; mandatory publication review, version restore and audit instead.
 - Two fixed roles; Reviewer alone reopens, archives and manages accounts.
-- Time tag is derived from duration; staff select only group and experience tags; contradictory combinations are blocked at save.
+- Time tag is derived from duration; staff select only group, experience and guide tags; contradictory combinations are blocked at save.
 - One full-journey snapshot serves both journey handoff and offline package creation; it includes both connectivity modes and only offline-required checkpoints embed per-QR offline resources.
 - A new version is created only when snapshot content changes; versions are consecutive without gaps.
 - Audio and video are played online only and never enter an offline package or its size estimate.
@@ -1370,7 +1374,7 @@ The login and credential screens are mandatory M03 entry/support screens even th
 
 | Mapping | Canonical relationship and guarantee |
 |---|---|
-| M03 Published Route → M01 Published Route input | One transport shape defined identically in both specs; M01 is read-only. v3.0 adds card/detail fields, a derived single `timeTags` value, `checkpointCount`, `hasOfflineRequiredCheckpoint`, `checkpointSummaries` and `hasOfflineRouteMap`; `activeContentVersion` is always present in the projection. **M01 must adopt the new shape.** |
+| M03 Published Route → M01 Published Route input | One transport shape defined identically in both specs; M01 is read-only. v3.0 adds card/detail fields, a derived single `timeTags` value, `checkpointCount`, `hasOfflineRequiredCheckpoint`, `checkpointSummaries` and `hasOfflineRouteMap`; `activeContentVersion` is always present in the projection. **M01 must adopt the new shape.** v3.8 adds `guideTags` and replaces `GROUP_CAN_DE_DANG` with `GROUP_DI_THEO_DOAN` in `groupTags`; M01 v3.3 mirrors this and tolerates an absent `guideTags` during the rollout. |
 | M03 JourneySnapshot → M01 JourneySnapshot input | One immutable producer payload; full active journey, unique IDs/sequences, active QR arrays and conditional per-QR offline resources. v3.0 changes `checkpointName` to a bilingual object and replaces `offlineResource` by `offlineResources[]` (one per QR); v3.1 adds the optional `offlineRouteMap` and the optional `estimatedOfflineSizeBytes`. `sequence` is the checkpoint's position in the route's checkpoint list. **M01 must adopt the new shape.** |
 | M03 JourneySnapshot → M01 `OfflinePackage.manifest` | M01 copies the route/version/checkpoint metadata value fields (names are bilingual objects); the package manifest is not another M03 entity. Snapshot `offlineResources` items become M01-owned local `OfflineResource` values keyed by `qrIdentifier` under `OfflinePackage.resources`; a snapshot `offlineRouteMap` becomes an M01-owned local image in the package. |
 | M03 JourneySnapshot → M01 `SelectedRouteContext.routeJourneyManifest` → M02 frozen journey | Each step copies the same journey metadata value fields, including the bilingual `checkpointName`. M02 freezes `checkpoints` as `PlaySession.journeyCheckpoints`; `RouteJourneyMap` is a read-only view, not another entity. |
@@ -1407,6 +1411,7 @@ BR identifiers in this table omit the `BR-M03-` prefix.
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.8 | 2026-11-28 | CHG-REC-2026-11-28-01 (owner decision 2026-11-28). Route gains `guideTags` (`GUIDE_CO_HUONG_DAN_VIEN` "Đi cùng hướng dẫn viên", `GUIDE_TU_THAM_QUAN` "Tự tham quan được"), required for publication, in §5.1 Published Route and §6.1 (editor step 3, helper text §5.5). `groupTags` retires `GROUP_CAN_DE_DANG` "Cần đi dễ dàng" and adds `GROUP_DI_THEO_DOAN` "Đi theo đoàn"; BR-M03-C12 blocks only `KHO` + `GROUP_GIA_DINH_CO_TRE` and allows a third selectable group. One-time data migration: every existing route revision, including `PHAT_HANH`, loses `GROUP_CAN_DE_DANG` and gets both guide values (§6.3 exception). Published Route contract changes; M01 aligned in v3.3. JourneySnapshot, live lookup and session intake unchanged; M02 unaffected. |
 | 3.7 (clarification 11) | 2026-11-10 | QR label and reprint (user decision 2026-11-10, CHG-M03-2026-11-10-01). BR-M03-B05: the printed label shows the Vietnamese visit point name, snapshotted at download and not stored, instead of "Mã …{6 ký tự}"; the download needs a saved Vietnamese name (reusing MSG-MISSING-FIELD); the print-width note, `QR_PRINT_MIN_SIZE_CM` and `QR_CODE_DISPLAY_SUFFIX_CHARS` are removed. BR-M03-E07: reprinting is downloading the image again; the "In lại" action and its audit entry are removed. BR-M03-E16, SC-M03-026: no part of the QR identifier is shown; revoked visit points are hidden by default behind "Hiện mục đã thu hồi". The message catalog is unchanged. `qrIdentifier`, the public link, the lookup and every contract are unchanged; M01 and M02 unaffected. |
 | 3.7 (clarification 10) | 2026-11-05 | BR-M03-B04: the Production base URL is a fixed HTTPS address controlled by the project instead of a domain owned by the project; for the MVP, an address provided by the hosting platform is acceptable (user decision 2026-11-05, CHG-M03-2026-11-05-01). The link format, the permanence of the link and the redirect obligation are unchanged. No contract, entity, state or permission change; M01 and M02 unaffected. |
 | 3.7 (clarification 9) | 2026-11-01 | Closing a checkpoint that no route lists: the closing dialog states the consequence with the new MSG-CLOSE-NO-ROUTES instead of MSG-CLOSE-AFFECTS-ROUTES with an empty list (BR-M03-H01, §5.6) (user decision 2026-11-01). Wording only; no contract, entity, state or permission change; M01 and M02 unaffected. |
@@ -1441,5 +1446,5 @@ BR identifiers in this table omit the `BR-M03-` prefix.
 - [x] QR/content/account/session lifecycles, initial Reviewer provisioning, invitation and password recovery are defined.
 - [x] Reporting date, timezone, deduplication and history fields are defined.
 - [x] Failure/conflict/validation paths and plain-language messages are specified.
-- [x] M01 v3.2 and M02 v3.3 aligned to the contracts in §11.
+- [x] M01 v3.3 and M02 v3.3 aligned to the contracts in §11.
 - [x] No external requirements document is needed to implement M03.

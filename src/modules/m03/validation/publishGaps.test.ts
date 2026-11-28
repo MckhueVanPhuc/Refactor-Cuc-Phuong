@@ -17,6 +17,7 @@ const complete: RouteContent = {
   difficulty: 'TRUNG_BINH',
   groupTags: ['GROUP_CA_NHAN_NGUOI_LON'],
   experienceTags: ['INTEREST_KHAM_PHA'],
+  guideTags: ['GUIDE_TU_THAM_QUAN'],
   thumbnailMediaId: 'thumb',
   galleryItems: [{ mediaId: 'g1' }],
   offlineRouteMapRequired: false,
@@ -52,6 +53,7 @@ describe('panel "Còn thiếu để xuất bản" của tuyến (BR-M03-C04, C06
       'Hãy nhập cảnh báo an toàn, hoặc tick xác nhận tuyến không có cảnh báo an toàn cần nêu.',
       'Còn thiếu: Nhóm đối tượng.',
       'Còn thiếu: Trải nghiệm.',
+      'Còn thiếu: Hướng dẫn viên.',
       'Tuyến cần ít nhất một điểm dừng đang hoạt động trong danh sách thì mới xuất bản được.',
     ]);
   });

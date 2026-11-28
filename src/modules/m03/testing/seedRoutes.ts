@@ -27,6 +27,7 @@ export const COMPLETE_ROUTE: Partial<RouteContent> = {
   difficulty: 'TRUNG_BINH',
   groupTags: ['GROUP_CA_NHAN_NGUOI_LON'],
   experienceTags: ['INTEREST_KHAM_PHA'],
+  guideTags: ['GUIDE_TU_THAM_QUAN'],
 };
 
 function must<T>(result: { ok: true; data: T } | { ok: false; reason: string }): T {

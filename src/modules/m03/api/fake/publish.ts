@@ -381,6 +381,7 @@ export function createFakePublishArea(store: FakeStore): PublishArea {
       ...line(labels.offlineRouteMapRequired, flag(before?.offlineRouteMapRequired), flag(after.offlineRouteMapRequired)),
       ...line(labels.groupTags, tags(before?.groupTags, DISPLAY_NAMES.groupTag), tags(after.groupTags, DISPLAY_NAMES.groupTag)),
       ...line(labels.experienceTags, tags(before?.experienceTags, DISPLAY_NAMES.experienceTag), tags(after.experienceTags, DISPLAY_NAMES.experienceTag)),
+      ...line(labels.guideTags, tags(before?.guideTags, DISPLAY_NAMES.guideTag), tags(after.guideTags, DISPLAY_NAMES.guideTag)),
       ...line(labels.checkpointList, checkpoints(before), checkpoints(after)),
     ];
   }

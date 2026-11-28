@@ -1,5 +1,5 @@
-// Ba nhóm tiêu chí của SCR-M01-002 (thứ tự, nhãn, icon), dùng chung cho form và trang kết quả.
-import { experienceTag, groupTag, timeTag } from '../../../shared/contracts/publishedRoute';
+// Bốn nhóm tiêu chí của SCR-M01-002 (thứ tự, nhãn, icon), dùng chung cho form và trang kết quả (spec-M01 v3.3).
+import { experienceTag, groupTag, guideTag, timeTag } from '../../../shared/contracts/publishedRoute';
 import type { M01Messages } from '../i18n/vi';
 import type { RecommendationCriteria } from './recommend';
 
@@ -27,6 +27,12 @@ export function criteriaGroups(messages: M01Messages): CriteriaGroup[] {
       title: messages.recommend.groupTitle.experience,
       icon: 'tree',
       options: experienceTag.options.map((v) => ({ value: v, label: labels.experienceTag[v] })),
+    },
+    {
+      key: 'guide',
+      title: messages.recommend.groupTitle.guide,
+      icon: 'guide',
+      options: guideTag.options.map((v) => ({ value: v, label: labels.guideTag[v] })),
     },
   ];
 }

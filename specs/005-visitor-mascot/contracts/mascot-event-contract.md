@@ -32,7 +32,7 @@ Quy tắc bắt buộc cho mọi điểm phát:
 | `m01.language.changed` | `{ language }` | `src/modules/m01/language/LanguageControl.tsx` — sau ghi | MAS-B-080 |
 | `m01.catalog.loaded` | `{ status: 'ready' \| 'unavailable' \| 'loading', count, stale, slow }` | `src/modules/m01/catalog/CatalogPage.tsx` — effect theo `catalog.status`; `{ status: 'loading', slow: true }` khi còn tải sau 600 ms | MAS-B-003, 004, 005, 008 |
 | `m01.catalog.interacted` | — | `CatalogPage.tsx` — cuộn lần đầu / mở thẻ | Hủy MAS-B-008 |
-| `m01.recommend.opened` | — | `src/modules/m01/recommendation/RecommendPage.tsx` — mount | MAS-B-010 |
+| `m01.recommend.opened` | `fromResults: boolean` (v1.11, CHG-REC-2026-11-28-01: `true` khi quay lại từ trang kết quả bằng "Đổi tiêu chí" hoặc Back) | `src/modules/m01/recommendation/RecommendPage.tsx` — mount | MAS-B-010 |
 | `m01.recommend.resolved` | `{ count }` | `RecommendResultsPage.tsx` (trang kết quả riêng `/recommend/results`, DV-69) — khi danh mục sẵn sàng và kết quả đã tính | MAS-B-011 (012, 013 chỉ là hình từ v1.2) |
 | `m01.routeDetail.startPanelVisible` | `{ routeRef, hasSafetyWarning }` | `src/modules/m01/route-detail/StartPanel.tsx` — IntersectionObserver lần đầu | MAS-B-014 |
 | `m01.package.downloadStarted` | `{ routeRef, update }` | `downloadWithMascot` (`src/modules/m01/offline-package/mascotSignals.ts`) bọc lần tải du khách bấm ở `RouteDetailPage.tsx` và `OfflinePage.tsx` — trước `await`. Cập nhật lười không phát (DV-73) | MAS-B-020 |

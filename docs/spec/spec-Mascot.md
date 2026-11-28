@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | Module | Mascot (cross-cutting visitor experience capability used by M01 and M02) |
-| Version | 1.10 |
-| Status | Behavioral baseline for the mascot capability (AGENTS.md §3.1). Implementation follows the approved change briefs CHG-MASCOT-2026-11-21-01, CHG-MASCOT-2026-11-22-02, CHG-MASCOT-2026-11-23-03, CHG-MASCOT-2026-11-23-04, CHG-MOTION-2026-11-24-01, CHG-MASCOT-2026-11-24-05, CHG-MASCOT-2026-11-25-06, CHG-MASCOT-2026-11-27-07, CHG-MASCOT-2026-11-27-08, CHG-MASCOT-2026-11-27-09 and CHG-MASCOT-2026-11-28-10. |
+| Version | 1.11 |
+| Status | Behavioral baseline for the mascot capability (AGENTS.md §3.1). Implementation follows the approved change briefs CHG-MASCOT-2026-11-21-01, CHG-MASCOT-2026-11-22-02, CHG-MASCOT-2026-11-23-03, CHG-MASCOT-2026-11-23-04, CHG-MOTION-2026-11-24-01, CHG-MASCOT-2026-11-24-05, CHG-MASCOT-2026-11-25-06, CHG-MASCOT-2026-11-27-07, CHG-MASCOT-2026-11-27-08, CHG-MASCOT-2026-11-27-09, CHG-MASCOT-2026-11-28-10 and CHG-REC-2026-11-28-01. |
 | Last updated | 2026-11-28 |
 | Consumers | Visitor web app: M01 screens SCR-M01-001…004, M02 screens SCR-M02-001…004 |
-| Depends on | spec-M01 v3.2 and spec-M02 v3.6 (check-in feedback may be presented by Mila, BR-MAS-24; end-of-trip prompt on SCR-M02-001, BR-M02-021) |
+| Depends on | spec-M01 v3.3 and spec-M02 v3.6 (check-in feedback may be presented by Mila, BR-MAS-24; end-of-trip prompt on SCR-M02-001, BR-M02-021) |
 | Design input | docs/mascot/ (design package of 2026-11-20, updated 2026-11-21 and 2026-11-22) |
 | MVP priority | Could (user decision 2026-11-21, OD-MAS-08; recorded in MVP-Scope.md §3.6) |
 
@@ -110,7 +110,7 @@ Out of scope:
 ### US-MAS-07 — Prepare with Mila
 
 1. A started package download shows MSG-MAS-020; a ready package shows MSG-MAS-021; a failure shows MSG-MAS-024 or MSG-MAS-025 according to the failure; no percentage is ever shown or implied.
-2. Every time the recommendation form opens, Mila stands next to its heading (`DOCK`) and shows MSG-MAS-010 (v1.5), however the form was reached (link, Back, "Đổi tiêu chí"; v1.6). A recommendation with results shows MSG-MAS-011 with Mila standing next to the results heading; two consecutive empty results show Mila as an illustration next to the fixed message and its existing "Xem tất cả tuyến" button (v1.2: no second button).
+2. Every time the recommendation form opens, Mila stands next to its heading (`DOCK`) (v1.5). Mila shows MSG-MAS-010 when the form is reached from anywhere except its own results page; when the visitor returns from the results page ("Đổi tiêu chí", or the browser's Back / back gesture), Mila stands without a bubble and speaks only when tapped (BR-MAS-12) (v1.11, CHG-REC-2026-11-28-01). A recommendation with results shows MSG-MAS-011 with Mila standing next to the results heading; two consecutive empty results show Mila as an illustration next to the fixed message and its existing "Xem tất cả tuyến" button (v1.2: no second button).
 3. Every time the Start panel of a route with a safety warning becomes visible on SCR-M01-003, Mila shows MSG-MAS-014 in the Start panel slot (v1.6; before: once per route per page load). It has no cooldown and does not count towards BR-MAS-07.
 
 ### US-MAS-08 — Finish the trip with Mila
@@ -237,7 +237,7 @@ There is no "sync in progress", "journey paused" or "content read" event: spec-M
 | BR-MAS-04 | **Truthful wording.** No message states or implies arrival or presence for a visit (spec-M02 SC-M02-013), says that every checkpoint must be scanned (BR-M02-006, 007), says that data was sent before `SYNCED`, or promises offline content that is not in a ready package. |
 | BR-MAS-05 | **Priority.** Reactions belong to one class: P0 safety, P1 blocking error, P2 system feedback, P3 visitor request, P4 success, P5 progress, P6 guidance, P7 ambient. A higher class interrupts a lower one. At most one bubble is visible. At most one reaction waits, for at most `MASCOT_QUEUE_TTL_MS`; P5–P7 never wait. |
 | BR-MAS-06 | **No repetition.** Each message has a cooldown (§5.6 metadata in the design package). The same message is not shown again within its cooldown. Memory of what was said lasts for the current page load only. The same event received twice within 500 ms is handled once. |
-| BR-MAS-07 | **Proactive limit.** At most `MASCOT_PROACTIVE_LIMIT` reactions of classes P5–P7 are shown in any `MASCOT_PROACTIVE_WINDOW_MIN` window across the app. Exception (v1.5, user decision 2026-11-24): MSG-MAS-010 is shown every time the recommendation form opens, has no cooldown and does not count towards this limit. The same applies to MSG-MAS-014 every time the Start panel of a route with a safety warning becomes visible (v1.6, user decision 2026-11-25). |
+| BR-MAS-07 | **Proactive limit.** At most `MASCOT_PROACTIVE_LIMIT` reactions of classes P5–P7 are shown in any `MASCOT_PROACTIVE_WINDOW_MIN` window across the app. Exception (v1.5, user decision 2026-11-24): MSG-MAS-010 is shown every time the recommendation form opens other than by returning from its results page (v1.11), has no cooldown and does not count towards this limit. The same applies to MSG-MAS-014 every time the Start panel of a route with a safety warning becomes visible (v1.6, user decision 2026-11-25). |
 | BR-MAS-08 | **Focus contexts.** While media plays, while a dialog other than the end-of-trip prompt is open, or while the page is hidden, only P0–P1 apply and only as `INLINE`. All timers stop while the page is hidden and restart from zero when it is shown. |
 | BR-MAS-09 | **Inactivity.** Inactivity is measured only on the open scanner and, once per page load, on the route catalog (§5.4). It is never measured on SCR-M02-001 outside the scanner, on reading screens, during media, or on SCR-M01-003. Meaningful activity (touch, key, scroll, a code read, a mascot event) resets the timer. |
 | BR-MAS-10 | **Repeated failure.** Two consecutive identical scan failures (`INVALID`, or connection needed) on one visit of SCR-M02-001 trigger one help message; a different result resets the count. Two consecutive package failures for the same route trigger MSG-MAS-026. Two consecutive empty recommendations trigger MSG-MAS-013. |
@@ -300,11 +300,11 @@ Proposed wording for review. `{name}` is `Mila`; `{k}` scanned checkpoints, `{n}
 | MSG-MAS-008 | Catalog inactivity (button "Gợi ý tuyến") | Chưa biết chọn tuyến nào? Để mình gợi ý cho. | Not sure which route? Let me suggest one. |
 | MSG-MAS-009 | Tap, SCR-M01 screens | Chạm vào một tuyến để xem chi tiết, hoặc thử Gợi ý tuyến. | Tap a route for details, or try Route suggestions. |
 | MSG-MAS-012 | Tap, SCR-M01 screens, second sentence | Bấm Gợi ý tuyến, mình chọn giúp theo thời gian và sở thích của bạn. | Tap Route suggestions and I'll pick by your time and interests. |
-| MSG-MAS-010 | Recommendations opened | Bạn có bao lâu, đi cùng ai, thích gì? Chọn mỗi nhóm một ý nhé. | How long, with whom, and what do you enjoy? Pick one of each. |
+| MSG-MAS-010 | Recommendations opened (v1.11 wording) | Bạn có bao lâu, đi cùng ai, thích gì? Để mình gợi ý cho nhé! | How long do you have, who's coming, what do you enjoy? Let me suggest some routes! |
 | MSG-MAS-011 | Recommendation with results | Đây là những tuyến hợp với bạn! | Here are the routes that suit you! |
 | MSG-MAS-013 | Second empty recommendation | — (illustration only since v1.2: the fixed message already says it) | — |
 | MSG-MAS-014 | Start panel visible, route has a safety warning | Trước khi đi, bạn đọc kỹ phần Cảnh báo an toàn ngay bên dưới giúp mình nhé. | Before you head out, please read the Safety warning just below. |
-| MSG-MAS-015 | Tap, SCR-M01-002 form, second sentence (v1.6) | Chọn đủ ba mục rồi bấm Xem tuyến phù hợp nhé. | Pick all three, then tap Show matching routes. |
+| MSG-MAS-015 | Tap, SCR-M01-002 form, second sentence (v1.6; v1.11 wording) | Chọn xong các mục rồi bấm "Xem tuyến phù hợp" nhé! | Done choosing? Tap "Show matching routes"! |
 | MSG-MAS-016 | Tap, SCR-M01-002 results (v1.6) | Chạm vào một tuyến để xem chi tiết, hoặc bấm Đổi tiêu chí. | Tap a route for details, or tap Change choices. |
 | MSG-MAS-017 | Tap, SCR-M01-003, route with a safety warning (v1.6) | Đọc kỹ Cảnh báo an toàn, tải gói nếu cần, rồi bấm Bắt đầu nhé. | Read the Safety warning, download the pack if you need it, then tap Start. |
 | MSG-MAS-018 | Tap, SCR-M01-004 (v1.6) | Tải gói trước khi vào rừng để xem tuyến khi mất sóng. | Download the pack before you go, so the route works without signal. |
@@ -466,6 +466,7 @@ No new screen. Screen specs are derived documents and are updated only after thi
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.11 | 2026-11-28 | Change brief CHG-REC-2026-11-28-01 (approved 2026-11-28) with the recommendation filters of spec-M01 v3.3: returning to the recommendation form from its results page ("Đổi tiêu chí", Back) shows Mila without a bubble; Mila speaks when tapped (US-MAS-07 item 2, BR-MAS-07). New wording of MSG-MAS-010 and MSG-MAS-015, because criteria are now optional and several per group. |
 | 1.10 (wording, 2026-11-29) | 2026-11-29 | Owner decision 2026-11-29 (route detail option A1): the safety warning now sits in the Start panel right below Mila and right above Start, so MSG-MAS-014 says "ngay bên dưới" / "just below". Mila's slot, trigger, priority and rules are unchanged; Mila is still never inside the safety block (§5.1). |
 | 1.10 | 2026-11-28 | Change brief CHG-MASCOT-2026-11-28-10 (approved 2026-11-28) after the owner's review of the trip result screen: Mila stands in the screen's cover instead of the farewell card, which is removed (§5.1, US-MAS-08); the end-of-trip celebration says MSG-MAS-065 whether or not every checkpoint was scanned (US-MAS-08, BR-MAS-23); MSG-MAS-062 and MSG-MAS-063 are retired; with `CONFLICT` the banner has no figure and Mila stays in the cover without a bubble. OD-MAS-34. No new message, event, priority or rule of spec-M02. |
 | 1.9 | 2026-11-27 | Change brief CHG-MASCOT-2026-11-27-09 (approved 2026-11-27) after a tester review: the scan-result notices (invalid code, code not checked) no longer show Mila; on SCR-M02-001 the standing Mila takes the confused pose on the first failure, so the screen shows one Mila (§5.1). No new message, event, priority or slot. |

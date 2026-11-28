@@ -89,7 +89,7 @@ insert into iss select 'checkpoint review', i from jsonb_array_elements(pg_temp.
 
 -- ---- routes and publication (US3, US4) ----------------------------------------------------------------------------
 select api.save_route_draft(p_content => '{"name": {"vi": "Đường mòn"}}') #>> '{data,routeId}' as r1 \gset
-insert into r values ('20 tag conflict', api.save_route_draft(:'r1', pg_temp.entity('ROUTE', :'r1'), '{"difficulty": "KHO", "groupTags": ["GROUP_CAN_DE_DANG"]}'),
+insert into r values ('20 tag conflict', api.save_route_draft(:'r1', pg_temp.entity('ROUTE', :'r1'), '{"difficulty": "KHO", "groupTags": ["GROUP_GIA_DINH_CO_TRE"]}'),
   'VALIDATION', 'MSG-TAG-CONFLICT');
 insert into r values ('21 number too big', api.save_route_draft(:'r1', pg_temp.entity('ROUTE', :'r1'), '{"durationMin": 2000}'), 'VALIDATION', 'MSG-NUMBER-TOO-BIG');
 insert into r values ('22 checkpoint twice', api.save_route_draft(:'r1', pg_temp.entity('ROUTE', :'r1'), jsonb_build_object('checkpointList',
@@ -113,7 +113,7 @@ select pg_temp.media('ROUTE', :'r2', 'ROUTE_THUMBNAIL', 'IMAGE', 't') as thumb \
 select api.save_route_draft(:'r2', pg_temp.entity('ROUTE', :'r2'), jsonb_build_object('name', '{"vi": "Đường B", "en": "Trail B"}'::jsonb,
   'shortDescription', '{"vi": "Ngắn", "en": "Short"}'::jsonb, 'description', '{"vi": "Dài", "en": "Long"}'::jsonb,
   'startingPoint', '{"vi": "Cổng", "en": "Gate"}'::jsonb, 'distanceKm', 2, 'durationMin', 60, 'difficulty', 'NHE',
-  'groupTags', '["GROUP_CA_NHAN_NGUOI_LON"]'::jsonb, 'experienceTags', '["INTEREST_KHAM_PHA"]'::jsonb, 'thumbnailMediaId', :'thumb',
+  'groupTags', '["GROUP_CA_NHAN_NGUOI_LON"]'::jsonb, 'experienceTags', '["INTEREST_KHAM_PHA"]'::jsonb, 'guideTags', '["GUIDE_TU_THAM_QUAN"]'::jsonb, 'thumbnailMediaId', :'thumb',
   'noSafetyWarningConfirmed', false, 'offlineRouteMapRequired', false, 'checkpointList', jsonb_build_array(jsonb_build_object('checkpointId', :'c_off'))),
   jsonb_build_array(jsonb_build_object('mediaId', :'thumb', 'usageRightsConfirmed', true))) ->> 'ok' as r2_saved \gset
 insert into r values ('25 safety tick missing', pg_temp.publish('ROUTE_FIRST_PUBLICATION', :'r2', false), 'BLOCKED', 'MSG-SAFETY-CONFIRM');

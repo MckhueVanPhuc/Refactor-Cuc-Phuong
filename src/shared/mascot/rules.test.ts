@@ -374,7 +374,7 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
 
   it('MAS-B-090 (v1.6): mỗi màn M01 có câu chạm riêng; chi tiết tuyến nói ở panel Bắt đầu, tài nguyên ở ô gói', () => {
     const tapOn = (path: string, start: Stamped[] = []) => {
-      const view: Stamped = { type: 'm01.recommend.opened', at: 10 };
+      const view: Stamped = { type: 'm01.recommend.opened', fromResults: false, at: 10 };
       const s = play([{ type: 'app.route.changed', path, at: 0 }, ...(start.length ? start : [view]), { type: 'mascot.user.closedBubble', at: 900 }]).state;
       return play([tap(1_000)], [], CTX, s.view ? s : { ...s, view: { mode: 'AVATAR', pose: 'point', animation: null, seq: 1, behaviorId: 'T' } }).state;
     };
@@ -403,7 +403,7 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
       { type: 'm01.recommend.resolved', count: 2, at: 10 },
     ]).state;
     expect(s.bubble?.messageId).toBe('MSG-MAS-011');
-    s = play([{ type: 'app.route.changed', path: '/recommend', at: 500 }, { type: 'm01.recommend.opened', at: 510 }, { type: 'mascot.tick', at: 1_000 }], [], CTX, s).state;
+    s = play([{ type: 'app.route.changed', path: '/recommend', at: 500 }, { type: 'm01.recommend.opened', fromResults: false, at: 510 }, { type: 'mascot.tick', at: 1_000 }], [], CTX, s).state;
     expect(s.bubble?.messageId).toBe('MSG-MAS-010');
   });
 
@@ -671,7 +671,7 @@ describe('US7 — Chuẩn bị cùng Mila (US-MAS-07; T056)', () => {
   });
 
   it('MAS-B-088 + 010 (v1.5): mở Gợi ý tuyến → Mila đứng DOCK ngay, sau 400 ms câu 010; mở lại mỗi lần đều nói, × chỉ đóng câu', () => {
-    let { state } = play([{ type: 'app.route.changed', path: '/recommend', at: 0 }, { type: 'm01.recommend.opened', at: 10 }, { type: 'mascot.tick', at: 409 }]);
+    let { state } = play([{ type: 'app.route.changed', path: '/recommend', at: 0 }, { type: 'm01.recommend.opened', fromResults: false, at: 10 }, { type: 'mascot.tick', at: 409 }]);
     expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'map', behaviorId: 'MAS-B-088' });
     expect(state.bubble).toBeNull();
     state = play([{ type: 'mascot.tick', at: 410 }], [], CTX, state).state;
@@ -684,13 +684,29 @@ describe('US7 — Chuẩn bị cùng Mila (US-MAS-07; T056)', () => {
     // Mở lại nhiều lần trong 10 phút: mỗi lần đều nói (không cooldown, không tính vào BR-MAS-07)
     for (const at of [5_000, 10_000, 15_000, 20_000]) {
       state = play(
-        [{ type: 'app.route.changed', path: '/', at }, { type: 'app.route.changed', path: '/recommend', at: at + 100 }, { type: 'm01.recommend.opened', at: at + 110 }, { type: 'mascot.tick', at: at + 600 }],
+        [{ type: 'app.route.changed', path: '/', at }, { type: 'app.route.changed', path: '/recommend', at: at + 100 }, { type: 'm01.recommend.opened', fromResults: false, at: at + 110 }, { type: 'mascot.tick', at: at + 600 }],
         [],
         CTX,
         state,
       ).state;
       expect(state.bubble?.messageId).toBe('MSG-MAS-010');
     }
+  });
+
+  it('v1.11 (CHG-REC-2026-11-28-01): quay lại form từ trang kết quả → Mila đứng DOCK, không câu; chạm thì nói 010', () => {
+    const back = play([
+      { type: 'app.route.changed', path: '/recommend', at: 0 },
+      { type: 'm01.recommend.opened', fromResults: true, at: 10 },
+      { type: 'mascot.tick', at: 2_000 },
+    ]).state;
+    expect(back.view).toMatchObject({ mode: 'DOCK', pose: 'map', behaviorId: 'MAS-B-088' });
+    expect(back.bubble).toBeNull();
+    const tapped = play([{ type: 'mascot.user.tapped', at: 3_000 }], [], CTX, back).state;
+    expect(tapped.bubble?.messageId).toBe('MSG-MAS-010');
+    // Hẹn giờ câu 010 của lần mở trước (chưa kịp nói) bị hủy khi quay lại
+    let pending = play([{ type: 'app.route.changed', path: '/recommend', at: 0 }, { type: 'm01.recommend.opened', fromResults: false, at: 10 }]).state;
+    pending = play([{ type: 'm01.recommend.opened', fromResults: true, at: 100 }, { type: 'mascot.tick', at: 2_000 }], [], CTX, pending).state;
+    expect(pending.bubble).toBeNull();
   });
 
   it('MAS-B-011 (v1.5): có kết quả → câu 011 (P4) với Mila DOCK cạnh tiêu đề; không có kết quả → không câu, không DOCK (chỉ hình cạnh câu cố định)', () => {

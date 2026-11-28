@@ -96,7 +96,7 @@ select api.save_route_draft(:'r1',
     'name', '{"vi": "Đường mòn", "en": "Trail"}'::jsonb, 'shortDescription', '{"vi": "Ngắn", "en": "Short"}'::jsonb,
     'description', '{"vi": "Mô tả", "en": "Description"}'::jsonb, 'startingPoint', '{"vi": "Cổng", "en": "Gate"}'::jsonb,
     'distanceKm', 2.5, 'durationMin', 90, 'difficulty', 'NHE',
-    'groupTags', '["GROUP_GIA_DINH_CO_TRE"]'::jsonb, 'experienceTags', '["INTEREST_KHAM_PHA"]'::jsonb,
+    'groupTags', '["GROUP_GIA_DINH_CO_TRE"]'::jsonb, 'experienceTags', '["INTEREST_KHAM_PHA"]'::jsonb, 'guideTags', '["GUIDE_TU_THAM_QUAN"]'::jsonb,
     'thumbnailMediaId', :'thumb', 'noSafetyWarningConfirmed', false, 'offlineRouteMapRequired', false,
     'checkpointList', jsonb_build_array(jsonb_build_object('checkpointId', :'c1'))),
   jsonb_build_array(jsonb_build_object('mediaId', :'thumb', 'usageRightsConfirmed', true))) ->> 'ok' as saved \gset
@@ -134,7 +134,7 @@ select is((select array_agg(column_name::text order by ordinal_position) from in
   array['route_id', 'status', 'name', 'short_description', 'description', 'starting_point', 'thumbnail', 'gallery', 'route_map',
         'participation_requirements', 'preparation', 'best_time', 'safety_warning', 'highlights', 'distance_km', 'duration_min',
         'difficulty', 'time_tags', 'group_tags', 'experience_tags', 'checkpoint_count', 'has_offline_required_checkpoint',
-        'has_offline_route_map', 'checkpoint_summaries', 'active_content_version'],
+        'has_offline_route_map', 'checkpoint_summaries', 'active_content_version', 'guide_tags'],
   'published_routes: the snake_case of every top-level contract key, nothing else (no closure, user id or draft)');
 select is((select array_agg(column_name::text order by ordinal_position) from information_schema.columns
            where table_schema = 'api' and table_name = 'active_journey_snapshots'),
@@ -148,6 +148,7 @@ select is((select to_jsonb(p) - 'route_id' from api.published_routes p where rou
     'participation_requirements', null, 'preparation', null, 'best_time', null, 'safety_warning', null, 'highlights', '[]'::jsonb,
     'distance_km', 2.5, 'duration_min', 90, 'difficulty', 'NHE', 'time_tags', '["TIME_NGAN"]'::jsonb,
     'group_tags', '["GROUP_GIA_DINH_CO_TRE"]'::jsonb, 'experience_tags', '["INTEREST_KHAM_PHA"]'::jsonb,
+    'guide_tags', '["GUIDE_TU_THAM_QUAN"]'::jsonb,
     'checkpoint_count', 1, 'has_offline_required_checkpoint', true, 'has_offline_route_map', false,
     'checkpoint_summaries', jsonb_build_array(jsonb_build_object('checkpointId', :'c1', 'sequence', 1,
       'checkpointName', '{"vi": "Hang Con Moong", "en": "Con Moong Cave"}'::jsonb)),

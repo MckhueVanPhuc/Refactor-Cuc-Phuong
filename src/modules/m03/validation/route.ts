@@ -39,7 +39,8 @@ export const ROUTE_TEXT_LIMITS = [
 ] as const;
 
 /** Nhãn nhóm không đi cùng độ khó Khó (BR-M03-C12) */
-const CONFLICTS_WITH_HARD: readonly GroupTag[] = ['GROUP_GIA_DINH_CO_TRE', 'GROUP_CAN_DE_DANG'];
+// spec-M03 v3.8: chỉ nhãn gia đình mâu thuẫn với Khó; Đi theo đoàn gắn được mọi độ khó (BR-M03-C12)
+const CONFLICTS_WITH_HARD: readonly GroupTag[] = ['GROUP_GIA_DINH_CO_TRE'];
 
 const target = (routeId: string) => ({ itemType: 'ROUTE' as const, itemId: routeId });
 
@@ -70,6 +71,7 @@ export function normalizeRouteContent(content: RouteContent): RouteContent {
   }
   if (content.groupTags) normalized.groupTags = [...new Set(content.groupTags)];
   if (content.experienceTags) normalized.experienceTags = [...new Set(content.experienceTags)];
+  if (content.guideTags) normalized.guideTags = [...new Set(content.guideTags)];
   normalized.offlineRouteMapRequired = Boolean(content.routeMapMediaId) && content.offlineRouteMapRequired;
   normalized.noSafetyWarningConfirmed = !hasText(content.safetyWarning) && content.noSafetyWarningConfirmed;
   return normalized;

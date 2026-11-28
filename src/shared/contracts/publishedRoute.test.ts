@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deriveTimeTag, publishedRouteSchema, type PublishedRoute } from './publishedRoute';
+import { deriveTimeTag, publishedRouteConsumerSchema, publishedRouteSchema, type PublishedRoute } from './publishedRoute';
 
 // Fixture synthetic; id ngắn vẫn phải qua vì identifier là opaque (constitution)
 function validRoute(): PublishedRoute {
@@ -19,6 +19,7 @@ function validRoute(): PublishedRoute {
     timeTags: ['TIME_VUA'],
     groupTags: ['GROUP_CA_NHAN_NGUOI_LON'],
     experienceTags: ['INTEREST_KHAM_PHA', 'INTEREST_TIM_HIEU'],
+    guideTags: ['GUIDE_TU_THAM_QUAN'],
     checkpointCount: 2,
     hasOfflineRequiredCheckpoint: false,
     hasOfflineRouteMap: false,
@@ -105,11 +106,26 @@ describe('PublishedRoute (publication-public §2)', () => {
     expect(deriveTimeTag(181)).toBe('TIME_DAI');
   });
 
-  it('groupTags / experienceTags: ≥ 1, giá trị phân biệt, đúng enum', () => {
+  it('groupTags / experienceTags / guideTags: ≥ 1, giá trị phân biệt, đúng enum (M03 v3.8)', () => {
     expect(parse({ ...validRoute(), groupTags: [] }).success).toBe(false);
     expect(parse({ ...validRoute(), experienceTags: [] }).success).toBe(false);
-    expect(parse({ ...validRoute(), groupTags: ['GROUP_CAN_DE_DANG', 'GROUP_CAN_DE_DANG'] }).success).toBe(false);
+    expect(parse({ ...validRoute(), guideTags: [] }).success).toBe(false);
+    expect(parse({ ...validRoute(), groupTags: ['GROUP_DI_THEO_DOAN', 'GROUP_DI_THEO_DOAN'] }).success).toBe(false);
     expect(parse({ ...validRoute(), experienceTags: ['INTEREST_KHAC'] }).success).toBe(false);
+    // GROUP_CAN_DE_DANG nghỉ ở v3.8
+    expect(parse({ ...validRoute(), groupTags: ['GROUP_CAN_DE_DANG'] }).success).toBe(false);
+    const { guideTags: _absent, ...withoutGuide } = validRoute();
+    expect(parse(withoutGuide).success).toBe(false);
+  });
+
+  it('consumer M01 (brief D9): bỏ tag lạ, guideTags vắng thành rỗng, vẫn từ chối giá trị lặp', () => {
+    const { guideTags: _absent, ...withoutGuide } = validRoute();
+    const parsed = publishedRouteConsumerSchema.parse({ ...withoutGuide, groupTags: ['GROUP_CAN_DE_DANG', 'GROUP_CA_NHAN_NGUOI_LON'] });
+    expect(parsed.guideTags).toEqual([]);
+    expect(parsed.groupTags).toEqual(['GROUP_CA_NHAN_NGUOI_LON']);
+    expect(publishedRouteConsumerSchema.safeParse({ ...validRoute(), guideTags: null }).success).toBe(true);
+    expect(publishedRouteConsumerSchema.safeParse({ ...validRoute(), guideTags: ['GUIDE_TU_THAM_QUAN', 'GUIDE_TU_THAM_QUAN'] }).success).toBe(false);
+    expect(publishedRouteConsumerSchema.safeParse({ ...validRoute(), distanceKm: 0 }).success).toBe(false);
   });
 
   it('distanceKm > 0 và tối đa một chữ số thập phân', () => {

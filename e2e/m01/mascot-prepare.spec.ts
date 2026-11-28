@@ -20,7 +20,8 @@ async function openA(page: Page, mock: PublicationMock = defaultPublication()) {
 }
 
 async function choose(page: Page, group: string, option: string) {
-  await page.getByRole('radiogroup', { name: group }).getByRole('radio', { name: option, exact: true }).check();
+  // spec-M01 v3.3: mỗi nhóm là ô chọn nhiều (checkbox) trong một nhóm có tên
+  await page.getByRole('group', { name: group }).getByRole('checkbox', { name: option, exact: true }).check();
 }
 
 test('MAS-B-014: tuyến có Cảnh báo an toàn → Mila nhắc đọc ở panel Bắt đầu, không nằm trong khối cảnh báo', async ({ page }) => {
@@ -83,7 +84,11 @@ test('MAS-B-010, 011, 012/013: mở Gợi ý tuyến → Mila hỏi tiêu chí; 
   for (const time of ['Dài (trên 180 phút)', 'Ngắn (đến 90 phút)']) {
     await page.getByRole('button', { name: 'Đổi tiêu chí' }).first().click();
     await expect(page).toHaveURL(/\/recommend$/);
+    // Chọn nhiều (v3.3): bỏ hết rồi chọn lại, để thời gian mới thay chứ không cộng thêm
+    await page.getByRole('button', { name: 'Bỏ chọn tất cả' }).click();
     await choose(page, 'Thời gian', time);
+    await choose(page, 'Đối tượng', 'Gia đình có trẻ nhỏ');
+    await choose(page, 'Trải nghiệm', 'Khám phá');
     await submit.click();
     await expect(page.getByText(/Chưa có tuyến phù hợp/)).toBeVisible();
     await expect(page.locator('[data-mascot-figure="think"]')).toBeVisible();

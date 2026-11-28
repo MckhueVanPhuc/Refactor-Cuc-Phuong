@@ -9,6 +9,11 @@ type CriteriaContextValue = {
   setCriteria: (update: (previous: RecommendationCriteria) => RecommendationCriteria) => void;
   /** Đặt bởi trang kết quả khi bấm "Đổi tiêu chí": form đưa focus về lựa chọn đang chọn khi mở lại. */
   focusChoiceOnReturn: MutableRefObject<boolean>;
+  /**
+   * Đặt khi trang kết quả mở (spec-Mascot v1.11): form mở lại bằng quay lui ("Đổi tiêu chí", Back) sau đó thì Mila không
+   * nói; mở bằng link (PUSH) thì vẫn nói. Form xóa cờ mỗi lần mở.
+   */
+  leftResults: MutableRefObject<boolean>;
 };
 
 const CriteriaContext = createContext<CriteriaContextValue | null>(null);
@@ -16,8 +21,11 @@ const CriteriaContext = createContext<CriteriaContextValue | null>(null);
 export function RecommendationCriteriaProvider({ children }: { children: ReactNode }) {
   const [criteria, setCriteria] = useState<RecommendationCriteria>({});
   const focusChoiceOnReturn = useRef(false);
+  const leftResults = useRef(false);
   return (
-    <CriteriaContext.Provider value={{ criteria, setCriteria, focusChoiceOnReturn }}>{children}</CriteriaContext.Provider>
+    <CriteriaContext.Provider value={{ criteria, setCriteria, focusChoiceOnReturn, leftResults }}>
+      {children}
+    </CriteriaContext.Provider>
   );
 }
 

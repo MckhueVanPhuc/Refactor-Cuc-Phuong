@@ -80,6 +80,7 @@ export function routePublishIssues(routeId: string, content: RouteContent, conte
   issues.push(
     ...checkRequired({ ...at, fieldKey: 'groupTags', value: content.groupTags }),
     ...checkRequired({ ...at, fieldKey: 'experienceTags', value: content.experienceTags }),
+    ...checkRequired({ ...at, fieldKey: 'guideTags', value: content.guideTags }),
   );
   // Bước 4 "Điểm dừng": ít nhất một điểm dừng đang hoạt động (BR-M03-T04)
   const active = (content.checkpointList ?? []).some((item) => context.checkpoints.get(item.checkpointId)?.status === 'HOAT_DONG');
