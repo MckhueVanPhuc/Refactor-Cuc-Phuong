@@ -4,7 +4,7 @@
 // (ví dụ điểm `ONLINE_AVAILABLE` hoặc du khách chưa tải gói), khi có mạng tra cứu các mã QR của điểm qua `lookupClient`
 // và ký URL qua `mediaUrlClient`. Không có ảnh hoặc đọc lỗi → màn hiện ô biểu tượng. Chỉ để hiển thị: không chép vào
 // PlaySession, CheckpointVisit hay SessionSyncRecord.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ManifestCheckpoint } from '../../../shared/contracts/journeyManifest';
 import type { OfflinePackage } from '../../../shared/contracts/offlinePackage';
 import { lookupClient, type LookupClient } from '../api/lookupClient';
@@ -92,27 +92,31 @@ export function useLiveCheckpointThumbnails(
   deps: { lookup?: LookupClient; mediaUrl?: MediaUrlClient } = {},
 ): ReadonlyMap<string, string> {
   const [urls, setUrls] = useState<ReadonlyMap<string, string>>(EMPTY_URLS);
+  const latest = useRef({ checkpoints, visits, deps });
+  latest.current = { checkpoints, visits, deps };
+
   const packageReady = packageView !== undefined;
   const packageKeys = packageView ? [...packageView.thumbnails.keys()].sort().join('\n') : '';
   const checkpointKey = checkpoints.map((c) => `${c.checkpointId}:${c.qrIdentifiers.join(',')}`).join('\n');
   const visitKey = visits.map((v) => `${v.checkpointId}:${v.qrIdentifier}`).sort().join('\n');
 
   useEffect(() => {
-    if (!packageReady || checkpoints.length === 0) {
-      setUrls(EMPTY_URLS);
+    const { checkpoints: currentCheckpoints, visits: currentVisits, deps: currentDeps } = latest.current;
+    if (!packageReady || currentCheckpoints.length === 0) {
+      setUrls((prev) => (prev.size === 0 ? prev : EMPTY_URLS));
       return undefined;
     }
     const skip = new Set(packageKeys ? packageKeys.split('\n') : []);
-    if (checkpoints.every((c) => skip.has(c.checkpointId))) {
-      setUrls(EMPTY_URLS);
+    if (currentCheckpoints.every((c) => skip.has(c.checkpointId))) {
+      setUrls((prev) => (prev.size === 0 ? prev : EMPTY_URLS));
       return undefined;
     }
     let cancelled = false;
-    const visitQrOf = new Map(visits.map((v) => [v.checkpointId, v.qrIdentifier]));
-    const lookup = deps.lookup ?? lookupClient;
-    const mediaUrl = deps.mediaUrl ?? mediaUrlClient;
+    const visitQrOf = new Map(currentVisits.map((v) => [v.checkpointId, v.qrIdentifier]));
+    const lookup = currentDeps.lookup ?? lookupClient;
+    const mediaUrl = currentDeps.mediaUrl ?? mediaUrlClient;
 
-    void lookupCheckpointImageRefs(checkpoints, visitQrOf, skip, lookup)
+    void lookupCheckpointImageRefs(currentCheckpoints, visitQrOf, skip, lookup)
       .then(async (refByCheckpoint) => {
         if (cancelled || refByCheckpoint.size === 0) return EMPTY_URLS;
         const signedByRef = await mediaUrl.signedUrls([...refByCheckpoint.values()]);
@@ -121,17 +125,17 @@ export function useLiveCheckpointThumbnails(
           const signed = signedByRef.get(sourceRef);
           if (signed) result.set(checkpointId, signed);
         }
-        return result;
+        return result.size > 0 ? result : EMPTY_URLS;
       })
       .catch(() => EMPTY_URLS)
       .then((next) => {
-        if (!cancelled) setUrls(next);
+        if (!cancelled) setUrls((prev) => (prev.size === 0 && next.size === 0 ? prev : next));
       });
 
     return () => {
       cancelled = true;
     };
-  }, [packageReady, packageKeys, checkpointKey, visitKey, checkpoints, visits, deps.lookup, deps.mediaUrl]);
+  }, [packageReady, packageKeys, checkpointKey, visitKey]);
 
   return urls;
 }
