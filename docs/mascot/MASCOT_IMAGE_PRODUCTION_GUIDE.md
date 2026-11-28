@@ -255,3 +255,19 @@ Edit only the selected arms. Both arms raised in a wide V shape, paws open, slig
   - `ma-20-proud-blink`: tông màu ngả cam; sau khi cân màu, vùng mõm vẫn xám hơn ảnh gốc → nháy màu khi chớp.
 - Cách làm lại khuyến nghị: dùng trình sửa ảnh có lớp (Photopea, Photoshop, Krita) như cuối §8.2 — mở **ảnh gốc đã duyệt**, chỉ vẽ lại tay (hoặc mắt) trên một lớp riêng, xuất PNG **cùng kích thước**, không cắt, không đổi cỡ. Nếu dùng công cụ AI, chọn chế độ sửa vùng chọn và bật "giữ phần còn lại" (nếu có).
 - Trong lúc chờ, app chạy vẫy tay, ăn mừng và đứng tự hào với ảnh gốc (không đổi khung, `proud` không chớp mắt).
+
+## 10. Đợt 5 — Mila chỉ tay sang trái (2026-11-28)
+
+Chủ dự án yêu cầu 2026-11-28: ở hero Danh mục tuyến, câu chạm "…hoặc thử Gợi ý tuyến" đang dùng `ma-13-point` (chỉ sang **phải**), trong khi nút "Gợi ý tuyến" nằm bên **trái** Mila. Cần một ảnh chỉ sang trái.
+
+**Không lật ngang ảnh cũ**: lật làm ánh sáng thành từ trên-phải (sai §2.5), lá trên khăn và khóa ba lô đổi phía so với sheet 1.
+
+Cách làm như đợt 2 (§8.1): đính kèm **sheet 1**, `ma-13-point.png` và `ma-02-map.png` (để giữ cỡ toàn thân và đường chân); dán **Prompt nhân vật** §4 (giữ nguyên) rồi prompt tư thế dưới đây. Toàn thân vì Mila ở hero đứng cả người trên đồi, cùng cỡ với `ma-02-map`.
+
+`ma-18-point-left.png`
+
+```text
+Full body, standing, body turned three-quarters to the LEFT (the character's right side is closer to the viewer), the paw nearest the viewer stretched out clearly to the LEFT at chest height with the index finger pointing left, the other paw resting on the backpack strap. Head turned to look in the same direction it points (to the left), friendly encouraging smile, eyes open. The pointing arm is fully inside the frame with the 8% margin. Feet on the same baseline and the character the same size as the other full-body poses (ma-02-map). Light still comes from the top-left. Do not mirror the reference: the white leaf on the bandana and the brass buckles stay exactly as in the character sheet.
+```
+
+Kiểm thêm khi nhận ảnh: ngón tay chỉ rõ sang trái khi thu nhỏ còn 96 px; đầu và tay không chạm mép ảnh; tông lông và khăn khớp `ma-02-map` đặt cạnh nhau.

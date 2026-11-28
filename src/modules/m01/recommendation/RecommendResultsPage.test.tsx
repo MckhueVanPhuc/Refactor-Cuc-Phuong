@@ -24,7 +24,8 @@ describe('RecommendResultsPage', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Tuyến phù hợp' })).toBeTruthy();
     expect(router.state.location.pathname).toBe('/recommend/results');
     expect(screen.queryByRole('radiogroup')).toBeNull();
-    expect(screen.getByText('Vừa (trên 90 đến 180 phút)')).toBeTruthy();
+    // Trang kết quả không hiện lại tiêu chí đã chọn (2026-11-28)
+    expect(screen.queryByText('Vừa (trên 90 đến 180 phút)')).toBeNull();
     expect(screen.getByRole('link', { name: /Tuyến thử Bách Thảo/ })).toBeTruthy();
   });
 

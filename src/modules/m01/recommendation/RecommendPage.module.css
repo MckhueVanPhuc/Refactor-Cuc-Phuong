@@ -232,26 +232,6 @@
   text-decoration: underline;
 }
 
-/* Tóm tắt tiêu chí đã chọn: chip hổ phách chữ ink (§5.3), chỉ để đọc */
-.criteria {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-bottom: var(--space-5);
-}
-
-.criterion {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--chip-height);
-  padding: 0 var(--space-3);
-  font-size: var(--font-size-meta);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-m01-ink);
-  background: var(--color-m01-amber);
-  border-radius: var(--radius-sm);
-}
-
 .list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
