@@ -105,6 +105,15 @@ export const vi = {
     scanHint:
       'Khi không có mạng, hãy quét mã bằng nút Quét trong ứng dụng, vì camera điện thoại có thể không mở được ứng dụng nếu không có mạng.',
     download: 'Tải về',
+    // Nút tải trong ô gói kèm dung lượng ước tính (2026-11-29)
+    downloadWithSize: ({ n }: { n: string }) => `Tải về (khoảng ${n} MB)`,
+    // Chú thích vùng không có sóng trong ô gói khi chưa tải (phương án B1, chủ dự án 2026-11-29)
+    noSignal: {
+      before: 'Tuyến này đi qua nơi ',
+      strong: 'không có sóng điện thoại',
+      afterList: '. Tải gói về máy khi còn sóng để xem được nội dung ở các điểm:',
+      afterNoList: '. Tải gói về máy khi còn sóng để xem được nội dung ở những nơi đó.',
+    },
     continueWithoutDownload: 'Tiếp tục không tải',
     goBack: 'Quay lại',
     savedAt: ({ time }: { time: string }) => `Thông tin được lưu lúc ${time}, có thể không phải bản mới nhất`,

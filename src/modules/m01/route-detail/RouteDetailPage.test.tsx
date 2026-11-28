@@ -38,7 +38,13 @@ describe('RouteDetailPage', () => {
       '2Điểm thử A2',
       '3Điểm thử A3',
     ]);
-    expect(screen.getByText('Cần tải trước')).toBeTruthy();
+    // Bỏ chip "Cần tải trước" (2026-11-29)
+    expect(screen.queryByText('Cần tải trước')).toBeNull();
+    // A1 (2026-11-29): Cảnh báo an toàn ngay trên nút Bắt đầu, chỉ một khối
+    expect(screen.getAllByRole('note', { name: 'Cảnh báo an toàn' })).toHaveLength(1);
+    const start = screen.getByRole('button', { name: 'Bắt đầu' });
+    expect(safety.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(start.compareDocumentPosition(screen.getByText('Mô tả đầy đủ tuyến A')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('trường tùy chọn vắng không có mục (V8: không có Thời điểm phù hợp)', async () => {
@@ -202,11 +208,14 @@ describe('RouteDetailPage — gói và quyết định offline (US6, T086)', () 
     await vi.waitFor(() => expect(router.state.location.pathname).toBe('/trip'));
   });
 
-  it('vùng gói: tuyến cần gói chưa tải → "Chưa tải" và Tải về; ảnh lỗi → "Tải chưa hoàn tất…" (V11)', async () => {
+  it('vùng gói: tuyến cần gói chưa tải → nêu nơi không có sóng và các điểm, Tải về; ảnh lỗi → "Tải chưa hoàn tất…" (V11; B1 2026-11-29)', async () => {
     const fake = createFakeSource();
     fake.controls.failImage('fixture/a2-1.png', 500);
     await renderM01('/routes/route-a', { fake });
-    expect(await screen.findByText('Chưa tải')).toBeTruthy();
+    const panel = await screen.findByRole('region', { name: 'Gói tải trước' });
+    expect(await within(panel).findByText('không có sóng điện thoại')).toBeTruthy();
+    expect(within(panel).getAllByRole('listitem').map((item) => item.textContent)).toEqual(['Điểm thử A1', 'Điểm thử A2']);
+    expect(within(panel).queryByText('Chưa tải')).toBeNull();
     within(screen.getByRole('region', { name: 'Gói tải trước' })).getByRole('button', { name: 'Tải về' }).click();
     expect(await screen.findByText('Tải chưa hoàn tất. Hãy thử tải lại.')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Tải lại' })).toBeTruthy();
