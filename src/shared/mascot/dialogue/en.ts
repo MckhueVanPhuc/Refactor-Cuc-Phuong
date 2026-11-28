@@ -53,8 +53,6 @@ export const en: MascotDialogue = {
     'MSG-MAS-065': 'Thanks for exploring with me today!',
     'MSG-MAS-085': "Whoa, I'm dizzy!",
     'MSG-MAS-061': 'Sure! The End trip button is here whenever you\'re ready.',
-    'MSG-MAS-062': ({ k = 0 }) => (k === 1 ? 'We scanned 1 stop together today. What a trip!' : `We scanned ${k} stops together today. What a trip!`),
-    'MSG-MAS-063': ({ n = 0 }) => `You scanned all ${n} stops of the route. Amazing!`,
     'MSG-MAS-070': "Your trip is saved on this phone. I'll send it next time you're online.",
     'MSG-MAS-074': "Signal's gone, but stops on your route can still be scanned.",
     'MSG-MAS-075': "Signal's back!",

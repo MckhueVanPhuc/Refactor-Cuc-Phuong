@@ -8,7 +8,7 @@
 | Actor | Visitor có phiên |
 | Priority | Must; trạng thái đồng bộ Should |
 | Mockup | Chưa có |
-| Status | Draft — đồng bộ [Spec M02 v3.3](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.5](../../../docs/spec/spec-Mascot.md) cho Mila |
+| Status | Draft — đồng bộ [Spec M02 v3.6](../../../docs/spec/spec-M02.md) và [Spec Mascot v1.10](../../../docs/spec/spec-Mascot.md) cho Mila (bố cục màn kết quả theo CHG-MASCOT-2026-11-28-10) |
 
 Nguồn hành vi/contract: [Spec M02](../../../docs/spec/spec-M02.md) (`SessionSyncRecord` nhận bởi [Spec M03 v3.7](../../../docs/spec/spec-M03.md) §5.1). Priority do [MVP Scope](../../../MVP-Scope.md) sở hữu. Screen là tài liệu dẫn xuất, không thêm field, permission hoặc transition vào baseline. Mascot Mila theo [Spec Mascot](../../../docs/spec/spec-Mascot.md) v1.0 (slot §5.1, BR-MAS-01 đến BR-MAS-19, câu §5.6); Mila không thay, không che câu nào của màn này.
 
@@ -32,34 +32,38 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | 2 | E-SCR-M02-003-02 | Action: Kết thúc | Button | VI: "Kết thúc" (EN: "End") | Yes | Tác dụng giống xác nhận Finish: phiên thành `HOAN_TAT` khi đã quét điểm cuối, ngược lại `BO_DO` (BR-M02-007 v3.4) |
 | 3 | E-SCR-M02-003-03 | Action: Đi tiếp | Button | VI: "Đi tiếp" (EN: "Continue") | Yes | Không đổi gì; Finish vẫn khả dụng đến khi phiên kết thúc |
 | 4 | E-SCR-M02-003-04 | Finish confirmation | Dialog | Xác nhận kết thúc khi dùng Finish, cùng hộp thoại và câu như E-SCR-M02-003-01 | Conditional | Finish khả dụng mọi lúc trong chuyến (FR-M02-015 v3.4) |
-| 5 | E-SCR-M02-003-05 | Visit summary | List | Các điểm đã quét: tên theo ngôn ngữ, thứ tự, `checkedInAt` | Yes | Từ `PlaySession` và `CheckpointVisit` local; nhãn "Đã tham quan" kèm giờ quét, không phải "đã đến" (SC-M02-013, spec-M02 3.3 clarification 3) |
-| 6 | E-SCR-M02-003-06 | Completion result | Text | Phiên đã hoàn tất kèm danh sách điểm đã quét | Conditional | Hiện sau [Kết thúc]; không yêu cầu quét 100% điểm (FR-M02-016) |
-| 7 | E-SCR-M02-003-07 | Sync status | Text/badge | Trạng thái đồng bộ: chờ đồng bộ, đã đồng bộ, conflict/bị từ chối | Conditional | Theo `PendingSyncItem.syncStatus` (`PENDING`/`SYNCED`/`CONFLICT`); không có trang hàng đợi sync |
-| 8 | E-SCR-M02-003-08 | Sync error message | Banner | Lỗi khi M03 báo conflict hoặc từ chối record | Conditional | Dừng retry tự động; không sửa payload bất biến; không có thao tác thử lại hay xóa của du khách (BR-M02-011) |
-| 9 | E-SCR-M02-003-09 | Action: Về danh mục | Button | Mở SCR-M01-001 | Conditional | Sau khi phiên kết thúc |
-| 10 | E-SCR-M02-003-10 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | Trong thẻ "Hẹn gặp lại…", thay biểu tượng trái tim (v1.5, OD-MAS-27): CELEBRATE một lần ngay sau khi kết thúc (≤ 2,4 s, lớn hơn và nhô lên trên mép thẻ, bong bóng ở trên thẻ), sau đó DOCK; huy hiệu hoàn thành đứng một mình ở giữa đầu màn; tắt Mila thì trái tim như cũ. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
+| 5 | E-SCR-M02-003-05 | Visit summary "Hành trình của bạn" | List | v3.6: mọi điểm của journey theo thứ tự hiển thị: vòng ✓ (đã quét) hoặc vòng số nét đứt (chưa quét) nối bằng đường nét đứt; ảnh nhỏ; số thứ tự hai chữ số; tên theo ngôn ngữ; điểm đã quét "Đã tham quan" kèm giờ quét đầu tiên, điểm chưa quét "Chưa ghé · lần sau nhé!" và ảnh xám | Yes | Từ `PlaySession.journeyCheckpoints` và `CheckpointVisit` local. Ảnh nhỏ: ảnh đầu tiên trong `resources` của điểm đó thuộc gói `SAN_SANG` đang dùng của tuyến; không có gói hoặc không có ảnh → ô biểu tượng (spec-M02 v3.6 §5.1). Chữ theo SC-M02-013 v3.6 |
+| 6 | E-SCR-M02-003-06 | Completion result | Ảnh bìa + thẻ tóm tắt | Ảnh bìa nền xanh đậm (ảnh rừng mờ dưới lớp phủ tối): chip "Hoàn thành hành trình" khi đã quét mọi điểm, ngược lại "Đã kết thúc chuyến đi"; một tiêu đề cảm ơn; phụ đề hẹn gặp lại. Thẻ tóm tắt đè lên mép dưới ảnh bìa: vòng tiến độ (đủ: ✓ xanh; thiếu: vòng vàng "k/n"), dòng nhỏ "Bạn đã đi hết tuyến" / "Tuyến của bạn" và tên tuyến (chỉ khi có gói, spec-M02 v3.6), "k/n điểm dừng đã tham quan" | Conditional | Hiện sau [Kết thúc]; không yêu cầu quét 100% điểm (FR-M02-016). Chip và vòng theo số điểm đã quét k so với n, không theo `HOAN_TAT`/`BO_DO` |
+| 7 | E-SCR-M02-003-07 | Sync status | Nhãn nhỏ ngay dưới danh sách | Trạng thái đồng bộ: chờ đồng bộ (chữ vàng, chấm nhấp nháy), đã đồng bộ (chữ xanh, dấu ✓, đổi trong 200 ms) | Conditional | Theo `PendingSyncItem.syncStatus` (`PENDING`/`SYNCED`/`CONFLICT`); không có trang hàng đợi sync |
+| 8 | E-SCR-M02-003-08 | Sync error message | Banner (chỉ chữ, ở chỗ của nhãn gửi; không hình Mila, spec-Mascot v1.10) | Lỗi khi M03 báo conflict hoặc từ chối record | Conditional | Dừng retry tự động; không sửa payload bất biến; không có thao tác thử lại hay xóa của du khách (BR-M02-011) |
+| 9 | E-SCR-M02-003-09 | Action: Về danh mục | Link phụ (gạch chân) | VI "Về danh sách tuyến"; mở SCR-M01-001 | Conditional | Sau khi phiên kết thúc |
+| 12 | E-SCR-M02-003-12 | Action: Gợi ý tuyến tiếp theo | Button chính | VI "Gợi ý tuyến tiếp theo"; mở SCR-M01-002 (`/recommend`) | Conditional | Sau khi phiên kết thúc (spec-M02 v3.6 §7) |
+| 10 | E-SCR-M02-003-10 | Mascot Mila | Ảnh + bong bóng trong slot (Spec Mascot §5.1) | v1.10 (OD-MAS-34): trong ảnh bìa, bên phải tiêu đề, bong bóng bên trái Mila; CELEBRATE một lần ngay sau khi kết thúc với MSG-MAS-065 (≤ 2,4 s, Mila bật lên 0.6 → 1.1 → 1), sau đó DOCK cùng chỗ; `CONFLICT` → Mila đứng yên, không bong bóng; tắt Mila thì ảnh bìa chỉ có chữ. Thẻ "Hẹn gặp lại" và huy hiệu đứng riêng đã bỏ. Câu: bảng copy bên dưới | Conditional (Could, MVP-Scope §3.6) | Chỉ trong slot, không chiếm focus, ảnh `alt=""`; bong bóng ≤ 90 ký tự, có nút đóng; không có nút ẩn Mila; tôn trọng giảm chuyển động (BR-MAS-11, BR-MAS-17); v1.1: cỡ theo design-system §9.2, bong bóng kiểu "Giấy dã ngoại" §9.3, chạm theo ngữ cảnh và chạm nhiều lần (BR-MAS-12, 22), cử chỉ tự động ở màn Mila đứng chờ (BR-MAS-21), công tắc chuyển động ở SCR-M01-004 (v1.3) |
 | 11 | E-SCR-M02-003-11 | Công tắc "Chuyển động" của Mila | **Bỏ ở v1.3**: thanh đầu trang không còn nút chuyển động; công tắc duy nhất ở màn Tài nguyên SCR-M01-004 (Spec Mascot BR-MAS-21) | — | — | — |
 
 **Copy cố định (i18n vi/en).** Chuỗi hiển thị cho du khách là tài nguyên i18n đóng gói sẵn cùng ứng dụng (dùng được khi không có mạng), chọn theo `LanguagePreference`. Spec M01/M02 chỉ cố định một số câu; các câu còn lại dưới đây là chữ chốt ở mức screen spec, không thêm hành vi mới. Câu hỏi kết thúc chuyến và hai nút Kết thúc / Đi tiếp đã cố định trong Spec M02 §5.1 và dùng nguyên văn.
 
 | Tình huống | Tiếng Việt | English |
 |---|---|---|
-| Tiêu đề kết quả | Chuyến đi đã kết thúc! | Your trip has ended! |
-| Lời cảm ơn | Cảm ơn bạn đã tham quan Vườn quốc gia Cúc Phương! | Thank you for visiting Cuc Phuong National Park! |
-| Lời chúc | Hy vọng bạn đã có những trải nghiệm tuyệt vời tại Cúc Phương! | We hope you had a wonderful time at Cuc Phuong! |
-| Lời hẹn gặp lại | Hẹn gặp lại bạn trong những hành trình tiếp theo! | See you on your next journey! |
-| Tiêu đề danh sách | Các điểm đã quét | Points scanned |
-| Nhãn điểm trong danh sách | Đã tham quan | Visited |
-| Đồng bộ: chờ | Chờ gửi về hệ thống | Waiting to be sent |
-| Đồng bộ: xong | Đã gửi về hệ thống | Sent |
+| Chip: đã quét mọi điểm (v3.6) | Hoàn thành hành trình | Journey complete |
+| Chip: còn điểm chưa quét (v3.6) | Đã kết thúc chuyến đi | Trip ended |
+| Tiêu đề kết quả (v3.6) | Cảm ơn bạn đã đồng hành cùng Cúc Phương. | Thank you for exploring Cuc Phuong. |
+| Phụ đề hẹn gặp lại (v3.6) | Hẹn gặp lại bạn trong những hành trình tiếp theo. | See you on your next journey. |
+| Thẻ tóm tắt: dòng nhỏ khi đã quét mọi điểm | Bạn đã đi hết tuyến | You walked the whole route |
+| Thẻ tóm tắt: dòng nhỏ khi còn điểm chưa quét | Tuyến của bạn | Your route |
+| Thẻ tóm tắt: số điểm | {k}/{n} điểm dừng đã tham quan | {k}/{n} stops visited |
+| Tiêu đề danh sách (v3.6) | Hành trình của bạn | Your journey |
+| Nhãn điểm đã quét | Đã tham quan | Visited |
+| Nhãn điểm chưa quét (v3.6) | Chưa ghé · lần sau nhé! | Not visited yet |
+| Đồng bộ: chờ (v3.6) | Đang chờ gửi về hệ thống | Waiting to sync |
+| Đồng bộ: xong (v3.6) | Đã gửi về hệ thống | Synced to the park system |
 | Đồng bộ: conflict/bị từ chối | Chuyến đi này không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này. | This trip could not be sent to the system. It is still saved on this device. |
+| Nút gợi ý tuyến (v3.6) | Gợi ý tuyến tiếp theo | Suggest my next route |
 | Nút về danh sách | Về danh sách tuyến | Back to routes |
-| Mila ăn mừng kết thúc chuyến (MSG-MAS-062) | Hôm nay mình đã cùng bạn quét {k} điểm. Vui ghê! | We scanned {k} stops together today. What a trip! (k = 1: "We scanned 1 stop together today. What a trip!") |
 | Mila khi chuyến chờ gửi lúc mất sóng (MSG-MAS-070) | Chuyến đi đã lưu trên máy. Lần tới có sóng và mở app, mình sẽ gửi đi. | Your trip is saved on this phone. I'll send it next time you're online. |
 | Nút đóng bong bóng của Mila | Đóng lời nhắn | Dismiss message |
 | Tên truy cập khi chạm Mila | Hỏi Mila | Ask Mila |
-| Mila ăn mừng khi quét đủ mọi điểm (MSG-MAS-063) | Bạn đã quét đủ {n} điểm của tuyến. Tuyệt vời! | You scanned all {n} stops of the route. Amazing! |
-| Chạm Mila ở màn kết quả (MSG-MAS-065) | Cảm ơn bạn đã đi cùng mình hôm nay! | Thanks for exploring with me today! |
+| Mila ăn mừng kết thúc chuyến và khi chạm Mila ở màn kết quả (MSG-MAS-065, v1.10) | Cảm ơn bạn đã đi cùng mình hôm nay! | Thanks for exploring with me today! |
 | Mila khi bị chạm liên tục (MSG-MAS-085) | Ui, chóng mặt quá! | Whoa, I'm dizzy! |
 
 ## 4. States
@@ -68,7 +72,7 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 |---|---|---|
 | Confirmation | Câu hỏi kết thúc chuyến với [Kết thúc] và [Đi tiếp] | Lượt ghé điểm cuối ghi lần đầu, hoặc chọn Finish |
 | Continue | Quay lại phiên, Finish vẫn khả dụng | Chọn [Đi tiếp] |
-| Completed – pending sync | Danh sách điểm đã quét; chờ đồng bộ | `HOAN_TAT`, record trong hàng đợi |
+| Completed – pending sync | Ảnh bìa, thẻ tóm tắt, danh sách mọi điểm; chờ đồng bộ | `HOAN_TAT`, record trong hàng đợi |
 | Completed – synced | Như trên, đã đồng bộ | M03 xác nhận thành công (kể cả retry giống hệt) |
 | Conflict / rejected | Thông báo lỗi đồng bộ, dừng thử lại tự động | M03 trả conflict hoặc từ chối record không hợp lệ |
 | Offline | Kết thúc vẫn thực hiện được; record chờ đồng bộ | Không có mạng |
@@ -82,6 +86,7 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 | 3 | Đi tiếp | Tap | Giữ phiên chạy; không đổi gì | `SCR-M02-001` |
 | 4 | Finish (từ phiên) | Tap | Hiện xác nhận; xác nhận như [Kết thúc] | Confirmation |
 | 5 | Về danh mục | Tap | Rời màn hình kết quả | `SCR-M01-001` |
+| 6 | Gợi ý tuyến tiếp theo | Tap | Rời màn hình kết quả (v3.6) | `SCR-M01-002` |
 
 ## 6. Screen-level rules
 
@@ -108,6 +113,7 @@ Chưa có mockup cho màn này. Không dùng ảnh mockup về sau để suy ng�
 
 ## 8. Responsive and accessibility notes
 
+- Chuyển động khi vừa kết thúc chuyến hoàn tất (CHG-MASCOT-2026-11-28-10; specs/006 US7, ≤ 2,4 s, chạm để bỏ qua; mở lại màn: tĩnh): chip trượt xuống → tiêu đề hiện dần → Mila bật lên một lần → vòng tiến độ chạy đầy rồi đổi thành ✓ → các điểm hiện lần lượt (mỗi điểm cách 80 ms). Giảm chuyển động hoặc tắt "Hiệu ứng chuyển động": hiện thẳng, chấm chờ gửi đứng yên. Đổi VI/EN không chạy lại.
 - Định hướng mobile-first: ưu tiên nội dung/action chính, wrap text/tags và stack panels theo chiều rộng thực tế; tránh chiều rộng cố định gây tràn ngang. 360px, 768px và 1280px là kích thước tham khảo để review, không phải hard breakpoint hoặc điều kiện bật/tắt tính năng.
 - Review text dài vi/en, zoom, keyboard/focus và error states; không ẩn action nghiệp vụ chỉ vì viewport nhỏ. Bố cục cuối cùng còn chờ UX review.
 - Mục tiêu review accessibility: keyboard access, visible focus, semantic labels, focus được quản lý trong dialog, trạng thái đồng bộ không chỉ biểu đạt bằng màu và reduced motion. Tham khảo WCAG 2.1 AA, touch target khoảng 44×44px và contrast 4.5:1 cho normal text; đây là định hướng cần kiểm chứng trên frontend, không phải tuyên bố đã đạt chuẩn.

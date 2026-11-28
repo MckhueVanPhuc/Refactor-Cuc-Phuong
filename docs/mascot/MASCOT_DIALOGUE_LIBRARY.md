@@ -77,7 +77,7 @@ Cột **P** là mức ưu tiên ([State Machine](MASCOT_STATE_MACHINE.md) §5): 
 | MAS-MSG-057 | Như MAS-MSG-056, lần thứ 2 trở đi (xen kẽ) | Lời nhắc ứng xử với thiên nhiên (cần Ban Quản lý duyệt, MAS-D-05) | Pool, xem §3.4 | Pool, xem §3.4 | Tôn trọng | Tự ẩn | — | P6 | Có | 10 phút |
 | MAS-MSG-059 | Chạm mascot ở SCR-M02-002/004 | Du khách hỏi | Vuốt ảnh để xem thêm, kéo xuống để đọc phần giới thiệu. | Swipe the photos, then scroll down to read more. | Hữu ích | Tự ẩn | — | P3 | Có | 10 s |
 | MAS-MSG-061 | `m02.finalPrompt.continued` | Chọn "Đi tiếp" | Được thôi! Khi sẵn sàng, nút Kết thúc chuyến vẫn ở đây. | Sure! The End trip button is here whenever you're ready. | Thoải mái | Tự ẩn | — | P5 | Có | 2 phút |
-| MAS-MSG-062 | `m02.trip.ended{status=HOAN_TAT}` | Vừa kết thúc bằng xác nhận | Hôm nay mình đã cùng bạn quét {k} điểm. Vui ghê! | We scanned {k} stops together today. What a trip! (k = 1: "We scanned 1 stop together today. What a trip!") | Hạnh phúc | Tự ẩn | — | P4 | Không | 1 lần/phiên |
+| MAS-MSG-062 | **Nghỉ từ spec-Mascot v1.10** (ăn mừng nói MAS-MSG-065); trước: `m02.trip.ended{status=HOAN_TAT}` | Vừa kết thúc bằng xác nhận | Hôm nay mình đã cùng bạn quét {k} điểm. Vui ghê! | We scanned {k} stops together today. What a trip! (k = 1: "We scanned 1 stop together today. What a trip!") | Hạnh phúc | Tự ẩn | — | P4 | Không | 1 lần/phiên |
 | MAS-MSG-070 | `m02.sync.statusChanged{PENDING}` khi offline, ở màn kết quả | Chưa gửi được | Chuyến đi đã lưu trên máy. Lần tới có sóng và mở app, mình sẽ gửi đi. | Your trip is saved on this phone. I'll send it next time you're online. | Trấn an | Tự ẩn | — | P5 | Không | 1 lần/phiên |
 | MAS-MSG-074 | `app.network.offline`, có phiên | Mất sóng giữa chuyến | Mất sóng rồi. Đừng lo, các điểm trong tuyến vẫn quét được. | Signal's gone, but stops on your route can still be scanned. | Bình tĩnh | Tự ẩn | — | P5 | Có | 10 phút |
 | MAS-MSG-075 | `app.network.online` sau MAS-MSG-074 | Có sóng lại | Có sóng lại rồi! | Signal's back! | Vui nhẹ | Tự ẩn | — | P7 | Có | 10 phút |
@@ -118,11 +118,11 @@ Màn đã có câu cố định đủ rõ, nên mascot chỉ đứng cạnh câu
 | MAS-MSG-033 | Chạm mascot ở SCR-M02-001, scanner đóng, có lượt ghé, còn r = n − k ≥ 1 | Giữa chặng (v1.7: số điểm còn lại đã hiện trên thẻ tuyến) | Chạm điểm đã quét để đọc lại, hoặc quét tem QR ở điểm tiếp theo nhé. | Tap a scanned stop to read it again, or scan the sign at the next stop. | Cổ vũ nhẹ | Tự ẩn | — | P3 | Có | — |
 | MAS-MSG-043 | Chạm mascot khi scanner mở | Đang quét | Lại gần tem hơn và tránh chỗ chói nắng nhé. | Move closer to the sign and avoid the glare. | Hướng dẫn | Tự ẩn | — | P3 | Có | — |
 | MAS-MSG-058 | `m02.visit.recorded`, k = n − 1, n ≥ 3, không phải mốc đầu tiên hay nửa | Mốc cấp 2 | Đã ghi nhận! Chỉ còn một điểm nữa thôi! | Recorded! Just one stop to go! | Hào hứng | Tự ẩn | — | P4 | Không | 1 lần/phiên/tải trang |
-| MAS-MSG-063 | `m02.trip.ended{HOAN_TAT}`, vừa kết thúc, k = n | Cấp 3, quét đủ | Bạn đã quét đủ {n} điểm của tuyến. Tuyệt vời! | You scanned all {n} stops of the route. Amazing! | Tự hào | Tự ẩn | — | P4 | Không | 1 lần/phiên |
+| MAS-MSG-063 | **Nghỉ từ spec-Mascot v1.10** (ăn mừng nói MAS-MSG-065); trước: `m02.trip.ended{HOAN_TAT}`, vừa kết thúc, k = n | Cấp 3, quét đủ | Bạn đã quét đủ {n} điểm của tuyến. Tuyệt vời! | You scanned all {n} stops of the route. Amazing! | Tự hào | Tự ẩn | — | P4 | Không | 1 lần/phiên |
 | MAS-MSG-065 | Chạm mascot ở SCR-M02-003 | Màn kết quả | Cảm ơn bạn đã đi cùng mình hôm nay! | Thanks for exploring with me today! | Ấm áp | Tự ẩn | — | P3 | Có | — |
 | MAS-MSG-085 | Chạm 5 lần trong 3 s | Đùa nhẹ | Ui, chóng mặt quá! | Whoa, I'm dizzy! | Tinh nghịch | Tự ẩn | — | P3 | Không | 1 lần/tải trang |
 
-Kết thúc sớm (k < n) giữ MAS-MSG-062 — tích cực như khi quét đủ, không có giọng tiếc nuối (BR-MAS-23).
+Kết thúc sớm (k < n) giữ MAS-MSG-062 — tích cực như khi quét đủ, không có giọng tiếc nuối (BR-MAS-23). Từ v1.10 (2026-11-28) cả hai trường hợp nói MAS-MSG-065 "Cảm ơn bạn đã đi cùng mình hôm nay!"; thẻ tóm tắt của màn đã hiện k/n.
 
 ### 3.4b Ghi chú v1.2 (spec-Mascot BR-MAS-24)
 

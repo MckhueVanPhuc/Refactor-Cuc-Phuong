@@ -60,17 +60,18 @@ async function endTrip(page: Page, { intake, offline, before = [] }: Options) {
 const accept = (route: Route) => route.fulfill({ status: 200, json: { result: 'ACCEPTED' } });
 const confetti = (page: Page) => page.locator('[data-leaf-confetti] > span');
 
-test('M15: vừa kết thúc → confetti lá ≤ 40 hạt, huy hiệu đóng dấu; hết sau 2,4 s; mở lại: tĩnh; không thêm chữ/số', async ({ page }) => {
+test('M15: vừa kết thúc → confetti lá ≤ 40 hạt, chip/vòng/danh sách hiện lần lượt; hết sau 2,4 s; mở lại: tĩnh; không thêm chữ/số', async ({ page }) => {
   await endTrip(page, { intake: accept, before: ['Q1a', 'Q2'] });
   const count = await confetti(page).count();
   expect(count).toBeGreaterThan(0);
   expect(count).toBeLessThanOrEqual(40);
   await expect(page.locator('section[data-celebrate]')).toHaveCount(1);
-  const heroText = await page.locator('section[data-session-id] > div').first().innerText();
+  // Chữ của ảnh bìa (chip, tiêu đề, phụ đề), không tính bong bóng của Mila (CHG-MASCOT-2026-11-28-10)
+  const heroText = await page.locator('[data-end-hero-text]').textContent();
   await expect(confetti(page)).toHaveCount(0, { timeout: 5_000 });
   await expect(page.locator('section[data-celebrate]')).toHaveCount(0);
   // Chữ đầu màn không đổi khi hết ăn mừng (không chèn chữ/số)
-  expect(await page.locator('section[data-session-id] > div').first().innerText()).toBe(heroText);
+  expect(await page.locator('[data-end-hero-text]').textContent()).toBe(heroText);
   await page.reload();
   await expect(page.getByRole('heading', { name: vi.end.title })).toBeVisible();
   await expect(confetti(page)).toHaveCount(0);
@@ -85,10 +86,11 @@ test('M15: chạm trong lúc ăn mừng → về trạng thái cuối ngay', asy
   await expect(confetti(page)).toHaveCount(0);
 });
 
-test('M16: CONFLICT → đúng một Mila trên màn (hình trong banner); thẻ "Hẹn gặp lại" dùng trái tim', async ({ page }) => {
+test('M16: CONFLICT → đúng một Mila trên màn, ở ảnh bìa; banner không có hình (spec-Mascot v1.10)', async ({ page }) => {
   await endTrip(page, { intake: (route) => route.fulfill({ status: 409, json: { result: 'CONFLICT' } }) });
   await expect(page.getByText(vi.end.syncConflict)).toBeVisible();
   await page.waitForTimeout(500);
   await expect(page.locator('[data-mascot-figure], [data-mascot-mode]')).toHaveCount(1);
-  await expect(page.locator('[data-mascot-slot="end-hero"]')).toHaveCount(0);
+  await expect(page.locator('[data-mascot-slot="end-hero"] [data-mascot-mode]')).toHaveCount(1);
+  await expect(page.locator('[data-end-conflict] [data-mascot-figure]')).toHaveCount(0);
 });

@@ -146,26 +146,48 @@ button.figure:focus-visible {
 }
 
 /*
- * Thẻ "Hẹn gặp lại" màn kết quả (v1.5, phương án E): Mila đứng ở đầu thẻ; lúc ăn mừng lớn hơn (1,5 lần cỡ đứng) nhưng
- * không lớn cỡ xl; bong bóng ở hàng trên, đuôi ở cạnh dưới chỉ xuống Mila (cả lúc ăn mừng lẫn lúc đứng)
+ * Ảnh bìa màn kết quả (spec-Mascot v1.10, OD-MAS-34; CHG-MASCOT-2026-11-28-10): Mila đứng ở cột phải, cùng cỡ khi đứng
+ * và khi ăn mừng; lúc ăn mừng bật lên 0.6 → 1.1 → 1 (M02-48); bong bóng ở bên trái, đuôi ở cạnh phải chỉ sang Mila.
+ * Giảm chuyển động: component bỏ `data-mascot-animation` nên không bật.
  */
 :global([data-mascot-dock='end']) .mascot[data-mascot-mode='CELEBRATE'] .figure {
-  width: calc(var(--mascot-dock-size) * 1.5);
+  width: var(--mascot-dock-size);
+  height: var(--mascot-dock-size);
+}
+
+:global([data-mascot-dock='end']) .mascot[data-mascot-animation='celebrate'] .figure {
+  animation: mascot-burst var(--duration-mascot-hop) var(--ease-spring) var(--duration-feedback) both;
 }
 
 :global([data-mascot-dock='end']) .mascot .bubble {
-  max-width: min(100%, calc(var(--mascot-bubble-max-width) + var(--space-8) * 2));
-  border-radius: var(--mascot-bubble-radius) var(--mascot-bubble-radius) var(--mascot-bubble-radius) var(--mascot-bubble-radius-tail);
+  max-width: min(100%, var(--mascot-bubble-max-width));
+  border-radius: var(--mascot-bubble-radius) var(--mascot-bubble-radius) var(--mascot-bubble-radius-tail) var(--mascot-bubble-radius);
 }
 
 :global([data-mascot-dock='end']) .mascot .bubble::before {
   top: auto;
-  right: auto;
-  bottom: calc(var(--space-2) * -1);
-  left: calc(var(--space-3) + var(--mascot-dock-size) / 2 - var(--space-2));
+  right: calc(var(--space-2) * -1);
+  bottom: var(--space-3);
+  left: auto;
   border: 0;
+  border-top: var(--mascot-bubble-border) solid var(--color-m01-forest);
   border-right: var(--mascot-bubble-border) solid var(--color-m01-forest);
-  border-bottom: var(--mascot-bubble-border) solid var(--color-m01-forest);
+}
+
+@keyframes mascot-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: none;
+  }
 }
 
 /* Hero danh mục (v1.3, design-system §9.3a): bong bóng nằm dưới hero, đuôi ở cạnh trên chỉ lên Mila bên phải */

@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | Module | Mascot (cross-cutting visitor experience capability used by M01 and M02) |
-| Version | 1.9 |
-| Status | Behavioral baseline for the mascot capability (AGENTS.md §3.1). Implementation follows the approved change briefs CHG-MASCOT-2026-11-21-01, CHG-MASCOT-2026-11-22-02, CHG-MASCOT-2026-11-23-03, CHG-MASCOT-2026-11-23-04, CHG-MOTION-2026-11-24-01, CHG-MASCOT-2026-11-24-05, CHG-MASCOT-2026-11-25-06, CHG-MASCOT-2026-11-27-07, CHG-MASCOT-2026-11-27-08 and CHG-MASCOT-2026-11-27-09. |
-| Last updated | 2026-11-27 |
+| Version | 1.10 |
+| Status | Behavioral baseline for the mascot capability (AGENTS.md §3.1). Implementation follows the approved change briefs CHG-MASCOT-2026-11-21-01, CHG-MASCOT-2026-11-22-02, CHG-MASCOT-2026-11-23-03, CHG-MASCOT-2026-11-23-04, CHG-MOTION-2026-11-24-01, CHG-MASCOT-2026-11-24-05, CHG-MASCOT-2026-11-25-06, CHG-MASCOT-2026-11-27-07, CHG-MASCOT-2026-11-27-08, CHG-MASCOT-2026-11-27-09 and CHG-MASCOT-2026-11-28-10. |
+| Last updated | 2026-11-28 |
 | Consumers | Visitor web app: M01 screens SCR-M01-001…004, M02 screens SCR-M02-001…004 |
-| Depends on | spec-M01 v3.2 and spec-M02 v3.5 (check-in feedback may be presented by Mila, BR-MAS-24; end-of-trip prompt on SCR-M02-001, BR-M02-021) |
+| Depends on | spec-M01 v3.2 and spec-M02 v3.6 (check-in feedback may be presented by Mila, BR-MAS-24; end-of-trip prompt on SCR-M02-001, BR-M02-021) |
 | Design input | docs/mascot/ (design package of 2026-11-20, updated 2026-11-21 and 2026-11-22) |
 | MVP priority | Could (user decision 2026-11-21, OD-MAS-08; recorded in MVP-Scope.md §3.6) |
 
@@ -115,8 +115,9 @@ Out of scope:
 
 ### US-MAS-08 — Finish the trip with Mila
 
-1. Given the visitor has just confirmed the end of the trip and the session is `HOAN_TAT`, when the trip result screen SCR-M02-003 opens, then Mila celebrates once (motion at most `MASCOT_CELEBRATION_MS`, skippable by a tap) with MSG-MAS-063 if every journey checkpoint was scanned, otherwise MSG-MAS-062; when the motion ends Mila returns to its standing place in the farewell card while the sentence stays for its reading time (v1.5).
-2. Reopening the result screen later shows Mila in the farewell card without a celebration (v1.5; before: next to the badge).
+1. Given the visitor has just confirmed the end of the trip and the session is `HOAN_TAT`, when the trip result screen SCR-M02-003 opens, then Mila celebrates once (motion at most `MASCOT_CELEBRATION_MS`, skippable by a tap) with MSG-MAS-065, whether or not every journey checkpoint was scanned (v1.10; before: MSG-MAS-063 or MSG-MAS-062); Mila stands at the right of the screen's cover, the bubble beside it, and when the motion ends Mila stays there while the sentence stays for its reading time (v1.10; v1.5: in the farewell card).
+2. Reopening the result screen later shows Mila in the cover without a celebration (v1.10; v1.5: in the farewell card; before: next to the badge).
+3. When the trip could not be sent (`CONFLICT`), Mila stays in the cover without a bubble and the error banner has no figure, so the screen shows one Mila (v1.10).
 
 ### US-MAS-09 — Mila feels alive, and the visitor can pause it
 
@@ -180,7 +181,7 @@ sequenceDiagram
 | SCR-M01-004 offline resources | Package panel; empty state | AVATAR, INLINE |
 | SCR-M02-001 trip and scanner | Next to the Scan action; next to the notice area; scanner overlay strip below the frame; end-of-trip dialog header | DOCK; INLINE; AVATAR; INLINE |
 | SCR-M02-002 checkpoint content | Where the visit toast appears (Mila's bubble is the check-in feedback, BR-MAS-24) | AVATAR |
-| SCR-M02-003 trip result | In the farewell card "Hẹn gặp lại…", in place of its heart icon (v1.5); the completion badge stands alone | CELEBRATE, DOCK |
+| SCR-M02-003 trip result | In the screen's cover, at the right of the thank-you title, the bubble beside it (v1.10; v1.5: in the farewell card, which v1.10 removes) | CELEBRATE, DOCK |
 | SCR-M02-004 QR link page | Where the visit toast appears (with a session; BR-MAS-24); next to the "Chọn tuyến" action at the end of the content (without; v1.8: the free-visitor sentence itself is a short toast at the top) | AVATAR; INLINE (OD-MAS-14) |
 
 The motion control of BR-MAS-21 is shown once, on the Resources screen SCR-M01-004, also when Mila is disabled by the release switch (v1.4); screen headers have no motion control (v1.3).
@@ -253,7 +254,7 @@ There is no "sync in progress", "journey paused" or "content read" event: spec-M
 | BR-MAS-21 | **Ambient motion and motion control** (user decision 2026-11-22, option A). On SCR-M01-001, SCR-M01-002 (v1.5), SCR-M02-001 with the scanner closed and SCR-M02-003, when Mila is in `DOCK` without a bubble, Mila makes one gesture of two or three beats (at most `MASCOT_AMBIENT_GESTURE_MS`) at a random interval between `MASCOT_AMBIENT_MIN_MS` and `MASCOT_AMBIENT_MAX_MS`, and breathes gently between gestures (v1.5, user decision 2026-11-24); never in the contexts of BR-MAS-08 or on reading screens. A looping animation of a reaction (waiting for a lookup or a download) runs at most `MASCOT_LOOP_MAX_MS` per occurrence. The Resources screen SCR-M01-004 shows one motion control for the whole app (v1.3, user decision 2026-11-23; v1.4, user decision 2026-11-24: switch "Hiệu ứng chuyển động" / "Motion effects", state on or off, shown also when Mila is disabled by the release switch); screen headers have none. Off: no animation of Mila runs, no particles, no decorative motion (§1.1), no vibration (BR-MAS-19), bubble text appears at once; Mila and its bubbles stay, and feedback to the visitor's own actions remains as a change of color or a fade of at most 150 ms (design-system §4.3). The choice lasts for the current page load and is not stored (BR-MAS-18). This satisfies WCAG 2.2.2 for motion that lasts more than 5 s; the user accepted on 2026-11-23 that the control sits on one screen, reached from the Resources tab (on a trip screen the visitor leaves the trip view to reach it). |
 | BR-MAS-22 | **Repeated taps** (user decision 2026-11-22). Taps within `MASCOT_TAP_DEBOUNCE_MS` count once. A running animation is not restarted. At most one bubble is visible; a tap while a help bubble is shown follows US-MAS-06 item 2. `MASCOT_DIZZY_TAPS` taps within `MASCOT_DIZZY_WINDOW_MS` show the dizzy reaction once per page load (confused pose, wobble, MSG-MAS-085); afterwards taps behave normally. Mila never falls or shows harm. |
 | BR-MAS-24 | **Mila confirms the recorded visit** (user decision 2026-11-23, CHG-MASCOT-2026-11-23-03). When the visit of a journey checkpoint is recorded for the first time (since v1.6 also the final checkpoint), Mila's celebrating bubble (MSG-MAS-050, 051, 055 or 058) is the check-in feedback of spec-M02 §8: its text states that the scan was recorded, it has the `status` role so assistive technology announces it once, and the "Đã ghi nhận lượt quét." toast is not shown. The toast is shown exactly as before whenever Mila cannot confirm: the release switch is off; Mila is hidden after a failure (BR-MAS-15, 16); the screen has no ready slot; or the confirming bubble has not appeared within `MASCOT_CONFIRM_FALLBACK_MS` of the visit being recorded. Since v1.6 the end-of-trip prompt (BR-M02-021) is no longer on the content screen, so the final checkpoint is confirmed like any other. The visitor never sees both the toast and the confirming bubble, and never sees neither. |
-| BR-MAS-23 | **Celebration tiers** (user decision 2026-11-22). Tier 1, an ordinary newly recorded visit: one hop and MSG-MAS-050. Tier 2, milestones, in this order of precedence when several apply: the first visit of the session (MSG-MAS-051), half of the checkpoints when n ≥ 4 (MSG-MAS-055), one checkpoint left when n ≥ 3 (MSG-MAS-058): two hops, a few falling leaves and the milestone sentence. Tier 3, the end of a completed trip (US-MAS-08): the full celebration with MSG-MAS-063 or MSG-MAS-062. Ending early is celebrated as positively as a full trip. Tiers are reactions only: nothing is counted, collected or stored, and MVP-Scope §4 stays Won't. Vibration follows BR-MAS-19 unchanged. |
+| BR-MAS-23 | **Celebration tiers** (user decision 2026-11-22). Tier 1, an ordinary newly recorded visit: one hop and MSG-MAS-050. Tier 2, milestones, in this order of precedence when several apply: the first visit of the session (MSG-MAS-051), half of the checkpoints when n ≥ 4 (MSG-MAS-055), one checkpoint left when n ≥ 3 (MSG-MAS-058): two hops, a few falling leaves and the milestone sentence. Tier 3, the end of a completed trip (US-MAS-08): the full celebration with MSG-MAS-065 (v1.10). Ending early is celebrated as positively as a full trip. Tiers are reactions only: nothing is counted, collected or stored, and MVP-Scope §4 stays Won't. Vibration follows BR-MAS-19 unchanged. |
 
 ### 5.4 Provisional limits
 
@@ -338,9 +339,9 @@ Proposed wording for review. `{name}` is `Mila`; `{k}` scanned checkpoints, `{n}
 | MSG-MAS-058 | One checkpoint left (n ≥ 3), tier 2 (BR-MAS-24) | Đã ghi nhận! Chỉ còn một điểm nữa thôi! | Recorded! Just one stop to go! |
 | MSG-MAS-059 | Tap, SCR-M02-002/004 | Vuốt ảnh để xem thêm, kéo xuống để đọc phần giới thiệu. | Swipe the photos, then scroll down to read more. |
 | MSG-MAS-061 | "Đi tiếp" pressed | Được thôi! Khi sẵn sàng, nút Kết thúc chuyến vẫn ở đây. | Sure! The End trip button is here whenever you're ready. |
-| MSG-MAS-062 | Trip just ended, `HOAN_TAT` | Hôm nay mình đã cùng bạn quét {k} điểm. Vui ghê! | We scanned {k} stops together today. What a trip! (k = 1: "We scanned 1 stop together today. What a trip!") |
-| MSG-MAS-063 | Trip just ended, `HOAN_TAT`, every journey checkpoint scanned | Bạn đã quét đủ {n} điểm của tuyến. Tuyệt vời! | You scanned all {n} stops of the route. Amazing! |
-| MSG-MAS-065 | Tap, SCR-M02-003 | Cảm ơn bạn đã đi cùng mình hôm nay! | Thanks for exploring with me today! |
+| MSG-MAS-062 | **Retired in v1.10** (was: trip just ended, `HOAN_TAT`); the ID is not reused | Hôm nay mình đã cùng bạn quét {k} điểm. Vui ghê! | We scanned {k} stops together today. What a trip! (k = 1: "We scanned 1 stop together today. What a trip!") |
+| MSG-MAS-063 | **Retired in v1.10** (was: trip just ended, `HOAN_TAT`, every journey checkpoint scanned); the ID is not reused | Bạn đã quét đủ {n} điểm của tuyến. Tuyệt vời! | You scanned all {n} stops of the route. Amazing! |
+| MSG-MAS-065 | Tap, SCR-M02-003; since v1.10 also trip just ended, `HOAN_TAT` (US-MAS-08) | Cảm ơn bạn đã đi cùng mình hôm nay! | Thanks for exploring with me today! |
 | MSG-MAS-070 | Result screen, `PENDING`, device offline | Chuyến đi đã lưu trên máy. Lần tới có sóng và mở app, mình sẽ gửi đi. | Your trip is saved on this phone. I'll send it next time you're online. |
 | MSG-MAS-074 | Network lost during a session | Mất sóng rồi. Đừng lo, các điểm trong tuyến vẫn quét được. | Signal's gone, but stops on your route can still be scanned. |
 | MSG-MAS-075 | Network back after MSG-MAS-074 | Có sóng lại rồi! | Signal's back! |
@@ -383,7 +384,7 @@ None. Mascot events are transient notifications; Mila's state, cooldowns and tim
 | SCR-M01-004 | screens/screen-spec/M01/screen-spec-SCR-M01-004.md | Slots; motion control (v1.3; label and visibility v1.4); MSG-MAS-018, 020, 021, 024, 025 |
 | SCR-M02-001 | screens/screen-spec/M02/screen-spec-SCR-M02-001.md | Slots; MSG-MAS-030–049, 056, 057, 061, 074, 075, 085 |
 | SCR-M02-002 | screens/screen-spec/M02/screen-spec-SCR-M02-002.md | Slot; MSG-MAS-050–055, 058, 059 |
-| SCR-M02-003 | screens/screen-spec/M02/screen-spec-SCR-M02-003.md | Slot; MSG-MAS-062, 063, 065, 070, 085 |
+| SCR-M02-003 | screens/screen-spec/M02/screen-spec-SCR-M02-003.md | Slot; MSG-MAS-065, 070, 085 (v1.10) |
 | SCR-M02-004 | screens/screen-spec/M02/screen-spec-SCR-M02-004.md | Slots; as SCR-M02-002 with a session |
 
 No new screen. Screen specs are derived documents and are updated only after this spec becomes a baseline.
@@ -431,6 +432,7 @@ No new screen. Screen specs are derived documents and are updated only after thi
 | OD-MAS-31 | Catalog hero: Mila too small in VI, elements too large and overlapping in EN (owner review 2026-11-25, four mockups A–D) | **Decided 2026-11-25:** option C — title on its own row; the "Route suggestions" action and Mila on the hills share the row below; Mila in a fixed-width column so VI/EN change only the words (§5.1; design-system §9.2, §9.3a). |
 | OD-MAS-32 | Mila and the leaves on the content screen seemed to last about 5 s; Mila hopped once | **Decided 2026-11-25:** Mila stays for the bubble's reading time (about 15 s) and the celebration motion and leaves repeat until Mila leaves (US-MAS-02.6). |
 | OD-MAS-33 | End-of-trip prompt on the content screen; translucent prompt with two Milas on SCR-M02-001 | **Decided 2026-11-25:** the prompt moves to SCR-M02-001 (spec-M02 v3.4 BR-M02-021); the final checkpoint is confirmed like any other visit (BR-MAS-24); the prompt is a solid panel on a dimmed backdrop with Mila only in its header (§5.1). |
+| OD-MAS-34 | Result screen: Mila and the badge apart, white text hard to read on the bright forest photo, three thank-you sentences, the visit list pushed below the fold (owner review 2026-11-28, M02-43, 44, 48) | **Decided 2026-11-28:** one thank-you title on a dark cover; Mila cheers at the right of the cover with MSG-MAS-065 in a bubble beside it; the farewell card and the stand-alone badge are removed; the completion mark is the summary card's ring (US-MAS-08, §5.1). |
 | OD-MAS-18 | Confirmation button after the introduction on the language step | **Decided 2026-11-23 (v1.3):** the introduction becomes a centred overlay with one sentence, closed by a tap ("Chạm để bắt đầu"), no skip button (US-MAS-01). |
 
 ## 11. Relationship to other documents
@@ -464,6 +466,7 @@ No new screen. Screen specs are derived documents and are updated only after thi
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.10 | 2026-11-28 | Change brief CHG-MASCOT-2026-11-28-10 (approved 2026-11-28) after the owner's review of the trip result screen: Mila stands in the screen's cover instead of the farewell card, which is removed (§5.1, US-MAS-08); the end-of-trip celebration says MSG-MAS-065 whether or not every checkpoint was scanned (US-MAS-08, BR-MAS-23); MSG-MAS-062 and MSG-MAS-063 are retired; with `CONFLICT` the banner has no figure and Mila stays in the cover without a bubble. OD-MAS-34. No new message, event, priority or rule of spec-M02. |
 | 1.9 | 2026-11-27 | Change brief CHG-MASCOT-2026-11-27-09 (approved 2026-11-27) after a tester review: the scan-result notices (invalid code, code not checked) no longer show Mila; on SCR-M02-001 the standing Mila takes the confused pose on the first failure, so the screen shows one Mila (§5.1). No new message, event, priority or slot. |
 | 1.8 | 2026-11-27 | Change brief CHG-MASCOT-2026-11-27-08 (approved 2026-11-27) after a tester review of the scanner: Mila no longer appears on the camera-unavailable panel, which gets its own camera icon and steps to allow the camera (§5.1); the camera-failed event still stops the scanner timers. On the QR link page without a session the free-visitor sentence becomes a 4-second toast at the top, so Mila's illustration stands next to the "Chọn tuyến" action at the end of the content (§5.1). No new message, event, priority or slot. |
 | 1.7 | 2026-11-27 | Change brief CHG-MASCOT-2026-11-27-07 (approved 2026-11-27) after a tester review of the trip screen: MSG-MAS-030 and 056 name the suggested next checkpoint `{next}` (§5.6) instead of repeating the session-start hint, and are not said when there is no next checkpoint (BR-MAS-02, 13); MSG-MAS-033 drops the count that the trip screen now shows (BR-MAS-12). Mila keeps its slot next to the Scan action (§5.1 unchanged). No new event, priority or slot. |
