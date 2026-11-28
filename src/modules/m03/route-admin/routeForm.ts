@@ -59,7 +59,7 @@ export type StepId = 'card' | 'details' | 'tags' | 'checkpoints';
 export const STEPS: { id: StepId; label: string }[] = [
   { id: 'card', label: 'Thẻ tuyến' },
   { id: 'details', label: 'Chi tiết' },
-  { id: 'tags', label: 'Nhãn' },
+  { id: 'tags', label: 'Nhãn gợi ý tuyến' },
   { id: 'checkpoints', label: 'Điểm dừng' },
 ];
 

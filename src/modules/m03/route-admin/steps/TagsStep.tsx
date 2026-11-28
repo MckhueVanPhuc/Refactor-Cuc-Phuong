@@ -1,4 +1,4 @@
-// Bước 3 "Nhãn" (tasks T111): nhãn nhóm, nhãn trải nghiệm, nhãn hướng dẫn viên (spec-M03 v3.8); nhãn thời gian chỉ đọc, suy từ thời lượng (BR-M03-C11, C12).
+// Bước 3 "Nhãn gợi ý tuyến" (tasks T111; tên bước đổi 2026-11-28): nhãn nhóm, nhãn trải nghiệm, nhãn hướng dẫn viên (spec-M03 v3.8); nhãn thời gian chỉ đọc, suy từ thời lượng (BR-M03-C11, C12).
 import { Checkbox } from '../../../../shared/ui/Checkbox';
 import type { ExperienceTag, GroupTag, GuideTag } from '../../contracts/adminDtos';
 import { DISPLAY_NAMES } from '../../messages/displayNames';

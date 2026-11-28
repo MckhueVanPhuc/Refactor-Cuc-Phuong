@@ -32,6 +32,7 @@ Chủ dự án, chat 2026-11-28:
 | `GROUP_CAN_DE_DANG` "Cần đi dễ dàng" (người cần tuyến dễ) | **Nghỉ**. Thêm `GROUP_DI_THEO_DOAN` "Đi theo đoàn" / EN "With a tour group". Mã cũ không dùng lại |
 | Lưu nháp bị chặn khi `difficulty = KHO` đi cùng `GROUP_GIA_DINH_CO_TRE` hoặc `GROUP_CAN_DE_DANG` | Chỉ chặn `KHO` + `GROUP_GIA_DINH_CO_TRE`. `GROUP_DI_THEO_DOAN` gắn được với mọi độ khó |
 | BR-M03-C12: "No new tag groups in MVP" | Thêm nhóm thứ tư `guideTags` (xem D4) |
+| Bước 3 của editor tuyến tên "Nhãn" (screen spec ghi "Nhóm khách và trải nghiệm") | **"Nhãn gợi ý tuyến"** (chủ dự án chọn 2026-11-28); screen spec SCR-M03-002 sửa cho khớp |
 | Mỗi lần mở form, Mila nói MSG-MAS-010 | Quay lại từ trang kết quả (link "Đổi tiêu chí", hoặc nút Back / cử chỉ quay lại của trình duyệt): Mila đứng ở DOCK, **không bong bóng**; chạm Mila thì nói theo MAS-B-090 như hiện có. Vào từ nơi khác (Danh mục tuyến, màn kết quả chuyến đi, mở link trực tiếp): nói MSG-MAS-010 như cũ |
 | MSG-MAS-010 "Bạn có bao lâu, đi cùng ai, thích gì? Chọn mỗi nhóm một ý nhé." | "Bạn có bao lâu, đi cùng ai, thích gì? Để mình gợi ý cho nhé!" / EN "How long do you have, who's coming, what do you enjoy? Let me suggest some routes!" |
 | MSG-MAS-015 "Chọn đủ ba mục rồi bấm Xem tuyến phù hợp nhé." | "Chọn xong các mục rồi bấm "Xem tuyến phù hợp" nhé!" / EN "Done choosing? Tap "Show matching routes"!" |
