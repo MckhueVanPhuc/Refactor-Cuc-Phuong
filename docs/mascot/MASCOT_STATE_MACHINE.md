@@ -224,7 +224,7 @@ Cột "Nguồn" chỉ nơi trong code hiện tại sẽ phát sự kiện (chỉ
 | T10 | Bất kỳ (trừ `HIDDEN`) | Dialog mở / media phát / trang ẩn | Mascot không thuộc dialog đó | `SUPPRESSED` | AN-EXIT | Không | — | Ngữ cảnh kết thúc → trạng thái trước (bỏ lời thoại cũ) |
 | T11 | — | *(đã bỏ: thu nhỏ / yên lặng, quyết định 2026-11-21)* | — | — | — | — | — | — |
 | T12 | `IDLE` | `mascot.user.tapped` | Màn có câu gợi ý (MAS-FR-11) | `SPEAKING` | AN-POP | MAS-MSG-009 / 032 / 059 | Theo thư viện | Hết thời lượng, × |
-| T13 | `IDLE` | `m02.trip.ended{HOAN_TAT}` trên SCR-M02-003 | Vừa kết thúc (có `state.sessionId`) | `CELEBRATING` (mode CELEBRATE) | AN-CELEBRATE + lá rơi | MAS-MSG-062 | ≤ 2,4 s | Tự kết thúc / chạm → `IDLE` INLINE |
+| T13 | `IDLE` | `m02.trip.ended{HOAN_TAT}` trên SCR-M02-003 | Vừa kết thúc (có `state.sessionId`) | `CELEBRATING` (mode CELEBRATE) | AN-CELEBRATE + lá rơi | MAS-MSG-065 (v1.10; trước: 062) | ≤ 2,4 s | Tự kết thúc / chạm → `IDLE` (DOCK ở ảnh bìa, v1.10) |
 | T14 | Bất kỳ | Lỗi tải ảnh / lỗi bộ điều khiển | — | `HIDDEN` | Không | Không | — | Tải lại trang |
 | T15 | `IDLE` | Hẹn giờ không hoạt động (§6) | Ngữ cảnh cho phép | `IDLE` (nhìn quanh) hoặc `SPEAKING` | AN-LOOK | MAS-MSG-042/049/008 | — | Hoạt động có ý nghĩa |
 

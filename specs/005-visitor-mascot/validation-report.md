@@ -946,3 +946,30 @@ Test đổi có chủ đích: `rules.test.ts` MAS-B-043→044 và MAS-B-046 (l�
 | DV-105 | M02-31: tester ghi đã tải gói mà vẫn "Chưa có nội dung offline". Gói chỉ được nhận khi đủ mọi byte ảnh (`readActiveOfflinePackage`); chủ dự án xác nhận 2026-11-27: không phải lỗi chức năng (gói chưa sẵn sàng khi thử) | Đóng |
 | DV-106 | Quét trong 0,8 s đầu sau khi bắt đầu chuyến: câu chào 030 của Mila tới sau và thay tư thế bối rối của lần lỗi đầu (thông báo vẫn đúng) | Chấp nhận |
 | DV-107 | BUG-031 (toast xác nhận lượt quét che thẻ phía trên vài giây) | Chủ dự án: không phải lỗi |
+
+## 24. Đợt 2026-11-28 — Phase 24: spec-M02 v3.6, spec-Mascot v1.10 (T138–T142) — CHG-MASCOT-2026-11-28-10
+
+Bảng test M02-43, 44, 48; chủ dự án duyệt bản mô phỏng HTML ba trạng thái (đủ điểm; thiếu điểm chờ gửi; CONFLICT) và rút gọn tiêu đề còn "Cảm ơn bạn đã đồng hành cùng Cúc Phương." (hai dòng ở 360 px).
+
+| Việc | Tệp |
+|---|---|
+| Ảnh bìa xanh đậm phủ ảnh rừng (chữ sáng luôn đạt tương phản); chip theo k/n; một tiêu đề; phụ đề hẹn gặp lại; bỏ huy hiệu đứng riêng, thẻ "Hẹn gặp lại", hai câu cảm ơn/chúc cũ | `end/EndPage.tsx` (+ css), `layout/FieldLayout.module.css`, `i18n/{vi,en}.ts` |
+| Thẻ tóm tắt: vòng tiến độ, tên tuyến khi có gói, "k/n điểm dừng đã tham quan" | `end/EndPage.tsx`, `end/useEndPackageView.ts` |
+| "Hành trình của bạn": mọi điểm, ảnh nhỏ từ gói (không có → ô biểu tượng), "Chưa ghé · lần sau nhé!" | `end/EndPage.tsx`, `end/useEndPackageView.ts` |
+| Nhãn gửi nhỏ dưới danh sách; banner CONFLICT chỉ có chữ | `end/EndPage.tsx` (+ css) |
+| "Gợi ý tuyến tiếp theo" (`/recommend`) và "Về danh sách tuyến" | `end/EndPage.tsx` (+ css) |
+| Mila ở ảnh bìa, 104 px khi đứng và khi ăn mừng, bật lên 0.6 → 1.1 → 1; câu ăn mừng 065; 062/063 nghỉ | `shared/mascot/rules.ts`, `dialogue/*`, `app/mascot/Mascot.module.css`, `shared/ui/tokens.css` |
+| Chuyển động: chip → tiêu đề → Mila → vòng → ✓ → điểm cách `--duration-stagger` (80 ms) → nhãn gửi; < 2,4 s; chạm để bỏ qua; giảm chuyển động hiện thẳng | `end/EndPage.module.css`, `shared/ui/tokens.css` |
+
+Test đổi có chủ đích: `rules.test.ts` (MAS-B-062/064 nói 065), `catalog.test.ts` (50 câu), `arbiter.test.ts` (câu P4 mẫu là 055 thay 062 đã nghỉ), `EndFlow.test.tsx` (danh sách gồm điểm chưa quét); e2e `mascot-end.spec.ts` (065; banner không hình), `motion-end.spec.ts` M15 (so chữ `[data-end-hero-text]`, không tính bong bóng Mila) và M16 (Mila ở ảnh bìa), `mascot-layout.spec.ts` (104 px; thêm `expectEndHeroClear` vì khung Mila `display: contents` làm `expectMascotOverlapsNothing` không đo được hình ở màn này).
+
+| Lệnh | Exit | Kết quả |
+|---|---|---|
+| `npm run ci` | 0 | lint token 770; 2531 pass, 133 skipped; build OK, precache 118 mục (3016,94 KiB) |
+| `npx playwright test --project=m02 --project=m02-cam-evil --workers=1` | 0 | 84 pass |
+| Chụp app thật 320 px (lúc ăn mừng) và 430 px (Mila đứng, bong bóng còn), từ `mascot-layout.spec.ts` | 0 | Khớp bản mô phỏng đã duyệt; Mila và bong bóng không đè dòng chữ nào ở 320–430 px |
+
+| # | Mục | Trạng thái |
+|---|---|---|
+| DV-108 | "Bạn đã đi hết tuyến" và "Chưa ghé · lần sau nhé!" nói về việc đi/ghé, trong khi app chỉ biết mã đã quét; chủ dự án giữ chữ của mẫu (2026-11-28), ghi vào SC-M02-013 v3.6 | Chấp nhận |
+| DV-109 | `heart.svg` không còn dùng ở SCR-M02-003 (thẻ "Hẹn gặp lại" đã bỏ); giữ file trong `assets/icons/` | Chấp nhận |

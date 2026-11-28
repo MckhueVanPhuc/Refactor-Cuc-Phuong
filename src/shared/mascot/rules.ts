@@ -138,20 +138,21 @@ const US2: Rule[] = [
 const PENDING_NOTE_DELAY_MS = 4_000;
 const PENDING_NOTE_RETRY_MS = 1_000;
 
-/** MAS-B-063: Mila đứng trong thẻ "Hẹn gặp lại" (v1.5, phương án E). Chuyến tự kết thúc (BO_DO) chỉ nghỉ, không mừng. */
+/** MAS-B-063: Mila đứng trong ảnh bìa màn kết quả (v1.10, OD-MAS-34). Chuyến tự kết thúc (BO_DO) chỉ nghỉ, không mừng. */
 const endDock = (status: 'HOAN_TAT' | 'BO_DO'): Intent => ({
   behaviorId: 'MAS-B-063',
   priority: 7,
   mode: 'DOCK',
-  // v1.4 (Behavior Matrix §3b): đứng tự hào trong thẻ "Hẹn gặp lại" sau chuyến hoàn tất
+  // v1.4 (Behavior Matrix §3b): đứng tự hào sau chuyến hoàn tất
   pose: status === 'HOAN_TAT' ? 'proud' : 'rest',
 });
 
 const US4: Rule[] = [
   // MAS-B-062 / 064 → 063: vừa bấm Kết thúc trong lần tải trang này → ăn mừng một lần (cấp 3, BR-MAS-23), rồi về hình
-  // tĩnh. Quét đủ mọi điểm của hành trình (k = n) → 064 / 063; kết thúc sớm → 062, mừng tích cực như nhau.
+  // tĩnh. Quét đủ mọi điểm của hành trình (k = n) → 064; kết thúc sớm → 062, mừng tích cực như nhau. v1.10: cả hai nói
+  // MSG-MAS-065 "Cảm ơn bạn đã đi cùng mình hôm nay!" (MSG-MAS-062/063 nghỉ; thẻ tóm tắt của màn đã hiện k/n).
   // Mở lại hoặc tải lại màn kết quả: chỉ hình tĩnh (Q12). Đóng bong bóng sớm → về hình tĩnh ngay (đích `then` không lời).
-  // v1.5 (DV-92): phần ăn mừng chỉ kéo dài `MASCOT_CELEBRATION_MS`; hết thì Mila về DOCK nhỏ trong thẻ "Hẹn gặp lại",
+  // v1.5 (DV-92): phần ăn mừng chỉ kéo dài `MASCOT_CELEBRATION_MS`; hết thì Mila về DOCK cùng chỗ trong ảnh bìa (v1.10),
   // bong bóng ở lại đủ thời gian đọc (`keepBubble`).
   on('MAS-B-062', 'm02.trip.ended', (event) =>
     event.justEnded && event.status === 'HOAN_TAT'
@@ -163,7 +164,7 @@ const US4: Rule[] = [
               mode: 'CELEBRATE',
               pose: 'cheer',
               animation: 'celebrate',
-              message: event.n > 0 && event.k >= event.n ? { id: 'MSG-MAS-063', params: { n: event.n } } : { id: 'MSG-MAS-062', params: { k: event.k } },
+              message: { id: 'MSG-MAS-065' },
               status: 'CELEBRATING',
               holdMs: MASCOT_CELEBRATION_MS,
               then: { ...endDock(event.status), animation: 'settle', keepBubble: true },

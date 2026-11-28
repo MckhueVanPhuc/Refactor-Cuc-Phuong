@@ -1,5 +1,5 @@
 // Kết thúc chuyến cùng Mila (specs/005 tasks T044; US-MAS-08; Q12; BR-M02-011). Dựng chuyến như sync.spec.ts
-// (quét điểm cuối Q3 → [Kết thúc]). Câu 062 chỉ hiện vài giây: MutationObserver ghi lại mọi câu Mila đã nói
+// (quét điểm cuối Q3 → [Kết thúc]). v1.10: câu ăn mừng là 065 (062/063 nghỉ). Câu ăn mừng chỉ hiện vài giây: MutationObserver ghi lại mọi câu Mila đã nói
 // (`window.__mascotSeen`), như mascot-intro.spec.ts.
 import { expect, test, type BrowserContext, type Page, type Route } from '@playwright/test';
 import { vi } from '../../src/modules/m02/i18n/vi';
@@ -60,11 +60,11 @@ async function endTrip(page: Page, { intake, offline, before = [] }: Options) {
 const accept = (route: Route) => route.fulfill({ status: 200, json: { result: 'ACCEPTED' } });
 const dock = (page: Page) => page.locator('[data-mascot-slot="end-hero"] [data-mascot-mode="DOCK"]');
 
-test('Q12, Q24 — kết thúc sớm (1/3 điểm): Mila ăn mừng một lần (062) rồi đứng yên cạnh huy hiệu; tải lại: chỉ hình tĩnh', async ({ page }) => {
-  // v1.5 (DV-92): Mila về DOCK sau phần ăn mừng (≤ 2,4 s), câu ăn mừng ở lại 15 s
+test('Q12, Q24 — kết thúc sớm (1/3 điểm): Mila ăn mừng một lần (065) rồi đứng yên ở ảnh bìa; tải lại: chỉ hình tĩnh', async ({ page }) => {
+  // v1.5 (DV-92): Mila về DOCK sau phần ăn mừng (≤ 2,4 s), câu ăn mừng ở lại 15 s; v1.10: câu cảm ơn 065
   await endTrip(page, { intake: accept });
-  await expect.poll(() => seen(page)).toContain('MSG-MAS-062');
-  await expect(page.locator('[data-mascot-message="MSG-MAS-062"]')).toContainText('1');
+  await expect.poll(() => seen(page)).toContain('MSG-MAS-065');
+  await expect(page.locator('[data-mascot-message="MSG-MAS-065"]')).toHaveText('Cảm ơn bạn đã đi cùng mình hôm nay!');
   await expect(dock(page)).toBeVisible({ timeout: 5_000 });
   await expect(page.getByText(vi.end.syncSynced)).toBeVisible();
 
@@ -75,12 +75,13 @@ test('Q12, Q24 — kết thúc sớm (1/3 điểm): Mila ăn mừng một lần 
   await expect(page.locator('[data-mascot-mode="CELEBRATE"]')).toHaveCount(0);
 });
 
-test('Q23 — quét đủ mọi điểm rồi kết thúc: câu 063 "đủ 3 điểm" thay 062 (MAS-B-064, BR-MAS-23 cấp 3)', async ({ page }) => {
+test('Q23 — quét đủ mọi điểm rồi kết thúc: cùng câu cảm ơn 065 (MAS-B-064, BR-MAS-23 cấp 3; v1.10)', async ({ page }) => {
   test.slow();
   await endTrip(page, { intake: accept, before: ['Q1a', 'Q2'] });
-  await expect.poll(() => seen(page)).toContain('MSG-MAS-063');
+  await expect.poll(() => seen(page)).toContain('MSG-MAS-065');
   expect(await seen(page)).not.toContain('MSG-MAS-062');
-  await expect(page.locator('[data-mascot-message="MSG-MAS-063"]')).toHaveText('Bạn đã quét đủ 3 điểm của tuyến. Tuyệt vời!');
+  expect(await seen(page)).not.toContain('MSG-MAS-063');
+  await expect(page.locator('[data-mascot-message="MSG-MAS-065"]')).toHaveText('Cảm ơn bạn đã đi cùng mình hôm nay!');
   await expect(dock(page)).toBeVisible({ timeout: 5_000 });
 });
 
@@ -90,20 +91,20 @@ test('kết thúc khi mất sóng → "Chờ gửi", Mila nói chuyến đã lư
   // page.route vẫn chạy khi context offline: mock phải tự trả lỗi mạng (như mockIntake của sync.spec.ts)
   await endTrip(page, { intake: (route) => route.abort('internetdisconnected'), offline: context });
   await expect(page.getByText(vi.end.syncPending)).toBeVisible();
-  // Trước đó có thể có câu khác của chuyến (v1.1: 030 khi bắt đầu chuyến); chỉ kiểm 062 rồi 070
+  // Trước đó có thể có câu khác của chuyến (v1.1: 030 khi bắt đầu chuyến); chỉ kiểm 065 (ăn mừng, v1.10) rồi 070
   await expect.poll(() => seen(page), { timeout: 25_000 }).toContain('MSG-MAS-070');
   const said = await seen(page);
-  expect(said.indexOf('MSG-MAS-062')).toBeGreaterThanOrEqual(0);
-  expect(said.indexOf('MSG-MAS-062')).toBeLessThan(said.indexOf('MSG-MAS-070'));
+  expect(said.indexOf('MSG-MAS-065')).toBeGreaterThanOrEqual(0);
+  expect(said.indexOf('MSG-MAS-065')).toBeLessThan(said.indexOf('MSG-MAS-070'));
   await context.setOffline(false);
 });
 
-test('CONFLICT → Mila chỉ là hình cạnh thông báo, không có câu hay nút nào của Mila (BR-M02-011)', async ({ page }) => {
+test('CONFLICT → banner chỉ có chữ, không hình, không nút; Mila đứng ở ảnh bìa (BR-M02-011; spec-Mascot v1.10)', async ({ page }) => {
   await endTrip(page, { intake: (route) => route.fulfill({ status: 409, json: { result: 'CONFLICT' } }) });
   const conflict = page.getByText(vi.end.syncConflict).locator('xpath=ancestor::*[@data-end-conflict][1]');
   await expect(conflict).toBeVisible();
-  // v1.4 (Behavior Matrix §3b; specs/006 T045): Mila xin lỗi nhẹ
-  await expect(conflict.locator('[data-mascot-figure="sorry"]')).toBeVisible();
+  await expect(conflict.locator('[data-mascot-figure], [data-mascot-mode]')).toHaveCount(0);
   await expect(conflict.getByRole('button')).toHaveCount(0);
+  await expect(page.locator('[data-mascot-slot="end-hero"] [data-mascot-mode]')).toHaveCount(1);
   expect(await seen(page)).not.toContain('MSG-MAS-070');
 });

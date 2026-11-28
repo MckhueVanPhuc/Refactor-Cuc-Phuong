@@ -461,3 +461,18 @@ description: "Danh sách task triển khai Mascot Mila — đồng hành cùng d
 - [X] T135 [US2] `src/modules/m02/content/{ScanNotice,ScanContent,ContentPage}.tsx` (+ css), `qr-link/QrLinkPage.tsx`, `session/TripPage.tsx`, `scan/ScanPage.tsx`, `i18n/{vi,en}.ts`: câu nguồn dự phòng chỉ khi có nội dung gói; thẻ không có nội dung; thẻ chưa kiểm tra được mã có tiêu đề, "chưa được tính", "Thử lại", ×
 - [X] T136 [US5] `src/shared/mascot/rules.ts`: MAS-B-046/047 lần đầu là tư thế bối rối ở DOCK
 - [X] T137 Đồng bộ spec-Mascot v1.9, design-system, Behavior Matrix, screen spec SCR-M02-001/002/004/005; chạy `npm run ci`, `npx playwright test --project=m02 --project=m02-cam-evil`; chụp 390 px; ghi validation report §23
+
+## Phase 24: v1.10 — thiết kế lại màn Kết thúc chuyến (US4) — CHG-MASCOT-2026-11-28-10
+
+**Goal**: spec-M02 v3.6 (§5.1, §7, SC-M02-013), spec-Mascot v1.10 (US-MAS-08, §5.1, BR-MAS-23, §5.6: Mila ở ảnh bìa, câu ăn mừng 065, 062/063 nghỉ); screen spec SCR-M02-003 E-05…10, E-12 (mới), bảng copy; bảng test M02-43, 44, 48.
+
+### Tests ⚠️
+
+- [X] T138 [P] [US4] `src/modules/m02/end/EndPage.test.tsx` (mới): chip theo k/n, một tiêu đề, "k/n điểm dừng đã tham quan", mọi điểm theo thứ tự với "Chưa ghé · lần sau nhé!", tên tuyến và ảnh nhỏ khi có gói / ô biểu tượng khi không, nhãn gửi dưới danh sách, hai lối ra, banner CONFLICT không hình, đổi VI/EN; `EndFlow.test.tsx` danh sách đủ điểm
+- [X] T139 [P] [US4] `src/shared/mascot/rules.test.ts`, `dialogue/catalog.test.ts`, `arbiter.test.ts`: ăn mừng nói 065, catalog 50 câu; e2e `mascot-end.spec.ts`, `motion-end.spec.ts` M15/M16, `mascot-layout.spec.ts` (Mila 104 px, đo hình và bong bóng với từng dòng chữ của ảnh bìa và thẻ tóm tắt)
+
+### Implementation
+
+- [X] T140 [US4] `src/modules/m02/end/EndPage.tsx` (+ css), `end/useEndPackageView.ts` (mới), `i18n/{vi,en}.ts`, `layout/FieldLayout.module.css` (bề mặt `finish` nền paper; ảnh rừng vào ảnh bìa)
+- [X] T141 [US4] `src/shared/mascot/rules.ts`, `dialogue/{catalog,vi,en}.ts` (bỏ 062/063), `src/app/mascot/Mascot.module.css` (Mila ở ảnh bìa: cùng cỡ, bật lên 0.6 → 1.1 → 1, bong bóng đuôi phải), `src/shared/ui/tokens.css` (`--mascot-size-dock-end` 104 px, `--duration-stagger` mới)
+- [X] T142 Đồng bộ spec-M02 v3.6, spec-Mascot v1.10, design-system, Behavior Matrix, screen spec SCR-M02-003; chạy `npm run ci`, `npx playwright test --project=m02 --project=m02-cam-evil`; chụp 320 / 430 px

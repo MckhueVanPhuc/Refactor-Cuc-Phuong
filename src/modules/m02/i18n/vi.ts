@@ -104,17 +104,23 @@ export const vi = {
     previousPhoto: 'Ảnh trước',
     nextPhoto: 'Ảnh tiếp',
   },
-  // SCR-M02-003
+  // SCR-M02-003 (bảng copy v3.6; CHG-MASCOT-2026-11-28-10)
   end: {
-    title: 'Chuyến đi đã kết thúc!',
-    thanks: 'Cảm ơn bạn đã tham quan Vườn quốc gia Cúc Phương!',
-    wish: 'Hy vọng bạn đã có những trải nghiệm tuyệt vời tại Cúc Phương!',
-    farewell: 'Hẹn gặp lại bạn trong những hành trình tiếp theo!',
-    listTitle: 'Các điểm đã quét',
+    chipComplete: 'Hoàn thành hành trình',
+    chipEnded: 'Đã kết thúc chuyến đi',
+    title: 'Cảm ơn bạn đã đồng hành cùng Cúc Phương.',
+    farewell: 'Hẹn gặp lại bạn trong những hành trình tiếp theo.',
+    routeComplete: 'Bạn đã đi hết tuyến',
+    routeYours: 'Tuyến của bạn',
+    /** Sau phân số "{k}/{n}" in đậm của thẻ tóm tắt */
+    visitedCount: 'điểm dừng đã tham quan',
+    listTitle: 'Hành trình của bạn',
     visited: 'Đã tham quan',
-    syncPending: 'Chờ gửi về hệ thống',
+    missed: 'Chưa ghé · lần sau nhé!',
+    syncPending: 'Đang chờ gửi về hệ thống',
     syncSynced: 'Đã gửi về hệ thống',
     syncConflict: 'Chuyến đi này không gửi được về hệ thống. Chuyến đi vẫn được lưu trên thiết bị này.',
+    suggestNext: 'Gợi ý tuyến tiếp theo',
     backToRoutes: 'Về danh sách tuyến',
   },
   // SCR-M02-004 (nút VI/EN là LanguageControl của M01; "Đang kiểm tra mã QR…" dùng `trip.lookingUp`)

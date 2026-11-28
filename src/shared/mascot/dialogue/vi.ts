@@ -76,8 +76,6 @@ export const vi = {
     'MSG-MAS-065': 'Cảm ơn bạn đã đi cùng mình hôm nay!',
     'MSG-MAS-085': 'Ui, chóng mặt quá!',
     'MSG-MAS-061': 'Được thôi! Khi sẵn sàng, nút Kết thúc chuyến vẫn ở đây.',
-    'MSG-MAS-062': ({ k = 0 }) => `Hôm nay mình đã cùng bạn quét ${k} điểm. Vui ghê!`,
-    'MSG-MAS-063': ({ n = 0 }) => `Bạn đã quét đủ ${n} điểm của tuyến. Tuyệt vời!`,
     'MSG-MAS-070': 'Chuyến đi đã lưu trên máy. Lần tới có sóng và mở app, mình sẽ gửi đi.',
     'MSG-MAS-074': 'Mất sóng rồi. Đừng lo, các điểm trong tuyến vẫn quét được.',
     'MSG-MAS-075': 'Có sóng lại rồi!',

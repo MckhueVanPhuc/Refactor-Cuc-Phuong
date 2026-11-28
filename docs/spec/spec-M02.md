@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | Module | M02 — Field Quest Experience |
-| Version | 3.5 |
+| Version | 3.6 |
 | Status | MVP implementation baseline — aligned to M03 v3.7 and M01 v3.2 |
-| Supersedes | 3.4 |
-| Last updated | 2026-11-27 |
+| Supersedes | 3.5 |
+| Last updated | 2026-11-28 |
 | Inputs | M01 handoff/language/package; M03 live QR lookup |
 | Output | Terminal anonymous `SessionSyncRecord` to M03 |
 
@@ -301,7 +301,7 @@ This is the same payload produced by M01; M02 does not redefine or extend it.
 |---|---|---|---|
 | `languageCode` | Enum(`vi`, `en`) | Required | Current singleton preference; M02 reads but never writes it. |
 
-`OfflinePackage` is the same logical payload produced by M01. M02 may consume it only when `status = SAN_SANG`; it never reads staging or partial values. M02 uses `manifest` and `resources`; it ignores the M01-only embedded value `offlineRouteMap`. Of `routeEssentials`, M02 reads only `name`, and only to show the route name on the trip screen when the active ready package has the session's `routeId` (v3.5); without such a package, or when it cannot be read, the trip screen shows no route name and works as before. The route name is display only: it is not copied into `PlaySession`, `CheckpointVisit` or `SessionSyncRecord`.
+`OfflinePackage` is the same logical payload produced by M01. M02 may consume it only when `status = SAN_SANG`; it never reads staging or partial values. M02 uses `manifest` and `resources`; it ignores the M01-only embedded value `offlineRouteMap`. Of `routeEssentials`, M02 reads only `name`, and only to show the route name on the trip screen (v3.5) and on the trip result screen (v3.6) when the active ready package has the session's `routeId`; without such a package, or when it cannot be read, these screens show no route name and work as before. On the trip result screen M02 may also show, for each journey checkpoint, the first image of that checkpoint's resources in the same package as a small picture (v3.6); without it the screen shows a neutral placeholder. The route name and these pictures are display only: they are not copied into `PlaySession`, `CheckpointVisit` or `SessionSyncRecord`.
 
 | Field path | Logical type | Presence | Constraints |
 |---|---|---|---|
@@ -524,7 +524,7 @@ stateDiagram-v2
 | Journey map | Ordered checkpoints with continuous display numbers, checkpoint names in the chosen language and visited state, labelled as scanned QR rather than arrival. The route name from the active ready package when there is one (§5.1 "Content inputs", v3.5). The first checkpoint not yet scanned in display order may be marked as the suggested next one; this is a hint only and never restricts the order of visits (BR-M02-006). |
 | QR scan/result | Scan, validation outcome, check-in feedback (also for a code added after the session started; a toast, or the mascot's bubble when the mascot capability can present it — spec-Mascot BR-MAS-24; since v3.4 the final checkpoint gets the same feedback), the closure notice, the invalid-QR message and the connection messages of §5.1. |
 | Checkpoint content | The content of the scanned QR: checkpoint name, object name, introduction, images; audio/video controls only when the content shown carries audio/video; unavailable states. |
-| Session completion | Visit summary; Finish at any time with its confirmation; the end-of-trip prompt on the trip screen after the final checkpoint is first visited (v3.4). |
+| Session completion | Visit summary; Finish at any time with its confirmation; the end-of-trip prompt on the trip screen after the final checkpoint is first visited (v3.4). Since v3.6 the visit summary lists every journey checkpoint in display order, scanned ones with their first scan time and the others as not visited, with the route name and small pictures from the active ready package when there is one (§5.1 "Content inputs"); from the result screen the visitor can open route recommendation (M01) or the route catalog. |
 | QR link page | Public page `/q/{qrIdentifier}` opened from a phone camera: content of the scanned QR, VI/EN switch, closure notice, invalid-QR and connection messages, and the free-visitor hint with a link to the route catalog when no session exists. |
 
 Free-visitor QR entry may reuse QR result/content screens without session controls.
@@ -545,7 +545,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 | SC-M02-010 | An expired or version 2 handoff never creates a session, and an existing session is never ended by handoff expiry. |
 | SC-M02-011 | Audio/video controls never appear for an offline-required checkpoint or for package content. |
 | SC-M02-012 | A missing offline resource is never reported as an invalid QR. |
-| SC-M02-013 | No screen words a visit as proof that the visitor was physically at the place: a visit is labelled only "Đã quét QR" / "QR scanned" (the trip result list of SCR-M02-003 labels it "Đã tham quan" / "Visited"), and no fixed message or label states or implies arrival or presence (for example "đã đến", "có mặt", "arrived"). |
+| SC-M02-013 | No screen words a visit as proof that the visitor was physically at the place: a visit is labelled only "Đã quét QR" / "QR scanned" (the trip result list of SCR-M02-003 labels it "Đã tham quan" / "Visited"; since v3.6 the same screen also says "Bạn đã đi hết tuyến" / "You walked the whole route" when every checkpoint was scanned and "Chưa ghé · lần sau nhé!" / "Not visited yet" for a checkpoint not scanned, owner decision 2026-11-28), and no fixed message or label states or implies arrival or presence (for example "đã đến", "có mặt", "arrived"). |
 | SC-M02-014 | While online, a code added later to a journey checkpoint records that checkpoint's visit once, so a code change during a trip never prevents Finish when the device is online. |
 | SC-M02-015 | Recording the final checkpoint's visit always shows the end-of-trip prompt once, on the next opening of the trip screen in that tab (v3.4); Finish is available at any time and confirming it before the final checkpoint ends the session as `BO_DO`. |
 | SC-M02-016 | After the app is opened, no session older than 24 hours stays in progress; it becomes `HOAN_TAT` or `BO_DO` by the rule of BR-M02-022 and is synchronized like any terminal session. |
@@ -590,7 +590,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 | Contract | M02 validation/behavior |
 |---|---|
 | M01 context | Version 3, authorized, route matches manifest, unused UUID handoff, not expired; version 2 and expired handoffs are rejected with a clear message. |
-| M01 package | Read only active ready resources, per QR; never read staging/partial data; ignore `offlineRouteMap`; of `routeEssentials` read only `name`, for display on the trip screen (v3.5). |
+| M01 package | Read only active ready resources, per QR; never read staging/partial data; ignore `offlineRouteMap`; of `routeEssentials` read only `name`, for display on the trip screen (v3.5) and the trip result screen (v3.6); on the trip result screen, the first image of each checkpoint's resources as a small picture (v3.6). |
 | M03 snapshot heritage | Journey checkpoint IDs, order (with gaps), bilingual names, modes and QR arrays remain fixed within session. Codes activated later by M03 are resolved through the live lookup, never added to the frozen journey. |
 | M03 live QR lookup | Request carries `qrIdentifier` and, when a session exists, `routeId`. Result is `VALID` (with the scanned QR's content), `TEMPORARILY_CLOSED` (no content) or `INVALID`; source failure is not invalid QR. The result carries no route identifier. `content.checkpointId` resolves codes that are not in the frozen journey (BR-M02-020). A visit is recorded online only for `VALID` (BR-M02-005). `mediaResources[].spokenLanguage` selects the audio/video shown (BR-M02-026). |
 | M03 session ingest | Send exactly one immutable terminal business payload, with the Vietnamese checkpoint name string; retry identically until acknowledged, conflicted or rejected. A session ended automatically (BR-M02-022) produces an ordinary terminal record with the same shape. M03 checks each visited checkpoint against the snapshot; values copied from the frozen journey always match. |
@@ -629,6 +629,7 @@ Free-visitor QR entry may reuse QR result/content screens without session contro
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.6 | 2026-11-28 | Owner review of the trip result screen (change brief CHG-MASCOT-2026-11-28-10, approved 2026-11-28): on the trip result screen M02 may read `routeEssentials.name` and the first image of each checkpoint's resources of the active ready package of the session's route, for display only (§5.1 "Content inputs", §7, §11); SC-M02-013 names the result-screen words approved by the owner; the visit summary lists every journey checkpoint, not visited ones included, and the screen offers route recommendation besides the route catalog (§7). No entity, contract shape, rule, state or sync change. |
 | 3.5 | 2026-11-27 | Tester review of the trip screen (change brief CHG-MASCOT-2026-11-27-07, approved 2026-11-27): M02 may read `routeEssentials.name` of the active ready package of the session's route to show the route name on the trip screen (§5.1 "Content inputs", §7, §11); without such a package no name is shown. The journey map may mark the first checkpoint not yet scanned as the suggested next one, as a hint only (§7; BR-M02-006 unchanged). No entity, contract shape, rule or sync change. |
 | 3.4 | 2026-11-25 | Owner review of production (change brief CHG-MASCOT-2026-11-25-06, approved 2026-11-25): Finish is available at any time during a session behind a confirmation whose wording depends on the scanned checkpoints (US-M02-05 items 1-2, FR-M02-015, §5.1: two new prompt texts replace "Bạn đã quét điểm cuối. Kết thúc chuyến đi?"); confirming before the final checkpoint was visited ends the session as `BO_DO` (BR-M02-007, FR-M02-016, state diagram, §10) — completion keeps its meaning, so M03 reports are unchanged; the end-of-trip prompt moves from the content screen to the next opening of the trip screen, and the final checkpoint gets the usual check-in feedback (US-M02-05 item 4, FR-M02-023, BR-M02-021, §7, §8). No entity, contract or write-order change. |
 | 3.3 (clarification 4) | 2026-11-23 | §8 check-in feedback: presented by a toast, or by the mascot's bubble when spec-Mascot BR-MAS-24 applies; the toast stays the fallback whenever the mascot cannot present it. With the mascot capability on, when the final checkpoint is first visited the end-of-trip prompt (BR-M02-021) is the feedback and no toast is shown; with it off, M02 behaves exactly as before. Change brief CHG-MASCOT-2026-11-23-03 (approved 2026-11-23). No rule, data, contract or write-order change. |

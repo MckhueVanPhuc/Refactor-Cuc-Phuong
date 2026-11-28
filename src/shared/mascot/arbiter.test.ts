@@ -21,7 +21,7 @@ const P6 = rule('m02.scanner.opened', say({ priority: 6, message: { id: 'MSG-MAS
 const P6b = rule('m02.scanner.closed', say({ priority: 6, message: { id: 'MSG-MAS-032' } }));
 const P2 = rule('m02.scanner.detected', say({ priority: 2, message: { id: 'MSG-MAS-046' } }));
 const P4 = rule('m02.scanner.cameraStarted', say({ priority: 4, message: { id: 'MSG-MAS-051' } }));
-const P4b = rule('m02.scanner.cameraFailed', say({ priority: 4, message: { id: 'MSG-MAS-062', params: { k: 2 } } }));
+const P4b = rule('m02.scanner.cameraFailed', say({ priority: 4, message: { id: 'MSG-MAS-055' } }));
 const opened = (at: number): Stamped => ({ type: 'm02.scanner.opened', hasSession: true, k: 0, at });
 
 describe('ưu tiên và hàng đợi', () => {
@@ -41,15 +41,15 @@ describe('ưu tiên và hàng đợi', () => {
   it('cùng mức: câu cũ chưa đủ 1,5 s thì câu mới chờ; đủ thì thay', () => {
     const early = run([{ type: 'm02.scanner.cameraStarted', at: 0 }, { type: 'm02.scanner.cameraFailed', at: 1_000 }], [P4, P4b]).state;
     expect(early.bubble?.messageId).toBe('MSG-MAS-051');
-    expect(early.queued?.intent.message?.id).toBe('MSG-MAS-062');
+    expect(early.queued?.intent.message?.id).toBe('MSG-MAS-055');
     const late = run([{ type: 'm02.scanner.cameraStarted', at: 0 }, { type: 'm02.scanner.cameraFailed', at: 1_600 }], [P4, P4b]).state;
-    expect(late.bubble?.messageId).toBe('MSG-MAS-062');
+    expect(late.bubble?.messageId).toBe('MSG-MAS-055');
   });
 
   it('câu chờ hiện khi câu trước hết, nếu chưa quá 4 giây', () => {
     const { state } = run([{ type: 'm02.scanner.cameraStarted', at: 0 }, { type: 'm02.scanner.cameraFailed', at: 1_000 }], [P4, P4b]);
     const shown = step(state, { type: 'mascot.user.closedBubble', at: 3_000 }, CTX, [P4, P4b]).state;
-    expect(shown.bubble?.messageId).toBe('MSG-MAS-062');
+    expect(shown.bubble?.messageId).toBe('MSG-MAS-055');
     const expired = step(state, { type: 'mascot.user.closedBubble', at: 5_100 }, CTX, [P4, P4b]).state;
     expect(expired).toMatchObject({ bubble: null, queued: null });
   });

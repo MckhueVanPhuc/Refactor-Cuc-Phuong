@@ -1,275 +1,324 @@
 /*
- * SCR-M02-003 trên bề mặt `finish` (FieldLayout): theo ảnh mẫu người dùng duyệt 2026-11-11. Nửa trên là lời chào chữ sáng
- * đặt thẳng trên ảnh rừng; nửa dưới là thẻ paper nổi trên nền sáng dần. Trạng thái đồng bộ là một nhãn chữ trong đầu thẻ
- * danh sách (không chỉ bằng màu); conflict là banner riêng phía trên thẻ (design-system §5 "M02 — Field Experience").
+ * SCR-M02-003 trên bề mặt `finish` (FieldLayout) — CHG-MASCOT-2026-11-28-10 (M02-43, 44, 48), theo bản mô phỏng chủ dự án
+ * duyệt 2026-11-28: ảnh bìa xanh đậm (ảnh rừng dưới lớp phủ deep để chữ sáng luôn đọc rõ) có chip, một lời cảm ơn, phụ
+ * đề và Mila; thẻ tóm tắt trắng đè lên mép dưới ảnh bìa; "Hành trình của bạn" kiểu timeline; nhãn gửi nhỏ dưới danh
+ * sách; nút chính "Gợi ý tuyến tiếp theo" và link phụ. Trạng thái không chỉ bằng màu (nhãn chữ cho mỗi điểm và nhãn gửi).
  */
 .result {
   display: grid;
-  gap: var(--space-6);
 }
 
-/* —— Lời chào trên ảnh —— */
+/* —— Ảnh bìa: tràn qua lề ngang của cột, sát dưới thanh app —— */
 .hero {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-3);
-  text-align: center;
-  color: var(--color-paper);
-  text-shadow: 0 var(--space-1) var(--space-4) var(--color-m01-deep);
-}
-
-/* Huy hiệu hoàn thành: đĩa paper, dấu tích xanh rừng, nhành lá ở góc; là điểm nhấn duy nhất có chuyển động */
-.badge {
   position: relative;
+  isolation: isolate;
   display: grid;
-  place-items: center;
-  width: calc(var(--space-8) * 3);
-  height: calc(var(--space-8) * 3);
-  margin-bottom: var(--space-2);
-  color: var(--color-m01-forest);
-  background: var(--color-paper);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 var(--space-2) color-mix(in srgb, var(--color-paper) 22%, transparent),
-    var(--shadow-modal);
-  animation: badge-in calc(var(--duration-dialog) * 2) var(--ease-out) both;
-}
-
-.check {
-  --icon-size: calc(var(--space-8) * 1.5);
-}
-
-/* Nhành lá ngồi ngoài mép đĩa, góc dưới phải, như ảnh mẫu */
-.sprig {
-  --icon-size: calc(var(--space-8) * 1.25);
-
-  position: absolute;
-  right: calc(var(--space-6) * -1);
-  bottom: calc(var(--space-2) * -1);
-  color: var(--color-m01-line);
-  transform: rotate(10deg);
-  filter: drop-shadow(0 var(--space-1) var(--space-2) var(--color-m01-deep));
-}
-
-@keyframes badge-in {
-  from {
-    opacity: 0;
-    transform: scale(0.6);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.title {
-  margin: 0;
-  font-size: clamp(calc(var(--font-size-page-heading-mobile) * 1.2), 8vw, calc(var(--font-size-page-heading) * 1.3));
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-heading);
-  letter-spacing: -0.01em;
-  text-wrap: balance;
-}
-
-.thanks,
-.wish {
-  margin: 0;
-  max-width: 30ch;
-  font-size: calc(var(--font-size-body) * 1.125);
-  text-wrap: balance;
-}
-
-.wish {
-  max-width: 34ch;
-  font-size: var(--font-size-body);
-}
-
-/* Đường kẻ – lá – đường kẻ giữa hai lời chào */
-.divider {
-  --icon-size: var(--space-5);
-
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  width: min(100%, calc(var(--space-8) * 9));
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: var(--border-width-thin);
-  background: color-mix(in srgb, var(--color-paper) 55%, transparent);
-}
-
-/*
- * —— Thẻ hẹn gặp lại: kính mờ sáng, Mila (hoặc tim khi tắt Mila) | vạch | câu in nghiêng xanh rừng ——
- * v1.5 (phương án E, chủ dự án chọn 2026-11-24): Mila đứng ở đầu thẻ, chỗ của trái tim; lúc ăn mừng Mila lớn hơn, nhô lên trên mép,
- * bong bóng ở hàng trên thẻ đuôi chỉ xuống Mila. Thẻ là ::before của hàng dưới nên chiều cao thẻ không đổi khi Mila đổi cỡ.
- * Slot và khung Mila không tạo hộp riêng (display: contents).
- */
-.farewell {
-  /* Lúc ăn mừng Mila lớn hơn thẻ: phần nhô lên trên mép thẻ */
-  --farewell-rise-celebrate: calc(var(--space-8) + var(--space-3));
-
-  position: relative;
-  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
-    'bubble bubble'
-    'lead text';
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  column-gap: var(--space-3);
-  margin: 0;
-  color: var(--color-m01-forest);
+    'chip chip'
+    'title title'
+    'farewell mila'
+    'bubble mila';
+  column-gap: var(--space-2);
+  align-items: start;
+  margin-inline: calc(var(--space-5) * -1);
+  padding: var(--space-5) var(--space-5) calc(var(--space-8) * 2);
+  color: var(--color-paper);
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--color-m01-deep) 82%, transparent),
+      color-mix(in srgb, var(--color-m01-deep) 92%, transparent)
+    ),
+    url('../../../../assets/background_route_finished.jpg') center 30% / cover no-repeat,
+    var(--color-m01-deep);
 }
 
-.farewell::before {
-  content: '';
-  grid-row: 2;
-  grid-column: 1 / -1;
-  align-self: stretch;
-  background: color-mix(in srgb, var(--color-paper) 88%, transparent);
-  backdrop-filter: blur(var(--space-2));
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-}
-
-.heart {
-  --icon-size: var(--space-6);
-
-  position: relative;
-  grid-area: lead;
-  margin-left: var(--space-5);
-}
-
-.farewellText {
-  position: relative;
-  grid-area: text;
-  margin: var(--space-4) var(--space-5) var(--space-4) 0;
-  padding-left: var(--space-4);
-  font-size: calc(var(--font-size-body) * 1.125);
-  font-style: italic;
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-heading);
-  border-left: var(--border-width-thin) solid color-mix(in srgb, var(--color-m01-forest) 45%, transparent);
-}
-
-.farewell > :global([data-mascot-slot='end-hero']),
-.farewell > :global([data-mascot-slot='end-hero']) > :global([data-mascot-mode]) {
+/* Chữ của ảnh bìa không tạo hộp riêng: chip, tiêu đề, phụ đề nằm thẳng vào lưới (tiêu đề chạy hết bề ngang) */
+.heroText {
   display: contents;
 }
 
-/* Mila đứng: giữa thẻ, chỗ của trái tim. Lúc ăn mừng: chân trên đáy thẻ, phần lớn hơn nhô lên trên mép, thẻ không cao thêm */
-.farewell > :global([data-mascot-slot='end-hero']) > :global([data-mascot-mode]) > :first-child {
-  position: relative;
-  grid-area: lead;
-  margin-left: var(--space-3);
-}
-
-.farewell > :global([data-mascot-slot='end-hero']) > :global([data-mascot-mode='CELEBRATE']) > :first-child {
-  align-self: end;
-  margin-top: calc(var(--farewell-rise-celebrate) * -1);
-}
-
-/* Bong bóng ở hàng trên thẻ, cách đủ chỗ cho đầu Mila lúc ăn mừng */
-.farewell > :global([data-mascot-slot='end-hero']) > :global([data-mascot-mode]) > :nth-child(2) {
-  grid-area: bubble;
+.chip {
+  grid-area: chip;
   justify-self: start;
-  margin-bottom: calc(var(--farewell-rise-celebrate) + var(--space-2));
-}
-
-/* Chuyến không gửi được: banner đặc trên ảnh, vạch đỏ cạnh trái */
-/* Banner conflict: Mila bối rối là hình trang trí bên trái chữ, không phải nút (BR-M02-011) */
-.conflict {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  padding: var(--space-3) var(--space-4);
-  color: var(--color-ink);
-  background: var(--color-white);
-  border-left: var(--border-width-thick) solid var(--color-error);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-card);
-}
-
-.conflictText {
-  margin: 0;
-}
-
-/* —— Thẻ các điểm đã quét —— */
-.visits {
-  padding: var(--space-5) var(--space-5) var(--space-2);
-  color: var(--color-m01-ink);
-  background: color-mix(in srgb, var(--color-paper) 96%, transparent);
+  gap: var(--space-1);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-m01-deep);
+  background: var(--color-m01-amber);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
 }
 
-.visitsHead {
+.chipIcon {
+  --icon-size: var(--space-4);
+}
+
+/* Một câu cảm ơn, serif, tối đa hai dòng ở 360 px (chủ dự án 2026-11-28) */
+.title {
+  grid-area: title;
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-page-heading-mobile);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  text-wrap: balance;
+}
+
+.farewell {
+  grid-area: farewell;
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-meta);
+  color: color-mix(in srgb, var(--color-paper) 85%, transparent);
+}
+
+/*
+ * Mila trong ảnh bìa (spec-Mascot v1.10 §5.1): slot và khung Mila không tạo hộp; hình ở cột phải, chân chạm mép thẻ tóm
+ * tắt; bong bóng ở hàng dưới phụ đề, đuôi chỉ sang Mila (Mascot.module.css, `data-mascot-dock='end'`).
+ */
+.hero > :global([data-mascot-slot='end-hero']),
+.hero > :global([data-mascot-slot='end-hero']) > :global([data-mascot-mode]) {
+  display: contents;
+}
+
+.hero > :global([data-mascot-slot='end-hero']) > :global([data-mascot-mode]) > :first-child {
+  grid-area: mila;
+  align-self: end;
+  margin-bottom: calc(var(--space-8) * -1);
+  transform-origin: 50% 90%;
+}
+
+.hero > :global([data-mascot-slot='end-hero']) > :global([data-mascot-mode]) > :nth-child(2) {
+  grid-area: bubble;
+  justify-self: end;
+  margin-top: var(--space-3);
+}
+
+/* Confetti nằm sau chữ và Mila: lá trang trí không che chữ (SC-MOT-009) */
+.hero > :global([data-leaf-confetti]) {
+  z-index: -1;
+}
+
+/* —— Thẻ tóm tắt —— */
+.summary {
+  position: relative;
+  z-index: 1;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2) var(--space-3);
-  padding-bottom: var(--space-2);
+  gap: var(--space-4);
+  margin-top: calc(var(--space-8) * -1 - var(--space-4));
+  padding: var(--space-4);
+  color: var(--color-m01-ink);
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+}
+
+.summaryText {
+  min-width: 0;
+}
+
+.ring {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: calc(var(--space-8) * 2);
+  height: calc(var(--space-8) * 2);
+}
+
+.ringSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ringTrack,
+.ringBar {
+  fill: none;
+  stroke-width: 6;
+}
+
+.ringTrack {
+  stroke: var(--color-m01-line);
+}
+
+.ringBar {
+  stroke: var(--color-m01-amber);
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: var(--ring-offset, 0);
+}
+
+.ring[data-full] .ringBar {
+  stroke: var(--color-success);
+}
+
+.ringMark {
+  --icon-size: var(--space-8);
+
+  position: relative;
+  display: grid;
+  color: var(--color-success);
+}
+
+.ringFraction {
+  position: relative;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-warning);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: var(--font-size-meta);
+  color: var(--color-m01-secondary);
+}
+
+.routeName {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-section-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+}
+
+.count {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-meta);
+  color: var(--color-m01-secondary);
+}
+
+.countValue {
+  font-size: var(--font-size-body);
+  color: var(--color-warning);
+}
+
+.result[data-complete] .countValue {
+  color: var(--color-success);
+}
+
+/* —— Hành trình của bạn: mọi điểm theo thứ tự —— */
+.journey {
+  padding-top: var(--space-6);
 }
 
 .listTitle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin: 0;
-  font-size: calc(var(--font-size-row-title) * 1.125);
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-section-title);
   font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-ink);
 }
 
-.pin {
-  --icon-size: var(--space-6);
-
-  color: var(--color-m01-forest);
-}
-
-/* Trạng thái gửi: nhãn chữ nhỏ có khung, màu chỉ bổ trợ */
-.sync {
-  margin: 0;
-  padding: var(--space-1) var(--space-3);
-  font-size: var(--font-size-meta);
-  color: var(--color-m01-secondary);
-  border: var(--border-width-thin) solid var(--color-m01-line);
-  border-radius: var(--radius-lg);
-}
-
-.sync[data-sync='SYNCED'] {
-  color: var(--color-success);
-  border-color: color-mix(in srgb, var(--color-success) 40%, transparent);
-}
-
-.list {
+.stops {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.item {
+.stop {
+  --dot-size: calc(var(--space-6) + var(--space-1));
+
+  position: relative;
   display: grid;
-  gap: var(--space-1);
-  padding: var(--space-3) 0;
+  grid-template-columns: var(--dot-size) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
 }
 
-.item + .item {
-  border-top: var(--border-width-thin) solid var(--color-m01-line);
+/* Đường nét đứt nối vòng của điểm này với điểm sau */
+.stop:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: calc(50% + var(--dot-size) / 2);
+  bottom: calc(-50% + var(--dot-size) / 2 + var(--space-3));
+  left: calc(var(--dot-size) / 2 - var(--border-width-thin));
+  border-left: var(--border-width-thick) dashed var(--color-m01-line);
+}
+
+.dot {
+  --icon-size: var(--space-4);
+
+  display: grid;
+  place-items: center;
+  width: var(--dot-size);
+  height: var(--dot-size);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  border-radius: 50%;
+}
+
+.stop[data-visited] .dot {
+  color: var(--color-white);
+  background: var(--color-success);
+}
+
+.stop:not([data-visited]) .dot {
+  color: var(--color-m01-secondary);
+  background: var(--color-paper);
+  border: var(--border-width-thick) dashed var(--color-m01-secondary);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.thumb {
+  display: block;
+  width: calc(var(--space-8) + var(--space-6));
+  height: calc(var(--space-8) + var(--space-6));
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.thumbEmpty {
+  --icon-size: var(--space-6);
+
+  display: grid;
+  place-items: center;
+  color: var(--color-m01-secondary);
+  background: var(--color-m01-line);
+}
+
+.stop:not([data-visited]) .thumb {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.rowText {
+  min-width: 0;
+}
+
+.number {
+  margin: 0;
+  font-size: var(--font-size-meta);
+  color: var(--color-m01-secondary);
 }
 
 .name {
-  font-size: calc(var(--font-size-body) * 1.0625);
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-heading);
+  color: var(--color-m01-ink);
 }
 
 .meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
+  margin: var(--space-1) 0 0;
   font-size: var(--font-size-meta);
   color: var(--color-m01-secondary);
 }
@@ -279,89 +328,200 @@
   color: var(--color-m01-forest);
 }
 
-/* —— Nút về danh mục: viên thuốc xanh rừng đậm, rộng cả cột —— */
-.back {
+.stop:not([data-visited]) .meta {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-warning);
+}
+
+/* —— Nhãn gửi nhỏ ngay dưới danh sách (M02-44) —— */
+.sync {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 0;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-m01-amber) 30%, transparent);
+  border-radius: var(--radius-lg);
+  transition:
+    color var(--duration-expand) var(--ease-out),
+    background-color var(--duration-expand) var(--ease-out);
+}
+
+.sync[data-sync='SYNCED'] {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+}
+
+.syncIcon {
+  --icon-size: var(--space-4);
+}
+
+.pulse {
+  width: var(--space-2);
+  height: var(--space-2);
+  background: currentColor;
+  border-radius: 50%;
+  animation: end-pulse var(--duration-pulse) var(--ease-in-out) infinite;
+}
+
+/* Không gửi được: banner chữ trên nền trắng, vạch đỏ cạnh trái, không hình Mila (spec-Mascot v1.10) */
+.conflict {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: var(--space-1) 0 0;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-ink);
+  background: var(--color-white);
+  border-left: var(--border-width-thick) solid var(--color-error);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+}
+
+.conflictIcon {
+  flex: none;
+  color: var(--color-error);
+}
+
+.conflictText {
+  margin: 0;
+}
+
+/* —— Nút chính "Gợi ý tuyến tiếp theo", link phụ "Về danh sách tuyến" —— */
+.actions {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.primary {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
+  width: 100%;
   min-height: calc(var(--touch-target-m01-primary) + var(--space-2));
-  margin-top: var(--space-6);
   padding: var(--space-2) var(--space-6);
   font-size: calc(var(--font-size-body) * 1.0625);
   font-weight: var(--font-weight-semibold);
   color: var(--color-paper);
   text-decoration: none;
   background: var(--color-m01-deep);
-  border-radius: var(--touch-target-m01-primary);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
 }
 
-.home {
+.primaryIcon {
   --icon-size: var(--space-6);
+
+  color: var(--color-m01-amber);
 }
 
-.back:hover {
+.primary:hover {
   background-image: linear-gradient(var(--overlay-fill-hover), var(--overlay-fill-hover));
 }
 
-.back:active {
+.primary:active {
   background-image: linear-gradient(var(--overlay-fill-pressed), var(--overlay-fill-pressed));
 }
 
-.back:focus-visible {
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-deep);
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+}
+
+.primary:focus-visible,
+.secondary:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
 
 /*
- * —— Ăn mừng của màn (design-system §4.3.1 T3; specs/006 US7, R-12) —— chỉ khi vừa kết thúc chuyến hoàn tất (`data-celebrate`)
- * và có trang trí (`data-decor="on"`): huy hiệu đóng dấu thay badge-in, danh sách điểm hiện lần lượt, confetti lá ở đầu màn.
- * Chạm bất kỳ đâu → bỏ `data-celebrate`, mọi thứ về trạng thái cuối.
+ * —— Ăn mừng của màn (M02-48; design-system §4.3.1 T3; specs/006 US7, R-12) —— chỉ khi vừa kết thúc chuyến hoàn tất
+ * (`data-celebrate`) và có trang trí (`data-decor="on"`): chip trượt xuống → tiêu đề hiện dần → (Mila bật lên, Mascot.module.css)
+ * → vòng chạy đầy rồi ✓ → các điểm hiện lần lượt → nhãn gửi. Tổng < 2,4 s; chạm bất kỳ đâu → bỏ `data-celebrate`, mọi thứ về
+ * trạng thái cuối. Giảm chuyển động hoặc tắt "Hiệu ứng chuyển động": không có `data-decor="on"`, hiện thẳng.
  */
-.hero {
-  position: relative;
-  isolation: isolate;
+.result {
+  --end-ring-at: calc(var(--duration-feedback) + var(--duration-expand));
+  --end-list-at: calc(var(--end-ring-at) + var(--duration-trail-draw));
 }
 
-/* Confetti nằm sau chữ và huy hiệu: lá trang trí không che chữ (SC-MOT-009) */
-.hero > :global([data-leaf-confetti]) {
-  z-index: -1;
+:root[data-decor='on'] .result[data-celebrate] .chip {
+  animation: end-drop var(--duration-dialog) var(--ease-out) both;
 }
 
-:root[data-decor='on'] .result[data-celebrate] .badge {
-  animation: badge-stamp calc(var(--duration-feedback) * 2) var(--ease-spring) both;
+:root[data-decor='on'] .result[data-celebrate] .title {
+  animation: end-fade var(--duration-feedback) var(--ease-out) var(--duration-press) both;
 }
 
-:root[data-decor='on'] .result[data-celebrate] .item {
-  animation: item-in var(--duration-reveal) var(--ease-standard) calc(var(--duration-feedback) + var(--i, 0) * var(--duration-press)) both;
+:root[data-decor='on'] .result[data-celebrate] .farewell {
+  animation: end-fade var(--duration-feedback) var(--ease-out) calc(var(--duration-press) * 2) both;
 }
 
-@keyframes badge-stamp {
-  0% {
+:root[data-decor='on'] .result[data-celebrate] .ringBar {
+  animation: end-ring var(--duration-trail-draw) var(--ease-standard) var(--end-ring-at) both;
+}
+
+:root[data-decor='on'] .result[data-celebrate] .ringMark,
+:root[data-decor='on'] .result[data-celebrate] .ringFraction {
+  animation: end-pop var(--duration-feedback) var(--ease-spring) var(--end-list-at) both;
+}
+
+:root[data-decor='on'] .result[data-celebrate] .stop {
+  animation: end-rise var(--duration-reveal) var(--ease-standard) calc(var(--end-list-at) + var(--i, 0) * var(--duration-stagger)) both;
+}
+
+:root[data-decor='on'] .result[data-celebrate] .sync,
+:root[data-decor='on'] .result[data-celebrate] .conflict {
+  animation: end-fade var(--duration-feedback) var(--ease-out) calc(var(--end-list-at) + var(--duration-reveal)) both;
+}
+
+@keyframes end-drop {
+  from {
     opacity: 0;
-    transform: scale(1.3) rotate(-8deg);
-  }
-
-  60% {
-    opacity: 1;
-    transform: scale(0.95) rotate(2deg);
-  }
-
-  100% {
-    opacity: 1;
-    transform: none;
+    transform: translateY(calc(var(--space-3) * -1));
   }
 }
 
-@keyframes item-in {
+@keyframes end-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes end-ring {
+  from {
+    stroke-dashoffset: 100;
+  }
+}
+
+@keyframes end-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes end-rise {
   from {
     opacity: 0;
     transform: translateY(var(--space-2));
   }
+}
 
-  to {
-    opacity: 1;
-    transform: none;
+@keyframes end-pulse {
+  50% {
+    opacity: 0.25;
   }
 }

@@ -72,8 +72,6 @@ export const MESSAGE_META: Record<MessageId, MessageMeta> = {
   'MSG-MAS-065': { priority: 3, cooldownMs: 10_000, autoHide: true },
   'MSG-MAS-085': { priority: 3, cooldownMs: 0, autoHide: true },
   'MSG-MAS-061': { priority: 5, cooldownMs: 2 * MIN, autoHide: true },
-  'MSG-MAS-062': { priority: 4, cooldownMs: 0, autoHide: true },
-  'MSG-MAS-063': { priority: 4, cooldownMs: 0, autoHide: true },
   'MSG-MAS-070': { priority: 5, cooldownMs: 0, autoHide: true },
   'MSG-MAS-074': { priority: 5, cooldownMs: 10 * MIN, autoHide: true },
   'MSG-MAS-075': { priority: 7, cooldownMs: 10 * MIN, autoHide: true },

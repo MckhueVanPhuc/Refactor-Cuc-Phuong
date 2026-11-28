@@ -147,7 +147,7 @@ describe('kết thúc chuyến (spec-M02 v3.4)', () => {
     expect(screen.getAllByRole('listitem').map((li) => li.textContent)[0]).toContain('Cổng rừng');
   });
 
-  it('Finish → xác nhận → màn kết quả: danh sách điểm đã quét theo thứ tự, trạng thái chờ gửi, về danh sách tuyến', async () => {
+  it('Finish → xác nhận → màn kết quả: mọi điểm theo thứ tự (v3.6), trạng thái chờ gửi, hai lối ra', async () => {
     const router = await startTrip();
     await scan('Q3');
     await backToTrip(router);
@@ -163,11 +163,14 @@ describe('kết thúc chuyến (spec-M02 v3.4)', () => {
     expect(router.state.location.pathname).toBe('/trip/end');
     expect(screen.getByRole('heading', { name: viMessages.end.listTitle })).toBeTruthy();
     const items = screen.getAllByRole('listitem').map((li) => li.textContent);
-    expect(items).toHaveLength(2);
+    expect(items).toHaveLength(3);
     expect(items[0]).toContain('Cổng rừng');
-    expect(items[1]).toContain('Động Người Xưa');
-    for (const item of items) expect(item).toContain(viMessages.end.visited);
+    expect(items[0]).toContain(viMessages.end.visited);
+    expect(items[1]).toContain(viMessages.end.missed);
+    expect(items[2]).toContain('Động Người Xưa');
+    expect(items[2]).toContain(viMessages.end.visited);
     expect(await screen.findByText(viMessages.end.syncPending)).toBeTruthy();
+    expect(screen.getByRole('link', { name: viMessages.end.suggestNext }).getAttribute('href')).toBe('/recommend');
     expect(screen.getByRole('link', { name: viMessages.end.backToRoutes }).getAttribute('href')).toBe('/');
   });
 
