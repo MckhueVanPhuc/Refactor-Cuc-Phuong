@@ -3,7 +3,9 @@
 // đầu tiên hoặc khi đóng. Mã giống hệt mã vừa nhận trong SCANNER_DUPLICATE_IGNORE_MS bị bỏ qua. Không dùng được camera
 // (bị từ chối, không có camera, không có `mediaDevices`) → thông báo cố định của §5.1; quyền do trình duyệt cấp.
 // CHG-MASCOT-2026-11-27-08: hàng tiêu đề có VI/EN của M01 (BUG-020); nhãn điểm đang tìm; khung bốn góc với vạch quét;
-// màn lỗi camera có icon, các bước bật camera theo trình duyệt, "Thử lại" là nút chính, không có Mila (spec-Mascot v1.8).
+// màn lỗi camera có icon, các bước bật camera, "Thử lại" là nút chính, không có Mila (spec-Mascot v1.8).
+// 2026-11-28: các bước bật camera là một bộ chung (không theo trình duyệt); "Thử lại" xin lại quyền camera ngay trong lần
+// bấm (trình duyệt chỉ hỏi quyền khi gắn với thao tác người dùng); quyền đổi sang "cho phép" khi đang ở màn lỗi → tự mở lại.
 import { BrowserQRCodeReader, type IScannerControls } from '@zxing/browser';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { emitMascotEvent, MascotSlot, type CtaId } from '../../../shared/mascot/index';
@@ -16,13 +18,10 @@ import styles from './QrScanner.module.css';
 /** Điểm gợi ý kế tiếp cho nhãn "Đang tìm điểm {i} · {tên}" (E-SCR-M02-001-10): số hiển thị và tên hai ngôn ngữ. */
 export type ScannerTarget = { number: number; name: { vi: string; en: string } };
 
-/**
- * iPhone/iPad: các bước của Safari; máy khác: các bước của Chrome (E-SCR-M02-001-11). iPadOS báo là Macintosh nên
- * nhận thêm bằng màn cảm ứng.
- */
-export function isAppleMobile(nav: Pick<Navigator, 'userAgent' | 'maxTouchPoints'> = navigator): boolean {
-  return /iPhone|iPad|iPod/.test(nav.userAgent) || (/Macintosh/.test(nav.userAgent) && nav.maxTouchPoints > 1);
-}
+/** Camera sau, không micro */
+const CAMERA_CONSTRAINTS: MediaStreamConstraints = { video: { facingMode: 'environment' }, audio: false };
+
+const disposeStream = (stream: MediaStream) => stream.getTracks().forEach((track) => track.stop());
 
 // Mã nhận gần nhất, giữ qua các lần mở scanner liên tiếp
 let lastAccepted: { text: string; at: number } | null = null;
@@ -45,10 +44,14 @@ export function QrScanner({
 }) {
   const messages = useM02Messages();
   const language = useM02DisplayLanguage();
-  const steps = isAppleMobile() ? messages.scanner.stepsIos : messages.scanner.stepsOther;
   const videoRef = useRef<HTMLVideoElement>(null);
   const [cameraFailed, setCameraFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  // Stream xin được ngay trong lần bấm "Thử lại", chờ effect gắn vào khung quét
+  const pendingStream = useRef<MediaStream | null>(null);
+  const mounted = useRef(true);
+  // Mỗi lần thử lại không được → đọc lại thông báo (role="alert" gắn mới)
+  const [failCount, setFailCount] = useState(0);
   // Giữ callback mới nhất mà không khởi động lại camera
   const onDetectedRef = useRef(onDetected);
   onDetectedRef.current = onDetected;
@@ -74,11 +77,14 @@ export function QrScanner({
 
   useEffect(() => {
     const video = videoRef.current;
+    const pending = pendingStream.current;
+    pendingStream.current = null;
     const failCamera = () => {
       setCameraFailed(true);
       if (mascotRef.current) emitMascotEvent({ type: 'm02.scanner.cameraFailed' });
     };
     if (!video || typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      if (pending) disposeStream(pending);
       failCamera();
       return undefined;
     }
@@ -89,17 +95,25 @@ export function QrScanner({
       controls?.stop();
     };
 
-    new BrowserQRCodeReader()
-      .decodeFromConstraints({ video: { facingMode: 'environment' }, audio: false }, video, (result, _error, current) => {
-        if (!result || stopped) return;
-        const text = result.getText();
-        const now = Date.now();
-        if (lastAccepted && lastAccepted.text === text && now - lastAccepted.at < SCANNER_DUPLICATE_IGNORE_MS) return;
-        lastAccepted = { text, at: now };
-        stopped = true;
-        current.stop();
-        onDetectedRef.current(text);
-      })
+    const reader = new BrowserQRCodeReader();
+    const onResult: Parameters<typeof reader.decodeFromStream>[2] = (result, _error, current) => {
+      if (!result || stopped) return;
+      const text = result.getText();
+      const now = Date.now();
+      if (lastAccepted && lastAccepted.text === text && now - lastAccepted.at < SCANNER_DUPLICATE_IGNORE_MS) return;
+      lastAccepted = { text, at: now };
+      stopped = true;
+      current.stop();
+      onDetectedRef.current(text);
+    };
+    // Thử lại đã có stream → gắn thẳng; lần mở đầu → zxing tự xin camera
+    const starting = pending
+      ? reader.decodeFromStream(pending, video, onResult).catch((error: unknown) => {
+          disposeStream(pending);
+          throw error;
+        })
+      : reader.decodeFromConstraints(CAMERA_CONSTRAINTS, video, onResult);
+    starting
       .then((started) => {
         controls = started;
         if (stopped) started.stop();
@@ -113,10 +127,66 @@ export function QrScanner({
     return stop;
   }, [attempt]);
 
-  const retry = () => {
+  const reopen = useCallback(() => {
     setCameraFailed(false);
     setAttempt((n) => n + 1);
+  }, []);
+
+  // "Thử lại": xin quyền camera ngay trong lần bấm để trình duyệt hỏi lại (nếu trình duyệt còn cho hỏi). Bị từ chối →
+  // giữ màn lỗi và đọc lại thông báo; quyền đã chặn hẳn thì chỉ bật được trong cài đặt (các bước bên dưới).
+  const retry = () => {
+    const mediaDevices = typeof navigator === 'undefined' ? undefined : navigator.mediaDevices;
+    if (!mediaDevices?.getUserMedia) {
+      setFailCount((n) => n + 1);
+      return;
+    }
+    mediaDevices.getUserMedia(CAMERA_CONSTRAINTS).then(
+      (stream) => {
+        // Đã đóng scanner trong lúc chờ quyền → tắt camera ngay
+        if (!mounted.current) {
+          disposeStream(stream);
+          return;
+        }
+        pendingStream.current = stream;
+        reopen();
+      },
+      () => {
+        if (mounted.current) setFailCount((n) => n + 1);
+      },
+    );
   };
+
+  // Người dùng bật quyền trong cài đặt rồi quay lại → mở camera luôn, không cần bấm Thử lại
+  useEffect(() => {
+    if (!cameraFailed || typeof navigator === 'undefined' || !navigator.permissions?.query) return undefined;
+    let status: PermissionStatus | undefined;
+    let cancelled = false;
+    const onChange = () => {
+      if (status?.state === 'granted') reopen();
+    };
+    navigator.permissions
+      .query({ name: 'camera' as PermissionName })
+      .then((result) => {
+        if (cancelled) return;
+        status = result;
+        status.addEventListener('change', onChange);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+      status?.removeEventListener('change', onChange);
+    };
+  }, [cameraFailed, reopen]);
+
+  // Bỏ stream chưa dùng nếu đóng scanner ngay sau khi xin được
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      if (pendingStream.current) disposeStream(pendingStream.current);
+      pendingStream.current = null;
+    };
+  }, []);
 
   return (
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="m02-scanner-title" data-camera-failed={cameraFailed || undefined}>
@@ -134,7 +204,7 @@ export function QrScanner({
             <span className={styles.cameraOff} aria-hidden="true">
               <TintIcon name="camera-off" className={styles.cameraOffIcon} />
             </span>
-            <p className={styles.failureText} role="alert">
+            <p className={styles.failureText} role="alert" key={failCount}>
               {messages.notice.cameraUnavailable}
             </p>
             <section className={styles.howTo} aria-labelledby="m02-camera-howto">
@@ -142,7 +212,7 @@ export function QrScanner({
                 {messages.scanner.howToTitle}
               </h3>
               <ol className={styles.steps}>
-                {steps.map((step) => (
+                {messages.scanner.steps.map((step) => (
                   <li key={step}>{step}</li>
                 ))}
               </ol>

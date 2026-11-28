@@ -65,8 +65,7 @@ export const en: M02Messages = {
     retry: 'Try again',
     lookingFor: ({ number, name }) => `Looking for stop ${number} · ${name}`,
     howToTitle: 'How to turn on the camera',
-    stepsIos: ['Tap aA next to the web address', 'Choose Website Settings → Camera → Allow', 'Come back and tap Try again'],
-    stepsOther: ['Tap the icon to the left of the web address', 'Choose Permissions → Camera → Allow', 'Come back and tap Try again'],
+    steps: ['Open your phone or browser settings', 'Allow camera access for this app', 'Come back and tap Try again'],
   },
   handoff: {
     outdatedVersion: 'This trip data is from an older version. Please choose a route and start again.',

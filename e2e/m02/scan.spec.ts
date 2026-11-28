@@ -120,8 +120,11 @@ test('V23 — camera bị từ chối khi bấm "Quét" → thông báo camera c
   await startTrip(page);
   await page.getByRole('button', { name: vi.trip.scan }).click();
   await expect(page.getByRole('dialog').getByRole('alert')).toContainText(vi.notice.cameraUnavailable);
-  // M02-17: các bước bật camera (Chromium của Playwright → bộ bước Chrome)
-  await expect(page.getByRole('dialog').getByRole('listitem')).toHaveText([...vi.scanner.stepsOther]);
+  // M02-17: các bước bật camera (một bộ chung cho mọi máy, 2026-11-28)
+  await expect(page.getByRole('dialog').getByRole('listitem')).toHaveText([...vi.scanner.steps]);
+  // "Thử lại" xin lại quyền; vẫn bị từ chối → giữ màn lỗi
+  await page.getByRole('button', { name: vi.scanner.retry }).click();
+  await expect(page.getByRole('dialog').getByRole('alert')).toContainText(vi.notice.cameraUnavailable);
   await page.getByRole('button', { name: vi.scanner.close }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });

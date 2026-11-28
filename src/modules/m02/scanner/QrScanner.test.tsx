@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { en } from '../i18n/en';
 import { vi as viMessages } from '../i18n/vi';
 import { fakeM01 } from '../testing/fakeM01Port';
-import { isAppleMobile, QrScanner, resetScannerMemoryForTest } from './QrScanner';
+import { QrScanner, resetScannerMemoryForTest } from './QrScanner';
 
 vi.mock('../m01Port', () => import('../testing/fakeM01Port'));
 
@@ -12,6 +12,7 @@ type Callback = (result: { getText(): string } | undefined, error: unknown, cont
 
 const zxing = vi.hoisted(() => ({
   decode: vi.fn(),
+  decodeStream: vi.fn(),
   stop: vi.fn(),
   callback: undefined as undefined | ((result: { getText(): string } | undefined, error: unknown, controls: { stop(): void }) => void),
 }));
@@ -21,6 +22,10 @@ vi.mock('@zxing/browser', () => ({
     decodeFromConstraints(constraints: unknown, video: unknown, callback: Callback) {
       zxing.callback = callback;
       return zxing.decode(constraints, video, callback);
+    }
+    decodeFromStream(stream: unknown, video: unknown, callback: Callback) {
+      zxing.callback = callback;
+      return zxing.decodeStream(stream, video, callback);
     }
   },
 }));
@@ -33,6 +38,7 @@ beforeEach(() => {
   fakeM01.setLanguage({ languageCode: 'vi' });
   resetScannerMemoryForTest();
   zxing.decode.mockReset().mockResolvedValue({ stop: zxing.stop });
+  zxing.decodeStream.mockReset().mockResolvedValue({ stop: zxing.stop });
   zxing.stop.mockReset();
   zxing.callback = undefined;
   vi.stubGlobal('navigator', { ...navigator, mediaDevices: { getUserMedia: vi.fn() } });
@@ -94,11 +100,50 @@ describe('QrScanner', () => {
     expect(zxing.stop).toHaveBeenCalled();
   });
 
-  it.each(['NotAllowedError', 'NotFoundError'])('%s → thông báo camera cố định của §5.1, có Thử lại', async (name) => {
+  it.each(['NotAllowedError', 'NotFoundError'])('%s → thông báo camera cố định của §5.1; Thử lại xin lại quyền và mở camera', async (name) => {
     zxing.decode.mockRejectedValueOnce(new DOMException('camera', name));
+    const stream = { getTracks: () => [] };
+    const getUserMedia = vi.fn().mockResolvedValue(stream);
+    vi.stubGlobal('navigator', { ...navigator, mediaDevices: { getUserMedia } });
     render(<QrScanner onDetected={() => {}} onClose={() => {}} />);
     expect((await screen.findByRole('alert')).textContent).toContain(viMessages.notice.cameraUnavailable);
     fireEvent.click(screen.getByRole('button', { name: viMessages.scanner.retry }));
+    // Xin quyền ngay trong lần bấm (trình duyệt chỉ hỏi lại khi gắn với thao tác người dùng)
+    expect(getUserMedia).toHaveBeenCalledWith({ video: { facingMode: 'environment' }, audio: false });
+    await waitFor(() => expect(zxing.decodeStream).toHaveBeenCalledTimes(1));
+    expect(zxing.decodeStream.mock.calls[0]![0]).toBe(stream);
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('Thử lại mà vẫn bị từ chối → giữ màn lỗi, thông báo được đọc lại', async () => {
+    zxing.decode.mockRejectedValueOnce(new DOMException('camera', 'NotAllowedError'));
+    const getUserMedia = vi.fn().mockRejectedValue(new DOMException('camera', 'NotAllowedError'));
+    vi.stubGlobal('navigator', { ...navigator, mediaDevices: { getUserMedia } });
+    render(<QrScanner onDetected={() => {}} onClose={() => {}} />);
+    const first = await screen.findByRole('alert');
+    fireEvent.click(screen.getByRole('button', { name: viMessages.scanner.retry }));
+    await waitFor(() => expect(screen.getByRole('alert')).not.toBe(first));
+    expect(getUserMedia).toHaveBeenCalledTimes(1);
+    expect(zxing.decodeStream).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog').hasAttribute('data-camera-failed')).toBe(true);
+  });
+
+  it('đang ở màn lỗi, quyền camera đổi sang cho phép (bật trong cài đặt) → tự mở lại camera', async () => {
+    zxing.decode.mockRejectedValueOnce(new DOMException('camera', 'NotAllowedError'));
+    const status = Object.assign(new EventTarget(), { state: 'denied' as PermissionState });
+    vi.stubGlobal('navigator', {
+      ...navigator,
+      mediaDevices: { getUserMedia: vi.fn() },
+      permissions: { query: vi.fn().mockResolvedValue(status) },
+    });
+    render(<QrScanner onDetected={() => {}} onClose={() => {}} />);
+    await screen.findByRole('alert');
+    await waitFor(() => expect(navigator.permissions.query).toHaveBeenCalledWith({ name: 'camera' }));
+    await act(async () => {});
+    act(() => {
+      status.state = 'granted';
+      status.dispatchEvent(new Event('change'));
+    });
     await waitFor(() => expect(zxing.decode).toHaveBeenCalledTimes(2));
     expect(screen.queryByRole('alert')).toBeNull();
   });
@@ -130,14 +175,14 @@ describe('QrScanner', () => {
     expect(document.querySelector('[data-scanner-target]')).toBeNull();
   });
 
-  it('lỗi camera: icon, câu cố định, ba bước bật camera, "Thử lại" trước "Đóng camera"; không có Mila (spec-Mascot v1.8)', async () => {
+  it('lỗi camera: icon, câu cố định, ba bước bật camera chung, "Thử lại" trước "Đóng camera"; không có Mila (spec-Mascot v1.8)', async () => {
     zxing.decode.mockRejectedValueOnce(new DOMException('camera', 'NotAllowedError'));
     render(<QrScanner onDetected={() => {}} onClose={() => {}} mascot />);
     await screen.findByRole('alert');
     const dialog = screen.getByRole('dialog');
     expect(dialog.hasAttribute('data-camera-failed')).toBe(true);
     expect(within(dialog).getByRole('heading', { name: viMessages.scanner.howToTitle })).toBeTruthy();
-    expect(within(dialog).getAllByRole('listitem').map((li) => li.textContent)).toEqual([...viMessages.scanner.stepsOther]);
+    expect(within(dialog).getAllByRole('listitem').map((li) => li.textContent)).toEqual([...viMessages.scanner.steps]);
     const buttons = within(dialog)
       .getAllByRole('button')
       .map((button) => button.textContent);
@@ -145,10 +190,7 @@ describe('QrScanner', () => {
     expect(dialog.querySelector('[data-mascot-slot], [data-mascot-figure]')).toBeNull();
   });
 
-  it('các bước bật camera theo trình duyệt: iPhone/iPad (kể cả iPadOS báo Macintosh) → Safari; máy khác → Chrome', () => {
-    expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)', maxTouchPoints: 5 })).toBe(true);
-    expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', maxTouchPoints: 5 })).toBe(true);
-    expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', maxTouchPoints: 0 })).toBe(false);
-    expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8)', maxTouchPoints: 5 })).toBe(false);
+  it('các bước bật camera không nhắc thanh địa chỉ web (dùng trên điện thoại)', () => {
+    for (const step of [...viMessages.scanner.steps, ...en.scanner.steps]) expect(step).not.toMatch(/địa chỉ web|web address/);
   });
 });
