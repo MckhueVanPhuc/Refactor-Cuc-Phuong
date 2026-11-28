@@ -1,4 +1,4 @@
-﻿# Cúc Phương Quest
+# Cúc Phương Quest
 
 Ứng dụng web (PWA) cho Vườn quốc gia Cúc Phương:
 
@@ -9,23 +9,25 @@ Repository làm theo hướng **spec-first**: đặc tả nghiệp vụ là ngu�
 
 ---
 
-## 1. Trạng thái (cập nhật 2026-11-05)
+## 1. Trạng thái (cập nhật 2026-11-28)
 
 Hệ thống là một modular monolith gồm ba module logic, chạy chung một website và một backend Supabase.
 
 | Module | Làm gì | Đặc tả | Code |
 |---|---|---|---|
 | **M01 — Route Planning & Preparation** | Chọn ngôn ngữ, xem và gợi ý tuyến, tải gói offline, bắt đầu chuyến đi | [Spec v3.2](docs/spec/spec-M01.md) | ✅ Xong ([gói 001](specs/001-m01-route-planning-preparation/), 106/106 task) |
-| **M02 — Field Quest Experience** | Phiên thực địa, quét QR, hiển thị nội dung, kết thúc chuyến, đồng bộ ẩn danh | [Spec v3.3](docs/spec/spec-M02.md) | ✅ Xong trên stack local ([gói 002](specs/002-m02-field-quest-experience/), 106/106 task); còn checklist trên thiết bị thật |
-| **M03 — Operations & Content Administration** | Đăng nhập quản trị, tuyến, thư viện điểm dừng, mã QR, xem lại và xuất bản, đóng/mở, báo cáo, nhật ký | [Spec v3.7](docs/spec/spec-M03.md) | ✅ Frontend và backend xong trên stack local ([gói 003](specs/003-m03-operations-content-administration/), 203/210 task; còn lại là Phase 16) |
+| **M02 — Field Quest Experience** | Phiên thực địa, quét QR, hiển thị nội dung, kết thúc chuyến, đồng bộ ẩn danh | [Spec v3.6](docs/spec/spec-M02.md) | ✅ Xong ([gói 002](specs/002-m02-field-quest-experience/), 106/106 task; giao diện và luồng kết thúc chuyến đã cập nhật tới v3.6); còn checklist trên thiết bị thật |
+| **M03 — Operations & Content Administration** | Đăng nhập quản trị, tuyến, thư viện điểm dừng, mã QR, xem lại và xuất bản, đóng/mở, báo cáo, nhật ký | [Spec v3.7](docs/spec/spec-M03.md) | ✅ Frontend và backend xong ([gói 003](specs/003-m03-operations-content-administration/), 203/210 task; còn lại thuộc Phase 16) |
 
-Ngoài ba module còn **AI Integration** — một năng lực dùng cho M03, không phải module thứ tư: nút "→" dịch ô tiếng Việt sang ô tiếng Anh trong các editor M03 ([Spec v1.0](docs/spec/spec-AI_integration.md), priority Could, [gói 004](specs/004-ai-translation/), 34/34 task).
+Ngoài ba module còn các năng lực dùng chung (không phải module nghiệp vụ mới):
 
-Ngoài ra có **Mascot Mila** — rái cá đồng hành của du khách trên các màn M01/M02, chỉ ở frontend ([Spec v1.4](docs/spec/spec-Mascot.md), priority Could, [bộ thiết kế](docs/mascot/README.md), [gói 005](specs/005-visitor-mascot/): đang cài đặt, 50/74 task: pilot US1–US4 và ảnh đợt 1; spec v1.3 (CHG-MASCOT-2026-11-22-02, -23-03, -23-04: Mila sống động hơn, Mila xác nhận lượt quét thay toast, lớp phủ giới thiệu, công tắc chuyển động ở màn Tài nguyên) đã duyệt; công tắc `VITE_FEATURE_MASCOT` mặc định tắt). Giai đoạn tiếp theo: **Motion & micro-interactions** trên màn du khách ([gói 006](specs/006-visitor-motion/), change brief CHG-MOTION-2026-11-24-01 đã duyệt; spec-Mascot v1.4; chưa cài đặt).
+- **AI Integration** — nút "→" dịch ô tiếng Việt sang ô tiếng Anh theo yêu cầu trong các editor M03 ([Spec v1.0](docs/spec/spec-AI_integration.md), priority Could, [gói 004](specs/004-ai-translation/): ✅ 34/34 task).
+- **Mascot Mila** — rái cá đồng hành của du khách trên các màn M01/M02, chỉ ở frontend ([Spec v1.10](docs/spec/spec-Mascot.md), priority Could, [bộ thiết kế](docs/mascot/README.md), [gói 005](specs/005-visitor-mascot/): ✅ 142/142 task — US1–US9, ảnh Mila, lớp phủ giới thiệu, xác nhận lượt quét thay toast, ba cấp ăn mừng, hướng dẫn theo màn và các đợt tinh chỉnh giao diện M01/M02 tới v1.10; bật/tắt qua `VITE_FEATURE_MASCOT`, mặc định `off` trong `.env.example`, bật `on` trong `.env.fake` và `.env.e2e`).
+- **Motion & micro-interactions** — hiệu ứng chuyển động trên màn du khách M01/M02, chỉ ở frontend ([gói 006](specs/006-visitor-motion/), change brief CHG-MOTION-2026-11-24-01, priority Could: ✅ 58/59 task qua cả 3 đợt — công tắc "Hiệu ứng chuyển động" dùng chung ở màn Tài nguyên, phản hồi chạm, thanh tiến trình hành trình và tải gói, View Transitions, hiện thẻ khi cuộn, skeleton shimmer, confetti lá và hiệu ứng rừng; còn T055 chờ làm lại 3 ảnh khung phụ).
 
-**Đang làm:** đưa lên cloud (Vercel + Supabase Cloud) theo [change brief CHG-M03-2026-11-05-01](specs/003-m03-operations-content-administration/change-brief-CHG-M03-2026-11-05-01-deployment.md) (M03 Phase 16). Website đã có bản deploy đầu tiên trên Vercel, chưa phát hành; đang hoàn tất T203–T209. Các bước: [cloud-runbook.md](specs/003-m03-operations-content-administration/cloud-runbook.md).
+**Môi trường cloud (M03 Phase 16):** đã dựng Single Vercel Project + Single Supabase Cloud Project theo [change brief CHG-M03-2026-11-05-01](specs/003-m03-operations-content-administration/change-brief-CHG-M03-2026-11-05-01-deployment.md) và [cloud-runbook.md](specs/003-m03-operations-content-administration/cloud-runbook.md) (đã áp 14 migration, deploy 3 Edge Functions `session-intake`, `admin-accounts`, `translate`, cấu hình Auth/SMTP và cấp tài khoản Quản lý đầu tiên); đang hoàn tất smoke check và kiểm thử thiết bị thật (T203–T209) trước khi phát hành chính thức.
 
-Phạm vi Must/Should/Could/Won't: [MVP-Scope.md](MVP-Scope.md).
+Phạm vi Must/Should/Could/Won't: [MVP-Scope.md](MVP-Scope.md) · Tài liệu cho người dùng: [Hướng dẫn sử dụng Cúc Phương Quest (PDF)](Hướng%20dẫn%20sử%20dụng%20Cúc%20Phương%20Quest.pdf).
 
 ---
 
@@ -71,9 +73,10 @@ Tạo `.env.local` (đã bị `.gitignore` bỏ qua) với giá trị từ `supa
 VITE_SUPABASE_URL=http://127.0.0.1:54321
 VITE_SUPABASE_PUBLISHABLE_KEY=<publishable key local>
 VITE_QR_PUBLIC_BASE_URL=http://localhost:5173
+VITE_FEATURE_MASCOT=on
 ```
 
-Rồi `npm run dev` và mở <http://localhost:5173> (du khách) hoặc <http://localhost:5173/admin/login> (quản trị). Seed local tạo cùng ba tài khoản ở bảng trên; tuyến và điểm dừng tạo qua giao diện quản trị.
+Rồi `npm run dev` và mở <http://localhost:5173> (du khách) hoặc <http://localhost:5173/admin/login> (quản trị). Đổi `VITE_FEATURE_MASCOT=off` nếu muốn chạy không có mascot Mila. Seed local tạo cùng ba tài khoản ở bảng trên; tuyến và điểm dừng tạo qua giao diện quản trị.
 
 **Không** trỏ app local tới Supabase Cloud. `supabase link` và `db push` chỉ do người vận hành cloud chạy, theo change brief triển khai; không seed và không reset trên cloud.
 
@@ -101,15 +104,17 @@ React + TypeScript + Vite (PWA, React Router data mode, CSS Modules với design
 | Đường dẫn | Nội dung |
 |---|---|
 | `docs/spec/` | **Đặc tả nghiệp vụ** — nguồn sự thật về hành vi và contract |
-| `docs/function list/`, `docs/architecture/`, `docs/design/` | Function list, kiến trúc, design system (dẫn xuất từ spec) |
+| `docs/function list/`, `docs/architecture/`, `docs/design/`, `docs/mascot/` | Function list, kiến trúc, design system, bộ thiết kế mascot Mila (dẫn xuất từ spec) |
 | `screens/` | Danh mục màn hình, đặc tả từng màn, mockup HTML tĩnh và demo tương tác M03 |
 | `data/` | Mô hình dữ liệu S1 → S4, tiêu chí chấp nhận dữ liệu (DAC), review gate, Physical Schema |
-| `specs/` | Gói triển khai Spec-Kit theo module: spec, plan, research, contracts, tasks, validation report |
-| `src/app/` | Khung ứng dụng: router, PWA, cập nhật service worker |
+| `specs/` | Gói triển khai Spec-Kit (`001`–`006`): spec, plan, research, contracts, tasks, validation report |
+| `src/app/` | Khung ứng dụng: router, PWA, cập nhật service worker, host mascot Mila |
 | `src/modules/m01/`, `src/modules/m02/`, `src/modules/m03/` | Code của từng module |
-| `src/shared/` | UI dùng chung, design token, cấu hình, Supabase client, contract dùng chung, IndexedDB |
+| `src/shared/` | UI dùng chung, design token, hiệu ứng chuyển động (`motion`), engine `mascot`, cấu hình, Supabase client, contract dùng chung, IndexedDB |
+| `assets/` | Tài nguyên tĩnh dùng chung (`assets/icons/` SVG/PWA icon, `assets/mascot/` ảnh Mila) |
 | `supabase/` | Migration, seed local, Edge Functions (`admin-accounts`, `session-intake`, `translate`), pgTAP, script cấp Quản lý đầu tiên |
 | `e2e/` | Test Playwright của M01, M02 và M03 |
+| `vercel.json` | Cấu hình rewrite SPA và cache header cho Single Vercel Project |
 | `.specify/`, `.claude/skills/` | Constitution và skill Spec-Kit |
 
 ---
@@ -144,18 +149,19 @@ React + TypeScript + Vite (PWA, React Router data mode, CSS Modules với design
 - [S3 — ERD](data/03-erd.mmd) · [ERD preview](data/03-erd-preview.md) · [ERD review](data/03-erd-review.md)
 - [S4 — Logical Data Model](data/04-data-model.md) · [DBML](data/04-data-model.dbml)
 - [Data Acceptance Criteria](data/08-data-acceptance-criteria.md) (118 tiêu chí) · [Review gate](data/05-review.md) (PASS 2026-10-28)
-- [Physical Schema](data/06-physical-schema.md) — thiết kế; đã hiện thực bằng migration trên stack local, chưa áp lên cloud
+- [Physical Schema](data/06-physical-schema.md) — thiết kế vật lý; đã hiện thực bằng 14 migration trong `supabase/migrations/` (stack local và Supabase Cloud)
 
-### F. Gói triển khai (Spec-Kit)
+### F. Gói triển khai (Spec-Kit) và tài liệu vận hành
 - [001 — M01](specs/001-m01-route-planning-preparation/) · [002 — M02](specs/002-m02-field-quest-experience/) · [003 — M03](specs/003-m03-operations-content-administration/) · [004 — AI Integration](specs/004-ai-translation/) · [005 — Mascot Mila](specs/005-visitor-mascot/) · [006 — Motion](specs/006-visitor-motion/)
 - Mỗi gói có `validation-report.md` ghi lệnh đã chạy thật và phần `NOT RUN`.
+- [Cloud Runbook (T203–T209)](specs/003-m03-operations-content-administration/cloud-runbook.md) · [Hướng dẫn sử dụng Cúc Phương Quest (PDF)](Hướng%20dẫn%20sử%20dụng%20Cúc%20Phương%20Quest.pdf)
 
 ---
 
 ## 6. Quy tắc làm việc
 
 1. **Spec trước.** Thay đổi hành vi hay contract thì sửa spec trước, rồi mới đồng bộ tài liệu dẫn xuất và code. Không tự thêm requirement.
-2. **Quy tắc repo:** [AGENTS.md](AGENTS.md) (chính), [CLAUDE.md](CLAUDE.md) (frontend: token, icon từ `assets/icons/`), [constitution](.specify/memory/constitution.md) 2.1.0.
+2. **Quy tắc repo:** [AGENTS.md](AGENTS.md) (chính), [CLAUDE.md](CLAUDE.md) (frontend: token, icon từ `assets/icons/`), [constitution](.specify/memory/constitution.md) 2.2.0.
 3. **Code** chỉ trong phạm vi change brief và plan đã duyệt. Thao tác trên cloud chỉ do người vận hành cloud chạy, theo change brief triển khai.
 4. **Git:** mỗi phase hoặc user story một branch, pull request vào `main`.
 5. **Không** commit secret, `.env.local`, dữ liệu thật hay định danh production.
