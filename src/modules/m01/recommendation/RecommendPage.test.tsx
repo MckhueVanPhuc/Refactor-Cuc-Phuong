@@ -86,7 +86,7 @@ describe('RecommendPage', () => {
     expect(screen.getByRole('link', { name: B })).toBeTruthy();
   });
 
-  it('HOẶC trong nhóm, VÀ giữa nhóm; trang kết quả có chip của mọi ý đã chọn', async () => {
+  it('HOẶC trong nhóm, VÀ giữa nhóm; trang kết quả không hiện lại tiêu chí', async () => {
     await renderM01('/recommend');
     await screen.findByRole('group', { name: 'Thời gian' });
     await toggle('Thời gian', 'Ngắn (đến 90 phút)');
@@ -95,9 +95,8 @@ describe('RecommendPage', () => {
     await clickSubmit();
     expect(await screen.findByRole('link', { name: B })).toBeTruthy();
     expect(screen.queryByRole('link', { name: A })).toBeNull();
-    for (const chip of ['Ngắn (đến 90 phút)', 'Vừa (trên 90 đến 180 phút)', 'Cần hướng dẫn viên']) {
-      expect(screen.getByText(chip)).toBeTruthy();
-    }
+    // Không chip tiêu chí ở trang kết quả (chủ dự án 2026-11-28)
+    expect(screen.queryByText('Cần hướng dẫn viên')).toBeNull();
   });
 
   it('0 kết quả: câu copy; Đổi tiêu chí giữ lựa chọn; Xem tất cả tuyến về danh mục', async () => {

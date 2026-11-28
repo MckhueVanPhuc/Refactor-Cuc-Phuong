@@ -36,11 +36,3 @@ export function criteriaGroups(messages: M01Messages): CriteriaGroup[] {
     },
   ];
 }
-
-/** Nhãn của mọi lựa chọn đang chọn, theo thứ tự nhóm rồi thứ tự ý trong nhóm (screen spec E-SCR-M01-002-07). */
-export function chosenLabels(groups: readonly CriteriaGroup[], criteria: RecommendationCriteria): string[] {
-  return groups.flatMap((group) => {
-    const chosen = criteria[group.key] ?? [];
-    return group.options.filter((option) => chosen.includes(option.value)).map((option) => option.label);
-  });
-}

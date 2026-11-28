@@ -32,7 +32,8 @@ test('V23 — không chọn gì → mọi tuyến; HOẶC trong nhóm, VÀ giữ
   await box(page, 'Hướng dẫn viên', 'Cần hướng dẫn viên').check();
   await submit.click();
   await expect(titles(page)).toHaveText(['Tuyến thử Ao Hồ']);
-  await expect(page.getByText('Cần hướng dẫn viên')).toBeVisible();
+  // Trang kết quả không hiện lại tiêu chí (2026-11-28)
+  await expect(page.getByText('Cần hướng dẫn viên')).toHaveCount(0);
 
   // Chạm lại để bỏ một ý; lựa chọn còn nguyên khi quay về
   await change.click();
