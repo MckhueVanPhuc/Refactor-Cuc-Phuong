@@ -1,6 +1,6 @@
 // Nút "Bắt đầu" của SCR-M01-003 (E-SCR-M01-003-23, 24; US-M01-04; tasks T065). Tắt trong lúc chạy; lý do chặn theo
 // bảng copy; chỉ điều hướng sang M02 sau khi context đã commit (startRoute).
-import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type RefObject } from 'react';
 import { useNavigate } from 'react-router';
 import { emitMascotEvent, MascotFigure, MascotSlot } from '../../../shared/mascot/index';
 import { TintIcon } from '../../../shared/ui/Icon';
@@ -13,10 +13,13 @@ import styles from './StartPanel.module.css';
 export function StartPanel({
   routeId,
   hasSafetyWarning,
+  safetyWarning,
   needsDecision,
   requestOfflineDecision,
 }: {
   routeId: string;
+  /** Phương án A1 (chủ dự án 2026-11-29): Cảnh báo an toàn ngay trên nút Bắt đầu, dưới lời nhắc của Mila */
+  safetyWarning?: string | undefined;
   /** Tuyến có Cảnh báo an toàn: Mila nhắc đọc khi panel hiện lần đầu (MAS-B-014) */
   hasSafetyWarning: boolean;
   /** Tuyến cần gói mà chưa có gói `SAN_SANG` (BR-M01-012) */
@@ -25,6 +28,7 @@ export function StartPanel({
 }) {
   const { source } = useM01Services();
   const messages = useM01Messages().routeDetail;
+  const safetyTitleId = useId();
   const navigate = useNavigate();
   const startRoute = useMemo(() => createStartRoute({ source, locks: browserLocks() }), [source]);
   const [running, setRunning] = useState(false);
@@ -61,6 +65,17 @@ export function StartPanel({
     <div className={styles.panel} ref={panelRef}>
       {/* Mila phía trên nút Bắt đầu, không bao giờ trong khối Cảnh báo an toàn (spec-Mascot §5.1) */}
       <MascotSlot id="start-panel" modes={['AVATAR']} />
+      {safetyWarning && (
+        <section className={styles.safety} role="note" aria-labelledby={safetyTitleId}>
+          <TintIcon name="warning" className={styles.safetyIcon} />
+          <div className={styles.safetyBody}>
+            <h2 className={styles.safetyTitle} id={safetyTitleId}>
+              {messages.sections.safetyWarning}
+            </h2>
+            <p className={styles.safetyText}>{safetyWarning}</p>
+          </div>
+        </section>
+      )}
       <button type="button" className={styles.start} disabled={running} aria-busy={running} onClick={() => void onStart()}>
         <TintIcon name="start" />
         {messages.start}

@@ -1,6 +1,6 @@
 // Định dạng hiển thị (research R-18; bảng copy SCR-M01-003).
 import { describe, expect, it } from 'vitest';
-import { formatCapturedAt, formatEstimatedSize } from './format';
+import { formatCapturedAt, formatEstimatedSize, formatSizeMb } from './format';
 
 const MB = 1_048_576;
 
@@ -33,5 +33,13 @@ describe('formatCapturedAt', () => {
     const iso = '2026-11-02T01:05:00.000Z';
     const expected = new Intl.DateTimeFormat(lang, { dateStyle: 'short', timeStyle: 'short' }).format(new Date(iso));
     expect(formatCapturedAt(iso, lang)).toBe(expected);
+  });
+});
+
+describe('formatSizeMb (nút Tải về kèm dung lượng, 2026-11-29)', () => {
+  it('cùng cách làm tròn với câu ước tính; vắng thì không có số', () => {
+    expect(formatSizeMb(3.05 * MB, 'vi')).toBe('3,1');
+    expect(formatSizeMb(3.05 * MB, 'en')).toBe('3.1');
+    expect(formatSizeMb(undefined, 'vi')).toBeUndefined();
   });
 });

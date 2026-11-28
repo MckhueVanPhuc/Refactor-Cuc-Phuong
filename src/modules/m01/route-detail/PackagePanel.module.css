@@ -102,10 +102,52 @@
   border-radius: var(--radius-md);
 }
 
+/* Chú thích vùng không có sóng (B1, 2026-11-29): câu và danh sách các điểm, mỗi điểm có icon mất sóng */
+.explain {
+  display: grid;
+  flex-basis: 100%;
+  gap: var(--space-2);
+}
+
+.explainText {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
+.strong {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-m01-amber);
+}
+
+.places {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.place {
+  --icon-size: var(--space-5);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-body);
+  background: color-mix(in srgb, var(--color-paper) 8%, transparent);
+  border-radius: var(--radius-md);
+}
+
+.placeIcon {
+  flex: none;
+  color: var(--color-m01-amber);
+}
+
+/* Nút tải căn giữa, rộng hết ô (B1, 2026-11-29) */
 .actions {
   display: flex;
-  flex-wrap: wrap;
-  margin-left: auto;
+  flex-basis: 100%;
   gap: var(--space-2);
 }
 
@@ -114,10 +156,12 @@
 
   position: relative;
   display: inline-flex;
+  flex: 1;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
-  /* Nút phụ nhìn cao 36 px; ::after giữ vùng chạm 44 px (design-system §3 Button) */
-  min-height: var(--control-height-compact);
+  /* Rộng hết ô nên cao đủ vùng chạm 44 px (design-system §3 Button) */
+  min-height: var(--touch-target);
   padding: 0 var(--space-3);
   font: var(--font-weight-semibold) var(--font-size-meta) var(--font-sans);
   white-space: nowrap;
@@ -126,12 +170,6 @@
   border: var(--border-width-thin) solid var(--color-m01-amber);
   border-radius: var(--radius-md);
   cursor: pointer;
-}
-
-.action::after {
-  content: '';
-  position: absolute;
-  inset: calc((var(--control-height-compact) - var(--touch-target)) / 2) 0;
 }
 
 .action:hover {
