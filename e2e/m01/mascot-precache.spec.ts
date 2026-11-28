@@ -33,6 +33,7 @@ test('sw.js precache: chunk mascot, đủ ảnh 240 và avatar 96, không cỡ l
     'ma-15-walk-240',
     'ma-16-peek-240',
     'ma-17-proud-240',
+    'ma-18-point-left-240',
     // Khung 2 đạt kiểm (specs/006 T052): chỉ bước; vẫy, ăn mừng, chớp mắt proud chờ ảnh làm lại (DV-06)
     'ma-15-walk-f2-240',
   ].sort());

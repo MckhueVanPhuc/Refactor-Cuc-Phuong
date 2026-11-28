@@ -357,7 +357,7 @@ describe('US8 — Hỏi Mila theo ngữ cảnh (v1.1; BR-MAS-12, 22)', () => {
   it('MAS-B-009 → 012: danh mục, chạm → câu 009 (P3, nhún, tư thế chỉ tay); chạm lần nữa khi còn hiện → 012; hết câu → về tư thế bản đồ', () => {
     let s = play([tap(1_000)], [], CTX, catalogDock()).state;
     expect(s.bubble).toMatchObject({ messageId: 'MSG-MAS-009', priority: 3 });
-    expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'point', animation: 'hop' });
+    expect(s.view).toMatchObject({ mode: 'DOCK', pose: 'pointLeft', animation: 'hop' });
     s = play([tap(1_600)], [], CTX, s).state;
     expect(s.bubble?.messageId).toBe('MSG-MAS-012');
     s = play([{ type: 'mascot.tick', at: s.bubble!.expiresAt! }], [], CTX, s).state;
@@ -639,7 +639,7 @@ describe('US7 — Chuẩn bị cùng Mila (US-MAS-07; T056)', () => {
     expect(state.bubble).toBeNull();
     state = play([{ type: 'mascot.tick', at: 20_100 }], [], CTX, state).state;
     expect(state.bubble).toMatchObject({ messageId: 'MSG-MAS-008', expiresAt: null });
-    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'point' });
+    expect(state.view).toMatchObject({ mode: 'DOCK', pose: 'pointLeft' });
     // Bấm "Gợi ý tuyến" (host điều hướng) → bong bóng đóng; lần sau không gợi ý lại
     state = play([{ type: 'mascot.user.ctaPressed', cta: 'recommend', at: 21_000 }, catalog('ready', 30_000), { type: 'mascot.tick', at: 50_000 }], [], CTX, state).state;
     expect(state.bubble).toBeNull();

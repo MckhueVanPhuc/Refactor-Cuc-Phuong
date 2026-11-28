@@ -395,6 +395,7 @@ Hệ quả cho thiết kế: các cặp trên 4.5:1 dùng được cho chữ th�
 - Ngoại lệ do người dùng duyệt 2026-11-21 cho toast dùng chung và thanh tab: agent vẽ `close.svg` (dấu ✕ của nút đóng toast) trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; nút có tên truy cập bằng chữ.
 - Ngoại lệ do người dùng duyệt 2026-11-27 cho màn lỗi camera của scanner (CHG-MASCOT-2026-11-27-08): agent vẽ `camera-off.svg` (máy ảnh có vạch chéo) trong assets/icons/. Chỉ dùng làm mask, màu từ token; trang trí đi kèm câu lỗi cố định, `aria-hidden`.
 - CHG-REC-2026-11-28-01 (duyệt 2026-11-28) cho nhóm "Hướng dẫn viên" của SCR-M01-002: agent vẽ `guide.svg` (người dẫn đoàn cầm cờ, nét đơn lưới 24×24) trong assets/icons/. Chỉ dùng làm mask, màu lấy từ token; đứng trước chữ tiêu đề nhóm, `aria-hidden`.
+- Chủ dự án duyệt 2026-11-29 (màn Chi tiết tuyến, phương án A1 + B1): agent vẽ `warning.svg` (tam giác cảnh báo, trước tiêu đề ô Cảnh báo an toàn) và `no-signal.svg` (vạch sóng bị gạch chéo, cạnh tên điểm không có sóng trong ô Gói tải trước) trong assets/icons/. Nét đơn lưới 24×24, chỉ dùng làm mask, màu lấy từ token; luôn đi kèm chữ, `aria-hidden`.
 - Logo dùng chung là `logo-emblem.png`, bản sạch của `icon.png` (nền trắng, bỏ vạch đen ở mép), dùng cho favicon, thanh app và panel chọn ngôn ngữ. Icon cài đặt `pwa-192.png`, `pwa-512.png`, `pwa-maskable-512.png` và `apple-touch-icon.png` là logo này đặt giữa nền trắng vuông; bản maskable giữ logo trong vòng tròn an toàn 80%. Tất cả do agent dựng theo yêu cầu người dùng 2026-11-08.
 
 ---

@@ -423,7 +423,8 @@ const US7: Rule[] = [
           behaviorId: 'MAS-B-008',
           priority: 6,
           mode: 'DOCK',
-          pose: 'point',
+          // Nút Gợi ý tuyến ở bên trái Mila (đợt 5, 2026-11-28)
+          pose: 'pointLeft',
           animation: 'pop',
           message: { id: 'MSG-MAS-008' },
           once: 'CATALOG_HINT',
@@ -588,10 +589,10 @@ function helpLines(state: RuleView['state']): HelpLine[] {
     return [{ behaviorId: 'MAS-B-090', id, pose: 'point', slot: START_SLOT }];
   }
   if (path === '/offline') return [{ behaviorId: 'MAS-B-090', id: 'MSG-MAS-018', pose: 'backpack', slot: PACKAGE_SLOT }];
-  // Danh mục tuyến
+  // Danh mục tuyến: câu nhắc nút Gợi ý tuyến ở bên trái Mila → chỉ tay sang trái (đợt 5, 2026-11-28)
   return [
-    { behaviorId: 'MAS-B-009', id: 'MSG-MAS-009', pose: 'point' },
-    { behaviorId: 'MAS-B-009', id: 'MSG-MAS-012', pose: 'point' },
+    { behaviorId: 'MAS-B-009', id: 'MSG-MAS-009', pose: 'pointLeft' },
+    { behaviorId: 'MAS-B-009', id: 'MSG-MAS-012', pose: 'pointLeft' },
   ];
 }
 

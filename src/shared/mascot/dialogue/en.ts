@@ -15,7 +15,7 @@ export const en: MascotDialogue = {
     'MSG-MAS-010': "How long do you have, who's coming, what do you enjoy? Let me suggest some routes!",
     'MSG-MAS-011': 'Here are the routes that suit you!',
     'MSG-MAS-013': 'Try browsing all routes, one might catch your eye.',
-    'MSG-MAS-014': 'Before you head out, please read the Safety warning.',
+    'MSG-MAS-014': 'Before you head out, please read the Safety warning just below.',
     'MSG-MAS-015': 'Done choosing? Tap "Show matching routes"!',
     'MSG-MAS-016': 'Tap a route for details, or tap Change choices.',
     'MSG-MAS-017': 'Read the Safety warning, download the pack if you need it, then tap Start.',

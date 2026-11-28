@@ -11,10 +11,15 @@ const BYTES_PER_MB = 1_048_576;
  */
 export function formatEstimatedSize(bytes: number | undefined, language: LanguageCode): string {
   const messages = messagesFor(language).routeDetail;
-  if (bytes === undefined) return messages.sizeUnavailable;
+  const n = formatSizeMb(bytes, language);
+  return n === undefined ? messages.sizeUnavailable : messages.estimatedSize({ n });
+}
+
+/** Số MB của dung lượng ước tính (làm tròn lên 0,1 MB), dùng chung cho câu ước tính và nút tải (2026-11-29). */
+export function formatSizeMb(bytes: number | undefined, language: LanguageCode): string | undefined {
+  if (bytes === undefined) return undefined;
   const megabytes = Math.max(0.1, Math.ceil((bytes * 10) / BYTES_PER_MB) / 10);
-  const n = new Intl.NumberFormat(language, { maximumFractionDigits: 1 }).format(megabytes);
-  return messages.estimatedSize({ n });
+  return new Intl.NumberFormat(language, { maximumFractionDigits: 1 }).format(megabytes);
 }
 
 /** Thời điểm lưu chữ cốt lõi (`routeEssentials.capturedAt`) theo múi giờ của thiết bị. */

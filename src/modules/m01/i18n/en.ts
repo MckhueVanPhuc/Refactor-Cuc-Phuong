@@ -100,6 +100,13 @@ export const en: M01Messages = {
     scanHint:
       'Without a network, scan codes with the Scan button in the app, because the phone camera may not be able to open the app.',
     download: 'Download',
+    downloadWithSize: ({ n }) => `Download (about ${n} MB)`,
+    noSignal: {
+      before: 'This route goes through places with ',
+      strong: 'no phone signal',
+      afterList: '. Download the pack while you still have signal to see the content at:',
+      afterNoList: '. Download the pack while you still have signal to see the content there.',
+    },
     continueWithoutDownload: 'Continue without download',
     goBack: 'Go back',
     savedAt: ({ time }) => `Saved on ${time}; this may not be the latest information.`,

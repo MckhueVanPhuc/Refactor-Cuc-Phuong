@@ -35,7 +35,7 @@ export const vi = {
     'MSG-MAS-010': 'Bạn có bao lâu, đi cùng ai, thích gì? Để mình gợi ý cho nhé!',
     'MSG-MAS-011': 'Đây là những tuyến hợp với bạn!',
     'MSG-MAS-013': 'Thử xem tất cả tuyến, biết đâu có tuyến bạn thích.',
-    'MSG-MAS-014': 'Trước khi đi, bạn đọc kỹ phần Cảnh báo an toàn giúp mình nhé.',
+    'MSG-MAS-014': 'Trước khi đi, bạn đọc kỹ phần Cảnh báo an toàn ngay bên dưới giúp mình nhé.',
     // v1.6 (CHG-MASCOT-2026-11-25-06 D2): câu chạm Mila theo từng màn M01 (BR-MAS-12)
     'MSG-MAS-015': 'Chọn xong các mục rồi bấm "Xem tuyến phù hợp" nhé!',
     'MSG-MAS-016': 'Chạm vào một tuyến để xem chi tiết, hoặc bấm Đổi tiêu chí.',

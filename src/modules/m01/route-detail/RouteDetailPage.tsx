@@ -5,7 +5,7 @@ import { useCallback, useEffect, useId, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { PATHS } from '../../../app/paths';
 import { useM01Services } from '../api/services';
-import { formatCapturedAt, formatDistanceKm } from '../format';
+import { formatCapturedAt, formatDistanceKm, formatSizeMb } from '../format';
 import { useM01Messages } from '../i18n/useM01Messages';
 import { useDisplayLanguage } from '../language/useLanguagePreference';
 import { SourceNotice } from '../layout/VisitorLayout';
@@ -17,13 +17,13 @@ import { TintIcon } from '../../../shared/ui/Icon';
 import { DifficultyBars } from '../layout/DifficultyBars';
 import { maybeUpdatePackage } from '../offline-package/lazyUpdate';
 import { downloadWithMascot } from '../offline-package/mascotSignals';
-import { needsPackage } from '../offline-package/needsPackage';
+import { needsPackage, offlineRequiredCheckpointNames } from '../offline-package/needsPackage';
 import type { PackageOpResult } from '../offline-package/packageOps';
 import { activeStatusOf } from '../offline-package/packageStatus';
 import { packageOpsFor, usePackageEntries } from '../offline-package/usePackages';
 import { OfflineDecisionDialog } from './OfflineDecisionDialog';
 import type { OfflineDecision } from './offlineDecision';
-import { PackagePanel } from './PackagePanel';
+import { PackagePanel, type OfflineHint } from './PackagePanel';
 import { StartPanel } from './StartPanel';
 import styles from './RouteDetailPage.module.css';
 import { useRouteDetail } from './useRouteDetail';
@@ -40,7 +40,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function DetailBody({ view }: { view: DetailView }) {
+/** `showSafety`: Cảnh báo an toàn ở thân trang chỉ khi không có panel Bắt đầu (A1: thường nằm ngay trên nút Bắt đầu) */
+function DetailBody({ view, showSafety }: { view: DetailView; showSafety: boolean }) {
   const messages = useM01Messages();
   const language = useDisplayLanguage();
   const sections = messages.routeDetail.sections;
@@ -94,7 +95,7 @@ function DetailBody({ view }: { view: DetailView }) {
         </dl>
       )}
 
-      {view.safetyWarning && (
+      {showSafety && view.safetyWarning && (
         <div className={styles.safety} role="note" aria-label={sections.safetyWarning}>
           <h2 className={styles.sectionTitle}>{sections.safetyWarning}</h2>
           <p className={styles.text}>{view.safetyWarning}</p>
@@ -204,6 +205,28 @@ export function RouteDetailPage() {
   const canStart = data.status !== 'loading' && data.status !== 'routeUnavailable';
 
   /**
+   * Ô gói giải thích vùng không có sóng (B1, 2026-11-29): tên các điểm `OFFLINE_REQUIRED` và dung lượng ước tính chỉ có
+   * trong JourneySnapshot, nên đọc snapshot đang hoạt động khi tuyến cần gói mà chưa có gói dùng được và đang có nguồn.
+   * Không đọc được (mất mạng) → ô gói chỉ có câu chú thích, không danh sách.
+   */
+  const [offlineHint, setOfflineHint] = useState<OfflineHint>();
+  const wantsHint = data.status === 'online' && routeNeedsPackage && !hasReadyPackage;
+  useEffect(() => {
+    if (!wantsHint) return;
+    let alive = true;
+    void source.fetchActiveSnapshot(routeId).then((snapshot) => {
+      if (!alive || snapshot.kind !== 'OK' || !snapshot.value) return;
+      setOfflineHint({
+        names: offlineRequiredCheckpointNames(snapshot.value, language),
+        sizeMb: formatSizeMb(snapshot.value.estimatedOfflineSizeBytes, language),
+      });
+    });
+    return () => {
+      alive = false;
+    };
+  }, [wantsHint, source, routeId, language]);
+
+  /**
    * Tuyến cần gói mà chưa có gói `SAN_SANG` (T086): đọc snapshot active trước, vì tên điểm dừng `OFFLINE_REQUIRED` và
    * dung lượng ước tính chỉ có trong JourneySnapshot. Nguồn không khả dụng → không mở dialog, áp điều kiện Start
    * offline; snapshot cho thấy không cần gói → Start luôn (snapshot thắng cờ, BR-M01-012).
@@ -231,12 +254,7 @@ export function RouteDetailPage() {
           {messages.nav.catalog}
         </Link>
         <h1 className={styles.title}>{title}</h1>
-        {view?.needsPackage && (
-          <span className={styles.heroChip}>
-            <TintIcon name="hiker" />
-            {messages.catalog.offlineNeeded}
-          </span>
-        )}
+        {/* Bỏ chip "Cần tải trước" (chủ dự án 2026-11-29): ô Gói tải trước tự giải thích vùng không có sóng */}
       </div>
 
       {(data.status === 'saved' || data.status === 'localView') && (
@@ -260,6 +278,7 @@ export function RouteDetailPage() {
           <StartPanel
             routeId={routeId}
             hasSafetyWarning={Boolean(view?.safetyWarning)}
+            safetyWarning={view?.safetyWarning}
             needsDecision={routeNeedsPackage && !hasReadyPackage}
             requestOfflineDecision={requestOfflineDecision}
           />
@@ -267,10 +286,10 @@ export function RouteDetailPage() {
       )}
       {(routeNeedsPackage || entry) && data.status !== 'loading' && (
         <div className={styles.startArea}>
-          <PackagePanel entry={entry} lastResult={lastResult} onDownload={download} />
+          <PackagePanel entry={entry} lastResult={lastResult} onDownload={download} offlineHint={offlineHint} />
         </div>
       )}
-      {view && <DetailBody view={view} />}
+      {view && <DetailBody view={view} showSafety={!canStart} />}
       {decision && (
         <OfflineDecisionDialog
           open

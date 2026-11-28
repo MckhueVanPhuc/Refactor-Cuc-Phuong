@@ -51,3 +51,12 @@ Cùng cách ghép vùng khác biệt của ảnh mắt nhắm (mục trên), th�
 3. **Đặt**: dùng đúng phép biến đổi của ảnh gốc đã xuất (suy từ bbox ảnh gốc và bbox ảnh web 480), nên khung phụ chồng khít.
 
 Kết quả kiểm bằng mắt (ảnh so sánh phóng to): chỉ `ma-15-walk-f2` đạt (vùng ghép 26% là chân và tay; thân, đầu trùng ảnh gốc) → xuất 240/480 (12,0 KB / 35,2 KB). `ma-21-wave-f2`, `ma-22-cheer-f2`, `ma-20-proud-blink` **không xuất** (đầu lệch cỡ, thân mờ, mõm đổi màu); chờ chủ dự án làm lại (hướng dẫn tạo ảnh §9.4).
+
+## Đợt 5 — `ma-18-point-left` (2026-11-28)
+
+Chủ dự án thiết kế theo prompt [hướng dẫn tạo ảnh §10](../../docs/mascot/MASCOT_IMAGE_PRODUCTION_GUIDE.md), quyền sử dụng xác nhận 2026-11-28. Cùng quy trình đợt 4 (Chromium của Playwright, script ngoài repo):
+
+1. Kiểm: 1254×1254, bốn góc alpha = 0; điểm bán trong suốt 4,56%; điểm bán trong suốt bão hòa vàng/đỏ 1,12% (ảnh đã duyệt: 1,0–4,0%) — không viền màu lạ khi đặt trên nền giấy và nền rừng.
+2. Giữ mảng thân lớn nhất (bỏ 0,075% diện tích ở 271 mảng rời), bỏ alpha ≤ 3.
+3. Căn toàn thân như `ma-02-map-480`: nhân vật y = 30…468 trên khung 480, căn giữa ngang (bbox x = 55…425).
+4. Thu nhỏ từng nửa, WebP chất lượng 0,82: 480 = 36,5 KB, 240 = 13,3 KB (vào precache).
