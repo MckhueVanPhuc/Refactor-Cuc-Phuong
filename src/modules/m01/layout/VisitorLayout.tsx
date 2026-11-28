@@ -57,7 +57,7 @@ export function VisitorLayout() {
         <NoticeSlotContext.Provider value={noticeSlot}>
           <RecommendationCriteriaProvider>
             {/* Chuyển cảnh khi đổi màn (specs/006 R-01, R-07; spike T002): trình duyệt không hỗ trợ thì đổi tức thì */}
-            <ViewTransition>
+            <ViewTransition default="page">
               <Outlet />
             </ViewTransition>
           </RecommendationCriteriaProvider>

@@ -88,6 +88,58 @@ textarea {
   animation-timing-function: var(--ease-standard);
 }
 
+/*
+ * Thanh app và thanh tab (2026-11-28): đứng yên và luôn nằm trên nội dung đang chuyển, không bị ảnh chụp của màn cũ
+ * đè lên; thanh tab đổi tab đang chọn tức thì.
+ */
+::view-transition-group(visitor-appbar),
+::view-transition-group(visitor-tabbar),
+::view-transition-group(field-appbar) {
+  z-index: 1;
+  animation: none;
+}
+
+::view-transition-old(visitor-appbar),
+::view-transition-old(visitor-tabbar),
+::view-transition-old(field-appbar) {
+  display: none;
+}
+
+::view-transition-new(visitor-appbar),
+::view-transition-new(visitor-tabbar),
+::view-transition-new(field-appbar) {
+  animation: none;
+}
+
+/*
+ * Nội dung màn (2026-11-28; lớp `page` do <ViewTransition default="page"> gắn cho mọi phần tử gốc của màn): màn cũ mờ đi trước, màn mới mờ vào sau, chỉ chồng nhau một chút; khung không co giãn theo
+ * chiều cao hai màn. Tổng thời gian vẫn là --duration-page.
+ */
+::view-transition-group(*.page) {
+  animation: none;
+}
+
+::view-transition-old(*.page) {
+  animation: page-out calc(var(--duration-page) * 0.5) var(--ease-standard) both;
+}
+
+::view-transition-new(*.page) {
+  animation: page-in calc(var(--duration-page) * 0.7) var(--ease-standard) calc(var(--duration-page) * 0.3) both;
+}
+
+@keyframes page-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-2));
+  }
+}
+
 :root[data-motion='reduced']::view-transition-group(*),
 :root[data-motion='reduced']::view-transition-old(*),
 :root[data-motion='reduced']::view-transition-new(*) {

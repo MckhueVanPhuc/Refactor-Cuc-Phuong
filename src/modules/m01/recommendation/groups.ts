@@ -30,11 +30,3 @@ export function criteriaGroups(messages: M01Messages): CriteriaGroup[] {
     },
   ];
 }
-
-/** Nhãn của các lựa chọn đang chọn, theo thứ tự nhóm. */
-export function chosenLabels(groups: readonly CriteriaGroup[], criteria: RecommendationCriteria): string[] {
-  return groups.flatMap((group) => {
-    const label = group.options.find((option) => option.value === criteria[group.key])?.label;
-    return label ? [label] : [];
-  });
-}

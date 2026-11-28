@@ -75,7 +75,7 @@ export function FieldLayout({ surface, title, children }: { surface: FieldSurfac
       <main className={styles.main} id="m02-main" tabIndex={-1}>
         <NoticeSlotContext.Provider value={noticeSlot}>
           {/* Chuyển cảnh khi đổi màn (specs/006 R-01, R-07): trình duyệt không hỗ trợ thì đổi tức thì */}
-          <ViewTransition>{children}</ViewTransition>
+          <ViewTransition default="page">{children}</ViewTransition>
         </NoticeSlotContext.Provider>
       </main>
     </div>

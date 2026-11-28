@@ -13,7 +13,6 @@ import { useM01Messages } from '../i18n/useM01Messages';
 import { useDisplayLanguage } from '../language/useLanguagePreference';
 import { useSignedUrls } from '../media/useSignedUrls';
 import { useRecommendationCriteria } from './criteriaContext';
-import { chosenLabels, criteriaGroups } from './groups';
 import { recommend } from './recommend';
 import type { RecommendResultsState } from './RecommendPage';
 import styles from './RecommendPage.module.css';
@@ -43,8 +42,6 @@ export function RecommendResultsPage() {
 
   if (result.kind !== 'results') return <Navigate to={PATHS.recommend} replace />;
 
-  const labels = chosenLabels(criteriaGroups(messages), criteria);
-
   // Về form với lựa chọn còn nguyên; mở từ form thì lùi một bước để lịch sử trình duyệt không lặp
   function changeChoices() {
     focusChoiceOnReturn.current = true;
@@ -71,14 +68,7 @@ export function RecommendResultsPage() {
         {/* Mila đứng cạnh tiêu đề khi có kết quả (spec-Mascot v1.5 §5.1, DOCK); không có kết quả thì ô trống, không chiếm chỗ */}
         <MascotSlot id="recommend-head" modes={['DOCK']} size="recommend" />
       </div>
-      <p className={styles.criteria}>
-        {labels.map((label, index) => (
-          <span key={label}>
-            {index > 0 && <span className="visually-hidden"> · </span>}
-            <span className={styles.criterion}>{label}</span>
-          </span>
-        ))}
-      </p>
+      {/* Không hiện lại các tiêu chí đã chọn trên trang kết quả (chủ dự án 2026-11-28); "Đổi tiêu chí" mở lại form với lựa chọn còn nguyên */}
 
       {catalog.status === 'unavailable' && <p className={styles.message}>{messages.recommend.sourceUnavailable}</p>}
       {catalog.status === 'ready' && (

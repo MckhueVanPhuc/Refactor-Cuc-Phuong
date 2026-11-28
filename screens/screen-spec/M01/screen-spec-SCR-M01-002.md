@@ -34,7 +34,7 @@ Chưa có mockup cho màn này. Không suy ngược business rule từ bất k�
 | 4 | E-SCR-M01-002-04 | Group tag selector | Selector (chọn một) | `GROUP_CA_NHAN_NGUOI_LON`, `GROUP_GIA_DINH_CO_TRE`, `GROUP_CAN_DE_DANG` (cần một tuyến đi dễ dàng) | Yes | Đúng một giá trị hợp lệ |
 | 5 | E-SCR-M01-002-05 | Experience tag selector | Selector (chọn một) | `INTEREST_THIEN_NHIEN_CHUP_ANH`, `INTEREST_TIM_HIEU`, `INTEREST_KHAM_PHA` | Yes | Đúng một giá trị hợp lệ |
 | 6 | E-SCR-M01-002-06 | Action: Xem tuyến phù hợp | Button | Chạy lọc xác định trên tuyến đang chọn được | Yes | Vô hiệu khi thiếu một trong ba tiêu chí (FR-M01-004) |
-| 7 | E-SCR-M01-002-07 | Criteria summary | Text | Ba tiêu chí đã chọn | Conditional | Hiện trên trang kết quả |
+| 7 | E-SCR-M01-002-07 | Criteria summary | — | **Bỏ 2026-11-28** (chủ dự án): trang kết quả không hiện lại các tiêu chí đã chọn; "Đổi tiêu chí" mở lại form với lựa chọn còn nguyên | — | — |
 | 8 | E-SCR-M01-002-08 | Result list | List | Mọi tuyến chọn được có `timeTags`, `groupTags` và `experienceTags` đều chứa giá trị đã chọn | Conditional | Khớp cả ba nhóm; 0..N kết quả; không chấm điểm, không sắp theo độ phù hợp, không giới hạn số lượng (BR-M01-003) |
 | 9 | E-SCR-M01-002-09 | Result route card | List item | Cùng trường với thẻ tuyến của SCR-M01-001 (ảnh, tên, mô tả ngắn, quãng đường, thời lượng, độ khó, số điểm dừng, dấu cần tải trước) | Conditional | Như SCR-M01-001; ảnh lỗi → placeholder |
 | 10 | E-SCR-M01-002-10 | Zero-result state | Text + action | Thông báo không có tuyến phù hợp, kèm hành động đổi tiêu chí hoặc về danh mục | Conditional | Không nới lỏng tiêu chí (US-M01-02 mục 3) |
@@ -90,7 +90,7 @@ Chữ cố định khác của màn này:
 | Default | Ba selector trống, hành động xem tuyến bị vô hiệu | Mở màn hình, chưa chọn |
 | Partially selected | Một hoặc hai nhóm đã chọn, hành động vẫn vô hiệu | Thiếu tiêu chí |
 | Ready | Đủ ba tiêu chí, hành động được bật | Chọn đủ ba nhóm |
-| Results | Trang kết quả riêng: danh sách tuyến khớp cả ba nhóm kèm tóm tắt tiêu chí | Lọc có ít nhất một tuyến |
+| Results | Trang kết quả riêng: danh sách tuyến khớp cả ba nhóm (không hiện lại tiêu chí, 2026-11-28) | Lọc có ít nhất một tuyến |
 | Zero result | Trang kết quả riêng: thông báo rỗng với lựa chọn đổi tiêu chí hoặc về danh mục | Lọc không có tuyến |
 | Source unavailable | Thông báo không đọc được nguồn | Request nguồn lỗi |
 

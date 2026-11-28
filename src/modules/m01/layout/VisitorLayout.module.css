@@ -16,6 +16,8 @@
 }
 
 .appBar {
+  /* Đứng yên khi chuyển màn (global.css, view transition) */
+  view-transition-name: visitor-appbar;
   /* Trên nền deep, focus dùng amber (§5.3: 7.60:1) */
   --focus-ring-color: var(--color-m01-amber);
 
