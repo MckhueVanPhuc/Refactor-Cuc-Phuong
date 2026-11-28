@@ -74,7 +74,7 @@ describe('ScanPage', () => {
     expect(await screen.findByRole('dialog', { name: viMessages.scanner.title }, SCANNER_LOAD)).toBeTruthy();
   });
 
-  it('không có phiên → khách tự do: tra mã không gửi tuyến, nội dung kèm gợi ý, không ghi gì; Quay lại về màn trước', async () => {
+  it('không có phiên → khách tự do: tra mã không gửi tuyến, nội dung kèm gợi ý, không ghi gì; chỉ có nút Chọn tuyến, không có Quay lại', async () => {
     const router = openFromTab();
     await scan(`${BASE}/q/Q2`);
     await waitFor(() => expect(router.state.location.pathname).toBe('/trip/qr/Q2'));
@@ -83,7 +83,8 @@ describe('ScanPage', () => {
     expect([await playSessionsTable.count(), await checkpointVisitsTable.count(), await pendingSyncItemsTable.count()]).toEqual([
       0, 0, 0,
     ]);
-    expect(screen.getByRole('link', { name: viMessages.content.back }).getAttribute('href')).toBe('/');
+    expect(screen.getByRole('link', { name: viMessages.qrLink.chooseRoute }).getAttribute('href')).toBe('/');
+    expect(screen.queryByRole('link', { name: viMessages.content.back })).toBeNull();
   });
 
   it('có phiên → lượt quét của phiên: gửi tuyến, ghi lượt ghé, Quay lại về hành trình', async () => {

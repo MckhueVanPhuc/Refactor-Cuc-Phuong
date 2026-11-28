@@ -14,7 +14,7 @@ async function m02StoreCounts(page: Page) {
 const scanTab = (page: Page) =>
   page.getByRole('navigation', { name: 'Điều hướng chính' }).getByRole('link', { name: 'Quét QR' });
 
-test('V-SCAN-1 — không có phiên: bấm Quét QR ở thanh tab → camera đọc mã → nội dung khách tự do; không ghi gì; Quay lại về danh mục', async ({
+test('V-SCAN-1 — không có phiên: bấm Quét QR ở thanh tab → camera đọc mã → nội dung khách tự do; không ghi gì; chỉ có Chọn tuyến về danh mục (không có Quay lại)', async ({
   page,
 }) => {
   await mockPublication(page);
@@ -27,10 +27,11 @@ test('V-SCAN-1 — không có phiên: bấm Quét QR ở thanh tab → camera đ
   await expect(page).toHaveURL(/\/trip\/qr\/Q1a$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Đối tượng Q1a' })).toBeVisible();
   await expect(page.getByText(vi.notice.freeVisitor)).toBeVisible();
+  await expect(page.getByRole('link', { name: vi.content.back })).toHaveCount(0);
   expect(requests).toEqual([{ p_qr_identifier: 'Q1a' }]);
   expect(await m02StoreCounts(page)).toEqual([0, 0, 0]);
 
-  await page.getByRole('link', { name: vi.content.back }).click();
+  await page.getByRole('link', { name: vi.qrLink.chooseRoute }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Danh mục tuyến' })).toBeVisible();
 });
 

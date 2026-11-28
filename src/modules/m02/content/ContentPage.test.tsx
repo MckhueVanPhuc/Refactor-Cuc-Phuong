@@ -172,12 +172,15 @@ describe('ContentPage', () => {
     expect(await checkpointVisitsTable.count()).toBe(1);
   });
 
-  it('khách tự do: gợi ý + "Chọn tuyến"; vừa ghi lượt ghé: "Đã ghi nhận lượt quét."', async () => {
+  it('khách tự do: gợi ý + "Chọn tuyến", không có nút "Quay lại"; vừa ghi lượt ghé: "Đã ghi nhận lượt quét." và có nút "Quay lại"', async () => {
     const a = renderContent('Q1a', { scan: { ...live('Q1a'), freeVisitor: true, session: null } });
     expect(await screen.findByText(viMessages.notice.freeVisitor)).toBeTruthy();
     expect(screen.getByRole('link', { name: viMessages.qrLink.chooseRoute }).getAttribute('href')).toBe('/');
+    expect(screen.queryByRole('link', { name: viMessages.content.back })).toBeNull();
+    expect(screen.getByRole('heading', { name: viMessages.screenTitle.qrLink })).toBeTruthy();
     a.unmount();
     renderContent('Q1a', { scan: { ...live('Q1a'), visitCreated: true } });
     expect(await screen.findByText(viMessages.trip.visitRecorded)).toBeTruthy();
+    expect(screen.getByRole('link', { name: viMessages.content.back }).getAttribute('href')).toBe('/trip');
   });
 });

@@ -18,7 +18,7 @@ import { FieldLayout } from '../layout/FieldLayout';
 import { useLatestTerminalSyncItem, useSession, useSessionVisits } from '../storage/readers';
 import { useSyncStatus } from '../sync/useSyncStatus';
 import styles from './EndPage.module.css';
-import { useEndPackageView, type PackageImageRef } from './useEndPackageView';
+import { useEndPackageView, useLiveCheckpointThumbnails, type PackageImageRef } from './useEndPackageView';
 import { takeEndedHere, type EndRouteState } from './useEndTrip';
 
 const END_MODES = ['CELEBRATE', 'DOCK'] as const;
@@ -84,15 +84,24 @@ function ProgressRing({ k, n }: { k: number; n: number }) {
   );
 }
 
-/** Ảnh nhỏ của điểm từ gói; không có gói, không có ảnh hoặc chưa đọc xong → ô biểu tượng (spec-M02 v3.6). */
-function Thumbnail({ image }: { image: PackageImageRef | undefined }) {
-  return image ? <PackageThumbnail image={image} /> : <ThumbnailPlaceholder />;
+/** Ảnh nhỏ của điểm từ một mã QR bất kỳ trong điểm dừng (ưu tiên gói offline, chưa có thì lấy qua live lookup); không có → ô biểu tượng (spec-M02 v3.6). */
+function Thumbnail({ image, liveUrl }: { image: PackageImageRef | undefined; liveUrl: string | undefined }) {
+  if (image) return <PackageThumbnail image={image} fallbackUrl={liveUrl} />;
+  if (liveUrl) return <LiveThumbnail url={liveUrl} />;
+  return <ThumbnailPlaceholder />;
 }
 
-function PackageThumbnail({ image }: { image: PackageImageRef }) {
+function PackageThumbnail({ image, fallbackUrl }: { image: PackageImageRef; fallbackUrl: string | undefined }) {
   const url = usePackageImage(image.routeId, image.contentVersion, image.sourceRef);
-  if (!url) return <ThumbnailPlaceholder />;
-  return <img className={styles.thumb} src={url} alt="" data-end-thumb="" />;
+  if (url) return <img className={styles.thumb} src={url} alt="" data-end-thumb="" />;
+  if (url === null && fallbackUrl) return <LiveThumbnail url={fallbackUrl} />;
+  return <ThumbnailPlaceholder />;
+}
+
+function LiveThumbnail({ url }: { url: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return <ThumbnailPlaceholder />;
+  return <img className={styles.thumb} src={url} alt="" data-end-thumb="" onError={() => setFailed(true)} />;
 }
 
 function ThumbnailPlaceholder() {
@@ -117,7 +126,9 @@ export function EndPage() {
   const ended = session.status === 'ready' && session.value && session.value.status !== 'DANG_DIEN_RA' ? session.value : null;
   const packageView = useEndPackageView(ended?.routeId);
   const checkpoints = [...(ended?.journeyCheckpoints ?? [])].sort((a, b) => a.sequence - b.sequence);
-  const visitOf = new Map(visits.status === 'ready' ? visits.value.map((v) => [v.checkpointId, v]) : []);
+  const visitList = visits.status === 'ready' ? visits.value : [];
+  const liveThumbnails = useLiveCheckpointThumbnails(checkpoints, visitList, packageView);
+  const visitOf = new Map(visitList.map((v) => [v.checkpointId, v]));
   const k = checkpoints.filter((c) => visitOf.has(c.checkpointId)).length;
   const n = checkpoints.length;
   const complete = n > 0 && k >= n;
@@ -196,7 +207,10 @@ export function EndPage() {
                       {visit ? <TintIcon name="check" /> : index + 1}
                     </span>
                     <div className={styles.row}>
-                      <Thumbnail image={packageView?.thumbnails.get(checkpoint.checkpointId)} />
+                      <Thumbnail
+                        image={packageView?.thumbnails.get(checkpoint.checkpointId)}
+                        liveUrl={liveThumbnails.get(checkpoint.checkpointId)}
+                      />
                       <div className={styles.rowText}>
                         <p className={styles.number}>{String(index + 1).padStart(2, '0')}</p>
                         <p className={styles.name}>{checkpoint.checkpointName[language]}</p>

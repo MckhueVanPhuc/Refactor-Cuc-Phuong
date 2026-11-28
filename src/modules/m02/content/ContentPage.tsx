@@ -3,7 +3,7 @@
 // chung với trang mở từ camera điện thoại (SCR-M02-004).
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router';
-import { PATHS } from '../../../app/paths';
+import { useM02Messages } from '../i18n/useM02Messages';
 import { FieldLayout } from '../layout/FieldLayout';
 import { processScan, type ScanResult } from '../scan/processScan';
 import { viewScannedPoint } from '../scan/viewScannedPoint';
@@ -11,6 +11,7 @@ import type { ContentRouteState } from '../session/TripPage';
 import { ScanContent } from './ScanContent';
 
 export function ContentPage() {
+  const messages = useM02Messages();
   const { qrIdentifier = '' } = useParams();
   const location = useLocation();
   const state = (location.state ?? {}) as ContentRouteState;
@@ -46,13 +47,12 @@ export function ContentPage() {
   }, [qrIdentifier, state.scan]);
 
   return (
-    <FieldLayout surface="article">
+    <FieldLayout surface="article" {...(scan?.freeVisitor ? { title: messages.screenTitle.qrLink } : {})}>
       <ScanContent
         scan={scan}
         qrIdentifier={qrIdentifier}
-        showBack
-        // Có phiên → về hành trình (SCR-M02-001); khách tự do quét từ thanh tab → về màn đã mở thanh tab
-        backTo={scan?.session || !state.returnTo ? PATHS.m02SessionEntry : state.returnTo}
+        // Chỉ hiện nút "Quay lại" về hành trình khi đang có phiên chuyến đi; khách tự do chỉ có nút "Chọn tuyến"
+        showBack={Boolean(scan?.session)}
         onRetry={retry}
       />
     </FieldLayout>
