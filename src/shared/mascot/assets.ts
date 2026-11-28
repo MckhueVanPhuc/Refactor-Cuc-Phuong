@@ -26,6 +26,7 @@ const POSE_FILE: Record<PoseId, string> = {
   walk: 'ma-15-walk',
   peek: 'ma-16-peek',
   proud: 'ma-17-proud',
+  pointLeft: 'ma-18-point-left',
 };
 
 /** Tư thế đợt 4 thiếu ảnh → dùng tư thế cũ gần nhất (Behavior Matrix §3b; contracts/motion-ui-contract.md §5). */
@@ -35,6 +36,7 @@ export const POSE_FALLBACK: Partial<Record<PoseId, PoseId>> = {
   walk: 'map',
   peek: 'rest',
   proud: 'cheer',
+  pointLeft: 'point',
 };
 
 export type PoseAsset = { src240: string; src480: string };

@@ -21,6 +21,13 @@ describe('poseAsset', () => {
   });
 });
 
+describe('đợt 5 (2026-11-28)', () => {
+  it('pointLeft có ảnh 240/480 của chính tư thế; thiếu ảnh thì lùi về point', () => {
+    expect(poseAsset('pointLeft')?.src240).toMatch(/ma-18-point-left-240.webp$/);
+    expect(poseAsset('pointLeft')?.src480).toMatch(/ma-18-point-left-480.webp$/);
+  });
+});
+
 describe('đợt 4 (specs/006 T040; spec-Mascot v1.4)', () => {
   it('sorry, amazed, walk, peek, proud có ảnh 240/480 của chính tư thế', () => {
     const files = { sorry: 'ma-12-sorry', amazed: 'ma-14-amazed', walk: 'ma-15-walk', peek: 'ma-16-peek', proud: 'ma-17-proud' } as const;
@@ -32,7 +39,7 @@ describe('đợt 4 (specs/006 T040; spec-Mascot v1.4)', () => {
   });
 
   it('thiếu ảnh thì dùng tư thế cũ gần nhất (contracts §5)', () => {
-    expect(POSE_FALLBACK).toEqual({ sorry: 'confused', amazed: 'thumbsUp', walk: 'map', peek: 'rest', proud: 'cheer' });
+    expect(POSE_FALLBACK).toEqual({ sorry: 'confused', amazed: 'thumbsUp', walk: 'map', peek: 'rest', proud: 'cheer', pointLeft: 'point' });
     for (const fallback of Object.values(POSE_FALLBACK)) expect(poseAsset(fallback!)).not.toBeNull();
   });
 });

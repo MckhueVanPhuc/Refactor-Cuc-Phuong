@@ -21,7 +21,9 @@ export type PoseId =
   | 'amazed'
   | 'walk'
   | 'peek'
-  | 'proud';
+  | 'proud'
+  // Đợt 5 (2026-11-28): toàn thân chỉ sang trái, vào nút Gợi ý tuyến ở hero Danh mục tuyến
+  | 'pointLeft';
 export type AnimationId =
   | 'enter'
   | 'exit'

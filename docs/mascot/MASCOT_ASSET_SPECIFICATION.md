@@ -89,7 +89,8 @@ Cột Status: **NEEDED-v1** (tối thiểu cho bản đầu), **v1.1**, **v2**, 
 | MA-09 | confused | Nửa thân | Gãi đầu, bối rối nhẹ (không buồn bã) | WebP 240/480 | Lỗi, INLINE | MAS-B-007, 015, 022, 024, 025, 031, 038, 046, 047, 072 | READY 2026-11-22 |
 | MA-10 | rest | Tư thế toàn thân | Ngồi nghỉ, thư thái | WebP 240/480 | Trạng thái rỗng, nhắc nghỉ | MAS-B-006, 023, 049, 057 | READY 2026-11-22 |
 | MA-11 | avatar | Avatar tròn | Mặt cười, khăn, nền tròn xanh | WebP 96/192 | Đầu bong bóng AVATAR | MAS-B-010, 014, 040, 050 (AVATAR) | READY 2026-11-22 |
-| MA-13 | point | Nửa thân | Chỉ tay sang ngang | WebP 240/480 | Hướng dẫn | MAS-B-008, 009, 013, 014, 032, 040, 042, 048, 059 | READY 2026-11-23 |
+| MA-13 | point | Nửa thân | Chỉ tay sang ngang | WebP 240/480 | Hướng dẫn | MAS-B-013, 014, 032, 040, 042, 048, 059 (MAS-B-008, 009 dùng MA-18 từ 2026-11-28) | READY 2026-11-23 |
+| MA-18 | point-left | Toàn thân | Chỉ tay sang **trái** (vào nút Gợi ý tuyến ở hero Danh mục tuyến); cùng cỡ, cùng đường chân MA-02 | WebP 240/480 | DOCK SCR-M01-001 | MAS-B-008, 009 (thiếu ảnh dùng MA-13) | READY 2026-11-28 (đợt 5, quyền sử dụng xác nhận 2026-11-28) |
 | MA-12 | sorry | Nửa thân | Hai tay chắp trước ngực, cúi nhẹ, xin lỗi nhẹ (không buồn bã) | WebP 240/480 | `CONFLICT` | MAS-B-072 (tới khi có ảnh dùng MA-09) | READY 2026-11-24 |
 | MA-14 | amazed | Nửa thân | Hai tay đưa lên má, mắt mở to, miệng "wow" | WebP 240/480 | AVATAR cạnh toast trang nội dung | MAS-B-050 (lượt ghé thường, cấp 1; tới khi có ảnh dùng MA-07) | READY 2026-11-24 |
 | MA-15 | walk | Toàn thân, nhìn ngang sang phải | Đang sải bước; khung 2 `ma-15-walk-f2` bước chân ngược lại | WebP 240/480 | DOCK SCR-M02-001 | MAS-B-056 (quay lại sau lượt ghé mới; tới khi có ảnh dùng MA-02); AN-WALK | READY 2026-11-24 (khung 2 bước: READY) |
