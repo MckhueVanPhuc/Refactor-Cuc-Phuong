@@ -13,11 +13,17 @@ import type { SyncStatus } from '../storage/rows';
 import { checkpointVisitsTable, pendingSyncItemsTable, playSessionsTable } from '../storage/tables';
 import { fakeM01 } from '../testing/fakeM01Port';
 import { PRELOAD_TIMEOUT_MS, preloadM02Routes } from '../testing/preloadRoutes';
-import { endPackageView } from './useEndPackageView';
+import { lookupClient } from '../api/lookupClient';
+import { mediaUrlClient } from '../api/mediaUrl';
+import type { FakeLookup } from '../api/fake/fakeLookup';
+import { endPackageView, lookupCheckpointImageRefs } from './useEndPackageView';
 
 vi.mock('../m01Port', () => import('../testing/fakeM01Port'));
-vi.mock('../api/mediaUrl', () => ({ mediaUrlClient: { signedUrls: async () => new Map() } }));
+vi.mock('../api/mediaUrl', () => ({ mediaUrlClient: { signedUrls: vi.fn(async () => new Map<string, string>()) } }));
 vi.mock('../api/lookupClient', async () => ({ lookupClient: (await import('../api/fake/fakeLookup')).createFakeLookup() }));
+
+const fakeLookup = lookupClient as FakeLookup;
+const mockSignedUrls = vi.mocked(mediaUrlClient.signedUrls);
 
 beforeAll(() => preloadM02Routes(), PRELOAD_TIMEOUT_MS);
 
@@ -71,6 +77,8 @@ const at = (hhmm: string) => {
 
 beforeEach(() => {
   fakeM01.reset();
+  fakeLookup.reset();
+  mockSignedUrls.mockImplementation(async () => new Map());
   fakeM01.setLanguage({ languageCode: 'vi' });
   vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: vi.fn(() => 'blob:thumb'), revokeObjectURL: vi.fn() }));
 });
@@ -123,13 +131,26 @@ describe('SCR-M02-003 — bố cục kết quả (CHG-MASCOT-2026-11-28-10)', ()
     for (const img of document.querySelectorAll('img[data-end-thumb]')) expect(img.getAttribute('alt')).toBe('');
   });
 
-  it('không có gói: không tên tuyến, không dòng nhỏ; mọi ảnh nhỏ là ô biểu tượng', async () => {
+  it('không có gói nhưng có mạng: lấy ảnh từ bất kỳ mã QR nào của từng điểm dừng qua live lookup; offline/không ký được → ô biểu tượng', async () => {
     await seedEnded({ C1: at('09:22') });
     open();
     await waitFor(() => expect(summary().textContent).toContain(`1/3 ${viMessages.end.visitedCount}`));
     expect(screen.queryByText(viMessages.end.routeYours)).toBeNull();
     expect(screen.queryByText('Tuyến A')).toBeNull();
     expect(items().map((li) => li.querySelector('[data-end-thumb]')?.getAttribute('data-end-thumb'))).toEqual(['placeholder', 'placeholder', 'placeholder']);
+  });
+
+  it('không có gói hoặc điểm ONLINE_AVAILABLE không nằm trong gói: tự lấy ảnh của QR trong điểm dừng đó qua live lookup', async () => {
+    mockSignedUrls.mockImplementation(async (refs) => new Map(refs.map((r) => [r, `https://signed.test/${r}`])));
+    await seedEnded({ C1: at('09:22') });
+    open();
+    await waitFor(() =>
+      expect(items().map((li) => (li.querySelector('img[data-end-thumb]') as HTMLImageElement | null)?.src)).toEqual([
+        'https://signed.test/img/Q1a-live.png',
+        'https://signed.test/img/Q2-live.png',
+        'https://signed.test/img/Q3-live.png',
+      ]),
+    );
   });
 
   it('nhãn gửi nằm ngay dưới danh sách; hai lối ra: "Gợi ý tuyến tiếp theo" (/recommend) trước "Về danh sách tuyến" (/)', async () => {
@@ -179,7 +200,7 @@ describe('SCR-M02-003 — bố cục kết quả (CHG-MASCOT-2026-11-28-10)', ()
   });
 });
 
-describe('endPackageView', () => {
+describe('endPackageView & lookupCheckpointImageRefs', () => {
   it('ảnh đầu tiên của resource đầu tiên có ảnh, theo checkpointId; version là của gói', () => {
     const pkg = readyPackage(4);
     const view = endPackageView(pkg);
@@ -187,5 +208,26 @@ describe('endPackageView', () => {
     expect(view.thumbnails.get('C1')).toEqual({ routeId: ROUTE_A, contentVersion: 4, sourceRef: 'img/Q1a.png' });
     expect(view.thumbnails.has('C2')).toBe(false);
     expect(view.thumbnails.get('C3')?.sourceRef).toBe('img/Q3.png');
+  });
+
+  it('mã QR đầu của điểm dừng không có ảnh → lấy ảnh của mã QR tiếp theo trong cùng điểm dừng đó', async () => {
+    fakeLookup.set('Q1a', {
+      kind: 'VALID',
+      content: {
+        qrIdentifier: 'Q1a',
+        checkpointId: 'C1',
+        checkpointName: { vi: 'Cổng rừng', en: 'Forest gate' },
+        connectivityMode: 'OFFLINE_REQUIRED',
+        objectName: { vi: 'Q1a', en: 'Q1a' },
+        localizedContent: { vi: { introductionText: 'vi' }, en: { introductionText: 'en' } },
+        staticImages: [],
+        mediaResources: [],
+      },
+    });
+    const refs = await lookupCheckpointImageRefs(CHECKPOINTS, new Map(), new Set(['C3']), fakeLookup);
+    // C1 bỏ qua Q1a (không có ảnh) và lấy ảnh của Q1b; C2 lấy ảnh của Q2; C3 đã có trong gói nên không tra cứu
+    expect(refs.get('C1')).toBe('img/Q1b-live.png');
+    expect(refs.get('C2')).toBe('img/Q2-live.png');
+    expect(refs.has('C3')).toBe(false);
   });
 });

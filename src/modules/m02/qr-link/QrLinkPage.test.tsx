@@ -101,12 +101,13 @@ describe('QrLinkPage', () => {
     expect(fakeLookup.calls).toEqual([{ qrIdentifier: 'Q1a' }]);
   });
 
-  it('có phiên cùng trình duyệt → như quét trong app: lượt ghé, phản hồi ghi nhận, gửi routeId', async () => {
+  it('có phiên cùng trình duyệt → như quét trong app: lượt ghé, phản hồi ghi nhận, gửi routeId; trang mở từ camera không có nút Quay lại', async () => {
     fakeM01.setLanguage({ languageCode: 'vi' });
     await seedSession();
     openLink('/q/Q1b');
     expect(await screen.findByText(viMessages.trip.visitRecorded)).toBeTruthy();
     expect(screen.queryByText(viMessages.notice.freeVisitor)).toBeNull();
+    expect(screen.queryByRole('link', { name: viMessages.content.back })).toBeNull();
     expect(await checkpointVisitsTable.toArray()).toEqual([expect.objectContaining({ checkpointId: 'C1', qrIdentifier: 'Q1b' })]);
     expect(fakeLookup.calls).toEqual([{ qrIdentifier: 'Q1b', routeId: ROUTE_A }]);
   });

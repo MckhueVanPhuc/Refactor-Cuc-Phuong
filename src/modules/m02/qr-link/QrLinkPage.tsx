@@ -52,7 +52,7 @@ export function QrLinkPage() {
       <ScanContent
         scan={scan}
         qrIdentifier={qrIdentifier}
-        showBack={Boolean(scan?.session)}
+        showBack={false}
         onRetry={() => {
           pending.current = null;
           setAttempt((n) => n + 1);

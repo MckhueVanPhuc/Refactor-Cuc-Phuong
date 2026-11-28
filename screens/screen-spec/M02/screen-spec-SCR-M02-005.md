@@ -57,7 +57,7 @@ Không có mockup HTML trong repo. Không dùng mockup để suy ngược busine
 | 2 | Trình quét | Đọc được mã | Xử lý như trình quét trong app của SCR-M02-001: link sai môi trường → mã không hợp lệ, không tra cứu; có phiên → gửi `routeId`, ghi lượt ghé khi được chấp nhận rồi mới hiện nội dung; không có phiên → khách tự do, không gửi `routeId`, không ghi gì | `SCR-M02-002` hoặc Stay notice |
 | 3 | Đóng camera / Quay lại | Tap | Tắt camera | Màn M01 đã mở thanh tab |
 | 4 | Quét QR | Tap | Mở lại trình quét | State: Scanning |
-| 5 | Nội dung (SCR-M02-002) | "Quay lại" | Có phiên → về hành trình; khách tự do → về màn M01 đã mở thanh tab | `SCR-M02-001` hoặc màn M01 |
+| 5 | Nội dung (SCR-M02-002) | "Quay lại" / "Chọn tuyến" | Có phiên → "Quay lại" về hành trình; khách tự do → "Chọn tuyến" về danh mục tuyến | `SCR-M02-001` hoặc `SCR-M01-001` |
 
 ## 6. Screen-level rules
 
